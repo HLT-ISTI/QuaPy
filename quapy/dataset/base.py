@@ -1,6 +1,5 @@
 import numpy as np
-from scipy.sparse import issparse, dok_matrix
-from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.sparse import issparse
 from sklearn.model_selection import train_test_split
 from quapy.functional import artificial_prevalence_sampling
 from scipy.sparse import vstack

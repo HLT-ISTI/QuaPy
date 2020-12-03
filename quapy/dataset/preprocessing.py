@@ -1,7 +1,7 @@
+import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from dataset.base import Dataset
 from scipy.sparse import spmatrix
-import numpy as np
 from utils.util import parallelize
 from .base import LabelledCollection
 
@@ -17,8 +17,8 @@ def text2tfidf(dataset:Dataset, min_df=3, sublinear_tf=True, inplace=False, **kw
     :return: a new Dataset in csr_matrix format (if inplace=False) or a reference to the current Dataset (inplace=True)
     where the instances are stored in a csr_matrix of real-valued tfidf scores
     """
-    __check_type(dataset.training.instances, list, str)
-    __check_type(dataset.test.instances, list, str)
+    __check_type(dataset.training.instances, np.ndarray, str)
+    __check_type(dataset.test.instances, np.ndarray, str)
 
     vectorizer = TfidfVectorizer(min_df=min_df, sublinear_tf=sublinear_tf, **kwargs)
     training_documents = vectorizer.fit_transform(dataset.training.instances)
@@ -45,8 +45,8 @@ def reduce_columns(dataset:Dataset, min_df=5, inplace=False):
     :return: a new Dataset (if inplace=False) or a reference to the current Dataset (inplace=True)
     where the dimensions corresponding to infrequent instances have been removed
     """
-    __check_type(dataset.training, spmatrix)
-    __check_type(dataset.test, spmatrix)
+    __check_type(dataset.training.instances, spmatrix)
+    __check_type(dataset.test.instances, spmatrix)
     assert dataset.training.instances.shape[1] == dataset.test.instances.shape[1], 'unaligned vector spaces'
 
     def filter_by_occurrences(X, W):
@@ -101,7 +101,7 @@ def __check_type(container, container_type=None, element_type=None):
         assert isinstance(container, container_type), \
             f'unexpected type of container (expected {container_type}, found {type(container)})'
     if element_type:
-        assert isinstance(next(container), element_type), \
+        assert isinstance(container[0], element_type), \
             f'unexpected type of element (expected {container_type}, found {type(container)})'
 
 
