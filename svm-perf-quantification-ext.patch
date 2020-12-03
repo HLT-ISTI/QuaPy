@@ -1,0 +1,540 @@
+diff -ruN svm_perf/svm_struct/svm_struct_main.c svm_perf_quantification/svm_struct/svm_struct_main.c
+--- svm_perf/svm_struct/svm_struct_main.c	2020-10-28 12:23:19.000000000 +0100
++++ svm_perf_quantification/svm_struct/svm_struct_main.c	2020-10-28 12:23:53.000000000 +0100
+@@ -128,7 +128,8 @@
+   struct_parm->newconstretrain=100;
+   struct_parm->ccache_size=5;
+   struct_parm->batch_size=100;
+-
++  struct_parm->loss_parm=1.0;
++  struct_parm->beta=1.0; // AIC-QBETA
+   strcpy (modelfile, "svm_struct_model");
+   strcpy (learn_parm->predfile, "trans_predictions");
+   strcpy (learn_parm->alphafile, "");
+@@ -170,6 +171,7 @@
+       case 'p': i++; struct_parm->slack_norm=atol(argv[i]); break;
+       case 'e': i++; struct_parm->epsilon=atof(argv[i]); break;
+       case 'k': i++; struct_parm->newconstretrain=atol(argv[i]); break;
++      case 'j': i++; struct_parm->beta=atof(argv[i]); break; // AIC-QBETA
+       case 'h': i++; learn_parm->svm_iter_to_shrink=atol(argv[i]); break;
+       case '#': i++; learn_parm->maxiter=atol(argv[i]); break;
+       case 'm': i++; learn_parm->kernel_cache_size=atol(argv[i]); break;
+@@ -189,6 +191,7 @@
+       case '-': strcpy(struct_parm->custom_argv[struct_parm->custom_argc++],argv[i]);i++; strcpy(struct_parm->custom_argv[struct_parm->custom_argc++],argv[i]);break; 
+       case 'v': i++; (*struct_verbosity)=atol(argv[i]); break;
+       case 'y': i++; (*verbosity)=atol(argv[i]); break;
++      case '!': i++; struct_parm->loss_parm=atof(argv[i]); break;
+       default: printf("\nUnrecognized option %s!\n\n",argv[i]);
+ 	       print_help();
+ 	       exit(0);
+@@ -396,6 +399,9 @@
+   printf("                        (in the same order as in the training set)\n");
+   printf("Application-Specific Options:\n");
+   print_struct_help();
++  printf("*************************************************\n"); // AIC-QBETA
++  printf("         -j float    -> parameter beta for qbeta-based loss functions (default: 1.0)\n");
++  printf("*************************************************\n");
+   wait_any_key();
+ 
+   printf("\nMore details in:\n");
+diff -ruN svm_perf/svm_struct_api.c svm_perf_quantification/svm_struct_api.c
+--- svm_perf/svm_struct_api.c	2020-10-28 12:23:19.000000000 +0100
++++ svm_perf_quantification/svm_struct_api.c	2020-10-28 12:23:53.000000000 +0100
+@@ -20,6 +20,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <math.h>
+ #include "svm_struct_api.h"
+ #include "svm_light/svm_common.h"
+ #include "svm_struct/svm_struct_common.h"
+@@ -27,7 +28,9 @@
+ 
+ #define MAX(x,y)      ((x) < (y) ? (y) : (x))
+ #define MIN(x,y)      ((x) > (y) ? (y) : (x))
++#define ABS(x)      ((x) < (0) ? (-(x)) : (x))
+ #define SIGN(x)       ((x) > (0) ? (1) : (((x) < (0) ? (-1) : (0))))
++#define PI (3.141592653589793)
+ 
+ int compareup(const void *a, const void *b) 
+ {
+@@ -72,6 +75,16 @@
+ double rocarea(LABEL y, LABEL ybar);
+ double prbep(LABEL y, LABEL ybar);
+ double avgprec(LABEL y, LABEL ybar);
++/* AIC-QBETA */
++double gm(int a, int b, int c, int d);
++double nae(int a, int b, int c, int d);
++double ae(int a, int b, int c, int d);
++double rae(int a, int b, int c, int d);
++double Qbeta(int a, int b, int c, int d, double beta);
++double Qbeta_acc(int a, int b, int c, int d, double beta);
++double Qbeta_f1(int a, int b, int c, int d, double beta);
++double Qbeta_gm(int a, int b, int c, int d, double beta);
++/* AIC-QBETA */
+ 
+ double zeroone_loss(int a, int b, int c, int d);
+ double fone_loss(int a, int b, int c, int d);
+@@ -82,6 +95,23 @@
+ double swappedpairs_loss(LABEL y, LABEL ybar);
+ double avgprec_loss(LABEL y, LABEL ybar);
+ 
++double kldiv(int a, int b, int c, int d); // KLD
++double kldiv_loss(int a, int b, int c, int d); // KLD
++double nkldiv_loss(int a, int b, int c, int d); // KLD
++
++double milli_loss(int a, int b, int c, int d); //MILL
++
++/* AIC-QBETA */
++double gm_loss(int a, int b, int c, int d);
++double nae_loss(int a, int b, int c, int d);
++double ae_loss(int a, int b, int c, int d);
++double rae_loss(int a, int b, int c, int d);
++double Qbeta_loss(int a, int b, int c, int d, double beta);
++double Qbeta_acc_loss(int a, int b, int c, int d, double beta);
++double Qbeta_f1_loss(int a, int b, int c, int d, double beta);
++double Qbeta_gm_loss(int a, int b, int c, int d, double beta);
++/* AIC-QBETA */
++
+ void        svm_struct_learn_api_init(int argc, char* argv[])
+ {
+   /* Called in learning part before anything else is done to allow
+@@ -181,10 +211,22 @@
+   /* change label value for better scaling using thresholdmetrics */
+   if((sparm->loss_function == ZEROONE) 
+      || (sparm->loss_function == FONE) 
++	 || (sparm->loss_function == GM) // AIC-QBETA 
++	 || (sparm->loss_function == NAE) // AIC-QBETA 
++	 || (sparm->loss_function == AE) // AIC-QBETA 
++	 || (sparm->loss_function == RAE) // AIC-QBETA 
++	 || (sparm->loss_function == QBETA) // AIC-QBETA 
++	 || (sparm->loss_function == QBETA_ACC) // AIC-QBETA
++	 || (sparm->loss_function == QBETA_F1) // AIC-QBETA 
++	 || (sparm->loss_function == QBETA_GM) // AIC-QBETA
+      || (sparm->loss_function == ERRORRATE)
+      || (sparm->loss_function == PRBEP) 
+      || (sparm->loss_function == PREC_K) 
+-     || (sparm->loss_function == REC_K)) {
++     || (sparm->loss_function == REC_K)
++     || (sparm->loss_function == KLD)
++     || (sparm->loss_function == NKLD)
++     || (sparm->loss_function == MILLI)
++     ) {
+     for(i=0;i<sample.examples[0].x.totdoc;i++) {
+       if(sample.examples[0].y.class[i]>0)
+ 	sample.examples[0].y.class[i]=0.5*100.0/(numn+nump);
+@@ -520,10 +562,22 @@
+   LABEL ybar;
+   if((sparm->loss_function == ZEROONE) 
+      || (sparm->loss_function == FONE) 
++	 || (sparm->loss_function == GM) // AIC-QBETA 
++	 || (sparm->loss_function == NAE) // AIC-QBETA
++	 || (sparm->loss_function == AE) // AIC-QBETA 
++	 || (sparm->loss_function == RAE) // AIC-QBETA
++	 || (sparm->loss_function == QBETA) // AIC-QBETA 
++	 || (sparm->loss_function == QBETA_ACC) // AIC-QBETA
++	 || (sparm->loss_function == QBETA_F1) // AIC-QBETA 
++	 || (sparm->loss_function == QBETA_GM) // AIC-QBETA
+      || (sparm->loss_function == ERRORRATE)
+      || (sparm->loss_function == PRBEP) 
+      || (sparm->loss_function == PREC_K) 
+-     || (sparm->loss_function == REC_K)) {
++     || (sparm->loss_function == REC_K)
++     || (sparm->loss_function == KLD)
++     || (sparm->loss_function == NKLD)
++     || (sparm->loss_function == MILLI)
++     ) {
+     ybar=find_most_violated_constraint_thresholdmetric(x,y,sm,sparm,
+ 						       sparm->loss_type);
+   }
+@@ -562,9 +616,21 @@
+      sparm->loss_type); */
+   else if((sparm->loss_function == ZEROONE) 
+      || (sparm->loss_function == FONE) 
++	 || (sparm->loss_function == GM) // AIC-QBETA 
++	 || (sparm->loss_function == NAE) // AIC-QBETA 
++	 || (sparm->loss_function == AE) // AIC-QBETA 
++	 || (sparm->loss_function == RAE) // AIC-QBETA 
++	 || (sparm->loss_function == QBETA) // AIC-QBETA 
++	 || (sparm->loss_function == QBETA_ACC) // AIC-QBETA
++	 || (sparm->loss_function == QBETA_F1) // AIC-QBETA 
++	 || (sparm->loss_function == QBETA_GM) // AIC-QBETA
+      || (sparm->loss_function == PRBEP) 
+      || (sparm->loss_function == PREC_K) 
+-     || (sparm->loss_function == REC_K)) 
++     || (sparm->loss_function == REC_K)
++     || (sparm->loss_function == KLD)
++     || (sparm->loss_function == NKLD)
++     || (sparm->loss_function == MILLI)
++	  ) 
+     ybar=find_most_violated_constraint_thresholdmetric(x,y,sm,sparm,
+ 						       sparm->loss_type);
+   else if((sparm->loss_function == SWAPPEDPAIRS))
+@@ -741,7 +807,23 @@
+       if(sparm->loss_function == ZEROONE)
+ 	loss=zeroone_loss(a,numn-d,nump-a,d);
+       else if(sparm->loss_function == FONE)
+-	loss=fone_loss(a,numn-d,nump-a,d);
++		  loss=fone_loss(a,numn-d,nump-a,d);
++	  else if(sparm->loss_function == GM)  // AIC-QBETA
++		  loss=gm_loss(a,numn-d,nump-a,d);
++	  else if(sparm->loss_function == NAE)  // AIC-QBETA
++		  loss=nae_loss(a,numn-d,nump-a,d);
++	  else if(sparm->loss_function == AE)  // AIC-QBETA
++		  loss=ae_loss(a,numn-d,nump-a,d);
++	  else if(sparm->loss_function == RAE)  // AIC-QBETA
++		  loss=rae_loss(a,numn-d,nump-a,d);
++	  else if(sparm->loss_function == QBETA)  // AIC-QBETA
++		  loss=Qbeta_loss(a,numn-d,nump-a,d,sparm->beta);
++	  else if(sparm->loss_function == QBETA_ACC)  // AIC-QBETA
++		  loss=Qbeta_acc_loss(a,numn-d,nump-a,d,sparm->beta);
++	  else if(sparm->loss_function == QBETA_F1)  // AIC-QBETA
++		  loss=Qbeta_f1_loss(a,numn-d,nump-a,d,sparm->beta);
++	  else if(sparm->loss_function == QBETA_GM)  // AIC-QBETA
++		  loss=Qbeta_gm_loss(a,numn-d,nump-a,d,sparm->beta);
+       else if(sparm->loss_function == ERRORRATE)
+ 	loss=errorrate_loss(a,numn-d,nump-a,d);
+       else if((sparm->loss_function == PRBEP) && (a+numn-d == nump))
+@@ -750,6 +832,12 @@
+ 	loss=prec_k_loss(a,numn-d,nump-a,d);
+       else if((sparm->loss_function == REC_K) && (a+numn-d <= prec_rec_k)) 
+ 	loss=rec_k_loss(a,numn-d,nump-a,d);
++      else if(sparm->loss_function == KLD) //KLD
++	loss=kldiv_loss(a,numn-d,nump-a,d); //KLD
++      else if(sparm->loss_function == NKLD) //KLD
++	loss=nkldiv_loss(a,numn-d,nump-a,d); //KLD
++      else if(sparm->loss_function == MILLI) //MILLI
++	loss=milli_loss(a,numn-d,nump-a,d); //MILLI
+       else {
+ 	loss=0;
+       }
+@@ -1213,6 +1301,7 @@
+     }
+     /* printf("%f %f\n",y.class[i],ybar.class[i]); */
+   }
++	//printf("********** loss %d (a,b,c,d) (%d,%d,%d,%d) beta=%f\n",sparm->loss_function,a,b,c,d,sparm->beta);
+   /* Return the loss according to the selected loss function. */
+   if(sparm->loss_function == ZEROONE) { /* type 0 loss: 0/1 loss */
+                                   /* return 0, if y==ybar. return 1 else */
+@@ -1221,6 +1310,30 @@
+   else if(sparm->loss_function == FONE) {
+     loss=fone_loss(a,b,c,d);
+   }
++  else if(sparm->loss_function == GM) { // AIC-QBETA
++	  loss=gm_loss(a,b,c,d);
++  }
++  else if(sparm->loss_function == NAE) { // AIC-QBETA
++	  loss=nae_loss(a,b,c,d);
++  }
++  else if(sparm->loss_function == AE) { // AIC-QBETA
++	  loss=ae_loss(a,b,c,d);
++  }
++  else if(sparm->loss_function == RAE) { // AIC-QBETA
++	  loss=rae_loss(a,b,c,d);
++  }
++  else if(sparm->loss_function == QBETA) { // AIC-QBETA
++	  loss=Qbeta_loss(a,b,c,d,sparm->beta);
++  }
++  else if(sparm->loss_function == QBETA_ACC) { // AIC-QBETA
++	  loss=Qbeta_acc_loss(a,b,c,d,sparm->beta);
++  }
++  else if(sparm->loss_function == QBETA_F1) { // AIC-QBETA
++	  loss=Qbeta_f1_loss(a,b,c,d,sparm->beta);
++  }
++  else if(sparm->loss_function == QBETA_GM) { // AIC-QBETA
++	  loss=Qbeta_gm_loss(a,b,c,d,sparm->beta);
++  }
+   else if(sparm->loss_function == ERRORRATE) {
+     loss=errorrate_loss(a,b,c,d);
+   }
+@@ -1242,6 +1355,15 @@
+   else if(sparm->loss_function == AVGPREC) {
+     loss=avgprec_loss(y,ybar);
+   }
++  else if(sparm->loss_function == KLD) { //KLD
++    loss=kldiv_loss(a,b,c,d); //KLD
++  } //KLD
++  else if(sparm->loss_function == NKLD) { //KLD
++    loss=nkldiv_loss(a,b,c,d); //KLD
++  } //KLD
++  else if(sparm->loss_function == MILLI) { //MILLI
++    loss=milli_loss(a,b,c,d); //MILLI
++  } //MILLI
+   else {
+     /* Put your code for different loss functions here. But then
+        find_most_violated_constraint_???(x, y, sm) has to return the
+@@ -1320,6 +1442,16 @@
+     printf("PRBEP    : %5.2f\n",teststats->prbep);
+     printf("ROCArea  : %5.2f\n",teststats->rocarea);
+     printf("AvgPrec  : %5.2f\n",teststats->avgprec);
++	printf("Qb       : %5.2f\n",teststats->Qbeta);
++	printf("Qb (Acc) : %5.2f\n",teststats->Qbeta_acc);
++	printf("Qb (F1)  : %5.2f\n",teststats->Qbeta_f1);
++	printf("Qb (GM)  : %5.2f\n",teststats->Qbeta_gm);
++	printf("NAE      : %5.2f\n",teststats->nae);
++	printf("AE       : %5.2f\n",teststats->ae);
++	printf("RAE      : %5.2f\n",teststats->rae);
++    printf("GM       : %5.2f\n",teststats->gm);
++    printf("KLD       : %5.2f\n",teststats->kld);
++    printf("NKLD       : %5.2f\n",teststats->nkld);
+   }
+   else {
+     printf("NOTE: %ld test examples are unlabeled, so performance cannot be computed. The\n",teststats->test_data_unlabeled);
+@@ -1352,6 +1484,29 @@
+     teststats->recall=100.0-loss(ex.y,ypred,sparm);
+     sparm->loss_function=FONE;
+     teststats->fone=100.0-loss(ex.y,ypred,sparm);
++	  
++    sparm->loss_function=GM;  // AIC-QBETA
++    teststats->gm=100.0-loss(ex.y,ypred,sparm);
++    sparm->loss_function=NAE;  // AIC-QBETA
++    teststats->nae=100.0-loss(ex.y,ypred,sparm);
++    sparm->loss_function=AE;  // AIC-QBETA
++    teststats->ae=100.0-loss(ex.y,ypred,sparm);
++    sparm->loss_function=RAE;  // AIC-QBETA
++    teststats->rae=100.0-loss(ex.y,ypred,sparm);
++    sparm->loss_function=QBETA;  // AIC-QBETA
++    teststats->Qbeta=100.0-loss(ex.y,ypred,sparm);
++    sparm->loss_function=QBETA_ACC;  // AIC-QBETA
++    teststats->Qbeta_acc=100.0-loss(ex.y,ypred,sparm);
++    sparm->loss_function=QBETA_F1;  // AIC-QBETA
++    teststats->Qbeta_f1=100.0-loss(ex.y,ypred,sparm);
++    sparm->loss_function=QBETA_GM;  // AIC-QBETA
++    teststats->Qbeta_gm=100.0-loss(ex.y,ypred,sparm);
++
++    sparm->loss_function=KLD; // KLD
++    teststats->kld=100-loss(ex.y,ypred,sparm);
++    sparm->loss_function=NKLD; // KLD
++    teststats->nkld=100.0-loss(ex.y,ypred,sparm);
++	
+     teststats->prbep=prbep(ex.y,ypred);
+     teststats->rocarea=rocarea(ex.y,ypred);
+     teststats->avgprec=avgprec(ex.y,ypred);
+@@ -1403,6 +1558,7 @@
+   STRUCTMODEL sm;
+   
+   sm.svm_model=read_model(file);
++	sparm->beta = 1;                      // AIC-QBETA *****************************
+   sparm->loss_function=ERRORRATE;
+   sparm->bias=0;
+   sparm->bias_featurenum=0;
+@@ -1514,6 +1670,18 @@
+   printf("    %2d  Prec@k: 100 minus precision at k in percent.\n",PREC_K);
+   printf("    %2d  Rec@k: 100 minus recall at k in percent.\n",REC_K);
+   printf("    %2d  ROCArea: Percentage of swapped pos/neg pairs (i.e. 100 - ROCArea).\n\n",SWAPPEDPAIRS);
++  printf("    %2d  Kullback-Leibler divergence.\n",KLD); //KLD
++  printf("    %2d  Normalized Kullback-Leibler divergence.\n",NKLD); //KLD
++  printf("    %2d  MILLI.\n",MILLI); //MILLI
++  printf("    %2d  GM: geometric mean of tpr and tnr\n",GM); // AIC-QBETA
++  printf("    %2d  NAE: normalized absolute error (Esuli & Sebastiani)\n",NAE); // AIC-QBETA
++  printf("    %2d  AE: absolute error (Esuli & Sebastiani)\n",AE); // AIC-QBETA
++  printf("    %2d  RAE: relative absolute error (Esuli & Sebastiani)\n",RAE); // AIC-QBETA
++  printf("    %2d  Qbeta: 100 minus the Qbeta-score in percent (with recall)\n",QBETA); // AIC-QBETA
++  printf("    %2d  Qbeta_acc: 100 minus the Qbeta-score in percent (with acc)\n",QBETA_ACC); // AIC-QBETA
++  printf("    %2d  Qbeta_f1: 100 minus the Qbeta-score in percent (with F1)\n",QBETA_F1); // AIC-QBETA
++  printf("    %2d  Qbeta_gm: 100 minus the Qbeta-score in percent (with GM)\n",QBETA_GM); // AIC-QBETA
++	
+   printf("NOTE: The '-c' parameters in SVM-light and SVM-perf are related as\n");
+   printf("      c_light = c_perf*100/n for the 'Errorrate' loss function, where n is the\n");
+   printf("      number of training examples.\n\n");
+@@ -1785,7 +1953,65 @@
+   free(predset);
+   return(100.0*(apr/(double)(nump)));
+ }
+-
++/* AIC-QBETA */
++double tnr(int a, int b, int c, int d) 
++{
++	/* Returns tnr as fractional value. */
++	if((b+d) == 0) return(0.0);
++	return((double)d/(double)(b+d));
++}
++double gm(int a, int b, int c, int d) 
++{
++	double tprate = rec(a,b,c,d);
++	double tnrate = tnr(a,b,c,d);
++	return sqrt( tprate * tnrate );
++}
++double nae(int a, int b, int c, int d) 
++{
++	double maximo = (a+c > b+d? a+c: b+d);
++	return 1.0 - ( (double)abs(c-b) / maximo);
++	//return 1.0 - ( (double)abs(c-b) / (double)(a+b+c+d)); // ABSERR
++}
++double ae(int a, int b, int c, int d) 
++{
++	return (double)abs(c-b) / (double)(a+b+c+d) ; // ABSERR
++}
++double rae(int a, int b, int c, int d) 
++{
++	double absdif = (double)abs(c-b) ;
++	double smooth_rae_pos = absdif / ((double)(a+c+0.5)) ;
++	double smooth_rae_neg = absdif / ((double)(b+d+0.5)) ;
++	return 0.5*(smooth_rae_pos + smooth_rae_neg) ; 
++}
++double Qbeta(int a, int b, int c, int d, double beta) 
++{
++	if(a+c == 0) return(0.0);
++	double qperf=nae(a,b,c,d);
++	double cperf=rec(a,b,c,d);
++	return((1+beta*beta)*qperf*cperf/((beta*beta*cperf)+qperf));
++}
++double Qbeta_acc(int a, int b, int c, int d, double beta) 
++{
++	if(a+c == 0) return(0.0);
++	double qperf=nae(a,b,c,d);
++	double cperf=1.0-errorrate(a,b,c,d);
++	return((1+beta*beta)*qperf*cperf/((beta*beta*cperf)+qperf));
++}
++double Qbeta_f1(int a, int b, int c, int d, double beta) 
++{
++	if(a+c == 0) return(0.0);
++	double qperf=nae(a,b,c,d);
++	double cperf=fone(a,b,c,d);
++	return((1+beta*beta)*qperf*cperf/((beta*beta*cperf)+qperf));
++}
++double Qbeta_gm(int a, int b, int c, int d, double beta) 
++{
++	if(a+c == 0) return(0.0);
++	double qperf=nae(a,b,c,d);
++	double cperf=gm(a,b,c,d);
++	return((1+beta*beta)*qperf*cperf/((beta*beta*cperf)+qperf));
++}
++/* AIC-QBETA */
+ /*------- Loss functions based on performance measures --------*/
+ 
+ double zeroone_loss(int a, int b, int c, int d) 
+@@ -1846,4 +2072,70 @@
+ }
+ 
+ 
++//KLD
++double kldiv(int a, int b, int c, int d)
++{
++  double sum = a+b+c+d+1.0;
++  double pab = (a+b+0.5)/sum;
++  double pac = (a+c+0.5)/sum;
++  double pbd = (b+d+0.5)/sum;
++  double pcd = (c+d+0.5)/sum;
++
++  double kl = pac*log(pac/pab)+pbd*log(pbd/pcd);
++
++  return kl;
++}
++
++//KLD
++double kldiv_loss(int a, int b, int c, int d)
++{
++  return kldiv(a,b,c,d);
++}
++
++//KLD
++double nkldiv_loss(int a, int b, int c, int d)
++{
++  return 100.0-(100.0*2.0/(1.0+exp(kldiv(a,b,c,d))));
++}
++
++//MILLI
++double milli_loss(int a, int b, int c, int d)
++{
++  int sum = a+b+c+d;
++  return 100.0*(b+c)*ABS(b-c);
++}
+ 
++/* AIC-QBETA */
++double gm_loss(int a, int b, int c, int d) 
++{	
++	return  100.0 * (1.0-gm(a,b,c,d));
++}
++double nae_loss(int a, int b, int c, int d) 
++{	
++	return  100.0 * (1.0-nae(a,b,c,d));
++}
++double ae_loss(int a, int b, int c, int d) 
++{	
++	return  100.0 * ae(a,b,c,d);
++}
++double rae_loss(int a, int b, int c, int d) 
++{	
++	return  100.0 * rae(a,b,c,d);
++}
++double Qbeta_loss(int a, int b, int c, int d,double beta) 
++{
++	return(100.0*(1.0-Qbeta(a,b,c,d,beta)));
++}
++double Qbeta_acc_loss(int a, int b, int c, int d,double beta) 
++{
++	return(100.0*(1.0-Qbeta_acc(a,b,c,d,beta)));
++}
++double Qbeta_f1_loss(int a, int b, int c, int d,double beta) 
++{
++	return(100.0*(1.0-Qbeta_f1(a,b,c,d,beta)));
++}
++double Qbeta_gm_loss(int a, int b, int c, int d,double beta) 
++{
++	return(100.0*(1.0-Qbeta_gm(a,b,c,d,beta)));
++}
++/* AIC-QBETA */
+diff -ruN svm_perf/svm_struct_api_types.h svm_perf_quantification/svm_struct_api_types.h
+--- svm_perf/svm_struct_api_types.h	2020-10-28 12:23:19.000000000 +0100
++++ svm_perf_quantification/svm_struct_api_types.h	2020-10-28 12:23:53.000000000 +0100
+@@ -28,14 +28,25 @@
+ # define INST_VERSION_DATE  "15.07.2009"
+ 
+ /* Identifiers for loss functions */
+-#define ZEROONE      0
+-#define FONE         1
+-#define ERRORRATE    2
+-#define PRBEP        3
+-#define PREC_K       4
+-#define REC_K        5
+-#define SWAPPEDPAIRS 10
+-#define AVGPREC      11
++#define ZEROONE       0
++#define FONE          1
++#define ERRORRATE     2
++#define PRBEP         3
++#define PREC_K        4
++#define REC_K         5
++#define SWAPPEDPAIRS  10
++#define AVGPREC       11
++#define KLD         12 //KLD
++#define NKLD         13 //KLD
++#define MILLI         16 //MILLI
++#define GM			 20 // AIC-QBETA
++#define NAE			 21 // AIC-QBETA
++#define QBETA        22 // AIC-QBETA
++#define QBETA_ACC    23 // AIC-QBETA
++#define QBETA_F1     24 // AIC-QBETA
++#define QBETA_GM     25 // AIC-QBETA
++#define AE			 26 // AIC-QBETA
++#define RAE			 27 // AIC-QBETA
+ 
+ /* default precision for solving the optimization problem */
+ # define DEFAULT_EPS         0.1 
+@@ -169,6 +180,8 @@
+ 				  svm_perf_classify. This uses more
+ 				  memory, but is faster if the support
+ 				  vectors in the model are dense. */
++  double loss_parm;
++  double beta; /* AIC-QBETA */
+ } STRUCT_LEARN_PARM;
+ 
+ typedef struct struct_test_stats {
+@@ -183,6 +196,16 @@
+   double prbep;
+   double rocarea;
+   double avgprec;
++  double kld; //KLD
++  double nkld; //KLD
++  double gm; // AIC-QBETA
++  double nae; // AIC-QBETA
++  double ae; // AIC-QBETA
++  double rae; // AIC-QBETA
++  double Qbeta; // AIC-QBETA
++  double Qbeta_acc; // AIC-QBETA
++  double Qbeta_f1; // AIC-QBETA
++  double Qbeta_gm; // AIC-QBETA
+ } STRUCT_TEST_STATS;
+ 
+ typedef struct struct_id_score {
