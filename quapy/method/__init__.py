@@ -9,6 +9,7 @@ AGGREGATIVE_METHODS = {
     agg.ProbabilisticAdjustedClassifyAndCount,
     agg.ExplicitLossMinimisation,
     agg.ExpectationMaximizationQuantifier,
+    agg.HellingerDistanceY
 }
 
 NON_AGGREGATIVE_METHODS = {
@@ -19,12 +20,6 @@ QUANTIFICATION_METHODS = AGGREGATIVE_METHODS | NON_AGGREGATIVE_METHODS
 
 
 # common alisases
-CC = agg.ClassifyAndCount
-ACC = agg.AdjustedClassifyAndCount
-PCC = agg.ProbabilisticClassifyAndCount
-PACC = agg.ProbabilisticAdjustedClassifyAndCount
-ELM = agg.ExplicitLossMinimisation
-EMQ = agg.ExpectationMaximizationQuantifier
 MLPE = nagg.MaximumLikelihoodPrevalenceEstimation
 
 

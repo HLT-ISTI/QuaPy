@@ -1,3 +1,4 @@
 Documentation with sphinx
+Document methods with paper references
 The parallel training in svmperf seems not to work
 Add "prepare svmperf for quantification" script

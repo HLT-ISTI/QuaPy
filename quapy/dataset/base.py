@@ -43,13 +43,13 @@ class LabelledCollection:
 
     @property
     def binary(self):
-        return self.n_classes==2
+        return self.n_classes == 2
 
     def sampling_index(self, size, *prevs, shuffle=True):
         if len(prevs) == self.n_classes-1:
             prevs = prevs + (1-sum(prevs),)
         assert len(prevs) == self.n_classes, 'unexpected number of prevalences'
-        assert sum(prevs) == 1, f'prevalences ({prevs}) out of range (sum={sum(prevs)})'
+        assert sum(prevs) == 1, f'prevalences ({prevs}) wrong range (sum={sum(prevs)})'
 
         taken = 0
         indexes_sample = []

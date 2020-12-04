@@ -1,5 +1,6 @@
 from sklearn.metrics import f1_score
-from settings import SAMPLE_SIZE
+
+SAMPLE_SIZE = None
 
 
 def f1e(y_true, y_pred):
@@ -20,11 +21,21 @@ def ae(p, p_hat):
     return abs(p_hat-p).mean(axis=-1)
 
 
-def mrae(p, p_hat, eps=1./(2. * SAMPLE_SIZE)):
+def __check_eps(eps):
+    if eps is None:
+        if SAMPLE_SIZE is None:
+            raise ValueError('eps was not defined, and qp.error.SAMPLE_SIZE was not set')
+        else:
+            eps = 1. / (2. * SAMPLE_SIZE)
+    return eps
+
+
+def mrae(p, p_hat, eps=None):
     return rae(p, p_hat, eps).mean()
 
 
-def rae(p, p_hat, eps=1./(2. * SAMPLE_SIZE)):
+def rae(p, p_hat, eps=None):
+    eps = __check_eps(eps)
     p = smooth(p, eps)
     p_hat = smooth(p_hat, eps)
     return (abs(p-p_hat)/p).mean(axis=-1)
