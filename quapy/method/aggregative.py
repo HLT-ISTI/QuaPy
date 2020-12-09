@@ -1,14 +1,14 @@
 import numpy as np
-from .base import *
-from ..error import mae
+from copy import deepcopy
 import functional as F
-from ..classification.svmperf import SVMperf
-from ..dataset import LabelledCollection
+import error
+from method.base import BaseQuantifier
+from quapy.classification.svmperf import SVMperf
+from quapy.data import LabelledCollection
 from sklearn.metrics import confusion_matrix
 from sklearn.calibration import CalibratedClassifierCV
 from joblib import Parallel, delayed
-
-
+from abc import abstractmethod
 
 
 # Abstract classes
@@ -22,6 +22,14 @@ class AggregativeQuantifier(BaseQuantifier):
 
     @abstractmethod
     def fit(self, data: LabelledCollection, fit_learner=True, *args): ...
+
+    @property
+    def learner(self):
+        return self.learner_
+
+    @learner.setter
+    def learner(self, value):
+        self.learner_ = value
 
     def classify(self, instances):
         return self.learner.predict(instances)
@@ -69,12 +77,12 @@ def training_helper(learner,
     Training procedure common to all Aggregative Quantifiers.
     :param learner: the learner to be fit
     :param data: the data on which to fit the learner. If requested, the data will be split before fitting the learner.
-    :param fit_learner: whether or not to fit the learner
+    :param fit_learner: whether or not to fit the learner (if False, then bypasses any action)
     :param ensure_probabilistic: if True, guarantees that the resulting classifier implements predict_proba (if the
     learner is not probabilistic, then a CalibratedCV instance of it is trained)
     :param train_val_split: if specified, indicates the proportion of training instances on which to fit the learner
     :return: the learner trained on the training set, and the unused data (a _LabelledCollection_ if train_val_split>0
-    or None otherwise)
+    or None otherwise) to be used as a validation set for any subsequent parameter fitting
     """
     if fit_learner:
         if ensure_probabilistic:
@@ -239,7 +247,7 @@ class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
             # M-step: qs_pos is Ps+1(y=+1)
             qs = ps.mean(axis=0)
 
-            if qs_prev_ is not None and mae(qs, qs_prev_) < epsilon and s>10:
+            if qs_prev_ is not None and error.mae(qs, qs_prev_) < epsilon and s>10:
                 converged = True
 
             qs_prev_ = qs
@@ -265,7 +273,8 @@ class HellingerDistanceY(AggregativeProbabilisticQuantifier):
         self.learner = learner
 
     def fit(self, data: LabelledCollection, fit_learner=True, train_val_split=0.6):
-        assert data.binary, f'{self.__class__.__name__} works only on problems of binary classification'
+        assert data.binary, f'{self.__class__.__name__} works only on problems of binary classification. ' \
+                            f'Use the class OneVsAll to enable {self.__class__.__name__} work on single-label data.'
         self.learner, validation = training_helper(
             self.learner, data, fit_learner, ensure_probabilistic=True, train_val_split=train_val_split)
         Px = self.soft_classify(validation.instances)
@@ -304,15 +313,19 @@ class HellingerDistanceY(AggregativeProbabilisticQuantifier):
 
 
 class OneVsAll(AggregativeQuantifier):
+    """
+    Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary
+    quantifier for each class, and then l1-normalizes the outputs so that the class prevelences sum up to 1.
+    """
 
-    def __init__(self, binary_method, n_jobs=-1, **kwargs):
+    def __init__(self, binary_method, n_jobs=-1):
         self.binary_method = binary_method
         self.n_jobs = n_jobs
-        self.kwargs = kwargs
 
     def fit(self, data: LabelledCollection, **kwargs):
         assert not data.binary, f'{self.__class__.__name__} expect non-binary data'
-        self.class_method = {c: self.binary_method(**self.kwargs) for c in data.classes_}
+        assert isinstance(self.binary_method, BaseQuantifier), f'{self.binary_method} does not seem to be a Quantifier'
+        self.class_method = {c: deepcopy(self.binary_method) for c in data.classes_}
         Parallel(n_jobs=self.n_jobs, backend='threading')(
             delayed(self._delayed_binary_fit)(c, self.class_method, data, **kwargs) for c in data.classes_
         )
@@ -332,10 +345,10 @@ class OneVsAll(AggregativeQuantifier):
         return sorted(self.class_method.keys())
 
     def set_params(self, **parameters):
-        self.kwargs=parameters
+        self.binary_method.set_params(**parameters)
 
     def get_params(self, deep=True):
-        return self.kwargs
+        return self.binary_method.get_params()
 
     def _delayed_binary_predict(self, c, learners, X):
         return learners[c].classify(X).mean()  # the mean is the estimation for the positive class prevalence
@@ -346,6 +359,12 @@ class OneVsAll(AggregativeQuantifier):
 
 
 class ExplicitLossMinimisation(AggregativeQuantifier):
+    """
+    A variant of Explicit Loss Minimisation based on SVMperf that works also on single-label data. It uses one binary
+    quantifier for each class and then l1-normalizes the class predictions so that they sum up to one.
+    This variant was used in Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
+    Social Network Analysis and Mining6(19), 1–22 (2016)
+    """
 
     def __init__(self, svmperf_base, loss, **kwargs):
         self.svmperf_base = svmperf_base
@@ -354,16 +373,9 @@ class ExplicitLossMinimisation(AggregativeQuantifier):
 
     def fit(self, data: LabelledCollection, fit_learner=True, *args):
         assert fit_learner, 'the method requires that fit_learner=True'
-        if data.binary:
-            self.learner = ExplicitLossMinimisationBinary(self.svmperf_base, self.loss, **self.kwargs)
-        else:
-            self.learner = OneVsAll(
-                binary_method=ExplicitLossMinimisationBinary,
-                n_jobs=-1,
-                svmperf_base=self.svmperf_base,
-                loss=self.loss,
-                **self.kwargs
-            )
+        self.learner = ExplicitLossMinimisationBinary(self.svmperf_base, self.loss, **self.kwargs)
+        if not data.binary:
+            self.learner = OneVsAll(self.learner, n_jobs=-1)
         return self.learner.fit(data, *args)
 
     def quantify(self, instances, *args):
@@ -391,6 +403,7 @@ class ExplicitLossMinimisationBinary(AggregativeQuantifier):
 
     def classify(self, X, y=None):
         return self.learner.predict(X)
+
 
 
 class SVMQ(ExplicitLossMinimisation):

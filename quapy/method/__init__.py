@@ -1,5 +1,6 @@
+from . import base
 from . import aggregative as agg
-from . import non_aggregative as nagg
+from . import non_aggregative
 
 
 AGGREGATIVE_METHODS = {
@@ -13,13 +14,10 @@ AGGREGATIVE_METHODS = {
 }
 
 NON_AGGREGATIVE_METHODS = {
-    nagg.MaximumLikelihoodPrevalenceEstimation
+    non_aggregative.MaximumLikelihoodPrevalenceEstimation
 }
 
 QUANTIFICATION_METHODS = AGGREGATIVE_METHODS | NON_AGGREGATIVE_METHODS
 
-
-# common alisases
-MLPE = nagg.MaximumLikelihoodPrevalenceEstimation
 
 
