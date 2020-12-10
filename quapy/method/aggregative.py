@@ -337,6 +337,10 @@ class OneVsAll(AggregativeQuantifier):
                 delayed(self._delayed_binary_predict)(c, self.class_method, X) for c in self.classes
             )
         )
+<<<<<<< HEAD
+=======
+        print('one vs all: ', prevalences)
+>>>>>>> 2361186a01c53e744f4291e2e2299700216ff139
         return F.normalize_prevalence(prevalences)
 
     @property

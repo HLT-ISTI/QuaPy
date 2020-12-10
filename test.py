@@ -3,6 +3,7 @@ from sklearn.svm import LinearSVC
 import quapy as qp
 import quapy.functional as F
 
+
 SAMPLE_SIZE=500
 binary = False
 
@@ -28,6 +29,7 @@ model = qp.method.aggregative.ClassifyAndCount(learner)
 # model = qp.method.aggregative.ProbabilisticClassifyAndCount(learner)
 # model = qp.method.aggregative.ProbabilisticAdjustedClassifyAndCount(learner)
 # model = qp.method.aggregative.ExpectationMaximizationQuantifier(learner)
+
 model.fit(dataset.training)
 
 # estimating class prevalences
@@ -51,3 +53,4 @@ print(f'Evaluation according to the artificial sampling protocol ({len(true_prev
 for error in qp.error.QUANTIFICATION_ERROR:
     score = error(true_prev, estim_prev)
     print(f'{error.__name__}={score:.5f}')
+

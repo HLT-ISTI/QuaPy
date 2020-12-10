@@ -5,6 +5,7 @@ import contextlib
 import numpy as np
 
 
+
 def get_parallel_slices(n_tasks, n_jobs=-1):
     if n_jobs == -1:
         n_jobs = multiprocessing.cpu_count()
@@ -31,5 +32,4 @@ def temp_seed(seed):
         yield
     finally:
         np.random.set_state(state)
-
 

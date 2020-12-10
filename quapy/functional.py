@@ -77,6 +77,7 @@ def normalize_prevalence(prevalences):
         return np.ones_like(prevalences) / prevalences.size
 
 
+
 def num_prevalence_combinations(nclasses:int, nprevpoints:int, nrepeats:int):
     """
     Computes the number of prevalence combinations in the nclasses-dimensional simplex if nprevpoints equally distant
@@ -118,3 +119,4 @@ def get_nprevpoints_approximation(nclasses, nrepeats, combinations_budget):
             return nprevpoints-1
         else:
             nprevpoints+=1
+
