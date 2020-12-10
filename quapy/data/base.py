@@ -22,12 +22,6 @@ class LabelledCollection:
     def load(cls, path:str, loader_func:callable):
         return LabelledCollection(*loader_func(path))
 
-    @classmethod
-    def load_dataset(cls, train_path, test_path):
-        training = cls.load(train_path)
-        test = cls.load(test_path)
-        return Dataset(training, test)
-
     def __len__(self):
         return self.instances.shape[0]
 
@@ -43,13 +37,13 @@ class LabelledCollection:
 
     @property
     def binary(self):
-        return self.n_classes==2
+        return self.n_classes == 2
 
     def sampling_index(self, size, *prevs, shuffle=True):
         if len(prevs) == self.n_classes-1:
             prevs = prevs + (1-sum(prevs),)
         assert len(prevs) == self.n_classes, 'unexpected number of prevalences'
-        assert sum(prevs) == 1, f'prevalences ({prevs}) out of range (sum={sum(prevs)})'
+        assert sum(prevs) == 1, f'prevalences ({prevs}) wrong range (sum={sum(prevs)})'
 
         taken = 0
         indexes_sample = []
@@ -92,6 +86,11 @@ class LabelledCollection:
         dimensions=self.n_classes
         for prevs in artificial_prevalence_sampling(dimensions, n_prevalences, repeats):
             yield self.sampling(sample_size, *prevs)
+
+    def artificial_sampling_index_generator(self, sample_size, n_prevalences=101, repeats=1):
+        dimensions=self.n_classes
+        for prevs in artificial_prevalence_sampling(dimensions, n_prevalences, repeats):
+            yield self.sampling_index(sample_size, *prevs)
 
     def __add__(self, other):
         if issparse(self.instances) and issparse(other.documents):

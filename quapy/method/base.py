@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-import quapy as qp
 
 
 # Base Quantifier abstract class
@@ -7,10 +6,10 @@ import quapy as qp
 class BaseQuantifier(metaclass=ABCMeta):
 
     @abstractmethod
-    def fit(self, data: qp.LabelledCollection, *args): ...
+    def fit(self, data, *args): ...
 
     @abstractmethod
-    def quantify(self, documents, *args): ...
+    def quantify(self, instances, *args): ...
 
     @abstractmethod
     def set_params(self, **parameters): ...

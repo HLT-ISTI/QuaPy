@@ -1,9 +1,10 @@
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-from dataset.base import Dataset
+from data.base import Dataset
 from scipy.sparse import spmatrix
 from utils.util import parallelize
 from .base import LabelledCollection
+from tqdm import tqdm
 
 
 def text2tfidf(dataset:Dataset, min_df=3, sublinear_tf=True, inplace=False, **kwargs):
@@ -78,8 +79,8 @@ def index(dataset: Dataset, min_df=5, inplace=False, **kwargs):
     :return: a new Dataset (if inplace=False) or a reference to the current Dataset (inplace=True)
     consisting of lists of integer values representing indices.
     """
-    __check_type(dataset.training.instances, list, str)
-    __check_type(dataset.test.instances, list, str)
+    __check_type(dataset.training.instances, np.ndarray, str)
+    __check_type(dataset.test.instances, np.ndarray, str)
 
     indexer = IndexTransformer(min_df=min_df, **kwargs)
     training_index = indexer.fit_transform(dataset.training.instances)
@@ -103,7 +104,6 @@ def __check_type(container, container_type=None, element_type=None):
     if element_type:
         assert isinstance(container[0], element_type), \
             f'unexpected type of element (expected {container_type}, found {type(container)})'
-
 
 
 class IndexTransformer:
@@ -140,7 +140,7 @@ class IndexTransformer:
         return self.fit(X).transform(X, n_jobs=n_jobs)
 
     def vocabulary_size(self):
-        return len(self.vocabulary_) + 1  # the reserved unk token
+        return len(self.vocabulary_)
 
     def add_word(self, word):
         if word in self.vocabulary_:

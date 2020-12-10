@@ -1,3 +1,3 @@
 # QuaPy
 
-A Python framework for Quantification
+A Quantification framework written in Python.

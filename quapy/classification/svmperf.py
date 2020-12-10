@@ -20,12 +20,9 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         self.verbose = verbose
         self.loss = loss
 
-    def set_c(self, C):
-        self.param_C = '-c ' + str(C)
-
     def set_params(self, **parameters):
         assert list(parameters.keys()) == ['C'], 'currently, only the C parameter is supported'
-        self.set_c(parameters['C'])
+        self.C = parameters['C']
 
     def fit(self, X, y):
         assert self.loss in SVMperf.valid_losses, \
@@ -33,8 +30,8 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
         self.svmperf_learn = join(self.svmperf_base, 'svm_perf_learn')
         self.svmperf_classify = join(self.svmperf_base, 'svm_perf_classify')
-        self.loss_cmd = '-l ' + str(self.valid_losses[self.loss])
-        self.set_c(self.C)
+        self.loss_cmd = '-w 3 -l ' + str(self.valid_losses[self.loss])
+        self.c_cmd = '-c ' + str(self.C)
 
         self.classes_ = sorted(np.unique(y))
         self.n_classes_ = len(self.classes_)
@@ -49,7 +46,7 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
         dump_svmlight_file(X, y, traindat, zero_based=False)
 
-        cmd = ' '.join([self.svmperf_learn, self.param_C, self.loss_cmd, traindat, self.model])
+        cmd = ' '.join([self.svmperf_learn, self.c_cmd, self.loss_cmd, traindat, self.model])
         if self.verbose:
             print('[Running]', cmd)
         p = subprocess.run(cmd.split(), stdout=PIPE, stderr=STDOUT)
@@ -60,7 +57,7 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
         return self
 
-    def predict(self, X, y=None):
+    def predict(self, X):
         confidence_scores = self.decision_function(X)
         predictions = (confidence_scores > 0) * 1
         return predictions
