@@ -34,6 +34,13 @@ class AggregativeQuantifier(BaseQuantifier):
     def classify(self, instances):
         return self.learner.predict(instances)
 
+    def quantify(self, instances, *args):
+        classif_predictions = self.classify(instances)
+        return self.aggregate(classif_predictions, *args)
+
+    @abstractmethod
+    def aggregate(self, classif_predictions:np.ndarray, *args): ...
+
     def get_params(self, deep=True):
         return self.learner.get_params()
 
@@ -53,12 +60,16 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
     """
     Abstract class for quantification methods that base their estimations on the aggregation of posterior probabilities
     as returned by a probabilistic classifier. Aggregative Probabilistic Quantifiers thus extend Aggregative
-    Quantifiersimplement by implementing a _soft_classify_ method returning values in [0,1] -- the posterior
+    Quantifiersimplement by implementing a _posterior_probabilities_ method returning values in [0,1] -- the posterior
     probabilities.
     """
 
-    def soft_classify(self, data):
+    def posterior_probabilities(self, data):
         return self.learner.predict_proba(data)
+
+    def quantify(self, instances, *args):
+        classif_posteriors = self.posterior_probabilities(instances)
+        return self.aggregate(classif_posteriors, *args)
 
     def set_params(self, **parameters):
         if isinstance(self.learner, CalibratedClassifierCV):
@@ -128,9 +139,8 @@ class ClassifyAndCount(AggregativeQuantifier):
         self.learner, _ = training_helper(self.learner, data, fit_learner)
         return self
 
-    def quantify(self, instances, *args):
-        classification = self.classify(instances)  # classify
-        return F.prevalence_from_labels(classification, self.n_classes)  # & count
+    def aggregate(self, classif_predictions, *args):
+        return F.prevalence_from_labels(classif_predictions, self.n_classes)
 
 
 class AdjustedClassifyAndCount(AggregativeQuantifier):
@@ -141,17 +151,24 @@ class AdjustedClassifyAndCount(AggregativeQuantifier):
     def fit(self, data: LabelledCollection, fit_learner=True, train_val_split=0.6):
         self.learner, validation = training_helper(self.learner, data, fit_learner, train_val_split=train_val_split)
         self.cc = ClassifyAndCount(self.learner)
-        y_ = self.cc.classify(validation.instances)
+        y_ = self.classify(validation.instances)
         y  = validation.labels
         # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
         self.Pte_cond_estim_ = confusion_matrix(y,y_).T / validation.counts()
         return self
 
-    def quantify(self, instances, *args):
-        prevs_estim = self.cc.quantify(instances)
-        # solve for the linear system Ax = B with A=Pte_cond_estim and B = prevs_estim
-        A = self.Pte_cond_estim_
+    def classify(self, data):
+        return self.cc.classify(data)
+
+    def aggregate(self, classif_predictions, *args):
+        prevs_estim = self.cc.aggregate(classif_predictions)
+        return AdjustedClassifyAndCount.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
+
+    @classmethod
+    def solve_adjustment(cls, PteCondEstim, prevs_estim):
+        # solve for the linear system Ax = B with A=PteCondEstim and B = prevs_estim
+        A = PteCondEstim
         B = prevs_estim
         try:
             adjusted_prevs = np.linalg.solve(A, B)
@@ -160,9 +177,6 @@ class AdjustedClassifyAndCount(AggregativeQuantifier):
         except np.linalg.LinAlgError:
             adjusted_prevs = prevs_estim  # no way to adjust them!
         return adjusted_prevs
-
-    def classify(self, data):
-        return self.cc.classify(data)
 
 
 class ProbabilisticClassifyAndCount(AggregativeProbabilisticQuantifier):
@@ -173,13 +187,11 @@ class ProbabilisticClassifyAndCount(AggregativeProbabilisticQuantifier):
         self.learner, _ = training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
         return self
 
-    def quantify(self, instances, *args):
-        posteriors = self.soft_classify(instances)  # classify
-        prevalences = F.prevalence_from_probabilities(posteriors, binarize=False)  # & count
-        return prevalences
+    def aggregate(self, classif_posteriors, *args):
+        return F.prevalence_from_probabilities(classif_posteriors, binarize=False)
 
 
-class ProbabilisticAdjustedClassifyAndCount(AggregativeQuantifier):
+class ProbabilisticAdjustedClassifyAndCount(AggregativeProbabilisticQuantifier):
 
     def __init__(self, learner):
         self.learner = learner
@@ -189,27 +201,22 @@ class ProbabilisticAdjustedClassifyAndCount(AggregativeQuantifier):
             self.learner, data, fit_learner, ensure_probabilistic=True, train_val_split=train_val_split
         )
         self.pcc = ProbabilisticClassifyAndCount(self.learner)
-        y_ = self.pcc.classify(validation.instances)
+        y_ = self.classify(validation.instances)
         y = validation.labels
         # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
         self.Pte_cond_estim_ = confusion_matrix(y, y_).T / validation.counts()
         return self
 
-    def quantify(self, instances, *args):
-        prevs_estim = self.pcc.quantify(instances)
-        A = self.Pte_cond_estim_
-        B = prevs_estim
-        try:
-            adjusted_prevs = np.linalg.solve(A, B)
-            adjusted_prevs = np.clip(adjusted_prevs, 0, 1)
-            adjusted_prevs /= adjusted_prevs.sum()
-        except np.linalg.LinAlgError:
-            adjusted_prevs = prevs_estim  # no way to adjust them!
-        return adjusted_prevs
+    def aggregate(self, classif_posteriors, *args):
+        prevs_estim = self.pcc.aggregate(classif_posteriors)
+        return AdjustedClassifyAndCount.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
 
     def classify(self, data):
         return self.pcc.classify(data)
+
+    def soft_classify(self, data):
+        return self.pcc.posterior_probabilities(data)
 
 
 class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
@@ -226,10 +233,8 @@ class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
         self.train_prevalence = F.prevalence_from_labels(data.labels, self.n_classes)
         return self
 
-    def quantify(self, X, epsilon=EPSILON):
-        tr_prev=self.train_prevalence
-        posteriors = self.soft_classify(X)
-        return self.EM(tr_prev, posteriors, self.verbose, epsilon)
+    def aggregate(self, classif_posteriors, epsilon=EPSILON):
+        return self.EM(self.train_prevalence, classif_posteriors, self.verbose, epsilon)
 
     @classmethod
     def EM(cls, tr_prev, posterior_probabilities, verbose=False, epsilon=EPSILON):
@@ -277,17 +282,17 @@ class HellingerDistanceY(AggregativeProbabilisticQuantifier):
                             f'Use the class OneVsAll to enable {self.__class__.__name__} work on single-label data.'
         self.learner, validation = training_helper(
             self.learner, data, fit_learner, ensure_probabilistic=True, train_val_split=train_val_split)
-        Px = self.soft_classify(validation.instances)
+        Px = self.posterior_probabilities(validation.instances)
         self.Pxy1 = Px[validation.labels == 1]
         self.Pxy0 = Px[validation.labels == 0]
         return self
 
-    def quantify(self, instances, *args):
+    def aggregate(self, classif_posteriors, *args):
         # "In this work, the number of bins b used in HDx and HDy was chosen from 10 to 110 in steps of 10,
         # and the final estimated a priori probability was taken as the median of these 11 estimates."
         # (González-Castro, et al., 2013).
 
-        Px = self.soft_classify(instances)
+        Px = classif_posteriors
 
         prev_estimations = []
         for bins in np.linspace(10, 110, 11, dtype=int): #[10, 20, 30, ..., 100, 110]
@@ -318,71 +323,87 @@ class OneVsAll(AggregativeQuantifier):
     quantifier for each class, and then l1-normalizes the outputs so that the class prevelences sum up to 1.
     """
 
-    def __init__(self, binary_method, n_jobs=-1):
-        self.binary_method = binary_method
+    def __init__(self, binary_quantifier, n_jobs=-1):
+        self.binary_quantifier = binary_quantifier
         self.n_jobs = n_jobs
 
     def fit(self, data: LabelledCollection, **kwargs):
-        assert not data.binary, f'{self.__class__.__name__} expect non-binary data'
-        assert isinstance(self.binary_method, BaseQuantifier), f'{self.binary_method} does not seem to be a Quantifier'
-        self.class_method = {c: deepcopy(self.binary_method) for c in data.classes_}
-        Parallel(n_jobs=self.n_jobs, backend='threading')(
-            delayed(self._delayed_binary_fit)(c, self.class_method, data, **kwargs) for c in data.classes_
-        )
+        assert not data.binary, \
+            f'{self.__class__.__name__} expect non-binary data'
+        assert isinstance(self.binary_quantifier, BaseQuantifier), \
+            f'{self.binary_quantifier} does not seem to be a Quantifier'
+        self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in data.classes_}
+        self.__parallel(self._delayed_binary_fit, data, **kwargs)
         return self
 
+    def classify(self, instances):
+        classif_predictions_bin = self.__parallel(self._delayed_binary_classification, instances)
+        return classif_predictions_bin.T
+
+    def aggregate(self, classif_predictions_bin, *args):
+        assert set(np.unique(classif_predictions_bin)) == {0,1}, \
+            'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
+            'predictions for each document (row) and class (columns)'
+        prevalences = self.__parallel(self._delayed_binary_aggregate, classif_predictions_bin)
+        return F.normalize_prevalence(prevalences)
+
     def quantify(self, X, *args):
-        prevalences = np.asarray(
+        prevalences = self.__parallel(self._delayed_binary_quantify, X)
+        return F.normalize_prevalence(prevalences)
+
+    def __parallel(self, func, *args, **kwargs):
+        return np.asarray(
             Parallel(n_jobs=self.n_jobs, backend='threading')(
-                delayed(self._delayed_binary_predict)(c, self.class_method, X) for c in self.classes
+                delayed(func)(c, *args, **kwargs) for c in self.classes
             )
         )
-<<<<<<< HEAD
-=======
-        print('one vs all: ', prevalences)
->>>>>>> 2361186a01c53e744f4291e2e2299700216ff139
-        return F.normalize_prevalence(prevalences)
 
     @property
     def classes(self):
-        return sorted(self.class_method.keys())
+        return sorted(self.dict_binary_quantifiers.keys())
 
     def set_params(self, **parameters):
-        self.binary_method.set_params(**parameters)
+        self.binary_quantifier.set_params(**parameters)
 
     def get_params(self, deep=True):
-        return self.binary_method.get_params()
+        return self.binary_quantifier.get_params()
 
-    def _delayed_binary_predict(self, c, learners, X):
-        return learners[c].classify(X).mean()  # the mean is the estimation for the positive class prevalence
+    def _delayed_binary_classification(self, c, X):
+        return self.dict_binary_quantifiers[c].classify(X)
 
-    def _delayed_binary_fit(self, c, learners, data, **kwargs):
+    def _delayed_binary_quantify(self, c, X):
+        return self.dict_binary_quantifiers[c].quantify(X)[1]  # the estimation for the positive class prevalence
+
+    def _delayed_binary_aggregate(self, c, classif_predictions):
+        return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:,c])[1]  # the estimation for the positive class prevalence
+
+    def _delayed_binary_fit(self, c, data, **kwargs):
         bindata = LabelledCollection(data.instances, data.labels == c, n_classes=2)
-        learners[c].fit(bindata, **kwargs)
+        self.dict_binary_quantifiers[c].fit(bindata, **kwargs)
 
 
-class ExplicitLossMinimisation(AggregativeQuantifier):
-    """
-    A variant of Explicit Loss Minimisation based on SVMperf that works also on single-label data. It uses one binary
-    quantifier for each class and then l1-normalizes the class predictions so that they sum up to one.
-    This variant was used in Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
-    Social Network Analysis and Mining6(19), 1–22 (2016)
-    """
-
-    def __init__(self, svmperf_base, loss, **kwargs):
-        self.svmperf_base = svmperf_base
-        self.loss = loss
-        self.kwargs = kwargs
-
-    def fit(self, data: LabelledCollection, fit_learner=True, *args):
-        assert fit_learner, 'the method requires that fit_learner=True'
-        self.learner = ExplicitLossMinimisationBinary(self.svmperf_base, self.loss, **self.kwargs)
-        if not data.binary:
-            self.learner = OneVsAll(self.learner, n_jobs=-1)
-        return self.learner.fit(data, *args)
-
-    def quantify(self, instances, *args):
-        return self.learner.quantify(instances, *args)
+# class ExplicitLossMinimisation(AggregativeQuantifier):
+#     """
+#     A variant of Explicit Loss Minimisation based on SVMperf that works also on single-label data. It uses one binary
+#     quantifier for each class and then l1-normalizes the class predictions so that they sum up to one.
+#     This variant was used in Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
+#     Social Network Analysis and Mining6(19), 1–22 (2016)
+#     """
+#
+#     def __init__(self, svmperf_base, loss, **kwargs):
+#         self.svmperf_base = svmperf_base
+#         self.loss = loss
+#         self.kwargs = kwargs
+#
+#     def fit(self, data: LabelledCollection, fit_learner=True, *args):
+#         assert fit_learner, 'the method requires that fit_learner=True'
+#         self.learner = ExplicitLossMinimisationBinary(self.svmperf_base, self.loss, **self.kwargs)
+#         if not data.binary:
+#             self.learner = OneVsAll(self.learner, n_jobs=-1)
+#         return self.learner.fit(data, *args)
+#
+#     def aggregate(self, instances, *args):
+#         return self.learner.aggregate(instances, *args)
 
 
 class ExplicitLossMinimisationBinary(AggregativeQuantifier):
@@ -398,38 +419,35 @@ class ExplicitLossMinimisationBinary(AggregativeQuantifier):
         self.learner = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs).fit(data.instances, data.labels)
         return self
 
-    def quantify(self, X, y=None):
-        predictions = self.learner.predict(X)
-        prev = F.prevalence_from_labels(predictions, self.learner.n_classes_)
-        print('binary: ', prev)
-        return prev
+    def aggregate(self, classif_predictions:np.ndarray, *args):
+        return F.prevalence_from_labels(classif_predictions, self.learner.n_classes_)
 
     def classify(self, X, y=None):
         return self.learner.predict(X)
 
 
 
-class SVMQ(ExplicitLossMinimisation):
+class SVMQ(ExplicitLossMinimisationBinary):
     def __init__(self, svmperf_base, **kwargs):
         super(SVMQ, self).__init__(svmperf_base, loss='q', **kwargs)
 
 
-class SVMKLD(ExplicitLossMinimisation):
+class SVMKLD(ExplicitLossMinimisationBinary):
     def __init__(self, svmperf_base, **kwargs):
         super(SVMKLD, self).__init__(svmperf_base, loss='kld', **kwargs)
 
 
-class SVMNKLD(ExplicitLossMinimisation):
+class SVMNKLD(ExplicitLossMinimisationBinary):
     def __init__(self, svmperf_base, **kwargs):
         super(SVMNKLD, self).__init__(svmperf_base, loss='nkld', **kwargs)
 
 
-class SVMAE(ExplicitLossMinimisation):
+class SVMAE(ExplicitLossMinimisationBinary):
     def __init__(self, svmperf_base, **kwargs):
         super(SVMAE, self).__init__(svmperf_base, loss='mae', **kwargs)
 
 
-class SVMRAE(ExplicitLossMinimisation):
+class SVMRAE(ExplicitLossMinimisationBinary):
     def __init__(self, svmperf_base, **kwargs):
         super(SVMRAE, self).__init__(svmperf_base, loss='mrae', **kwargs)
 
@@ -438,7 +456,7 @@ CC = ClassifyAndCount
 ACC = AdjustedClassifyAndCount
 PCC = ProbabilisticClassifyAndCount
 PACC = ProbabilisticAdjustedClassifyAndCount
-ELM = ExplicitLossMinimisation
+ELM = ExplicitLossMinimisationBinary
 EMQ = ExpectationMaximizationQuantifier
 HDy = HellingerDistanceY
 

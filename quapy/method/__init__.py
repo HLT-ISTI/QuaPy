@@ -8,7 +8,7 @@ AGGREGATIVE_METHODS = {
     agg.AdjustedClassifyAndCount,
     agg.ProbabilisticClassifyAndCount,
     agg.ProbabilisticAdjustedClassifyAndCount,
-    agg.ExplicitLossMinimisation,
+    agg.ExplicitLossMinimisationBinary,
     agg.ExpectationMaximizationQuantifier,
     agg.HellingerDistanceY
 }

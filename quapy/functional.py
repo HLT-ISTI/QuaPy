@@ -36,6 +36,8 @@ def prevalence_linspace(n_prevalences=21, repeat=1, smooth_limits_epsilon=0.01):
 
 
 def prevalence_from_labels(labels, n_classes):
+    if labels.ndim != 1:
+        raise ValueError(f'param labels does not seem to be a ndarray of label predictions')
     unique, counts = np.unique(labels, return_counts=True)
     by_class = defaultdict(lambda:0, dict(zip(unique, counts)))
     prevalences = np.asarray([by_class[ci] for ci in range(n_classes)], dtype=np.float)
@@ -44,6 +46,8 @@ def prevalence_from_labels(labels, n_classes):
 
 
 def prevalence_from_probabilities(posteriors, binarize: bool = False):
+    if posteriors.ndim != 2:
+        raise ValueError(f'param posteriors does not seem to be a ndarray of posteior probabilities')
     if binarize:
         predictions = np.argmax(posteriors, axis=-1)
         return prevalence_from_labels(predictions, n_classes=posteriors.shape[1])
@@ -78,15 +82,15 @@ def normalize_prevalence(prevalences):
 
 
 
-def num_prevalence_combinations(nclasses:int, nprevpoints:int, nrepeats:int):
+def num_prevalence_combinations(n_prevpoints:int, n_classes:int, n_repeats:int=1):
     """
-    Computes the number of prevalence combinations in the nclasses-dimensional simplex if nprevpoints equally distant
-    prevalences are generated and nrepeats repetitions are requested
-    :param nclasses: number of classes
-    :param nprevpoints: number of prevalence points.
-    :param nrepeats: number of repetitions for each prevalence combination
-    :return: The number of possible combinations. For example, if nclasses=2, nprevpoints=5, nrepeats=1, then the number
-    of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
+    Computes the number of prevalence combinations in the n_classes-dimensional simplex if nprevpoints equally distant
+    prevalences are generated and n_repeats repetitions are requested
+    :param n_classes: number of classes
+    :param n_prevpoints: number of prevalence points.
+    :param n_repeats: number of repetitions for each prevalence combination
+    :return: The number of possible combinations. For example, if n_classes=2, n_prevpoints=5, n_repeats=1, then the
+    number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
     """
     __cache={}
     def __f(nc,np):
@@ -98,25 +102,25 @@ def num_prevalence_combinations(nclasses:int, nprevpoints:int, nrepeats:int):
             x = sum([__f(nc-1, np-i) for i in range(np)])
             __cache[(nc,np)] = x
             return x
-    return __f(nclasses, nprevpoints) * nrepeats
+    return __f(n_classes, n_prevpoints) * n_repeats
 
 
-def get_nprevpoints_approximation(nclasses, nrepeats, combinations_budget):
+def get_nprevpoints_approximation(combinations_budget:int, n_classes:int, n_repeats:int=1):
     """
-    Searches for the largest number of (equidistant) prevalence points to define for each of the nclasses classe so that
-    the number of valid prevalences generated as combinations of prevalence points (points in a nclasses-dimensional
+    Searches for the largest number of (equidistant) prevalence points to define for each of the n_classes classes so that
+    the number of valid prevalences generated as combinations of prevalence points (points in a n_classes-dimensional
     simplex) do not exceed combinations_budget.
-    :param nclasses: number of classes
-    :param nrepeats: number of repetitions for each prevalence combination
+    :param n_classes: number of classes
+    :param n_repeats: number of repetitions for each prevalence combination
     :param combinations_budget: maximum number of combinatios allowed
     :return: the largest number of prevalence points that generate less than combinations_budget valid prevalences
     """
-    assert nclasses>0 and nrepeats>0 and combinations_budget>0, 'parameters must be positive integers'
-    nprevpoints = 1
+    assert n_classes > 0 and n_repeats > 0 and combinations_budget > 0, 'parameters must be positive integers'
+    n_prevpoints = 1
     while True:
-        combinations = num_prevalence_combinations(nclasses, nprevpoints, nrepeats)
+        combinations = num_prevalence_combinations(n_prevpoints, n_classes, n_repeats)
         if combinations > combinations_budget:
-            return nprevpoints-1
+            return n_prevpoints-1
         else:
-            nprevpoints+=1
+            n_prevpoints += 1
 
