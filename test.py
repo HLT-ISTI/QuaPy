@@ -2,28 +2,23 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 import quapy as qp
 import quapy.functional as F
+import sys
 
+#qp.datasets.fetch_reviews('hp')
+#qp.datasets.fetch_twitter('sst')
+
+#sys.exit()
 
 SAMPLE_SIZE=500
 binary = False
 svmperf_home = './svm_perf_quantification'
 
 if binary:
-    # load a textual binary dataset and create a tfidf bag of words
-    train_path = './datasets/reviews/kindle/train.txt'
-    test_path = './datasets/reviews/kindle/test.txt'
-    dataset = qp.Dataset.load(train_path, test_path, qp.reader.from_text)
-    qp.preprocessing.text2tfidf(dataset, inplace=True)
-    qp.preprocessing.reduce_columns(dataset, min_df=10, inplace=True)
+    dataset = qp.datasets.fetch_reviews('kindle', tfidf=True, min_df=5)
 
 else:
-    # load a sparse matrix ternary dataset
-    train_path = './datasets/twitter/train/sst.train+dev.feature.txt'
-    test_path = './datasets/twitter/test/sst.test.feature.txt'
-    dataset = qp.Dataset.load(train_path, test_path, qp.reader.from_sparse)
+    dataset = qp.datasets.fetch_twitter('semeval13', model_selection=False, min_df=10)
     dataset.training = dataset.training.sampling(SAMPLE_SIZE, 0.2, 0.5, 0.3)
-    qp.preprocessing.reduce_columns(dataset, min_df=10, inplace=True)
-    print(dataset.training.instances.shape)
 
 print('dataset loaded')
 
@@ -63,8 +58,8 @@ print(f'mae={error:.3f}')
 max_evaluations = 5000
 n_prevpoints = F.get_nprevpoints_approximation(combinations_budget=max_evaluations, n_classes=dataset.n_classes)
 n_evaluations = F.num_prevalence_combinations(n_prevpoints, dataset.n_classes)
-print(f'the prevalence interval [0,1] will be split in {n_prevpoints} prevalence points for each class, so that '
-      f'the requested maximum number of sample evaluations ({max_evaluations}) is not exceeded. '
+print(f'the prevalence interval [0,1] will be split in {n_prevpoints} prevalence points for each class, so that\n'
+      f'the requested maximum number of sample evaluations ({max_evaluations}) is not exceeded.\n'
       f'For the {dataset.n_classes} classes this dataset has, this will yield a total of {n_evaluations} evaluations.')
 
 true_prev, estim_prev = qp.evaluation.artificial_sampling_prediction(model, dataset.test, SAMPLE_SIZE, n_prevpoints)
