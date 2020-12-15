@@ -1,11 +1,8 @@
 Documentation with sphinx
-Add evaluation - artificial sampling
 Add quantification_report (akin to classification_report from sklearn)
 Add optimization - artificial sampling
-Add prediction - artificial sampling
-Add readers for typical datasets used in Quantification
 Add NAE, NRAE
 Add "measures for evaluating ordinal"?
 Document methods with paper references
-The parallel training in svmperf seems not to work
+The parallel training in svmperf seems not to work (not sure...)
 

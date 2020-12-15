@@ -54,3 +54,4 @@ def from_sparse(path):
     X = X.tocsr()
     y = np.asarray(all_labels) + 1
     return X, y
+
