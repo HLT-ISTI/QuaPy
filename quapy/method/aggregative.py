@@ -60,7 +60,7 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
     """
     Abstract class for quantification methods that base their estimations on the aggregation of posterior probabilities
     as returned by a probabilistic classifier. Aggregative Probabilistic Quantifiers thus extend Aggregative
-    Quantifiersimplement by implementing a _posterior_probabilities_ method returning values in [0,1] -- the posterior
+    Quantifiers by implementing a _posterior_probabilities_ method returning values in [0,1] -- the posterior
     probabilities.
     """
 
@@ -224,9 +224,8 @@ class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
     MAX_ITER = 1000
     EPSILON = 1e-4
 
-    def __init__(self, learner, verbose=False):
+    def __init__(self, learner):
         self.learner = learner
-        self.verbose = verbose
 
     def fit(self, data: LabelledCollection, fit_learner=True, *args):
         self.learner, _ = training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
@@ -234,10 +233,10 @@ class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
         return self
 
     def aggregate(self, classif_posteriors, epsilon=EPSILON):
-        return self.EM(self.train_prevalence, classif_posteriors, self.verbose, epsilon)
+        return self.EM(self.train_prevalence, classif_posteriors, epsilon)
 
     @classmethod
-    def EM(cls, tr_prev, posterior_probabilities, verbose=False, epsilon=EPSILON):
+    def EM(cls, tr_prev, posterior_probabilities, epsilon=EPSILON):
         Px = posterior_probabilities
         Ptr = np.copy(tr_prev)
         qs = np.copy(Ptr)  # qs (the running estimate) is initialized as the training prevalence
@@ -256,10 +255,6 @@ class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
                 converged = True
 
             qs_prev_ = qs
-            s += 1
-
-        if verbose:
-            print('-'*80)
 
         if not converged:
             raise UserWarning('the method has reached the maximum number of iterations; it might have not converged')
@@ -317,10 +312,69 @@ class HellingerDistanceY(AggregativeProbabilisticQuantifier):
         return np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q))**2))
 
 
+class ExplicitLossMinimisation(AggregativeQuantifier):
+
+    def __init__(self, svmperf_base, loss, **kwargs):
+        self.svmperf_base = svmperf_base
+        self.loss = loss
+        self.kwargs = kwargs
+
+    def fit(self, data: LabelledCollection, fit_learner=True, *args):
+        assert data.binary, f'{self.__class__.__name__} works only on problems of binary classification' \
+                            f'Use the class OneVsAll to enable {self.__class__.__name__} work on single-label data.'
+        assert fit_learner, 'the method requires that fit_learner=True'
+        self.learner = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs).fit(data.instances, data.labels)
+        return self
+
+    def aggregate(self, classif_predictions:np.ndarray, *args):
+        return F.prevalence_from_labels(classif_predictions, self.learner.n_classes_)
+
+    def classify(self, X, y=None):
+        return self.learner.predict(X)
+
+
+
+class SVMQ(ExplicitLossMinimisation):
+    def __init__(self, svmperf_base, **kwargs):
+        super(SVMQ, self).__init__(svmperf_base, loss='q', **kwargs)
+
+
+class SVMKLD(ExplicitLossMinimisation):
+    def __init__(self, svmperf_base, **kwargs):
+        super(SVMKLD, self).__init__(svmperf_base, loss='kld', **kwargs)
+
+
+class SVMNKLD(ExplicitLossMinimisation):
+    def __init__(self, svmperf_base, **kwargs):
+        super(SVMNKLD, self).__init__(svmperf_base, loss='nkld', **kwargs)
+
+
+class SVMAE(ExplicitLossMinimisation):
+    def __init__(self, svmperf_base, **kwargs):
+        super(SVMAE, self).__init__(svmperf_base, loss='mae', **kwargs)
+
+
+class SVMRAE(ExplicitLossMinimisation):
+    def __init__(self, svmperf_base, **kwargs):
+        super(SVMRAE, self).__init__(svmperf_base, loss='mrae', **kwargs)
+
+
+CC = ClassifyAndCount
+ACC = AdjustedClassifyAndCount
+PCC = ProbabilisticClassifyAndCount
+PACC = ProbabilisticAdjustedClassifyAndCount
+ELM = ExplicitLossMinimisation
+EMQ = ExpectationMaximizationQuantifier
+HDy = HellingerDistanceY
+
+
 class OneVsAll(AggregativeQuantifier):
     """
     Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary
     quantifier for each class, and then l1-normalizes the outputs so that the class prevelences sum up to 1.
+    This variant was used, along with the ExplicitLossMinimization quantifier in
+    Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
+    Social Network Analysis and Mining6(19), 1–22 (2016)
     """
 
     def __init__(self, binary_quantifier, n_jobs=-1):
@@ -380,83 +434,3 @@ class OneVsAll(AggregativeQuantifier):
     def _delayed_binary_fit(self, c, data, **kwargs):
         bindata = LabelledCollection(data.instances, data.labels == c, n_classes=2)
         self.dict_binary_quantifiers[c].fit(bindata, **kwargs)
-
-
-# class ExplicitLossMinimisation(AggregativeQuantifier):
-#     """
-#     A variant of Explicit Loss Minimisation based on SVMperf that works also on single-label data. It uses one binary
-#     quantifier for each class and then l1-normalizes the class predictions so that they sum up to one.
-#     This variant was used in Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
-#     Social Network Analysis and Mining6(19), 1–22 (2016)
-#     """
-#
-#     def __init__(self, svmperf_base, loss, **kwargs):
-#         self.svmperf_base = svmperf_base
-#         self.loss = loss
-#         self.kwargs = kwargs
-#
-#     def fit(self, data: LabelledCollection, fit_learner=True, *args):
-#         assert fit_learner, 'the method requires that fit_learner=True'
-#         self.learner = ExplicitLossMinimisationBinary(self.svmperf_base, self.loss, **self.kwargs)
-#         if not data.binary:
-#             self.learner = OneVsAll(self.learner, n_jobs=-1)
-#         return self.learner.fit(data, *args)
-#
-#     def aggregate(self, instances, *args):
-#         return self.learner.aggregate(instances, *args)
-
-
-class ExplicitLossMinimisationBinary(AggregativeQuantifier):
-
-    def __init__(self, svmperf_base, loss, **kwargs):
-        self.svmperf_base = svmperf_base
-        self.loss = loss
-        self.kwargs = kwargs
-
-    def fit(self, data: LabelledCollection, fit_learner=True, *args):
-        assert data.binary, f'{self.__class__.__name__} works only on problems of binary classification'
-        assert fit_learner, 'the method requires that fit_learner=True'
-        self.learner = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs).fit(data.instances, data.labels)
-        return self
-
-    def aggregate(self, classif_predictions:np.ndarray, *args):
-        return F.prevalence_from_labels(classif_predictions, self.learner.n_classes_)
-
-    def classify(self, X, y=None):
-        return self.learner.predict(X)
-
-
-
-class SVMQ(ExplicitLossMinimisationBinary):
-    def __init__(self, svmperf_base, **kwargs):
-        super(SVMQ, self).__init__(svmperf_base, loss='q', **kwargs)
-
-
-class SVMKLD(ExplicitLossMinimisationBinary):
-    def __init__(self, svmperf_base, **kwargs):
-        super(SVMKLD, self).__init__(svmperf_base, loss='kld', **kwargs)
-
-
-class SVMNKLD(ExplicitLossMinimisationBinary):
-    def __init__(self, svmperf_base, **kwargs):
-        super(SVMNKLD, self).__init__(svmperf_base, loss='nkld', **kwargs)
-
-
-class SVMAE(ExplicitLossMinimisationBinary):
-    def __init__(self, svmperf_base, **kwargs):
-        super(SVMAE, self).__init__(svmperf_base, loss='mae', **kwargs)
-
-
-class SVMRAE(ExplicitLossMinimisationBinary):
-    def __init__(self, svmperf_base, **kwargs):
-        super(SVMRAE, self).__init__(svmperf_base, loss='mrae', **kwargs)
-
-
-CC = ClassifyAndCount
-ACC = AdjustedClassifyAndCount
-PCC = ProbabilisticClassifyAndCount
-PACC = ProbabilisticAdjustedClassifyAndCount
-ELM = ExplicitLossMinimisationBinary
-EMQ = ExpectationMaximizationQuantifier
-HDy = HellingerDistanceY
-
