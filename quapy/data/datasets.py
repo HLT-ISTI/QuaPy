@@ -1,8 +1,8 @@
 import zipfile
-from utils.util import download_file_if_not_exists, download_file, get_quapy_home
+from util import download_file_if_not_exists, download_file, get_quapy_home
 import os
 from os.path import join
-from data.base import Dataset, LabelledCollection
+from data.base import Dataset
 from data.reader import from_text, from_sparse
 from data.preprocessing import text2tfidf, reduce_columns
 

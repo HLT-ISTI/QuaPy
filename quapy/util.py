@@ -8,8 +8,6 @@ import os
 from pathlib import Path
 
 
-
-
 def get_parallel_slices(n_tasks, n_jobs=-1):
     if n_jobs == -1:
         n_jobs = multiprocessing.cpu_count()

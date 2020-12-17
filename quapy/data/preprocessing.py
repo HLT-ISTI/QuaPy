@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from data.base import Dataset
 from scipy.sparse import spmatrix
-from utils.util import parallelize
+from util import parallelize
 from .base import LabelledCollection
 from tqdm import tqdm
 

@@ -1,7 +1,7 @@
 from data import LabelledCollection
 from quapy.method.aggregative import AggregativeQuantifier, AggregativeProbabilisticQuantifier
 from method.base import BaseQuantifier
-from utils.util import temp_seed
+from util import temp_seed
 import numpy as np
 from joblib import Parallel, delayed
 from tqdm import tqdm

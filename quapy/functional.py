@@ -94,11 +94,11 @@ def num_prevalence_combinations(n_prevpoints:int, n_classes:int, n_repeats:int=1
     """
     __cache={}
     def __f(nc,np):
-        if (nc,np) in __cache:
+        if (nc,np) in __cache:  # cached result
             return __cache[(nc,np)]
-        if nc==1:
+        if nc==1:  # stop condition
             return 1
-        else:
+        else:  # recursive call
             x = sum([__f(nc-1, np-i) for i in range(np)])
             __cache[(nc,np)] = x
             return x

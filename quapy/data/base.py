@@ -40,6 +40,8 @@ class LabelledCollection:
         return self.n_classes == 2
 
     def sampling_index(self, size, *prevs, shuffle=True):
+        if len(prevs) == 0:  # no prevalence was indicated; returns an index for uniform sampling
+            return np.random.choice(len(self), size, replace=False)
         if len(prevs) == self.n_classes-1:
             prevs = prevs + (1-sum(prevs),)
         assert len(prevs) == self.n_classes, 'unexpected number of prevalences'
@@ -68,9 +70,16 @@ class LabelledCollection:
 
         return indexes_sample
 
+    # def uniform_sampling_index(self, size):
+    #     return np.random.choice(len(self), size, replace=False)
+
+    # def uniform_sampling(self, size):
+    #     unif_index = self.uniform_sampling_index(size)
+    #     return self.sampling_from_index(unif_index)
+
     def sampling(self, size, *prevs, shuffle=True):
-        index = self.sampling_index(size, *prevs, shuffle=shuffle)
-        return self.sampling_from_index(index)
+        prev_index = self.sampling_index(size, *prevs, shuffle=shuffle)
+        return self.sampling_from_index(prev_index)
 
     def sampling_from_index(self, index):
         documents = self.instances[index]
@@ -91,6 +100,14 @@ class LabelledCollection:
         dimensions=self.n_classes
         for prevs in artificial_prevalence_sampling(dimensions, n_prevalences, repeats):
             yield self.sampling_index(sample_size, *prevs)
+
+    def natural_sampling_generator(self, sample_size, repeats=100):
+        for _ in range(repeats):
+            yield self.uniform_sampling(sample_size)
+
+    def natural_sampling_index_generator(self, sample_size, repeats=100):
+        for _ in range(repeats):
+            yield self.uniform_sampling_index(sample_size)
 
     def __add__(self, other):
         if issparse(self.instances) and issparse(other.documents):
