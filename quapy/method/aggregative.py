@@ -3,12 +3,13 @@ from copy import deepcopy
 import functional as F
 import error
 from method.base import BaseQuantifier
-from quapy.classification.svmperf import SVMperf
-from quapy.data import LabelledCollection
+from classification.svmperf import SVMperf
+from data import LabelledCollection
 from sklearn.metrics import confusion_matrix
 from sklearn.calibration import CalibratedClassifierCV
 from joblib import Parallel, delayed
 from abc import abstractmethod
+from typing import Union
 
 
 # Abstract classes
@@ -77,13 +78,19 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
         self.learner.set_params(**parameters)
 
 
+class BinaryQuantifier(BaseQuantifier):
+    def _check_binary(self, data : LabelledCollection, quantifier_name):
+        assert data.binary, f'{quantifier_name} works only on problems of binary classification. ' \
+                            f'Use the class OneVsAll to enable {quantifier_name} work on single-label data.'
+
+
 # Helper
 # ------------------------------------
 def training_helper(learner,
                     data: LabelledCollection,
                     fit_learner: bool = True,
                     ensure_probabilistic=False,
-                    train_val_split=None):
+                    val_split:Union[LabelledCollection, float]=None):
     """
     Training procedure common to all Aggregative Quantifiers.
     :param learner: the learner to be fit
@@ -91,7 +98,9 @@ def training_helper(learner,
     :param fit_learner: whether or not to fit the learner (if False, then bypasses any action)
     :param ensure_probabilistic: if True, guarantees that the resulting classifier implements predict_proba (if the
     learner is not probabilistic, then a CalibratedCV instance of it is trained)
-    :param train_val_split: if specified, indicates the proportion of training instances on which to fit the learner
+    :param val_split: if specified as a float, indicates the proportion of training instances that will define the
+    validation split (e.g., 0.3 for using 30% of the training set as validation data); if specified as a
+    LabelledCollection, represents the validation split itself
     :return: the learner trained on the training set, and the unused data (a _LabelledCollection_ if train_val_split>0
     or None otherwise) to be used as a validation set for any subsequent parameter fitting
     """
@@ -101,10 +110,17 @@ def training_helper(learner,
                 print(f'The learner {learner.__class__.__name__} does not seem to be probabilistic. '
                       f'The learner will be calibrated.')
                 learner = CalibratedClassifierCV(learner, cv=5)
-        if train_val_split is not None:
-            if not (0 < train_val_split < 1):
-                raise ValueError(f'train/val split {train_val_split} out of range, must be in (0,1)')
-            train, unused = data.split_stratified(train_prop=train_val_split)
+        if val_split is not None:
+            if isinstance(val_split, float):
+                if not (0 < val_split < 1):
+                    raise ValueError(f'train/val split {val_split} out of range, must be in (0,1)')
+                train, unused = data.split_stratified(train_prop=1-val_split)
+            elif isinstance(val_split, LabelledCollection):
+                train = data
+                unused = val_split
+            else:
+                raise ValueError('train_val_split not understood; use either a float indicating the split proportion, '
+                                 'or a LabelledCollection indicating the validation split')
         else:
             train, unused = data, None
         learner.fit(train.instances, train.labels)
@@ -148,8 +164,17 @@ class AdjustedClassifyAndCount(AggregativeQuantifier):
     def __init__(self, learner):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, train_val_split=0.6):
-        self.learner, validation = training_helper(self.learner, data, fit_learner, train_val_split=train_val_split)
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, LabelledCollection]=0.3):
+        """
+        Trains a ACC quantifier
+        :param data: the training set
+        :param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
+        :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
+         validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
+         indicating the validation set itself
+        :return: self
+        """
+        self.learner, validation = training_helper(self.learner, data, fit_learner, val_split=val_split)
         self.cc = ClassifyAndCount(self.learner)
         y_ = self.classify(validation.instances)
         y  = validation.labels
@@ -196,9 +221,18 @@ class ProbabilisticAdjustedClassifyAndCount(AggregativeProbabilisticQuantifier):
     def __init__(self, learner):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, train_val_split=0.6):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, LabelledCollection]=0.3):
+        """
+        Trains a PACC quantifier
+        :param data: the training set
+        :param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
+        :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
+         validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
+         indicating the validation set itself
+        :return: self
+        """
         self.learner, validation = training_helper(
-            self.learner, data, fit_learner, ensure_probabilistic=True, train_val_split=train_val_split
+            self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split
         )
         self.pcc = ProbabilisticClassifyAndCount(self.learner)
         y_ = self.classify(validation.instances)
@@ -262,7 +296,7 @@ class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
         return qs
 
 
-class HellingerDistanceY(AggregativeProbabilisticQuantifier):
+class HellingerDistanceY(AggregativeProbabilisticQuantifier, BinaryQuantifier):
     """
     Implementation of the method based on the Hellinger Distance y (HDy) proposed by
     González-Castro, V., Alaiz-Rodrı́guez, R., and Alegre, E. (2013). Class distribution
@@ -272,11 +306,19 @@ class HellingerDistanceY(AggregativeProbabilisticQuantifier):
     def __init__(self, learner):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, train_val_split=0.6):
-        assert data.binary, f'{self.__class__.__name__} works only on problems of binary classification. ' \
-                            f'Use the class OneVsAll to enable {self.__class__.__name__} work on single-label data.'
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, LabelledCollection]=0.3):
+        """
+        Trains a HDy quantifier
+        :param data: the training set
+        :param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
+        :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
+         validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
+         indicating the validation set itself
+        :return: self
+        """
+        self._check_binary(data, self.__class__.__name__)
         self.learner, validation = training_helper(
-            self.learner, data, fit_learner, ensure_probabilistic=True, train_val_split=train_val_split)
+            self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
         Px = self.posterior_probabilities(validation.instances)
         self.Pxy1 = Px[validation.labels == 1]
         self.Pxy0 = Px[validation.labels == 0]
@@ -312,7 +354,7 @@ class HellingerDistanceY(AggregativeProbabilisticQuantifier):
         return np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q))**2))
 
 
-class ExplicitLossMinimisation(AggregativeQuantifier):
+class ExplicitLossMinimisation(AggregativeQuantifier, BinaryQuantifier):
 
     def __init__(self, svmperf_base, loss, **kwargs):
         self.svmperf_base = svmperf_base
@@ -320,8 +362,7 @@ class ExplicitLossMinimisation(AggregativeQuantifier):
         self.kwargs = kwargs
 
     def fit(self, data: LabelledCollection, fit_learner=True, *args):
-        assert data.binary, f'{self.__class__.__name__} works only on problems of binary classification' \
-                            f'Use the class OneVsAll to enable {self.__class__.__name__} work on single-label data.'
+        self._check_binary(data, self.__class__.__name__)
         assert fit_learner, 'the method requires that fit_learner=True'
         self.learner = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs).fit(data.instances, data.labels)
         return self
@@ -386,6 +427,9 @@ class OneVsAll(AggregativeQuantifier):
             f'{self.__class__.__name__} expect non-binary data'
         assert isinstance(self.binary_quantifier, BaseQuantifier), \
             f'{self.binary_quantifier} does not seem to be a Quantifier'
+        if not isinstance(self.binary_quantifier, BinaryQuantifier):
+            raise ValueError(f'{self.binary_quantifier.__class__.__name__} does not seem to be an instance of '
+                             f'{BinaryQuantifier.__class__.__name__}')
         self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in data.classes_}
         self.__parallel(self._delayed_binary_fit, data, **kwargs)
         return self

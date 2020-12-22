@@ -6,6 +6,7 @@ import numpy as np
 import urllib
 import os
 from pathlib import Path
+import pickle
 
 
 def get_parallel_slices(n_tasks, n_jobs=-1):
@@ -58,4 +59,19 @@ def create_if_not_exist(path):
 
 
 def get_quapy_home():
-    return os.path.join(str(Path.home()), 'quapy_data')
+    home = os.path.join(str(Path.home()), 'quapy_data')
+    os.makedirs(home, exist_ok=True)
+    return home
+
+
+def pickled_resource(pickle_path:str, generation_func:callable, *args):
+    if pickle_path is None:
+        return generation_func(*args)
+    else:
+        if os.path.exists(pickle_path):
+            return pickle.load(open(pickle_path, 'rb'))
+        else:
+            instance = generation_func(*args)
+            os.makedirs(str(Path(pickle_path).parent), exist_ok=True)
+            pickle.dump(instance, open(pickle_path, 'wb'), pickle.HIGHEST_PROTOCOL)
+            return instance

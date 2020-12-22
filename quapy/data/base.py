@@ -4,11 +4,19 @@ from sklearn.model_selection import train_test_split
 from quapy.functional import artificial_prevalence_sampling
 from scipy.sparse import vstack
 
+from util import temp_seed
+
 
 class LabelledCollection:
 
     def __init__(self, instances, labels, n_classes=None):
-        self.instances = instances if issparse(instances) else np.asarray(instances)
+        if issparse(instances):
+            self.instances = instances
+        elif isinstance(instances, list) and len(instances)>0 and isinstance(instances[0], str):
+            # lists of strings occupy too much as ndarrays (although python-objects add a heavy overload)
+            self.instances = np.asarray(instances, dtype=object)
+        else:
+            self.instances = np.asarray(instances)
         self.labels = np.asarray(labels, dtype=int)
         n_docs = len(self)
         if n_classes is None:
@@ -87,6 +95,7 @@ class LabelledCollection:
         return LabelledCollection(documents, labels, n_classes=self.n_classes)
 
     def split_stratified(self, train_prop=0.6):
+        # with temp_seed(42):
         tr_docs, te_docs, tr_labels, te_labels = \
             train_test_split(self.instances, self.labels, train_size=train_prop, stratify=self.labels)
         return LabelledCollection(tr_docs, tr_labels), LabelledCollection(te_docs, te_labels)
@@ -110,14 +119,16 @@ class LabelledCollection:
             yield self.uniform_sampling_index(sample_size)
 
     def __add__(self, other):
-        if issparse(self.instances) and issparse(other.documents):
-            docs = vstack([self.instances, other.documents])
-        elif isinstance(self.instances, list) and isinstance(other.documents, list):
-            docs = self.instances + other.documents
+        if issparse(self.instances) and issparse(other.instances):
+            join_instances = vstack([self.instances, other.instances])
+        elif isinstance(self.instances, list) and isinstance(other.instances, list):
+            join_instances = self.instances + other.instances
+        elif isinstance(self.instances, np.ndarray) and isinstance(other.instances, np.ndarray):
+            join_instances = np.concatenate([self.instances, other.instances])
         else:
             raise NotImplementedError('unsupported operation for collection types')
         labels = np.concatenate([self.labels, other.labels])
-        return LabelledCollection(docs, labels)
+        return LabelledCollection(join_instances, labels)
 
 
 
