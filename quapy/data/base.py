@@ -158,6 +158,16 @@ class Dataset:
         test = LabelledCollection.load(test_path, loader_func)
         return Dataset(training, test)
 
+    @property
+    def vocabulary_size(self):
+        return len(self.vocabulary)
+
+
+def isbinary(data):
+    if isinstance(data, Dataset) or isinstance(data, LabelledCollection):
+        return data.binary
+    return False
+
 
 
 

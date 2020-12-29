@@ -1,4 +1,4 @@
-from quapy import LabelledCollection
+from data import LabelledCollection
 from .base import BaseQuantifier
 
 

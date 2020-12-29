@@ -289,6 +289,7 @@ class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
                 converged = True
 
             qs_prev_ = qs
+            s += 1
 
         if not converged:
             raise UserWarning('the method has reached the maximum number of iterations; it might have not converged')
@@ -443,6 +444,10 @@ class OneVsAll(AggregativeQuantifier):
             'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
             'predictions for each document (row) and class (columns)'
         prevalences = self.__parallel(self._delayed_binary_aggregate, classif_predictions_bin)
+        #prevalences = []
+        #for c in self.classes:
+        #    prevalences.append(self._delayed_binary_aggregate(c, classif_predictions_bin))
+        #prevalences = np.asarray(prevalences)
         return F.normalize_prevalence(prevalences)
 
     def quantify(self, X, *args):
@@ -478,3 +483,19 @@ class OneVsAll(AggregativeQuantifier):
     def _delayed_binary_fit(self, c, data, **kwargs):
         bindata = LabelledCollection(data.instances, data.labels == c, n_classes=2)
         self.dict_binary_quantifiers[c].fit(bindata, **kwargs)
+
+
+def isaggregative(model):
+    return isinstance(model, AggregativeQuantifier)
+
+
+def isprobabilistic(model):
+    return isinstance(model, AggregativeProbabilisticQuantifier)
+
+
+def isbinary(model):
+    return isinstance(model, BinaryQuantifier)
+
+
+from . import neural
+QuaNet = neural.QuaNetTrainer

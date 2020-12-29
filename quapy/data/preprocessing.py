@@ -5,6 +5,7 @@ from scipy.sparse import spmatrix
 from util import parallelize
 from .base import LabelledCollection
 from tqdm import tqdm
+import quapy as qp
 
 
 def text2tfidf(dataset:Dataset, min_df=3, sublinear_tf=True, inplace=False, **kwargs):
@@ -114,6 +115,7 @@ class IndexTransformer:
         """
         self.vect = CountVectorizer(**kwargs)
         self.unk = -1  # a valid index is assigned after fit
+        self.pad = -2  # a valid index is assigned after fit
 
     def fit(self, X):
         """
@@ -123,12 +125,13 @@ class IndexTransformer:
         self.vect.fit(X)
         self.analyzer = self.vect.build_analyzer()
         self.vocabulary_ = self.vect.vocabulary_
-        self.unk = self.add_word('UNK')
+        self.unk = self.add_word(qp.environ['UNK_TOKEN'], qp.environ['UNK_INDEX'])
+        self.pad = self.add_word(qp.environ['PAD_TOKEN'], qp.environ['PAD_INDEX'])
         return self
 
     def transform(self, X, n_jobs=-1):
         # given the number of tasks and the number of jobs, generates the slices for the parallel threads
-        assert self.unk > 0, 'transform called before fit'
+        assert self.unk != -1, 'transform called before fit'
         indexed = parallelize(func=self.index, args=X, n_jobs=n_jobs)
         return np.asarray(indexed)
 
@@ -142,9 +145,22 @@ class IndexTransformer:
     def vocabulary_size(self):
         return len(self.vocabulary_)
 
-    def add_word(self, word):
+    def add_word(self, word, id=None, nogaps=True):
         if word in self.vocabulary_:
             raise ValueError(f'word {word} already in dictionary')
-        self.vocabulary_[word] = len(self.vocabulary_)
+        if id is None:
+            # add the word with the next id
+            self.vocabulary_[word] = len(self.vocabulary_)
+        else:
+            id2word = {id_:word_ for word_, id_ in self.vocabulary_.items()}
+            if id in id2word:
+                old_word = id2word[id]
+                self.vocabulary_[word] = id
+                del self.vocabulary_[old_word]
+                self.add_word(old_word)
+            elif nogaps:
+                if id > self.vocabulary_size()+1:
+                    raise ValueError(f'word {word} added with id {id}, while the current vocabulary size '
+                                     f'is of {self.vocabulary_size()}, and id gaps are not allowed')
         return self.vocabulary_[word]
 

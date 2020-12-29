@@ -1,8 +1,12 @@
 Documentation with sphinx
-Add quantification_report (akin to classification_report from sklearn)
-Add optimization - artificial sampling
+Add quantification_report (akin to classification_report from sklearn) (?)
 Add NAE, NRAE
 Add "measures for evaluating ordinal"?
 Document methods with paper references
 The parallel training in svmperf seems not to work (not sure...)
+In binary quantification (hp, kindle, imdb) we used F1 in the minority class (which in kindle and hp happens to be the
+negative class). This is not covered in this new implementation, in which the binary case is not treated as such, but as
+an instance of single-label with 2 labels. Check
+Add classnames to LabelledCollection ?
+Check the overhead in OneVsAll for SVMperf-based (?)
 

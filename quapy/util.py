@@ -75,3 +75,26 @@ def pickled_resource(pickle_path:str, generation_func:callable, *args):
             os.makedirs(str(Path(pickle_path).parent), exist_ok=True)
             pickle.dump(instance, open(pickle_path, 'wb'), pickle.HIGHEST_PROTOCOL)
             return instance
+
+
+class EarlyStop:
+
+    def __init__(self, patience, lower_is_better=True):
+        self.PATIENCE_LIMIT = patience
+        self.better = lambda a,b: a<b if lower_is_better else a>b
+        self.patience = patience
+        self.best_score = None
+        self.best_epoch = None
+        self.STOP = False
+        self.IMPROVED = False
+
+    def __call__(self, watch_score, epoch):
+        self.IMPROVED = (self.best_score is None or self.better(watch_score, self.best_score))
+        if self.IMPROVED:
+            self.best_score = watch_score
+            self.best_epoch = epoch
+            self.patience = self.PATIENCE_LIMIT
+        else:
+            self.patience -= 1
+            if self.patience <= 0:
+                self.STOP = True

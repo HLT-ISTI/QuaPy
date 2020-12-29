@@ -1,9 +1,7 @@
 from sklearn.metrics import f1_score
 import numpy as np
+import quapy as qp
 
-
-
-SAMPLE_SIZE = None
 
 
 def f1e(y_true, y_pred):
@@ -68,11 +66,12 @@ def smooth(p, eps):
 
 
 def __check_eps(eps):
+    sample_size = qp.environ['SAMPLE_SIZE']
     if eps is None:
-        if SAMPLE_SIZE is None:
-            raise ValueError('eps was not defined, and qp.error.SAMPLE_SIZE was not set')
+        if sample_size is None:
+            raise ValueError('eps was not defined, and qp.environ["SAMPLE_SIZE"] was not set')
         else:
-            eps = 1. / (2. * SAMPLE_SIZE)
+            eps = 1. / (2. * sample_size)
     return eps
 
 

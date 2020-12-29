@@ -86,7 +86,7 @@ class GridSearchQ:
             self.n_prevpoints = F.get_nprevpoints_approximation(eval_budget, n_classes, n_repetitions)
             eval_computations = F.num_prevalence_combinations(self.n_prevpoints, n_classes, n_repetitions)
             self.sout(f'setting n_prevpoints={self.n_prevpoints} so that the number of \n'
-                  f'evaluations is {eval_computations} (<={eval_budget} eval_budget)')
+                  f'evaluations ({eval_computations}) does not exceed the evaluation budget ({eval_budget})')
         elif eval_budget is None:
             self.n_prevpoints = n_prevpoints
             eval_computations = F.num_prevalence_combinations(self.n_prevpoints, n_classes, n_repetitions)
