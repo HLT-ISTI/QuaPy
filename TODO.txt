@@ -9,4 +9,18 @@ negative class). This is not covered in this new implementation, in which the bi
 an instance of single-label with 2 labels. Check
 Add classnames to LabelledCollection ?
 Check the overhead in OneVsAll for SVMperf-based (?)
-
+Add HDy to QuaNet? if so, wrap HDy into OneVsAll in case the dataset is not binary.
+Plots (one for binary -- the "diagonal", or for a specific class), another for the error as a funcition of drift.
+Add datasets for topic.
+Add other methods
+Clarify whether QuaNet is an aggregative method or not.
+Add datasets from Pérez-Gallego et al. 2017, 2019
+Add ensemble models from Pérez-Gallego et al. 2017, 2019
+Add plots models like those in Pérez-Gallego et al. 2017 (error boxes)
+Add support for CV prediction in ACC and PACC for tpr, fpr
+Add medium swap method
+Explore the hyperparameter "number of bins" in HDy
+Implement HDy for single-label?
+Rename EMQ to SLD ?
+How many times is the system of equations for ACC and PACC not solved? How many times is it clipped? Do they sum up
+    to one always?

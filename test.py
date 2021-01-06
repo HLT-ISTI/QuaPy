@@ -1,45 +1,65 @@
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV
 from sklearn.svm import LinearSVC
 import quapy as qp
 import quapy.functional as F
 import sys
 import numpy as np
+from classification.methods import PCALR
 from classification.neural import NeuralClassifierTrainer, CNNnet
 from quapy.model_selection import GridSearchQ
 
+
+
+#qp.datasets.fetch_UCIDataset('acute.b', verbose=True)
+
+#sys.exit(0)
 qp.environ['SAMPLE_SIZE'] = 500
+#param_grid = {'C': np.logspace(-3,3,7), 'class_weight': ['balanced', None]}
+param_grid = {'C': np.logspace(0,3,4), 'class_weight': ['balanced']}
+max_evaluations = 5000
 
 sample_size = qp.environ['SAMPLE_SIZE']
 binary = True
 svmperf_home = './svm_perf_quantification'
 
 if binary:
-    dataset = qp.datasets.fetch_reviews('kindle', tfidf=False, min_df=5)
-    qp.data.preprocessing.index(dataset, inplace=True)
+    dataset = qp.datasets.fetch_reviews('kindle', tfidf=True, min_df=5)
+    #qp.data.preprocessing.index(dataset, inplace=True)
 
 else:
     dataset = qp.datasets.fetch_twitter('hcr', for_model_selection=False, min_df=10, pickle=True)
-    # dataset.training = dataset.training.sampling(SAMPLE_SIZE, 0.2, 0.5, 0.3)
+    dataset.training = dataset.training.sampling(sample_size, 0.2, 0.5, 0.3)
 
 print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.test)}')
 
 
 # training a quantifier
 # learner = LogisticRegression(max_iter=1000)
-# model = qp.method.aggregative.ClassifyAndCount(learner)
+#model = qp.method.aggregative.ClassifyAndCount(learner)
 # model = qp.method.aggregative.AdjustedClassifyAndCount(learner)
 # model = qp.method.aggregative.ProbabilisticClassifyAndCount(learner)
 # model = qp.method.aggregative.ProbabilisticAdjustedClassifyAndCount(learner)
+# model = qp.method.aggregative.HellingerDistanceY(learner)
 # model = qp.method.aggregative.ExpectationMaximizationQuantifier(learner)
 # model = qp.method.aggregative.ExplicitLossMinimisationBinary(svmperf_home, loss='q', C=100)
 # model = qp.method.aggregative.SVMQ(svmperf_home, C=1)
 
-learner = NeuralClassifierTrainer(CNNnet(dataset.vocabulary_size, dataset.n_classes))
-print(learner.get_params())
-model = qp.method.aggregative.QuaNet(learner, sample_size, device='cpu')
+#learner = PCALR()
+#learner = NeuralClassifierTrainer(CNNnet(dataset.vocabulary_size, dataset.n_classes))
+#print(learner.get_params())
+#model = qp.method.meta.QuaNet(learner, sample_size, device='cpu')
 
-if qp.isbinary(model) and not qp.isbinary(dataset):
-    model = qp.method.aggregative.OneVsAll(model)
+#learner = GridSearchCV(LogisticRegression(max_iter=1000), param_grid=param_grid, n_jobs=-1, verbose=1)
+learner = LogisticRegression(max_iter=1000)
+model = qp.method.meta.ECC(learner, size=20, red_size=10, param_grid=None, optim=None, policy='ds')
+#model = qp.method.meta.EHDy(learner, param_grid=param_grid, optim='mae',
+#                           sample_size=sample_size, eval_budget=max_evaluations//10, n_jobs=-1)
+#model = qp.method.aggregative.ClassifyAndCount(learner)
+
+
+#if qp.isbinary(model) and not qp.isbinary(dataset):
+#    model = qp.method.aggregative.OneVsAll(model)
 
 
 # Model fit and Evaluation on the test data
@@ -49,6 +69,10 @@ print(f'fitting model {model.__class__.__name__}')
 #train, val = dataset.training.split_stratified(0.6)
 #model.fit(train, val_split=val)
 model.fit(dataset.training)
+#for i,e in enumerate(model.ensemble):
+    #print(i, e.learner.best_estimator_)
+#    print(i, e.best_model_.learner)
+
 
 # estimating class prevalences
 print('quantifying')
@@ -67,7 +91,7 @@ print(f'mae={error:.3f}')
 # Model fit and Evaluation according to the artificial sampling protocol
 # ----------------------------------------------------------------------------
 
-max_evaluations = 5000
+
 n_prevpoints = F.get_nprevpoints_approximation(combinations_budget=max_evaluations, n_classes=dataset.n_classes)
 n_evaluations = F.num_prevalence_combinations(n_prevpoints, dataset.n_classes)
 print(f'the prevalence interval [0,1] will be split in {n_prevpoints} prevalence points for each class, so that\n'
@@ -76,7 +100,7 @@ print(f'the prevalence interval [0,1] will be split in {n_prevpoints} prevalence
 
 true_prev, estim_prev = qp.evaluation.artificial_sampling_prediction(model, dataset.test, sample_size, n_prevpoints)
 
-qp.error.SAMPLE_SIZE = sample_size
+#qp.error.SAMPLE_SIZE = sample_size
 print(f'Evaluation according to the artificial sampling protocol ({len(true_prev)} evals)')
 for error in qp.error.QUANTIFICATION_ERROR:
     score = error(true_prev, estim_prev)
@@ -86,7 +110,7 @@ for error in qp.error.QUANTIFICATION_ERROR:
 # Model selection and Evaluation according to the artificial sampling protocol
 # ----------------------------------------------------------------------------
 sys.exit(0)
-param_grid = {'C': np.logspace(-3,3,7), 'class_weight': ['balanced', None]}
+
 
 model_selection = GridSearchQ(model,
                               param_grid=param_grid,
@@ -96,8 +120,8 @@ model_selection = GridSearchQ(model,
                               refit=True,
                               verbose=True)
 
-# model = model_selection.fit(dataset.training, validation=0.3)
-model = model_selection.fit(train, validation=val)
+model = model_selection.fit(dataset.training, validation=0.3)
+#model = model_selection.fit(train, validation=val)
 print(f'Model selection: best_params = {model_selection.best_params_}')
 print(f'param scores:')
 for params, score in model_selection.param_scores_.items():

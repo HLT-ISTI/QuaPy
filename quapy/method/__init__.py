@@ -1,23 +1,28 @@
 from . import base
-from . import aggregative as agg
+from . import aggregative
 from . import non_aggregative
+from . import meta
 
 
 AGGREGATIVE_METHODS = {
-    agg.ClassifyAndCount,
-    agg.AdjustedClassifyAndCount,
-    agg.ProbabilisticClassifyAndCount,
-    agg.ProbabilisticAdjustedClassifyAndCount,
-    agg.ExplicitLossMinimisation,
-    agg.ExpectationMaximizationQuantifier,
-    agg.HellingerDistanceY
+    aggregative.ClassifyAndCount,
+    aggregative.AdjustedClassifyAndCount,
+    aggregative.ProbabilisticClassifyAndCount,
+    aggregative.ProbabilisticAdjustedClassifyAndCount,
+    aggregative.ExplicitLossMinimisation,
+    aggregative.ExpectationMaximizationQuantifier,
+    aggregative.HellingerDistanceY
 }
 
 NON_AGGREGATIVE_METHODS = {
     non_aggregative.MaximumLikelihoodPrevalenceEstimation
 }
 
-QUANTIFICATION_METHODS = AGGREGATIVE_METHODS | NON_AGGREGATIVE_METHODS
+META_METHODS = {
+    meta.QuaNet
+}
+
+QUANTIFICATION_METHODS = AGGREGATIVE_METHODS | NON_AGGREGATIVE_METHODS | META_METHODS
 
 
 

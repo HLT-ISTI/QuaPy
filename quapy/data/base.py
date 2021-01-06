@@ -1,10 +1,8 @@
 import numpy as np
 from scipy.sparse import issparse
 from sklearn.model_selection import train_test_split
-from quapy.functional import artificial_prevalence_sampling
+from quapy.functional import artificial_prevalence_sampling, strprev
 from scipy.sparse import vstack
-
-from util import temp_seed
 
 
 class LabelledCollection:
@@ -130,6 +128,21 @@ class LabelledCollection:
         labels = np.concatenate([self.labels, other.labels])
         return LabelledCollection(join_instances, labels)
 
+    @property
+    def Xy(self):
+        return self.instances, self.labels
+
+    def stats(self):
+        ninstances = len(self)
+        instance_type = type(self.instances[0])
+        if instance_type == list:
+            nfeats = len(self.instances[0])
+        elif instance_type == np.ndarray:
+            nfeats = self.instances.shape[1]
+        else:
+            nfeats = '?'
+        print(f'#instances={ninstances}, type={instance_type}, features={nfeats}, n_classes={self.n_classes}, '
+              f'prevs={strprev(self.prevalence())}')
 
 
 class Dataset:
@@ -153,7 +166,7 @@ class Dataset:
         return self.training.binary
 
     @classmethod
-    def load(cls, train_path, test_path, loader_func:callable):
+    def load(cls, train_path, test_path, loader_func: callable):
         training = LabelledCollection.load(train_path, loader_func)
         test = LabelledCollection.load(test_path, loader_func)
         return Dataset(training, test)

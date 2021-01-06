@@ -1,8 +1,8 @@
-from . import data
+from . import error
 from .data import datasets
 from . import functional
 from . import method
-from . import error
+from . import data
 from . import evaluation
 from method.aggregative import isaggregative, isprobabilistic
 

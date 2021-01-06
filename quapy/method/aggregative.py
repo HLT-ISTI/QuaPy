@@ -2,7 +2,7 @@ import numpy as np
 from copy import deepcopy
 import functional as F
 import error
-from method.base import BaseQuantifier
+from method.base import BaseQuantifier, BinaryQuantifier
 from classification.svmperf import SVMperf
 from data import LabelledCollection
 from sklearn.metrics import confusion_matrix
@@ -22,7 +22,7 @@ class AggregativeQuantifier(BaseQuantifier):
     """
 
     @abstractmethod
-    def fit(self, data: LabelledCollection, fit_learner=True, *args): ...
+    def fit(self, data: LabelledCollection, fit_learner=True): ...
 
     @property
     def learner(self):
@@ -35,12 +35,12 @@ class AggregativeQuantifier(BaseQuantifier):
     def classify(self, instances):
         return self.learner.predict(instances)
 
-    def quantify(self, instances, *args):
+    def quantify(self, instances):
         classif_predictions = self.classify(instances)
-        return self.aggregate(classif_predictions, *args)
+        return self.aggregate(classif_predictions)
 
     @abstractmethod
-    def aggregate(self, classif_predictions:np.ndarray, *args): ...
+    def aggregate(self, classif_predictions:np.ndarray): ...
 
     def get_params(self, deep=True):
         return self.learner.get_params()
@@ -68,20 +68,15 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
     def posterior_probabilities(self, data):
         return self.learner.predict_proba(data)
 
-    def quantify(self, instances, *args):
+    def quantify(self, instances):
         classif_posteriors = self.posterior_probabilities(instances)
-        return self.aggregate(classif_posteriors, *args)
+        return self.aggregate(classif_posteriors)
 
     def set_params(self, **parameters):
         if isinstance(self.learner, CalibratedClassifierCV):
             parameters={'base_estimator__'+k:v for k,v in parameters.items()}
         self.learner.set_params(**parameters)
 
-
-class BinaryQuantifier(BaseQuantifier):
-    def _check_binary(self, data : LabelledCollection, quantifier_name):
-        assert data.binary, f'{quantifier_name} works only on problems of binary classification. ' \
-                            f'Use the class OneVsAll to enable {quantifier_name} work on single-label data.'
 
 
 # Helper
@@ -144,18 +139,17 @@ class ClassifyAndCount(AggregativeQuantifier):
     def __init__(self, learner):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, *args):
+    def fit(self, data: LabelledCollection, fit_learner=True):
         """
         Trains the Classify & Count method unless _fit_learner_ is False, in which case it is assumed to be already fit.
         :param data: training data
         :param fit_learner: if False, the classifier is assumed to be fit
-        :param args: unused
         :return: self
         """
         self.learner, _ = training_helper(self.learner, data, fit_learner)
         return self
 
-    def aggregate(self, classif_predictions, *args):
+    def aggregate(self, classif_predictions):
         return F.prevalence_from_labels(classif_predictions, self.n_classes)
 
 
@@ -186,7 +180,7 @@ class AdjustedClassifyAndCount(AggregativeQuantifier):
     def classify(self, data):
         return self.cc.classify(data)
 
-    def aggregate(self, classif_predictions, *args):
+    def aggregate(self, classif_predictions):
         prevs_estim = self.cc.aggregate(classif_predictions)
         return AdjustedClassifyAndCount.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
 
@@ -208,11 +202,11 @@ class ProbabilisticClassifyAndCount(AggregativeProbabilisticQuantifier):
     def __init__(self, learner):
         self.learner = learner
 
-    def fit(self, data : LabelledCollection, fit_learner=True, *args):
+    def fit(self, data : LabelledCollection, fit_learner=True):
         self.learner, _ = training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
         return self
 
-    def aggregate(self, classif_posteriors, *args):
+    def aggregate(self, classif_posteriors):
         return F.prevalence_from_probabilities(classif_posteriors, binarize=False)
 
 
@@ -235,14 +229,22 @@ class ProbabilisticAdjustedClassifyAndCount(AggregativeProbabilisticQuantifier):
             self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split
         )
         self.pcc = ProbabilisticClassifyAndCount(self.learner)
-        y_ = self.classify(validation.instances)
-        y = validation.labels
+        y_ = self.soft_classify(validation.instances)
+        y  = validation.labels
+        confusion = np.empty(shape=(data.n_classes, data.n_classes))
+        for yi in range(data.n_classes):
+            confusion[yi] = y_[y==yi].mean(axis=0)
+
+        self.Pte_cond_estim_ = confusion.T
+
+        #y_ = self.classify(validation.instances)
+        #y = validation.labels
         # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
-        self.Pte_cond_estim_ = confusion_matrix(y, y_).T / validation.counts()
+        #self.Pte_cond_estim_ = confusion_matrix(y, y_).T / validation.counts()
         return self
 
-    def aggregate(self, classif_posteriors, *args):
+    def aggregate(self, classif_posteriors):
         prevs_estim = self.pcc.aggregate(classif_posteriors)
         return AdjustedClassifyAndCount.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
 
@@ -261,7 +263,7 @@ class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
     def __init__(self, learner):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, *args):
+    def fit(self, data: LabelledCollection, fit_learner=True):
         self.learner, _ = training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
         self.train_prevalence = F.prevalence_from_labels(data.labels, self.n_classes)
         return self
@@ -320,20 +322,20 @@ class HellingerDistanceY(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         self._check_binary(data, self.__class__.__name__)
         self.learner, validation = training_helper(
             self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
-        Px = self.posterior_probabilities(validation.instances)
+        Px = self.posterior_probabilities(validation.instances)[:,1]  # takes only the P(y=+1|x)
         self.Pxy1 = Px[validation.labels == 1]
         self.Pxy0 = Px[validation.labels == 0]
         return self
 
-    def aggregate(self, classif_posteriors, *args):
+    def aggregate(self, classif_posteriors):
         # "In this work, the number of bins b used in HDx and HDy was chosen from 10 to 110 in steps of 10,
         # and the final estimated a priori probability was taken as the median of these 11 estimates."
         # (González-Castro, et al., 2013).
 
-        Px = classif_posteriors
+        Px = classif_posteriors[:,1]  # takes only the P(y=+1|x)
 
         prev_estimations = []
-        for bins in np.linspace(10, 110, 11, dtype=int): #[10, 20, 30, ..., 100, 110]
+        for bins in np.linspace(10, 110, 11, dtype=int):  #[10, 20, 30, ..., 100, 110]
             Pxy0_density, _ = np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)
             Pxy1_density, _ = np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)
 
@@ -342,17 +344,13 @@ class HellingerDistanceY(AggregativeProbabilisticQuantifier, BinaryQuantifier):
             prev_selected, min_dist = None, None
             for prev in F.prevalence_linspace(n_prevalences=100, repeat=1, smooth_limits_epsilon=0.0):
                 Px_train = prev*Pxy1_density + (1 - prev)*Pxy0_density
-                hdy = HellingerDistanceY.HellingerDistance(Px_train, Px_test)
+                hdy = F.HellingerDistance(Px_train, Px_test)
                 if prev_selected is None or hdy < min_dist:
                     prev_selected, min_dist = prev, hdy
             prev_estimations.append(prev_selected)
 
         pos_class_prev = np.median(prev_estimations)
         return np.asarray([1-pos_class_prev, pos_class_prev])
-
-    @classmethod
-    def HellingerDistance(cls, P, Q):
-        return np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q))**2))
 
 
 class ExplicitLossMinimisation(AggregativeQuantifier, BinaryQuantifier):
@@ -362,13 +360,13 @@ class ExplicitLossMinimisation(AggregativeQuantifier, BinaryQuantifier):
         self.loss = loss
         self.kwargs = kwargs
 
-    def fit(self, data: LabelledCollection, fit_learner=True, *args):
+    def fit(self, data: LabelledCollection, fit_learner=True):
         self._check_binary(data, self.__class__.__name__)
         assert fit_learner, 'the method requires that fit_learner=True'
         self.learner = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs).fit(data.instances, data.labels)
         return self
 
-    def aggregate(self, classif_predictions:np.ndarray, *args):
+    def aggregate(self, classif_predictions:np.ndarray):
         return F.prevalence_from_labels(classif_predictions, self.learner.n_classes_)
 
     def classify(self, X, y=None):
@@ -423,23 +421,24 @@ class OneVsAll(AggregativeQuantifier):
         self.binary_quantifier = binary_quantifier
         self.n_jobs = n_jobs
 
-    def fit(self, data: LabelledCollection, **kwargs):
+    def fit(self, data: LabelledCollection, fit_learner=True):
         assert not data.binary, \
             f'{self.__class__.__name__} expect non-binary data'
         assert isinstance(self.binary_quantifier, BaseQuantifier), \
             f'{self.binary_quantifier} does not seem to be a Quantifier'
+        assert fit_learner==True, 'fit_learner must be True'
         if not isinstance(self.binary_quantifier, BinaryQuantifier):
             raise ValueError(f'{self.binary_quantifier.__class__.__name__} does not seem to be an instance of '
                              f'{BinaryQuantifier.__class__.__name__}')
         self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in data.classes_}
-        self.__parallel(self._delayed_binary_fit, data, **kwargs)
+        self.__parallel(self._delayed_binary_fit, data)
         return self
 
     def classify(self, instances):
         classif_predictions_bin = self.__parallel(self._delayed_binary_classification, instances)
         return classif_predictions_bin.T
 
-    def aggregate(self, classif_predictions_bin, *args):
+    def aggregate(self, classif_predictions_bin):
         assert set(np.unique(classif_predictions_bin)) == {0,1}, \
             'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
             'predictions for each document (row) and class (columns)'
@@ -450,7 +449,7 @@ class OneVsAll(AggregativeQuantifier):
         #prevalences = np.asarray(prevalences)
         return F.normalize_prevalence(prevalences)
 
-    def quantify(self, X, *args):
+    def quantify(self, X):
         prevalences = self.__parallel(self._delayed_binary_quantify, X)
         return F.normalize_prevalence(prevalences)
 
@@ -480,9 +479,9 @@ class OneVsAll(AggregativeQuantifier):
     def _delayed_binary_aggregate(self, c, classif_predictions):
         return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:,c])[1]  # the estimation for the positive class prevalence
 
-    def _delayed_binary_fit(self, c, data, **kwargs):
+    def _delayed_binary_fit(self, c, data):
         bindata = LabelledCollection(data.instances, data.labels == c, n_classes=2)
-        self.dict_binary_quantifiers[c].fit(bindata, **kwargs)
+        self.dict_binary_quantifiers[c].fit(bindata)
 
 
 def isaggregative(model):
@@ -497,5 +496,3 @@ def isbinary(model):
     return isinstance(model, BinaryQuantifier)
 
 
-from . import neural
-QuaNet = neural.QuaNetTrainer

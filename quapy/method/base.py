@@ -1,21 +1,30 @@
 from abc import ABCMeta, abstractmethod
+from data import LabelledCollection
 
 
 # Base Quantifier abstract class
 # ------------------------------------
+
+
 class BaseQuantifier(metaclass=ABCMeta):
 
     @abstractmethod
-    def fit(self, data, *args): ...
+    def fit(self, data): ...
 
     @abstractmethod
-    def quantify(self, instances, *args): ...
+    def quantify(self, instances): ...
 
     @abstractmethod
     def set_params(self, **parameters): ...
 
     @abstractmethod
     def get_params(self, deep=True): ...
+
+
+class BinaryQuantifier(BaseQuantifier):
+    def _check_binary(self, data: LabelledCollection, quantifier_name):
+        assert data.binary, f'{quantifier_name} works only on problems of binary classification. ' \
+                            f'Use the class OneVsAll to enable {quantifier_name} work on single-label data.'
 
 
 # class OneVsAll(AggregativeQuantifier):

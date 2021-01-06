@@ -75,23 +75,26 @@ class QuaNetTrainer(BaseQuantifier):
         # estimate the hard and soft stats tpr and fpr of the classifier
         self.tr_prev = data.prevalence()
 
-        self.quantifiers = [
-            ClassifyAndCount(self.learner).fit(data, fit_learner=False),
-            AdjustedClassifyAndCount(self.learner).fit(data, fit_learner=False),
-            ProbabilisticClassifyAndCount(self.learner).fit(data, fit_learner=False),
-            ProbabilisticAdjustedClassifyAndCount(self.learner).fit(data, fit_learner=False),
-            ExpectationMaximizationQuantifier(self.learner).fit(data, fit_learner=False),
-        ]
+        self.quantifiers = {
+            'cc': ClassifyAndCount(self.learner).fit(data, fit_learner=False),
+            'acc': AdjustedClassifyAndCount(self.learner).fit(data, fit_learner=False),
+            'pcc': ProbabilisticClassifyAndCount(self.learner).fit(data, fit_learner=False),
+            'pacc': ProbabilisticAdjustedClassifyAndCount(self.learner).fit(data, fit_learner=False),
+            'emq': ExpectationMaximizationQuantifier(self.learner).fit(data, fit_learner=False),
+        }
 
         self.status = {
             'tr-loss': -1,
             'va-loss': -1,
         }
 
+        nQ = len(self.quantifiers)
+        nC = data.n_classes
         self.quanet = QuaNetModule(
             doc_embedding_size=train_data.instances.shape[1],
             n_classes=data.n_classes,
-            stats_size=len(self.quantifiers) * data.n_classes,
+            stats_size=nQ*nC + 2*nC*nC,
+            order_by=0 if data.binary else None,
             **self.quanet_params
         ).to(self.device)
 
@@ -119,10 +122,15 @@ class QuaNetTrainer(BaseQuantifier):
     def get_aggregative_estims(self, posteriors):
         label_predictions = np.argmax(posteriors, axis=-1)
         prevs_estim = []
-        for quantifier in self.quantifiers:
+        for quantifier in self.quantifiers.values():
             predictions = posteriors if isprobabilistic(quantifier) else label_predictions
-            prevs_estim.append(quantifier.aggregate(predictions))
-        return np.asarray(prevs_estim).flatten()
+            prevs_estim.extend(quantifier.aggregate(predictions))
+
+        # add the class-conditional predictions P(y'i|yj) from ACC and PACC
+        prevs_estim.extend(self.quantifiers['acc'].Pte_cond_estim_.flatten())
+        prevs_estim.extend(self.quantifiers['pacc'].Pte_cond_estim_.flatten())
+
+        return prevs_estim
 
     def quantify(self, instances, *args):
         posteriors = self.learner.predict_proba(instances)

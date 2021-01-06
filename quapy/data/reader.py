@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.sparse import dok_matrix
 from tqdm import tqdm
+import pandas as pd
 
 
 def from_text(path):
@@ -55,3 +56,42 @@ def from_sparse(path):
     y = np.asarray(all_labels) + 1
     return X, y
 
+
+def from_csv(path):
+    """
+    Reas a csv file in which columns are separated by ','.
+    File fomart <label>,<feat1>,<feat2>,...,<featn>\n
+    :param path: path to the csv file
+    :return: a ndarray for the labels and a ndarray (float) for the covariates
+    """
+
+    X, y = [], []
+    for instance in tqdm(open(path, 'rt').readlines(), desc=f'reading {path}'):
+        yi, *xi = instance.strip().split(',')
+        X.append(list(map(float,xi)))
+        y.append(yi)
+    X = np.asarray(X)
+    y = np.asarray(y)
+    return X, y
+
+
+def reindex_labels(y):
+    """
+    Re-indexes a list of labels as a list of indexes, and returns the classnames corresponding to the indexes.
+    E.g., y=['B', 'B', 'A', 'C'] -> [1,1,0,2], ['A','B','C']
+    :param y: the list or array of original labels
+    :return: a ndarray (int) of class indexes, and a ndarray of classnames corresponding to the indexes.
+    """
+    classnames = sorted(np.unique(y))
+    label2index = {label: index for index, label in enumerate(classnames)}
+    indexed = np.empty(y.shape, dtype=np.int)
+    for label in classnames:
+        indexed[y==label] = label2index[label]
+    return indexed, classnames
+
+
+def binarize(y, pos_class):
+    y = np.asarray(y)
+    ybin = np.zeros(y.shape, dtype=np.int)
+    ybin[y == pos_class] = 1
+    return ybin

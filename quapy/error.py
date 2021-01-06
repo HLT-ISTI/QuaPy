@@ -77,6 +77,9 @@ def __check_eps(eps):
 
 CLASSIFICATION_ERROR = {f1e, acce}
 QUANTIFICATION_ERROR = {mae, mrae, mse, mkld, mnkld}
+CLASSIFICATION_ERROR_NAMES = {func.__name__ for func in CLASSIFICATION_ERROR}
+QUANTIFICATION_ERROR_NAMES = {func.__name__ for func in QUANTIFICATION_ERROR}
+ERROR_NAMES = CLASSIFICATION_ERROR_NAMES | QUANTIFICATION_ERROR_NAMES
 
 f1_error = f1e
 acc_error = acce

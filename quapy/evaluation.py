@@ -1,10 +1,12 @@
+from typing import Union, Callable, Iterable
 from data import LabelledCollection
-from quapy.method.aggregative import AggregativeQuantifier, AggregativeProbabilisticQuantifier
+from method.aggregative import AggregativeQuantifier, AggregativeProbabilisticQuantifier
 from method.base import BaseQuantifier
 from util import temp_seed
 import numpy as np
 from joblib import Parallel, delayed
 from tqdm import tqdm
+import error
 
 
 def artificial_sampling_prediction(
@@ -64,5 +66,19 @@ def artificial_sampling_prediction(
     return true_prevalences, estim_prevalences
 
 
+def evaluate(model: BaseQuantifier, test_samples:Iterable[LabelledCollection], err:Union[str, Callable], n_jobs:int=-1):
+    if isinstance(err, str):
+        err = getattr(error, err)
+    assert err.__name__ in error.QUANTIFICATION_ERROR_NAMES, \
+        f'error={err} does not seem to be a quantification error'
+    scores = Parallel(n_jobs=n_jobs)(
+        delayed(_delayed_eval)(model, Ti, err) for Ti in test_samples
+    )
+    return np.mean(scores)
 
+
+def _delayed_eval(model:BaseQuantifier, test:LabelledCollection, error:Callable):
+    prev_estim = model.quantify(test.instances)
+    prev_true  = test.prevalence()
+    return error(prev_true, prev_estim)
 

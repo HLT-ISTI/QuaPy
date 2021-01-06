@@ -2,13 +2,15 @@ import zipfile
 from util import download_file_if_not_exists, download_file, get_quapy_home, pickled_resource
 import os
 from os.path import join
-from data.base import Dataset
-from data.reader import from_text, from_sparse
+from data.base import Dataset, LabelledCollection
+from data.reader import *
 from data.preprocessing import text2tfidf, reduce_columns
+import pandas as pd
 
 
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
-TWITTER_SENTIMENT_DATASETS = ['gasp', 'hcr', 'omd', 'sanders', 'semeval13', 'semeval14', 'semeval15', 'semeval16',
+TWITTER_SENTIMENT_DATASETS = ['gasp', 'hcr', 'omd', 'sanders',
+                              'semeval13', 'semeval14', 'semeval15', 'semeval16',
                               'sst', 'wa', 'wb']
 
 
@@ -117,4 +119,88 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
     return data
 
 
+UCI_DATASETS = ['acute.a', 'acute.b',
+                'balance.1', 'balance.2', 'balance.3']
 
+def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
+
+    assert dataset_name in UCI_DATASETS, \
+        f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository. ' \
+        f'Valid ones are {UCI_DATASETS}'
+    if data_home is None:
+        data_home = get_quapy_home()
+
+    identifier_map = {
+        'acute.a': 'acute',
+        'acute.b': 'acute',
+        'balance.1': 'balance-scale',
+        'balance.2': 'balance-scale',
+        'balance.3': 'balance-scale',
+    }
+
+    dataset_fullname = {
+        'acute.a': 'Acute Inflammations (urinary bladder)',
+        'acute.b': 'Acute Inflammations (renal pelvis)',
+        'balance.1': 'Balance Scale Weight & Distance Database (left)',
+        'balance.2': 'Balance Scale Weight & Distance Database (balanced)',
+        'balance.3': 'Balance Scale Weight & Distance Database (right)',
+    }
+
+    data_folder = {
+        'acute': 'diagnosis',
+        'balance-scale': 'balance-scale',
+    }
+
+    identifier = identifier_map[dataset_name]
+    URL = f'http://archive.ics.uci.edu/ml/machine-learning-databases/{identifier}'
+    data_path = join(data_home, 'uci_datasets', identifier)
+    download_file_if_not_exists(f'{URL}/{data_folder[identifier]}.data', f'{data_path}/{identifier}.data')
+    download_file_if_not_exists(f'{URL}/{data_folder[identifier]}.names', f'{data_path}/{identifier}.names')
+
+    if verbose:
+        print(open(f'{data_path}/{identifier}.names', 'rt').read())
+
+    print(f'Loading {dataset_name} ({dataset_fullname[dataset_name]})')
+    if identifier == 'acute':
+        df = pd.read_csv(f'{data_path}/{identifier}.data', header=None, encoding='utf-16', sep='\t')
+        if dataset_name == 'acute.a':
+            y = binarize(df[6], pos_class='yes')
+        elif dataset_name == 'acute.b':
+            y = binarize(df[7], pos_class='yes')
+
+        mintemp, maxtemp = 35, 42
+        df[0] = df[0].apply(lambda x:(float(x.replace(',','.'))-mintemp)/(maxtemp-mintemp)).astype(float, copy=False)
+        [df_replace(df, col) for col in range(1, 6)]
+        X = df.loc[:, 0:5].values
+
+    if identifier == 'balance-scale':
+        df = pd.read_csv(f'{data_path}/{identifier}.data', header=None, sep=',')
+        if dataset_name == 'balance.1':
+            y = binarize(df[0], pos_class='L')
+        elif dataset_name == 'balance.2':
+            y = binarize(df[0], pos_class='B')
+        elif dataset_name == 'balance.3':
+            y = binarize(df[0], pos_class='R')
+        X = df.loc[:, 1:].astype(float).values
+
+    data = LabelledCollection(X, y)
+    data.stats()
+    #print(df)
+    #print(df.loc[:, 0:5].values)
+    #print(y)
+
+#    X = __read_csv(f'{data_path}/{identifier}.data', separator='\t')
+#    print(X)
+
+    #X, y = from_csv(f'{data_path}/{dataset_name}.data')
+    #y, classnames = reindex_labels(y)
+
+
+#def __read_csv(path, separator=','):
+#    x = []
+#    for instance in tqdm(open(path, 'rt', encoding='utf-16').readlines(), desc=f'reading {path}'):
+#        x.append(instance.strip().split(separator))
+#    return x
+
+def df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
+    df[col] = df[col].apply(lambda x:repl[x]).astype(astype, copy=False)

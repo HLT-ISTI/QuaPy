@@ -4,14 +4,14 @@ from evaluation import artificial_sampling_prediction
 from data.base import LabelledCollection
 from method.aggregative import BaseQuantifier
 from typing import Union, Callable
-import quapy.functional as F
+import functional as F
 from copy import deepcopy
 
 
-class GridSearchQ:
+class GridSearchQ(BaseQuantifier):
 
     def __init__(self,
-                 model : BaseQuantifier,
+                 model: BaseQuantifier,
                  param_grid: dict,
                  sample_size: int,
                  n_prevpoints: int = None,
@@ -105,14 +105,14 @@ class GridSearchQ:
         if error in qp.error.QUANTIFICATION_ERROR:
             self.error = error
         elif isinstance(error, str):
-            assert error in {func.__name__ for func in qp.error.QUANTIFICATION_ERROR}, \
-                f'unknown error name; valid ones are {qp.error.QUANTIFICATION_ERROR}'
+            assert error in qp.error.QUANTIFICATION_ERROR_NAMES, \
+                f'unknown error name; valid ones are {qp.error.QUANTIFICATION_ERROR_NAMES}'
             self.error = getattr(qp.error, error)
         else:
             raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
-                             f'the name of an error function in {qp.error.QUANTIFICATION_ERROR}')
+                             f'the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}')
 
-    def fit(self, training: LabelledCollection, validation: Union[LabelledCollection, float]):
+    def fit(self, training: LabelledCollection, validation: Union[LabelledCollection, float]=0.3):
         """
         :param training: the training set on which to optimize the hyperparameters
         :param validation: either a LabelledCollection on which to test the performance of the different settings, or
@@ -158,5 +158,14 @@ class GridSearchQ:
             self.sout(f'refitting on the whole development set')
             self.best_model_.fit(training + validation)
 
-        return self.best_model_
+        return self
+
+    def quantify(self, instances):
+        return self.best_model_.quantify(instances)
+
+    def set_params(self, **parameters):
+        self.param_grid = parameters
+
+    def get_params(self, deep=True):
+        return self.param_grid
 

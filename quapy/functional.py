@@ -57,6 +57,37 @@ def prevalence_from_probabilities(posteriors, binarize: bool = False):
         return prevalences
 
 
+def HellingerDistance(P, Q):
+    return np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q))**2))
+
+
+#def uniform_simplex_sampling(n_classes):
+    # from https://cs.stackexchange.com/questions/3227/uniform-sampling-from-a-simplex
+#    r = [0.] + sorted(np.random.rand(n_classes-1)) + [1.]
+#    return np.asarray([b-a for a,b in zip(r[:-1],r[1:])])
+
+
+
+def uniform_prevalence_sampling(n_classes, size=1):
+    if n_classes == 2:
+        u = np.random.rand(size)
+        u = np.vstack([1-u, u]).T
+    else:
+        # from https://cs.stackexchange.com/questions/3227/uniform-sampling-from-a-simplex
+        u = np.random.rand(size, n_classes-1)
+        u.sort(axis=-1)
+        _0s = np.zeros(shape=(size, 1))
+        _1s = np.ones(shape=(size, 1))
+        a = np.hstack([_0s, u])
+        b = np.hstack([u, _1s])
+        u = b-a
+    if size == 1:
+        u = u.flatten()
+    return u
+        #return np.asarray([uniform_simplex_sampling(n_classes) for _ in range(size)])
+
+uniform_simplex_sampling = uniform_prevalence_sampling
+
 def strprev(prevalences, prec=3):
     return '['+ ', '.join([f'{p:.{prec}f}' for p in prevalences]) + ']'
 
@@ -72,14 +103,17 @@ def adjusted_quantification(prevalence_estim, tpr, fpr, clip=True):
 
 
 def normalize_prevalence(prevalences):
-    assert prevalences.ndim==1, 'unexpected shape'
-    accum = prevalences.sum()
-    if accum > 0:
-        return prevalences / accum
-    else:
-        # if all classifiers are trivial rejectors
-        return np.ones_like(prevalences) / prevalences.size
-
+    prevalences = np.asarray(prevalences)
+    n_classes = prevalences.shape[-1]
+    accum = prevalences.sum(axis=-1, keepdims=True)
+    prevalences = np.true_divide(prevalences, accum, where=accum>0)
+    allzeros = accum.flatten()==0
+    if any(allzeros):
+        if prevalences.ndim == 1:
+            prevalences = np.full(shape=n_classes, fill_value=1./n_classes)
+        else:
+            prevalences[accum.flatten()==0] = np.full(shape=n_classes, fill_value=1./n_classes)
+    return prevalences
 
 
 def num_prevalence_combinations(n_prevpoints:int, n_classes:int, n_repeats:int=1):
