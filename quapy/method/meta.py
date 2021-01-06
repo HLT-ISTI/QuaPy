@@ -60,14 +60,6 @@ class Ensemble(BaseQuantifier):
             ) for prev in prevs
         )
 
-#        self.ensemble = [deepcopy(self.base_quantifier) for _ in range(self.size)]
-#        self.prevs = [self._valid_simplex_sampling(data.n_classes, min_val=min_freq) for _ in range(self.size)]
-#        self.samples = [data.sampling(sample_size, *Pi) for Pi in self.prevs]
-
-#        Parallel(n_jobs=self.n_jobs)(
-#            delayed(_delayed_fit)(Qi, Si) for Si, Qi, in zip(self.samples, self.ensemble)
-#        )
-
         # static selection policy (the name of a quantification-oriented error function to minimize)
         if self.policy in qp.error.QUANTIFICATION_ERROR_NAMES:
             self.accuracy_policy(error_name=self.policy)
