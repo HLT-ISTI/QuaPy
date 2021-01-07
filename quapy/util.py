@@ -64,6 +64,10 @@ def get_quapy_home():
     return home
 
 
+def create_parent_dir(path):
+    os.makedirs(Path(path).parent, exist_ok=True)
+
+
 def pickled_resource(pickle_path:str, generation_func:callable, *args):
     if pickle_path is None:
         return generation_func(*args)

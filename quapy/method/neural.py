@@ -76,11 +76,11 @@ class QuaNetTrainer(BaseQuantifier):
         self.tr_prev = data.prevalence()
 
         self.quantifiers = {
-            'cc': ClassifyAndCount(self.learner).fit(data, fit_learner=False),
-            'acc': AdjustedClassifyAndCount(self.learner).fit(data, fit_learner=False),
-            'pcc': ProbabilisticClassifyAndCount(self.learner).fit(data, fit_learner=False),
-            'pacc': ProbabilisticAdjustedClassifyAndCount(self.learner).fit(data, fit_learner=False),
-            'emq': ExpectationMaximizationQuantifier(self.learner).fit(data, fit_learner=False),
+            'cc': CC(self.learner).fit(data, fit_learner=False),
+            'acc': ACC(self.learner).fit(data, fit_learner=False),
+            'pcc': PCC(self.learner).fit(data, fit_learner=False),
+            'pacc': PACC(self.learner).fit(data, fit_learner=False),
+            'emq': EMQ(self.learner).fit(data, fit_learner=False),
         }
 
         self.status = {

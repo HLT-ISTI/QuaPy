@@ -5,13 +5,13 @@ from . import meta
 
 
 AGGREGATIVE_METHODS = {
-    aggregative.ClassifyAndCount,
-    aggregative.AdjustedClassifyAndCount,
-    aggregative.ProbabilisticClassifyAndCount,
-    aggregative.ProbabilisticAdjustedClassifyAndCount,
-    aggregative.ExplicitLossMinimisation,
-    aggregative.ExpectationMaximizationQuantifier,
-    aggregative.HellingerDistanceY
+    aggregative.CC,
+    aggregative.ACC,
+    aggregative.PCC,
+    aggregative.PACC,
+    aggregative.ELM,
+    aggregative.EMQ,
+    aggregative.HDy
 }
 
 NON_AGGREGATIVE_METHODS = {

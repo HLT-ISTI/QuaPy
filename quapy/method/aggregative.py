@@ -1,5 +1,6 @@
 import numpy as np
 from copy import deepcopy
+from sklearn.base import BaseEstimator, clone
 import functional as F
 import error
 from method.base import BaseQuantifier, BinaryQuantifier
@@ -130,13 +131,13 @@ def training_helper(learner,
 
 # Methods
 # ------------------------------------
-class ClassifyAndCount(AggregativeQuantifier):
+class CC(AggregativeQuantifier):
     """
     The most basic Quantification method. One that simply classifies all instances and countes how many have been
     attributed each of the classes in order to compute class prevalence estimates.
     """
 
-    def __init__(self, learner):
+    def __init__(self, learner:BaseEstimator):
         self.learner = learner
 
     def fit(self, data: LabelledCollection, fit_learner=True):
@@ -153,9 +154,9 @@ class ClassifyAndCount(AggregativeQuantifier):
         return F.prevalence_from_labels(classif_predictions, self.n_classes)
 
 
-class AdjustedClassifyAndCount(AggregativeQuantifier):
+class ACC(AggregativeQuantifier):
 
-    def __init__(self, learner):
+    def __init__(self, learner:BaseEstimator):
         self.learner = learner
 
     def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, LabelledCollection]=0.3):
@@ -169,7 +170,7 @@ class AdjustedClassifyAndCount(AggregativeQuantifier):
         :return: self
         """
         self.learner, validation = training_helper(self.learner, data, fit_learner, val_split=val_split)
-        self.cc = ClassifyAndCount(self.learner)
+        self.cc = CC(self.learner)
         y_ = self.classify(validation.instances)
         y  = validation.labels
         # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
@@ -182,7 +183,7 @@ class AdjustedClassifyAndCount(AggregativeQuantifier):
 
     def aggregate(self, classif_predictions):
         prevs_estim = self.cc.aggregate(classif_predictions)
-        return AdjustedClassifyAndCount.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
+        return ACC.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
 
     @classmethod
     def solve_adjustment(cls, PteCondEstim, prevs_estim):
@@ -198,8 +199,8 @@ class AdjustedClassifyAndCount(AggregativeQuantifier):
         return adjusted_prevs
 
 
-class ProbabilisticClassifyAndCount(AggregativeProbabilisticQuantifier):
-    def __init__(self, learner):
+class PCC(AggregativeProbabilisticQuantifier):
+    def __init__(self, learner:BaseEstimator):
         self.learner = learner
 
     def fit(self, data : LabelledCollection, fit_learner=True):
@@ -210,9 +211,9 @@ class ProbabilisticClassifyAndCount(AggregativeProbabilisticQuantifier):
         return F.prevalence_from_probabilities(classif_posteriors, binarize=False)
 
 
-class ProbabilisticAdjustedClassifyAndCount(AggregativeProbabilisticQuantifier):
+class PACC(AggregativeProbabilisticQuantifier):
 
-    def __init__(self, learner):
+    def __init__(self, learner:BaseEstimator):
         self.learner = learner
 
     def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, LabelledCollection]=0.3):
@@ -228,7 +229,7 @@ class ProbabilisticAdjustedClassifyAndCount(AggregativeProbabilisticQuantifier):
         self.learner, validation = training_helper(
             self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split
         )
-        self.pcc = ProbabilisticClassifyAndCount(self.learner)
+        self.pcc = PCC(self.learner)
         y_ = self.soft_classify(validation.instances)
         y  = validation.labels
         confusion = np.empty(shape=(data.n_classes, data.n_classes))
@@ -246,7 +247,7 @@ class ProbabilisticAdjustedClassifyAndCount(AggregativeProbabilisticQuantifier):
 
     def aggregate(self, classif_posteriors):
         prevs_estim = self.pcc.aggregate(classif_posteriors)
-        return AdjustedClassifyAndCount.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
+        return ACC.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
 
     def classify(self, data):
         return self.pcc.classify(data)
@@ -255,12 +256,12 @@ class ProbabilisticAdjustedClassifyAndCount(AggregativeProbabilisticQuantifier):
         return self.pcc.posterior_probabilities(data)
 
 
-class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
+class EMQ(AggregativeProbabilisticQuantifier):
 
     MAX_ITER = 1000
     EPSILON = 1e-4
 
-    def __init__(self, learner):
+    def __init__(self, learner:BaseEstimator):
         self.learner = learner
 
     def fit(self, data: LabelledCollection, fit_learner=True):
@@ -279,7 +280,7 @@ class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
 
         s, converged = 0, False
         qs_prev_ = None
-        while not converged and s < ExpectationMaximizationQuantifier.MAX_ITER:
+        while not converged and s < EMQ.MAX_ITER:
             # E-step: ps is Ps(y=+1|xi)
             ps_unnormalized = (qs / Ptr) * Px
             ps = ps_unnormalized / ps_unnormalized.sum(axis=1).reshape(-1,1)
@@ -299,14 +300,14 @@ class ExpectationMaximizationQuantifier(AggregativeProbabilisticQuantifier):
         return qs
 
 
-class HellingerDistanceY(AggregativeProbabilisticQuantifier, BinaryQuantifier):
+class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
     """
     Implementation of the method based on the Hellinger Distance y (HDy) proposed by
     González-Castro, V., Alaiz-Rodrı́guez, R., and Alegre, E. (2013). Class distribution
     estimation based on the Hellinger distance. Information Sciences, 218:146–164.
     """
 
-    def __init__(self, learner):
+    def __init__(self, learner:BaseEstimator):
         self.learner = learner
 
     def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, LabelledCollection]=0.3):
@@ -353,7 +354,7 @@ class HellingerDistanceY(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         return np.asarray([1-pos_class_prev, pos_class_prev])
 
 
-class ExplicitLossMinimisation(AggregativeQuantifier, BinaryQuantifier):
+class ELM(AggregativeQuantifier, BinaryQuantifier):
 
     def __init__(self, svmperf_base, loss, **kwargs):
         self.svmperf_base = svmperf_base
@@ -374,38 +375,38 @@ class ExplicitLossMinimisation(AggregativeQuantifier, BinaryQuantifier):
 
 
 
-class SVMQ(ExplicitLossMinimisation):
+class SVMQ(ELM):
     def __init__(self, svmperf_base, **kwargs):
         super(SVMQ, self).__init__(svmperf_base, loss='q', **kwargs)
 
 
-class SVMKLD(ExplicitLossMinimisation):
+class SVMKLD(ELM):
     def __init__(self, svmperf_base, **kwargs):
         super(SVMKLD, self).__init__(svmperf_base, loss='kld', **kwargs)
 
 
-class SVMNKLD(ExplicitLossMinimisation):
+class SVMNKLD(ELM):
     def __init__(self, svmperf_base, **kwargs):
         super(SVMNKLD, self).__init__(svmperf_base, loss='nkld', **kwargs)
 
 
-class SVMAE(ExplicitLossMinimisation):
+class SVMAE(ELM):
     def __init__(self, svmperf_base, **kwargs):
         super(SVMAE, self).__init__(svmperf_base, loss='mae', **kwargs)
 
 
-class SVMRAE(ExplicitLossMinimisation):
+class SVMRAE(ELM):
     def __init__(self, svmperf_base, **kwargs):
         super(SVMRAE, self).__init__(svmperf_base, loss='mrae', **kwargs)
 
 
-CC = ClassifyAndCount
-ACC = AdjustedClassifyAndCount
-PCC = ProbabilisticClassifyAndCount
-PACC = ProbabilisticAdjustedClassifyAndCount
-ELM = ExplicitLossMinimisation
-EMQ = ExpectationMaximizationQuantifier
-HDy = HellingerDistanceY
+ClassifyAndCount = CC
+AdjustedClassifyAndCount = ACC
+ProbabilisticClassifyAndCount = PCC
+ProbabilisticAdjustedClassifyAndCount = PACC
+ExplicitLossMinimisation = ELM
+ExpectationMaximizationQuantifier = EMQ
+HellingerDistanceY = HDy
 
 
 class OneVsAll(AggregativeQuantifier):
@@ -414,7 +415,7 @@ class OneVsAll(AggregativeQuantifier):
     quantifier for each class, and then l1-normalizes the outputs so that the class prevelences sum up to 1.
     This variant was used, along with the ExplicitLossMinimization quantifier in
     Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
-    Social Network Analysis and Mining6(19), 1–22 (2016)
+    Social Network Analysis and Mining 6(19), 1–22 (2016)
     """
 
     def __init__(self, binary_quantifier, n_jobs=-1):
@@ -484,15 +485,14 @@ class OneVsAll(AggregativeQuantifier):
         self.dict_binary_quantifiers[c].fit(bindata)
 
 
-def isaggregative(model):
+def isaggregative(model:BaseQuantifier):
     return isinstance(model, AggregativeQuantifier)
 
 
-def isprobabilistic(model):
+def isprobabilistic(model:BaseQuantifier):
     return isinstance(model, AggregativeProbabilisticQuantifier)
 
 
-def isbinary(model):
-    return isinstance(model, BinaryQuantifier)
+
 
 

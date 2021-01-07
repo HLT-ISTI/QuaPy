@@ -30,9 +30,9 @@ def artificial_sampling_prediction(
     :param random_seed: allows to replicate the samplings. The seed is local to the method and does not affect
     any other random process.
     :param verbose: if True, shows a progress bar
-    :return: two ndarrays of [m,n] with m the number of samples (n_prevpoints*n_repetitions) and n the
+    :return: two ndarrays of shape (m,n) with m the number of samples (n_prevpoints*n_repetitions) and n the
      number of classes. The first one contains the true prevalences for the samples generated while the second one
-     containing the the prevalences estimations
+     contains the the prevalence estimations
     """
 
     with temp_seed(random_seed):

@@ -4,6 +4,8 @@ from . import functional
 from . import method
 from . import data
 from . import evaluation
+from . import plot
+from . import util
 from method.aggregative import isaggregative, isprobabilistic
 
 
@@ -17,4 +19,4 @@ environ = {
 
 
 def isbinary(x):
-    return data.isbinary(x) or method.aggregative.isbinary(x)
+    return data.isbinary(x) or method.isbinary(x)

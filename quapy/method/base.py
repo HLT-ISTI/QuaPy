@@ -20,11 +20,23 @@ class BaseQuantifier(metaclass=ABCMeta):
     @abstractmethod
     def get_params(self, deep=True): ...
 
+    @property
+    def binary(self):
+        return False
+
 
 class BinaryQuantifier(BaseQuantifier):
     def _check_binary(self, data: LabelledCollection, quantifier_name):
         assert data.binary, f'{quantifier_name} works only on problems of binary classification. ' \
                             f'Use the class OneVsAll to enable {quantifier_name} work on single-label data.'
+
+    @property
+    def binary(self):
+        return True
+
+
+def isbinary(model:BaseQuantifier):
+    return model.binary
 
 
 # class OneVsAll(AggregativeQuantifier):
