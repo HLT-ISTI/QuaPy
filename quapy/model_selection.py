@@ -90,7 +90,7 @@ class GridSearchQ(BaseQuantifier):
         elif eval_budget is None:
             self.n_prevpoints = n_prevpoints
             eval_computations = F.num_prevalence_combinations(self.n_prevpoints, n_classes, n_repetitions)
-            self.sout(f'{eval_computations} evaluations will be performed for each\n'
+            self.sout(f'{eval_computations} evaluations will be performed for each '
                   f'combination of hyper-parameters')
         else:
             eval_computations = F.num_prevalence_combinations(n_prevpoints, n_classes, n_repetitions)
@@ -168,4 +168,9 @@ class GridSearchQ(BaseQuantifier):
 
     def get_params(self, deep=True):
         return self.param_grid
+
+    def best_model(self):
+        if hasattr(self, 'best_model_'):
+            return self.best_model_
+        raise ValueError('best_model called before fit')
 

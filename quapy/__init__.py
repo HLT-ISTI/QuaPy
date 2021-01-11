@@ -6,6 +6,7 @@ from . import data
 from . import evaluation
 from . import plot
 from . import util
+from . import model_selection
 from method.aggregative import isaggregative, isprobabilistic
 
 

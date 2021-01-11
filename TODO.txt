@@ -24,3 +24,4 @@ Implement HDy for single-label?
 Rename EMQ to SLD ?
 How many times is the system of equations for ACC and PACC not solved? How many times is it clipped? Do they sum up
     to one always?
+Parallelize the kFCV in ACC and PACC

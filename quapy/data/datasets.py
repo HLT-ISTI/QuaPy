@@ -53,6 +53,8 @@ def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle
         if min_df is not None:
             reduce_columns(data, min_df=min_df, inplace=True)
 
+    data.name = dataset_name
+
     return data
 
 
@@ -115,6 +117,8 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
 
     if min_df is not None:
         reduce_columns(data, min_df=min_df, inplace=True)
+
+    data.name = dataset_name
 
     return data
 

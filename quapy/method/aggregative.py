@@ -161,7 +161,7 @@ class ACC(AggregativeQuantifier):
     def __init__(self, learner:BaseEstimator):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, int, LabelledCollection]=0.3):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, int, LabelledCollection]=0.4):
         """
         Trains a ACC quantifier
         :param data: the training set
@@ -244,7 +244,7 @@ class PACC(AggregativeProbabilisticQuantifier):
     def __init__(self, learner:BaseEstimator):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, int, LabelledCollection]=0.3):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, int, LabelledCollection]=0.4):
         """
         Trains a PACC quantifier
         :param data: the training set
@@ -358,7 +358,7 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
     def __init__(self, learner: BaseEstimator):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, LabelledCollection]=0.3):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, LabelledCollection]=0.4):
         """
         Trains a HDy quantifier
         :param data: the training set

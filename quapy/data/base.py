@@ -132,26 +132,34 @@ class LabelledCollection:
     def Xy(self):
         return self.instances, self.labels
 
-    def stats(self):
+    def stats(self, show=True):
         ninstances = len(self)
         instance_type = type(self.instances[0])
         if instance_type == list:
             nfeats = len(self.instances[0])
-        elif instance_type == np.ndarray:
+        elif instance_type == np.ndarray or issparse(self.instances):
             nfeats = self.instances.shape[1]
         else:
             nfeats = '?'
-        print(f'#instances={ninstances}, type={instance_type}, features={nfeats}, n_classes={self.n_classes}, '
-              f'prevs={strprev(self.prevalence())}')
+        stats_ = {'instances': ninstances,
+                'type': instance_type,
+                'features': nfeats,
+                'classes': self.n_classes,
+                'prevs': strprev(self.prevalence())}
+        if show:
+            print(f'#instances={stats_["instances"]}, type={stats_["type"]}, #features={stats_["features"]}, '
+                  f'#classes={stats_["classes"]}, prevs={stats_["prevs"]}')
+        return stats_
 
 
 class Dataset:
 
-    def __init__(self, training: LabelledCollection, test: LabelledCollection, vocabulary: dict = None):
+    def __init__(self, training: LabelledCollection, test: LabelledCollection, vocabulary: dict = None, name=''):
         assert training.n_classes == test.n_classes, 'incompatible labels in training and test collections'
         self.training = training
         self.test = test
         self.vocabulary = vocabulary
+        self.name = name
 
     @classmethod
     def SplitStratified(cls, collection: LabelledCollection, train_size=0.6):
@@ -174,6 +182,13 @@ class Dataset:
     @property
     def vocabulary_size(self):
         return len(self.vocabulary)
+
+    def stats(self):
+        tr_stats = self.training.stats(show=False)
+        te_stats = self.test.stats(show=False)
+        print(f'Name={self.name} #tr-instances={tr_stats["instances"]}, #te-instances={te_stats["instances"]}, '
+              f'type={tr_stats["type"]}, #features={tr_stats["features"]}, #classes={tr_stats["classes"]}, '
+              f'tr-prevs={tr_stats["prevs"]}, te-prevs={te_stats["prevs"]}')
 
 
 def isbinary(data):
