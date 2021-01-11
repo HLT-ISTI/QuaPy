@@ -120,7 +120,10 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
 
 
 UCI_DATASETS = ['acute.a', 'acute.b',
-                'balance.1', 'balance.2', 'balance.3']
+                'balance.1', 'balance.2', 'balance.3',
+                'breast-cancer',
+                'cmc.1', 'cmc.2', 'cmc.3',
+                'ctg.1', 'ctg.2', 'ctg.3'] # ongoing...
 
 def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
 
@@ -136,6 +139,14 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
         'balance.1': 'balance-scale',
         'balance.2': 'balance-scale',
         'balance.3': 'balance-scale',
+        'breast-cancer': 'breast-cancer-wisconsin',
+        'cmc.1': 'cmc',
+        'cmc.2': 'cmc',
+        'cmc.3': 'cmc',
+        'ctg.1': 'ctg',
+        'ctg.2': 'ctg',
+        'ctg.3': 'ctg',
+
     }
 
     dataset_fullname = {
@@ -144,11 +155,20 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
         'balance.1': 'Balance Scale Weight & Distance Database (left)',
         'balance.2': 'Balance Scale Weight & Distance Database (balanced)',
         'balance.3': 'Balance Scale Weight & Distance Database (right)',
+        'breast-cancer':  'Breast Cancer Wisconsin (Original)',
+        'cmc.1': 'Contraceptive Method Choice (no use)',
+        'cmc.2': 'Contraceptive Method Choice (long term)',
+        'cmc.3': 'Contraceptive Method Choice (short term)',
+        'ctg.1': 'Cardiotocography Data Set (normal)',
+        'ctg.2': 'Cardiotocography Data Set (suspect)',
+        'ctg.3': 'Cardiotocography Data Set (pathologic)',
     }
 
     data_folder = {
         'acute': 'diagnosis',
         'balance-scale': 'balance-scale',
+        'breast-cancer-wisconsin': 'breast-cancer-wisconsin',
+        'cmc': 'cmc'
     }
 
     identifier = identifier_map[dataset_name]
@@ -183,8 +203,29 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
             y = binarize(df[0], pos_class='R')
         X = df.loc[:, 1:].astype(float).values
 
+    if identifier == 'breast-cancer-wisconsin':
+        df = pd.read_csv(f'{data_path}/{identifier}.data', header=None, sep=',')
+        Xy = df.loc[:, 1:10]
+        Xy[Xy=='?']=np.nan
+        Xy = Xy.dropna(axis=0)
+        X = Xy.loc[:, 1:9]
+        X = X.astype(float).values
+        y = binarize(Xy[10], pos_class=4)
+
+    if identifier == 'cmc':
+        df = pd.read_csv(f'{data_path}/{identifier}.data', header=None, sep=',')
+        X = df.loc[:, 0:8].astype(float).values
+        y = df[9].astype(int).values
+        if dataset_name == 'cmc.1':
+            y = binarize(y, pos_class=1)
+        elif dataset_name == 'cmc.2':
+            y = binarize(y, pos_class=2)
+        elif dataset_name == 'cmc.3':
+            y = binarize(y, pos_class=3)
+
     data = LabelledCollection(X, y)
     data.stats()
+    raise NotImplementedError()
     #print(df)
     #print(df.loc[:, 0:5].values)
     #print(y)

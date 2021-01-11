@@ -55,15 +55,15 @@ def binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=1, title
     save_or_show(savepath)
 
 
-def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=None, nbins=21, colormap=cm.tab10,
+def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=None, nbins=5, colormap=cm.tab10,
                      vertical_xticks=False, savepath=None):
     from pylab import boxplot, plot, setp
 
     fig, ax = plt.subplots()
     ax.grid()
 
-    bins = np.linspace(0, 1, nbins)
-    binwidth = 1/(nbins - 1)
+    bins = np.linspace(0, 1, nbins+1)
+    binwidth = 1/nbins
     data = {}
     for method, true_prev, estim_prev in zip(method_names, true_prevs, estim_prevs):
         true_prev = true_prev[:,pos_class]
@@ -110,7 +110,7 @@ def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=N
     # set_visible to False for all but the first element) after the legend has been placed
     hs=[ax.plot([0, 1], [0, 0], '-k', zorder=2)[0]]
     for colorid in range(len(method_names)):
-        h, = plot([1, 1], '-s', markerfacecolor=colormap.colors[colorid], color='k',
+        h, = plot([0, 0], '-s', markerfacecolor=colormap.colors[colorid], color='k',
                   mec=colormap.colors[colorid], linewidth=1.)
         hs.append(h)
     box = ax.get_position()
@@ -126,7 +126,7 @@ def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=N
     save_or_show(savepath)
 
 
-def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=21, error_name='ae', show_std=True,
+def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=20, error_name='ae', show_std=True,
                         title=f'Quantification error as a function of distribution shift',
                         savepath=None):
 
@@ -135,7 +135,6 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=21, e
 
     x_error = qp.error.ae
     y_error = getattr(qp.error, error_name)
-    ndims = tr_prevs[0].shape[-1]
 
     # join all data, and keep the order in which the methods appeared for the first time
     data = defaultdict(lambda:{'x':np.empty(shape=(0)), 'y':np.empty(shape=(0))})
@@ -152,8 +151,8 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=21, e
         if method not in method_order:
             method_order.append(method)
 
-    bins = np.linspace(0, 1, n_bins)
-    binwidth = 1 / (n_bins - 1)
+    bins = np.linspace(0, 1, n_bins+1)
+    binwidth = 1 / n_bins
     min_x, max_x = None, None
     for method in method_order:
         tr_test_drifts = data[method]['x']

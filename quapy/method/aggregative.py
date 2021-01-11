@@ -11,6 +11,8 @@ from sklearn.calibration import CalibratedClassifierCV
 from joblib import Parallel, delayed
 from abc import abstractmethod
 from typing import Union
+from sklearn.model_selection import StratifiedKFold
+from tqdm import tqdm
 
 
 # Abstract classes
@@ -115,8 +117,8 @@ def training_helper(learner,
                 train = data
                 unused = val_split
             else:
-                raise ValueError('train_val_split not understood; use either a float indicating the split proportion, '
-                                 'or a LabelledCollection indicating the validation split')
+                raise ValueError('param "val_split" not understood; use either a float indicating the split '
+                                 'proportion, or a LabelledCollection indicating the validation split')
         else:
             train, unused = data, None
         learner.fit(train.instances, train.labels)
@@ -159,23 +161,49 @@ class ACC(AggregativeQuantifier):
     def __init__(self, learner:BaseEstimator):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, LabelledCollection]=0.3):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, int, LabelledCollection]=0.3):
         """
         Trains a ACC quantifier
         :param data: the training set
         :param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
         :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
          validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
-         indicating the validation set itself
+         indicating the validation set itself, or an int indicating the number k of folds to be used in kFCV
+         to estimate the parameters
         :return: self
         """
-        self.learner, validation = training_helper(self.learner, data, fit_learner, val_split=val_split)
+        if isinstance(val_split, int):
+            # kFCV estimation of parameters
+            y, y_ = [], []
+            kfcv = StratifiedKFold(n_splits=val_split)
+            pbar = tqdm(kfcv.split(*data.Xy), total=val_split)
+            for k, (training_idx, validation_idx) in enumerate(pbar):
+                pbar.set_description(f'{self.__class__.__name__} fitting fold {k}')
+                training = data.sampling_from_index(training_idx)
+                validation = data.sampling_from_index(validation_idx)
+                learner, val_data = training_helper(self.learner, training, fit_learner, val_split=validation)
+                y_.append(learner.predict(val_data.instances))
+                y.append(val_data.labels)
+
+            y = np.concatenate(y)
+            y_ = np.concatenate(y_)
+            class_count = data.counts()
+
+            # fit the learner on all data
+            self.learner.fit(*data.Xy)
+
+        else:
+            self.learner, val_data = training_helper(self.learner, data, fit_learner, val_split=val_split)
+            y_ = self.learner.predict(val_data.instances)
+            y = val_data.labels
+            class_count = val_data.counts()
+
         self.cc = CC(self.learner)
-        y_ = self.classify(validation.instances)
-        y  = validation.labels
+
         # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
-        self.Pte_cond_estim_ = confusion_matrix(y,y_).T / validation.counts()
+        self.Pte_cond_estim_ = confusion_matrix(y, y_).T / class_count
+
         return self
 
     def classify(self, data):
@@ -216,33 +244,53 @@ class PACC(AggregativeProbabilisticQuantifier):
     def __init__(self, learner:BaseEstimator):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, LabelledCollection]=0.3):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, int, LabelledCollection]=0.3):
         """
         Trains a PACC quantifier
         :param data: the training set
         :param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
         :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
          validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
-         indicating the validation set itself
+         indicating the validation set itself, or an int indicating the number k of folds to be used in kFCV
+         to estimate the parameters
         :return: self
         """
-        self.learner, validation = training_helper(
-            self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split
-        )
+        if isinstance(val_split, int):
+            # kFCV estimation of parameters
+            y, y_ = [], []
+            kfcv = StratifiedKFold(n_splits=val_split)
+            pbar = tqdm(kfcv.split(*data.Xy), total=val_split)
+            for k, (training_idx, validation_idx) in enumerate(pbar):
+                pbar.set_description(f'{self.__class__.__name__} fitting fold {k}')
+                training = data.sampling_from_index(training_idx)
+                validation = data.sampling_from_index(validation_idx)
+                learner, val_data = training_helper(
+                    self.learner, training, fit_learner, ensure_probabilistic=True, val_split=validation)
+                y_.append(learner.predict_proba(val_data.instances))
+                y.append(val_data.labels)
+
+            y = np.concatenate(y)
+            y_ = np.vstack(y_)
+
+            # fit the learner on all data
+            self.learner.fit(*data.Xy)
+
+        else:
+            self.learner, val_data = training_helper(
+                self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
+            y_ = self.learner.predict_proba(val_data.instances)
+            y = val_data.labels
+
         self.pcc = PCC(self.learner)
-        y_ = self.soft_classify(validation.instances)
-        y  = validation.labels
+
+        # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
+        # document that belongs to yj ends up being classified as belonging to yi
         confusion = np.empty(shape=(data.n_classes, data.n_classes))
         for yi in range(data.n_classes):
             confusion[yi] = y_[y==yi].mean(axis=0)
 
         self.Pte_cond_estim_ = confusion.T
 
-        #y_ = self.classify(validation.instances)
-        #y = validation.labels
-        # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
-        # document that belongs to yj ends up being classified as belonging to yi
-        #self.Pte_cond_estim_ = confusion_matrix(y, y_).T / validation.counts()
         return self
 
     def aggregate(self, classif_posteriors):
@@ -261,7 +309,7 @@ class EMQ(AggregativeProbabilisticQuantifier):
     MAX_ITER = 1000
     EPSILON = 1e-4
 
-    def __init__(self, learner:BaseEstimator):
+    def __init__(self, learner: BaseEstimator):
         self.learner = learner
 
     def fit(self, data: LabelledCollection, fit_learner=True):
@@ -307,10 +355,10 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
     estimation based on the Hellinger distance. Information Sciences, 218:146–164.
     """
 
-    def __init__(self, learner:BaseEstimator):
+    def __init__(self, learner: BaseEstimator):
         self.learner = learner
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, LabelledCollection]=0.3):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, LabelledCollection]=0.3):
         """
         Trains a HDy quantifier
         :param data: the training set
@@ -404,9 +452,9 @@ ClassifyAndCount = CC
 AdjustedClassifyAndCount = ACC
 ProbabilisticClassifyAndCount = PCC
 ProbabilisticAdjustedClassifyAndCount = PACC
-ExplicitLossMinimisation = ELM
 ExpectationMaximizationQuantifier = EMQ
 HellingerDistanceY = HDy
+ExplicitLossMinimisation = ELM
 
 
 class OneVsAll(AggregativeQuantifier):
@@ -436,6 +484,9 @@ class OneVsAll(AggregativeQuantifier):
         return self
 
     def classify(self, instances):
+        # returns a matrix of shape (n,m) with n the number of instances and m the number of classes. The entry
+        # (i,j) is a binary value indicating whether instance i belongs to class j. The binary classifications are
+        # independent of each other, meaning that an instance can end up be attributed to 0, 1, or more classes.
         classif_predictions_bin = self.__parallel(self._delayed_binary_classification, instances)
         return classif_predictions_bin.T
 
@@ -475,10 +526,12 @@ class OneVsAll(AggregativeQuantifier):
         return self.dict_binary_quantifiers[c].classify(X)
 
     def _delayed_binary_quantify(self, c, X):
-        return self.dict_binary_quantifiers[c].quantify(X)[1]  # the estimation for the positive class prevalence
+        # the estimation for the positive class prevalence
+        return self.dict_binary_quantifiers[c].quantify(X)[1]
 
     def _delayed_binary_aggregate(self, c, classif_predictions):
-        return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:,c])[1]  # the estimation for the positive class prevalence
+        # the estimation for the positive class prevalence
+        return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:, c])[1]
 
     def _delayed_binary_fit(self, c, data):
         bindata = LabelledCollection(data.instances, data.labels == c, n_classes=2)
