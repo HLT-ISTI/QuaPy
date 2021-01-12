@@ -1,6 +1,6 @@
+import quapy as qp
 from typing import Union, Callable, Iterable
 from data import LabelledCollection
-from method.aggregative import AggregativeQuantifier, AggregativeProbabilisticQuantifier
 from method.base import BaseQuantifier
 from util import temp_seed
 import numpy as np
@@ -38,14 +38,18 @@ def artificial_sampling_prediction(
     with temp_seed(random_seed):
         indexes = list(test.artificial_sampling_index_generator(sample_size, n_prevpoints, n_repetitions))
 
-    if isinstance(model, AggregativeQuantifier):
+    if isinstance(model, qp.method.aggregative.AggregativeQuantifier):
+        print('\tinstance of aggregative-quantifier')
         quantification_func = model.aggregate
-        if isinstance(model, AggregativeProbabilisticQuantifier):
+        if isinstance(model, qp.method.aggregative.AggregativeProbabilisticQuantifier):
+            print('\t\tinstance of probabilitstic-aggregative-quantifier')
             preclassified_instances = model.posterior_probabilities(test.instances)
         else:
+            print('\t\tinstance of hard-aggregative-quantifier')
             preclassified_instances = model.classify(test.instances)
         test = LabelledCollection(preclassified_instances, test.labels)
     else:
+        print('\t\tinstance of base-quantifier')
         quantification_func = model.quantify
 
     def _predict_prevalences(index):

@@ -44,9 +44,9 @@ def quantification_models():
     __C_range = np.logspace(-4, 5, 10)
     lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
     #yield 'cc', qp.method.aggregative.CC(newLR()), lr_params
-    yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
+    #yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
     #yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
-    #yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
+    yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
 
 
 def result_path(dataset_name, model_name, optim_metric):
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
     np.random.seed(0)
 
-    for dataset_name in ['hcr']:  # qp.datasets.TWITTER_SENTIMENT_DATASETS:
+    for dataset_name in ['sanders']:  # qp.datasets.TWITTER_SENTIMENT_DATASETS:
 
         benchmark_devel = qp.datasets.fetch_twitter(dataset_name, for_model_selection=True, min_df=5, pickle=True)
         benchmark_devel.stats()
