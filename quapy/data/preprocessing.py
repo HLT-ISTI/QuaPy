@@ -137,7 +137,7 @@ class IndexTransformer:
 
     def index(self, documents):
         vocab = self.vocabulary_.copy()
-        return [[vocab.get(word, self.unk) for word in self.analyzer(doc)] for doc in tqdm(documents, 'indexing')]
+        return [[vocab.getscore(word, self.unk) for word in self.analyzer(doc)] for doc in tqdm(documents, 'indexing')]
 
     def fit_transform(self, X, n_jobs=-1):
         return self.fit(X).transform(X, n_jobs=n_jobs)

@@ -112,7 +112,7 @@ class GridSearchQ(BaseQuantifier):
             raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
                              f'the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}')
 
-    def fit(self, training: LabelledCollection, validation: Union[LabelledCollection, float]=0.3):
+    def fit(self, training: LabelledCollection, validation: Union[LabelledCollection, float]=0.4):
         """
         :param training: the training set on which to optimize the hyperparameters
         :param validation: either a LabelledCollection on which to test the performance of the different settings, or
@@ -121,6 +121,8 @@ class GridSearchQ(BaseQuantifier):
         training, validation = self.__check_training_validation(training, validation)
         self.__check_num_evals(self.n_prevpoints, self.eval_budget, self.n_repetitions, training.n_classes)
 
+        print(f'training size={len(training)}')
+        print(f'validation size={len(validation)}')
         params_keys = list(self.param_grid.keys())
         params_values = list(self.param_grid.values())
 

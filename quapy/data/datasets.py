@@ -9,9 +9,12 @@ import pandas as pd
 
 
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
-TWITTER_SENTIMENT_DATASETS = ['gasp', 'hcr', 'omd', 'sanders',
+TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',
                               'semeval13', 'semeval14', 'semeval15', 'semeval16',
                               'sst', 'wa', 'wb']
+TWITTER_SENTIMENT_DATASETS_TRAIN = ['gasp', 'hcr', 'omd', 'sanders',
+                                 'semeval', 'semeval16',
+                                 'sst', 'wa', 'wb']
 
 
 def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False):
@@ -63,6 +66,7 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
     Load a Twitter dataset as a Dataset instance, as used in:
     Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
     Social Network Analysis and Mining6(19), 1–22 (2016)
+    The datasets 'semeval13', 'semeval14', 'semeval15' share the same training set.
 
     :param dataset_name: the name of the dataset: valid ones are 'gasp', 'hcr', 'omd', 'sanders', 'semeval13',
     'semeval14', 'semeval15', 'semeval16', 'sst', 'wa', 'wb'
@@ -76,9 +80,11 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
     faster subsequent invokations
     :return: a Dataset instance
     """
-    assert dataset_name in TWITTER_SENTIMENT_DATASETS, \
+    assert dataset_name in TWITTER_SENTIMENT_DATASETS_TRAIN + TWITTER_SENTIMENT_DATASETS_TEST, \
         f'Name {dataset_name} does not match any known dataset for sentiment twitter. ' \
-        f'Valid ones are {TWITTER_SENTIMENT_DATASETS}'
+        f'Valid ones are {TWITTER_SENTIMENT_DATASETS_TRAIN} for model selection and ' \
+        f'{TWITTER_SENTIMENT_DATASETS_TEST} for test (datasets "semeval14", "semeval15", "semeval16" share ' \
+        f'a common training set "semeval")'
     if data_home is None:
         data_home = get_quapy_home()
 
@@ -97,6 +103,9 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
         print(f"the training and development sets for datasets 'semeval13', 'semeval14', 'semeval15' are common "
               f"(called 'semeval'); returning trainin-set='{trainset_name}' and test-set={testset_name}")
     else:
+        if dataset_name == 'semeval' and for_model_selection==False:
+            raise ValueError('dataset "semeval" can only be used for model selection. '
+                             'Use "semeval13", "semeval14", or "semeval15" for model evaluation.')
         trainset_name = testset_name = dataset_name
 
     if for_model_selection:
