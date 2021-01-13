@@ -4,6 +4,8 @@ from os import makedirs
 import sys, os
 import pickle
 from experiments import result_path
+from result_manager import ResultSet
+
 
 tables_path = './tables'
 MAXTONE = 50  # sets the intensity of the maximum color reached by the worst (red) and best (green) results
@@ -26,6 +28,8 @@ qp.environ['SAMPLE_SIZE'] = sample_size
 nice = {
     'mae':'AE',
     'mrae':'RAE',
+    'ae':'AE',
+    'rae':'RAE',
     'svmkld': 'SVM(KLD)',
     'svmnkld': 'SVM(NKLD)',
     'svmq': 'SVM(Q)',
@@ -43,8 +47,7 @@ nice = {
     'semeval15': 'SemEval15',
     'semeval16': 'SemEval16'
 }
-#     }
-# }
+
 
 
 def nicerm(key):
@@ -74,18 +77,23 @@ def save_table(path, table):
 # Tables evaluation scores for AE and RAE (two tables)
 # ----------------------------------------------------
 
+
+
 datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST
-evaluation_measures = [qp.error.mae, qp.error.mrae]
+evaluation_measures = [qp.error.ae, qp.error.rae]
 gao_seb_methods = ['cc', 'acc', 'pcc', 'pacc', 'emq', 'svmq', 'svmkld', 'svmnkld']
 
 results_dict = {}
 stats={}
-def getscore(dataset, method, loss):
-    path = result_path(dataset, method, loss)
+def addfunc(dataset, method, loss):
+    path = result_path(dataset, method, 'm'+loss if not loss.startswith('m') else loss)
     if os.path.exists(path):
         true_prevs, estim_prevs, _, _, _, _ = pickle.load(open(path, 'rb'))
-        err = getattr(qp.error, loss)
-        return err(true_prevs, estim_prevs)
+        err_fn = getattr(qp.error, loss)
+        errors = err_fn(true_prevs, estim_prevs)
+        return {
+            'values': errors,
+        }
     return None
 
 
@@ -95,6 +103,14 @@ for i, eval_func in enumerate(evaluation_measures):
     methods = gao_seb_methods + added_methods
     nold_methods = len(gao_seb_methods)
     nnew_methods = len(added_methods)
+
+    # fill table
+    TABLE = {}
+    for dataset in datasets:
+        TABLE[dataset] = ResultSet(dataset, addfunc, show_std=False, test="ttest_ind_from_stats", maxtone=50,
+                                   remove_mean='0.' if eval_func == qp.error.ae else '')
+        for method in methods:
+            TABLE[dataset].add(method, dataset, method, eval_name)
 
     tabular = """
     \\begin{tabularx}{\\textwidth}{|c||""" + ('Y|'*len(gao_seb_methods))+ '|' + ('Y|'*len(added_methods)) + """} \hline
@@ -108,12 +124,7 @@ for i, eval_func in enumerate(evaluation_measures):
     for dataset in datasets:
         tabular += nice.get(dataset, dataset.upper()) + ' '
         for method in methods:
-            #simplify...
-            score = getscore(dataset, method, eval_name)
-            if score:
-                tabular += f' & {score:.3f} '
-            else:
-                tabular += ' & --- '
+            tabular += ' & ' + TABLE[dataset].latex(method)
         tabular += '\\\\\hline\n'
     tabular += "\end{tabularx}"
 

@@ -17,11 +17,11 @@ def quantification_models():
         return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
     __C_range = np.logspace(-4, 5, 10)
     lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
-    yield 'cc', qp.method.aggregative.CC(newLR()), lr_params
-    yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
-    yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
-    yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
-    yield 'sld', lambda learner: qp.method.aggregative.EMQ(newLR()), lr_params
+    #yield 'cc', qp.method.aggregative.CC(newLR()), lr_params
+    #yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
+    #yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
+    #yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
+    yield 'sld', qp.method.aggregative.EMQ(newLR()), lr_params
 
 
 def evaluate_experiment(true_prevalences, estim_prevalences):
@@ -79,7 +79,7 @@ def run(experiment):
         sample_size=sample_size,
         n_prevpoints=21,
         n_repetitions=5,
-        error='mae',
+        error=optim_loss,
         refit=False,
         verbose=True
     )
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     np.random.seed(0)
 
     optim_losses = ['mae', 'mrae']
-    datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
+    datasets = ['hcr']#qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
     models = quantification_models()
 
     results = Parallel(n_jobs=n_jobs)(
