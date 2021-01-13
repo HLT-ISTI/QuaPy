@@ -21,6 +21,7 @@ def quantification_models():
     yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
     yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
     yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
+    yield 'sld', lambda learner: qp.method.aggregative.EMQ(newLR()), lr_params
 
 
 def evaluate_experiment(true_prevalences, estim_prevalences):
