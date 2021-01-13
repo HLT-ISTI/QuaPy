@@ -69,6 +69,8 @@ def run(experiment):
     if is_already_computed(dataset_name, model_name, optim_loss=optim_loss):
         print(f'result for dataset={dataset_name} model={model_name} loss={optim_loss} already computed.')
         return
+    else:
+        print(f'running dataset={dataset_name} model={model_name} loss={optim_loss}')
 
     benchmark_devel = qp.datasets.fetch_twitter(dataset_name, for_model_selection=True, min_df=5, pickle=True)
 
