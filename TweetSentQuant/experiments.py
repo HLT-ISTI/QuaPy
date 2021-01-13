@@ -17,10 +17,10 @@ def quantification_models():
         return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
     __C_range = np.logspace(-4, 5, 10)
     lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
-    #yield 'cc', qp.method.aggregative.CC(newLR()), lr_params
-    #yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
-    #yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
-    #yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
+    yield 'cc', qp.method.aggregative.CC(newLR()), lr_params
+    yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
+    yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
+    yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
     yield 'sld', qp.method.aggregative.EMQ(newLR()), lr_params
 
 
