@@ -119,7 +119,7 @@ if __name__ == '__main__':
     np.random.seed(0)
 
     optim_losses = ['mae', 'mrae']
-    datasets = ['hcr']#qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
+    datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
     models = quantification_models()
 
     results = Parallel(n_jobs=n_jobs)(
