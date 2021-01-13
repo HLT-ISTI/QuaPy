@@ -1,15 +1,7 @@
 from scipy.stats import wilcoxon, ttest_ind_from_stats
 import numpy as np
 
-"""
-class Table:
-    def __init__(self):
-        self.tab = {}
-        
-    def add(self, col, key, x):
-        if col not in self.tab:
-            self.tab[col] = ResultSet(col)
-"""
+
 
 class ResultSet:
     VALID_TESTS = [None, "wilcoxon", "ttest_ind_from_stats"]
@@ -18,7 +10,7 @@ class ResultSet:
     TTEST_SAME = 'same'
 
     def __init__(self, name, addfunc, compare='mean', lower_is_better=True, show_std=True, test="wilcoxon",
-                 remove_mean='0.', prec_mean=3, remove_std='0.', prec_std=3, maxtone=100, minval=None, maxval=None):
+                 remove_mean='', prec_mean=3, remove_std='', prec_std=3, maxtone=50, minval=None, maxval=None):
         """
 
         :param name: name of the result set (e.g., a Dataset)
@@ -65,13 +57,18 @@ class ResultSet:
             self.r[key]['nobs'] = len(vals)
         self.computed = False
 
+    def update(self):
+        if not self.computed:
+            self.compute()
+
     def compute(self):
         keylist = np.asarray(list(self.r.keys()))
         vallist = [self.r[key][self.compare] for key in keylist]
         keylist = keylist[np.argsort(vallist)]
 
-        minval = min(vallist) if self.minval is None else self.minval
-        maxval = max(vallist) if self.maxval is None else self.maxval
+        print(vallist)
+        self.range_minval = min(vallist) if self.minval is None else self.minval
+        self.range_maxval = max(vallist) if self.maxval is None else self.maxval
         if not self.lower_is_better:
             keylist = keylist[::-1]
 
@@ -88,10 +85,7 @@ class ResultSet:
 
             #color
             val = self.r[key][self.compare]
-            val = (val-minval)/(maxval-minval)
-            if self.lower_is_better:
-                val = 1-val
-            self.r[key]['color'] = color_red2green_01(val, self.maxtone)
+            self.r[key]['color'] = self.get_value_color(val, minval=self.range_minval, maxval=self.range_maxval)
 
             if self.test is not None:
                 if isbest:
@@ -115,11 +109,11 @@ class ResultSet:
         self.computed = True
 
     def latex(self, key, missing='--', color=True):
+
         if key not in self.r:
             return missing
 
-        if not self.computed:
-            self.compute()
+        self.update()
 
         rd = self.r[key]
         s = f"{rd['mean']:.{self.prec_mean}f}"
@@ -148,28 +142,51 @@ class ResultSet:
 
         return s
 
-    def mean(self, attr='mean', required:int=None):
+    def mean(self, attr='mean', required:int=None, missing=np.nan):
         """
-        returns the mean value for the "key" attribute
+        returns the mean value for the "attr" attribute
         :param attr: the attribute to average across results
         :param required: if specified, indicates the number of values that should be part of the mean; if this number
         is different, then the mean is not computed
+        :param missing: the value to return in case the required condition is not satisfied
         :return: the mean of the "key" attribute
         """
         keylist = list(self.r.keys())
         vallist = [self.r[key].get(attr, None) for key in keylist]
         if None in vallist:
-            return None
+            return missing
         if required is not None:
             if len(vallist) != required:
-                return None
+                return missing
         return np.mean(vallist)
 
     def get(self, key, attr, missing='--'):
         if key in self.r:
+            self.update()
             if attr in self.r[key]:
                 return self.r[key][attr]
         return missing
+
+    def get_color(self, key):
+        if key not in self.r:
+            return ''
+        self.update()
+        return self.r[key]['color']
+
+    def get_value_color(self, val, minval=None, maxval=None):
+        if minval is None or maxval is None:
+            self.update()
+            minval=self.range_minval
+            maxval=self.range_maxval
+        val = (val - minval) / (maxval - minval)
+        if self.lower_is_better:
+            val = 1 - val
+        return color_red2green_01(val, self.maxtone)
+
+    def change_compare(self, attr):
+        self.compare = attr
+        self.computed = False
+
 
 
 def color_red2green_01(val, maxtone=100):
@@ -185,24 +202,3 @@ def color_red2green_01(val, maxtone=100):
         tone = maxtone * val
     return '\cellcolor{' + color + f'!{int(tone)}' + '}'
 
-
-def add(x):
-    r = np.random.rand(100)/2+x
-    return {
-        'values': r
-    }
-
-"""
-r = ResultSet('dataset1', addfunc=add, show_std=False, minval=0, maxval=1)
-for x in range(10):
-    r.add(f'a{x}', np.random.randint(0,5) / 10)
-
-print(r.name)
-for x in range(10):
-    key = f'a{x}'
-    print(r.latex(key), r.get(key, 'rank'))
-
-print('----')
-print(f'ave: {r.mean():.3f}')
-print(f'averank: {r.mean("rank"):.3f}')
-"""

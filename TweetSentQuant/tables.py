@@ -1,4 +1,5 @@
 import quapy as qp
+import numpy as np
 from os import makedirs
 # from evaluate import evaluate_directory, statistical_significance, get_ranks_from_Gao_Sebastiani
 import sys, os
@@ -15,15 +16,6 @@ makedirs(tables_path, exist_ok=True)
 sample_size = 100
 qp.environ['SAMPLE_SIZE'] = sample_size
 
-
-
-# results_dict = evaluate_directory('results/*.pkl', evaluation_measures)
-# stats = {
-#     dataset : {
-#         'mae': statistical_significance(f'results/{dataset}-*-mae-run?.pkl', ae),
-#         'mrae': statistical_significance(f'results/{dataset}-*-mrae-run?.pkl', rae),
-#     } for dataset in datasets
-# }
 
 nice = {
     'mae':'AE',
@@ -45,7 +37,8 @@ nice = {
     'semeval13': 'SemEval13',
     'semeval14': 'SemEval14',
     'semeval15': 'SemEval15',
-    'semeval16': 'SemEval16'
+    'semeval16': 'SemEval16',
+    'Average': 'Average'
 }
 
 
@@ -68,6 +61,51 @@ def color_from_abs_rank(abs_rank, n_methods, maxtone=100):
     return color_from_rel_rank(rel_rank, maxtone)
 
 
+def load_Gao_Sebastiani_previous_results():
+    def rename(method):
+        old2new = {
+            'kld': 'svmkld',
+            'nkld': 'svmnkld',
+            'qbeta2': 'svmq',
+            'em': 'sld'
+        }
+        return old2new.get(method, method)
+
+    gao_seb_results = {}
+    with open('./Gao_Sebastiani_results.txt', 'rt') as fin:
+        lines = fin.readlines()
+        for line in lines[1:]:
+            line = line.strip()
+            parts = line.lower().split()
+            if len(parts) == 4:
+                dataset, method, ae, rae = parts
+            else:
+                method, ae, rae = parts
+            learner, method = method.split('-')
+            method = rename(method)
+            gao_seb_results[f'{dataset}-{method}-ae'] = float(ae)
+            gao_seb_results[f'{dataset}-{method}-rae'] = float(rae)
+    return gao_seb_results
+
+
+def get_ranks_from_Gao_Sebastiani():
+    gao_seb_results = load_Gao_Sebastiani_previous_results()
+    datasets = set([key.split('-')[0] for key in gao_seb_results.keys()])
+    methods = np.sort(np.unique([key.split('-')[1] for key in gao_seb_results.keys()]))
+    ranks = {}
+    for metric in ['ae', 'rae']:
+        for dataset in datasets:
+            scores = [gao_seb_results[f'{dataset}-{method}-{metric}'] for method in methods]
+            order = np.argsort(scores)
+            sorted_methods = methods[order]
+            for i, method in enumerate(sorted_methods):
+                ranks[f'{dataset}-{method}-{metric}'] = i+1
+        for method in methods:
+            rankave = np.mean([ranks[f'{dataset}-{method}-{metric}'] for dataset in datasets])
+            ranks[f'Average-{method}-{metric}'] = rankave
+    return ranks, gao_seb_results
+
+
 def save_table(path, table):
     print(f'saving results in {path}')
     with open(path, 'wt') as foo:
@@ -77,14 +115,12 @@ def save_table(path, table):
 # Tables evaluation scores for AE and RAE (two tables)
 # ----------------------------------------------------
 
-
-
 datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST
 evaluation_measures = [qp.error.ae, qp.error.rae]
-gao_seb_methods = ['cc', 'acc', 'pcc', 'pacc', 'emq', 'svmq', 'svmkld', 'svmnkld']
+gao_seb_methods = ['cc', 'acc', 'pcc', 'pacc', 'sld', 'svmq', 'svmkld', 'svmnkld']
+new_methods = []
 
-results_dict = {}
-stats={}
+
 def addfunc(dataset, method, loss):
     path = result_path(dataset, method, 'm'+loss if not loss.startswith('m') else loss)
     if os.path.exists(path):
@@ -96,103 +132,116 @@ def addfunc(dataset, method, loss):
         }
     return None
 
+def addave(method, tables):
+    values = []
+    for table in tables:
+        mean = table.get(method, 'values', missing=None)
+        if mean is None:
+            return None
+        values.append(mean)
+    values = np.concatenate(values)
+    return {
+        'values': values
+    }
+
+def addrankave(method, tables):
+    values = []
+    for table in tables:
+        rank = table.get(method, 'rank', missing=None)
+        if rank is None:
+            return None
+        values.append(rank)
+    return {
+        'values': np.asarray(values)
+    }
+
+
+TABLES = {eval_func.__name__:{} for eval_func in evaluation_measures}
 
 for i, eval_func in enumerate(evaluation_measures):
     eval_name = eval_func.__name__
-    added_methods = ['svm' + eval_name]  # , 'quanet', 'dys']
+    added_methods = ['svm' + eval_name] + new_methods
     methods = gao_seb_methods + added_methods
     nold_methods = len(gao_seb_methods)
     nnew_methods = len(added_methods)
 
     # fill table
-    TABLE = {}
+    TABLE = TABLES[eval_name]
     for dataset in datasets:
-        TABLE[dataset] = ResultSet(dataset, addfunc, show_std=False, test="ttest_ind_from_stats", maxtone=50,
-                                   remove_mean='0.' if eval_func == qp.error.ae else '')
+        TABLE[dataset] = ResultSet(dataset, addfunc, show_std=False, test="ttest_ind_from_stats")
         for method in methods:
             TABLE[dataset].add(method, dataset, method, eval_name)
 
+    TABLE['Average'] = ResultSet('ave', addave, show_std=False, test="ttest_ind_from_stats")
+    for method in methods:
+        TABLE['Average'].add(method, method, [TABLE[dataset] for dataset in datasets])
+
     tabular = """
     \\begin{tabularx}{\\textwidth}{|c||""" + ('Y|'*len(gao_seb_methods))+ '|' + ('Y|'*len(added_methods)) + """} \hline
-      & \multicolumn{"""+str(nold_methods)+"""}{c||}{Methods tested in~\cite{Gao:2016uq}} & \multicolumn{"""+str(nnew_methods)+"""}{c||}{} \\\\ \hline
+      & \multicolumn{"""+str(nold_methods)+"""}{c||}{Methods tested in~\cite{Gao:2016uq}} & \multicolumn{"""+str(nnew_methods)+"""}{c|}{} \\\\ \hline
     """
 
     for method in methods:
         tabular += ' & \side{' + nice.get(method, method.upper()) +'$^{' + nicerm(eval_name) + '}$} '
     tabular += '\\\\\hline\n'
 
-    for dataset in datasets:
+    for dataset in datasets + ['Average']:
+        if dataset == 'Average': tabular+= '\line\n'
         tabular += nice.get(dataset, dataset.upper()) + ' '
         for method in methods:
             tabular += ' & ' + TABLE[dataset].latex(method)
         tabular += '\\\\\hline\n'
+
     tabular += "\end{tabularx}"
 
     save_table(f'./tables/tab_results_{eval_name}.new.tex', tabular)
 
-sys.exit(0)
 
-# gao_seb_ranks, gao_seb_results = get_ranks_from_Gao_Sebastiani()
+gao_seb_ranks, gao_seb_results = get_ranks_from_Gao_Sebastiani()
 
 # Tables ranks for AE and RAE (two tables)
 # ----------------------------------------------------
-# for i, eval_func in enumerate(evaluation_measures):
-#     eval_name = eval_func.__name__
-#     methods = ['cc', 'acc', 'pcc', 'pacc', 'emq', 'svmq', 'svmkld', 'svmnkld']
-#     table = """
-#     \\begin{table}[h]
-#     """
-#     if i == 0:
-#         caption = """
-#           \caption{Rank positions of the quantification methods in the AE
-#           experiments, and (between parentheses) the rank positions
-#           obtained in the evaluation of~\cite{Gao:2016uq}.}
-#         """
-#     else:
-#         caption = "\caption{Same as Table~\\ref{tab:maeranks}, but with " + nice[eval_name] + " instead of AE.}"
-#     table += caption + """
-#             \\begin{center}
-#             \\resizebox{\\textwidth}{!}{
-#         """
-#     tabular = """
-#         \\begin{tabularx}{\\textwidth}{|c||Y|Y|Y|Y|Y|Y|Y|Y|} \hline
-#           & \multicolumn{8}{c|}{Methods tested in~\cite{Gao:2016uq}}  \\\\ \hline
-#     """
-#
-#     for method in methods:
-#         tabular += ' & \side{' + nice.get(method, method.upper()) +'$^{' + nicerm(eval_name) + '}$} '
-#     tabular += '\\\\\hline\n'
-#
-#     for dataset in datasets:
-#         tabular += nice.get(dataset, dataset.upper()) + ' '
-#         ranks_no_gap = []
-#         for method in methods:
-#             learner = 'lr' if not method.startswith('svm') else 'svmperf'
-#             key = f'{dataset}-{method}-{learner}-{}-{eval_name}'
-#             ranks_no_gap.append(stats[dataset][eval_name].get(key, (None, None, len(methods)))[2])
-#         ranks_no_gap = sorted(ranks_no_gap)
-#         ranks_no_gap = {rank:i+1 for i,rank in enumerate(ranks_no_gap)}
-#         for method in methods:
-#             learner = 'lr' if not method.startswith('svm') else 'svmperf'
-#             key = f'{dataset}-{method}-{learner}-{sample_size}-{eval_name}'
-#             if key in stats[dataset][eval_name]:
-#                 _, _, abs_rank = stats[dataset][eval_name][key]
-#                 real_rank = ranks_no_gap[abs_rank]
-#                 tabular += f' & {real_rank}'
-#                 tabular += color_from_abs_rank(real_rank, len(methods), maxtone=MAXTONE)
-#             else:
-#                 tabular += ' & --- '
-#             old_rank = gao_seb_ranks.get(f'{dataset}-{method}-{eval_name}', 'error')
-#             tabular += f' ({old_rank})'
-#         tabular += '\\\\\hline\n'
-#     tabular += "\end{tabularx}"
-#     table += tabular + """
-#         }
-#       \end{center}
-#       \label{tab:""" + eval_name + """ranks}
-#     \end{table}
-#     """
-#     save_table(f'../tables/tab_rank_{eval_name}.tex', table)
-#
-#
-# print("[Done]")
+for i, eval_func in enumerate(evaluation_measures):
+    eval_name = eval_func.__name__
+    methods = gao_seb_methods
+    nold_methods = len(gao_seb_methods)
+
+    TABLE = TABLES[eval_name]
+    TABLE['Average'] = ResultSet('ave', addrankave, show_std=False, test="ttest_ind_from_stats")
+    for method in methods:
+        TABLE['Average'].add(method, method, [TABLE[dataset] for dataset in datasets])
+
+
+    tabular = """
+    \\begin{tabularx}{\\textwidth}{|c||""" + ('Y|' * len(gao_seb_methods)) + """} \hline
+          & \multicolumn{""" + str(nold_methods) + """}{c||}{Methods tested in~\cite{Gao:2016uq}}  \\\\ \hline
+    """
+
+    for method in methods:
+        tabular += ' & \side{' + nice.get(method, method.upper()) +'$^{' + nicerm(eval_name) + '}$} '
+    tabular += '\\\\\hline\n'
+
+    for dataset in datasets + ['Average']:
+        if dataset == 'Average':
+            tabular += '\line\n'
+        else:
+            TABLE[dataset].change_compare('rank')
+        tabular += nice.get(dataset, dataset.upper()) + ' '
+        for method in gao_seb_methods:
+            if dataset == 'Average':
+                method_rank = TABLE[dataset].get(method, 'mean')
+            else:
+                method_rank = TABLE[dataset].get(method, 'rank')
+            gao_seb_rank = gao_seb_ranks[f'{dataset}-{method}-{eval_name}']
+            if dataset == 'Average':
+                if method_rank != '--':
+                    method_rank = f'{method_rank:.1f}'
+                gao_seb_rank = f'{gao_seb_rank:.1f}'
+            tabular += ' & ' + f'{method_rank}' + f' ({gao_seb_rank}) ' + TABLE[dataset].get_color(method)
+        tabular += '\\\\\hline\n'
+    tabular += "\end{tabularx}"
+
+    save_table(f'./tables/tab_rank_{eval_name}.new.tex', tabular)
+
+
+print("[Done]")
