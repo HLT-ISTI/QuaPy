@@ -6,41 +6,28 @@ from scipy.stats import ttest_ind_from_stats, wilcoxon
 class Table:
     VALID_TESTS = [None, "wilcoxon", "ttest"]
 
-    def __init__(self, rows, cols, addfunc, lower_is_better=True, ttest='ttest', prec_mean=3, clean_zero=False,
-                 show_std=False, prec_std=3):
+    def __init__(self, rows, cols, lower_is_better=True, ttest='ttest', prec_mean=3,
+                 clean_zero=False, show_std=False, prec_std=3, average=True, missing=None, missing_str='--', color=True):
         assert ttest in self.VALID_TESTS, f'unknown test, valid are {self.VALID_TESTS}'
+
         self.rows = np.asarray(rows)
-        self.row_index = {row:i for i,row in enumerate(rows)}
+        self.row_index = {row:i for i, row in enumerate(rows)}
+
         self.cols = np.asarray(cols)
-        self.col_index = {col:j for j,col in enumerate(cols)}
-        self.map = {}
-        self.mfunc = {}
-        self.rarr = {}
-        self.carr = {}
+        self.col_index = {col:j for j, col in enumerate(cols)}
+
+        self.map = {}  # keyed (#rows,#cols)-ndarrays holding computations from self.map['values']
         self._addmap('values', dtype=object)
-        self._addmap('fill', dtype=bool, func=lambda x: x is not None)
-        self._addmap('mean', dtype=float, func=np.mean)
-        self._addmap('std', dtype=float, func=np.std)
-        self._addmap('nobs', dtype=float, func=len)
-        self._addmap('rank', dtype=int, func=None)
-        self._addmap('color', dtype=object, func=None)
-        self._addmap('ttest', dtype=object, func=None)
-        self._addrarr('mean', dtype=float, func=np.mean, argmap='mean')
-        self._addrarr('min', dtype=float, func=np.min, argmap='mean')
-        self._addrarr('max', dtype=float, func=np.max, argmap='mean')
-        self._addcarr('mean', dtype=float, func=np.mean, argmap='mean')
-        self._addcarr('rank-mean', dtype=float, func=np.mean, argmap='rank')
-        if self.nrows>1:
-            self._col_ttest = Table(['ttest'], cols, _merge, lower_is_better, ttest)
-        else:
-            self._col_ttest = None
-        self.addfunc = addfunc
         self.lower_is_better = lower_is_better
         self.ttest = ttest
         self.prec_mean = prec_mean
         self.clean_zero = clean_zero
         self.show_std = show_std
         self.prec_std = prec_std
+        self.add_average = average
+        self.missing = missing
+        self.missing_str = missing_str
+        self.color = color
         self.touch()
 
     @property
@@ -58,27 +45,6 @@ class Table:
         if self.modif:
             self.compute()
 
-    def _addmap(self, map, dtype, func=None):
-        self.map[map] = np.empty((self.nrows, self.ncols), dtype=dtype)
-        self.mfunc[map] = func
-        self.touch()
-
-    def _addrarr(self, rarr, dtype, func=np.mean, argmap='mean'):
-        self.rarr[rarr] = {
-            'arr': np.empty(self.ncols, dtype=dtype),
-            'func': func,
-            'argmap': argmap
-        }
-        self.touch()
-
-    def _addcarr(self, carr, dtype, func=np.mean, argmap='mean'):
-        self.carr[carr] = {
-            'arr': np.empty(self.nrows, dtype=dtype),
-            'func': func,
-            'argmap': argmap
-        }
-        self.touch()
-
     def _getfilled(self):
         return np.argwhere(self.map['fill'])
 
@@ -89,34 +55,19 @@ class Table:
     def _indexes(self):
         return itertools.product(range(self.nrows), range(self.ncols))
 
-    def _runmap(self, map):
+    def _addmap(self, map, dtype, func=None):
+        self.map[map] = np.empty((self.nrows, self.ncols), dtype=dtype)
+        if func is None:
+            return
         m = self.map[map]
-        f = self.mfunc[map]
+        f = func
         if f is None:
             return
         indexes = self._indexes() if map == 'fill' else self._getfilled()
-        for i,j in indexes:
-            m[i,j] = f(self.values[i,j])
+        for i, j in indexes:
+            m[i, j] = f(self.values[i, j])
 
-    def _runrarr(self, rarr):
-        dic = self.rarr[rarr]
-        arr, f, map = dic['arr'], dic['func'], dic['argmap']
-        for col, cid in self.col_index.items():
-            if all(self.map['fill'][:, cid]):
-                arr[cid] = f(self.map[map][:, cid])
-            else:
-                arr[cid] = None
-
-    def _runcarr(self, carr):
-        dic = self.carr[carr]
-        arr, f, map = dic['arr'], dic['func'], dic['argmap']
-        for row, rid in self.row_index.items():
-            if all(self.map['fill'][rid, :]):
-                arr[rid] = f(self.map[map][rid, :])
-            else:
-                arr[rid] = None
-
-    def _runrank(self):
+    def _addrank(self):
         for i in range(self.nrows):
             filled_cols_idx = np.argwhere(self.map['fill'][i]).flatten()
             col_means = [self.map['mean'][i,j] for j in filled_cols_idx]
@@ -125,7 +76,7 @@ class Table:
                 ranked_cols_idx = ranked_cols_idx[::-1]
             self.map['rank'][i, ranked_cols_idx] = np.arange(1, len(filled_cols_idx)+1)
 
-    def _runcolor(self):
+    def _addcolor(self):
         for i in range(self.nrows):
             filled_cols_idx = np.argwhere(self.map['fill'][i]).flatten()
             if filled_cols_idx.size==0:
@@ -144,6 +95,12 @@ class Table:
                     normval = 1 - normval
                 self.map['color'][i, col_idx] = color_red2green_01(normval)
 
+    def _addlatex(self):
+        return
+        for i,j in self._getfilled():
+            self.map['latex'][i,j] = self.latex(self.rows[i], self.cols[j])
+
+
     def _run_ttest(self, row, col1, col2):
         mean1 = self.map['mean'][row, col1]
         std1 = self.map['std'][row, col1]
@@ -160,10 +117,10 @@ class Table:
         _, p_val = wilcoxon(values1, values2)
         return p_val
 
-    def _runttest(self):
+    def _addttest(self):
         if self.ttest is None:
             return
-        self.some_similar = False
+        self.some_similar = [False]*self.ncols
         for i in range(self.nrows):
             filled_cols_idx = np.argwhere(self.map['fill'][i]).flatten()
             if len(filled_cols_idx) <= 1:
@@ -182,62 +139,74 @@ class Table:
                 pval_outcome = pval_interpretation(p_val)
                 self.map['ttest'][i, j] = pval_outcome
                 if pval_outcome != 'Diff':
-                    self.some_similar = True
-
-    def get_col_average(self, col, arr='mean'):
-        self.update()
-        cid = self.col_index[col]
-        return self.rarr[arr]['arr'][cid]
-
-    def _map_list(self):
-        maps = list(self.map.keys())
-        maps.remove('fill')
-        maps.remove('values')
-        maps.remove('color')
-        maps.remove('ttest')
-        return ['fill'] + maps
+                    self.some_similar[j] = True
 
     def compute(self):
-        for map in self._map_list():
-            self._runmap(map)
-        self._runrank()
-        self._runcolor()
-        self._runttest()
-        for arr in self.rarr.keys():
-            self._runrarr(arr)
-        for arr in self.carr.keys():
-            self._runcarr(arr)
-        if self._col_ttest != None:
-            for col in self.cols:
-                self._col_ttest.add('ttest', col, self.col_index[col], self.map['fill'], self.values, self.map['mean'], self.ttest)
-                self._col_ttest.compute()
+        self._addmap('fill', dtype=bool, func=lambda x: x is not None)
+        self._addmap('mean', dtype=float, func=np.mean)
+        self._addmap('std', dtype=float, func=np.std)
+        self._addmap('nobs', dtype=float, func=len)
+        self._addmap('rank', dtype=int, func=None)
+        self._addmap('color', dtype=object, func=None)
+        self._addmap('ttest', dtype=object, func=None)
+        self._addmap('latex', dtype=object, func=None)
+        self._addrank()
+        self._addcolor()
+        self._addttest()
+        self._addlatex()
+        if self.add_average:
+            self._addave()
         self.modif = False
 
-    def add(self, row, col, *args, **kwargs):
-        print(row, col, args, kwargs)
-        values = self.addfunc(row, col, *args, **kwargs)
-        # if values is None:
-        #     raise ValueError(f'addfunc returned None for row={row} col={col}')
-        rid, cid = self.coord(row, col)
+    def _is_column_full(self, col):
+        return all(self.map['fill'][:, self.col_index[col]])
+
+    def _addave(self):
+        ave = Table(['ave'], self.cols, lower_is_better=self.lower_is_better, ttest=self.ttest, average=False,
+                    missing=self.missing, missing_str=self.missing_str)
+        for col in self.cols:
+            values = None
+            if self._is_column_full(col):
+                if self.ttest == 'ttest':
+                    values = np.asarray(self.map['mean'][:, self.col_index[col]])
+                else:  # wilcoxon
+                    values = np.concatenate(self.values[:, self.col_index[col]])
+            ave.add('ave', col, values)
+        self.average = ave
+
+    def add(self, row, col, values):
+        if values is not None:
+            values = np.asarray(values)
+            if values.ndim==0:
+                values = values.flatten()
+        rid, cid = self._coordinates(row, col)
         self.map['values'][rid, cid] = values
         self.touch()
 
     def get(self, row, col, attr='mean'):
-        assert attr in self.map, f'unknwon attribute {attr}'
         self.update()
-        rid, cid = self.coord(row, col)
+        assert attr in self.map, f'unknwon attribute {attr}'
+        rid, cid = self._coordinates(row, col)
         if self.map['fill'][rid, cid]:
-            return self.map[attr][rid, cid]
+            v = self.map[attr][rid, cid]
+            if v is None or (isinstance(v,float) and np.isnan(v)):
+                return self.missing
+            return v
+        else:
+            return self.missing
 
-    def coord(self, row, col):
+    def _coordinates(self, row, col):
         assert row in self.row_index, f'row {row} out of range'
         assert col in self.col_index, f'col {col} out of range'
         rid = self.row_index[row]
         cid = self.col_index[col]
         return rid, cid
 
-    def get_col_table(self):
-        return self._col_ttest
+    def get_average(self, col, attr='mean'):
+        self.update()
+        if self.add_average:
+            return self.average.get('ave', col, attr=attr)
+        return None
 
     def get_color(self, row, col):
         color = self.get(row, col, attr='color')
@@ -245,11 +214,11 @@ class Table:
             return ''
         return color
 
-    def latex(self, row, col, missing='--', color=True):
+    def latex(self, row, col):
         self.update()
-        i,j = self.coord(row, col)
+        i,j = self._coordinates(row, col)
         if self.map['fill'][i,j] == False:
-            return missing
+            return self.missing_str
 
         mean = self.map['mean'][i,j]
         l = f" {mean:.{self.prec_mean}f}"
@@ -257,77 +226,68 @@ class Table:
             l = l.replace(' 0.', '.')
 
         isbest = self.map['rank'][i,j] == 1
-
         if isbest:
-            l = "\\textbf{"+l+"}"
-        else:
-            if self.ttest is not None and self.some_similar:
-                test_label = self.map['ttest'][i,j]
-                if test_label == 'Sim':
-                    l += '^{\dag\phantom{\dag}}'
-                elif test_label == 'Same':
-                    l += '^{\ddag}'
-                elif test_label == 'Diff':
-                    l += '^{\phantom{\ddag}}'
+            l = "\\textbf{"+l.strip()+"}"
 
+        stat = ''
+        if self.ttest is not None and self.some_similar[j]:
+            test_label = self.map['ttest'][i,j]
+            if test_label == 'Sim':
+                stat = '^{\dag\phantom{\dag}}'
+            elif test_label == 'Same':
+                stat = '^{\ddag}'
+            elif isbest or test_label == 'Diff':
+                stat = '^{\phantom{\ddag}}'
+
+        std = ''
         if self.show_std:
             std = self.map['std'][i,j]
             std = f" {std:.{self.prec_std}f}"
             if self.clean_zero:
                 std = std.replace(' 0.', '.')
-            l += f" \pm {std}"
+            std = f" \pm {std:{self.prec_std}}"
 
-        l = f'$ {l} $'
-        if color:
+        if stat!='' or std!='':
+            l = f'{l}${stat}{std}$'
+
+        if self.color:
             l += ' ' + self.map['color'][i,j]
 
         return l
 
-    def latextabular(self, missing='--', color=True, rowreplace={}, colreplace={}, average=True):
+    def latexTabular(self, rowreplace={}, colreplace={}, average=True):
         tab = ' & '
         tab += ' & '.join([colreplace.get(col, col) for col in self.cols])
         tab += ' \\\\\hline\n'
         for row in self.rows:
             rowname = rowreplace.get(row, row)
             tab += rowname + ' & '
-            tab += self.latexrow(row, missing, color)
-            tab += ' \\\\\hline\n'
+            tab += self.latexRow(row)
 
         if average:
+            tab += '\hline\n'
             tab += 'Average & '
-            tab += self.latexave(missing, color)
-            tab += ' \\\\\hline\n'
+            tab += self.latexAverage()
         return tab
 
-
-    def latexrow(self, row, missing='--', color=True):
-        s = [self.latex(row, col, missing=missing, color=color) for col in self.cols]
+    def latexRow(self, row, endl='\\\\\hline\n'):
+        s = [self.latex(row, col) for col in self.cols]
         s = ' & '.join(s)
+        s += ' ' + endl
         return s
 
-    def latexave(self, missing='--', color=True):
-        return self._col_ttest.latexrow('ttest')
+    def latexAverage(self, endl='\\\\\hline\n'):
+        if self.add_average:
+            return self.average.latexRow('ave', endl=endl)
 
-    def get_rank_table(self):
-        t = Table(rows=self.rows, cols=self.cols, addfunc=_getrank, ttest=None, prec_mean=0)
-        for row, col in self._getfilled():
-            t.add(self.rows[row], self.cols[col], row, col, self.map['rank'])
+    def getRankTable(self):
+        t = Table(rows=self.rows, cols=self.cols, prec_mean=0, average=True)
+        for rid, cid in self._getfilled():
+            row = self.rows[rid]
+            col = self.cols[cid]
+            t.add(row, col, self.get(row, col, 'rank'))
+        t.compute()
         return t
-
-def _getrank(row, col, rowid, colid, rank):
-    return [rank[rowid, colid]]
-
-def _merge(unused, col, colidx, fill, values, means, ttest):
-    if all(fill[:,colidx]):
-        nrows = values.shape[0]
-        if ttest=='ttest':
-            values = np.asarray(means[:, colidx])
-        else:  # wilcoxon
-            values = [values[i, colidx] for i in range(nrows)]
-            values = np.concatenate(values)
-        return values
-    else:
-        return None
 
 def pval_interpretation(p_val):
     if 0.005 >= p_val:
@@ -352,21 +312,3 @@ def color_red2green_01(val, maxtone=50):
         tone = maxtone * val
     return '\cellcolor{' + color + f'!{int(tone)}' + '}'
 
-#
-# def addfunc(m,d, mean, size):
-#     return np.random.rand(size)+mean
-#
-# t = Table(rows = ['M1', 'M2', 'M3'], cols=['D1', 'D2', 'D3', 'D4'], addfunc=addfunc, ttest='wilcoxon')
-# t.add('M1','D1', mean=0.5, size=100)
-# t.add('M1','D2', mean=0.5, size=100)
-# t.add('M2','D1', mean=0.2, size=100)
-# t.add('M2','D2', mean=0.1, size=100)
-# t.add('M2','D3', mean=0.7, size=100)
-# t.add('M2','D4', mean=0.3, size=100)
-# t.add('M3','D1', mean=0.9, size=100)
-# t.add('M3','D2', mean=0, size=100)
-#
-# print(t.latextabular())
-#
-# print('rank')
-# print(t.get_rank_table().latextabular())
