@@ -144,7 +144,6 @@ for i, eval_func in enumerate(evaluation_measures):
 
     save_table(f'./tables/tab_results_{eval_name}.new.tex', tabular)
 
-
     # Tables ranks for AE and RAE (two tables)
     # ----------------------------------------------------
     methods = gao_seb_methods

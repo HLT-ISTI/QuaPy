@@ -7,7 +7,6 @@ import os
 import pickle
 import itertools
 from joblib import Parallel, delayed
-import multiprocessing
 import settings
 
 
@@ -78,6 +77,7 @@ def run(experiment):
         return
     else:
         print(f'running dataset={dataset_name} model={model_name} loss={optim_loss}')
+    return
 
     benchmark_devel = qp.datasets.fetch_twitter(dataset_name, for_model_selection=True, min_df=5, pickle=True)
     benchmark_devel.stats()
@@ -91,6 +91,7 @@ def run(experiment):
         n_repetitions=5,
         error=optim_loss,
         refit=False,
+        timeout=60*60,
         verbose=True
     )
     model_selection.fit(benchmark_devel.training, benchmark_devel.test)

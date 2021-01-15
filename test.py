@@ -20,7 +20,7 @@ param_grid = {'C': np.logspace(0,3,4), 'class_weight': ['balanced']}
 max_evaluations = 5000
 
 sample_size = qp.environ['SAMPLE_SIZE']
-binary = True
+binary = False
 svmperf_home = './svm_perf_quantification'
 
 if binary:
@@ -29,7 +29,7 @@ if binary:
 
 else:
     dataset = qp.datasets.fetch_twitter('hcr', for_model_selection=False, min_df=10, pickle=True)
-    dataset.training = dataset.training.sampling(sample_size, 0.2, 0.5, 0.3)
+    #dataset.training = dataset.training.sampling(sample_size, 0.2, 0.5, 0.3)
 
 print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.test)}')
 
@@ -52,14 +52,15 @@ print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.tes
 
 #learner = GridSearchCV(LogisticRegression(max_iter=1000), param_grid=param_grid, n_jobs=-1, verbose=1)
 learner = LogisticRegression(max_iter=1000)
-model = qp.method.meta.ECC(learner, size=20, red_size=10, param_grid=None, optim=None, policy='ds')
+model = qp.method.aggregative.ClassifyAndCount(learner)
+#model = qp.method.meta.ECC(learner, size=20, red_size=10, param_grid=None, optim=None, policy='ds')
 #model = qp.method.meta.EHDy(learner, param_grid=param_grid, optim='mae',
 #                           sample_size=sample_size, eval_budget=max_evaluations//10, n_jobs=-1)
 #model = qp.method.aggregative.ClassifyAndCount(learner)
 
 
-#if qp.isbinary(model) and not qp.isbinary(dataset):
-#    model = qp.method.aggregative.OneVsAll(model)
+if qp.isbinary(model) and not qp.isbinary(dataset):
+    model = qp.method.aggregative.OneVsAll(model)
 
 
 # Model fit and Evaluation on the test data
@@ -91,7 +92,6 @@ print(f'mae={error:.3f}')
 # Model fit and Evaluation according to the artificial sampling protocol
 # ----------------------------------------------------------------------------
 
-
 n_prevpoints = F.get_nprevpoints_approximation(combinations_budget=max_evaluations, n_classes=dataset.n_classes)
 n_evaluations = F.num_prevalence_combinations(n_prevpoints, dataset.n_classes)
 print(f'the prevalence interval [0,1] will be split in {n_prevpoints} prevalence points for each class, so that\n'
@@ -109,8 +109,6 @@ for error in qp.error.QUANTIFICATION_ERROR:
 
 # Model selection and Evaluation according to the artificial sampling protocol
 # ----------------------------------------------------------------------------
-sys.exit(0)
-
 
 model_selection = GridSearchQ(model,
                               param_grid=param_grid,
@@ -118,7 +116,8 @@ model_selection = GridSearchQ(model,
                               eval_budget=max_evaluations//10,
                               error='mae',
                               refit=True,
-                              verbose=True)
+                              verbose=True,
+                              timeout=4)
 
 model = model_selection.fit(dataset.training, validation=0.3)
 #model = model_selection.fit(train, validation=val)

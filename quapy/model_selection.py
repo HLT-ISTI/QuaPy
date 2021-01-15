@@ -6,6 +6,7 @@ from method.aggregative import BaseQuantifier
 from typing import Union, Callable
 import functional as F
 from copy import deepcopy
+import signal
 
 
 class GridSearchQ(BaseQuantifier):
@@ -21,6 +22,7 @@ class GridSearchQ(BaseQuantifier):
                  refit=False,
                  n_jobs=-1,
                  random_seed=42,
+                 timeout=-1,
                  verbose=False):
         """
         Optimizes the hyperparameters of a quantification method, based on an evaluation method and on an evaluation
@@ -48,6 +50,9 @@ class GridSearchQ(BaseQuantifier):
         the best chosen hyperparameter combination
         :param n_jobs: number of parallel jobs
         :param random_seed: set the seed of the random generator to replicate experiments
+        :param timeout: establishes a timer (in seconds) for each of the hyperparameters configurations being tested.
+        Whenever a run takes longer than this timer, that configuration will be ignored. If all configurations end up
+        being ignored, a TimeoutError exception is raised. If -1 (default) then no time bound is set.
         :param verbose: set to True to get information through the stdout
         """
         self.model = model
@@ -59,8 +64,8 @@ class GridSearchQ(BaseQuantifier):
         self.refit = refit
         self.n_jobs = n_jobs
         self.random_seed = random_seed
+        self.timeout = timeout
         self.verbose = verbose
-
         self.__check_error(error)
 
     def sout(self, msg):
@@ -129,28 +134,48 @@ class GridSearchQ(BaseQuantifier):
         model = self.model
         n_jobs = self.n_jobs
 
+        if self.timeout > 0:
+            def handler(signum, frame):
+                self.sout('timeout reached')
+                raise TimeoutError()
+            signal.signal(signal.SIGALRM, handler)
+
         self.sout(f'starting optimization with n_jobs={n_jobs}')
         self.param_scores_ = {}
         self.best_score_ = None
+        some_timeouts = False
         for values in itertools.product(*params_values):
             params = {k: values[i] for i, k in enumerate(params_keys)}
 
-            # overrides default parameters with the parameters being explored at this iteration
-            model.set_params(**params)
-            model.fit(training)
-            true_prevalences, estim_prevalences = artificial_sampling_prediction(
-                model, validation, self.sample_size, self.n_prevpoints, self.n_repetitions, n_jobs, self.random_seed,
-                verbose=False
-            )
+            if self.timeout > 0:
+                signal.alarm(self.timeout)
 
-            score = self.error(true_prevalences, estim_prevalences)
-            self.sout(f'checking hyperparams={params} got {self.error.__name__} score {score:.5f}')
-            if self.best_score_ is None or score < self.best_score_:
-                self.best_score_ = score
-                self.best_params_ = params
-                if not self.refit:
-                    self.best_model_ = deepcopy(model)
-            self.param_scores_[str(params)] = score
+            try:
+                # overrides default parameters with the parameters being explored at this iteration
+                model.set_params(**params)
+                model.fit(training)
+                true_prevalences, estim_prevalences = artificial_sampling_prediction(
+                    model, validation, self.sample_size, self.n_prevpoints, self.n_repetitions, n_jobs, self.random_seed,
+                    verbose=False
+                )
+
+                score = self.error(true_prevalences, estim_prevalences)
+                self.sout(f'checking hyperparams={params} got {self.error.__name__} score {score:.5f}')
+                if self.best_score_ is None or score < self.best_score_:
+                    self.best_score_ = score
+                    self.best_params_ = params
+                    if not self.refit:
+                        self.best_model_ = deepcopy(model)
+                self.param_scores_[str(params)] = score
+
+                if self.timeout > 0:
+                    signal.alarm(0)
+            except TimeoutError:
+                print(f'timeout reached for config {params}')
+                some_timeouts = True
+
+        if self.best_score_ is None and some_timeouts:
+            raise TimeoutError('all jobs took more than the timeout time to end')
 
         self.sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f})')
         model.set_params(**self.best_params_)

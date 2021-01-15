@@ -20,4 +20,4 @@ environ = {
 
 
 def isbinary(x):
-    return data.isbinary(x) or method.isbinary(x)
+    return x.binary

@@ -95,11 +95,6 @@ class Table:
                     normval = 1 - normval
                 self.map['color'][i, col_idx] = color_red2green_01(normval)
 
-    def _addlatex(self):
-        return
-        for i,j in self._getfilled():
-            self.map['latex'][i,j] = self.latex(self.rows[i], self.cols[j])
-
 
     def _run_ttest(self, row, col1, col2):
         mean1 = self.map['mean'][row, col1]
@@ -153,7 +148,6 @@ class Table:
         self._addrank()
         self._addcolor()
         self._addttest()
-        self._addlatex()
         if self.add_average:
             self._addave()
         self.modif = False
