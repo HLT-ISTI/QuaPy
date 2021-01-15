@@ -1,5 +1,5 @@
 from . import error
-from data import datasets
+from .data import datasets
 from . import functional
 from . import method
 from . import data
