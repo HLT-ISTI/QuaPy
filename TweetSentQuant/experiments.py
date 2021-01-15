@@ -1,5 +1,6 @@
 from sklearn.linear_model import LogisticRegression
 import quapy as qp
+from quapy.method.aggregative import OneVsAll
 import quapy.functional as F
 import numpy as np
 import os
@@ -7,9 +8,7 @@ import pickle
 import itertools
 from joblib import Parallel, delayed
 import multiprocessing
-
-
-n_jobs = multiprocessing.cpu_count()
+import settings
 
 
 def quantification_models():
@@ -17,11 +16,19 @@ def quantification_models():
         return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
     __C_range = np.logspace(-4, 5, 10)
     lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
+    svmperf_params = {'C': __C_range}
     yield 'cc', qp.method.aggregative.CC(newLR()), lr_params
     yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
     yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
     yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
     yield 'sld', qp.method.aggregative.EMQ(newLR()), lr_params
+    yield 'svmq', OneVsAll(qp.method.aggregative.SVMQ(settings.SVMPERF_HOME)), svmperf_params
+    yield 'svmkld', OneVsAll(qp.method.aggregative.SVMKLD(settings.SVMPERF_HOME)), svmperf_params
+    yield 'svmnkld', OneVsAll(qp.method.aggregative.SVMNKLD(settings.SVMPERF_HOME)), svmperf_params
+
+#     'svmmae': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='mae'),
+#     'svmmrae': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='mrae'),
+#     'mlpe': lambda learner: MaximumLikelihoodPrevalenceEstimation(),
 
 
 def evaluate_experiment(true_prevalences, estim_prevalences):
@@ -73,6 +80,7 @@ def run(experiment):
         print(f'running dataset={dataset_name} model={model_name} loss={optim_loss}')
 
     benchmark_devel = qp.datasets.fetch_twitter(dataset_name, for_model_selection=True, min_df=5, pickle=True)
+    benchmark_devel.stats()
 
     # model selection (hyperparameter optimization for a quantification-oriented loss)
     model_selection = qp.model_selection.GridSearchQ(
@@ -122,18 +130,8 @@ if __name__ == '__main__':
     datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
     models = quantification_models()
 
-    results = Parallel(n_jobs=n_jobs)(
+    results = Parallel(n_jobs=settings.N_JOBS)(
         delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
     )
 
 
-# QUANTIFIER_ALIASES = {
-#     'emq': lambda learner: ExpectationMaximizationQuantifier(learner),
-#     'svmq': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='q'),
-#     'svmkld': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='kld'),
-#     'svmnkld': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='nkld'),
-#     'svmmae': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='mae'),
-#     'svmmrae': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='mrae'),
-#     'mlpe': lambda learner: MaximumLikelihoodPrevalenceEstimation(),
-# }
-#

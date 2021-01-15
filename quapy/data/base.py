@@ -186,7 +186,7 @@ class Dataset:
     def stats(self):
         tr_stats = self.training.stats(show=False)
         te_stats = self.test.stats(show=False)
-        print(f'Name={self.name} #tr-instances={tr_stats["instances"]}, #te-instances={te_stats["instances"]}, '
+        print(f'Dataset={self.name} #tr-instances={tr_stats["instances"]}, #te-instances={te_stats["instances"]}, '
               f'type={tr_stats["type"]}, #features={tr_stats["features"]}, #classes={tr_stats["classes"]}, '
               f'tr-prevs={tr_stats["prevs"]}, te-prevs={te_stats["prevs"]}')
 

@@ -408,11 +408,12 @@ class ELM(AggregativeQuantifier, BinaryQuantifier):
         self.svmperf_base = svmperf_base
         self.loss = loss
         self.kwargs = kwargs
+        self.learner = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs)
 
     def fit(self, data: LabelledCollection, fit_learner=True):
         self._check_binary(data, self.__class__.__name__)
         assert fit_learner, 'the method requires that fit_learner=True'
-        self.learner = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs).fit(data.instances, data.labels)
+        self.learner.fit(data.instances, data.labels)
         return self
 
     def aggregate(self, classif_predictions:np.ndarray):
