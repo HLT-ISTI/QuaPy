@@ -19,20 +19,19 @@ def quantification_models():
     def newLR():
         return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
     __C_range = np.logspace(-4, 5, 10)
-    #lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
+    lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
     svmperf_params = {'C': __C_range}
-    lr_params = {'C': [1,10]}
     yield 'cc', qp.method.aggregative.CC(newLR()), lr_params
-    #yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
-    #yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
-    #yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
-    #yield 'sld', qp.method.aggregative.EMQ(newLR()), lr_params
+    yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
+    yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
+    yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
+    yield 'sld', qp.method.aggregative.EMQ(newLR()), lr_params
     #yield 'svmq', OneVsAll(qp.method.aggregative.SVMQ(settings.SVMPERF_HOME)), svmperf_params
     #yield 'svmkld', OneVsAll(qp.method.aggregative.SVMKLD(settings.SVMPERF_HOME)), svmperf_params
     #yield 'svmnkld', OneVsAll(qp.method.aggregative.SVMNKLD(settings.SVMPERF_HOME)), svmperf_params
+    yield 'svmmae', OneVsAll(qp.method.aggregative.SVMAE(settings.SVMPERF_HOME)), svmperf_params
+    yield 'svmmrae', OneVsAll(qp.method.aggregative.SVMRAE(settings.SVMPERF_HOME)), svmperf_params
 
-#     'svmmae': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='mae'),
-#     'svmmrae': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='mrae'),
 #     'mlpe': lambda learner: MaximumLikelihoodPrevalenceEstimation(),
 
 
@@ -81,9 +80,12 @@ def run(experiment):
     if is_already_computed(dataset_name, model_name, optim_loss=optim_loss):
         print(f'result for dataset={dataset_name} model={model_name} loss={optim_loss} already computed.')
         return
+    elif (optim_loss=='mae' and model_name=='svmmrae') or (optim_loss=='mrae' and model_name=='svmmae'):
+        print(f'skipping model={model_name} for optim_loss={optim_loss}')
+        return
     else:
         print(f'running dataset={dataset_name} model={model_name} loss={optim_loss}')
-
+        
     benchmark_devel = qp.datasets.fetch_twitter(dataset_name, for_model_selection=True, min_df=5, pickle=True)
     benchmark_devel.stats()
 
