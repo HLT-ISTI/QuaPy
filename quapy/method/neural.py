@@ -1,11 +1,12 @@
 import os
 from pathlib import Path
+
 import torch
 from torch.nn import MSELoss
 from torch.nn.functional import relu
-from tqdm import tqdm
-from method.aggregative import *
-from util import EarlyStop
+
+from quapy.method.aggregative import *
+from quapy.util import EarlyStop
 
 
 class QuaNetTrainer(BaseQuantifier):

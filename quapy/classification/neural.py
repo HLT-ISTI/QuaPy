@@ -1,6 +1,7 @@
 import os
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -8,10 +9,10 @@ import torch.nn.functional as F
 from sklearn.metrics import accuracy_score, f1_score
 from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
+
+import quapy as qp
 from data import LabelledCollection
 from util import EarlyStop
-import quapy as qp
-
 
 
 class NeuralClassifierTrainer:

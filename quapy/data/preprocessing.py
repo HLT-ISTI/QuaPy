@@ -1,11 +1,12 @@
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
-from data.base import Dataset
 from scipy.sparse import spmatrix
-from util import parallelize
-from .base import LabelledCollection
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from tqdm import tqdm
+
 import quapy as qp
+from quapy.data.base import Dataset
+from quapy.util import parallelize
+from .base import LabelledCollection
 
 
 def text2tfidf(dataset:Dataset, min_df=3, sublinear_tf=True, inplace=False, **kwargs):

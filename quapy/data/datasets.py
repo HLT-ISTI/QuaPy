@@ -1,12 +1,13 @@
-import zipfile
-from util import download_file_if_not_exists, download_file, get_quapy_home, pickled_resource
 import os
+import zipfile
 from os.path import join
-from data.base import Dataset, LabelledCollection
-from data.reader import *
-from data.preprocessing import text2tfidf, reduce_columns
+
 import pandas as pd
 
+from data.base import Dataset, LabelledCollection
+from quapy.data.preprocessing import text2tfidf, reduce_columns
+from quapy.data.reader import *
+from quapy.util import download_file_if_not_exists, download_file, get_quapy_home, pickled_resource
 
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
 TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',

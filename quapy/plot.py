@@ -1,9 +1,10 @@
 from collections import defaultdict
-import matplotlib.pyplot as plt
-from matplotlib import cm
-import numpy as np
-import quapy as qp
 
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import cm
+
+import quapy as qp
 
 plt.rcParams['figure.figsize'] = [12, 8]
 plt.rcParams['figure.dpi'] = 200

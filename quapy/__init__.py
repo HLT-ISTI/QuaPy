@@ -1,13 +1,13 @@
 from . import error
-from .data import datasets
+from . import data
+from quapy.data import datasets
 from . import functional
 from . import method
-from . import data
 from . import evaluation
 from . import plot
 from . import util
 from . import model_selection
-from method.aggregative import isaggregative, isprobabilistic
+from quapy.method.aggregative import isaggregative, isprobabilistic
 
 
 environ = {

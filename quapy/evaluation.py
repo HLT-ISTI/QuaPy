@@ -1,12 +1,13 @@
-import quapy as qp
 from typing import Union, Callable, Iterable
-from data import LabelledCollection
-from method.base import BaseQuantifier
-from util import temp_seed
+
 import numpy as np
 from joblib import Parallel, delayed
 from tqdm import tqdm
-import error
+
+import quapy as qp
+from quapy.data import LabelledCollection
+from quapy.method.base import BaseQuantifier
+from quapy.util import temp_seed
 
 
 def artificial_sampling_prediction(
@@ -72,8 +73,8 @@ def artificial_sampling_prediction(
 
 def evaluate(model: BaseQuantifier, test_samples:Iterable[LabelledCollection], err:Union[str, Callable], n_jobs:int=-1):
     if isinstance(err, str):
-        err = getattr(error, err)
-    assert err.__name__ in error.QUANTIFICATION_ERROR_NAMES, \
+        err = getattr(qp.error, err)
+    assert err.__name__ in qp.error.QUANTIFICATION_ERROR_NAMES, \
         f'error={err} does not seem to be a quantification error'
     scores = Parallel(n_jobs=n_jobs)(
         delayed(_delayed_eval)(model, Ti, err) for Ti in test_samples

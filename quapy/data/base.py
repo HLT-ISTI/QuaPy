@@ -1,8 +1,8 @@
 import numpy as np
 from scipy.sparse import issparse
+from scipy.sparse import vstack
 from sklearn.model_selection import train_test_split
 from quapy.functional import artificial_prevalence_sampling, strprev
-from scipy.sparse import vstack
 
 
 class LabelledCollection:

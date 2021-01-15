@@ -1,7 +1,7 @@
-from sklearn.metrics import f1_score
 import numpy as np
-import quapy as qp
+from sklearn.metrics import f1_score
 
+import quapy as qp
 
 
 def f1e(y_true, y_pred):

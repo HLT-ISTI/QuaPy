@@ -1,9 +1,10 @@
 import random
 import subprocess
 import tempfile
-from os.path import join, exists
 from os import remove
+from os.path import join, exists
 from subprocess import PIPE, STDOUT
+
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.datasets import dump_svmlight_file

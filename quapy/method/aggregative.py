@@ -1,18 +1,19 @@
-import numpy as np
-from copy import deepcopy
-from sklearn.base import BaseEstimator, clone
-import functional as F
-import error
-from method.base import BaseQuantifier, BinaryQuantifier
-from classification.svmperf import SVMperf
-from data import LabelledCollection
-from sklearn.metrics import confusion_matrix
-from sklearn.calibration import CalibratedClassifierCV
-from joblib import Parallel, delayed
 from abc import abstractmethod
+from copy import deepcopy
 from typing import Union
+
+import numpy as np
+from joblib import Parallel, delayed
+from sklearn.base import BaseEstimator
+from sklearn.calibration import CalibratedClassifierCV
+from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold
 from tqdm import tqdm
+
+import quapy.functional as F
+from quapy.classification.svmperf import SVMperf
+from quapy.data import LabelledCollection
+from quapy.method.base import BaseQuantifier, BinaryQuantifier
 
 
 # Abstract classes

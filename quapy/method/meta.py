@@ -1,16 +1,17 @@
+from copy import deepcopy
+
 import numpy as np
-from sklearn.linear_model import LogisticRegressionCV, LogisticRegression
+from joblib import Parallel, delayed
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV, cross_val_predict
 
 import quapy as qp
-from sklearn.model_selection import GridSearchCV, cross_val_predict
-from model_selection import GridSearchQ
-from .base import BaseQuantifier, BinaryQuantifier
-from joblib import Parallel, delayed
-from copy import deepcopy
-from data import LabelledCollection
 from quapy import functional as F
+from quapy.data import LabelledCollection
+from quapy.evaluation import evaluate
+from quapy.model_selection import GridSearchQ
 from . import neural
-from evaluation import evaluate
+from .base import BaseQuantifier
 
 QuaNet = neural.QuaNetTrainer
 

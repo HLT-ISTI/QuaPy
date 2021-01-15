@@ -1,6 +1,7 @@
-from collections import defaultdict
-import numpy as np
 import itertools
+from collections import defaultdict
+
+import numpy as np
 
 
 def artificial_prevalence_sampling(dimensions, n_prevalences=21, repeat=1, return_constrained_dim=False):
@@ -59,13 +60,6 @@ def prevalence_from_probabilities(posteriors, binarize: bool = False):
 
 def HellingerDistance(P, Q):
     return np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q))**2))
-
-
-#def uniform_simplex_sampling(n_classes):
-    # from https://cs.stackexchange.com/questions/3227/uniform-sampling-from-a-simplex
-#    r = [0.] + sorted(np.random.rand(n_classes-1)) + [1.]
-#    return np.asarray([b-a for a,b in zip(r[:-1],r[1:])])
-
 
 
 def uniform_prevalence_sampling(n_classes, size=1):

@@ -1,12 +1,13 @@
 import itertools
-import quapy as qp
-from evaluation import artificial_sampling_prediction
-from data.base import LabelledCollection
-from method.aggregative import BaseQuantifier
-from typing import Union, Callable
-import functional as F
-from copy import deepcopy
 import signal
+from copy import deepcopy
+from typing import Union, Callable
+
+import quapy as qp
+import quapy.functional as F
+from data.base import LabelledCollection
+from quapy.evaluation import artificial_sampling_prediction
+from quapy.method.aggregative import BaseQuantifier
 
 
 class GridSearchQ(BaseQuantifier):
@@ -80,8 +81,8 @@ class GridSearchQ(BaseQuantifier):
             training, validation = training.split_stratified(train_prop=1-validation)
             return training, validation
         else:
-            raise ValueError('"validation" must either be a LabelledCollection or a float in (0,1) indicating the'
-                             'proportion of training documents to extract')
+            raise ValueError(f'"validation" must either be a LabelledCollection or a float in (0,1) indicating the'
+                             f'proportion of training documents to extract (found) {type(validation)}')
 
     def __check_num_evals(self, n_prevpoints, eval_budget, n_repetitions, n_classes):
         if n_prevpoints is None and eval_budget is None:

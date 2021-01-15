@@ -8,22 +8,28 @@ import pickle
 import itertools
 from joblib import Parallel, delayed
 import settings
+import argparse
+
+parser = argparse.ArgumentParser(description='Run experiments for Tweeter Sentiment Quantification')
+parser.add_argument('results', metavar='RESULT_PATH', type=str, help='path to the directory where to store the results')
+args = parser.parse_args()
 
 
 def quantification_models():
     def newLR():
         return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
     __C_range = np.logspace(-4, 5, 10)
-    lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
+    #lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
     svmperf_params = {'C': __C_range}
+    lr_params = {'C': [1,10]}
     yield 'cc', qp.method.aggregative.CC(newLR()), lr_params
-    yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
-    yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
-    yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
-    yield 'sld', qp.method.aggregative.EMQ(newLR()), lr_params
-    yield 'svmq', OneVsAll(qp.method.aggregative.SVMQ(settings.SVMPERF_HOME)), svmperf_params
-    yield 'svmkld', OneVsAll(qp.method.aggregative.SVMKLD(settings.SVMPERF_HOME)), svmperf_params
-    yield 'svmnkld', OneVsAll(qp.method.aggregative.SVMNKLD(settings.SVMPERF_HOME)), svmperf_params
+    #yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
+    #yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
+    #yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
+    #yield 'sld', qp.method.aggregative.EMQ(newLR()), lr_params
+    #yield 'svmq', OneVsAll(qp.method.aggregative.SVMQ(settings.SVMPERF_HOME)), svmperf_params
+    #yield 'svmkld', OneVsAll(qp.method.aggregative.SVMKLD(settings.SVMPERF_HOME)), svmperf_params
+    #yield 'svmnkld', OneVsAll(qp.method.aggregative.SVMNKLD(settings.SVMPERF_HOME)), svmperf_params
 
 #     'svmmae': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='mae'),
 #     'svmmrae': lambda learner: OneVsAllELM(settings.SVM_PERF_HOME, loss='mrae'),
@@ -47,7 +53,7 @@ def evaluate_method_point_test(true_prev, estim_prev):
 
 
 def result_path(dataset_name, model_name, optim_loss):
-    return f'./results/{dataset_name}-{model_name}-{optim_loss}.pkl'
+    return os.path.join(args.results, f'{dataset_name}-{model_name}-{optim_loss}.pkl')
 
 
 def is_already_computed(dataset_name, model_name, optim_loss):
@@ -77,7 +83,6 @@ def run(experiment):
         return
     else:
         print(f'running dataset={dataset_name} model={model_name} loss={optim_loss}')
-    return
 
     benchmark_devel = qp.datasets.fetch_twitter(dataset_name, for_model_selection=True, min_df=5, pickle=True)
     benchmark_devel.stats()
@@ -125,6 +130,7 @@ def run(experiment):
 
 if __name__ == '__main__':
 
+    print(f'Result folder: {args.results}')
     np.random.seed(0)
 
     optim_losses = ['mae', 'mrae']

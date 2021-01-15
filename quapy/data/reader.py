@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.sparse import dok_matrix
 from tqdm import tqdm
-import pandas as pd
 
 
 def from_text(path):

@@ -1,12 +1,13 @@
+import contextlib
 import itertools
 import multiprocessing
-from joblib import Parallel, delayed
-import contextlib
-import numpy as np
-import urllib
 import os
-from pathlib import Path
 import pickle
+import urllib
+from pathlib import Path
+
+import numpy as np
+from joblib import Parallel, delayed
 
 
 def get_parallel_slices(n_tasks, n_jobs=-1):

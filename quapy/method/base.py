@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
-from data import LabelledCollection
+
+from quapy.data import LabelledCollection
 
 
 # Base Quantifier abstract class
