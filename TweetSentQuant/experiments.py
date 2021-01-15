@@ -12,6 +12,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Run experiments for Tweeter Sentiment Quantification')
 parser.add_argument('results', metavar='RESULT_PATH', type=str, help='path to the directory where to store the results')
+parser.add_argument('svmperfpath', metavar='SVMPERF_PATH', type=str, help='path to the directory with svmperf')
 args = parser.parse_args()
 
 
@@ -26,11 +27,11 @@ def quantification_models():
     yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
     yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
     yield 'sld', qp.method.aggregative.EMQ(newLR()), lr_params
-    #yield 'svmq', OneVsAll(qp.method.aggregative.SVMQ(settings.SVMPERF_HOME)), svmperf_params
-    #yield 'svmkld', OneVsAll(qp.method.aggregative.SVMKLD(settings.SVMPERF_HOME)), svmperf_params
-    #yield 'svmnkld', OneVsAll(qp.method.aggregative.SVMNKLD(settings.SVMPERF_HOME)), svmperf_params
-    yield 'svmmae', OneVsAll(qp.method.aggregative.SVMAE(settings.SVMPERF_HOME)), svmperf_params
-    yield 'svmmrae', OneVsAll(qp.method.aggregative.SVMRAE(settings.SVMPERF_HOME)), svmperf_params
+    yield 'svmq', OneVsAll(qp.method.aggregative.SVMQ(args.svmperfpath)), svmperf_params
+    yield 'svmkld', OneVsAll(qp.method.aggregative.SVMKLD(args.svmperfpath)), svmperf_params
+    yield 'svmnkld', OneVsAll(qp.method.aggregative.SVMNKLD(args.svmperfpath)), svmperf_params
+    yield 'svmmae', OneVsAll(qp.method.aggregative.SVMAE(args.svmperfpath)), svmperf_params
+    yield 'svmmrae', OneVsAll(qp.method.aggregative.SVMRAE(args.svmperfpath)), svmperf_params
 
 #     'mlpe': lambda learner: MaximumLikelihoodPrevalenceEstimation(),
 
@@ -85,7 +86,7 @@ def run(experiment):
         return
     else:
         print(f'running dataset={dataset_name} model={model_name} loss={optim_loss}')
-        
+
     benchmark_devel = qp.datasets.fetch_twitter(dataset_name, for_model_selection=True, min_df=5, pickle=True)
     benchmark_devel.stats()
 
