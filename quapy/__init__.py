@@ -7,7 +7,7 @@ from . import evaluation
 from . import plot
 from . import util
 from . import model_selection
-from quapy.method.aggregative import isaggregative, isprobabilistic
+from quapy.method.base import isprobabilistic, isaggregative
 
 
 environ = {
@@ -21,3 +21,5 @@ environ = {
 
 def isbinary(x):
     return x.binary
+
+

@@ -157,7 +157,7 @@ class GridSearchQ(BaseQuantifier):
                 model.fit(training)
                 true_prevalences, estim_prevalences = artificial_sampling_prediction(
                     model, validation, self.sample_size, self.n_prevpoints, self.n_repetitions, n_jobs, self.random_seed,
-                    verbose=False
+                    verbose=True
                 )
 
                 score = self.error(true_prevalences, estim_prevalences)

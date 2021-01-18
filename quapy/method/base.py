@@ -5,12 +5,10 @@ from quapy.data import LabelledCollection
 
 # Base Quantifier abstract class
 # ------------------------------------
-
-
 class BaseQuantifier(metaclass=ABCMeta):
 
     @abstractmethod
-    def fit(self, data): ...
+    def fit(self, data: LabelledCollection): ...
 
     @abstractmethod
     def quantify(self, instances): ...
@@ -21,8 +19,18 @@ class BaseQuantifier(metaclass=ABCMeta):
     @abstractmethod
     def get_params(self, deep=True): ...
 
+    # these methods allows meta-learners to reimplement the decision based on their constituents, and not
+    # based on class structure
     @property
     def binary(self):
+        return False
+
+    @property
+    def aggregative(self):
+        return False
+
+    @property
+    def probabilistic(self):
         return False
 
 
@@ -40,7 +48,15 @@ def isbinary(model:BaseQuantifier):
     return model.binary
 
 
-# class OneVsAll(AggregativeQuantifier):
+def isaggregative(model:BaseQuantifier):
+    return model.aggregative
+
+
+def isprobabilistic(model:BaseQuantifier):
+    return model.probabilistic
+
+
+# class OneVsAll:
 #     """
 #     Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary
 #     quantifier for each class, and then l1-normalizes the outputs so that the class prevelences sum up to 1.

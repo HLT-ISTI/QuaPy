@@ -152,6 +152,19 @@ class Ensemble(BaseQuantifier):
         order = np.argsort(dist)
         return select_k(predictions, order, k=self.red_size)
 
+    @property
+    def binary(self):
+        return self.base_quantifier.binary
+
+    @property
+    def aggregative(self):
+        raise NotImplementedError('aggregative functionality not yet supported for Ensemble')
+
+    @property
+    def probabilistic(self):
+        raise NotImplementedError('probabilistic functionality not yet supported for Ensemble')
+        #return self.base_quantifier.probabilistic
+
 
 def get_probability_distribution(posterior_probabilities, bins=8):
     assert posterior_probabilities.shape[1]==2, 'the posterior probabilities do not seem to be for a binary problem'

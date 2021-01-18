@@ -1,7 +1,6 @@
 from abc import abstractmethod
 from copy import deepcopy
 from typing import Union
-
 import numpy as np
 from joblib import Parallel, delayed
 from sklearn.base import BaseEstimator
@@ -60,6 +59,10 @@ class AggregativeQuantifier(BaseQuantifier):
     def classes(self):
         return self.learner.classes_
 
+    @property
+    def aggregative(self):
+        return True
+
 
 class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
     """
@@ -84,6 +87,9 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
             parameters={'base_estimator__'+k:v for k,v in parameters.items()}
         self.learner.set_params(**parameters)
 
+    @property
+    def probabilistic(self):
+        return True
 
 
 # Helper
@@ -385,6 +391,10 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         Px = self.posterior_probabilities(validation.instances)[:,1]  # takes only the P(y=+1|x)
         self.Pxy1 = Px[validation.labels == 1]
         self.Pxy0 = Px[validation.labels == 0]
+        # pre-compute the histogram for positive and negative examples
+        self.bins = np.linspace(10, 110, 11, dtype=int)  #[10, 20, 30, ..., 100, 110]
+        self.Pxy1_density = {bins: np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)[0] for bins in self.bins}
+        self.Pxy0_density = {bins: np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)[0] for bins in self.bins}
         return self
 
     def aggregate(self, classif_posteriors):
@@ -395,9 +405,12 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         Px = classif_posteriors[:,1]  # takes only the P(y=+1|x)
 
         prev_estimations = []
-        for bins in np.linspace(10, 110, 11, dtype=int):  #[10, 20, 30, ..., 100, 110]
-            Pxy0_density, _ = np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)
-            Pxy1_density, _ = np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)
+        #for bins in np.linspace(10, 110, 11, dtype=int):  #[10, 20, 30, ..., 100, 110]
+            #Pxy0_density, _ = np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)
+            #Pxy1_density, _ = np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)
+        for bins in self.bins:
+            Pxy0_density = self.Pxy0_density[bins]
+            Pxy1_density = self.Pxy1_density[bins]
 
             Px_test, _ = np.histogram(Px, bins=bins, range=(0, 1), density=True)
 
@@ -488,9 +501,7 @@ class OneVsAll(AggregativeQuantifier):
         assert isinstance(self.binary_quantifier, BaseQuantifier), \
             f'{self.binary_quantifier} does not seem to be a Quantifier'
         assert fit_learner==True, 'fit_learner must be True'
-        if not isinstance(self.binary_quantifier, BinaryQuantifier):
-            raise ValueError(f'{self.binary_quantifier.__class__.__name__} does not seem to be an instance of '
-                             f'{BinaryQuantifier.__class__.__name__}')
+
         self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in data.classes_}
         self.__parallel(self._delayed_binary_fit, data)
         return self
@@ -502,20 +513,39 @@ class OneVsAll(AggregativeQuantifier):
         classif_predictions_bin = self.__parallel(self._delayed_binary_classification, instances)
         return classif_predictions_bin.T
 
+    def posterior_probabilities(self, instances):
+        # returns a matrix of shape (n,m,2) with n the number of instances and m the number of classes. The entry
+        # (i,j,1) (resp. (i,j,0)) is a value in [0,1] indicating the posterior probability that instance i belongs
+        # (resp. does not belong) to class j.
+        # The posterior probabilities are independent of each other, meaning that, in general, they do not sum
+        # up to one.
+        if not self.binary_quantifier.probabilistic:
+            raise NotImplementedError(f'{self.__class__.__name__} does not implement posterior_probabilities because '
+                                      f'the base quantifier {self.binary_quantifier.__class__.__name__} is not '
+                                      f'probabilistic')
+        posterior_predictions_bin = self.__parallel(self._delayed_binary_posteriors, instances)
+        return np.swapaxes(posterior_predictions_bin, 0, 1)
+
     def aggregate(self, classif_predictions_bin):
-        assert set(np.unique(classif_predictions_bin)).issubset({0,1}), \
-            'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
-            'predictions for each document (row) and class (columns)'
+        if self.probabilistic:
+            assert classif_predictions_bin.shape[1]==self.n_classes and classif_predictions_bin.shape[2]==2, \
+                'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of posterior ' \
+                'probabilities (2 dimensions) for each document (row) and class (columns)'
+        else:
+            assert set(np.unique(classif_predictions_bin)).issubset({0,1}), \
+                'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
+                'predictions for each document (row) and class (columns)'
         prevalences = self.__parallel(self._delayed_binary_aggregate, classif_predictions_bin)
-        #prevalences = []
-        #for c in self.classes:
-        #    prevalences.append(self._delayed_binary_aggregate(c, classif_predictions_bin))
-        #prevalences = np.asarray(prevalences)
         return F.normalize_prevalence(prevalences)
 
     def quantify(self, X):
-        prevalences = self.__parallel(self._delayed_binary_quantify, X)
-        return F.normalize_prevalence(prevalences)
+        if self.probabilistic:
+            predictions = self.posterior_probabilities(X)
+        else:
+            predictions = self.classify(X)
+        return self.aggregate(predictions)
+        #prevalences = self.__parallel(self._delayed_binary_quantify, X)
+        #return F.normalize_prevalence(prevalences)
 
     def __parallel(self, func, *args, **kwargs):
         return np.asarray(
@@ -537,9 +567,12 @@ class OneVsAll(AggregativeQuantifier):
     def _delayed_binary_classification(self, c, X):
         return self.dict_binary_quantifiers[c].classify(X)
 
-    def _delayed_binary_quantify(self, c, X):
+    def _delayed_binary_posteriors(self, c, X):
+        return self.dict_binary_quantifiers[c].posterior_probabilities(X)
+
+    #def _delayed_binary_quantify(self, c, X):
         # the estimation for the positive class prevalence
-        return self.dict_binary_quantifiers[c].quantify(X)[1]
+    #    return self.dict_binary_quantifiers[c].quantify(X)[1]
 
     def _delayed_binary_aggregate(self, c, classif_predictions):
         # the estimation for the positive class prevalence
@@ -549,13 +582,14 @@ class OneVsAll(AggregativeQuantifier):
         bindata = LabelledCollection(data.instances, data.labels == c, n_classes=2)
         self.dict_binary_quantifiers[c].fit(bindata)
 
+    @property
+    def binary(self):
+        return False
 
-def isaggregative(model:BaseQuantifier):
-    return isinstance(model, AggregativeQuantifier)
+    @property
+    def probabilistic(self):
+        return self.binary_quantifier.probabilistic
 
-
-def isprobabilistic(model:BaseQuantifier):
-    return isinstance(model, AggregativeProbabilisticQuantifier)
 
 
 

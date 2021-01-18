@@ -1,6 +1,6 @@
 from sklearn.linear_model import LogisticRegression
 import quapy as qp
-from quapy.method.aggregative import OneVsAll
+from quapy.method.aggregative import CC, ACC, PCC, PACC, EMQ, OneVsAll, SVMQ, SVMKLD, SVMNKLD, SVMAE, SVMRAE, HDy
 import quapy.functional as F
 import numpy as np
 import os
@@ -22,19 +22,26 @@ def quantification_models():
     __C_range = np.logspace(-4, 5, 10)
     lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
     svmperf_params = {'C': __C_range}
-    yield 'cc', qp.method.aggregative.CC(newLR()), lr_params
-    yield 'acc', qp.method.aggregative.ACC(newLR()), lr_params
-    yield 'pcc', qp.method.aggregative.PCC(newLR()), lr_params
-    yield 'pacc', qp.method.aggregative.PACC(newLR()), lr_params
-    yield 'sld', qp.method.aggregative.EMQ(newLR()), lr_params
-    yield 'svmq', OneVsAll(qp.method.aggregative.SVMQ(args.svmperfpath)), svmperf_params
-    yield 'svmkld', OneVsAll(qp.method.aggregative.SVMKLD(args.svmperfpath)), svmperf_params
-    yield 'svmnkld', OneVsAll(qp.method.aggregative.SVMNKLD(args.svmperfpath)), svmperf_params
-    yield 'svmmae', OneVsAll(qp.method.aggregative.SVMAE(args.svmperfpath)), svmperf_params
-    yield 'svmmrae', OneVsAll(qp.method.aggregative.SVMRAE(args.svmperfpath)), svmperf_params
 
-    #sld = qp.method.aggregative.EMQ(newLR())
-    #yield 'paccsld', qp.method.aggregative.PACC(sld), lr_params
+    # methods tested in Gao & Sebastiani 2016
+    yield 'cc', CC(newLR()), lr_params
+    yield 'acc', ACC(newLR()), lr_params
+    yield 'pcc', PCC(newLR()), lr_params
+    yield 'pacc', PACC(newLR()), lr_params
+    yield 'sld', EMQ(newLR()), lr_params
+    yield 'svmq', OneVsAll(SVMQ(args.svmperfpath)), svmperf_params
+    yield 'svmkld', OneVsAll(SVMKLD(args.svmperfpath)), svmperf_params
+    yield 'svmnkld', OneVsAll(SVMNKLD(args.svmperfpath)), svmperf_params
+
+    # methods added
+    yield 'svmmae', OneVsAll(SVMAE(args.svmperfpath)), svmperf_params
+    yield 'svmmrae', OneVsAll(SVMRAE(args.svmperfpath)), svmperf_params
+    yield 'hdy', OneVsAll(HDy(newLR())), lr_params
+
+    # to add:
+    # quapy
+    # ensembles
+    #
 
 #     'mlpe': lambda learner: MaximumLikelihoodPrevalenceEstimation(),
 
