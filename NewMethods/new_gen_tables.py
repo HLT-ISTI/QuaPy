@@ -98,7 +98,7 @@ def save_table(path, table):
 datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST
 evaluation_measures = [qp.error.ae, qp.error.rae]
 gao_seb_methods = ['cc', 'acc', 'pcc', 'pacc', 'sld', 'svmq', 'svmkld', 'svmnkld']
-new_methods = ['hdy']
+new_methods = []
 
 
 def experiment_errors(dataset, method, loss):

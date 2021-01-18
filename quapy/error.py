@@ -17,7 +17,7 @@ def mae(prevs, prevs_hat):
 
 
 def ae(p, p_hat):
-    assert p.shape == p_hat.shape, 'wrong shape'
+    assert p.shape == p_hat.shape, f'wrong shape {p.shape} vs. {p_hat.shape}'
     return abs(p_hat-p).mean(axis=-1)
 
 

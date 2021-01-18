@@ -1,5 +1,7 @@
 from sklearn.linear_model import LogisticRegression
 import quapy as qp
+from classification.methods import PCALR
+from method.meta import QuaNet
 from quapy.method.aggregative import CC, ACC, PCC, PACC, EMQ, OneVsAll, SVMQ, SVMKLD, SVMNKLD, SVMAE, SVMRAE, HDy
 import quapy.functional as F
 import numpy as np
@@ -9,11 +11,18 @@ import itertools
 from joblib import Parallel, delayed
 import settings
 import argparse
+import torch
+import shutil
 
 parser = argparse.ArgumentParser(description='Run experiments for Tweeter Sentiment Quantification')
 parser.add_argument('results', metavar='RESULT_PATH', type=str, help='path to the directory where to store the results')
-parser.add_argument('svmperfpath', metavar='SVMPERF_PATH', type=str, help='path to the directory with svmperf')
+parser.add_argument('--svmperfpath', metavar='SVMPERF_PATH', type=str,default='./svm_perf_quantification',
+                    help='path to the directory with svmperf')
+parser.add_argument('--checkpointdir', metavar='PATH', type=str,default='./checkpoint',
+                    help='path to the directory where to dump QuaNet checkpoints')
 args = parser.parse_args()
+
+SAMPLE_SIZE = 100
 
 
 def quantification_models():
@@ -38,12 +47,15 @@ def quantification_models():
     yield 'svmmrae', OneVsAll(SVMRAE(args.svmperfpath)), svmperf_params
     yield 'hdy', OneVsAll(HDy(newLR())), lr_params
 
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f'Running QuaNet in {device}')
+    yield 'quanet', QuaNet(PCALR(**newLR().get_params()), SAMPLE_SIZE, checkpointdir=args.checkpointdir, device=device), lr_params
+
     # to add:
     # quapy
     # ensembles
     #
-
-#     'mlpe': lambda learner: MaximumLikelihoodPrevalenceEstimation(),
+    # 'mlpe': lambda learner: MaximumLikelihoodPrevalenceEstimation(),
 
 
 def evaluate_experiment(true_prevalences, estim_prevalences):
@@ -83,8 +95,7 @@ def save_results(dataset_name, model_name, optim_loss, *results):
 
 def run(experiment):
 
-    sample_size = 100
-    qp.environ['SAMPLE_SIZE'] = sample_size
+    qp.environ['SAMPLE_SIZE'] = SAMPLE_SIZE
 
     optim_loss, dataset_name, (model_name, model, hyperparams) = experiment
 
@@ -104,7 +115,7 @@ def run(experiment):
     model_selection = qp.model_selection.GridSearchQ(
         model,
         param_grid=hyperparams,
-        sample_size=sample_size,
+        sample_size=SAMPLE_SIZE,
         n_prevpoints=21,
         n_repetitions=5,
         error=optim_loss,
@@ -126,7 +137,7 @@ def run(experiment):
         true_prevalences, estim_prevalences = qp.evaluation.artificial_sampling_prediction(
             model,
             test=benchmark_eval.test,
-            sample_size=sample_size,
+            sample_size=SAMPLE_SIZE,
             n_prevpoints=21,
             n_repetitions=25
         )
@@ -153,5 +164,7 @@ if __name__ == '__main__':
     results = Parallel(n_jobs=settings.N_JOBS)(
         delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
     )
+
+    shutil.rmtree(args.checkpointdir, ignore_errors=True)
 
 

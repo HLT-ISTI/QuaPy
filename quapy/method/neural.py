@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import random
 
 import torch
 from torch.nn import MSELoss
@@ -18,12 +19,15 @@ class QuaNetTrainer(BaseQuantifier):
                  tr_iter_per_poch=200,
                  va_iter_per_poch=21,
                  lr=1e-3,
-                 lstm_hidden_size=64,
-                 lstm_nlayers=1,
+                 lstm_hidden_size=128,
+                 lstm_nlayers=2,
                  ff_layers=[1024, 512],
                  bidirectional=True,
                  qdrop_p=0.5,
-                 patience=10, checkpointpath='../checkpoint/quanet.dat', device='cuda'):
+                 patience=10,
+                 checkpointdir='../checkpoint',
+                 checkpointname=None,
+                 device='cuda'):
         assert hasattr(learner, 'transform'), \
             f'the learner {learner.__class__.__name__} does not seem to be able to produce document embeddings ' \
                 f'since it does not implement the method "transform"'
@@ -45,8 +49,13 @@ class QuaNetTrainer(BaseQuantifier):
         }
 
         self.patience = patience
-        self.checkpointpath = checkpointpath
-        os.makedirs(Path(checkpointpath).parent, exist_ok=True)
+        os.makedirs(checkpointdir, exist_ok=True)
+        if checkpointname is None:
+            local_random = random.Random()
+            random_code = '-'.join(str(local_random.randint(0, 1000000)) for _ in range(5))
+            checkpointname = 'QuaNet-'+random_code
+        self.checkpointdir = checkpointdir
+        self.checkpoint = os.path.join(checkpointdir, checkpointname)
         self.device = torch.device(device)
 
         self.__check_params_colision(self.quanet_params, self.learner.get_params())
@@ -102,7 +111,7 @@ class QuaNetTrainer(BaseQuantifier):
         self.optim = torch.optim.Adam(self.quanet.parameters(), lr=self.lr)
         early_stop = EarlyStop(self.patience, lower_is_better=True)
 
-        checkpoint = self.checkpointpath
+        checkpoint = self.checkpoint
 
         for epoch_i in range(1, self.n_epochs):
             self.epoch(train_data, train_posteriors, self.tr_iter, epoch_i, early_stop, train=True)
@@ -124,7 +133,7 @@ class QuaNetTrainer(BaseQuantifier):
         label_predictions = np.argmax(posteriors, axis=-1)
         prevs_estim = []
         for quantifier in self.quantifiers.values():
-            predictions = posteriors if isprobabilistic(quantifier) else label_predictions
+            predictions = posteriors if quantifier.probabilistic else label_predictions
             prevs_estim.extend(quantifier.aggregate(predictions))
 
         # add the class-conditional predictions P(y'i|yj) from ACC and PACC
@@ -139,7 +148,10 @@ class QuaNetTrainer(BaseQuantifier):
         quant_estims = self.get_aggregative_estims(posteriors)
         self.quanet.eval()
         with torch.no_grad():
-            prevalence = self.quanet.forward(embeddings, posteriors, quant_estims).item()
+            prevalence = self.quanet.forward(embeddings, posteriors, quant_estims)
+            if self.device == torch.device('cuda'):
+                prevalence = prevalence.cpu()
+            prevalence = prevalence.numpy().flatten()
         return prevalence
 
     def epoch(self, data: LabelledCollection, posteriors, iterations, epoch, early_stop, train):
@@ -179,7 +191,7 @@ class QuaNetTrainer(BaseQuantifier):
 
     def set_params(self, **parameters):
         learner_params={}
-        for key, val in parameters:
+        for key, val in parameters.items():
             if key in self.quanet_params:
                 self.quanet_params[key]=val
             else:
@@ -193,6 +205,14 @@ class QuaNetTrainer(BaseQuantifier):
         if len(intersection) > 0:
             raise ValueError(f'the use of parameters {intersection} is ambiguous sine those can refer to '
                              f'the parameters of QuaNet or the learner {self.learner.__class__.__name__}')
+
+    def clean_checkpoint(self):
+        os.remove(self.checkpoint)
+
+    def clean_checkpoint_dir(self):
+        import shutil
+        shutil.rmtree(self.checkpointdir, ignore_errors=True)
+
 
 
 class QuaNetModule(torch.nn.Module):
@@ -271,6 +291,8 @@ class QuaNetModule(torch.nn.Module):
         prevalence = torch.softmax(logits, -1)
 
         return prevalence
+
+
 
 
 

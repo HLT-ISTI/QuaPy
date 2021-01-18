@@ -7,6 +7,7 @@ from . import evaluation
 from . import plot
 from . import util
 from . import model_selection
+from . import classification
 from quapy.method.base import isprobabilistic, isaggregative
 
 
