@@ -9,7 +9,7 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold
 from tqdm import tqdm
-
+import quapy as qp
 import quapy.functional as F
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
@@ -69,8 +69,11 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
     probabilities.
     """
 
-    def posterior_probabilities(self, data):
-        return self.learner.predict_proba(data)
+    def posterior_probabilities(self, instances):
+        return self.learner.predict_proba(instances)
+
+    def predict_proba(self, instances):
+        return self.posterior_probabilities(instances)
 
     def quantify(self, instances):
         classif_posteriors = self.posterior_probabilities(instances)
@@ -122,7 +125,11 @@ def training_helper(learner,
                                  'proportion, or a LabelledCollection indicating the validation split')
         else:
             train, unused = data, None
-        learner.fit(train.instances, train.labels)
+
+        if isinstance(learner, BaseQuantifier):
+            learner.fit(train)
+        else:
+            learner.fit(train.instances, train.labels)
     else:
         if ensure_probabilistic:
             if not hasattr(learner, 'predict_proba'):
@@ -229,10 +236,10 @@ class ACC(AggregativeQuantifier):
 
 
 class PCC(AggregativeProbabilisticQuantifier):
-    def __init__(self, learner:BaseEstimator):
+    def __init__(self, learner: BaseEstimator):
         self.learner = learner
 
-    def fit(self, data : LabelledCollection, fit_learner=True):
+    def fit(self, data: LabelledCollection, fit_learner=True):
         self.learner, _ = training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
         return self
 
@@ -301,9 +308,6 @@ class PACC(AggregativeProbabilisticQuantifier):
     def classify(self, data):
         return self.pcc.classify(data)
 
-    def soft_classify(self, data):
-        return self.pcc.posterior_probabilities(data)
-
 
 class EMQ(AggregativeProbabilisticQuantifier):
 
@@ -319,7 +323,13 @@ class EMQ(AggregativeProbabilisticQuantifier):
         return self
 
     def aggregate(self, classif_posteriors, epsilon=EPSILON):
-        return self.EM(self.train_prevalence, classif_posteriors, epsilon)
+        priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon)
+        return priors
+
+    def predict_proba(self, instances, epsilon=EPSILON):
+        classif_posteriors = self.learner.predict_proba(instances)
+        priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon)
+        return posteriors
 
     @classmethod
     def EM(cls, tr_prev, posterior_probabilities, epsilon=EPSILON):
@@ -337,7 +347,7 @@ class EMQ(AggregativeProbabilisticQuantifier):
             # M-step: qs_pos is Ps+1(y=+1)
             qs = ps.mean(axis=0)
 
-            if qs_prev_ is not None and error.mae(qs, qs_prev_) < epsilon and s>10:
+            if qs_prev_ is not None and qp.error.mae(qs, qs_prev_) < epsilon and s>10:
                 converged = True
 
             qs_prev_ = qs
@@ -346,7 +356,7 @@ class EMQ(AggregativeProbabilisticQuantifier):
         if not converged:
             raise UserWarning('the method has reached the maximum number of iterations; it might have not converged')
 
-        return qs
+        return qs, ps
 
 
 class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
@@ -493,7 +503,7 @@ class OneVsAll(AggregativeQuantifier):
         return classif_predictions_bin.T
 
     def aggregate(self, classif_predictions_bin):
-        assert set(np.unique(classif_predictions_bin)) == {0,1}, \
+        assert set(np.unique(classif_predictions_bin)).issubset({0,1}), \
             'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
             'predictions for each document (row) and class (columns)'
         prevalences = self.__parallel(self._delayed_binary_aggregate, classif_predictions_bin)

@@ -119,7 +119,7 @@ for i, eval_func in enumerate(evaluation_measures):
     # ----------------------------------------------------
 
     eval_name = eval_func.__name__
-    added_methods = ['svm' + eval_name] + new_methods
+    added_methods = ['svmm' + eval_name] + new_methods
     methods = gao_seb_methods + added_methods
     nold_methods = len(gao_seb_methods)
     nnew_methods = len(added_methods)

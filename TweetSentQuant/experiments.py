@@ -33,6 +33,9 @@ def quantification_models():
     yield 'svmmae', OneVsAll(qp.method.aggregative.SVMAE(args.svmperfpath)), svmperf_params
     yield 'svmmrae', OneVsAll(qp.method.aggregative.SVMRAE(args.svmperfpath)), svmperf_params
 
+    #sld = qp.method.aggregative.EMQ(newLR())
+    #yield 'paccsld', qp.method.aggregative.PACC(sld), lr_params
+
 #     'mlpe': lambda learner: MaximumLikelihoodPrevalenceEstimation(),
 
 
@@ -136,8 +139,9 @@ if __name__ == '__main__':
     print(f'Result folder: {args.results}')
     np.random.seed(0)
 
-    optim_losses = ['mae', 'mrae']
-    datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
+    #optim_losses = ['mae', 'mrae']
+    optim_losses = ['mae']
+    datasets = ['hcr']  # qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
     models = quantification_models()
 
     results = Parallel(n_jobs=settings.N_JOBS)(
