@@ -123,11 +123,11 @@ def training_helper(learner,
                 if not (0 < val_split < 1):
                     raise ValueError(f'train/val split {val_split} out of range, must be in (0,1)')
                 train, unused = data.split_stratified(train_prop=1-val_split)
-            elif isinstance(val_split, LabelledCollection):
+            elif val_split.__class__.__name__ == LabelledCollection.__name__: #isinstance(val_split, LabelledCollection):
                 train = data
                 unused = val_split
             else:
-                raise ValueError('param "val_split" not understood; use either a float indicating the split '
+                raise ValueError(f'param "val_split" ({type(val_split)}) not understood; use either a float indicating the split '
                                  'proportion, or a LabelledCollection indicating the validation split')
         else:
             train, unused = data, None
@@ -495,7 +495,7 @@ class OneVsAll(AggregativeQuantifier):
         self.binary_quantifier = binary_quantifier
         self.n_jobs = n_jobs
 
-    def fit(self, data: LabelledCollection, fit_learner=True):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, LabelledCollection]=None):
         assert not data.binary, \
             f'{self.__class__.__name__} expect non-binary data'
         assert isinstance(self.binary_quantifier, BaseQuantifier), \

@@ -17,7 +17,7 @@ from quapy.model_selection import GridSearchQ
 qp.environ['SAMPLE_SIZE'] = 500
 #param_grid = {'C': np.logspace(-3,3,7), 'class_weight': ['balanced', None]}
 param_grid = {'C': np.logspace(0,3,4), 'class_weight': ['balanced']}
-max_evaluations = 5000
+max_evaluations = 500
 
 sample_size = qp.environ['SAMPLE_SIZE']
 binary = False
@@ -29,7 +29,7 @@ if binary:
 
 else:
     dataset = qp.datasets.fetch_twitter('hcr', for_model_selection=False, min_df=10, pickle=True)
-    #dataset.training = dataset.training.sampling(sample_size, 0.2, 0.5, 0.3)
+    dataset.training = dataset.training.sampling(sample_size, 0.2, 0.5, 0.3)
 
 print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.test)}')
 
@@ -52,8 +52,14 @@ print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.tes
 
 #learner = GridSearchCV(LogisticRegression(max_iter=1000), param_grid=param_grid, n_jobs=-1, verbose=1)
 learner = LogisticRegression(max_iter=1000)
-model = qp.method.aggregative.ClassifyAndCount(learner)
-#model = qp.method.meta.ECC(learner, size=20, red_size=10, param_grid=None, optim=None, policy='ds')
+# model = qp.method.aggregative.ClassifyAndCount(learner)
+
+
+model = qp.method.meta.EPACC(learner, size=10, red_size=5,
+                             param_grid={'C':[1,10,100]},
+                             optim='mae', param_mod_sel={'sample_size':100, 'n_prevpoints':21, 'n_repetitions':5},
+                             policy='ptr', n_jobs=1)
+
 #model = qp.method.meta.EHDy(learner, param_grid=param_grid, optim='mae',
 #                           sample_size=sample_size, eval_budget=max_evaluations//10, n_jobs=-1)
 #model = qp.method.aggregative.ClassifyAndCount(learner)
@@ -69,10 +75,10 @@ if qp.isbinary(model) and not qp.isbinary(dataset):
 print(f'fitting model {model.__class__.__name__}')
 #train, val = dataset.training.split_stratified(0.6)
 #model.fit(train, val_split=val)
-model.fit(dataset.training)
-#for i,e in enumerate(model.ensemble):
-    #print(i, e.learner.best_estimator_)
-#    print(i, e.best_model_.learner)
+model.fit(dataset.training, val_split=dataset.test)
+
+
+
 
 
 # estimating class prevalences
@@ -106,7 +112,7 @@ for error in qp.error.QUANTIFICATION_ERROR:
     score = error(true_prev, estim_prev)
     print(f'{error.__name__}={score:.5f}')
 
-
+sys.exit(0)
 # Model selection and Evaluation according to the artificial sampling protocol
 # ----------------------------------------------------------------------------
 
@@ -119,7 +125,7 @@ model_selection = GridSearchQ(model,
                               verbose=True,
                               timeout=4)
 
-model = model_selection.fit(dataset.training, validation=0.3)
+model = model_selection.fit(dataset.training, val_split=0.3)
 #model = model_selection.fit(train, validation=val)
 print(f'Model selection: best_params = {model_selection.best_params_}')
 print(f'param scores:')

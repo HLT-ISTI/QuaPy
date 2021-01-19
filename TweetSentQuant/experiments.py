@@ -2,7 +2,9 @@ from sklearn.linear_model import LogisticRegression
 import quapy as qp
 from classification.methods import PCALR
 from method.meta import QuaNet
+from method.non_aggregative import MaximumLikelihoodPrevalenceEstimation
 from quapy.method.aggregative import CC, ACC, PCC, PACC, EMQ, OneVsAll, SVMQ, SVMKLD, SVMNKLD, SVMAE, SVMRAE, HDy
+from quapy.method.meta import EPACC, EEMQ
 import quapy.functional as F
 import numpy as np
 import os
@@ -13,16 +15,6 @@ import settings
 import argparse
 import torch
 import shutil
-
-parser = argparse.ArgumentParser(description='Run experiments for Tweeter Sentiment Quantification')
-parser.add_argument('results', metavar='RESULT_PATH', type=str, help='path to the directory where to store the results')
-parser.add_argument('--svmperfpath', metavar='SVMPERF_PATH', type=str,default='./svm_perf_quantification',
-                    help='path to the directory with svmperf')
-parser.add_argument('--checkpointdir', metavar='PATH', type=str,default='./checkpoint',
-                    help='path to the directory where to dump QuaNet checkpoints')
-args = parser.parse_args()
-
-SAMPLE_SIZE = 100
 
 
 def quantification_models():
@@ -49,13 +41,15 @@ def quantification_models():
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'Running QuaNet in {device}')
-    yield 'quanet', QuaNet(PCALR(**newLR().get_params()), SAMPLE_SIZE, checkpointdir=args.checkpointdir, device=device), lr_params
+    #yield 'quanet', QuaNet(PCALR(**newLR().get_params()), settings.SAMPLE_SIZE, checkpointdir=args.checkpointdir, device=device), lr_params
 
-    # to add:
-    # quapy
-    # ensembles
-    #
-    # 'mlpe': lambda learner: MaximumLikelihoodPrevalenceEstimation(),
+    param_mod_sel={'sample_size':settings.SAMPLE_SIZE, 'n_prevpoints':21, 'n_repetitions':5}
+    yield 'epaccmaeptr', EPACC(newLR(), param_grid=lr_params, optim='mae', policy='ptr', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
+    # yield 'epaccmraeptr', EPACC(newLR(), param_grid=lr_params, optim='mrae', policy='ptr', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
+    # yield 'epaccmae', EPACC(newLR(), param_grid=lr_params, optim='mae', policy='mae', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
+    # yield 'epaccmrae', EPACC(newLR(), param_grid=lr_params, optim='mrae', policy='mrae', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
+
+    #yield 'mlpe', MaximumLikelihoodPrevalenceEstimation(), {}
 
 
 def evaluate_experiment(true_prevalences, estim_prevalences):
@@ -74,8 +68,8 @@ def evaluate_method_point_test(true_prev, estim_prev):
         print(f'\t{eval_measure.__name__}={err:.4f}')
 
 
-def result_path(dataset_name, model_name, optim_loss):
-    return os.path.join(args.results, f'{dataset_name}-{model_name}-{optim_loss}.pkl')
+def result_path(path, dataset_name, model_name, optim_loss):
+    return os.path.join(path, f'{dataset_name}-{model_name}-{optim_loss}.pkl')
 
 
 def is_already_computed(dataset_name, model_name, optim_loss):
@@ -83,11 +77,11 @@ def is_already_computed(dataset_name, model_name, optim_loss):
         check_datasets = ['semeval13', 'semeval14', 'semeval15']
     else:
         check_datasets = [dataset_name]
-    return all(os.path.exists(result_path(name, model_name, optim_loss)) for name in check_datasets)
+    return all(os.path.exists(result_path(args.results, name, model_name, optim_loss)) for name in check_datasets)
 
 
 def save_results(dataset_name, model_name, optim_loss, *results):
-    rpath = result_path(dataset_name, model_name, optim_loss)
+    rpath = result_path(args.results, dataset_name, model_name, optim_loss)
     qp.util.create_parent_dir(rpath)
     with open(rpath, 'wb') as foo:
         pickle.dump(tuple(results), foo, pickle.HIGHEST_PROTOCOL)
@@ -95,14 +89,14 @@ def save_results(dataset_name, model_name, optim_loss, *results):
 
 def run(experiment):
 
-    qp.environ['SAMPLE_SIZE'] = SAMPLE_SIZE
+    qp.environ['SAMPLE_SIZE'] = settings.SAMPLE_SIZE
 
     optim_loss, dataset_name, (model_name, model, hyperparams) = experiment
 
     if is_already_computed(dataset_name, model_name, optim_loss=optim_loss):
         print(f'result for dataset={dataset_name} model={model_name} loss={optim_loss} already computed.')
         return
-    elif (optim_loss=='mae' and model_name=='svmmrae') or (optim_loss=='mrae' and model_name=='svmmae'):
+    elif (optim_loss=='mae' and 'mrae' in model_name) or (optim_loss=='mrae' and 'mae' in model_name):
         print(f'skipping model={model_name} for optim_loss={optim_loss}')
         return
     else:
@@ -112,19 +106,24 @@ def run(experiment):
     benchmark_devel.stats()
 
     # model selection (hyperparameter optimization for a quantification-oriented loss)
-    model_selection = qp.model_selection.GridSearchQ(
-        model,
-        param_grid=hyperparams,
-        sample_size=SAMPLE_SIZE,
-        n_prevpoints=21,
-        n_repetitions=5,
-        error=optim_loss,
-        refit=False,
-        timeout=60*60,
-        verbose=True
-    )
-    model_selection.fit(benchmark_devel.training, benchmark_devel.test)
-    model = model_selection.best_model()
+    if hyperparams is None:
+        model.fit(benchmark_devel.training, benchmark_devel.test)
+        best_params = {}
+    else:
+        model_selection = qp.model_selection.GridSearchQ(
+            model,
+            param_grid=hyperparams,
+            sample_size=settings.SAMPLE_SIZE,
+            n_prevpoints=21,
+            n_repetitions=5,
+            error=optim_loss,
+            refit=False,
+            timeout=60*60,
+            verbose=True
+        )
+        model_selection.fit(benchmark_devel.training, benchmark_devel.test)
+        model = model_selection.best_model()
+        best_params=model_selection.best_params_
 
     # model evaluation
     test_names = [dataset_name] if dataset_name != 'semeval' else ['semeval13', 'semeval14', 'semeval15']
@@ -137,7 +136,7 @@ def run(experiment):
         true_prevalences, estim_prevalences = qp.evaluation.artificial_sampling_prediction(
             model,
             test=benchmark_eval.test,
-            sample_size=SAMPLE_SIZE,
+            sample_size=settings.SAMPLE_SIZE,
             n_prevpoints=21,
             n_repetitions=25
         )
@@ -149,15 +148,23 @@ def run(experiment):
         save_results(test_name, model_name, optim_loss,
                      true_prevalences, estim_prevalences,
                      benchmark_eval.training.prevalence(), test_true_prevalence, test_estim_prevalence,
-                     model_selection.best_params_)
+                     best_params)
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Run experiments for Tweeter Sentiment Quantification')
+    parser.add_argument('results', metavar='RESULT_PATH', type=str,
+                        help='path to the directory where to store the results')
+    parser.add_argument('--svmperfpath', metavar='SVMPERF_PATH', type=str, default='./svm_perf_quantification',
+                        help='path to the directory with svmperf')
+    parser.add_argument('--checkpointdir', metavar='PATH', type=str, default='./checkpoint',
+                        help='path to the directory where to dump QuaNet checkpoints')
+    args = parser.parse_args()
 
     print(f'Result folder: {args.results}')
     np.random.seed(0)
 
-    optim_losses = ['mae', 'mrae']
+    optim_losses = ['mae']#['mae', 'mrae']
     datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
     models = quantification_models()
 

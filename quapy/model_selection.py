@@ -118,17 +118,18 @@ class GridSearchQ(BaseQuantifier):
             raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
                              f'the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}')
 
-    def fit(self, training: LabelledCollection, validation: Union[LabelledCollection, float]=0.4):
+    def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float]=0.4):
         """
         :param training: the training set on which to optimize the hyperparameters
-        :param validation: either a LabelledCollection on which to test the performance of the different settings, or
+        :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
         a float in [0,1] indicating the proportion of labelled data to extract from the training set
         """
-        training, validation = self.__check_training_validation(training, validation)
+        training, val_split = self.__check_training_validation(training, val_split)
+        assert isinstance(self.sample_size, int) and self.sample_size > 0, 'sample_size must be a positive integer'
         self.__check_num_evals(self.n_prevpoints, self.eval_budget, self.n_repetitions, training.n_classes)
 
-        print(f'training size={len(training)}')
-        print(f'validation size={len(validation)}')
+        # print(f'training size={len(training)}')
+        # print(f'validation size={len(val_split)}')
         params_keys = list(self.param_grid.keys())
         params_values = list(self.param_grid.values())
 
@@ -146,7 +147,7 @@ class GridSearchQ(BaseQuantifier):
         self.best_score_ = None
         some_timeouts = False
         for values in itertools.product(*params_values):
-            params = {k: values[i] for i, k in enumerate(params_keys)}
+            params = dict({k: values[i] for i, k in enumerate(params_keys)})
 
             if self.timeout > 0:
                 signal.alarm(self.timeout)
@@ -156,8 +157,8 @@ class GridSearchQ(BaseQuantifier):
                 model.set_params(**params)
                 model.fit(training)
                 true_prevalences, estim_prevalences = artificial_sampling_prediction(
-                    model, validation, self.sample_size, self.n_prevpoints, self.n_repetitions, n_jobs, self.random_seed,
-                    verbose=True
+                    model, val_split, self.sample_size, self.n_prevpoints, self.n_repetitions, n_jobs, self.random_seed,
+                    verbose=False
                 )
 
                 score = self.error(true_prevalences, estim_prevalences)
@@ -184,7 +185,7 @@ class GridSearchQ(BaseQuantifier):
 
         if self.refit:
             self.sout(f'refitting on the whole development set')
-            self.best_model_.fit(training + validation)
+            self.best_model_.fit(training + val_split)
 
         return self
 

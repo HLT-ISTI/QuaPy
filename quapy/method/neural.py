@@ -278,6 +278,7 @@ class QuaNetModule(torch.nn.Module):
         # the shape should be (1, number-of-instances, embedding-size + 1)
         embeded_posteriors = embeded_posteriors.unsqueeze(0)
 
+        self.lstm.flatten_parameters()
         _, (rnn_hidden,_) = self.lstm(embeded_posteriors, self.init_hidden())
         rnn_hidden = rnn_hidden.view(self.nlayers, self.ndirections, -1, self.hidden_size)
         quant_embedding = rnn_hidden[0].view(-1)

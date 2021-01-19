@@ -1,4 +1,6 @@
 from copy import deepcopy
+from typing import Union
+from tqdm import tqdm
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -6,12 +8,13 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, cross_val_predict
 
 import quapy as qp
-from quapy import functional as F
 from quapy.data import LabelledCollection
+from quapy import functional as F
 from quapy.evaluation import evaluate
 from quapy.model_selection import GridSearchQ
 from . import neural
 from .base import BaseQuantifier
+from quapy.method.aggregative import CC, ACC, PCC, PACC, HDy, EMQ
 
 QuaNet = neural.QuaNetTrainer
 
@@ -31,7 +34,7 @@ class Ensemble(BaseQuantifier):
     Information Fusion, 45, 1-15.
     """
 
-    def __init__(self, quantifier: BaseQuantifier, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
+    def __init__(self, quantifier: BaseQuantifier, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, verbose=False):
         assert policy in Ensemble.VALID_POLICIES, f'unknown policy={policy}; valid are {Ensemble.VALID_POLICIES}'
         self.base_quantifier = quantifier
         self.size = size
@@ -40,8 +43,14 @@ class Ensemble(BaseQuantifier):
         self.policy = policy
         self.n_jobs = n_jobs
         self.post_proba_fn = None
+        self.verbose = verbose
 
-    def fit(self, data: LabelledCollection):
+    def sout(self, msg):
+        if self.verbose:
+            print('[Ensemble]' + msg)
+
+    def fit(self, data: qp.data.LabelledCollection, val_split:Union[qp.data.LabelledCollection, float]=None):
+        self.sout('Fit')
         if self.policy=='ds' and not data.binary:
             raise ValueError(f'ds policy is only defined for binary quantification, but this dataset is not binary')
 
@@ -57,14 +66,15 @@ class Ensemble(BaseQuantifier):
         is_static_policy = (self.policy in qp.error.QUANTIFICATION_ERROR_NAMES)
         self.ensemble = Parallel(n_jobs=self.n_jobs)(
             delayed(_delayed_new_instance)(
-                self.base_quantifier, data, prev, posteriors, keep_samples=is_static_policy
-            ) for prev in prevs
+                self.base_quantifier, data, val_split, prev, posteriors, keep_samples=is_static_policy, verbose=self.verbose
+            ) for prev in tqdm(prevs, desc='fitting ensamble')
         )
 
         # static selection policy (the name of a quantification-oriented error function to minimize)
         if self.policy in qp.error.QUANTIFICATION_ERROR_NAMES:
             self.accuracy_policy(error_name=self.policy)
 
+        self.sout('Fit [Done]')
         return self
 
     def quantify(self, instances):
@@ -82,8 +92,9 @@ class Ensemble(BaseQuantifier):
 
     def set_params(self, **parameters):
         raise NotImplementedError(f'{self.__class__.__name__} should not be used within GridSearchQ; '
-                                  f'instead, use GridSearchQ within Ensemble, or GridSearchCV whithin the '
-                                  f'base quantifier if it is an aggregative one.')
+                                  f'instead, use Ensemble(GridSearchQ(q),...), with q a Quantifier (recommended), '
+                                  f'or Ensemble(Q(GridSearchCV(l))) with Q a quantifier class that has a learner '
+                                  f'l optimized for classification (not recommended).')
 
     def get_params(self, deep=True):
         raise NotImplementedError()
@@ -158,11 +169,13 @@ class Ensemble(BaseQuantifier):
 
     @property
     def aggregative(self):
-        raise NotImplementedError('aggregative functionality not yet supported for Ensemble')
+        return False
+        #raise NotImplementedError('aggregative functionality not yet supported for Ensemble')
 
     @property
     def probabilistic(self):
-        raise NotImplementedError('probabilistic functionality not yet supported for Ensemble')
+        return False
+        #raise NotImplementedError('probabilistic functionality not yet supported for Ensemble')
         #return self.base_quantifier.probabilistic
 
 
@@ -177,18 +190,30 @@ def select_k(elements, order, k):
     return [elements[idx] for idx in order[:k]]
 
 
-def _delayed_new_instance(base_quantifier, data:LabelledCollection, prev, posteriors, keep_samples):
+def _delayed_new_instance(base_quantifier,
+                          data: LabelledCollection,
+                          val_split: Union[LabelledCollection, float],
+                          prev,
+                          posteriors,
+                          keep_samples,
+                          verbose):
+    if verbose:
+        print(f'\tfit-start for prev {F.strprev(prev)}')
     model = deepcopy(base_quantifier)
     sample_index = data.sampling_index(len(data), *prev)
     sample = data.sampling_from_index(sample_index)
-    model.fit(sample)
+    if val_split is None:
+        model.fit(sample)
+    else:
+        if isinstance(val_split, float):
+            assert 0<val_split<1, 'val_split should be in (0,1)'
+            sample, val_split = sample.split_stratified(train_prop=1-val_split)
+        model.fit(sample, val_split=val_split)
     tr_prevalence = sample.prevalence()
     tr_distribution = get_probability_distribution(posteriors[sample_index]) if (posteriors is not None) else None
+    if verbose:
+        print(f'\t\--fit-ended for prev {F.strprev(prev)}')
     return (model, tr_prevalence, tr_distribution, sample if keep_samples else None)
-
-
-def _delayed_fit(quantifier, data):
-    quantifier.fit(data)
 
 
 def _delayed_quantify(quantifier, instances):
@@ -219,7 +244,7 @@ def _draw_simplex(ndim, min_val, max_trials=100):
                              f'>= {min_val} is unlikely (it failed after {max_trials} trials)')
 
 
-def _instantiate_ensemble(learner, base_quantifier_class, param_grid, optim, sample_size, eval_budget, **kwargs):
+def _instantiate_ensemble(learner, base_quantifier_class, param_grid, optim, param_model_sel, **kwargs):
     if optim is None:
         base_quantifier = base_quantifier_class(learner)
     elif optim in qp.error.CLASSIFICATION_ERROR:
@@ -228,8 +253,7 @@ def _instantiate_ensemble(learner, base_quantifier_class, param_grid, optim, sam
     elif optim in qp.error.QUANTIFICATION_ERROR:
         base_quantifier = GridSearchQ(base_quantifier_class(learner),
                                       param_grid=param_grid,
-                                      sample_size=sample_size,
-                                      eval_budget=eval_budget,
+                                      **param_model_sel,
                                       error=optim)
     else:
         raise ValueError(f'value optim={optim} not understood')
@@ -237,74 +261,49 @@ def _instantiate_ensemble(learner, base_quantifier_class, param_grid, optim, sam
     return Ensemble(base_quantifier, **kwargs)
 
 
-class EnsembleFactory(BaseQuantifier):
+def _check_error(error):
+    if error is None:
+        return None
+    if error in qp.error.QUANTIFICATION_ERROR or error in qp.error.CLASSIFICATION_ERROR:
+        return error
+    elif isinstance(error, str):
+        assert error in qp.error.ERROR_NAMES, \
+            f'unknown error name; valid ones are {qp.error.ERROR_NAMES}'
+        return getattr(qp.error, error)
+    else:
+        raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
+                         f'the name of an error function in {qp.error.ERROR_NAMES}')
 
-    def __init__(self, learner, base_quantifier_class, param_grid=None, optim=None, sample_size=None, eval_budget=None,
+
+def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None,
+                 param_model_sel:dict=None,
                  size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
-        if param_grid is None and optim is not None:
-            raise ValueError(f'param_grid is None but optim was requested.')
-        error = self._check_error(optim)
-        self.model = _instantiate_ensemble(learner, base_quantifier_class, param_grid, error, sample_size,
-                                           eval_budget, size=size, min_pos=min_pos, red_size=red_size,
-                                           policy=policy, n_jobs=n_jobs)
-
-    def fit(self, data):
-        return self.model.fit(data)
-
-    def quantify(self, instances):
-        return self.model.quantify(instances)
-
-    def set_params(self, **parameters):
-        return self.model.set_params(**parameters)
-
-    def get_params(self, deep=True):
-        return self.model.get_params(deep)
-
-    def _check_error(self, error):
-        if error is None:
-            return None
-        if error in qp.error.QUANTIFICATION_ERROR or error in qp.error.CLASSIFICATION_ERROR:
-            return error
-        elif isinstance(error, str):
-            assert error in qp.error.ERROR_NAMES, \
-                f'unknown error name; valid ones are {qp.error.ERROR_NAMES}'
-            return getattr(qp.error, error)
-        else:
-            raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
-                             f'the name of an error function in {qp.error.ERROR_NAMES}')
+        if optim is not None:
+            if param_grid is None:
+                raise ValueError(f'param_grid is None but optim was requested.')
+            if param_model_sel is None:
+                raise ValueError(f'param_model_sel is None but optim was requested.')
+        error = _check_error(optim)
+        return _instantiate_ensemble(learner, base_quantifier_class, param_grid, error, param_model_sel,
+                                     size=size, min_pos=min_pos, red_size=red_size,
+                                     policy=policy, n_jobs=n_jobs)
 
 
-class ECC(EnsembleFactory):
-    def __init__(self, learner, param_grid=None, optim=None, sample_size=None, eval_budget=None,
-                 size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
-        super().__init__(
-            learner, qp.method.aggregative.CC, param_grid, optim, sample_size, eval_budget, size, min_pos,
-            red_size, policy, n_jobs
-        )
+def ECC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
+    return ensembleFactory(learner, CC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs)
 
 
-class EACC(EnsembleFactory):
-    def __init__(self, learner, param_grid=None, optim=None, sample_size=None, eval_budget=None,
-                 size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
-        super().__init__(
-            learner, qp.method.aggregative.ACC, param_grid, optim, sample_size, eval_budget, size, min_pos,
-            red_size, policy, n_jobs
-        )
+def EACC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
+    return ensembleFactory(learner, ACC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs)
 
 
-class EHDy(EnsembleFactory):
-    def __init__(self, learner, param_grid=None, optim=None, sample_size=None, eval_budget=None,
-                 size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
-        super().__init__(
-            learner, qp.method.aggregative.HDy, param_grid, optim, sample_size, eval_budget, size, min_pos,
-            red_size, policy, n_jobs
-        )
+def EPACC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
+    return ensembleFactory(learner, PACC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs)
 
 
-class EEMQ(EnsembleFactory):
-    def __init__(self, learner, param_grid=None, optim=None, sample_size=None, eval_budget=None,
-                 size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
-        super().__init__(
-            learner, qp.method.aggregative.EMQ, param_grid, optim, sample_size, eval_budget, size, min_pos,
-            red_size, policy, n_jobs
-        )
+def EHDy(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
+    return ensembleFactory(learner, HDy, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs)
+
+
+def EEMQ(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
+    return ensembleFactory(learner, EMQ, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs)

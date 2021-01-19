@@ -41,17 +41,17 @@ def artificial_sampling_prediction(
         indexes = list(test.artificial_sampling_index_generator(sample_size, n_prevpoints, n_repetitions))
 
     if model.aggregative: #isinstance(model, qp.method.aggregative.AggregativeQuantifier):
-        print('\tinstance of aggregative-quantifier')
+        # print('\tinstance of aggregative-quantifier')
         quantification_func = model.aggregate
         if model.probabilistic: # isinstance(model, qp.method.aggregative.AggregativeProbabilisticQuantifier):
-            print('\t\tinstance of probabilitstic-aggregative-quantifier')
+            # print('\t\tinstance of probabilitstic-aggregative-quantifier')
             preclassified_instances = model.posterior_probabilities(test.instances)
         else:
-            print('\t\tinstance of hard-aggregative-quantifier')
+            # print('\t\tinstance of hard-aggregative-quantifier')
             preclassified_instances = model.classify(test.instances)
         test = LabelledCollection(preclassified_instances, test.labels)
     else:
-        print('\t\tinstance of base-quantifier')
+        # print('\t\tinstance of base-quantifier')
         quantification_func = model.quantify
 
     def _predict_prevalences(index):
