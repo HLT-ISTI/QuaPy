@@ -70,9 +70,22 @@ class QuaNetTrainer(BaseQuantifier):
         :return: self
         """
         # split: 40% for training classification, 40% for training quapy, and 20% for validating quapy
-        self.learner, unused_data = \
-            training_helper(self.learner, data, fit_learner,  ensure_probabilistic=True, val_split=0.6)
+        #self.learner, unused_data = \
+        #    training_helper(self.learner, data, fit_learner,  ensure_probabilistic=True, val_split=0.6)
+        classifier_data, unused_data = data.split_stratified(0.4)
         train_data, valid_data = unused_data.split_stratified(0.66)  # 0.66 split of 60% makes 40% and 20%
+        self.learner.fit(*classifier_data.Xy)
+
+        # estimate the hard and soft stats tpr and fpr of the classifier
+        self.tr_prev = data.prevalence()
+
+        self.quantifiers = {
+            'cc': CC(self.learner).fit(classifier_data, fit_learner=False),
+            'acc': ACC(self.learner).fit(classifier_data, fit_learner=True),
+            'pcc': PCC(self.learner).fit(classifier_data, fit_learner=False),
+            'pacc': PACC(self.learner).fit(classifier_data, fit_learner=True),
+            'emq': EMQ(self.learner).fit(classifier_data, fit_learner=False),
+        }
 
         # compute the posterior probabilities of the instances
         valid_posteriors = self.learner.predict_proba(valid_data.instances)
@@ -81,17 +94,6 @@ class QuaNetTrainer(BaseQuantifier):
         # turn instances' indexes into embeddings
         valid_data.instances = self.learner.transform(valid_data.instances)
         train_data.instances = self.learner.transform(train_data.instances)
-
-        # estimate the hard and soft stats tpr and fpr of the classifier
-        self.tr_prev = data.prevalence()
-
-        self.quantifiers = {
-            'cc': CC(self.learner).fit(data, fit_learner=False),
-            'acc': ACC(self.learner).fit(data, fit_learner=False),
-            'pcc': PCC(self.learner).fit(data, fit_learner=False),
-            'pacc': PACC(self.learner).fit(data, fit_learner=False),
-            'emq': EMQ(self.learner).fit(data, fit_learner=False),
-        }
 
         self.status = {
             'tr-loss': -1,
@@ -124,7 +126,7 @@ class QuaNetTrainer(BaseQuantifier):
                 print(f'training ended by patience exhausted; loading best model parameters in {checkpoint} '
                       f'for epoch {early_stop.best_epoch}')
                 self.quanet.load_state_dict(torch.load(checkpoint))
-                self.epoch(valid_data, valid_posteriors, self.va_iter, epoch_i, early_stop, train=True)
+                #self.epoch(valid_data, valid_posteriors, self.va_iter, epoch_i, early_stop, train=True)
                 break
 
         return self

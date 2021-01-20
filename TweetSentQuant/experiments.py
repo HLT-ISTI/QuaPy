@@ -17,6 +17,9 @@ import torch
 import shutil
 
 
+DEBUG = False
+
+
 def quantification_models():
     def newLR():
         return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
@@ -25,23 +28,34 @@ def quantification_models():
     svmperf_params = {'C': __C_range}
 
     # methods tested in Gao & Sebastiani 2016
-    yield 'cc', CC(newLR()), lr_params
-    yield 'acc', ACC(newLR()), lr_params
-    yield 'pcc', PCC(newLR()), lr_params
-    yield 'pacc', PACC(newLR()), lr_params
-    yield 'sld', EMQ(newLR()), lr_params
-    yield 'svmq', OneVsAll(SVMQ(args.svmperfpath)), svmperf_params
-    yield 'svmkld', OneVsAll(SVMKLD(args.svmperfpath)), svmperf_params
-    yield 'svmnkld', OneVsAll(SVMNKLD(args.svmperfpath)), svmperf_params
-
-    # methods added
-    yield 'svmmae', OneVsAll(SVMAE(args.svmperfpath)), svmperf_params
-    yield 'svmmrae', OneVsAll(SVMRAE(args.svmperfpath)), svmperf_params
-    yield 'hdy', OneVsAll(HDy(newLR())), lr_params
+    # yield 'cc', CC(newLR()), lr_params
+    # yield 'acc', ACC(newLR()), lr_params
+    # yield 'pcc', PCC(newLR()), lr_params
+    # yield 'pacc', PACC(newLR()), lr_params
+    # yield 'sld', EMQ(newLR()), lr_params
+    # yield 'svmq', OneVsAll(SVMQ(args.svmperfpath)), svmperf_params
+    # yield 'svmkld', OneVsAll(SVMKLD(args.svmperfpath)), svmperf_params
+    # yield 'svmnkld', OneVsAll(SVMNKLD(args.svmperfpath)), svmperf_params
+    #
+    # # methods added
+    # yield 'svmmae', OneVsAll(SVMAE(args.svmperfpath)), svmperf_params
+    # yield 'svmmrae', OneVsAll(SVMRAE(args.svmperfpath)), svmperf_params
+    # yield 'hdy', OneVsAll(HDy(newLR())), lr_params
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'Running QuaNet in {device}')
-    yield 'quanet', QuaNet(PCALR(**newLR().get_params()), settings.SAMPLE_SIZE, tr_iter_per_poch=500, va_iter_per_poch=100, checkpointdir=args.checkpointdir, device=device), lr_params
+    if DEBUG:
+        lr_params={'C':[1,10]}
+        yield 'quanet', QuaNet(PCALR(**newLR().get_params()), settings.SAMPLE_SIZE,
+                               lstm_hidden_size=32, lstm_nlayers=1,
+                               tr_iter_per_poch=50, va_iter_per_poch=10,
+                               patience=3,
+                               checkpointdir=args.checkpointdir, device=device), lr_params
+    else:
+        yield 'quanet', QuaNet(PCALR(**newLR().get_params()), settings.SAMPLE_SIZE,
+                               patience=5,
+                               tr_iter_per_poch=500, va_iter_per_poch=100,
+                               checkpointdir=args.checkpointdir, device=device), lr_params
 
     param_mod_sel={'sample_size':settings.SAMPLE_SIZE, 'n_prevpoints':21, 'n_repetitions':5}
     #yield 'epaccmaeptr', EPACC(newLR(), param_grid=lr_params, optim='mae', policy='ptr', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
@@ -123,13 +137,14 @@ def run(experiment):
         )
         model_selection.fit(benchmark_devel.training, benchmark_devel.test)
         model = model_selection.best_model()
-        best_params=model_selection.best_params_
+        best_params = model_selection.best_params_
 
     # model evaluation
     test_names = [dataset_name] if dataset_name != 'semeval' else ['semeval13', 'semeval14', 'semeval15']
     for test_no, test_name in enumerate(test_names):
         benchmark_eval = qp.datasets.fetch_twitter(test_name, for_model_selection=False, min_df=5, pickle=True)
         if test_no == 0:
+            print('fitting the selected model')
             # fits the model only the first time
             model.fit(benchmark_eval.training)
 
