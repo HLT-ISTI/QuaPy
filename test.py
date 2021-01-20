@@ -1,10 +1,12 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
-from sklearn.svm import LinearSVC
+from sklearn.svm import LinearSVC, LinearSVR
 import quapy as qp
 import quapy.functional as F
 import sys
 import numpy as np
+
+from NewMethods.methods import AveragePoolQuantification
 from classification.methods import PCALR
 from classification.neural import NeuralClassifierTrainer, CNNnet
 from quapy.model_selection import GridSearchQ
@@ -29,7 +31,7 @@ if binary:
 
 else:
     dataset = qp.datasets.fetch_twitter('hcr', for_model_selection=False, min_df=10, pickle=True)
-    dataset.training = dataset.training.sampling(sample_size, 0.2, 0.5, 0.3)
+    #dataset.training = dataset.training.sampling(sample_size, 0.2, 0.5, 0.3)
 
 print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.test)}')
 
@@ -51,14 +53,17 @@ print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.tes
 #model = qp.method.meta.QuaNet(learner, sample_size, device='cpu')
 
 #learner = GridSearchCV(LogisticRegression(max_iter=1000), param_grid=param_grid, n_jobs=-1, verbose=1)
-learner = LogisticRegression(max_iter=1000)
+#learner = LogisticRegression(max_iter=1000)
 # model = qp.method.aggregative.ClassifyAndCount(learner)
 
 
-model = qp.method.meta.EPACC(learner, size=10, red_size=5,
-                             param_grid={'C':[1,10,100]},
-                             optim='mae', param_mod_sel={'sample_size':100, 'n_prevpoints':21, 'n_repetitions':5},
-                             policy='ptr', n_jobs=1)
+#model = qp.method.meta.EPACC(learner, size=10, red_size=5,
+#                             param_grid={'C':[1,10,100]},
+#                             optim='mae', param_mod_sel={'sample_size':100, 'n_prevpoints':21, 'n_repetitions':5},
+#                             policy='ptr', n_jobs=1)
+regressor = LinearSVR(max_iter=10000)
+param_grid = {'C': np.logspace(-1,3,5)}
+model = AveragePoolQuantification(regressor, sample_size, trials=5000, n_components=500, zscore=False)
 
 #model = qp.method.meta.EHDy(learner, param_grid=param_grid, optim='mae',
 #                           sample_size=sample_size, eval_budget=max_evaluations//10, n_jobs=-1)
@@ -75,7 +80,7 @@ if qp.isbinary(model) and not qp.isbinary(dataset):
 print(f'fitting model {model.__class__.__name__}')
 #train, val = dataset.training.split_stratified(0.6)
 #model.fit(train, val_split=val)
-model.fit(dataset.training, val_split=dataset.test)
+model.fit(dataset.training)
 
 
 
@@ -112,7 +117,7 @@ for error in qp.error.QUANTIFICATION_ERROR:
     score = error(true_prev, estim_prev)
     print(f'{error.__name__}={score:.5f}')
 
-sys.exit(0)
+#sys.exit(0)
 # Model selection and Evaluation according to the artificial sampling protocol
 # ----------------------------------------------------------------------------
 
@@ -123,7 +128,7 @@ model_selection = GridSearchQ(model,
                               error='mae',
                               refit=True,
                               verbose=True,
-                              timeout=4)
+                              timeout=60*60)
 
 model = model_selection.fit(dataset.training, val_split=0.3)
 #model = model_selection.fit(train, validation=val)

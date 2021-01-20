@@ -547,8 +547,6 @@ class OneVsAll(AggregativeQuantifier):
         else:
             predictions = self.classify(X)
         return self.aggregate(predictions)
-        #prevalences = self.__parallel(self._delayed_binary_quantify, X)
-        #return F.normalize_prevalence(prevalences)
 
     def __parallel(self, func, *args, **kwargs):
         return np.asarray(
