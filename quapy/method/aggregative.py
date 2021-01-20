@@ -186,6 +186,7 @@ class ACC(AggregativeQuantifier):
          to estimate the parameters
         :return: self
         """
+        assert val_split is not None, 'val_split cannot be set to None'
         if isinstance(val_split, int):
             # kFCV estimation of parameters
             y, y_ = [], []
@@ -269,6 +270,7 @@ class PACC(AggregativeProbabilisticQuantifier):
          to estimate the parameters
         :return: self
         """
+        assert val_split is not None, 'val_split cannot be set to None'
         if isinstance(val_split, int):
             # kFCV estimation of parameters
             y, y_ = [], []
@@ -385,6 +387,7 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
          indicating the validation set itself
         :return: self
         """
+        assert val_split is not None, 'val_split cannot be set to None'
         self._check_binary(data, self.__class__.__name__)
         self.learner, validation = training_helper(
             self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
@@ -569,10 +572,6 @@ class OneVsAll(AggregativeQuantifier):
 
     def _delayed_binary_posteriors(self, c, X):
         return self.dict_binary_quantifiers[c].posterior_probabilities(X)
-
-    #def _delayed_binary_quantify(self, c, X):
-        # the estimation for the positive class prevalence
-    #    return self.dict_binary_quantifiers[c].quantify(X)[1]
 
     def _delayed_binary_aggregate(self, c, classif_predictions):
         # the estimation for the positive class prevalence
