@@ -164,8 +164,8 @@ if __name__ == '__main__':
     print(f'Result folder: {args.results}')
     np.random.seed(0)
 
-    optim_losses = ['mae']#['mae', 'mrae']
-    datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
+    optim_losses = ['mae'] # ['mae', 'mrae']
+    datasets = ['hcr', 'omd', 'sanders', 'sst'] # qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
     models = quantification_models()
 
     results = Parallel(n_jobs=settings.N_JOBS)(
