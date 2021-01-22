@@ -92,10 +92,10 @@ class LabelledCollection:
         labels = self.labels[index]
         return LabelledCollection(documents, labels, n_classes=self.n_classes)
 
-    def split_stratified(self, train_prop=0.6):
+    def split_stratified(self, train_prop=0.6, random_state=None):
         # with temp_seed(42):
         tr_docs, te_docs, tr_labels, te_labels = \
-            train_test_split(self.instances, self.labels, train_size=train_prop, stratify=self.labels)
+            train_test_split(self.instances, self.labels, train_size=train_prop, stratify=self.labels, random_state=random_state)
         return LabelledCollection(tr_docs, tr_labels), LabelledCollection(te_docs, te_labels)
 
     def artificial_sampling_generator(self, sample_size, n_prevalences=101, repeats=1):

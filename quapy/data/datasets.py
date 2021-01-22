@@ -1,6 +1,7 @@
 import os
 import zipfile
 from os.path import join
+from urllib.error import HTTPError
 
 import pandas as pd
 
@@ -137,31 +138,17 @@ UCI_DATASETS = ['acute.a', 'acute.b',
                 'balance.1', 'balance.2', 'balance.3',
                 'breast-cancer',
                 'cmc.1', 'cmc.2', 'cmc.3',
-                'ctg.1', 'ctg.2', 'ctg.3'] # ongoing...
+                'ctg.1', 'ctg.2', 'ctg.3',
+                #'diabetes', # <-- I haven't found this one...
+                'german'] # ongoing...
 
-def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
+def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3):
 
     assert dataset_name in UCI_DATASETS, \
         f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository. ' \
         f'Valid ones are {UCI_DATASETS}'
     if data_home is None:
         data_home = get_quapy_home()
-
-    identifier_map = {
-        'acute.a': 'acute',
-        'acute.b': 'acute',
-        'balance.1': 'balance-scale',
-        'balance.2': 'balance-scale',
-        'balance.3': 'balance-scale',
-        'breast-cancer': 'breast-cancer-wisconsin',
-        'cmc.1': 'cmc',
-        'cmc.2': 'cmc',
-        'cmc.3': 'cmc',
-        'ctg.1': 'ctg',
-        'ctg.2': 'ctg',
-        'ctg.3': 'ctg',
-
-    }
 
     dataset_fullname = {
         'acute.a': 'Acute Inflammations (urinary bladder)',
@@ -176,27 +163,64 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
         'ctg.1': 'Cardiotocography Data Set (normal)',
         'ctg.2': 'Cardiotocography Data Set (suspect)',
         'ctg.3': 'Cardiotocography Data Set (pathologic)',
+        'german': 'Statlog German Credit Data',
     }
 
-    data_folder = {
-        'acute': 'diagnosis',
-        'balance-scale': 'balance-scale',
-        'breast-cancer-wisconsin': 'breast-cancer-wisconsin',
-        'cmc': 'cmc'
+    # the identifier is an alias for the dataset group, it's part of the url data-folder, and is the name we use
+    # to download the raw dataset
+    identifier_map = {
+        'acute.a': 'acute',
+        'acute.b': 'acute',
+        'balance.1': 'balance-scale',
+        'balance.2': 'balance-scale',
+        'balance.3': 'balance-scale',
+        'breast-cancer': 'breast-cancer-wisconsin',
+        'cmc.1': 'cmc',
+        'cmc.2': 'cmc',
+        'cmc.3': 'cmc',
+        'ctg.1': '00193',
+        'ctg.2': '00193',
+        'ctg.3': '00193',
+        'german': 'statlog/german'
+    }
+
+    # the filename is the name of the file within the data_folder indexed by the identifier
+    file_name = {
+        'acute': 'diagnosis.data',
+        'balance-scale': 'balance-scale.data',
+        'breast-cancer-wisconsin': 'breast-cancer-wisconsin.data',
+        'cmc': 'cmc.data',
+        '00193': 'CTG.xls',
+        'statlog/german': 'german.data-numeric'
+    }
+
+    # the filename containing the dataset description (if any)
+    desc_name = {
+        'acute': 'diagnosis.names',
+        'balance-scale': 'balance-scale.names',
+        'breast-cancer-wisconsin': 'breast-cancer-wisconsin.names',
+        'cmc': 'cmc.names',
+        '00193': None,
+        'statlog/german': 'german.doc'
     }
 
     identifier = identifier_map[dataset_name]
     URL = f'http://archive.ics.uci.edu/ml/machine-learning-databases/{identifier}'
-    data_path = join(data_home, 'uci_datasets', identifier)
-    download_file_if_not_exists(f'{URL}/{data_folder[identifier]}.data', f'{data_path}/{identifier}.data')
-    download_file_if_not_exists(f'{URL}/{data_folder[identifier]}.names', f'{data_path}/{identifier}.names')
+    data_dir = join(data_home, 'uci_datasets', identifier)
+    data_path = join(data_dir, file_name[identifier])
+    download_file_if_not_exists(f'{URL}/{file_name[identifier]}', data_path)
 
-    if verbose:
-        print(open(f'{data_path}/{identifier}.names', 'rt').read())
+    descfile = desc_name[identifier]
+    if descfile:
+        download_file_if_not_exists(f'{URL}/{descfile}', f'{data_dir}/{descfile}')
+        if verbose:
+            print(open(f'{data_dir}/{descfile}', 'rt').read())
+    elif verbose:
+        print('no file description available')
 
     print(f'Loading {dataset_name} ({dataset_fullname[dataset_name]})')
     if identifier == 'acute':
-        df = pd.read_csv(f'{data_path}/{identifier}.data', header=None, encoding='utf-16', sep='\t')
+        df = pd.read_csv(data_path, header=None, encoding='utf-16', sep='\t')
         if dataset_name == 'acute.a':
             y = binarize(df[6], pos_class='yes')
         elif dataset_name == 'acute.b':
@@ -208,7 +232,7 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
         X = df.loc[:, 0:5].values
 
     if identifier == 'balance-scale':
-        df = pd.read_csv(f'{data_path}/{identifier}.data', header=None, sep=',')
+        df = pd.read_csv(data_path, header=None, sep=',')
         if dataset_name == 'balance.1':
             y = binarize(df[0], pos_class='L')
         elif dataset_name == 'balance.2':
@@ -218,7 +242,7 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
         X = df.loc[:, 1:].astype(float).values
 
     if identifier == 'breast-cancer-wisconsin':
-        df = pd.read_csv(f'{data_path}/{identifier}.data', header=None, sep=',')
+        df = pd.read_csv(data_path, header=None, sep=',')
         Xy = df.loc[:, 1:10]
         Xy[Xy=='?']=np.nan
         Xy = Xy.dropna(axis=0)
@@ -227,7 +251,7 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
         y = binarize(Xy[10], pos_class=4)
 
     if identifier == 'cmc':
-        df = pd.read_csv(f'{data_path}/{identifier}.data', header=None, sep=',')
+        df = pd.read_csv(data_path, header=None, sep=',')
         X = df.loc[:, 0:8].astype(float).values
         y = df[9].astype(int).values
         if dataset_name == 'cmc.1':
@@ -237,25 +261,32 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False):
         elif dataset_name == 'cmc.3':
             y = binarize(y, pos_class=3)
 
+    if identifier == '00193':
+        df = pd.read_excel(data_path, sheet_name='Data', skipfooter=3)
+        df = df[list(range(1,24))] # select columns numbered (number 23 is the target label)
+        # replaces the header with the first row
+        new_header = df.iloc[0]  # grab the first row for the header
+        df = df[1:]  # take the data less the header row
+        df.columns = new_header  # set the header row as the df header
+        X = df.iloc[:, 0:22].astype(float).values
+        y = df['NSP'].astype(int).values
+        if dataset_name == 'ctg.1':  # 1==Normal
+            y = binarize(y, pos_class=1)
+        elif dataset_name == 'ctg.2':
+            y = binarize(y, pos_class=2)  # 1==Suspect
+        elif dataset_name == 'ctg.3':
+            y = binarize(y, pos_class=3)  # 1==Pathologic
+
+    if identifier == 'statlog/german':
+        df = pd.read_csv(data_path, header=None, delim_whitespace=True)
+        X = df.iloc[:, 0:24].astype(float).values
+        y = df[24].astype(int).values
+        y = binarize(y, pos_class=1)
+
     data = LabelledCollection(X, y)
     data.stats()
-    raise NotImplementedError()
-    #print(df)
-    #print(df.loc[:, 0:5].values)
-    #print(y)
+    return Dataset(*data.split_stratified(1-test_split, random_state=0))
 
-#    X = __read_csv(f'{data_path}/{identifier}.data', separator='\t')
-#    print(X)
-
-    #X, y = from_csv(f'{data_path}/{dataset_name}.data')
-    #y, classnames = reindex_labels(y)
-
-
-#def __read_csv(path, separator=','):
-#    x = []
-#    for instance in tqdm(open(path, 'rt', encoding='utf-16').readlines(), desc=f'reading {path}'):
-#        x.append(instance.strip().split(separator))
-#    return x
 
 def df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
     df[col] = df[col].apply(lambda x:repl[x]).astype(astype, copy=False)

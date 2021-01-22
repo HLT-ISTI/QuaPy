@@ -34,16 +34,26 @@ class Ensemble(BaseQuantifier):
     Information Fusion, 45, 1-15.
     """
 
-    def __init__(self, quantifier: BaseQuantifier, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, verbose=True, max_sample_size=None):
+    def __init__(self,
+                 quantifier: BaseQuantifier,
+                 size=50,
+                 red_size=25,
+                 min_pos=1,
+                 policy='ave',
+                 max_sample_size=None,
+                 val_split=None,
+                 n_jobs=1,
+                 verbose=False):
         assert policy in Ensemble.VALID_POLICIES, \
             f'unknown policy={policy}; valid are {Ensemble.VALID_POLICIES}'
         assert max_sample_size is None or max_sample_size > 0, \
-            'wrong value for max_sample_size; set to a positive number or None'
+            'wrong value for max_sample_size; set it to a positive number or None'
         self.base_quantifier = quantifier
         self.size = size
         self.min_pos = min_pos
         self.red_size = red_size
         self.policy = policy
+        self.val_split = val_split
         self.n_jobs = n_jobs
         self.post_proba_fn = None
         self.verbose = verbose
@@ -53,10 +63,12 @@ class Ensemble(BaseQuantifier):
         if self.verbose:
             print('[Ensemble]' + msg)
 
-    def fit(self, data: qp.data.LabelledCollection, val_split:Union[qp.data.LabelledCollection, float]=None):
+    def fit(self, data: qp.data.LabelledCollection, val_split: Union[qp.data.LabelledCollection, float]=None):
         self.sout('Fit')
         if self.policy=='ds' and not data.binary:
             raise ValueError(f'ds policy is only defined for binary quantification, but this dataset is not binary')
+        if val_split is None:
+            val_split = self.val_split
 
         # randomly chooses the prevalences for each member of the ensemble (preventing classes with less than
         # min_pos positive examples)
@@ -71,7 +83,8 @@ class Ensemble(BaseQuantifier):
         sample_size = len(data) if self.max_sample_size is None else min(self.max_sample_size, len(data))
         self.ensemble = Parallel(n_jobs=self.n_jobs)(
             delayed(_delayed_new_instance)(
-                self.base_quantifier, data, val_split, prev, posteriors, keep_samples=is_static_policy, verbose=self.verbose, sample_size=sample_size
+                self.base_quantifier, data, val_split, prev, posteriors, keep_samples=is_static_policy,
+                verbose=self.verbose, sample_size=sample_size
             ) for prev in tqdm(prevs, desc='fitting ensamble')
         )
 
@@ -206,15 +219,20 @@ def _delayed_new_instance(base_quantifier,
     if verbose:
         print(f'\tfit-start for prev {F.strprev(prev)}, sample_size={sample_size}')
     model = deepcopy(base_quantifier)
+
+    if val_split is not None:
+        if isinstance(val_split, float):
+            assert 0 < val_split < 1, 'val_split should be in (0,1)'
+            data, val_split = data.split_stratified(train_prop=1-val_split)
+
     sample_index = data.sampling_index(sample_size, *prev)
     sample = data.sampling_from_index(sample_index)
-    if val_split is None:
-        model.fit(sample)
-    else:
-        if isinstance(val_split, float):
-            assert 0<val_split<1, 'val_split should be in (0,1)'
-            sample, val_split = sample.split_stratified(train_prop=1-val_split)
+
+    if val_split is not None:
         model.fit(sample, val_split=val_split)
+    else:
+        model.fit(sample)
+
     tr_prevalence = sample.prevalence()
     tr_distribution = get_probability_distribution(posteriors[sample_index]) if (posteriors is not None) else None
     if verbose:
@@ -281,35 +299,31 @@ def _check_error(error):
                          f'the name of an error function in {qp.error.ERROR_NAMES}')
 
 
-def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None,
-                 param_model_sel:dict=None,
-                 size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
+def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None, param_model_sel:dict=None, **kwargs):
         if optim is not None:
             if param_grid is None:
                 raise ValueError(f'param_grid is None but optim was requested.')
             if param_model_sel is None:
                 raise ValueError(f'param_model_sel is None but optim was requested.')
         error = _check_error(optim)
-        return _instantiate_ensemble(learner, base_quantifier_class, param_grid, error, param_model_sel,
-                                     size=size, min_pos=min_pos, red_size=red_size,
-                                     policy=policy, n_jobs=n_jobs, max_sample_size=max_sample_size)
+        return _instantiate_ensemble(learner, base_quantifier_class, param_grid, error, param_model_sel, **kwargs)
 
 
-def ECC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
-    return ensembleFactory(learner, CC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs, max_sample_size=max_sample_size)
+def ECC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+    return ensembleFactory(learner, CC, param_grid, optim, param_mod_sel, **kwargs)
 
 
-def EACC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
-    return ensembleFactory(learner, ACC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs, max_sample_size=max_sample_size)
+def EACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+    return ensembleFactory(learner, ACC, param_grid, optim, param_mod_sel, **kwargs)
 
 
-def EPACC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
-    return ensembleFactory(learner, PACC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs, max_sample_size=max_sample_size)
+def EPACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+    return ensembleFactory(learner, PACC, param_grid, optim, param_mod_sel, **kwargs)
 
 
-def EHDy(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
-    return ensembleFactory(learner, HDy, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs, max_sample_size=max_sample_size)
+def EHDy(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+    return ensembleFactory(learner, HDy, param_grid, optim, param_mod_sel, **kwargs)
 
 
-def EEMQ(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
-    return ensembleFactory(learner, EMQ, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs, max_sample_size=max_sample_size)
+def EEMQ(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+    return ensembleFactory(learner, EMQ, param_grid, optim, param_mod_sel, **kwargs)

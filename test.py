@@ -13,9 +13,7 @@ from quapy.model_selection import GridSearchQ
 
 
 
-#qp.datasets.fetch_UCIDataset('acute.b', verbose=True)
 
-#sys.exit(0)
 qp.environ['SAMPLE_SIZE'] = 500
 #param_grid = {'C': np.logspace(-3,3,7), 'class_weight': ['balanced', None]}
 param_grid = {'C': np.logspace(0,3,4), 'class_weight': ['balanced']}
@@ -26,11 +24,12 @@ binary = False
 svmperf_home = './svm_perf_quantification'
 
 if binary:
-    dataset = qp.datasets.fetch_reviews('kindle', tfidf=True, min_df=5)
+    #dataset = qp.datasets.fetch_reviews('kindle', tfidf=True, min_df=5)
+    dataset = qp.datasets.fetch_UCIDataset('german', verbose=True)
     #qp.data.preprocessing.index(dataset, inplace=True)
 
 else:
-    dataset = qp.datasets.fetch_twitter('gasp', for_model_selection=False, min_df=5, pickle=True)
+    dataset = qp.datasets.fetch_twitter('gasp', for_model_selection=True, min_df=5, pickle=True)
     #dataset.training = dataset.training.sampling(sample_size, 0.2, 0.5, 0.3)
 
 print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.test)}')
@@ -57,10 +56,32 @@ print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.tes
 # model = qp.method.aggregative.ClassifyAndCount(learner)
 
 learner = LogisticRegression(max_iter=1000)
-model = qp.method.meta.EPACC(learner, size=10, red_size=5, max_sample_size=200)
-                            # param_grid={'C':[1,10,100]},
-                            # optim='mae', param_mod_sel={'sample_size':100, 'n_prevpoints':21, 'n_repetitions':5},
-                            # policy='ptr', n_jobs=1)
+#model = qp.method.aggregative.PACC(learner)
+#model = qp.method.aggregative.ACC(learner)
+model = qp.method.meta.EPACC(learner, size=10, red_size=5, max_sample_size=500, n_jobs=-1,
+                             param_grid={'C':[1,10,100]},
+                             optim='mae', param_mod_sel={'sample_size':100, 'n_prevpoints':21, 'n_repetitions':5, 'verbose':True},
+                             policy='ptr',
+                             val_split=0.4)
+"""
+Problemas:
+- La interfaz es muy fea, hay que conocer practicamente todos los detalles así que no ahorra nada con respecto a crear
+    un objeto con otros anidados dentro
+- El fit genera las prevalences random, y esto hace que despues de la model selection, un nuevo fit tire todo el trabajo
+    hecho.
+- El fit de un GridSearcQ tiene dentro un best_estimator, pero después de la model selection, hacer fit otra vez sobre
+    este objeto no se limita a re-entrenar el modelo con los mejores parámetros, sino que inicia una nueva búsqueda 
+    en modo grid search.
+- Posible solución (no vale): sería hacer directamente model selection con el benchmark final, aunque esto haría que los hyper-
+    parámetros se buscasen en un conjunto diferente del resto de models....
+- Posible solución: 
+    - Elegir las prevalences en init
+    - 
+- Problema: el parámetro val_split es muy ambiguo en todo el framework. Por ejemplo, en EPACC podría ser un float que,
+    en el caso de un GridSearchQ podría referir al split de validación para los hyperparámetros o al split que usa PACC
+    para encontrar los parámetros...
+"""
+
 # regressor = LinearSVR(max_iter=10000)
 # param_grid = {'C': np.logspace(-1,3,5)}
 # model = AveragePoolQuantification(regressor, sample_size, trials=5000, n_components=500, zscore=False)

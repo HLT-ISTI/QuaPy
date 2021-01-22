@@ -21,6 +21,7 @@ class GridSearchQ(BaseQuantifier):
                  eval_budget : int = None,
                  error: Union[Callable, str] = qp.error.mae,
                  refit=False,
+                 val_split=0.4,
                  n_jobs=1,
                  random_seed=42,
                  timeout=-1,
@@ -63,6 +64,7 @@ class GridSearchQ(BaseQuantifier):
         self.n_repetitions = n_repetitions
         self.eval_budget = eval_budget
         self.refit = refit
+        self.val_split = val_split
         self.n_jobs = n_jobs
         self.random_seed = random_seed
         self.timeout = timeout
@@ -118,12 +120,14 @@ class GridSearchQ(BaseQuantifier):
             raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
                              f'the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}')
 
-    def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float]=0.4):
+    def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float]=None):
         """
         :param training: the training set on which to optimize the hyperparameters
         :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
         a float in [0,1] indicating the proportion of labelled data to extract from the training set
         """
+        if val_split is None:
+            val_split = self.val_split
         training, val_split = self.__check_training_validation(training, val_split)
         assert isinstance(self.sample_size, int) and self.sample_size > 0, 'sample_size must be a positive integer'
         self.__check_num_evals(self.n_prevpoints, self.eval_budget, self.n_repetitions, training.n_classes)
@@ -158,7 +162,7 @@ class GridSearchQ(BaseQuantifier):
                 model.fit(training)
                 true_prevalences, estim_prevalences = artificial_sampling_prediction(
                     model, val_split, self.sample_size, self.n_prevpoints, self.n_repetitions, n_jobs, self.random_seed,
-                    verbose=True
+                    verbose=False
                 )
 
                 score = self.error(true_prevalences, estim_prevalences)

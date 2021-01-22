@@ -84,7 +84,7 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
 
     def set_params(self, **parameters):
         if isinstance(self.learner, CalibratedClassifierCV):
-            parameters={'base_estimator__'+k:v for k,v in parameters.items()}
+            parameters = {'base_estimator__'+k:v for k,v in parameters.items()}
         self.learner.set_params(**parameters)
 
     @property
@@ -172,10 +172,11 @@ class CC(AggregativeQuantifier):
 
 class ACC(AggregativeQuantifier):
 
-    def __init__(self, learner:BaseEstimator):
+    def __init__(self, learner:BaseEstimator, val_split=0.4):
         self.learner = learner
+        self.val_split = val_split
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, int, LabelledCollection]=0.4):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection]=None):
         """
         Trains a ACC quantifier
         :param data: the training set
@@ -186,7 +187,8 @@ class ACC(AggregativeQuantifier):
          to estimate the parameters
         :return: self
         """
-        assert val_split is not None, 'val_split cannot be set to None'
+        if val_split is None:
+            val_split = self.val_split
         if isinstance(val_split, int):
             # kFCV estimation of parameters
             y, y_ = [], []
@@ -256,10 +258,11 @@ class PCC(AggregativeProbabilisticQuantifier):
 
 class PACC(AggregativeProbabilisticQuantifier):
 
-    def __init__(self, learner:BaseEstimator):
+    def __init__(self, learner: BaseEstimator, val_split=0.4):
         self.learner = learner
+        self.val_split = val_split
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, int, LabelledCollection]=0.4):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, int, LabelledCollection]=None):
         """
         Trains a PACC quantifier
         :param data: the training set
@@ -270,7 +273,9 @@ class PACC(AggregativeProbabilisticQuantifier):
          to estimate the parameters
         :return: self
         """
-        assert val_split is not None, 'val_split cannot be set to None'
+        if val_split is None:
+            val_split = self.val_split
+
         if isinstance(val_split, int):
             # kFCV estimation of parameters
             y, y_ = [], []
@@ -374,10 +379,11 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
     estimation based on the Hellinger distance. Information Sciences, 218:146–164.
     """
 
-    def __init__(self, learner: BaseEstimator):
+    def __init__(self, learner: BaseEstimator, val_split=0.4):
         self.learner = learner
+        self.val_split = val_split
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, LabelledCollection]=0.4):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, LabelledCollection]=None):
         """
         Trains a HDy quantifier
         :param data: the training set
@@ -387,7 +393,9 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
          indicating the validation set itself
         :return: self
         """
-        assert val_split is not None, 'val_split cannot be set to None'
+        if val_split is None:
+            val_split = self.val_split
+
         self._check_binary(data, self.__class__.__name__)
         self.learner, validation = training_helper(
             self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
@@ -498,7 +506,7 @@ class OneVsAll(AggregativeQuantifier):
         self.binary_quantifier = binary_quantifier
         self.n_jobs = n_jobs
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, LabelledCollection]=None):
+    def fit(self, data: LabelledCollection, fit_learner=True):
         assert not data.binary, \
             f'{self.__class__.__name__} expect non-binary data'
         assert isinstance(self.binary_quantifier, BaseQuantifier), \

@@ -60,7 +60,6 @@ def artificial_sampling_prediction(
         estim_prevalence = quantification_func(sample.instances)
         return true_prevalence, estim_prevalence
 
-    print('predicting')
     pbar = tqdm(indexes, desc='[artificial sampling protocol] predicting') if verbose else indexes
     results = Parallel(n_jobs=n_jobs)(
         delayed(_predict_prevalences)(index) for index in pbar

@@ -20,49 +20,64 @@ import shutil
 DEBUG = False
 
 
+def newLR():
+    return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
+
+__C_range = np.logspace(-4, 5, 10)
+lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
+svmperf_params = {'C': __C_range}
+
 def quantification_models():
-    def newLR():
-        return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
-    __C_range = np.logspace(-4, 5, 10)
-    lr_params = {'C': __C_range, 'class_weight': [None, 'balanced']}
-    svmperf_params = {'C': __C_range}
-
     # methods tested in Gao & Sebastiani 2016
-    # yield 'cc', CC(newLR()), lr_params
-    # yield 'acc', ACC(newLR()), lr_params
-    # yield 'pcc', PCC(newLR()), lr_params
-    # yield 'pacc', PACC(newLR()), lr_params
-    # yield 'sld', EMQ(newLR()), lr_params
-    # yield 'svmq', OneVsAll(SVMQ(args.svmperfpath)), svmperf_params
-    # yield 'svmkld', OneVsAll(SVMKLD(args.svmperfpath)), svmperf_params
-    # yield 'svmnkld', OneVsAll(SVMNKLD(args.svmperfpath)), svmperf_params
-    #
-    # # methods added
-    # yield 'svmmae', OneVsAll(SVMAE(args.svmperfpath)), svmperf_params
-    # yield 'svmmrae', OneVsAll(SVMRAE(args.svmperfpath)), svmperf_params
-    # yield 'hdy', OneVsAll(HDy(newLR())), lr_params
+    yield 'cc', CC(newLR()), lr_params
+    yield 'acc', ACC(newLR()), lr_params
+    yield 'pcc', PCC(newLR()), lr_params
+    yield 'pacc', PACC(newLR()), lr_params
+    yield 'sld', EMQ(newLR()), lr_params
+    yield 'svmq', OneVsAll(SVMQ(args.svmperfpath)), svmperf_params
+    yield 'svmkld', OneVsAll(SVMKLD(args.svmperfpath)), svmperf_params
+    yield 'svmnkld', OneVsAll(SVMNKLD(args.svmperfpath)), svmperf_params
 
+    # methods added
+    yield 'svmmae', OneVsAll(SVMAE(args.svmperfpath)), svmperf_params
+    yield 'svmmrae', OneVsAll(SVMRAE(args.svmperfpath)), svmperf_params
+    yield 'hdy', OneVsAll(HDy(newLR())), lr_params
+
+
+def quantification_cuda_models():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'Running QuaNet in {device}')
-    if DEBUG:
-        lr_params={'C':[1,10]}
-        yield 'quanet', QuaNet(PCALR(**newLR().get_params()), settings.SAMPLE_SIZE,
-                               lstm_hidden_size=32, lstm_nlayers=1,
-                               tr_iter_per_poch=50, va_iter_per_poch=10,
-                               patience=3,
-                               checkpointdir=args.checkpointdir, device=device), lr_params
-    else:
-        yield 'quanet', QuaNet(PCALR(**newLR().get_params()), settings.SAMPLE_SIZE,
-                               checkpointdir=args.checkpointdir, device=device), lr_params
+    learner = PCALR(**newLR().get_params())
+    yield 'quanet', QuaNet(learner, settings.SAMPLE_SIZE, checkpointdir=args.checkpointdir, device=device), lr_params
 
 
-    #param_mod_sel={'sample_size':settings.SAMPLE_SIZE, 'n_prevpoints':21, 'n_repetitions':5}
-    #yield 'epaccmaeptr', EPACC(newLR(), param_grid=lr_params, optim='mae', policy='ptr', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
-    # yield 'epaccmraeptr', EPACC(newLR(), param_grid=lr_params, optim='mrae', policy='ptr', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
-    # yield 'epaccmae', EPACC(newLR(), param_grid=lr_params, optim='mae', policy='mae', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
-    # yield 'epaccmrae', EPACC(newLR(), param_grid=lr_params, optim='mrae', policy='mrae', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
+def quantification_ensembles():
+    param_mod_sel = {
+        'sample_size': settings.SAMPLE_SIZE,
+        'n_prevpoints': 21,
+        'n_repetitions': 5,
+        'verbose': False
+    }
+    common={
+        'max_sample_size': 500,
+        'n_jobs': settings.ENSEMBLE_N_JOBS,
+        'param_grid': lr_params,
+        'param_mod_sel': param_mod_sel,
+        'val_split': 0.4
+    }
+    
+    # hyperparameters will be evaluated within each quantifier of the ensemble, and so the typical model selection
+    # will be skipped (by setting hyperparameters to None)
+    hyper_none = None
+    yield 'epaccmaeptr', EPACC(newLR(), optim='mae', policy='ptr', **common), hyper_none
+    yield 'epaccmaemae', EPACC(newLR(), optim='mae', policy='mae', **common), hyper_none
+    yield 'esldmaeptr', EEMQ(newLR(), optim='mae', policy='ptr', **common), hyper_none
+    yield 'esldmaemae', EEMQ(newLR(), optim='mae', policy='mae', **common), hyper_none
 
-    #yield 'mlpe', MaximumLikelihoodPrevalenceEstimation(), {}
+    yield 'epaccmraeptr', EPACC(newLR(), optim='mrae', policy='ptr', **common), hyper_none
+    yield 'epaccmraemrae', EPACC(newLR(), optim='mrae', policy='mrae', **common), hyper_none
+    yield 'esldmraeptr', EEMQ(newLR(), optim='mrae', policy='ptr', **common), hyper_none
+    yield 'esldmraemrae', EEMQ(newLR(), optim='mrae', policy='mrae', **common), hyper_none
 
 
 def evaluate_experiment(true_prevalences, estim_prevalences):
@@ -119,10 +134,7 @@ def run(experiment):
     benchmark_devel.stats()
 
     # model selection (hyperparameter optimization for a quantification-oriented loss)
-    if hyperparams is None:
-        model.fit(benchmark_devel.training, benchmark_devel.test)
-        best_params = {}
-    else:
+    if hyperparams is not None:
         model_selection = qp.model_selection.GridSearchQ(
             model,
             param_grid=hyperparams,
@@ -137,6 +149,8 @@ def run(experiment):
         model_selection.fit(benchmark_devel.training, benchmark_devel.test)
         model = model_selection.best_model()
         best_params = model_selection.best_params_
+    else:
+        best_params = {}
 
     # model evaluation
     test_names = [dataset_name] if dataset_name != 'semeval' else ['semeval13', 'semeval14', 'semeval15']
@@ -183,9 +197,19 @@ if __name__ == '__main__':
 
     optim_losses = ['mae'] # ['mae', 'mrae']
     datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
-    models = quantification_models()
 
-    results = Parallel(n_jobs=settings.N_JOBS)(
+    #models = quantification_models()
+    #Parallel(n_jobs=settings.N_JOBS)(
+    #    delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
+    #)
+
+    #models = quantification_cuda_models()
+    #Parallel(n_jobs=settings.CUDA_N_JOBS)(
+    #    delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
+    #)
+
+    models = quantification_ensembles()
+    Parallel(n_jobs=1)(
         delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
     )
 
