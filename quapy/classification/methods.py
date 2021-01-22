@@ -1,14 +1,15 @@
+from sklearn.base import BaseEstimator
 from sklearn.decomposition import TruncatedSVD
 from sklearn.linear_model import LogisticRegression
 
 
-class PCALR:
+class PCALR(BaseEstimator):
     """
     An example of a classification method that also generates embedded inputs, as those required for QuaNet.
     This example simply combines a Principal Component Analysis (PCA) with Logistic Regression (LR).
     """
 
-    def __init__(self, n_components=300, **kwargs):
+    def __init__(self, n_components=100, **kwargs):
         self.n_components = n_components
         self.learner = LogisticRegression(**kwargs)
 
@@ -24,19 +25,19 @@ class PCALR:
         self.learner.set_params(**params)
 
     def fit(self, X, y):
-        self.pca = TruncatedSVD(self.n_components)
-        embedded = self.pca.fit_transform(X, y)
-        self.learner.fit(embedded, y)
+        self.learner.fit(X, y)
+        self.pca = TruncatedSVD(self.n_components).fit(X, y)
+        # embedded = self.pca.transform(X)
         self.classes_ = self.learner.classes_
         return self
 
     def predict(self, X):
-        embedded = self.transform(X)
-        return self.learner.predict(embedded)
+        # X = self.transform(X)
+        return self.learner.predict(X)
 
     def predict_proba(self, X):
-        embedded = self.transform(X)
-        return self.learner.predict_proba(embedded)
+        # X = self.transform(X)
+        return self.learner.predict_proba(X)
 
     def transform(self, X):
         return self.pca.transform(X)

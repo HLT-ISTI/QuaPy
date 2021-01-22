@@ -30,7 +30,7 @@ if binary:
     #qp.data.preprocessing.index(dataset, inplace=True)
 
 else:
-    dataset = qp.datasets.fetch_twitter('hcr', for_model_selection=False, min_df=10, pickle=True)
+    dataset = qp.datasets.fetch_twitter('gasp', for_model_selection=False, min_df=5, pickle=True)
     #dataset.training = dataset.training.sampling(sample_size, 0.2, 0.5, 0.3)
 
 print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.test)}')
@@ -56,19 +56,25 @@ print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.tes
 #learner = LogisticRegression(max_iter=1000)
 # model = qp.method.aggregative.ClassifyAndCount(learner)
 
+learner = LogisticRegression(max_iter=1000)
+model = qp.method.meta.EPACC(learner, size=10, red_size=5, max_sample_size=200)
+                            # param_grid={'C':[1,10,100]},
+                            # optim='mae', param_mod_sel={'sample_size':100, 'n_prevpoints':21, 'n_repetitions':5},
+                            # policy='ptr', n_jobs=1)
+# regressor = LinearSVR(max_iter=10000)
+# param_grid = {'C': np.logspace(-1,3,5)}
+# model = AveragePoolQuantification(regressor, sample_size, trials=5000, n_components=500, zscore=False)
 
-#model = qp.method.meta.EPACC(learner, size=10, red_size=5,
-#                             param_grid={'C':[1,10,100]},
-#                             optim='mae', param_mod_sel={'sample_size':100, 'n_prevpoints':21, 'n_repetitions':5},
-#                             policy='ptr', n_jobs=1)
-regressor = LinearSVR(max_iter=10000)
-param_grid = {'C': np.logspace(-1,3,5)}
-model = AveragePoolQuantification(regressor, sample_size, trials=5000, n_components=500, zscore=False)
-
-#model = qp.method.meta.EHDy(learner, param_grid=param_grid, optim='mae',
+# model = qp.method.meta.EHDy(learner, param_grid=param_grid, optim='mae',
 #                           sample_size=sample_size, eval_budget=max_evaluations//10, n_jobs=-1)
 #model = qp.method.aggregative.ClassifyAndCount(learner)
 
+# model = qp.method.meta.QuaNet(PCALR(n_components=100, max_iter=1000),
+#                                sample_size=100,
+#                                patience=10,
+#                                tr_iter_per_poch=500, va_iter_per_poch=100, #lstm_nlayers=2, lstm_hidden_size=64,
+#                                ff_layers=[500, 250, 50],
+                               # checkpointdir='./checkpoint', device='cuda')
 
 if qp.isbinary(model) and not qp.isbinary(dataset):
     model = qp.method.aggregative.OneVsAll(model)
@@ -87,17 +93,17 @@ model.fit(dataset.training)
 
 
 # estimating class prevalences
-print('quantifying')
-prevalences_estim = model.quantify(dataset.test.instances)
-prevalences_true  = dataset.test.prevalence()
-
+# print('quantifying')
+# prevalences_estim = model.quantify(dataset.test.instances)
+# prevalences_true  = dataset.test.prevalence()
+#
 # evaluation (one single prediction)
-error = qp.error.mae(prevalences_true, prevalences_estim)
-
-print(f'Evaluation in test (1 eval)')
-print(f'true prevalence {F.strprev(prevalences_true)}')
-print(f'estim prevalence {F.strprev(prevalences_estim)}')
-print(f'mae={error:.3f}')
+# error = qp.error.mae(prevalences_true, prevalences_estim)
+#
+# print(f'Evaluation in test (1 eval)')
+# print(f'true prevalence {F.strprev(prevalences_true)}')
+# print(f'estim prevalence {F.strprev(prevalences_estim)}')
+# print(f'mae={error:.3f}')
 
 
 # Model fit and Evaluation according to the artificial sampling protocol
@@ -117,7 +123,7 @@ for error in qp.error.QUANTIFICATION_ERROR:
     score = error(true_prev, estim_prev)
     print(f'{error.__name__}={score:.5f}')
 
-#sys.exit(0)
+sys.exit(0)
 # Model selection and Evaluation according to the artificial sampling protocol
 # ----------------------------------------------------------------------------
 

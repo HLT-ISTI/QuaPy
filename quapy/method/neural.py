@@ -15,12 +15,12 @@ class QuaNetTrainer(BaseQuantifier):
     def __init__(self,
                  learner,
                  sample_size,
-                 n_epochs=500,
-                 tr_iter_per_poch=200,
-                 va_iter_per_poch=21,
+                 n_epochs=100,
+                 tr_iter_per_poch=500,
+                 va_iter_per_poch=100,
                  lr=1e-3,
-                 lstm_hidden_size=128,
-                 lstm_nlayers=2,
+                 lstm_hidden_size=64,
+                 lstm_nlayers=1,
                  ff_layers=[1024, 512],
                  bidirectional=True,
                  qdrop_p=0.5,
@@ -60,30 +60,30 @@ class QuaNetTrainer(BaseQuantifier):
 
         self.__check_params_colision(self.quanet_params, self.learner.get_params())
 
-    def fit(self, data: LabelledCollection, fit_learner=True, *args):
+    def fit(self, data: LabelledCollection, fit_learner=True):
         """
         :param data: the training data on which to train QuaNet. If fit_learner=True, the data will be split in
         40/40/20 for training the classifier, training QuaNet, and validating QuaNet, respectively. If
         fit_learner=False, the data will be split in 66/34 for training QuaNet and validating it, respectively.
         :param fit_learner: if true, trains the classifier on a split containing 40% of the data
-        :param args: unused
         :return: self
         """
-        # split: 40% for training classification, 40% for training quapy, and 20% for validating quapy
-        #self.learner, unused_data = \
-        #    training_helper(self.learner, data, fit_learner,  ensure_probabilistic=True, val_split=0.6)
         classifier_data, unused_data = data.split_stratified(0.4)
         train_data, valid_data = unused_data.split_stratified(0.66)  # 0.66 split of 60% makes 40% and 20%
-        self.learner.fit(*classifier_data.Xy)
+
+        print('Classifier data: ', len(classifier_data))
+        print('Q-Training data: ', len(train_data))
+        print('Q-Valid data: ', len(valid_data))
 
         # estimate the hard and soft stats tpr and fpr of the classifier
         self.tr_prev = data.prevalence()
 
+        self.learner.fit(*classifier_data.Xy)
         self.quantifiers = {
             'cc': CC(self.learner).fit(classifier_data, fit_learner=False),
-            'acc': ACC(self.learner).fit(classifier_data, fit_learner=True),
+            'acc': ACC(self.learner).fit(classifier_data, fit_learner=False, val_split=valid_data),
             'pcc': PCC(self.learner).fit(classifier_data, fit_learner=False),
-            'pacc': PACC(self.learner).fit(classifier_data, fit_learner=True),
+            'pacc': PACC(self.learner).fit(classifier_data, fit_learner=False, val_split=valid_data),
             'emq': EMQ(self.learner).fit(classifier_data, fit_learner=False),
         }
 
@@ -91,13 +91,15 @@ class QuaNetTrainer(BaseQuantifier):
         valid_posteriors = self.learner.predict_proba(valid_data.instances)
         train_posteriors = self.learner.predict_proba(train_data.instances)
 
-        # turn instances' indexes into embeddings
+        # turn instances' original representations into embeddings
         valid_data.instances = self.learner.transform(valid_data.instances)
         train_data.instances = self.learner.transform(train_data.instances)
 
         self.status = {
             'tr-loss': -1,
             'va-loss': -1,
+            'tr-mae': -1,
+            'va-mae': -1,
         }
 
         nQ = len(self.quantifiers)
@@ -105,10 +107,11 @@ class QuaNetTrainer(BaseQuantifier):
         self.quanet = QuaNetModule(
             doc_embedding_size=train_data.instances.shape[1],
             n_classes=data.n_classes,
-            stats_size=nQ*nC + 2*nC*nC,
+            stats_size=nQ*nC, #+ 2*nC*nC,
             order_by=0 if data.binary else None,
             **self.quanet_params
         ).to(self.device)
+        print(self.quanet)
 
         self.optim = torch.optim.Adam(self.quanet.parameters(), lr=self.lr)
         early_stop = EarlyStop(self.patience, lower_is_better=True)
@@ -139,8 +142,8 @@ class QuaNetTrainer(BaseQuantifier):
             prevs_estim.extend(quantifier.aggregate(predictions))
 
         # add the class-conditional predictions P(y'i|yj) from ACC and PACC
-        prevs_estim.extend(self.quantifiers['acc'].Pte_cond_estim_.flatten())
-        prevs_estim.extend(self.quantifiers['pacc'].Pte_cond_estim_.flatten())
+        # prevs_estim.extend(self.quantifiers['acc'].Pte_cond_estim_.flatten())
+        # prevs_estim.extend(self.quantifiers['pacc'].Pte_cond_estim_.flatten())
 
         return prevs_estim
 
@@ -158,11 +161,23 @@ class QuaNetTrainer(BaseQuantifier):
 
     def epoch(self, data: LabelledCollection, posteriors, iterations, epoch, early_stop, train):
         mse_loss = MSELoss()
-        prevpoints = F.get_nprevpoints_approximation(iterations, self.quanet.n_classes)
+        # prevpoints = F.get_nprevpoints_approximation(iterations, self.quanet.n_classes)
+        # iterations = F.num_prevalence_combinations(prevpoints, self.quanet.n_classes)
 
         self.quanet.train(mode=train)
         losses = []
-        pbar = tqdm(data.artificial_sampling_index_generator(self.sample_size, prevpoints))
+        mae_errors = []
+        if train==False:
+            prevpoints = F.get_nprevpoints_approximation(iterations, self.quanet.n_classes)
+            iterations = F.num_prevalence_combinations(prevpoints, self.quanet.n_classes)
+            with qp.util.temp_seed(0):
+                sampling_index_gen = data.artificial_sampling_index_generator(self.sample_size, prevpoints)
+        else:
+            # sampling_index_gen = data.artificial_sampling_index_generator(self.sample_size, prevpoints)
+            sampling_index_gen = [data.sampling_index(self.sample_size, *prev) for prev in F.uniform_simplex_sampling(data.n_classes, iterations)]
+        pbar = tqdm(sampling_index_gen, total=iterations) if train else sampling_index_gen
+
+        rand_it_show = np.random.randint(iterations)
         for it, index in enumerate(pbar):
             sample_data = data.sampling_from_index(index)
             sample_posteriors = posteriors[index]
@@ -172,21 +187,46 @@ class QuaNetTrainer(BaseQuantifier):
                 self.optim.zero_grad()
                 phat = self.quanet.forward(sample_data.instances, sample_posteriors, quant_estims)
                 loss = mse_loss(phat, ptrue)
+                mae = mae_loss(phat, ptrue)
                 loss.backward()
                 self.optim.step()
             else:
                 with torch.no_grad():
                     phat = self.quanet.forward(sample_data.instances, sample_posteriors, quant_estims)
                     loss = mse_loss(phat, ptrue)
+                    mae = mae_loss(phat, ptrue)
 
             losses.append(loss.item())
+            mae_errors.append(mae.item())
 
-            self.status['tr-loss' if train else 'va-loss'] = np.mean(losses[-10:])
-            pbar.set_description(f'[QuaNet][{"training" if train else "validating"}] '
-                                 f'epoch={epoch} [it={it}/{iterations}]\t'
-                                 f'tr-loss={self.status["tr-loss"]:.5f} '
-                                 f'val-loss={self.status["va-loss"]:.5f} '
-                                 f'patience={early_stop.patience}/{early_stop.PATIENCE_LIMIT}')
+            mse = np.mean(losses)
+            mae = np.mean(mae_errors)
+            if train:
+                self.status['tr-loss'] = mse
+                self.status['tr-mae'] = mae
+            else:
+                self.status['va-loss'] = mse
+                self.status['va-mae'] = mae
+
+            if train:
+                pbar.set_description(f'[QuaNet] '
+                                     f'epoch={epoch} [it={it}/{iterations}]\t'
+                                     f'tr-mseloss={self.status["tr-loss"]:.5f} tr-maeloss={self.status["tr-mae"]:.5f}\t'
+                                     f'val-mseloss={self.status["va-loss"]:.5f} val-maeloss={self.status["va-mae"]:.5f} '
+                                     f'patience={early_stop.patience}/{early_stop.PATIENCE_LIMIT}')
+
+            # if it==rand_it_show:
+            #     print()
+            #     print('='*100)
+            #     print('Training: ' if train else 'Validation:')
+            #     print('=' * 100)
+            #     print('True: ', ptrue.cpu().numpy().flatten())
+            #     print('Estim: ', phat.detach().cpu().numpy().flatten())
+            #     for pred, name in zip(np.asarray(quant_estims).reshape(-1,data.n_classes),
+            #                           ['cc', 'acc', 'pcc', 'pacc', 'emq', 'Pte[acc]','','','Pte[pacc]','','']):
+            #         print(name, pred)
+
+
 
     def get_params(self, deep=True):
         return {**self.learner.get_params(), **self.quanet_params}
@@ -216,6 +256,9 @@ class QuaNetTrainer(BaseQuantifier):
         shutil.rmtree(self.checkpointdir, ignore_errors=True)
 
 
+def mae_loss(output, target):
+    return torch.mean(torch.abs(output - target))
+
 
 class QuaNetModule(torch.nn.Module):
     def __init__(self,
@@ -227,7 +270,7 @@ class QuaNetModule(torch.nn.Module):
                  ff_layers=[1024, 512],
                  bidirectional=True,
                  qdrop_p=0.5,
-                 order_by=None):
+                 order_by=0):
         super().__init__()
 
         self.n_classes = n_classes
@@ -277,12 +320,12 @@ class QuaNetModule(torch.nn.Module):
         embeded_posteriors = torch.cat((doc_embeddings, doc_posteriors), dim=-1)
 
         # the entire set represents only one instance in quapy contexts, and so the batch_size=1
-        # the shape should be (1, number-of-instances, embedding-size + 1)
+        # the shape should be (1, number-of-instances, embedding-size + n_classes)
         embeded_posteriors = embeded_posteriors.unsqueeze(0)
 
         self.lstm.flatten_parameters()
         _, (rnn_hidden,_) = self.lstm(embeded_posteriors, self.init_hidden())
-        rnn_hidden = rnn_hidden.view(self.nlayers, self.ndirections, -1, self.hidden_size)
+        rnn_hidden = rnn_hidden.view(self.nlayers, self.ndirections, 1, self.hidden_size)
         quant_embedding = rnn_hidden[0].view(-1)
         quant_embedding = torch.cat((quant_embedding, statistics))
 

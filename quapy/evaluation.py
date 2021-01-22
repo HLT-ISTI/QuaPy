@@ -17,7 +17,7 @@ def artificial_sampling_prediction(
         sample_size,
         n_prevpoints=210,
         n_repetitions=1,
-        n_jobs=-1,
+        n_jobs=1,
         random_seed=42,
         verbose=True
 ):

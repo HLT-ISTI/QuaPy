@@ -53,11 +53,10 @@ def quantification_models():
                                checkpointdir=args.checkpointdir, device=device), lr_params
     else:
         yield 'quanet', QuaNet(PCALR(**newLR().get_params()), settings.SAMPLE_SIZE,
-                               patience=5,
-                               tr_iter_per_poch=500, va_iter_per_poch=100,
                                checkpointdir=args.checkpointdir, device=device), lr_params
 
-    param_mod_sel={'sample_size':settings.SAMPLE_SIZE, 'n_prevpoints':21, 'n_repetitions':5}
+
+    #param_mod_sel={'sample_size':settings.SAMPLE_SIZE, 'n_prevpoints':21, 'n_repetitions':5}
     #yield 'epaccmaeptr', EPACC(newLR(), param_grid=lr_params, optim='mae', policy='ptr', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
     # yield 'epaccmraeptr', EPACC(newLR(), param_grid=lr_params, optim='mrae', policy='ptr', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
     # yield 'epaccmae', EPACC(newLR(), param_grid=lr_params, optim='mae', policy='mae', param_mod_sel=param_mod_sel, n_jobs=settings.ENSEMBLE_N_JOBS), None
@@ -165,6 +164,9 @@ def run(experiment):
                      benchmark_eval.training.prevalence(), test_true_prevalence, test_estim_prevalence,
                      best_params)
 
+    if isinstance(model, QuaNet):
+        model.clean_checkpoint_dir()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run experiments for Tweeter Sentiment Quantification')
@@ -180,7 +182,7 @@ if __name__ == '__main__':
     np.random.seed(0)
 
     optim_losses = ['mae'] # ['mae', 'mrae']
-    datasets = ['hcr', 'omd', 'sanders', 'sst'] # qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
+    datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
     models = quantification_models()
 
     results = Parallel(n_jobs=settings.N_JOBS)(

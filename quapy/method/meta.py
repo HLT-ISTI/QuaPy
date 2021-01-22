@@ -34,8 +34,11 @@ class Ensemble(BaseQuantifier):
     Information Fusion, 45, 1-15.
     """
 
-    def __init__(self, quantifier: BaseQuantifier, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, verbose=False):
-        assert policy in Ensemble.VALID_POLICIES, f'unknown policy={policy}; valid are {Ensemble.VALID_POLICIES}'
+    def __init__(self, quantifier: BaseQuantifier, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, verbose=True, max_sample_size=None):
+        assert policy in Ensemble.VALID_POLICIES, \
+            f'unknown policy={policy}; valid are {Ensemble.VALID_POLICIES}'
+        assert max_sample_size is None or max_sample_size > 0, \
+            'wrong value for max_sample_size; set to a positive number or None'
         self.base_quantifier = quantifier
         self.size = size
         self.min_pos = min_pos
@@ -44,6 +47,7 @@ class Ensemble(BaseQuantifier):
         self.n_jobs = n_jobs
         self.post_proba_fn = None
         self.verbose = verbose
+        self.max_sample_size = max_sample_size
 
     def sout(self, msg):
         if self.verbose:
@@ -64,9 +68,10 @@ class Ensemble(BaseQuantifier):
             posteriors, self.post_proba_fn = self.ds_policy_get_posteriors(data)
 
         is_static_policy = (self.policy in qp.error.QUANTIFICATION_ERROR_NAMES)
+        sample_size = len(data) if self.max_sample_size is None else min(self.max_sample_size, len(data))
         self.ensemble = Parallel(n_jobs=self.n_jobs)(
             delayed(_delayed_new_instance)(
-                self.base_quantifier, data, val_split, prev, posteriors, keep_samples=is_static_policy, verbose=self.verbose
+                self.base_quantifier, data, val_split, prev, posteriors, keep_samples=is_static_policy, verbose=self.verbose, sample_size=sample_size
             ) for prev in tqdm(prevs, desc='fitting ensamble')
         )
 
@@ -131,7 +136,7 @@ class Ensemble(BaseQuantifier):
         that the distribution of posterior probabilities from training and test examples is compared by means of the
         Hellinger Distance. However, how these posterior probabilities are generated is not specified. In the article,
         a Logistic Regressor (LR) is used as the classifier device and that could be used for this purpose. However, in
-        general, a Quantifier is not necessarily an instance of Aggreggative Probabilistic Quantifiers, and so that the
+        general, a Quantifier is not necessarily an instance of Aggreggative Probabilistic Quantifiers, and so, that the
         quantifier builds on top of a probabilistic classifier cannot be given for granted. Additionally, it would not
         be correct to generate the posterior probabilities for training documents that have concurred in training the
         classifier that generates them.
@@ -196,11 +201,12 @@ def _delayed_new_instance(base_quantifier,
                           prev,
                           posteriors,
                           keep_samples,
-                          verbose):
+                          verbose,
+                          sample_size):
     if verbose:
-        print(f'\tfit-start for prev {F.strprev(prev)}')
+        print(f'\tfit-start for prev {F.strprev(prev)}, sample_size={sample_size}')
     model = deepcopy(base_quantifier)
-    sample_index = data.sampling_index(len(data), *prev)
+    sample_index = data.sampling_index(sample_size, *prev)
     sample = data.sampling_from_index(sample_index)
     if val_split is None:
         model.fit(sample)
@@ -277,7 +283,7 @@ def _check_error(error):
 
 def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None,
                  param_model_sel:dict=None,
-                 size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
+                 size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
         if optim is not None:
             if param_grid is None:
                 raise ValueError(f'param_grid is None but optim was requested.')
@@ -286,24 +292,24 @@ def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None,
         error = _check_error(optim)
         return _instantiate_ensemble(learner, base_quantifier_class, param_grid, error, param_model_sel,
                                      size=size, min_pos=min_pos, red_size=red_size,
-                                     policy=policy, n_jobs=n_jobs)
+                                     policy=policy, n_jobs=n_jobs, max_sample_size=max_sample_size)
 
 
-def ECC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
-    return ensembleFactory(learner, CC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs)
+def ECC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
+    return ensembleFactory(learner, CC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs, max_sample_size=max_sample_size)
 
 
-def EACC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
-    return ensembleFactory(learner, ACC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs)
+def EACC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
+    return ensembleFactory(learner, ACC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs, max_sample_size=max_sample_size)
 
 
-def EPACC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
-    return ensembleFactory(learner, PACC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs)
+def EPACC(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
+    return ensembleFactory(learner, PACC, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs, max_sample_size=max_sample_size)
 
 
-def EHDy(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
-    return ensembleFactory(learner, HDy, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs)
+def EHDy(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
+    return ensembleFactory(learner, HDy, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs, max_sample_size=max_sample_size)
 
 
-def EEMQ(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1):
-    return ensembleFactory(learner, EMQ, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs)
+def EEMQ(learner, param_grid=None, optim=None, param_mod_sel=None, size=50, min_pos=1, red_size=25, policy='ave', n_jobs=1, max_sample_size=None):
+    return ensembleFactory(learner, EMQ, param_grid, optim, param_mod_sel, size, min_pos, red_size, policy, n_jobs, max_sample_size=max_sample_size)

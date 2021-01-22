@@ -21,7 +21,7 @@ class GridSearchQ(BaseQuantifier):
                  eval_budget : int = None,
                  error: Union[Callable, str] = qp.error.mae,
                  refit=False,
-                 n_jobs=-1,
+                 n_jobs=1,
                  random_seed=42,
                  timeout=-1,
                  verbose=False):
@@ -158,7 +158,7 @@ class GridSearchQ(BaseQuantifier):
                 model.fit(training)
                 true_prevalences, estim_prevalences = artificial_sampling_prediction(
                     model, val_split, self.sample_size, self.n_prevpoints, self.n_repetitions, n_jobs, self.random_seed,
-                    verbose=False
+                    verbose=True
                 )
 
                 score = self.error(true_prevalences, estim_prevalences)
