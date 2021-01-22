@@ -49,7 +49,6 @@ class QuaNetTrainer(BaseQuantifier):
         }
 
         self.patience = patience
-        os.makedirs(checkpointdir, exist_ok=True)
         if checkpointname is None:
             local_random = random.Random()
             random_code = '-'.join(str(local_random.randint(0, 1000000)) for _ in range(5))
@@ -74,6 +73,7 @@ class QuaNetTrainer(BaseQuantifier):
         print('Classifier data: ', len(classifier_data))
         print('Q-Training data: ', len(train_data))
         print('Q-Valid data: ', len(valid_data))
+        os.makedirs(self.checkpointdir, exist_ok=True)
 
         # estimate the hard and soft stats tpr and fpr of the classifier
         self.tr_prev = data.prevalence()
