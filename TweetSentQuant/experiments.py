@@ -16,7 +16,6 @@ import argparse
 import torch
 import shutil
 
-qp.environ['SAMPLE_SIZE'] = settings.SAMPLE_SIZE
 
 def newLR():
     return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
@@ -116,12 +115,14 @@ def save_results(dataset_name, model_name, optim_loss, *results):
 
 def run(experiment):
 
+    qp.environ['SAMPLE_SIZE'] = settings.SAMPLE_SIZE
+
     optim_loss, dataset_name, (model_name, model, hyperparams) = experiment
 
     if is_already_computed(dataset_name, model_name, optim_loss=optim_loss):
         print(f'result for dataset={dataset_name} model={model_name} loss={optim_loss} already computed.')
         return
-    elif (optim_loss=='mae' and 'mrae' in model_name) or (optim_loss=='mrae' and 'mae' in model_name):
+    elif (optim_loss == 'mae' and 'mrae' in model_name) or (optim_loss=='mrae' and 'mae' in model_name):
         print(f'skipping model={model_name} for optim_loss={optim_loss}')
         return
     else:
@@ -163,7 +164,8 @@ def run(experiment):
             test=benchmark_eval.test,
             sample_size=settings.SAMPLE_SIZE,
             n_prevpoints=21,
-            n_repetitions=25
+            n_repetitions=25,
+            n_jobs=-1 if isinstance(model, qp.method.meta.Ensemble) else 1
         )
         test_estim_prevalence = model.quantify(benchmark_eval.test.instances)
         test_true_prevalence = benchmark_eval.test.prevalence()

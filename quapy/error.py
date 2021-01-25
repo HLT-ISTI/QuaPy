@@ -1,8 +1,6 @@
 import numpy as np
 from sklearn.metrics import f1_score
 
-import quapy as qp
-
 
 def f1e(y_true, y_pred):
     return 1. - f1_score(y_true, y_pred, average='macro')
@@ -66,6 +64,7 @@ def smooth(p, eps):
 
 
 def __check_eps(eps):
+    import quapy as qp
     sample_size = qp.environ['SAMPLE_SIZE']
     if eps is None:
         if sample_size is None:

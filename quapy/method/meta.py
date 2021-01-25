@@ -82,7 +82,7 @@ class Ensemble(BaseQuantifier):
 
         is_static_policy = (self.policy in qp.error.QUANTIFICATION_ERROR_NAMES)
 
-        self.ensemble = Parallel(n_jobs=self.n_jobs)(
+        self.ensemble = Parallel(n_jobs=self.n_jobs, backend="threading")(
             delayed(_delayed_new_instance)(
                 self.base_quantifier, data, val_split, prev, posteriors, keep_samples=is_static_policy,
                 verbose=self.verbose, sample_size=sample_size
