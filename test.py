@@ -11,7 +11,8 @@ from classification.methods import PCALR
 from classification.neural import NeuralClassifierTrainer, CNNnet
 from quapy.model_selection import GridSearchQ
 
-
+dataset = qp.datasets.fetch_UCIDataset('sonar', verbose=True)
+sys.exit(0)
 
 
 qp.environ['SAMPLE_SIZE'] = 500

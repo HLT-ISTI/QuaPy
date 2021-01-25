@@ -140,7 +140,15 @@ UCI_DATASETS = ['acute.a', 'acute.b',
                 'cmc.1', 'cmc.2', 'cmc.3',
                 'ctg.1', 'ctg.2', 'ctg.3',
                 #'diabetes', # <-- I haven't found this one...
-                'german'] # ongoing...
+                'german',
+                'haberman',
+                'ionosphere',
+                'iris.1', 'iris.2', 'iris.3',
+                'mammographic',
+                'pageblocks.5',
+                #'phoneme', # <-- I haven't found this one...
+                'semeion',
+                'sonar'] # ongoing...
 
 def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3):
 
@@ -164,6 +172,16 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         'ctg.2': 'Cardiotocography Data Set (suspect)',
         'ctg.3': 'Cardiotocography Data Set (pathologic)',
         'german': 'Statlog German Credit Data',
+        'haberman': "Haberman's Survival Data",
+        'ionosphere': 'Johns Hopkins University Ionosphere DB',
+        'iris.1': 'Iris Plants Database(x)',
+        'iris.2': 'Iris Plants Database(versicolour)',
+        'iris.3': 'Iris Plants Database(virginica)',
+        'mammographic': 'Mammographic Mass',
+        'pageblocks.5': 'Page Blocks Classification (5)',
+        'semeion': 'Semeion Handwritten Digit (8)',
+        'sonar': 'Sonar, Mines vs. Rocks'
+
     }
 
     # the identifier is an alias for the dataset group, it's part of the url data-folder, and is the name we use
@@ -181,44 +199,59 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         'ctg.1': '00193',
         'ctg.2': '00193',
         'ctg.3': '00193',
-        'german': 'statlog/german'
+        'german': 'statlog/german',
+        'haberman': 'haberman',
+        'ionosphere': 'ionosphere',
+        'iris.1': 'iris',
+        'iris.2': 'iris',
+        'iris.3': 'iris',
+        'mammographic': 'mammographic-masses',
+        'pageblocks.5': 'page-blocks',
+        'semeion': 'semeion',
+        'sonar': 'undocumented/connectionist-bench/sonar'
+
     }
 
     # the filename is the name of the file within the data_folder indexed by the identifier
     file_name = {
         'acute': 'diagnosis.data',
-        'balance-scale': 'balance-scale.data',
-        'breast-cancer-wisconsin': 'breast-cancer-wisconsin.data',
-        'cmc': 'cmc.data',
         '00193': 'CTG.xls',
-        'statlog/german': 'german.data-numeric'
+        'statlog/german': 'german.data-numeric',
+        'mammographic-masses': 'mammographic_masses.data',
+        'page-blocks': 'page-blocks.data.Z',
+        'undocumented/connectionist-bench/sonar': 'sonar.all-data'
     }
 
     # the filename containing the dataset description (if any)
     desc_name = {
         'acute': 'diagnosis.names',
-        'balance-scale': 'balance-scale.names',
-        'breast-cancer-wisconsin': 'breast-cancer-wisconsin.names',
-        'cmc': 'cmc.names',
         '00193': None,
-        'statlog/german': 'german.doc'
+        'statlog/german': 'german.doc',
+        'mammographic-masses': 'mammographic_masses.names',
+        'undocumented/connectionist-bench/sonar': 'sonar.names'
     }
 
     identifier = identifier_map[dataset_name]
+    filename = file_name.get(identifier, f'{identifier}.data')
+    descfile = desc_name.get(identifier, f'{identifier}.names')
+    fullname = dataset_fullname[dataset_name]
+
     URL = f'http://archive.ics.uci.edu/ml/machine-learning-databases/{identifier}'
     data_dir = join(data_home, 'uci_datasets', identifier)
-    data_path = join(data_dir, file_name[identifier])
-    download_file_if_not_exists(f'{URL}/{file_name[identifier]}', data_path)
+    data_path = join(data_dir, filename)
+    download_file_if_not_exists(f'{URL}/{filename}', data_path)
 
-    descfile = desc_name[identifier]
     if descfile:
-        download_file_if_not_exists(f'{URL}/{descfile}', f'{data_dir}/{descfile}')
-        if verbose:
-            print(open(f'{data_dir}/{descfile}', 'rt').read())
+        try:
+            download_file_if_not_exists(f'{URL}/{descfile}', f'{data_dir}/{descfile}')
+            if verbose:
+                print(open(f'{data_dir}/{descfile}', 'rt').read())
+        except Exception:
+            print('could not read the description file')
     elif verbose:
         print('no file description available')
 
-    print(f'Loading {dataset_name} ({dataset_fullname[dataset_name]})')
+    print(f'Loading {dataset_name} ({fullname})')
     if identifier == 'acute':
         df = pd.read_csv(data_path, header=None, encoding='utf-16', sep='\t')
         if dataset_name == 'acute.a':
@@ -270,18 +303,76 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         df.columns = new_header  # set the header row as the df header
         X = df.iloc[:, 0:22].astype(float).values
         y = df['NSP'].astype(int).values
-        if dataset_name == 'ctg.1':  # 1==Normal
-            y = binarize(y, pos_class=1)
+        if dataset_name == 'ctg.1':
+            y = binarize(y, pos_class=1)  # 1==Normal
         elif dataset_name == 'ctg.2':
-            y = binarize(y, pos_class=2)  # 1==Suspect
+            y = binarize(y, pos_class=2)  # 2==Suspect
         elif dataset_name == 'ctg.3':
-            y = binarize(y, pos_class=3)  # 1==Pathologic
+            y = binarize(y, pos_class=3)  # 3==Pathologic
 
     if identifier == 'statlog/german':
         df = pd.read_csv(data_path, header=None, delim_whitespace=True)
         X = df.iloc[:, 0:24].astype(float).values
         y = df[24].astype(int).values
         y = binarize(y, pos_class=1)
+
+    if identifier == 'haberman':
+        df = pd.read_csv(data_path, header=None)
+        X = df.iloc[:, 0:3].astype(float).values
+        y = df[3].astype(int).values
+        y = binarize(y, pos_class=2)
+
+    if identifier == 'ionosphere':
+        df = pd.read_csv(data_path, header=None)
+        X = df.iloc[:, 0:34].astype(float).values
+        y = df[34].values
+        y = binarize(y, pos_class='b')
+
+    if identifier == 'iris':
+        df = pd.read_csv(data_path, header=None)
+        X = df.iloc[:, 0:4].astype(float).values
+        y = df[4].values
+        if dataset_name == 'iris.1':
+            y = binarize(y, pos_class='Iris-setosa')  # 1==Setosa
+        elif dataset_name == 'iris.2':
+            y = binarize(y, pos_class='Iris-versicolor')  # 2==Versicolor
+        elif dataset_name == 'iris.3':
+            y = binarize(y, pos_class='Iris-virginica')  # 3==Virginica
+
+    if identifier == 'mammographic-masses':
+        df = pd.read_csv(data_path, header=None, sep=',')
+        Xy[df == '?'] = np.nan
+        Xy = Xy.dropna(axis=0)
+        X = Xy.iloc[:, 0:5]
+        X = X.astype(float).values
+        y = binarize(Xy.iloc[:,5], pos_class=1)
+
+    if identifier == 'page-blocks':
+        data_path_ = data_path.replace('.Z', '')
+        if not os.path.exists(data_path_):
+            raise FileNotFoundError(f'Warning: file {data_path_} does not exist. If this is the first time you '
+                                    f'attempt to load this dataset, then you have to manually unzip the {data_path} '
+                                    f'and name the extracted file {data_path_} (unfortunately, neither zipfile, nor '
+                                    f'gzip can handle unix compressed files automatically -- there is a repo in GitHub '
+                                    f'https://github.com/umeat/unlzw where the problem seems to be solved anyway).')
+        df = pd.read_csv(data_path_, header=None, delim_whitespace=True)
+        X = df.iloc[:, 0:10].astype(float).values
+        y = df[10].values
+        y = binarize(y, pos_class=5)  # 5==block "graphic"
+
+    if identifier == 'semeion':
+        df = pd.read_csv(data_path, header=None, delim_whitespace=True )
+        X = df.iloc[:, 0:256].astype(float).values
+        y = df[263].values  # 263 stands for digit 8 (labels are one-hot vectors from col 256-266)
+        y = binarize(y, pos_class=1)
+
+    if identifier == 'undocumented/connectionist-bench/sonar':
+        df = pd.read_csv(data_path, header=None, sep=',')
+        print(df)
+        X = df.iloc[:, 0:60].astype(float).values
+        y = df[60].values 
+        y = binarize(y, pos_class='R')
+
 
     data = LabelledCollection(X, y)
     data.stats()
