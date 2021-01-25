@@ -63,7 +63,8 @@ def quantification_ensembles():
         'n_jobs': settings.ENSEMBLE_N_JOBS,
         'param_grid': lr_params,
         'param_mod_sel': param_mod_sel,
-        'val_split': 0.4
+        'val_split': 0.4,
+        'min_pos': 10
     }
     
     # hyperparameters will be evaluated within each quantifier of the ensemble, and so the typical model selection
@@ -71,13 +72,13 @@ def quantification_ensembles():
     hyper_none = None
     yield 'epaccmaeptr', EPACC(newLR(), optim='mae', policy='ptr', **common), hyper_none
     yield 'epaccmaemae', EPACC(newLR(), optim='mae', policy='mae', **common), hyper_none
-    yield 'esldmaeptr', EEMQ(newLR(), optim='mae', policy='ptr', **common), hyper_none
-    yield 'esldmaemae', EEMQ(newLR(), optim='mae', policy='mae', **common), hyper_none
+    #yield 'esldmaeptr', EEMQ(newLR(), optim='mae', policy='ptr', **common), hyper_none
+    #yield 'esldmaemae', EEMQ(newLR(), optim='mae', policy='mae', **common), hyper_none
 
     yield 'epaccmraeptr', EPACC(newLR(), optim='mrae', policy='ptr', **common), hyper_none
     yield 'epaccmraemrae', EPACC(newLR(), optim='mrae', policy='mrae', **common), hyper_none
-    yield 'esldmraeptr', EEMQ(newLR(), optim='mrae', policy='ptr', **common), hyper_none
-    yield 'esldmraemrae', EEMQ(newLR(), optim='mrae', policy='mrae', **common), hyper_none
+    #yield 'esldmraeptr', EEMQ(newLR(), optim='mrae', policy='ptr', **common), hyper_none
+    #yield 'esldmraemrae', EEMQ(newLR(), optim='mrae', policy='mrae', **common), hyper_none
 
 
 def evaluate_experiment(true_prevalences, estim_prevalences):
@@ -178,8 +179,8 @@ def run(experiment):
                      benchmark_eval.training.prevalence(), test_true_prevalence, test_estim_prevalence,
                      best_params)
 
-    if isinstance(model, QuaNet):
-        model.clean_checkpoint_dir()
+    #if isinstance(model, QuaNet):
+        #model.clean_checkpoint_dir()
 
 
 if __name__ == '__main__':
@@ -195,24 +196,24 @@ if __name__ == '__main__':
     print(f'Result folder: {args.results}')
     np.random.seed(0)
 
-    optim_losses = ['mae'] # ['mae', 'mrae']
+    optim_losses = ['mae', 'mrae']
     datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
 
-    #models = quantification_models()
-    #Parallel(n_jobs=settings.N_JOBS)(
-    #    delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
-    #)
+    models = quantification_models()
+    Parallel(n_jobs=settings.N_JOBS)(
+        delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
+    )
 
-    #models = quantification_cuda_models()
-    #Parallel(n_jobs=settings.CUDA_N_JOBS)(
-    #    delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
-    #)
+    models = quantification_cuda_models()
+    Parallel(n_jobs=settings.CUDA_N_JOBS)(
+        delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
+    )
 
     models = quantification_ensembles()
     Parallel(n_jobs=1)(
         delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
     )
 
-    shutil.rmtree(args.checkpointdir, ignore_errors=True)
+    #shutil.rmtree(args.checkpointdir, ignore_errors=True)
 
 

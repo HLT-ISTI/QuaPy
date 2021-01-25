@@ -72,7 +72,8 @@ class Ensemble(BaseQuantifier):
 
         # randomly chooses the prevalences for each member of the ensemble (preventing classes with less than
         # min_pos positive examples)
-        prevs = [_draw_simplex(ndim=data.n_classes, min_val=self.min_pos / len(data)) for _ in range(self.size)]
+        sample_size = len(data) if self.max_sample_size is None else min(self.max_sample_size, len(data))
+        prevs = [_draw_simplex(ndim=data.n_classes, min_val=self.min_pos / sample_size) for _ in range(self.size)]
 
         posteriors = None
         if self.policy == 'ds':
@@ -80,7 +81,7 @@ class Ensemble(BaseQuantifier):
             posteriors, self.post_proba_fn = self.ds_policy_get_posteriors(data)
 
         is_static_policy = (self.policy in qp.error.QUANTIFICATION_ERROR_NAMES)
-        sample_size = len(data) if self.max_sample_size is None else min(self.max_sample_size, len(data))
+
         self.ensemble = Parallel(n_jobs=self.n_jobs)(
             delayed(_delayed_new_instance)(
                 self.base_quantifier, data, val_split, prev, posteriors, keep_samples=is_static_policy,
