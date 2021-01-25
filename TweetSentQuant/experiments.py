@@ -16,9 +16,7 @@ import argparse
 import torch
 import shutil
 
-
-DEBUG = False
-
+qp.environ['SAMPLE_SIZE'] = settings.SAMPLE_SIZE
 
 def newLR():
     return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
@@ -117,8 +115,6 @@ def save_results(dataset_name, model_name, optim_loss, *results):
 
 
 def run(experiment):
-
-    qp.environ['SAMPLE_SIZE'] = settings.SAMPLE_SIZE
 
     optim_loss, dataset_name, (model_name, model, hyperparams) = experiment
 

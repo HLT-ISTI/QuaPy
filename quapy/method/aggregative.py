@@ -367,7 +367,8 @@ class EMQ(AggregativeProbabilisticQuantifier):
             s += 1
 
         if not converged:
-            raise UserWarning('the method has reached the maximum number of iterations; it might have not converged')
+            #raise UserWarning('the method has reached the maximum number of iterations; it might have not converged')
+            print('[warning] the method has reached the maximum number of iterations; it might have not converged')
 
         return qs, ps
 

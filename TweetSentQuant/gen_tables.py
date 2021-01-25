@@ -33,6 +33,7 @@ nice = {
     'hdy': 'HDy',
     'dys': 'DyS',
     'epaccmaeptr': 'E(PACC)$_\mathrm{Ptr}$',
+    'epaccmaemae': 'E(PACC)$_\mathrm{AE}$',
     'svmperf':'',
     'sanders': 'Sanders',
     'semeval13': 'SemEval13',
@@ -117,7 +118,7 @@ if __name__ == '__main__':
     datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST
     evaluation_measures = [qp.error.ae, qp.error.rae]
     gao_seb_methods = ['cc', 'acc', 'pcc', 'pacc', 'sld', 'svmq', 'svmkld', 'svmnkld']
-    new_methods = ['hdy', 'quanet', 'epaccptr']
+    new_methods = ['hdy', 'quanet', 'epaccmaeptr', 'epaccmaemae']
 
     gao_seb_ranks, gao_seb_results = get_ranks_from_Gao_Sebastiani()
 
