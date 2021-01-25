@@ -97,7 +97,7 @@ class Ensemble(BaseQuantifier):
         return self
 
     def quantify(self, instances):
-        predictions = np.asarray(Parallel(n_jobs=self.n_jobs)(
+        predictions = np.asarray(Parallel(n_jobs=self.n_jobs, backend="threading")(
             delayed(_delayed_quantify)(Qi, instances) for Qi in self.ensemble
         ))
 

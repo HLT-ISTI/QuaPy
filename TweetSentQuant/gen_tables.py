@@ -34,6 +34,8 @@ nice = {
     'dys': 'DyS',
     'epaccmaeptr': 'E(PACC)$_\mathrm{Ptr}$',
     'epaccmaemae': 'E(PACC)$_\mathrm{AE}$',
+    'epaccmraeptr': 'E(PACC)$_\mathrm{Ptr}$',
+    'epaccmraemrae': 'E(PACC)$_\mathrm{RAE}$',
     'svmperf':'',
     'sanders': 'Sanders',
     'semeval13': 'SemEval13',
@@ -109,6 +111,16 @@ def experiment_errors(path, dataset, method, loss):
     return None
 
 
+def nicename(method, eval_name=None, side=False):
+    m = nice.get(method, method.upper())
+    if eval_name is not None:
+        o = '$^{' + nicerm(eval_name) + '}$'
+        m = (m+o).replace('$$','')
+    if side:
+        m = '\side{'+m+'}'
+    return m
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate tables for Tweeter Sentiment Quantification')
     parser.add_argument('results', metavar='RESULT_PATH', type=str,
@@ -118,7 +130,7 @@ if __name__ == '__main__':
     datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST
     evaluation_measures = [qp.error.ae, qp.error.rae]
     gao_seb_methods = ['cc', 'acc', 'pcc', 'pacc', 'sld', 'svmq', 'svmkld', 'svmnkld']
-    new_methods = ['hdy', 'quanet', 'epaccmaeptr', 'epaccmaemae']
+    new_methods = ['hdy', 'quanet']
 
     gao_seb_ranks, gao_seb_results = get_ranks_from_Gao_Sebastiani()
 
@@ -128,7 +140,7 @@ if __name__ == '__main__':
         # ----------------------------------------------------
 
         eval_name = eval_func.__name__
-        added_methods = ['svmm' + eval_name] + new_methods
+        added_methods = ['svmm' + eval_name, f'epaccm{eval_name}ptr', f'epaccm{eval_name}m{eval_name}'] + new_methods
         methods = gao_seb_methods + added_methods
         nold_methods = len(gao_seb_methods)
         nnew_methods = len(added_methods)
@@ -151,8 +163,8 @@ if __name__ == '__main__':
                   & \multicolumn{""" + str(nold_methods) + """}{c||}{Methods tested in~\cite{Gao:2016uq}} & 
                     \multicolumn{""" + str(nnew_methods) + """}{c|}{} \\\\ \hline
                 """
-        rowreplace={dataset: nice.get(dataset, dataset.upper()) for dataset in datasets}
-        colreplace={method:'\side{' + nice.get(method, method.upper()) +'$^{' + nicerm(eval_name) + '}$} ' for method in methods}
+        rowreplace={dataset: nicename(dataset) for dataset in datasets}
+        colreplace={method: nicename(method, eval_name, side=True) for method in methods}
 
         tabular += table.latexTabular(rowreplace=rowreplace, colreplace=colreplace)
         tabular += """
@@ -179,11 +191,11 @@ if __name__ == '__main__':
               & \multicolumn{""" + str(nold_methods) + """}{c|}{Methods tested in~\cite{Gao:2016uq}}  \\\\ \hline
         """
         for method in methods:
-            tabular += ' & \side{' + nice.get(method, method.upper()) +'$^{' + nicerm(eval_name) + '}$} '
+            tabular += ' & ' + nicename(method, eval_name, side=True)
         tabular += "\\\\\hline\n"
 
         for dataset in datasets:
-            tabular += nice.get(dataset, dataset.upper()) + ' '
+            tabular += nicename(dataset) + ' '
             for method in methods:
                 newrank = ranktable.get(dataset, method)
                 oldrank = gao_seb_ranks[f'{dataset}-{method}-{eval_name}']
