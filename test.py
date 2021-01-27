@@ -12,8 +12,8 @@ from classification.neural import NeuralClassifierTrainer, CNNnet
 from method.meta import EPACC
 from quapy.model_selection import GridSearchQ
 
-# dataset = qp.datasets.fetch_UCIDataset('sonar', verbose=True)
-# sys.exit(0)
+dataset = qp.datasets.fetch_UCIDataset('transfusion', verbose=True)
+sys.exit(0)
 
 
 qp.environ['SAMPLE_SIZE'] = 500

@@ -5,9 +5,11 @@ import numpy as np
 from matplotlib import cm
 
 import quapy as qp
+from matplotlib.font_manager import FontProperties
 
 plt.rcParams['figure.figsize'] = [12, 8]
 plt.rcParams['figure.dpi'] = 200
+plt.rcParams['font.size'] = 16
 
 
 def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=None, show_std=True, legend=True, savepath=None):
@@ -44,10 +46,10 @@ def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=No
 
 
 def binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=1, title=None, savepath=None):
+    method_names, true_prevs, estim_prevs = _merge(method_names, true_prevs, estim_prevs)
+
     fig, ax = plt.subplots()
     ax.grid()
-
-    method_names, true_prevs, estim_prevs = _merge(method_names, true_prevs, estim_prevs)
 
     data, labels = [], []
     for method, true_prev, estim_prev in zip(method_names, true_prevs, estim_prevs):

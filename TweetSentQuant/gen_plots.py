@@ -10,6 +10,7 @@ from os.path import join
 
 
 qp.environ['SAMPLE_SIZE'] = settings.SAMPLE_SIZE
+plotext='png'
 
 resultdir = './results'
 plotdir = './plots'
@@ -30,7 +31,7 @@ def gather_results(methods, error_name):
 def plot_error_by_drift(methods, error_name, logscale=False, path=None):
     print('plotting error by drift')
     if path is not None:
-        path = join(path, f'error_by_drift_{error_name}.pdf')
+        path = join(path, f'error_by_drift_{error_name}.{plotext}')
     method_names, true_prevs, estim_prevs, tr_prevs = gather_results(methods, error_name)
     qp.plot.error_by_drift(
         method_names,
@@ -51,9 +52,9 @@ def diagonal_plot(methods, error_name, path=None):
     if path is not None:
         path = join(path, f'diag_{error_name}')
     method_names, true_prevs, estim_prevs, tr_prevs = gather_results(methods, error_name)
-    qp.plot.binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=0, title='Negative', legend=False, show_std=False, savepath=path+'_neg.pdf')
-    qp.plot.binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title='Neutral',  legend=False, show_std=False, savepath=path+'_neu.pdf')
-    qp.plot.binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=2, title='Positive', legend=True, show_std=False, savepath=path+'_pos.pdf')
+    qp.plot.binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=0, title='Negative', legend=False, show_std=False, savepath=f'{path}_neg.{plotext}')
+    qp.plot.binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title='Neutral',  legend=False, show_std=False, savepath=f'{path}_neu.{plotext}')
+    qp.plot.binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=2, title='Positive', legend=True, show_std=False, savepath=f'{path}_pos.{plotext}')
 
 
 def binary_bias_global(methods, error_name, path=None):
@@ -61,9 +62,9 @@ def binary_bias_global(methods, error_name, path=None):
     if path is not None:
         path = join(path, f'globalbias_{error_name}')
     method_names, true_prevs, estim_prevs, tr_prevs = gather_results(methods, error_name)
-    qp.plot.binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=0, title='Negative', savepath=path+'_neg.pdf')
-    qp.plot.binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=1, title='Neutral', savepath=path+'_neu.pdf')
-    qp.plot.binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=2, title='Positive', savepath=path+'_pos.pdf')
+    qp.plot.binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=0, title='Negative', savepath=f'{path}_neg.{plotext}')
+    qp.plot.binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=1, title='Neutral', savepath=f'{path}_neu.{plotext}')
+    qp.plot.binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=2, title='Positive', savepath=f'{path}_pos.{plotext}')
 
 
 def binary_bias_bins(methods, error_name, path=None):
@@ -71,24 +72,24 @@ def binary_bias_bins(methods, error_name, path=None):
     if path is not None:
         path = join(path, f'localbias_{error_name}')
     method_names, true_prevs, estim_prevs, tr_prevs = gather_results(methods, error_name)
-    qp.plot.binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=0, title='Negative', legend=False, savepath=path+'_neg.pdf')
-    qp.plot.binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title='Neutral', legend=False, savepath=path+'_neu.pdf')
-    qp.plot.binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=2, title='Positive', legend=True, savepath=path+'_pos.pdf')
+    qp.plot.binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=0, title='Negative', legend=False, savepath=f'{path}_neg.{plotext}')
+    qp.plot.binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title='Neutral', legend=False, savepath=f'{path}_neu.{plotext}')
+    qp.plot.binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=2, title='Positive', legend=True, savepath=f'{path}_pos.{plotext}')
 
 
 gao_seb_methods = ['cc', 'acc', 'pcc', 'pacc', 'sld', 'svmq', 'svmkld', 'svmnkld']
 new_methods_ae = ['svmmae' , 'epaccmaeptr', 'epaccmaemae', 'hdy', 'quanet']
 new_methods_rae = ['svmmrae' , 'epaccmraeptr', 'epaccmraemrae', 'hdy', 'quanet']
 
-# plot_error_by_drift(gao_seb_methods+new_methods_ae, error_name='ae', path=plotdir)
-# plot_error_by_drift(gao_seb_methods+new_methods_rae, error_name='rae', logscale=True, path=plotdir)
+plot_error_by_drift(gao_seb_methods+new_methods_ae, error_name='ae', path=plotdir)
+plot_error_by_drift(gao_seb_methods+new_methods_rae, error_name='rae', logscale=True, path=plotdir)
 
-# diagonal_plot(gao_seb_methods+new_methods_ae, error_name='ae', path=plotdir)
-# diagonal_plot(gao_seb_methods+new_methods_rae, error_name='rae', path=plotdir)
+diagonal_plot(gao_seb_methods+new_methods_ae, error_name='ae', path=plotdir)
+diagonal_plot(gao_seb_methods+new_methods_rae, error_name='rae', path=plotdir)
 
 binary_bias_global(gao_seb_methods+new_methods_ae, error_name='ae', path=plotdir)
 binary_bias_global(gao_seb_methods+new_methods_rae, error_name='rae', path=plotdir)
 
-# binary_bias_bins(gao_seb_methods+new_methods_ae, error_name='ae', path=plotdir)
-# binary_bias_bins(gao_seb_methods+new_methods_rae, error_name='rae', path=plotdir)
+#binary_bias_bins(gao_seb_methods+new_methods_ae, error_name='ae', path=plotdir)
+#binary_bias_bins(gao_seb_methods+new_methods_rae, error_name='rae', path=plotdir)
 

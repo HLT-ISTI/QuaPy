@@ -10,6 +10,8 @@ from . import model_selection
 from . import classification
 from quapy.method.base import isprobabilistic, isaggregative
 
+__version__ = '0.1'
+
 environ = {
     'SAMPLE_SIZE': None,
     'UNK_TOKEN': '[UNK]',
@@ -17,7 +19,6 @@ environ = {
     'PAD_TOKEN': '[PAD]',
     'PAD_INDEX': 1,
 }
-
 
 def isbinary(x):
     return x.binary

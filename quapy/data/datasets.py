@@ -148,7 +148,11 @@ UCI_DATASETS = ['acute.a', 'acute.b',
                 'pageblocks.5',
                 #'phoneme', # <-- I haven't found this one...
                 'semeion',
-                'sonar'] # ongoing...
+                'sonar',
+                'spambase',
+                'spectf',
+                'tictactoe',
+                'transfusion'] # ongoing...
 
 def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3):
 
@@ -180,8 +184,11 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         'mammographic': 'Mammographic Mass',
         'pageblocks.5': 'Page Blocks Classification (5)',
         'semeion': 'Semeion Handwritten Digit (8)',
-        'sonar': 'Sonar, Mines vs. Rocks'
-
+        'sonar': 'Sonar, Mines vs. Rocks',
+        'spambase': 'Spambase Data Set',
+        'spectf': 'SPECTF Heart Data',
+        'tictactoe': 'Tic-Tac-Toe Endgame Database',
+        'transfusion': 'Blood Transfusion Service Center Data Set '
     }
 
     # the identifier is an alias for the dataset group, it's part of the url data-folder, and is the name we use
@@ -208,8 +215,11 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         'mammographic': 'mammographic-masses',
         'pageblocks.5': 'page-blocks',
         'semeion': 'semeion',
-        'sonar': 'undocumented/connectionist-bench/sonar'
-
+        'sonar': 'undocumented/connectionist-bench/sonar',
+        'spambase': 'spambase',
+        'spectf': 'spect',
+        'tictactoe': 'tic-tac-toe',
+        'transfusion': 'blood-transfusion'
     }
 
     # the filename is the name of the file within the data_folder indexed by the identifier
@@ -219,7 +229,9 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         'statlog/german': 'german.data-numeric',
         'mammographic-masses': 'mammographic_masses.data',
         'page-blocks': 'page-blocks.data.Z',
-        'undocumented/connectionist-bench/sonar': 'sonar.all-data'
+        'undocumented/connectionist-bench/sonar': 'sonar.all-data',
+        'spect': ['SPECTF.train', 'SPECTF.test'],
+        'blood-transfusion': 'transfusion.data'
     }
 
     # the filename containing the dataset description (if any)
@@ -228,7 +240,9 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         '00193': None,
         'statlog/german': 'german.doc',
         'mammographic-masses': 'mammographic_masses.names',
-        'undocumented/connectionist-bench/sonar': 'sonar.names'
+        'undocumented/connectionist-bench/sonar': 'sonar.names',
+        'spect': 'SPECTF.names',
+        'blood-transfusion': 'transfusion.names'
     }
 
     identifier = identifier_map[dataset_name]
@@ -238,8 +252,9 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
 
     URL = f'http://archive.ics.uci.edu/ml/machine-learning-databases/{identifier}'
     data_dir = join(data_home, 'uci_datasets', identifier)
-    data_path = join(data_dir, filename)
-    download_file_if_not_exists(f'{URL}/{filename}', data_path)
+    if isinstance(filename, str):  # filename could be a list of files, in which case it will be processed later
+        data_path = join(data_dir, filename)
+        download_file_if_not_exists(f'{URL}/{filename}', data_path)
 
     if descfile:
         try:
@@ -368,11 +383,38 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
 
     if identifier == 'undocumented/connectionist-bench/sonar':
         df = pd.read_csv(data_path, header=None, sep=',')
-        print(df)
         X = df.iloc[:, 0:60].astype(float).values
-        y = df[60].values 
+        y = df[60].values
         y = binarize(y, pos_class='R')
 
+    if identifier == 'spambase':
+        df = pd.read_csv(data_path, header=None, sep=',')
+        X = df.iloc[:, 0:57].astype(float).values
+        y = df[57].values
+        y = binarize(y, pos_class=1)
+
+    if identifier == 'spect':
+        dfs = []
+        for file in  filename:
+            data_path = join(data_dir, file)
+            download_file_if_not_exists(f'{URL}/{filename}', data_path)
+            dfs.append(pd.read_csv(data_path, header=None, sep=','))
+        df = pd.concat(dfs)
+        X = df.iloc[:, 1:45].astype(float).values
+        y = df[0].values
+        y = binarize(y, pos_class=0)
+
+    if identifier == 'tic-tac-toe':
+        df = pd.read_csv(data_path, header=None, sep=',')
+        X = df.iloc[:, 0:9].replace('o',0).replace('b',1).replace('x',2).values
+        y = df[9].values
+        y = binarize(y, pos_class='negative')
+
+    if identifier == 'blood-transfusion':
+        df = pd.read_csv(data_path, sep=',')
+        X = df.iloc[:, 0:4].astype(float).values
+        y = df.iloc[:, 4].values
+        y = binarize(y, pos_class=1)
 
     data = LabelledCollection(X, y)
     data.stats()
