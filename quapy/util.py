@@ -5,6 +5,7 @@ import os
 import pickle
 import urllib
 from pathlib import Path
+import quapy as qp
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -19,13 +20,34 @@ def get_parallel_slices(n_tasks, n_jobs=-1):
             range(n_jobs)]
 
 
-def parallelize(func, args, n_jobs):
+def map_parallel(func, args, n_jobs):
+    """
+    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and n_jobs=2, then
+    func is applied in two parallel processes to args[0:50] and to args[50:99]
+    """
     args = np.asarray(args)
     slices = get_parallel_slices(len(args), n_jobs)
     results = Parallel(n_jobs=n_jobs)(
         delayed(func)(args[slice_i]) for slice_i in slices
     )
     return list(itertools.chain.from_iterable(results))
+
+
+def parallel(func, args, n_jobs):
+    """
+    A wrapper of multiprocessing:
+    Parallel(n_jobs=n_jobs)(
+        delayed(func)(args_i) for args_i in args
+    )
+    that takes the quapy.environ variable as input silently
+    """
+    def func_dec(environ, *args):
+        qp.environ = environ
+        return func(*args)
+    return Parallel(n_jobs=n_jobs)(
+        delayed(func_dec)(qp.environ, args_i) for args_i in args
+    )
+
 
 
 @contextlib.contextmanager

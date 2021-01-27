@@ -61,9 +61,10 @@ def artificial_sampling_prediction(
         return true_prevalence, estim_prevalence
 
     pbar = tqdm(indexes, desc='[artificial sampling protocol] predicting') if verbose else indexes
-    results = Parallel(n_jobs=n_jobs)(
-        delayed(_predict_prevalences)(index) for index in pbar
-    )
+    results = qp.util.parallel(_predict_prevalences, pbar, n_jobs=n_jobs)
+    # results = Parallel(n_jobs=n_jobs)(
+    #     delayed(_predict_prevalences)(index) for index in pbar
+    # )
 
     true_prevalences, estim_prevalences = zip(*results)
     true_prevalences = np.asarray(true_prevalences)
@@ -74,16 +75,16 @@ def artificial_sampling_prediction(
 
 def evaluate(model: BaseQuantifier, test_samples:Iterable[LabelledCollection], err:Union[str, Callable], n_jobs:int=-1):
     if isinstance(err, str):
-        err = getattr(qp.error, err)
-    assert err.__name__ in qp.error.QUANTIFICATION_ERROR_NAMES, \
-        f'error={err} does not seem to be a quantification error'
-    scores = Parallel(n_jobs=n_jobs)(
-        delayed(_delayed_eval)(model, Ti, err) for Ti in test_samples
-    )
+        err = qp.error.from_name(err)
+    scores = qp.util.parallel(_delayed_eval, ((model, Ti, err) for Ti in test_samples), n_jobs=n_jobs)
+    # scores = Parallel(n_jobs=n_jobs)(
+    #     delayed(_delayed_eval)(model, Ti, err) for Ti in test_samples
+    # )
     return np.mean(scores)
 
 
-def _delayed_eval(model:BaseQuantifier, test:LabelledCollection, error:Callable):
+def _delayed_eval(args):
+    model, test, error = args
     prev_estim = model.quantify(test.instances)
     prev_true  = test.prevalence()
     return error(prev_true, prev_estim)

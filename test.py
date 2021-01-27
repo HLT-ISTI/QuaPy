@@ -9,10 +9,11 @@ import numpy as np
 from NewMethods.methods import AveragePoolQuantification
 from classification.methods import PCALR
 from classification.neural import NeuralClassifierTrainer, CNNnet
+from method.meta import EPACC
 from quapy.model_selection import GridSearchQ
 
-dataset = qp.datasets.fetch_UCIDataset('sonar', verbose=True)
-sys.exit(0)
+# dataset = qp.datasets.fetch_UCIDataset('sonar', verbose=True)
+# sys.exit(0)
 
 
 qp.environ['SAMPLE_SIZE'] = 500
@@ -56,15 +57,28 @@ print(f'dataset loaded: #training={len(dataset.training)} #test={len(dataset.tes
 #learner = LogisticRegression(max_iter=1000)
 # model = qp.method.aggregative.ClassifyAndCount(learner)
 
-learner = LogisticRegression(max_iter=1000)
-#model = qp.method.aggregative.PACC(learner)
-#model = qp.method.aggregative.ACC(learner)
-model = qp.method.meta.EPACC(learner, size=10, red_size=5, max_sample_size=500, n_jobs=-1,
-                             param_grid={'C':[1,10,100]},
-                             optim='mae', param_mod_sel={'sample_size':100, 'n_prevpoints':21, 'n_repetitions':5, 'verbose':True},
-                             policy='ptr',
-                             val_split=0.4)
-"""
+param_mod_sel = {
+    'sample_size': 100,
+    'n_prevpoints': 21,
+    'n_repetitions': 5,
+    'verbose': False
+}
+common = {
+    'max_sample_size': 50,
+    'n_jobs': -1,
+    'param_grid': {'C': np.logspace(0,2,2), 'class_weight': ['balanced']},
+    'param_mod_sel': param_mod_sel,
+    'val_split': 0.4,
+    'min_pos': 10,
+    'size':6,
+    'red_size':3
+}
+
+# hyperparameters will be evaluated within each quantifier of the ensemble, and so the typical model selection
+# will be skipped (by setting hyperparameters to None)
+model = EPACC(LogisticRegression(max_iter=100), optim='mrae', policy='mrae', **common)
+
+"""    
 Problemas:
 - La interfaz es muy fea, hay que conocer practicamente todos los detalles así que no ahorra nada con respecto a crear
     un objeto con otros anidados dentro
@@ -108,6 +122,8 @@ if qp.isbinary(model) and not qp.isbinary(dataset):
 print(f'fitting model {model.__class__.__name__}')
 #train, val = dataset.training.split_stratified(0.6)
 #model.fit(train, val_split=val)
+qp.SAMPLE=1
+qp.environ['SAMPLE_SIZE']=2
 model.fit(dataset.training)
 
 

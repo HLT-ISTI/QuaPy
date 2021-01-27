@@ -17,6 +17,8 @@ import torch
 import shutil
 
 
+qp.environ['SAMPLE_SIZE'] = settings.SAMPLE_SIZE
+
 def newLR():
     return LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1)
 
@@ -69,8 +71,8 @@ def quantification_ensembles():
     hyper_none = None
     yield 'epaccmaeptr', EPACC(newLR(), optim='mae', policy='ptr', **common), hyper_none
     yield 'epaccmaemae', EPACC(newLR(), optim='mae', policy='mae', **common), hyper_none
-    #yield 'esldmaeptr', EEMQ(newLR(), optim='mae', policy='ptr', **common), hyper_none
-    #yield 'esldmaemae', EEMQ(newLR(), optim='mae', policy='mae', **common), hyper_none
+    # yield 'esldmaeptr', EEMQ(newLR(), optim='mae', policy='ptr', **common), hyper_none
+    # yield 'esldmaemae', EEMQ(newLR(), optim='mae', policy='mae', **common), hyper_none
 
     yield 'epaccmraeptr', EPACC(newLR(), optim='mrae', policy='ptr', **common), hyper_none
     yield 'epaccmraemrae', EPACC(newLR(), optim='mrae', policy='mrae', **common), hyper_none
@@ -114,8 +116,6 @@ def save_results(dataset_name, model_name, optim_loss, *results):
 
 
 def run(experiment):
-
-    qp.environ['SAMPLE_SIZE'] = settings.SAMPLE_SIZE
 
     optim_loss, dataset_name, (model_name, model, hyperparams) = experiment
 
@@ -198,19 +198,16 @@ if __name__ == '__main__':
     datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
 
     models = quantification_models()
-    Parallel(n_jobs=settings.N_JOBS)(
-        delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
-    )
+    qp.util.parallel(run, itertools.product(optim_losses, datasets, models), n_jobs=settings.N_JOBS)
 
     models = quantification_cuda_models()
-    Parallel(n_jobs=settings.CUDA_N_JOBS)(
-        delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
-    )
+    qp.util.parallel(run, itertools.product(optim_losses, datasets, models), n_jobs=settings.CUDA_N_JOBS)
 
     models = quantification_ensembles()
-    Parallel(n_jobs=1)(
-        delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
-    )
+    qp.util.parallel(run, itertools.product(optim_losses, datasets, models), n_jobs=1)
+    # Parallel(n_jobs=1)(
+    #     delayed(run)(experiment) for experiment in itertools.product(optim_losses, datasets, models)
+    # )
 
     #shutil.rmtree(args.checkpointdir, ignore_errors=True)
 

@@ -559,7 +559,7 @@ class OneVsAll(AggregativeQuantifier):
 
     def __parallel(self, func, *args, **kwargs):
         return np.asarray(
-            Parallel(n_jobs=self.n_jobs, backend='threading')(
+            Parallel(n_jobs=self.n_jobs)(
                 delayed(func)(c, *args, **kwargs) for c in self.classes
             )
         )

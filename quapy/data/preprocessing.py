@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 import quapy as qp
 from quapy.data.base import Dataset
-from quapy.util import parallelize
+from quapy.util import map_parallel
 from .base import LabelledCollection
 
 
@@ -131,9 +131,9 @@ class IndexTransformer:
         return self
 
     def transform(self, X, n_jobs=-1):
-        # given the number of tasks and the number of jobs, generates the slices for the parallel threads
+        # given the number of tasks and the number of jobs, generates the slices for the parallel processes
         assert self.unk != -1, 'transform called before fit'
-        indexed = parallelize(func=self.index, args=X, n_jobs=n_jobs)
+        indexed = map_parallel(func=self.index, args=X, n_jobs=n_jobs)
         return np.asarray(indexed)
 
     def index(self, documents):

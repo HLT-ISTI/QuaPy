@@ -4,7 +4,7 @@ from os import makedirs
 import sys, os
 import pickle
 import argparse
-
+from TweetSentQuant.util import nicename, get_ranks_from_Gao_Sebastiani
 import settings
 from experiments import result_path
 from tabular import Table
@@ -15,84 +15,6 @@ MAXTONE = 50  # sets the intensity of the maximum color reached by the worst (re
 makedirs(tables_path, exist_ok=True)
 
 qp.environ['SAMPLE_SIZE'] = settings.SAMPLE_SIZE
-
-
-nice = {
-    'mae':'AE',
-    'mrae':'RAE',
-    'ae':'AE',
-    'rae':'RAE',
-    'svmkld': 'SVM(KLD)',
-    'svmnkld': 'SVM(NKLD)',
-    'svmq': 'SVM(Q)',
-    'svmae': 'SVM(AE)',
-    'svmnae': 'SVM(NAE)',
-    'svmmae': 'SVM(AE)',
-    'svmmrae': 'SVM(RAE)',
-    'quanet': 'QuaNet',
-    'hdy': 'HDy',
-    'dys': 'DyS',
-    'epaccmaeptr': 'E(PACC)$_\mathrm{Ptr}$',
-    'epaccmaemae': 'E(PACC)$_\mathrm{AE}$',
-    'epaccmraeptr': 'E(PACC)$_\mathrm{Ptr}$',
-    'epaccmraemrae': 'E(PACC)$_\mathrm{RAE}$',
-    'svmperf':'',
-    'sanders': 'Sanders',
-    'semeval13': 'SemEval13',
-    'semeval14': 'SemEval14',
-    'semeval15': 'SemEval15',
-    'semeval16': 'SemEval16',
-    'Average': 'Average'
-}
-
-
-def nicerm(key):
-    return '\mathrm{'+nice[key]+'}'
-
-
-def load_Gao_Sebastiani_previous_results():
-    def rename(method):
-        old2new = {
-            'kld': 'svmkld',
-            'nkld': 'svmnkld',
-            'qbeta2': 'svmq',
-            'em': 'sld'
-        }
-        return old2new.get(method, method)
-
-    gao_seb_results = {}
-    with open('./Gao_Sebastiani_results.txt', 'rt') as fin:
-        lines = fin.readlines()
-        for line in lines[1:]:
-            line = line.strip()
-            parts = line.lower().split()
-            if len(parts) == 4:
-                dataset, method, ae, rae = parts
-            else:
-                method, ae, rae = parts
-            learner, method = method.split('-')
-            method = rename(method)
-            gao_seb_results[f'{dataset}-{method}-ae'] = float(ae)
-            gao_seb_results[f'{dataset}-{method}-rae'] = float(rae)
-    return gao_seb_results
-
-
-def get_ranks_from_Gao_Sebastiani():
-    gao_seb_results = load_Gao_Sebastiani_previous_results()
-    datasets = set([key.split('-')[0] for key in gao_seb_results.keys()])
-    methods = np.sort(np.unique([key.split('-')[1] for key in gao_seb_results.keys()]))
-    ranks = {}
-    for metric in ['ae', 'rae']:
-        for dataset in datasets:
-            scores = [gao_seb_results[f'{dataset}-{method}-{metric}'] for method in methods]
-            order = np.argsort(scores)
-            sorted_methods = methods[order]
-            for i, method in enumerate(sorted_methods):
-                ranks[f'{dataset}-{method}-{metric}'] = i+1
-        for method in methods:
-            rankave = np.mean([ranks[f'{dataset}-{method}-{metric}'] for dataset in datasets])
-            ranks[f'Average-{method}-{metric}'] = rankave
-    return ranks, gao_seb_results
 
 
 def save_table(path, table):
@@ -110,15 +32,6 @@ def experiment_errors(path, dataset, method, loss):
         return errors
     return None
 
-
-def nicename(method, eval_name=None, side=False):
-    m = nice.get(method, method.upper())
-    if eval_name is not None:
-        o = '$^{' + nicerm(eval_name) + '}$'
-        m = (m+o).replace('$$','')
-    if side:
-        m = '\side{'+m+'}'
-    return m
 
 
 if __name__ == '__main__':
@@ -146,7 +59,7 @@ if __name__ == '__main__':
         nnew_methods = len(added_methods)
 
         # fill data table
-        table = Table(rows=datasets, cols=methods)
+        table = Table(benchmarks=datasets, methods=methods)
         for dataset in datasets:
             for method in methods:
                 table.add(dataset, method, experiment_errors(args.results, dataset, method, eval_name))
@@ -166,7 +79,7 @@ if __name__ == '__main__':
         rowreplace={dataset: nicename(dataset) for dataset in datasets}
         colreplace={method: nicename(method, eval_name, side=True) for method in methods}
 
-        tabular += table.latexTabular(rowreplace=rowreplace, colreplace=colreplace)
+        tabular += table.latexTabular(benchmark_replace=rowreplace, method_replace=colreplace)
         tabular += """
             \end{tabular}%
             }
@@ -178,8 +91,10 @@ if __name__ == '__main__':
         # ----------------------------------------------------
         methods = gao_seb_methods
 
+        table.dropMethods(added_methods)
+
         # fill the data table
-        ranktable = Table(rows=datasets, cols=methods, missing='--')
+        ranktable = Table(benchmarks=datasets, methods=methods, missing='--')
         for dataset in datasets:
             for method in methods:
                 ranktable.add(dataset, method, values=table.get(dataset, method, 'rank'))

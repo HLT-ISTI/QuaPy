@@ -2,6 +2,17 @@ import numpy as np
 from sklearn.metrics import f1_score
 
 
+def from_name(err_name):
+    assert err_name in ERROR_NAMES, f'unknown error {err_name}'
+    callable_error = globals()[err_name]
+    if err_name in QUANTIFICATION_ERROR_SMOOTH_NAMES:
+        eps = __check_eps()
+        def bound_callable_error(y_true, y_pred):
+            return callable_error(y_true, y_pred, eps)
+        return bound_callable_error
+    return callable_error
+
+
 def f1e(y_true, y_pred):
     return 1. - f1_score(y_true, y_pred, average='macro')
 
@@ -27,8 +38,8 @@ def se(p, p_hat):
     return ((p_hat-p)**2).mean(axis=-1)
 
 
-def mkld(prevs, prevs_hat):
-    return kld(prevs, prevs_hat).mean()
+def mkld(prevs, prevs_hat, eps=None):
+    return kld(prevs, prevs_hat, eps).mean()
 
 
 def kld(p, p_hat, eps=None):
@@ -38,8 +49,8 @@ def kld(p, p_hat, eps=None):
     return (sp*np.log(sp/sp_hat)).sum(axis=-1)
 
 
-def mnkld(prevs, prevs_hat):
-    return nkld(prevs, prevs_hat).mean()
+def mnkld(prevs, prevs_hat, eps=None):
+    return nkld(prevs, prevs_hat, eps).mean()
 
 
 def nkld(p, p_hat, eps=None):
@@ -63,10 +74,10 @@ def smooth(p, eps):
     return (p+eps)/(eps*n_classes + 1)
 
 
-def __check_eps(eps):
-    import quapy as qp
-    sample_size = qp.environ['SAMPLE_SIZE']
+def __check_eps(eps=None):
     if eps is None:
+        import quapy as qp
+        sample_size = qp.environ['SAMPLE_SIZE']
         if sample_size is None:
             raise ValueError('eps was not defined, and qp.environ["SAMPLE_SIZE"] was not set')
         else:
@@ -76,8 +87,10 @@ def __check_eps(eps):
 
 CLASSIFICATION_ERROR = {f1e, acce}
 QUANTIFICATION_ERROR = {mae, mrae, mse, mkld, mnkld}
+QUANTIFICATION_ERROR_SMOOTH = {kld, nkld, rae, mkld, mnkld, mrae}
 CLASSIFICATION_ERROR_NAMES = {func.__name__ for func in CLASSIFICATION_ERROR}
 QUANTIFICATION_ERROR_NAMES = {func.__name__ for func in QUANTIFICATION_ERROR}
+QUANTIFICATION_ERROR_SMOOTH_NAMES = {func.__name__ for func in QUANTIFICATION_ERROR_SMOOTH}
 ERROR_NAMES = CLASSIFICATION_ERROR_NAMES | QUANTIFICATION_ERROR_NAMES
 
 f1_error = f1e

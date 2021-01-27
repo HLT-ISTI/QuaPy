@@ -82,12 +82,21 @@ class Ensemble(BaseQuantifier):
 
         is_static_policy = (self.policy in qp.error.QUANTIFICATION_ERROR_NAMES)
 
-        self.ensemble = Parallel(n_jobs=self.n_jobs, backend="threading")(
-            delayed(_delayed_new_instance)(
-                self.base_quantifier, data, val_split, prev, posteriors, keep_samples=is_static_policy,
-                verbose=self.verbose, sample_size=sample_size
-            ) for prev in tqdm(prevs, desc='fitting ensamble')
+        args = (
+            (self.base_quantifier, data, val_split, prev, posteriors, is_static_policy, self.verbose, sample_size)
+            for prev in prevs
         )
+        self.ensemble = qp.util.parallel(
+            _delayed_new_instance,
+            tqdm(args, desc='fitting ensamble', total=self.size),
+            n_jobs=self.n_jobs)
+        # self.ensemble = Parallel(n_jobs=self.n_jobs)(
+        #     delayed(_delayed_new_instance)(
+        #         self.base_quantifier, data, val_split, prev, posteriors, keep_samples=is_static_policy,
+        #         verbose=self.verbose, sample_size=sample_size
+        #     ) for prev in tqdm(prevs, desc='fitting ensamble')
+        # )
+
 
         # static selection policy (the name of a quantification-oriented error function to minimize)
         if self.policy in qp.error.QUANTIFICATION_ERROR_NAMES:
@@ -97,9 +106,12 @@ class Ensemble(BaseQuantifier):
         return self
 
     def quantify(self, instances):
-        predictions = np.asarray(Parallel(n_jobs=self.n_jobs, backend="threading")(
-            delayed(_delayed_quantify)(Qi, instances) for Qi in self.ensemble
-        ))
+        predictions = np.asarray(
+            qp.util.parallel(_delayed_quantify, ((Qi, instances) for Qi in self.ensemble), n_jobs=self.n_jobs)
+        )
+        # predictions = np.asarray(Parallel(n_jobs=self.n_jobs)(
+        #     delayed(_delayed_quantify)(Qi, instances) for Qi in self.ensemble
+        # ))
 
         if self.policy == 'ptr':
             predictions = self.ptr_policy(predictions)
@@ -124,7 +136,7 @@ class Ensemble(BaseQuantifier):
         For each model in the ensemble, the performance is measured in terms of _error_name_ on the quantification of
         the samples used for training the rest of the models in the ensemble.
         """
-        error = getattr(qp.error, error_name)
+        error = qp.error.from_name(error_name)
         tests = [m[3] for m in self.ensemble]
         scores = []
         for i, model in enumerate(self.ensemble):
@@ -209,14 +221,8 @@ def select_k(elements, order, k):
     return [elements[idx] for idx in order[:k]]
 
 
-def _delayed_new_instance(base_quantifier,
-                          data: LabelledCollection,
-                          val_split: Union[LabelledCollection, float],
-                          prev,
-                          posteriors,
-                          keep_samples,
-                          verbose,
-                          sample_size):
+def _delayed_new_instance(args):
+    base_quantifier, data, val_split, prev, posteriors, keep_samples, verbose, sample_size = args
     if verbose:
         print(f'\tfit-start for prev {F.strprev(prev)}, sample_size={sample_size}')
     model = deepcopy(base_quantifier)
@@ -241,7 +247,8 @@ def _delayed_new_instance(base_quantifier,
     return (model, tr_prevalence, tr_distribution, sample if keep_samples else None)
 
 
-def _delayed_quantify(quantifier, instances):
+def _delayed_quantify(args):
+    quantifier, instances = args
     return quantifier[0].quantify(instances)
 
 
@@ -275,13 +282,11 @@ def _instantiate_ensemble(learner, base_quantifier_class, param_grid, optim, par
     elif optim in qp.error.CLASSIFICATION_ERROR:
         learner = GridSearchCV(learner, param_grid)
         base_quantifier = base_quantifier_class(learner)
-    elif optim in qp.error.QUANTIFICATION_ERROR:
+    else:
         base_quantifier = GridSearchQ(base_quantifier_class(learner),
                                       param_grid=param_grid,
                                       **param_model_sel,
                                       error=optim)
-    else:
-        raise ValueError(f'value optim={optim} not understood')
 
     return Ensemble(base_quantifier, **kwargs)
 
@@ -292,9 +297,7 @@ def _check_error(error):
     if error in qp.error.QUANTIFICATION_ERROR or error in qp.error.CLASSIFICATION_ERROR:
         return error
     elif isinstance(error, str):
-        assert error in qp.error.ERROR_NAMES, \
-            f'unknown error name; valid ones are {qp.error.ERROR_NAMES}'
-        return getattr(qp.error, error)
+        return qp.error.from_name(error)
     else:
         raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
                          f'the name of an error function in {qp.error.ERROR_NAMES}')

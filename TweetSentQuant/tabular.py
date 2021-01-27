@@ -6,15 +6,15 @@ from scipy.stats import ttest_ind_from_stats, wilcoxon
 class Table:
     VALID_TESTS = [None, "wilcoxon", "ttest"]
 
-    def __init__(self, rows, cols, lower_is_better=True, ttest='ttest', prec_mean=3,
+    def __init__(self, benchmarks, methods, lower_is_better=True, ttest='ttest', prec_mean=3,
                  clean_zero=False, show_std=False, prec_std=3, average=True, missing=None, missing_str='--', color=True):
         assert ttest in self.VALID_TESTS, f'unknown test, valid are {self.VALID_TESTS}'
 
-        self.rows = np.asarray(rows)
-        self.row_index = {row:i for i, row in enumerate(rows)}
+        self.benchmarks = np.asarray(benchmarks)
+        self.benchmark_index = {row:i for i, row in enumerate(benchmarks)}
 
-        self.cols = np.asarray(cols)
-        self.col_index = {col:j for j, col in enumerate(cols)}
+        self.methods = np.asarray(methods)
+        self.method_index = {col:j for j, col in enumerate(methods)}
 
         self.map = {}  # keyed (#rows,#cols)-ndarrays holding computations from self.map['values']
         self._addmap('values', dtype=object)
@@ -31,12 +31,12 @@ class Table:
         self.touch()
 
     @property
-    def nrows(self):
-        return len(self.rows)
+    def nbenchmarks(self):
+        return len(self.benchmarks)
 
     @property
-    def ncols(self):
-        return len(self.cols)
+    def nmethods(self):
+        return len(self.methods)
 
     def touch(self):
         self.modif = True
@@ -53,10 +53,10 @@ class Table:
         return self.map['values']
 
     def _indexes(self):
-        return itertools.product(range(self.nrows), range(self.ncols))
+        return itertools.product(range(self.nbenchmarks), range(self.nmethods))
 
     def _addmap(self, map, dtype, func=None):
-        self.map[map] = np.empty((self.nrows, self.ncols), dtype=dtype)
+        self.map[map] = np.empty((self.nbenchmarks, self.nmethods), dtype=dtype)
         if func is None:
             return
         m = self.map[map]
@@ -68,7 +68,7 @@ class Table:
             m[i, j] = f(self.values[i, j])
 
     def _addrank(self):
-        for i in range(self.nrows):
+        for i in range(self.nbenchmarks):
             filled_cols_idx = np.argwhere(self.map['fill'][i]).flatten()
             col_means = [self.map['mean'][i,j] for j in filled_cols_idx]
             ranked_cols_idx = filled_cols_idx[np.argsort(col_means)]
@@ -77,7 +77,7 @@ class Table:
             self.map['rank'][i, ranked_cols_idx] = np.arange(1, len(filled_cols_idx)+1)
 
     def _addcolor(self):
-        for i in range(self.nrows):
+        for i in range(self.nbenchmarks):
             filled_cols_idx = np.argwhere(self.map['fill'][i]).flatten()
             if filled_cols_idx.size==0:
                 continue
@@ -115,8 +115,8 @@ class Table:
     def _addttest(self):
         if self.ttest is None:
             return
-        self.some_similar = [False]*self.ncols
-        for i in range(self.nrows):
+        self.some_similar = [False]*self.nmethods
+        for i in range(self.nbenchmarks):
             filled_cols_idx = np.argwhere(self.map['fill'][i]).flatten()
             if len(filled_cols_idx) <= 1:
                 continue
@@ -153,34 +153,34 @@ class Table:
         self.modif = False
 
     def _is_column_full(self, col):
-        return all(self.map['fill'][:, self.col_index[col]])
+        return all(self.map['fill'][:, self.method_index[col]])
 
     def _addave(self):
-        ave = Table(['ave'], self.cols, lower_is_better=self.lower_is_better, ttest=self.ttest, average=False,
+        ave = Table(['ave'], self.methods, lower_is_better=self.lower_is_better, ttest=self.ttest, average=False,
                     missing=self.missing, missing_str=self.missing_str)
-        for col in self.cols:
+        for col in self.methods:
             values = None
             if self._is_column_full(col):
                 if self.ttest == 'ttest':
-                    values = np.asarray(self.map['mean'][:, self.col_index[col]])
+                    values = np.asarray(self.map['mean'][:, self.method_index[col]])
                 else:  # wilcoxon
-                    values = np.concatenate(self.values[:, self.col_index[col]])
+                    values = np.concatenate(self.values[:, self.method_index[col]])
             ave.add('ave', col, values)
         self.average = ave
 
-    def add(self, row, col, values):
+    def add(self, benchmark, method, values):
         if values is not None:
             values = np.asarray(values)
             if values.ndim==0:
                 values = values.flatten()
-        rid, cid = self._coordinates(row, col)
+        rid, cid = self._coordinates(benchmark, method)
         self.map['values'][rid, cid] = values
         self.touch()
 
-    def get(self, row, col, attr='mean'):
+    def get(self, benchmark, method, attr='mean'):
         self.update()
         assert attr in self.map, f'unknwon attribute {attr}'
-        rid, cid = self._coordinates(row, col)
+        rid, cid = self._coordinates(benchmark, method)
         if self.map['fill'][rid, cid]:
             v = self.map[attr][rid, cid]
             if v is None or (isinstance(v,float) and np.isnan(v)):
@@ -190,27 +190,27 @@ class Table:
             return self.missing
 
     def _coordinates(self, row, col):
-        assert row in self.row_index, f'row {row} out of range'
-        assert col in self.col_index, f'col {col} out of range'
-        rid = self.row_index[row]
-        cid = self.col_index[col]
+        assert row in self.benchmark_index, f'row {row} out of range'
+        assert col in self.method_index, f'col {col} out of range'
+        rid = self.benchmark_index[row]
+        cid = self.method_index[col]
         return rid, cid
 
-    def get_average(self, col, attr='mean'):
+    def get_average(self, method, attr='mean'):
         self.update()
         if self.add_average:
-            return self.average.get('ave', col, attr=attr)
+            return self.average.get('ave', method, attr=attr)
         return None
 
-    def get_color(self, row, col):
-        color = self.get(row, col, attr='color')
+    def get_color(self, benchmark, method):
+        color = self.get(benchmark, method, attr='color')
         if color is None:
             return ''
         return color
 
-    def latex(self, row, col):
+    def latex(self, benchmark, method):
         self.update()
-        i,j = self._coordinates(row, col)
+        i,j = self._coordinates(benchmark, method)
         if self.map['fill'][i,j] == False:
             return self.missing_str
 
@@ -249,12 +249,12 @@ class Table:
 
         return l
 
-    def latexTabular(self, rowreplace={}, colreplace={}, average=True):
+    def latexTabular(self, benchmark_replace={}, method_replace={}, average=True):
         tab = ' & '
-        tab += ' & '.join([colreplace.get(col, col) for col in self.cols])
+        tab += ' & '.join([method_replace.get(col, col) for col in self.methods])
         tab += ' \\\\\hline\n'
-        for row in self.rows:
-            rowname = rowreplace.get(row, row)
+        for row in self.benchmarks:
+            rowname = benchmark_replace.get(row, row)
             tab += rowname + ' & '
             tab += self.latexRow(row)
 
@@ -264,8 +264,8 @@ class Table:
             tab += self.latexAverage()
         return tab
 
-    def latexRow(self, row, endl='\\\\\hline\n'):
-        s = [self.latex(row, col) for col in self.cols]
+    def latexRow(self, benchmark, endl='\\\\\hline\n'):
+        s = [self.latex(benchmark, col) for col in self.methods]
         s = ' & '.join(s)
         s += ' ' + endl
         return s
@@ -275,13 +275,27 @@ class Table:
             return self.average.latexRow('ave', endl=endl)
 
     def getRankTable(self):
-        t = Table(rows=self.rows, cols=self.cols, prec_mean=0, average=True)
+        t = Table(benchmarks=self.benchmarks, methods=self.methods, prec_mean=0, average=True)
         for rid, cid in self._getfilled():
-            row = self.rows[rid]
-            col = self.cols[cid]
+            row = self.benchmarks[rid]
+            col = self.methods[cid]
             t.add(row, col, self.get(row, col, 'rank'))
         t.compute()
         return t
+
+
+    def dropMethods(self, methods):
+        drop_index = [self.method_index[m] for m in methods]
+        new_methods = np.delete(self.methods, drop_index)
+        new_index = {col:j for j, col in enumerate(new_methods)}
+
+        self.map['values'] = self.values[:,np.asarray([self.method_index[m] for m in new_methods], dtype=int)]
+        self.methods = new_methods
+        self.method_index = new_index
+        self.touch()
+
+
+
 
 def pval_interpretation(p_val):
     if 0.005 >= p_val:

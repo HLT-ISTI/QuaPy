@@ -113,9 +113,9 @@ class GridSearchQ(BaseQuantifier):
         if error in qp.error.QUANTIFICATION_ERROR:
             self.error = error
         elif isinstance(error, str):
-            assert error in qp.error.QUANTIFICATION_ERROR_NAMES, \
-                f'unknown error name; valid ones are {qp.error.QUANTIFICATION_ERROR_NAMES}'
-            self.error = getattr(qp.error, error)
+            self.error = qp.error.from_name(error)
+        elif hasattr(error, '__call__'):
+            self.error = error
         else:
             raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
                              f'the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}')
