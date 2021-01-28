@@ -58,7 +58,7 @@ def quantification_ensembles():
         'verbose': False
     }
     common={
-        'max_sample_size': 500,
+        'max_sample_size': 1000,
         'n_jobs': settings.ENSEMBLE_N_JOBS,
         'param_grid': lr_params,
         'param_mod_sel': param_mod_sel,
@@ -69,13 +69,13 @@ def quantification_ensembles():
     # hyperparameters will be evaluated within each quantifier of the ensemble, and so the typical model selection
     # will be skipped (by setting hyperparameters to None)
     hyper_none = None
-    yield 'epaccmaeptr', EPACC(newLR(), optim='mae', policy='ptr', **common), hyper_none
-    yield 'epaccmaemae', EPACC(newLR(), optim='mae', policy='mae', **common), hyper_none
+    #yield 'epaccmaeptr', EPACC(newLR(), optim='mae', policy='ptr', **common), hyper_none
+    yield 'epaccmaemae1k', EPACC(newLR(), optim='mae', policy='mae', **common), hyper_none
     # yield 'esldmaeptr', EEMQ(newLR(), optim='mae', policy='ptr', **common), hyper_none
     # yield 'esldmaemae', EEMQ(newLR(), optim='mae', policy='mae', **common), hyper_none
 
-    yield 'epaccmraeptr', EPACC(newLR(), optim='mrae', policy='ptr', **common), hyper_none
-    yield 'epaccmraemrae', EPACC(newLR(), optim='mrae', policy='mrae', **common), hyper_none
+    #yield 'epaccmraeptr', EPACC(newLR(), optim='mrae', policy='ptr', **common), hyper_none
+    #yield 'epaccmraemrae', EPACC(newLR(), optim='mrae', policy='mrae', **common), hyper_none
     #yield 'esldmraeptr', EEMQ(newLR(), optim='mrae', policy='ptr', **common), hyper_none
     #yield 'esldmraemrae', EEMQ(newLR(), optim='mrae', policy='mrae', **common), hyper_none
 

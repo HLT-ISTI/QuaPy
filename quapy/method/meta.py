@@ -38,7 +38,7 @@ class Ensemble(BaseQuantifier):
                  quantifier: BaseQuantifier,
                  size=50,
                  red_size=25,
-                 min_pos=1,
+                 min_pos=5,
                  policy='ave',
                  max_sample_size=None,
                  val_split=None,
@@ -88,15 +88,8 @@ class Ensemble(BaseQuantifier):
         )
         self.ensemble = qp.util.parallel(
             _delayed_new_instance,
-            tqdm(args, desc='fitting ensamble', total=self.size),
+            tqdm(args, desc='fitting ensamble', total=self.size) if self.verbose else args,
             n_jobs=self.n_jobs)
-        # self.ensemble = Parallel(n_jobs=self.n_jobs)(
-        #     delayed(_delayed_new_instance)(
-        #         self.base_quantifier, data, val_split, prev, posteriors, keep_samples=is_static_policy,
-        #         verbose=self.verbose, sample_size=sample_size
-        #     ) for prev in tqdm(prevs, desc='fitting ensamble')
-        # )
-
 
         # static selection policy (the name of a quantification-oriented error function to minimize)
         if self.policy in qp.error.QUANTIFICATION_ERROR_NAMES:
@@ -109,9 +102,6 @@ class Ensemble(BaseQuantifier):
         predictions = np.asarray(
             qp.util.parallel(_delayed_quantify, ((Qi, instances) for Qi in self.ensemble), n_jobs=self.n_jobs)
         )
-        # predictions = np.asarray(Parallel(n_jobs=self.n_jobs)(
-        #     delayed(_delayed_quantify)(Qi, instances) for Qi in self.ensemble
-        # ))
 
         if self.policy == 'ptr':
             predictions = self.ptr_policy(predictions)
@@ -143,7 +133,7 @@ class Ensemble(BaseQuantifier):
             scores.append(evaluate(model[0], tests[:i] + tests[i+1:], error, self.n_jobs))
         order = np.argsort(scores)
 
-        self.ensemble = select_k(self.ensemble, order, k=self.red_size)
+        self.ensemble = _select_k(self.ensemble, order, k=self.red_size)
 
     def ptr_policy(self, predictions):
         """
@@ -154,7 +144,7 @@ class Ensemble(BaseQuantifier):
         tr_prevs = [m[1] for m in self.ensemble]
         ptr_differences = [qp.error.mse(ptr_i, test_prev_estim) for ptr_i in tr_prevs]
         order = np.argsort(ptr_differences)
-        return select_k(predictions, order, k=self.red_size)
+        return _select_k(predictions, order, k=self.red_size)
 
     def ds_policy_get_posteriors(self, data: LabelledCollection):
         """
@@ -192,7 +182,7 @@ class Ensemble(BaseQuantifier):
         tr_distributions = [m[2] for m in self.ensemble]
         dist = [F.HellingerDistance(tr_dist_i, test_distribution) for tr_dist_i in tr_distributions]
         order = np.argsort(dist)
-        return select_k(predictions, order, k=self.red_size)
+        return _select_k(predictions, order, k=self.red_size)
 
     @property
     def binary(self):
@@ -201,13 +191,10 @@ class Ensemble(BaseQuantifier):
     @property
     def aggregative(self):
         return False
-        #raise NotImplementedError('aggregative functionality not yet supported for Ensemble')
 
     @property
     def probabilistic(self):
         return False
-        #raise NotImplementedError('probabilistic functionality not yet supported for Ensemble')
-        #return self.base_quantifier.probabilistic
 
 
 def get_probability_distribution(posterior_probabilities, bins=8):
@@ -217,7 +204,7 @@ def get_probability_distribution(posterior_probabilities, bins=8):
     return distribution
 
 
-def select_k(elements, order, k):
+def _select_k(elements, order, k):
     return [elements[idx] for idx in order[:k]]
 
 

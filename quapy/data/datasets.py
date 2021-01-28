@@ -1,7 +1,12 @@
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
 import os
 import zipfile
 from os.path import join
 from urllib.error import HTTPError
+from sklearn.model_selection import StratifiedKFold
 
 import pandas as pd
 
@@ -17,6 +22,29 @@ TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',
 TWITTER_SENTIMENT_DATASETS_TRAIN = ['gasp', 'hcr', 'omd', 'sanders',
                                  'semeval', 'semeval16',
                                  'sst', 'wa', 'wb']
+UCI_DATASETS = ['acute.a', 'acute.b',
+                'balance.1', 'balance.2', 'balance.3',
+                'breast-cancer',
+                'cmc.1', 'cmc.2', 'cmc.3',
+                'ctg.1', 'ctg.2', 'ctg.3',
+                #'diabetes', # <-- I haven't found this one...
+                'german',
+                'haberman',
+                'ionosphere',
+                'iris.1', 'iris.2', 'iris.3',
+                'mammographic',
+                'pageblocks.5',
+                #'phoneme', # <-- I haven't found this one...
+                'semeion',
+                'sonar',
+                'spambase',
+                'spectf',
+                'tictactoe',
+                'transfusion',
+                'wdbc',
+                'wine.1', 'wine.2', 'wine.3',
+                'wine-q-red', 'wine-q-white',
+                'yeast']
 
 
 def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False):
@@ -134,27 +162,12 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
     return data
 
 
-UCI_DATASETS = ['acute.a', 'acute.b',
-                'balance.1', 'balance.2', 'balance.3',
-                'breast-cancer',
-                'cmc.1', 'cmc.2', 'cmc.3',
-                'ctg.1', 'ctg.2', 'ctg.3',
-                #'diabetes', # <-- I haven't found this one...
-                'german',
-                'haberman',
-                'ionosphere',
-                'iris.1', 'iris.2', 'iris.3',
-                'mammographic',
-                'pageblocks.5',
-                #'phoneme', # <-- I haven't found this one...
-                'semeion',
-                'sonar',
-                'spambase',
-                'spectf',
-                'tictactoe',
-                'transfusion'] # ongoing...
+def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False):
+    data = fetch_UCILabelledCollection(dataset_name, data_home, verbose)
+    return Dataset(*data.split_stratified(1 - test_split, random_state=0))
 
-def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3):
+
+def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False):
 
     assert dataset_name in UCI_DATASETS, \
         f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository. ' \
@@ -188,7 +201,14 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         'spambase': 'Spambase Data Set',
         'spectf': 'SPECTF Heart Data',
         'tictactoe': 'Tic-Tac-Toe Endgame Database',
-        'transfusion': 'Blood Transfusion Service Center Data Set '
+        'transfusion': 'Blood Transfusion Service Center Data Set',
+        'wdbc': 'Wisconsin Diagnostic Breast Cancer',
+        'wine.1': 'Wine Recognition Data (1)',
+        'wine.2': 'Wine Recognition Data (2)',
+        'wine.3': 'Wine Recognition Data (3)',
+        'wine-q-red': 'Wine Quality Red (6-10)',
+        'wine-q-white': 'Wine Quality White (6-10)',
+        'yeast': 'Yeast',
     }
 
     # the identifier is an alias for the dataset group, it's part of the url data-folder, and is the name we use
@@ -219,7 +239,14 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         'spambase': 'spambase',
         'spectf': 'spect',
         'tictactoe': 'tic-tac-toe',
-        'transfusion': 'blood-transfusion'
+        'transfusion': 'blood-transfusion',
+        'wdbc': 'breast-cancer-wisconsin',
+        'wine-q-red': 'wine-quality',
+        'wine-q-white': 'wine-quality',
+        'wine.1': 'wine',
+        'wine.2': 'wine',
+        'wine.3': 'wine',
+        'yeast': 'yeast',
     }
 
     # the filename is the name of the file within the data_folder indexed by the identifier
@@ -231,7 +258,9 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         'page-blocks': 'page-blocks.data.Z',
         'undocumented/connectionist-bench/sonar': 'sonar.all-data',
         'spect': ['SPECTF.train', 'SPECTF.test'],
-        'blood-transfusion': 'transfusion.data'
+        'blood-transfusion': 'transfusion.data',
+        'wine-quality': ['winequality-red.csv', 'winequality-white.csv'],
+        'breast-cancer-wisconsin': 'breast-cancer-wisconsin.data' if dataset_name=='breast-cancer' else 'wdbc.data'
     }
 
     # the filename containing the dataset description (if any)
@@ -242,7 +271,9 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         'mammographic-masses': 'mammographic_masses.names',
         'undocumented/connectionist-bench/sonar': 'sonar.names',
         'spect': 'SPECTF.names',
-        'blood-transfusion': 'transfusion.names'
+        'blood-transfusion': 'transfusion.names',
+        'wine-quality': 'winequality.names',
+        'breast-cancer-wisconsin': 'breast-cancer-wisconsin.names' if dataset_name == 'breast-cancer' else 'wdbc.names'
     }
 
     identifier = identifier_map[dataset_name]
@@ -269,15 +300,14 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
     print(f'Loading {dataset_name} ({fullname})')
     if identifier == 'acute':
         df = pd.read_csv(data_path, header=None, encoding='utf-16', sep='\t')
+
+        df[0] = df[0].apply(lambda x: float(x.replace(',', '.'))).astype(float, copy=False)
+        [df_replace(df, col) for col in range(1, 6)]
+        X = df.loc[:, 0:5].values
         if dataset_name == 'acute.a':
             y = binarize(df[6], pos_class='yes')
         elif dataset_name == 'acute.b':
             y = binarize(df[7], pos_class='yes')
-
-        mintemp, maxtemp = 35, 42
-        df[0] = df[0].apply(lambda x:(float(x.replace(',','.'))-mintemp)/(maxtemp-mintemp)).astype(float, copy=False)
-        [df_replace(df, col) for col in range(1, 6)]
-        X = df.loc[:, 0:5].values
 
     if identifier == 'balance-scale':
         df = pd.read_csv(data_path, header=None, sep=',')
@@ -289,14 +319,20 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
             y = binarize(df[0], pos_class='R')
         X = df.loc[:, 1:].astype(float).values
 
-    if identifier == 'breast-cancer-wisconsin':
+    if identifier == 'breast-cancer-wisconsin' and dataset_name=='breast-cancer':
         df = pd.read_csv(data_path, header=None, sep=',')
         Xy = df.loc[:, 1:10]
         Xy[Xy=='?']=np.nan
         Xy = Xy.dropna(axis=0)
         X = Xy.loc[:, 1:9]
         X = X.astype(float).values
-        y = binarize(Xy[10], pos_class=4)
+        y = binarize(Xy[10], pos_class=2)
+
+    if identifier == 'breast-cancer-wisconsin' and dataset_name=='wdbc':
+        df = pd.read_csv(data_path, header=None, sep=',')
+        X = df.loc[:, 2:32].astype(float).values
+        y = df[1].values
+        y = binarize(y, pos_class='M')
 
     if identifier == 'cmc':
         df = pd.read_csv(data_path, header=None, sep=',')
@@ -356,8 +392,8 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
 
     if identifier == 'mammographic-masses':
         df = pd.read_csv(data_path, header=None, sep=',')
-        Xy[df == '?'] = np.nan
-        Xy = Xy.dropna(axis=0)
+        df[df == '?'] = np.nan
+        Xy = df.dropna(axis=0)
         X = Xy.iloc[:, 0:5]
         X = X.astype(float).values
         y = binarize(Xy.iloc[:,5], pos_class=1)
@@ -395,9 +431,9 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
 
     if identifier == 'spect':
         dfs = []
-        for file in  filename:
+        for file in filename:
             data_path = join(data_dir, file)
-            download_file_if_not_exists(f'{URL}/{filename}', data_path)
+            download_file_if_not_exists(f'{URL}/{file}', data_path)
             dfs.append(pd.read_csv(data_path, header=None, sep=','))
         df = pd.concat(dfs)
         X = df.iloc[:, 1:45].astype(float).values
@@ -416,9 +452,34 @@ def fetch_UCIDataset(dataset_name, data_home=None, verbose=False, test_split=0.3
         y = df.iloc[:, 4].values
         y = binarize(y, pos_class=1)
 
+    if identifier == 'wine':
+        df = pd.read_csv(data_path, header=None, sep=',')
+        X = df.iloc[:, 1:14].astype(float).values
+        y = df[0].values
+        if dataset_name == 'wine.1':
+            y = binarize(y, pos_class=1)
+        elif dataset_name == 'wine.2':
+            y = binarize(y, pos_class=2)
+        elif dataset_name == 'wine.3':
+            y = binarize(y, pos_class=3)
+
+    if identifier == 'wine-quality':
+        filename = filename[0] if dataset_name=='wine-q-red' else filename[1]
+        data_path = join(data_dir, filename)
+        download_file_if_not_exists(f'{URL}/{filename}', data_path)
+        df = pd.read_csv(data_path, sep=';')
+        X = df.iloc[:, 0:11].astype(float).values
+        y = df.iloc[:, 11].values > 5
+
+    if identifier == 'yeast':
+        df = pd.read_csv(data_path, header=None, delim_whitespace=True)
+        X = df.iloc[:, 1:9].astype(float).values
+        y = df.iloc[:, 9].values
+        y = binarize(y, pos_class='NUC')
+
     data = LabelledCollection(X, y)
     data.stats()
-    return Dataset(*data.split_stratified(1-test_split, random_state=0))
+    return data
 
 
 def df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):

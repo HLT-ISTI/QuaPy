@@ -8,15 +8,48 @@ import numpy as np
 
 from NewMethods.methods import AveragePoolQuantification
 from classification.methods import PCALR
-from classification.neural import NeuralClassifierTrainer, CNNnet
+from data import Dataset
 from method.meta import EPACC
 from quapy.model_selection import GridSearchQ
+from tqdm import tqdm
+import pandas as pd
 
-dataset = qp.datasets.fetch_UCIDataset('transfusion', verbose=True)
+sample_size=100
+qp.environ['SAMPLE_SIZE'] = sample_size
+
+np.random.seed(0)
+
+nfolds=5
+nrepeats=1
+
+df = pd.DataFrame(columns=['dataset', 'method', 'mse'])
+for datasetname in qp.datasets.UCI_DATASETS[2:]:
+    collection = qp.datasets.fetch_UCILabelledCollection(datasetname, verbose=False)
+    scores = []
+    pbar = tqdm(Dataset.kFCV(collection, nfolds=nfolds, nrepeats=nrepeats), total=nfolds*nrepeats)
+    for data in pbar:
+        pbar.set_description(f'{data.name}')
+        # learner = GridSearchCV(LogisticRegression(class_weight='balanced'), param_grid={'C': np.logspace(-3,3,7)}, n_jobs=-1)
+        learner = LogisticRegression(class_weight='balanced')
+        # model = qp.method.aggregative.CC(learner)
+        model = qp.method.meta.EHDy(learner, size=30, red_size=15, verbose=False)
+        model.fit(data.training)
+        err = qp.evaluation.artificial_sampling_eval(model, data.test, sample_size, n_prevpoints=101, n_jobs=-1,
+                                                     error_metric='mse', verbose=False)
+        scores.append(err)
+
+    score = np.mean(scores)
+    df = df.append({
+        'dataset': datasetname,
+        'method': model.__class__.__name__,
+        'mse': score
+    }, ignore_index=True)
+    print(df)
+
 sys.exit(0)
 
 
-qp.environ['SAMPLE_SIZE'] = 500
+
 #param_grid = {'C': np.logspace(-3,3,7), 'class_weight': ['balanced', None]}
 param_grid = {'C': np.logspace(0,3,4), 'class_weight': ['balanced']}
 max_evaluations = 500

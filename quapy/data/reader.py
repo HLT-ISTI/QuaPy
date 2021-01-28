@@ -94,3 +94,4 @@ def binarize(y, pos_class):
     ybin = np.zeros(y.shape, dtype=np.int)
     ybin[y == pos_class] = 1
     return ybin
+

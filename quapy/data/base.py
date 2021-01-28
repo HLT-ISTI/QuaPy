@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.sparse import issparse
 from scipy.sparse import vstack
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
 from quapy.functional import artificial_prevalence_sampling, strprev
 
 
@@ -151,6 +151,12 @@ class LabelledCollection:
                   f'#classes={stats_["classes"]}, prevs={stats_["prevs"]}')
         return stats_
 
+    def kFCV(self, nfolds=5, nrepeats=1, random_state=0):
+        kf = RepeatedStratifiedKFold(n_splits=nfolds, n_repeats=nrepeats, random_state=random_state)
+        for train_index, test_index in kf.split(*self.Xy):
+            train = self.sampling_from_index(train_index)
+            test  = self.sampling_from_index(test_index)
+            yield train, test
 
 class Dataset:
 
@@ -189,6 +195,11 @@ class Dataset:
         print(f'Dataset={self.name} #tr-instances={tr_stats["instances"]}, #te-instances={te_stats["instances"]}, '
               f'type={tr_stats["type"]}, #features={tr_stats["features"]}, #classes={tr_stats["classes"]}, '
               f'tr-prevs={tr_stats["prevs"]}, te-prevs={te_stats["prevs"]}')
+
+    @classmethod
+    def kFCV(cls, data: LabelledCollection, nfolds=5, nrepeats=1, random_state=0):
+        for i, (train, test) in enumerate(data.kFCV(nfolds=nfolds, nrepeats=nrepeats, random_state=random_state)):
+            yield Dataset(train, test, name=f'fold {(i%nfolds)+1}/{nfolds} (round={(i//nfolds)+1})')
 
 
 def isbinary(data):

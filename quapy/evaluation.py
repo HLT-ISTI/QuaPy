@@ -9,7 +9,7 @@ from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier
 from quapy.util import temp_seed
 import quapy.functional as F
-
+import pandas as pd
 
 def artificial_sampling_prediction(
         model: BaseQuantifier,
@@ -62,9 +62,6 @@ def artificial_sampling_prediction(
 
     pbar = tqdm(indexes, desc='[artificial sampling protocol] predicting') if verbose else indexes
     results = qp.util.parallel(_predict_prevalences, pbar, n_jobs=n_jobs)
-    # results = Parallel(n_jobs=n_jobs)(
-    #     delayed(_predict_prevalences)(index) for index in pbar
-    # )
 
     true_prevalences, estim_prevalences = zip(*results)
     true_prevalences = np.asarray(true_prevalences)
@@ -73,13 +70,65 @@ def artificial_sampling_prediction(
     return true_prevalences, estim_prevalences
 
 
+def artificial_sampling_report(
+        model: BaseQuantifier,
+        test: LabelledCollection,
+        sample_size,
+        n_prevpoints=210,
+        n_repetitions=1,
+        n_jobs=1,
+        random_seed=42,
+        error_metrics:Iterable[Union[str,Callable]]='mae',
+        verbose=True):
+
+    if isinstance(error_metrics, str):
+        error_metrics=[error_metrics]
+
+    error_names = [e if isinstance(e, str) else e.__name__ for e in error_metrics]
+    error_funcs = [qp.error.from_name(e) if isinstance(e, str) else e for e in error_metrics]
+    assert all(hasattr(e, '__call__') for e in error_funcs), 'invalid error functions'
+
+    df = pd.DataFrame(columns=['true-prev', 'estim-prev']+error_names)
+    true_prevs, estim_prevs = artificial_sampling_prediction(
+        model, test, sample_size, n_prevpoints, n_repetitions, n_jobs, random_seed, verbose
+    )
+    for true_prev, estim_prev in zip(true_prevs, estim_prevs):
+        series = {'true-prev': true_prev, 'estim-prev': estim_prev}
+        for error_name, error_metric in zip(error_names, error_funcs):
+            score = error_metric(true_prev, estim_prev)
+            series[error_name] = score
+        df = df.append(series, ignore_index=True)
+
+    return df
+
+
+def artificial_sampling_eval(
+        model: BaseQuantifier,
+        test: LabelledCollection,
+        sample_size,
+        n_prevpoints=210,
+        n_repetitions=1,
+        n_jobs=1,
+        random_seed=42,
+        error_metric:Union[str,Callable]='mae',
+        verbose=True):
+
+    if isinstance(error_metric, str):
+        error_metric = qp.error.from_name(error_metric)
+
+    assert hasattr(error_metric, '__call__'), 'invalid error function'
+
+    true_prevs, estim_prevs = artificial_sampling_prediction(
+        model, test, sample_size, n_prevpoints, n_repetitions, n_jobs, random_seed, verbose
+    )
+
+    return error_metric(true_prevs, estim_prevs)
+
+
 def evaluate(model: BaseQuantifier, test_samples:Iterable[LabelledCollection], err:Union[str, Callable], n_jobs:int=-1):
     if isinstance(err, str):
         err = qp.error.from_name(err)
     scores = qp.util.parallel(_delayed_eval, ((model, Ti, err) for Ti in test_samples), n_jobs=n_jobs)
-    # scores = Parallel(n_jobs=n_jobs)(
-    #     delayed(_delayed_eval)(model, Ti, err) for Ti in test_samples
-    # )
     return np.mean(scores)
 
 
