@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.sparse import spmatrix
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
+from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 import quapy as qp
@@ -38,10 +39,10 @@ def text2tfidf(dataset:Dataset, min_df=3, sublinear_tf=True, inplace=False, **kw
         return Dataset(training, test, vectorizer.vocabulary_)
 
 
-def reduce_columns(dataset:Dataset, min_df=5, inplace=False):
+def reduce_columns(dataset: Dataset, min_df=5, inplace=False):
     """
     Reduces the dimensionality of the csr_matrix by removing the columns of words which are not present in at least
-    _min_occurrences_ instances
+    _min_df_ instances
     :param dataset: a Dataset in sparse format (any subtype of scipy.sparse.spmatrix)
     :param min_df: minimum number of instances below which the columns are removed
     :param inplace: whether or not to apply the transformation inplace, or to a new copy
@@ -68,6 +69,19 @@ def reduce_columns(dataset:Dataset, min_df=5, inplace=False):
         training = LabelledCollection(Xtr, dataset.training.labels.copy(), dataset.n_classes)
         test = LabelledCollection(Xte, dataset.test.labels.copy(), dataset.n_classes)
         return Dataset(training, test)
+
+
+def standardize(dataset: Dataset, inplace=True):
+    s = StandardScaler(copy=not inplace)
+    training = s.fit_transform(dataset.training.instances)
+    test = s.transform(dataset.test.instances)
+    if inplace:
+        return dataset
+    else:
+        return Dataset(training, test, dataset.vocabulary, dataset.name)
+
+
+
 
 
 def index(dataset: Dataset, min_df=5, inplace=False, **kwargs):
