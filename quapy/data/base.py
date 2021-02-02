@@ -195,6 +195,7 @@ class Dataset:
         print(f'Dataset={self.name} #tr-instances={tr_stats["instances"]}, #te-instances={te_stats["instances"]}, '
               f'type={tr_stats["type"]}, #features={tr_stats["features"]}, #classes={tr_stats["classes"]}, '
               f'tr-prevs={tr_stats["prevs"]}, te-prevs={te_stats["prevs"]}')
+        return {'train': tr_stats ,'test':te_stats}
 
     @classmethod
     def kFCV(cls, data: LabelledCollection, nfolds=5, nrepeats=1, random_state=0):
