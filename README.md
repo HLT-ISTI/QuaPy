@@ -42,7 +42,7 @@ we could assume the IID assumption to hold, as this prevalence would simply coin
 class prevalence of the training set. That is to say, a Quantification model 
 should be tested across samples characterized by different class prevalences.
 QuaPy implements sampling procedures and evaluation protocols that automates this endeavour.
-See the Wiki for detailed examples.
+See the [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) for detailed examples.
 
 ## Features
 
@@ -60,7 +60,7 @@ SVM-based variants for quantification, HDy, QuaNet, and Ensembles).
 
 ## Requirements
 
-* sklearnm, numpy, scipy
+* scikit-learn, numpy, scipy
 * pytorch (for QuaNet)
 * svmperf patched for quantification (see below)
 * joblib
@@ -92,5 +92,8 @@ for quantification.
 This patch extends the former by also allowing SVMperf to optimize for 
 _AE_ and _RAE_.
   
+  
+## Wiki
 
-
+Check our [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) in which many examples
+are provided.

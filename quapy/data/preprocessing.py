@@ -81,9 +81,6 @@ def standardize(dataset: Dataset, inplace=True):
         return Dataset(training, test, dataset.vocabulary, dataset.name)
 
 
-
-
-
 def index(dataset: Dataset, min_df=5, inplace=False, **kwargs):
     """
     Indexes a dataset of strings. To index a document means to replace each different token by a unique numerical index.
