@@ -23,7 +23,7 @@ nfolds=5
 nrepeats=1
 
 df = pd.DataFrame(columns=['dataset', 'method', 'mse'])
-for datasetname in qp.datasets.UCI_DATASETS[2:]:
+for datasetname in qp.datasets.UCI_DATASETS:
     collection = qp.datasets.fetch_UCILabelledCollection(datasetname, verbose=False)
     scores = []
     pbar = tqdm(Dataset.kFCV(collection, nfolds=nfolds, nrepeats=nrepeats), total=nfolds*nrepeats)

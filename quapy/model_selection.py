@@ -18,7 +18,7 @@ class GridSearchQ(BaseQuantifier):
                  sample_size: int,
                  n_prevpoints: int = None,
                  n_repetitions: int = 1,
-                 eval_budget : int = None,
+                 eval_budget: int = None,
                  error: Union[Callable, str] = qp.error.mae,
                  refit=False,
                  val_split=0.4,
@@ -86,29 +86,6 @@ class GridSearchQ(BaseQuantifier):
             raise ValueError(f'"validation" must either be a LabelledCollection or a float in (0,1) indicating the'
                              f'proportion of training documents to extract (found) {type(validation)}')
 
-    def __check_num_evals(self, n_prevpoints, eval_budget, n_repetitions, n_classes):
-        if n_prevpoints is None and eval_budget is None:
-            raise ValueError('either n_prevpoints or eval_budget has to be specified')
-        elif n_prevpoints is None:
-            assert eval_budget > 0, 'eval_budget must be a positive integer'
-            self.n_prevpoints = F.get_nprevpoints_approximation(eval_budget, n_classes, n_repetitions)
-            eval_computations = F.num_prevalence_combinations(self.n_prevpoints, n_classes, n_repetitions)
-            self.sout(f'setting n_prevpoints={self.n_prevpoints} so that the number of \n'
-                  f'evaluations ({eval_computations}) does not exceed the evaluation budget ({eval_budget})')
-        elif eval_budget is None:
-            self.n_prevpoints = n_prevpoints
-            eval_computations = F.num_prevalence_combinations(self.n_prevpoints, n_classes, n_repetitions)
-            self.sout(f'{eval_computations} evaluations will be performed for each '
-                  f'combination of hyper-parameters')
-        else:
-            eval_computations = F.num_prevalence_combinations(n_prevpoints, n_classes, n_repetitions)
-            if eval_computations > eval_budget:
-                self.n_prevpoints = F.get_nprevpoints_approximation(eval_budget, n_classes, n_repetitions)
-                new_eval_computations = F.num_prevalence_combinations(self.n_prevpoints, n_classes, n_repetitions)
-                self.sout(f'the budget of evaluations would be exceeded with\n'
-                      f'n_prevpoints={n_prevpoints}. Chaning to n_prevpoints={self.n_prevpoints}. This will produce\n'
-                      f'{new_eval_computations} evaluation computations for each hyper-parameter combination.')
-
     def __check_error(self, error):
         if error in qp.error.QUANTIFICATION_ERROR:
             self.error = error
@@ -130,10 +107,7 @@ class GridSearchQ(BaseQuantifier):
             val_split = self.val_split
         training, val_split = self.__check_training_validation(training, val_split)
         assert isinstance(self.sample_size, int) and self.sample_size > 0, 'sample_size must be a positive integer'
-        self.__check_num_evals(self.n_prevpoints, self.eval_budget, self.n_repetitions, training.n_classes)
 
-        # print(f'training size={len(training)}')
-        # print(f'validation size={len(val_split)}')
         params_keys = list(self.param_grid.keys())
         params_values = list(self.param_grid.values())
 
@@ -161,7 +135,12 @@ class GridSearchQ(BaseQuantifier):
                 model.set_params(**params)
                 model.fit(training)
                 true_prevalences, estim_prevalences = artificial_sampling_prediction(
-                    model, val_split, self.sample_size, self.n_prevpoints, self.n_repetitions, n_jobs, self.random_seed,
+                    model, val_split, self.sample_size,
+                    n_prevpoints=self.n_prevpoints,
+                    n_repetitions=self.n_repetitions,
+                    eval_budget=self.eval_budget,
+                    n_jobs=n_jobs,
+                    random_seed=self.random_seed,
                     verbose=False
                 )
 
