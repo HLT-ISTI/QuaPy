@@ -95,5 +95,5 @@ _AE_ and _RAE_.
   
 ## Wiki
 
-Check our [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) in which many examples
+Check out our [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) in which many examples
 are provided.
