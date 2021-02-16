@@ -18,6 +18,7 @@ environ = {
     'UNK_INDEX': 0,
     'PAD_TOKEN': '[PAD]',
     'PAD_INDEX': 1,
+    'SVMPERF_HOME': './svm_perf_quantification'
 }
 
 def isbinary(x):

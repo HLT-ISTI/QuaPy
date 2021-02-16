@@ -16,10 +16,12 @@ class SVMperf(BaseEstimator, ClassifierMixin):
     valid_losses = {'01':0, 'f1':1, 'kld':12, 'nkld':13, 'q':22, 'qacc':23, 'qf1':24, 'qgm':25, 'mae':26, 'mrae':27}
 
     def __init__(self, svmperf_base, C=0.01, verbose=False, loss='01'):
+        assert exists(svmperf_base), f'path {svmperf_base} does not seem to point to a valid path'
         self.svmperf_base = svmperf_base
         self.C = C
         self.verbose = verbose
         self.loss = loss
+
 
     def set_params(self, **parameters):
         assert list(parameters.keys()) == ['C'], 'currently, only the C parameter is supported'

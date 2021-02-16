@@ -323,6 +323,12 @@ class PACC(AggregativeProbabilisticQuantifier):
 
 
 class EMQ(AggregativeProbabilisticQuantifier):
+    """
+    The method is described in:
+    Saerens, M., Latinne, P., and Decaestecker, C. (2002).
+    Adjusting the outputs of a classifier to new a priori probabilities: A simple procedure.
+    Neural Computation, 14(1): 21–41.
+    """
 
     MAX_ITER = 1000
     EPSILON = 1e-4
@@ -440,8 +446,8 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
 
 class ELM(AggregativeQuantifier, BinaryQuantifier):
 
-    def __init__(self, svmperf_base, loss, **kwargs):
-        self.svmperf_base = svmperf_base
+    def __init__(self, svmperf_base=None, loss='01', **kwargs):
+        self.svmperf_base = svmperf_base if svmperf_base is not None else qp.environ['SVMPERF_HOME']
         self.loss = loss
         self.kwargs = kwargs
         self.learner = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs)
@@ -461,27 +467,42 @@ class ELM(AggregativeQuantifier, BinaryQuantifier):
 
 
 class SVMQ(ELM):
-    def __init__(self, svmperf_base, **kwargs):
+    """
+    Barranquero, J., Díez, J., and del Coz, J. J. (2015).
+    Quantification-oriented learning based on reliable classifiers.
+    Pattern Recognition, 48(2):591–604.
+    """
+    def __init__(self, svmperf_base=None, **kwargs):
         super(SVMQ, self).__init__(svmperf_base, loss='q', **kwargs)
 
 
 class SVMKLD(ELM):
-    def __init__(self, svmperf_base, **kwargs):
+    """
+    Esuli, A. and Sebastiani, F. (2015).
+    Optimizing text quantifiers for multivariate loss functions.
+    ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27.
+    """
+    def __init__(self, svmperf_base=None, **kwargs):
         super(SVMKLD, self).__init__(svmperf_base, loss='kld', **kwargs)
 
 
 class SVMNKLD(ELM):
-    def __init__(self, svmperf_base, **kwargs):
+    """
+    Esuli, A. and Sebastiani, F. (2015).
+    Optimizing text quantifiers for multivariate loss functions.
+    ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27.
+    """
+    def __init__(self, svmperf_base=None, **kwargs):
         super(SVMNKLD, self).__init__(svmperf_base, loss='nkld', **kwargs)
 
 
 class SVMAE(ELM):
-    def __init__(self, svmperf_base, **kwargs):
+    def __init__(self, svmperf_base=None, **kwargs):
         super(SVMAE, self).__init__(svmperf_base, loss='mae', **kwargs)
 
 
 class SVMRAE(ELM):
-    def __init__(self, svmperf_base, **kwargs):
+    def __init__(self, svmperf_base=None, **kwargs):
         super(SVMRAE, self).__init__(svmperf_base, loss='mrae', **kwargs)
 
 
