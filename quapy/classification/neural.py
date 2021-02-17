@@ -32,7 +32,7 @@ class NeuralClassifierTrainer:
         super().__init__()
 
         assert isinstance(net, TextClassifierNet), f'net is not an instance of {TextClassifierNet.__name__}'
-        self.net = net
+        self.net = net.to(device)
         self.vocab_size = self.net.vocabulary_size
         self.trainer_hyperparams={
             'lr': lr,
@@ -50,10 +50,12 @@ class NeuralClassifierTrainer:
         self.classes_ = np.asarray([0, 1])
 
         print(f'[NeuralNetwork running on {device}]')
+
         os.makedirs(Path(checkpointpath).parent, exist_ok=True)
 
     def reset_net_params(self, vocab_size, n_classes):
         self.net = self.net.__class__(vocab_size, n_classes, **self.learner_hyperparams)
+        self.net = self.net.to(self.trainer_hyperparams['device'])
         self.net.xavier_uniform()
 
     def get_params(self):
@@ -65,7 +67,7 @@ class NeuralClassifierTrainer:
         for key, val in params.items():
             if key in trainer_hyperparams and key in learner_hyperparams:
                 raise ValueError(f'the use of parameter {key} is ambiguous since it can refer to '
-                                 f'a parameters of the Trainer or the learner {self.netclass.__name__}')
+                                 f'a parameters of the Trainer or the learner {self.net.__name__}')
             elif key not in trainer_hyperparams and key not in learner_hyperparams:
                 raise ValueError(f'parameter {key} is not valid')
 
@@ -81,17 +83,7 @@ class NeuralClassifierTrainer:
     def device(self):
         return next(self.net.parameters()).device
 
-    def __update_progress_bar(self, pbar):
-        pbar.set_description(f'[{self.net.__class__.__name__}] training epoch={self.current_epoch} '
-                             f'tr-loss={self.status["tr"]["loss"]:.5f} '
-                             f'tr-acc={100 * self.status["tr"]["acc"]:.2f}% '
-                             f'tr-macroF1={100 * self.status["tr"]["f1"]:.2f}% '
-                             f'patience={self.early_stop.patience}/{self.early_stop.PATIENCE_LIMIT} '
-                             f'val-loss={self.status["va"]["loss"]:.5f} '
-                             f'val-acc={100 * self.status["va"]["acc"]:.2f}% '
-                             f'macroF1={100 * self.status["va"]["f1"]:.2f}%')
-
-    def _train_epoch(self, data, status, pbar):
+    def _train_epoch(self, data, status, pbar, epoch):
         self.net.train()
         criterion = torch.nn.CrossEntropyLoss()
         losses, predictions, true_labels = [], [], []
@@ -109,9 +101,9 @@ class NeuralClassifierTrainer:
             true_labels.extend(yi.detach().cpu().numpy().tolist())
             status["acc"] = accuracy_score(true_labels, predictions)
             status["f1"] = f1_score(true_labels, predictions, average='macro')
-            self.__update_progress_bar(pbar)
+            self.__update_progress_bar(pbar, epoch)
 
-    def _test_epoch(self, data, status, pbar):
+    def _test_epoch(self, data, status, pbar, epoch):
         self.net.eval()
         criterion = torch.nn.CrossEntropyLoss()
         losses, predictions, true_labels = [], [], []
@@ -127,7 +119,17 @@ class NeuralClassifierTrainer:
             status["loss"] = np.mean(losses)
             status["acc"] = accuracy_score(true_labels, predictions)
             status["f1"] = f1_score(true_labels, predictions, average='macro')
-            self.__update_progress_bar(pbar)
+            self.__update_progress_bar(pbar, epoch)
+
+    def __update_progress_bar(self, pbar, epoch):
+        pbar.set_description(f'[{self.net.__class__.__name__}] training epoch={epoch} '
+                             f'tr-loss={self.status["tr"]["loss"]:.5f} '
+                             f'tr-acc={100 * self.status["tr"]["acc"]:.2f}% '
+                             f'tr-macroF1={100 * self.status["tr"]["f1"]:.2f}% '
+                             f'patience={self.early_stop.patience}/{self.early_stop.PATIENCE_LIMIT} '
+                             f'val-loss={self.status["va"]["loss"]:.5f} '
+                             f'val-acc={100 * self.status["va"]["acc"]:.2f}% '
+                             f'macroF1={100 * self.status["va"]["f1"]:.2f}%')
 
     def fit(self, instances, labels, val_split=0.3):
         train, val = LabelledCollection(instances, labels).split_stratified(1-val_split)
@@ -147,11 +149,11 @@ class NeuralClassifierTrainer:
         self.early_stop = EarlyStop(opt['patience'], lower_is_better=False)
 
         with tqdm(range(1, opt['epochs'] + 1)) as pbar:
-            for self.current_epoch in pbar:
-                self._train_epoch(train_generator, self.status['tr'], pbar)
-                self._test_epoch(valid_generator, self.status['va'], pbar)
+            for epoch in pbar:
+                self._train_epoch(train_generator, self.status['tr'], pbar, epoch)
+                self._test_epoch(valid_generator, self.status['va'], pbar, epoch)
 
-                self.early_stop(self.status['va']['f1'], self.current_epoch)
+                self.early_stop(self.status['va']['f1'], epoch)
                 if self.early_stop.IMPROVED:
                     torch.save(self.net.state_dict(), checkpoint)
                 elif self.early_stop.STOP:
@@ -161,7 +163,7 @@ class NeuralClassifierTrainer:
                     break
 
         print('performing one training pass over the validation set...')
-        self._train_epoch(valid_generator, self.status['tr'], pbar)
+        self._train_epoch(valid_generator, self.status['tr'], pbar, epoch=0)
         print('[done]')
 
         return self
@@ -170,9 +172,6 @@ class NeuralClassifierTrainer:
         return np.argmax(self.predict_proba(instances), axis=-1)
 
     def predict_proba(self, instances):
-        return self.net.predict_proba(instances)
-
-    def predict_probability_positive(self, instances):
         self.net.eval()
         opt = self.trainer_hyperparams
         with torch.no_grad():
@@ -185,9 +184,10 @@ class NeuralClassifierTrainer:
     def transform(self, instances):
         self.net.eval()
         embeddings = []
+        opt = self.trainer_hyperparams
         with torch.no_grad():
             for xi in TorchDataset(instances).asDataloader(
-                    self.batch_size_test, shuffle=False, pad_length=self.padding_length, device=self.device):
+                    opt['batch_size_test'], shuffle=False, pad_length=opt['padding_length'], device=opt['device']):
                 embeddings.append(self.net.document_embedding(xi).detach().cpu().numpy())
         return np.concatenate(embeddings)
 
@@ -233,7 +233,7 @@ class TextClassifierNet(torch.nn.Module, metaclass=ABCMeta):
 
     def predict_proba(self, x):
         logits = self(x)
-        return torch.softmax(logits).detach().cpu().numpy()
+        return torch.softmax(logits, dim=1).detach().cpu().numpy()
 
     def xavier_uniform(self):
         for p in self.parameters():

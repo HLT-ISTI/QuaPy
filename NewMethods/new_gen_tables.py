@@ -75,7 +75,7 @@ if __name__ == '__main__':
         nexp_methods = len(experimental_methods)
 
         # fill data table
-        table = Table(rows=datasets, cols=methods)
+        table = Table(benchmarks=datasets, methods=methods)
         for dataset in datasets:
             for method in methods:
                 if method in experimental_methods:
@@ -94,7 +94,7 @@ if __name__ == '__main__':
         rowreplace={dataset: nice.get(dataset, dataset.upper()) for dataset in datasets}
         colreplace={method:'\side{' + nice.get(method, method.upper()) +'$^{' + nicerm(eval_name) + '}$} ' for method in methods}
 
-        tabular += table.latexTabular(rowreplace=rowreplace, colreplace=colreplace)
+        tabular += table.latexTabular(benchmark_replace=rowreplace, method_replace=colreplace)
         tabular += "\n\end{tabularx}"
 
         save_table(f'./tables/tab_results_{eval_name}.new.tex', tabular)
@@ -102,7 +102,7 @@ if __name__ == '__main__':
         # Tables ranks for AE and RAE (two tables)
         # ----------------------------------------------------
         # fill the data table
-        ranktable = Table(rows=datasets, cols=methods, missing='--')
+        ranktable = Table(benchmarks=datasets, methods=methods, missing='--')
         for dataset in datasets:
             for method in methods:
                 ranktable.add(dataset, method, values=table.get(dataset, method, 'rank'))

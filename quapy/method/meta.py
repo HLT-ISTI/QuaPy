@@ -1,5 +1,7 @@
 from copy import deepcopy
 from typing import Union
+
+from sklearn.metrics import f1_score, make_scorer, accuracy_score
 from tqdm import tqdm
 
 import numpy as np
@@ -267,7 +269,11 @@ def _instantiate_ensemble(learner, base_quantifier_class, param_grid, optim, par
     if optim is None:
         base_quantifier = base_quantifier_class(learner)
     elif optim in qp.error.CLASSIFICATION_ERROR:
-        learner = GridSearchCV(learner, param_grid)
+        if optim == qp.error.f1e:
+            scoring = make_scorer(f1_score)
+        elif optim == qp.error.acce:
+            scoring = make_scorer(accuracy_score)
+        learner = GridSearchCV(learner, param_grid, scoring=scoring)
         base_quantifier = base_quantifier_class(learner)
     else:
         base_quantifier = GridSearchQ(base_quantifier_class(learner),

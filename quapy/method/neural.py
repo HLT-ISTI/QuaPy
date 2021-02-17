@@ -79,13 +79,6 @@ class QuaNetTrainer(BaseQuantifier):
         self.tr_prev = data.prevalence()
 
         self.learner.fit(*classifier_data.Xy)
-        self.quantifiers = {
-            'cc': CC(self.learner).fit(classifier_data, fit_learner=False),
-            'acc': ACC(self.learner).fit(classifier_data, fit_learner=False, val_split=valid_data),
-            'pcc': PCC(self.learner).fit(classifier_data, fit_learner=False),
-            'pacc': PACC(self.learner).fit(classifier_data, fit_learner=False, val_split=valid_data),
-            'emq': EMQ(self.learner).fit(classifier_data, fit_learner=False),
-        }
 
         # compute the posterior probabilities of the instances
         valid_posteriors = self.learner.predict_proba(valid_data.instances)
@@ -94,6 +87,14 @@ class QuaNetTrainer(BaseQuantifier):
         # turn instances' original representations into embeddings
         valid_data.instances = self.learner.transform(valid_data.instances)
         train_data.instances = self.learner.transform(train_data.instances)
+
+        self.quantifiers = {
+            'cc': CC(self.learner).fit(classifier_data, fit_learner=False),
+            'acc': ACC(self.learner).fit(classifier_data, fit_learner=False, val_split=valid_data),
+            'pcc': PCC(self.learner).fit(classifier_data, fit_learner=False),
+            'pacc': PACC(self.learner).fit(classifier_data, fit_learner=False, val_split=valid_data),
+            'emq': EMQ(self.learner).fit(classifier_data, fit_learner=False),
+        }
 
         self.status = {
             'tr-loss': -1,

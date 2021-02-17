@@ -1,9 +1,10 @@
 import random
 import subprocess
 import tempfile
-from os import remove
+from os import remove, makedirs
 from os.path import join, exists
 from subprocess import PIPE, STDOUT
+import shutil
 
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
@@ -21,7 +22,6 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         self.C = C
         self.verbose = verbose
         self.loss = loss
-
 
     def set_params(self, **parameters):
         assert list(parameters.keys()) == ['C'], 'currently, only the C parameter is supported'
@@ -42,10 +42,15 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         local_random = random.Random()
         # this would allow to run parallel instances of predict
         random_code = '-'.join(str(local_random.randint(0,1000000)) for _ in range(5))
-        self.tmpdir = tempfile.TemporaryDirectory(suffix=random_code)
+        # self.tmpdir = tempfile.TemporaryDirectory(suffix=random_code)
+        # tmp dir are removed after the fit terminates in multiprocessing... moving to regular directories + __del__
+        self.tmpdir = '.svmperf-' + random_code
+        makedirs(self.tmpdir, exist_ok=True)
 
-        self.model = join(self.tmpdir.name, 'model-'+random_code)
-        traindat = join(self.tmpdir.name, f'train-{random_code}.dat')
+        # self.model = join(self.tmpdir.name, 'model-'+random_code)
+        # traindat = join(self.tmpdir.name, f'train-{random_code}.dat')
+        self.model = join(self.tmpdir, 'model-'+random_code)
+        traindat = join(self.tmpdir, f'train-{random_code}.dat')
 
         dump_svmlight_file(X, y, traindat, zero_based=False)
 
@@ -75,8 +80,10 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         # in order to allow for parallel runs of predict, a random code is assigned
         local_random = random.Random()
         random_code = '-'.join(str(local_random.randint(0, 1000000)) for _ in range(5))
-        predictions_path = join(self.tmpdir.name, 'predictions'+random_code+'.dat')
-        testdat = join(self.tmpdir.name, 'test'+random_code+'.dat')
+        # predictions_path = join(self.tmpdir.name, 'predictions'+random_code+'.dat')
+        # testdat = join(self.tmpdir.name, 'test'+random_code+'.dat')
+        predictions_path = join(self.tmpdir, 'predictions' + random_code + '.dat')
+        testdat = join(self.tmpdir, 'test' + random_code + '.dat')
         dump_svmlight_file(X, y, testdat, zero_based=False)
 
         cmd = ' '.join([self.svmperf_classify, testdat, self.model, predictions_path])
@@ -93,4 +100,7 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
         return scores
 
+    def __del__(self):
+        if hasattr(self, 'tmpdir'):
+            shutil.rmtree(self.tmpdir)
 

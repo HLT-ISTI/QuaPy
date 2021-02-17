@@ -16,7 +16,8 @@ class Table:
         self.methods = np.asarray(methods)
         self.method_index = {col:j for j, col in enumerate(methods)}
 
-        self.map = {}  # keyed (#rows,#cols)-ndarrays holding computations from self.map['values']
+        self.map = {}  
+        # keyed (#rows,#cols)-ndarrays holding computations from self.map['values']
         self._addmap('values', dtype=object)
         self.lower_is_better = lower_is_better
         self.ttest = ttest
@@ -28,6 +29,7 @@ class Table:
         self.missing = missing
         self.missing_str = missing_str
         self.color = color
+        
         self.touch()
 
     @property
@@ -39,10 +41,10 @@ class Table:
         return len(self.methods)
 
     def touch(self):
-        self.modif = True
+        self._modif = True
 
     def update(self):
-        if self.modif:
+        if self._modif:
             self.compute()
 
     def _getfilled(self):
@@ -61,8 +63,6 @@ class Table:
             return
         m = self.map[map]
         f = func
-        if f is None:
-            return
         indexes = self._indexes() if map == 'fill' else self._getfilled()
         for i, j in indexes:
             m[i, j] = f(self.values[i, j])
@@ -75,7 +75,7 @@ class Table:
             if not self.lower_is_better:
                 ranked_cols_idx = ranked_cols_idx[::-1]
             self.map['rank'][i, ranked_cols_idx] = np.arange(1, len(filled_cols_idx)+1)
-
+            
     def _addcolor(self):
         for i in range(self.nbenchmarks):
             filled_cols_idx = np.argwhere(self.map['fill'][i]).flatten()
@@ -95,7 +95,6 @@ class Table:
                     normval = 1 - normval
                 self.map['color'][i, col_idx] = color_red2green_01(normval)
 
-
     def _run_ttest(self, row, col1, col2):
         mean1 = self.map['mean'][row, col1]
         std1 = self.map['std'][row, col1]
@@ -112,7 +111,7 @@ class Table:
         _, p_val = wilcoxon(values1, values2)
         return p_val
 
-    def _addttest(self):
+    def _add_statistical_test(self):
         if self.ttest is None:
             return
         self.some_similar = [False]*self.nmethods
@@ -147,10 +146,10 @@ class Table:
         self._addmap('latex', dtype=object, func=None)
         self._addrank()
         self._addcolor()
-        self._addttest()
+        self._add_statistical_test()
         if self.add_average:
             self._addave()
-        self.modif = False
+        self._modif = False
 
     def _is_column_full(self, col):
         return all(self.map['fill'][:, self.method_index[col]])
@@ -189,11 +188,11 @@ class Table:
         else:
             return self.missing
 
-    def _coordinates(self, row, col):
-        assert row in self.benchmark_index, f'row {row} out of range'
-        assert col in self.method_index, f'col {col} out of range'
-        rid = self.benchmark_index[row]
-        cid = self.method_index[col]
+    def _coordinates(self, benchmark, method):
+        assert benchmark in self.benchmark_index, f'benchmark {benchmark} out of range'
+        assert method in self.method_index, f'method {method} out of range'
+        rid = self.benchmark_index[benchmark]
+        cid = self.method_index[method]
         return rid, cid
 
     def get_average(self, method, attr='mean'):
@@ -283,7 +282,6 @@ class Table:
         t.compute()
         return t
 
-
     def dropMethods(self, methods):
         drop_index = [self.method_index[m] for m in methods]
         new_methods = np.delete(self.methods, drop_index)
@@ -293,8 +291,6 @@ class Table:
         self.methods = new_methods
         self.method_index = new_index
         self.touch()
-
-
 
 
 def pval_interpretation(p_val):

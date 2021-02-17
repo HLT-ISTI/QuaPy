@@ -580,7 +580,9 @@ class OneVsAll(AggregativeQuantifier):
 
     def __parallel(self, func, *args, **kwargs):
         return np.asarray(
-            Parallel(n_jobs=self.n_jobs)(
+            # some quantifiers (in particular, ELM-based ones) cannot be run with multiprocess, since the temp dir they
+            # create during the fit will be removed and be no longer available for the predict...
+            Parallel(n_jobs=self.n_jobs, backend='threading')(
                 delayed(func)(c, *args, **kwargs) for c in self.classes
             )
         )
