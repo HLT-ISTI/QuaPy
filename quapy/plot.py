@@ -12,7 +12,8 @@ plt.rcParams['figure.dpi'] = 200
 plt.rcParams['font.size'] = 16
 
 
-def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=None, show_std=True, legend=True, savepath=None):
+def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=None, show_std=True, legend=True,
+                    train_prev=None, savepath=None):
     fig, ax = plt.subplots()
     ax.set_aspect('equal')
     ax.grid()
@@ -32,6 +33,10 @@ def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=No
         ax.errorbar(x_ticks, y_ave, fmt='-', marker='o', label=method, markersize=3, zorder=2)
         if show_std:
             ax.fill_between(x_ticks, y_ave - y_std, y_ave + y_std, alpha=0.25)
+
+    if train_prev is not None:
+        train_prev = train_prev[pos_class]
+        ax.scatter(train_prev, train_prev, c='c', label='tr-prev', linewidth=2, edgecolor='k', s=100, zorder=3)
 
     ax.set(xlabel='true prevalence', ylabel='estimated prevalence', title=title)
     ax.set_ylim(0, 1)

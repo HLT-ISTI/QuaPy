@@ -207,7 +207,7 @@ class ACC(AggregativeQuantifier):
             class_count = data.counts()
 
             # fit the learner on all data
-            self.learner.fit(*data.Xy)
+            self.learner, _ = training_helper(self.learner, data, fit_learner, val_split=None)
 
         else:
             self.learner, val_data = training_helper(self.learner, data, fit_learner, val_split=val_split)
@@ -294,7 +294,7 @@ class PACC(AggregativeProbabilisticQuantifier):
             y_ = np.vstack(y_)
 
             # fit the learner on all data
-            self.learner.fit(*data.Xy)
+            self.learner, _ = training_helper(self.learner, data, fit_learner, ensure_probabilistic=True, val_split=None)
 
         else:
             self.learner, val_data = training_helper(
