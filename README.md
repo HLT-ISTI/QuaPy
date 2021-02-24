@@ -36,10 +36,10 @@ error = qp.error.mae(true_prevalences, estim_prevalences)
 print(f'Mean Absolute Error (MAE)={error:.3f}')
 ```
 
-Quantification is useful in scenarios of distribution shift. In other
-words, we would not need to estimate the class prevalences of the test set if 
+Quantification is useful in scenarios of prior probability shift. In other
+words, we would not be interested in estimating the class prevalences of the test set if 
 we could assume the IID assumption to hold, as this prevalence would simply coincide with the 
-class prevalence of the training set. That is to say, a Quantification model 
+class prevalence of the training set. For this reason, any Quantification model 
 should be tested across samples characterized by different class prevalences.
 QuaPy implements sampling procedures and evaluation protocols that automates this endeavour.
 See the [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) for detailed examples.
@@ -56,7 +56,7 @@ SVM-based variants for quantification, HDy, QuaNet, and Ensembles).
     * 3 Reviews Sentiment datasets. 
 * Native supports for binary and single-label scenarios of quantification.
 * Model selection functionality targeting quantification-oriented losses.
-* Plotting routines ("error-by-drift", "diagonal", and "bias" plots).
+* Visualization tools for analysing results.
 
 ## Requirements
 
@@ -96,4 +96,10 @@ _AE_ and _RAE_.
 ## Wiki
 
 Check out our [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) in which many examples
-are provided.
+are provided:
+
+* [Datasets](https://github.com/HLT-ISTI/QuaPy/wiki/Datasets)
+* [Evaluation](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation)
+* [Methods](https://github.com/HLT-ISTI/QuaPy/wiki/Methods)
+* [Model Selection](https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection)
+* [Plotting](https://github.com/HLT-ISTI/QuaPy/wiki/Plotting)
