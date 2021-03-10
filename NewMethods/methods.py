@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.base import BaseEstimator
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
@@ -10,6 +11,8 @@ from quapy.method.base import BaseQuantifier, BinaryQuantifier
 from quapy.method.aggregative import PACC, EMQ, HDy
 import quapy.functional as F
 from tqdm import tqdm
+from scipy.sparse import issparse, csr_matrix
+import scipy
 
 
 class PACCSLD(PACC):
@@ -123,3 +126,49 @@ class AveragePoolQuantification(BinaryQuantifier):
 
     def get_params(self, deep=True):
         return self.learner.get_params(deep=deep)
+
+
+class WinnowOrthogonal(BaseEstimator):
+
+    def __init__(self):
+        pass
+
+    def fit(self, X, y):
+        self.classes_ = np.asarray(sorted(np.unique(y)))
+        w1 = np.asarray(X[y == 0].mean(axis=0)).flatten()
+        w2 = np.asarray(X[y == 1].mean(axis=0)).flatten()
+        diff = w2 - w1
+        orth = np.ones_like(diff)
+        orth[0] = -diff[1:].sum() / diff[0]
+        orth /= np.linalg.norm(orth)
+        self.w = orth
+        self.b = w1.dot(orth)
+        return self
+
+    def decision_function(self, X):
+        if issparse(X):
+            Z = X.dot(csr_matrix(self.w).T).toarray().flatten()
+            return Z - self.b
+        else:
+            return np.matmul(X, self.w) - self.b
+
+    def predict(self, X):
+        return 1 * (self.decision_function(X) > 0)
+
+    def split(self, X, y):
+        s = self.predict(X)
+        X0a = X[np.logical_and(y == 0, s == 0)]
+        X0b = X[np.logical_and(y == 0, s == 1)]
+        X1a = X[np.logical_and(y == 1, s == 0)]
+        X1b = X[np.logical_and(y == 1, s == 1)]
+        y0a = np.zeros(X0a.shape[0], dtype=np.int)
+        y0b = np.zeros(X0b.shape[0], dtype=np.int)
+        y1a = np.ones(X1a.shape[0], dtype=np.int)
+        y1b = np.ones(X1b.shape[0], dtype=np.int)
+        return X0a, X0b, X1a, X1b, y0a, y0b, y1a, y1b
+
+    def get_params(self):
+        return {}
+
+    def set_params(self, **params):
+        pass
