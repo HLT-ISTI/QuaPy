@@ -73,10 +73,21 @@ def brier_decomposition(bins, true_labels, predicted_labels, class_=1):
     return calibration_score / (labels_len * len(bins)), refinement_score / (labels_len * len(bins))
 
 
-def isometric_bins(label_index, predicted_labels, bin_intervals, step):
+#def isometric_bins(label_index, predicted_labels, bin_intervals, step):
+#    predicted_class_label = predicted_labels[:, label_index]
+#    return {interv: np.where(np.logical_and(interv <= predicted_class_label, predicted_class_label < interv + step))[0]
+#            for interv in bin_intervals}
+
+def isometric_bins(label_index, predicted_labels, bin_intervals):
+    def next_intv(i):
+        return bin_intervals[i + 1] if (i + 1) < len(bin_intervals) else 1.
     predicted_class_label = predicted_labels[:, label_index]
-    return {interv: np.where(np.logical_and(interv <= predicted_class_label, predicted_class_label < interv + step))[0]
-            for interv in bin_intervals}
+    return {
+        interv:
+            np.where(np.logical_and(interv <= predicted_class_label, predicted_class_label < next_intv(i)))[
+                0]
+        for i, interv in enumerate(bin_intervals)
+    }
 
 
 def isomerous_bins(label_index, predicted_labels, n):

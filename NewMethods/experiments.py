@@ -1,5 +1,6 @@
 from sklearn.linear_model import LogisticRegression
 import quapy as qp
+from NewMethods.fgsld.fgsld_quantifiers import FakeFGLSD
 from classification.methods import PCALR
 from method.meta import QuaNet
 from method.non_aggregative import MaximumLikelihoodPrevalenceEstimation
@@ -36,8 +37,10 @@ def experimental_models():
     svmperf_params = {'C': __C_range}
     #yield 'paccsld', PACCSLD(newLR()), lr_params
     # yield 'hdysld', OneVsAll(HDySLD(newLR())), lr_params  # <-- promising!
-    yield 'PACC(5)', PACC(newLR(), val_split=5), {}
-    yield 'PACC(10)', PACC(newLR(), val_split=10), {}
+    #yield 'PACC(5)', PACC(newLR(), val_split=5), {}
+    #yield 'PACC(10)', PACC(newLR(), val_split=10), {}
+    yield 'FGSLD(3)', FakeFGLSD(newLR(), nbins=3, isomerous=False, recompute_bins=True), {}
+    yield 'FGSLD(5)', FakeFGLSD(newLR(), nbins=5, isomerous=False, recompute_bins=True), {}
 
 
 
@@ -209,7 +212,7 @@ if __name__ == '__main__':
     print(f'Result folder: {args.results}')
     np.random.seed(0)
 
-    optim_losses = ['mae', 'mrae']
+    optim_losses = ['mae']
     datasets = qp.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN
 
     qp.util.parallel(run, itertools.product(optim_losses, datasets, experimental_models()), n_jobs=settings.N_JOBS)

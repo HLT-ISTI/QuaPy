@@ -1,9 +1,9 @@
 import numpy as np
-from metrics import isomerous_bins, isometric_bins
-from em import History, get_measures_single_history
+from NewMethods.fgsld.metrics import isomerous_bins, isometric_bins
+from NewMethods.fgsld.em import History, get_measures_single_history
 from sklearn.model_selection import cross_val_predict
 import math
-
+from scipy.special import softmax
 
 class FineGrainedSLD:
     def __init__(self, x_tr, x_te, y_tr, tr_priors, clf, n_bins=10):
@@ -16,7 +16,7 @@ class FineGrainedSLD:
         self.history: [History] = []
         self.multi_class = False
 
-    def run(self, isomerous_binning, epsilon=1e-6, compute_bins_at_every_iter=True, return_posteriors_hist=False):
+    def run(self, isomerous_binning, epsilon=1e-6, compute_bins_at_every_iter=True):
         """
         Run the FGSLD algorithm.
 
@@ -26,22 +26,18 @@ class FineGrainedSLD:
         :param return_posteriors_hist: whether to return posteriors at every iteration or not.
         :return: If `return_posteriors_hist` is true, the returned posteriors will be a list of numpy arrays, else a single numpy array with posteriors at last iteration.
         """
-        smoothing_tr = 1 / (2 * self.tr_preds.shape[0])
-        smoothing_te = 1 / (2 * self.te_preds.shape[0])
+        smoothing_tr = 1e-9  # 1 / (2 * self.tr_preds.shape[0])
+        smoothing_te = 1e-9  # 1 / (2 * self.te_preds.shape[0])
         s = 0
         tr_bin_priors = np.zeros((self.n_bins, self.tr_preds.shape[1]), dtype=np.float)
         te_bin_priors = np.zeros((self.n_bins, self.te_preds.shape[1]), dtype=np.float)
         tr_bins = self.__create_bins(training=True, isomerous_binning=isomerous_binning)
-        te_bins = self.__create_bins(training=False, isomerous_binning=isomerous_binning)
         self.__compute_bins_priors(tr_bin_priors, self.tr_preds, tr_bins, smoothing_tr)
 
+        te_preds_cp = self.te_preds.copy()
         val = 2 * epsilon
-        if return_posteriors_hist:
-            posteriors_hist = [self.te_preds.copy()]
         while not val < epsilon and s < 1000:
-            assert np.all(np.around(self.te_preds.sum(axis=1), 4) == 1), f"Probabilities do not sum to 1:\ns={s}, " \
-                                                                         f"probs={self.te_preds.sum(axis=1)}"
-            if compute_bins_at_every_iter:
+            if compute_bins_at_every_iter or s==0:
                 te_bins = self.__create_bins(training=False, isomerous_binning=isomerous_binning)
 
             if s == 0:
@@ -50,34 +46,47 @@ class FineGrainedSLD:
                 te_bin_priors_prev = te_bin_priors.copy()
             self.__compute_bins_priors(te_bin_priors, self.te_preds, te_bins, smoothing_te)
 
-            te_preds_cp = self.te_preds.copy()
             for label_idx, bins in te_bins.items():
                 for i, bin_ in enumerate(bins):
                     if bin_.shape[0] == 0:
                         continue
-                    te = te_bin_priors[i][label_idx]
-                    tr = tr_bin_priors[i][label_idx]
-                    # local_min = (math.floor(tr * 10) / 10)
+                    alpha = 1
+                    beta = 0.1
+                    local_te = te_bin_priors[i][label_idx]
+                    global_te = self.te_preds[:,label_idx].mean()
+                    te = local_te*alpha + global_te*(1-alpha)
+                    local_tr = tr_bin_priors[i][label_idx]
+                    global_tr = self.tr_priors[label_idx]
+                    tr = local_tr*beta + global_tr*(1-beta)
+                    #local_min = (math.floor(tr * self.n_bins) / self.n_bins)
                     # local_max = local_min + .1
                     # trans = lambda l: min(max((l - local_min) / 1, 0), 1)
-                    trans = lambda l: l
-                    self.te_preds[:, label_idx][bin_] = (te_preds_cp[:, label_idx][bin_]) * \
-                                                        (trans(te) / trans(tr))
+                    assert not isomerous_binning, 'not tested'
+                    #trans = lambda l: l - local_min
+                    # trans = lambda l: l
+                    # ratio = (trans(te) / trans(tr))
+                    #ratio = np.clip(ratio, 0.1, 2)
+                    #ratio = ratio**3
+                    #self.te_preds[:, label_idx][bin_] = (te_preds_cp[:, label_idx][bin_]) * ratio
+                    old_posterior = te_preds_cp[:, label_idx][bin_]
+                    lr = 1
+                    #self.te_preds[:, label_idx][bin_] = np.clip(old_posterior + (te-tr)*lr, 0, None)
+                    self.te_preds[:, label_idx][bin_] = np.clip(old_posterior + (te - tr) * lr, 0, None)
+                    #self.te_preds[:, label_idx][bin_] = (te_preds_cp[:, label_idx][bin_]) * ratio
 
             # Normalization step
             self.te_preds = (self.te_preds / self.te_preds.sum(axis=1, keepdims=True))
+            #self.te_preds = softmax(self.te_preds, axis=1)
 
-            val = 0
-            for label_idx in range(te_bin_priors.shape[1]):
-                temp = max(abs((te_bin_priors[:, label_idx] / te_bin_priors_prev[:, label_idx]) - 1))
-                if temp > val:
-                    val = temp
+            val = np.max(np.abs(te_bin_priors / te_bin_priors_prev) - 1)
             s += 1
-            if return_posteriors_hist:
-                posteriors_hist.append(self.te_preds.copy())
-        if return_posteriors_hist:
-            return self.te_preds.mean(axis=0), posteriors_hist
-        return self.te_preds.mean(axis=0), self.te_preds
+
+        self.iterations = s
+
+        priors = self.te_preds.mean(axis=0)
+        posteriors = self.te_preds
+
+        return priors, posteriors
 
     def __compute_bins_priors(self, bin_priors_placeholder, posteriors, bins, smoothing):
         for label_idx, bins in bins.items():
@@ -85,22 +94,9 @@ class FineGrainedSLD:
                 if bin_.shape[0] == 0:
                     bin_priors_placeholder[i, label_idx] = smoothing
                     continue
-                numerator = posteriors[:, label_idx][bin_].mean()
+                numerator = posteriors[bin_, label_idx].mean()
                 bin_prior = (numerator + smoothing) / (1 + self.n_bins * smoothing)  # normalize priors
                 bin_priors_placeholder[i, label_idx] = bin_prior
-
-    def __find_bin_idx(self, label_bins: [np.array], idx: int or list):
-        if hasattr(idx, '__len__'):
-            idxs = np.zeros(len(idx), dtype=np.int)
-            for i, bin_ in enumerate(label_bins):
-                for j, id_ in enumerate(idx):
-                    if id_ in bin_:
-                        idxs[j] = i
-            return idxs
-        else:
-            for i, bin_ in enumerate(label_bins):
-                if idx in bin_:
-                    return i
 
     def __create_bins(self, training: bool, isomerous_binning: bool):
         bins = {}
@@ -111,6 +107,6 @@ class FineGrainedSLD:
         else:
             intervals = np.linspace(0., 1., num=self.n_bins, endpoint=False)
             for label_idx in range(preds.shape[1]):
-                bins_ = isometric_bins(label_idx, preds, intervals, 0.1)
+                bins_ = isometric_bins(label_idx, preds, intervals)
                 bins[label_idx] = [bins_[i] for i in intervals]
         return bins

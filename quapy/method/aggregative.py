@@ -352,6 +352,7 @@ class EMQ(AggregativeProbabilisticQuantifier):
 
     @classmethod
     def EM(cls, tr_prev, posterior_probabilities, epsilon=EPSILON):
+        #print('training-priors', tr_prev)
         Px = posterior_probabilities
         Ptr = np.copy(tr_prev)
         qs = np.copy(Ptr)  # qs (the running estimate) is initialized as the training prevalence
@@ -359,11 +360,14 @@ class EMQ(AggregativeProbabilisticQuantifier):
         s, converged = 0, False
         qs_prev_ = None
         while not converged and s < EMQ.MAX_ITER:
-            # E-step: ps is Ps(y=+1|xi)
+            #print('iter: ', s)
+            # E-step: ps is Ps(y|xi)
             ps_unnormalized = (qs / Ptr) * Px
-            ps = ps_unnormalized / ps_unnormalized.sum(axis=1).reshape(-1,1)
+            ps = ps_unnormalized / ps_unnormalized.sum(axis=1, keepdims=True)
+            #print(f'\tratio=', qs / Ptr)
+            #print(f'\torigin_posteriors ', Px)
 
-            # M-step: qs_pos is Ps+1(y=+1)
+            # M-step:
             qs = ps.mean(axis=0)
 
             if qs_prev_ is not None and qp.error.mae(qs, qs_prev_) < epsilon and s>10:
@@ -373,7 +377,6 @@ class EMQ(AggregativeProbabilisticQuantifier):
             s += 1
 
         if not converged:
-            #raise UserWarning('the method has reached the maximum number of iterations; it might have not converged')
             print('[warning] the method has reached the maximum number of iterations; it might have not converged')
 
         return qs, ps

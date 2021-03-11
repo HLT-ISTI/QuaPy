@@ -5,7 +5,7 @@ from collections import namedtuple
 from sklearn.metrics import brier_score_loss
 from sklearn.preprocessing import MultiLabelBinarizer
 
-from metrics import smoothmacroF1, isometric_brier_decomposition, isomerous_brier_decomposition
+from NewMethods.fgsld.metrics import smoothmacroF1, isometric_brier_decomposition, isomerous_brier_decomposition
 
 History = namedtuple('History', ('posteriors', 'priors', 'y', 'iteration', 'stopping_criterium'))
 MeasureSingleHistory = namedtuple('MeasureSingleHistory', (

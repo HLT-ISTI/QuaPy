@@ -14,6 +14,7 @@ class FakeFGLSD(BaseQuantifier):
         self.nbins = nbins
         self.isomerous = isomerous
         self.recompute_bins = recompute_bins
+        self.iterations=[]
 
     def fit(self, data: LabelledCollection):
         self.Xtr, self.ytr = data.Xy
@@ -24,6 +25,7 @@ class FakeFGLSD(BaseQuantifier):
         tr_priors = F.prevalence_from_labels(self.ytr, n_classes=2)
         fgsld = FineGrainedSLD(self.Xtr, instances, self.ytr, tr_priors, self.learner, n_bins=self.nbins)
         priors, posteriors = fgsld.run(self.isomerous, compute_bins_at_every_iter=self.recompute_bins)
+        self.iterations.append(fgsld.iterations)
         return priors
 
     def get_params(self, deep=True):

@@ -32,4 +32,4 @@ def evaluate_results(methods, datasets, error_name):
     print(f'Ave: {np.mean(all):.3f}')
 
 
-evaluate_results(methods=['epacc*mae1k'], datasets=['*'], error_name='mae')
+evaluate_results(methods=['*'], datasets=['*'], error_name='mae')
