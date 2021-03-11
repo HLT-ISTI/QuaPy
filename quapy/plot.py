@@ -83,21 +83,21 @@ def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=N
     binwidth = 1/nbins
     data = {}
     for method, true_prev, estim_prev in zip(method_names, true_prevs, estim_prevs):
-        true_prev = true_prev[:,pos_class]
-        estim_prev = estim_prev[:,pos_class]
+        true_prev = true_prev[:, pos_class]
+        estim_prev = estim_prev[:, pos_class]
 
         data[method] = []
-        inds = np.digitize(true_prev, bins, right=True)
+        inds = np.digitize(true_prev, bins[1:], right=True)
         for ind in range(len(bins)):
             selected = inds==ind
             data[method].append(estim_prev[selected] - true_prev[selected])
 
     nmethods = len(method_names)
     boxwidth = binwidth/(nmethods+4)
-    for i,bin in enumerate(bins[:-1]):
+    for i,bin in enumerate(bins):
         boxdata = [data[method][i] for method in method_names]
         positions = [bin+(i*boxwidth)+2*boxwidth for i,_ in enumerate(method_names)]
-        box = boxplot(boxdata, showmeans=False, positions=positions, widths = boxwidth, sym='+', patch_artist=True)
+        box = boxplot(boxdata, showmeans=False, positions=positions, widths=boxwidth, sym='+', patch_artist=True)
         for boxid in range(len(method_names)):
             c = colormap.colors[boxid%len(colormap.colors)]
             setp(box['fliers'][boxid], color=c, marker='+', markersize=3., markeredgecolor=c)
@@ -110,7 +110,7 @@ def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=N
         major_xticks_positions.append(b)
         minor_xticks_positions.append(b + binwidth / 2)
         major_xticks_labels.append('')
-        minor_xticks_labels.append(f'[{bins[i]:.2f}-{bins[i + 1]:.2f})')
+        minor_xticks_labels.append(f'[{bins[i]:.2f}-{bins[i + 1]:.2f}' + (')' if i < len(bins)-2 else ']'))
     ax.set_xticks(major_xticks_positions)
     ax.set_xticks(minor_xticks_positions, minor=True)
     ax.set_xticklabels(major_xticks_labels)
