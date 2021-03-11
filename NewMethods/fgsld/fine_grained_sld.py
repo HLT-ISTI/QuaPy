@@ -1,6 +1,8 @@
 import numpy as np
 from metrics import isomerous_bins, isometric_bins
 from em import History, get_measures_single_history
+from sklearn.model_selection import cross_val_predict
+import math
 
 
 class FineGrainedSLD:
@@ -8,13 +10,13 @@ class FineGrainedSLD:
         self.y_tr = y_tr
         self.clf = clf
         self.tr_priors = tr_priors
-        self.tr_preds = clf.predict_proba(x_tr)
         self.te_preds = clf.predict_proba(x_te)
+        self.tr_preds = cross_val_predict(clf, x_tr, y_tr, method='predict_proba', n_jobs=10)
         self.n_bins = n_bins
         self.history: [History] = []
         self.multi_class = False
 
-    def run(self, isomerous_binning, epsilon=1e-6, compute_bins_at_every_iter=False, return_posteriors_hist=False):
+    def run(self, isomerous_binning, epsilon=1e-6, compute_bins_at_every_iter=True, return_posteriors_hist=False):
         """
         Run the FGSLD algorithm.
 
@@ -24,8 +26,8 @@ class FineGrainedSLD:
         :param return_posteriors_hist: whether to return posteriors at every iteration or not.
         :return: If `return_posteriors_hist` is true, the returned posteriors will be a list of numpy arrays, else a single numpy array with posteriors at last iteration.
         """
-        smoothing_tr = 1 / (2 * self.y_tr.shape[0])
-        smoothing_te = smoothing_tr
+        smoothing_tr = 1 / (2 * self.tr_preds.shape[0])
+        smoothing_te = 1 / (2 * self.te_preds.shape[0])
         s = 0
         tr_bin_priors = np.zeros((self.n_bins, self.tr_preds.shape[1]), dtype=np.float)
         te_bin_priors = np.zeros((self.n_bins, self.te_preds.shape[1]), dtype=np.float)
@@ -53,15 +55,22 @@ class FineGrainedSLD:
                 for i, bin_ in enumerate(bins):
                     if bin_.shape[0] == 0:
                         continue
+                    te = te_bin_priors[i][label_idx]
+                    tr = tr_bin_priors[i][label_idx]
+                    # local_min = (math.floor(tr * 10) / 10)
+                    # local_max = local_min + .1
+                    # trans = lambda l: min(max((l - local_min) / 1, 0), 1)
+                    trans = lambda l: l
                     self.te_preds[:, label_idx][bin_] = (te_preds_cp[:, label_idx][bin_]) * \
-                                                        (te_bin_priors[i][label_idx] / te_bin_priors_prev[i][label_idx])
+                                                        (trans(te) / trans(tr))
 
             # Normalization step
-            self.te_preds = (self.te_preds.T / self.te_preds.sum(axis=1)).T
+            self.te_preds = (self.te_preds / self.te_preds.sum(axis=1, keepdims=True))
 
             val = 0
             for label_idx in range(te_bin_priors.shape[1]):
-                if (temp := max(abs((te_bin_priors[:, label_idx] / te_bin_priors_prev[:, label_idx]) - 1))) > val:
+                temp = max(abs((te_bin_priors[:, label_idx] / te_bin_priors_prev[:, label_idx]) - 1))
+                if temp > val:
                     val = temp
             s += 1
             if return_posteriors_hist:
