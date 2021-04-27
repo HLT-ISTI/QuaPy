@@ -1,16 +1,55 @@
+Packaging:
+==========================================
 Documentation with sphinx
+Document methods with paper references
+allow for "pip install"
+unit-tests
+
+New features:
+==========================================
 Add NAE, NRAE
 Add "measures for evaluating ordinal"?
-Document methods with paper references
+Add datasets for topic.
+Do we want to cover cross-lingual quantification natively in QuaPy, or does it make more sense as an application on top?
+
+Current issues:
+==========================================
 In binary quantification (hp, kindle, imdb) we used F1 in the minority class (which in kindle and hp happens to be the
 negative class). This is not covered in this new implementation, in which the binary case is not treated as such, but as
 an instance of single-label with 2 labels. Check
-Add classnames to LabelledCollection ?
+Add classnames to LabelledCollection? This should improve visualization of reports
 Add automatic reindex of class labels in LabelledCollection (currently, class indexes should be ordered and with no gaps)
-Add datasets for topic.
+OVR I believe is currently tied to aggregative methods. We should provide a general interface also for general quantifiers
+Currently, being "binary" only adds one checker; we should figure out how to impose the check to be automatically performed
+
+Improvements:
+==========================================
 Clarify whether QuaNet is an aggregative method or not.
 Explore the hyperparameter "number of bins" in HDy
 Rename EMQ to SLD ?
+Parallelize the kFCV in ACC and PACC?
+Parallelize model selection trainings
+We might want to think of (improving and) adding the class Tabular (it is defined and used on branch tweetsent). A more
+    recent version is in the project ql4facct. This class is meant to generate latex tables from results (highligting
+    best results, computing statistical tests, colouring cells, producing rankings, producing averages, etc.). Trying
+    to generate tables is typically a bad idea, but in this specific case we do have pretty good control of what an
+    experiment looks like. (Do we want to abstract experimental results? this could be useful not only for tables but
+    also for plots).
+
+Checks:
+==========================================
 How many times is the system of equations for ACC and PACC not solved? How many times is it clipped? Do they sum up
     to one always?
-Parallelize the kFCV in ACC and PACC
+Re-check how hyperparameters from the quantifier and hyperparameters from the classifier (in aggregative quantifiers)
+    is handled. In scikit-learn the hyperparameters from a wrapper method are indicated directly whereas the hyperparams
+    from the internal learner are prefixed with "estimator__". In QuaPy, combinations having to do with the classifier
+    can be computed at the begining, and then in an internal loop the hyperparams of the quantifier can be explored,
+    passing fit_learner=False.
+Re-check Ensembles. As for now, they are strongly tied to aggregative quantifiers.
+Re-think the environment variables. Maybe add new ones (like, for example, parameters for the plots)
+Do we want to wrap prevalences (currently simple np.ndarray) as a class? This might be convenient for some interfaces
+    (e.g., for specifying artificial prevalences in samplings, for printing them -- currently supported through
+    F.strprev(), etc.). This might however add some overload, and prevent/difficult post processing with numpy.
+Would be nice to get a better integration with sklearn.
+
+
