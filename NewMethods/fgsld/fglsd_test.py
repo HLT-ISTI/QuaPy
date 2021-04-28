@@ -25,13 +25,13 @@ method_names, true_prevs, estim_prevs, tr_prevs = [], [], [], []
 for model, model_name in [
     (CC(cls), 'CC'),
 #    (FakeFGLSD(cls, nbins=20, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-20'),
-    (FakeFGLSD(cls, nbins=11, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-11'),
+    #(FakeFGLSD(cls, nbins=11, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-11'),
     #(FakeFGLSD(cls, nbins=8, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-8'),
     #(FakeFGLSD(cls, nbins=6, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-6'),
     (FakeFGLSD(cls, nbins=5, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-5'),
     #(FakeFGLSD(cls, nbins=4, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-4'),
-    (FakeFGLSD(cls, nbins=3, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-3'),
-#    (FakeFGLSD(cls, nbins=1, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-1'),
+    #(FakeFGLSD(cls, nbins=3, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-3'),
+    (FakeFGLSD(cls, nbins=1, isomerous=False, recompute_bins=True), 'FGSLD-isometric-dyn-1'),
 #    (FakeFGLSD(cls, nbins=3, isomerous=False, recompute_bins=False), 'FGSLD-isometric-sta-3'),
     (EMQ(cls), 'SLD'),
 ]:

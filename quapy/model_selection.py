@@ -5,7 +5,7 @@ from typing import Union, Callable
 
 import quapy as qp
 import quapy.functional as F
-from data.base import LabelledCollection
+from quapy.data.base import LabelledCollection
 from quapy.evaluation import artificial_sampling_prediction
 from quapy.method.aggregative import BaseQuantifier
 

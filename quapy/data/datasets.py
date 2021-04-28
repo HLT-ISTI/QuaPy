@@ -10,7 +10,7 @@ from sklearn.model_selection import StratifiedKFold
 
 import pandas as pd
 
-from data.base import Dataset, LabelledCollection
+from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
 from quapy.data.reader import *
 from quapy.util import download_file_if_not_exists, download_file, get_quapy_home, pickled_resource
