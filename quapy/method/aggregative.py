@@ -352,7 +352,6 @@ class EMQ(AggregativeProbabilisticQuantifier):
 
     @classmethod
     def EM(cls, tr_prev, posterior_probabilities, epsilon=EPSILON):
-        #print('training-priors', tr_prev)
         Px = posterior_probabilities
         Ptr = np.copy(tr_prev)
         qs = np.copy(Ptr)  # qs (the running estimate) is initialized as the training prevalence
@@ -360,12 +359,9 @@ class EMQ(AggregativeProbabilisticQuantifier):
         s, converged = 0, False
         qs_prev_ = None
         while not converged and s < EMQ.MAX_ITER:
-            #print('iter: ', s)
             # E-step: ps is Ps(y|xi)
             ps_unnormalized = (qs / Ptr) * Px
             ps = ps_unnormalized / ps_unnormalized.sum(axis=1, keepdims=True)
-            #print(f'\tratio=', qs / Ptr)
-            #print(f'\torigin_posteriors ', Px)
 
             # M-step:
             qs = ps.mean(axis=0)
@@ -466,7 +462,6 @@ class ELM(AggregativeQuantifier, BinaryQuantifier):
 
     def classify(self, X, y=None):
         return self.learner.predict(X)
-
 
 
 class SVMQ(ELM):
