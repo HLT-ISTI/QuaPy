@@ -5,19 +5,22 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC
 
 import quapy as qp
+from quapy.method import AGGREGATIVE_METHODS
 
-datasets = [qp.datasets.fetch_twitter('semeval16')]
-
-aggregative_methods = [qp.method.aggregative.CC, qp.method.aggregative.ACC, qp.method.aggregative.ELM]
+datasets = [pytest.param(qp.datasets.fetch_twitter('hcr'), id='hcr'),
+            pytest.param(qp.datasets.fetch_UCIDataset('ionosphere'), id='ionosphere')]
 
 learners = [LogisticRegression, MultinomialNB, LinearSVC]
 
 
 @pytest.mark.parametrize('dataset', datasets)
-@pytest.mark.parametrize('aggregative_method', aggregative_methods)
+@pytest.mark.parametrize('aggregative_method', AGGREGATIVE_METHODS)
 @pytest.mark.parametrize('learner', learners)
 def test_aggregative_methods(dataset, aggregative_method, learner):
     model = aggregative_method(learner())
+
+    if model.binary and not dataset.binary:
+        return
 
     model.fit(dataset.training)
 
