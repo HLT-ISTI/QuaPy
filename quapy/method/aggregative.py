@@ -53,10 +53,10 @@ class AggregativeQuantifier(BaseQuantifier):
 
     @property
     def n_classes(self):
-        return len(self.classes)
+        return len(self.classes_)
 
     @property
-    def classes(self):
+    def classes_(self):
         return self.learner.classes_
 
     @property

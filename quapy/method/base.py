@@ -19,6 +19,10 @@ class BaseQuantifier(metaclass=ABCMeta):
     @abstractmethod
     def get_params(self, deep=True): ...
 
+    @abstractmethod
+    @property
+    def classes_(self): ...
+
     # these methods allows meta-learners to reimplement the decision based on their constituents, and not
     # based on class structure
     @property
