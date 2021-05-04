@@ -11,8 +11,8 @@ from torch.nn.utils.rnn import pad_sequence
 from tqdm import tqdm
 
 import quapy as qp
-from data import LabelledCollection
-from util import EarlyStop
+from quapy.data import LabelledCollection
+from quapy.util import EarlyStop
 
 
 class NeuralClassifierTrainer:
