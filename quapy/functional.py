@@ -36,12 +36,12 @@ def prevalence_linspace(n_prevalences=21, repeat=1, smooth_limits_epsilon=0.01):
     return p
 
 
-def prevalence_from_labels(labels, n_classes):
+def prevalence_from_labels(labels, classes_):
     if labels.ndim != 1:
         raise ValueError(f'param labels does not seem to be a ndarray of label predictions')
     unique, counts = np.unique(labels, return_counts=True)
     by_class = defaultdict(lambda:0, dict(zip(unique, counts)))
-    prevalences = np.asarray([by_class[ci] for ci in range(n_classes)], dtype=np.float)
+    prevalences = np.asarray([by_class[class_] for class_ in classes_], dtype=np.float)
     prevalences /= prevalences.sum()
     return prevalences
 
@@ -51,7 +51,7 @@ def prevalence_from_probabilities(posteriors, binarize: bool = False):
         raise ValueError(f'param posteriors does not seem to be a ndarray of posteior probabilities')
     if binarize:
         predictions = np.argmax(posteriors, axis=-1)
-        return prevalence_from_labels(predictions, n_classes=posteriors.shape[1])
+        return prevalence_from_labels(predictions, np.arange(posteriors.shape[1]))
     else:
         prevalences = posteriors.mean(axis=0)
         prevalences /= prevalences.sum()

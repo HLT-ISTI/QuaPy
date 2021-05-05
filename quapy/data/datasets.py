@@ -47,7 +47,7 @@ UCI_DATASETS = ['acute.a', 'acute.b',
                 'yeast']
 
 
-def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False):
+def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False) -> Dataset:
     """
     Load a Reviews dataset as a Dataset instance, as used in:
     Esuli, A., Moreo, A., and Sebastiani, F. "A recurrent neural network for sentiment quantification."
@@ -91,7 +91,7 @@ def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle
     return data
 
 
-def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_home=None, pickle=False):
+def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_home=None, pickle=False) -> Dataset:
     """
     Load a Twitter dataset as a Dataset instance, as used in:
     Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
@@ -162,12 +162,12 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
     return data
 
 
-def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False):
+def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
     data = fetch_UCILabelledCollection(dataset_name, data_home, verbose)
     return Dataset(*data.split_stratified(1 - test_split, random_state=0))
 
 
-def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False):
+def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> Dataset:
 
     assert dataset_name in UCI_DATASETS, \
         f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository. ' \

@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from copy import deepcopy
 from typing import Union
+
 import numpy as np
 from joblib import Parallel, delayed
 from sklearn.base import BaseEstimator
@@ -8,6 +9,7 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold
 from tqdm import tqdm
+
 import quapy as qp
 import quapy.functional as F
 from quapy.classification.svmperf import SVMperf
@@ -43,7 +45,7 @@ class AggregativeQuantifier(BaseQuantifier):
         return self.aggregate(classif_predictions)
 
     @abstractmethod
-    def aggregate(self, classif_predictions:np.ndarray): ...
+    def aggregate(self, classif_predictions: np.ndarray): ...
 
     def get_params(self, deep=True):
         return self.learner.get_params()
@@ -84,7 +86,7 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
 
     def set_params(self, **parameters):
         if isinstance(self.learner, CalibratedClassifierCV):
-            parameters = {'base_estimator__'+k:v for k,v in parameters.items()}
+            parameters = {'base_estimator__' + k: v for k, v in parameters.items()}
         self.learner.set_params(**parameters)
 
     @property
@@ -98,7 +100,7 @@ def training_helper(learner,
                     data: LabelledCollection,
                     fit_learner: bool = True,
                     ensure_probabilistic=False,
-                    val_split:Union[LabelledCollection, float]=None):
+                    val_split: Union[LabelledCollection, float] = None):
     """
     Training procedure common to all Aggregative Quantifiers.
     :param learner: the learner to be fit
@@ -122,13 +124,14 @@ def training_helper(learner,
             if isinstance(val_split, float):
                 if not (0 < val_split < 1):
                     raise ValueError(f'train/val split {val_split} out of range, must be in (0,1)')
-                train, unused = data.split_stratified(train_prop=1-val_split)
-            elif val_split.__class__.__name__ == LabelledCollection.__name__: #isinstance(val_split, LabelledCollection):
+                train, unused = data.split_stratified(train_prop=1 - val_split)
+            elif val_split.__class__.__name__ == LabelledCollection.__name__:  # isinstance(val_split, LabelledCollection):
                 train = data
                 unused = val_split
             else:
-                raise ValueError(f'param "val_split" ({type(val_split)}) not understood; use either a float indicating the split '
-                                 'proportion, or a LabelledCollection indicating the validation split')
+                raise ValueError(
+                    f'param "val_split" ({type(val_split)}) not understood; use either a float indicating the split '
+                    'proportion, or a LabelledCollection indicating the validation split')
         else:
             train, unused = data, None
 
@@ -153,7 +156,7 @@ class CC(AggregativeQuantifier):
     attributed each of the classes in order to compute class prevalence estimates.
     """
 
-    def __init__(self, learner:BaseEstimator):
+    def __init__(self, learner: BaseEstimator):
         self.learner = learner
 
     def fit(self, data: LabelledCollection, fit_learner=True):
@@ -167,16 +170,16 @@ class CC(AggregativeQuantifier):
         return self
 
     def aggregate(self, classif_predictions):
-        return F.prevalence_from_labels(classif_predictions, self.n_classes)
+        return F.prevalence_from_labels(classif_predictions, self.classes_)
 
 
 class ACC(AggregativeQuantifier):
 
-    def __init__(self, learner:BaseEstimator, val_split=0.4):
+    def __init__(self, learner: BaseEstimator, val_split=0.4):
         self.learner = learner
         self.val_split = val_split
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection]=None):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
         """
         Trains a ACC quantifier
         :param data: the training set
@@ -262,7 +265,7 @@ class PACC(AggregativeProbabilisticQuantifier):
         self.learner = learner
         self.val_split = val_split
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split:Union[float, int, LabelledCollection]=None):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
         """
         Trains a PACC quantifier
         :param data: the training set
@@ -294,7 +297,8 @@ class PACC(AggregativeProbabilisticQuantifier):
             y_ = np.vstack(y_)
 
             # fit the learner on all data
-            self.learner, _ = training_helper(self.learner, data, fit_learner, ensure_probabilistic=True, val_split=None)
+            self.learner, _ = training_helper(self.learner, data, fit_learner, ensure_probabilistic=True,
+                                              val_split=None)
 
         else:
             self.learner, val_data = training_helper(
@@ -307,8 +311,8 @@ class PACC(AggregativeProbabilisticQuantifier):
         # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
         confusion = np.empty(shape=(data.n_classes, data.n_classes))
-        for yi in range(data.n_classes):
-            confusion[yi] = y_[y==yi].mean(axis=0)
+        for i,class_ in enumerate(data.classes_):
+            confusion[i] = y_[y == class_].mean(axis=0)
 
         self.Pte_cond_estim_ = confusion.T
 
@@ -338,7 +342,7 @@ class EMQ(AggregativeProbabilisticQuantifier):
 
     def fit(self, data: LabelledCollection, fit_learner=True):
         self.learner, _ = training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
-        self.train_prevalence = F.prevalence_from_labels(data.labels, self.n_classes)
+        self.train_prevalence = F.prevalence_from_labels(data.labels, self.classes_)
         return self
 
     def aggregate(self, classif_posteriors, epsilon=EPSILON):
@@ -366,7 +370,7 @@ class EMQ(AggregativeProbabilisticQuantifier):
             # M-step:
             qs = ps.mean(axis=0)
 
-            if qs_prev_ is not None and qp.error.mae(qs, qs_prev_) < epsilon and s>10:
+            if qs_prev_ is not None and qp.error.mae(qs, qs_prev_) < epsilon and s > 10:
                 converged = True
 
             qs_prev_ = qs
@@ -389,7 +393,7 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         self.learner = learner
         self.val_split = val_split
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, LabelledCollection]=None):
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, LabelledCollection] = None):
         """
         Trains a HDy quantifier
         :param data: the training set
@@ -405,13 +409,15 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         self._check_binary(data, self.__class__.__name__)
         self.learner, validation = training_helper(
             self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
-        Px = self.posterior_probabilities(validation.instances)[:,1]  # takes only the P(y=+1|x)
-        self.Pxy1 = Px[validation.labels == 1]
-        self.Pxy0 = Px[validation.labels == 0]
+        Px = self.posterior_probabilities(validation.instances)[:, 1]  # takes only the P(y=+1|x)
+        self.Pxy1 = Px[validation.labels == self.learner.classes_[1]]
+        self.Pxy0 = Px[validation.labels == self.learner.classes_[0]]
         # pre-compute the histogram for positive and negative examples
-        self.bins = np.linspace(10, 110, 11, dtype=int)  #[10, 20, 30, ..., 100, 110]
-        self.Pxy1_density = {bins: np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)[0] for bins in self.bins}
-        self.Pxy0_density = {bins: np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)[0] for bins in self.bins}
+        self.bins = np.linspace(10, 110, 11, dtype=int)  # [10, 20, 30, ..., 100, 110]
+        self.Pxy1_density = {bins: np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)[0] for bins in
+                             self.bins}
+        self.Pxy0_density = {bins: np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)[0] for bins in
+                             self.bins}
         return self
 
     def aggregate(self, classif_posteriors):
@@ -419,12 +425,12 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         # and the final estimated a priori probability was taken as the median of these 11 estimates."
         # (González-Castro, et al., 2013).
 
-        Px = classif_posteriors[:,1]  # takes only the P(y=+1|x)
+        Px = classif_posteriors[:, 1]  # takes only the P(y=+1|x)
 
         prev_estimations = []
-        #for bins in np.linspace(10, 110, 11, dtype=int):  #[10, 20, 30, ..., 100, 110]
-            #Pxy0_density, _ = np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)
-            #Pxy1_density, _ = np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)
+        # for bins in np.linspace(10, 110, 11, dtype=int):  #[10, 20, 30, ..., 100, 110]
+        # Pxy0_density, _ = np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)
+        # Pxy1_density, _ = np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)
         for bins in self.bins:
             Pxy0_density = self.Pxy0_density[bins]
             Pxy1_density = self.Pxy1_density[bins]
@@ -433,14 +439,14 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
 
             prev_selected, min_dist = None, None
             for prev in F.prevalence_linspace(n_prevalences=100, repeat=1, smooth_limits_epsilon=0.0):
-                Px_train = prev*Pxy1_density + (1 - prev)*Pxy0_density
+                Px_train = prev * Pxy1_density + (1 - prev) * Pxy0_density
                 hdy = F.HellingerDistance(Px_train, Px_test)
                 if prev_selected is None or hdy < min_dist:
                     prev_selected, min_dist = prev, hdy
             prev_estimations.append(prev_selected)
 
-        pos_class_prev = np.median(prev_estimations)
-        return np.asarray([1-pos_class_prev, pos_class_prev])
+        class1_prev = np.median(prev_estimations)
+        return np.asarray([1 - class1_prev, class1_prev])
 
 
 class ELM(AggregativeQuantifier, BinaryQuantifier):
@@ -457,8 +463,8 @@ class ELM(AggregativeQuantifier, BinaryQuantifier):
         self.learner.fit(data.instances, data.labels)
         return self
 
-    def aggregate(self, classif_predictions:np.ndarray):
-        return F.prevalence_from_labels(classif_predictions, self.learner.n_classes_)
+    def aggregate(self, classif_predictions: np.ndarray):
+        return F.prevalence_from_labels(classif_predictions, self.classes_)
 
     def classify(self, X, y=None):
         return self.learner.predict(X)
@@ -470,6 +476,7 @@ class SVMQ(ELM):
     Quantification-oriented learning based on reliable classifiers.
     Pattern Recognition, 48(2):591–604.
     """
+
     def __init__(self, svmperf_base=None, **kwargs):
         super(SVMQ, self).__init__(svmperf_base, loss='q', **kwargs)
 
@@ -480,6 +487,7 @@ class SVMKLD(ELM):
     Optimizing text quantifiers for multivariate loss functions.
     ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27.
     """
+
     def __init__(self, svmperf_base=None, **kwargs):
         super(SVMKLD, self).__init__(svmperf_base, loss='kld', **kwargs)
 
@@ -490,6 +498,7 @@ class SVMNKLD(ELM):
     Optimizing text quantifiers for multivariate loss functions.
     ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27.
     """
+
     def __init__(self, svmperf_base=None, **kwargs):
         super(SVMNKLD, self).__init__(svmperf_base, loss='nkld', **kwargs)
 
@@ -531,7 +540,7 @@ class OneVsAll(AggregativeQuantifier):
             f'{self.__class__.__name__} expect non-binary data'
         assert isinstance(self.binary_quantifier, BaseQuantifier), \
             f'{self.binary_quantifier} does not seem to be a Quantifier'
-        assert fit_learner==True, 'fit_learner must be True'
+        assert fit_learner == True, 'fit_learner must be True'
 
         self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in data.classes_}
         self.__parallel(self._delayed_binary_fit, data)
@@ -559,11 +568,11 @@ class OneVsAll(AggregativeQuantifier):
 
     def aggregate(self, classif_predictions_bin):
         if self.probabilistic:
-            assert classif_predictions_bin.shape[1]==self.n_classes and classif_predictions_bin.shape[2]==2, \
+            assert classif_predictions_bin.shape[1] == self.n_classes and classif_predictions_bin.shape[2] == 2, \
                 'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of posterior ' \
                 'probabilities (2 dimensions) for each document (row) and class (columns)'
         else:
-            assert set(np.unique(classif_predictions_bin)).issubset({0,1}), \
+            assert set(np.unique(classif_predictions_bin)).issubset({0, 1}), \
                 'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
                 'predictions for each document (row) and class (columns)'
         prevalences = self.__parallel(self._delayed_binary_aggregate, classif_predictions_bin)
@@ -606,7 +615,7 @@ class OneVsAll(AggregativeQuantifier):
         return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:, c])[1]
 
     def _delayed_binary_fit(self, c, data):
-        bindata = LabelledCollection(data.instances, data.labels == c, n_classes=2)
+        bindata = LabelledCollection(data.instances, data.labels == c, classes_=[False, True])
         self.dict_binary_quantifiers[c].fit(bindata)
 
     @property
@@ -616,9 +625,3 @@ class OneVsAll(AggregativeQuantifier):
     @property
     def probabilistic(self):
         return self.binary_quantifier.probabilistic
-
-
-
-
-
-
