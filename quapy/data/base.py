@@ -190,6 +190,10 @@ class Dataset:
         return self.training.classes_
 
     @property
+    def n_classes(self):
+        return self.training.n_classes
+
+    @property
     def binary(self):
         return self.training.binary
 
