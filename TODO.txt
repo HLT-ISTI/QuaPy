@@ -2,7 +2,6 @@ Packaging:
 ==========================================
 Documentation with sphinx
 Document methods with paper references
-allow for "pip install"
 unit-tests
 
 New features:
