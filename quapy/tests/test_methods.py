@@ -100,6 +100,12 @@ def test_ensemble_method(base_method, learner, dataset: Dataset, policy):
 
 
 def test_quanet_method():
+    try:
+        import quapy.classification.neural
+    except ModuleNotFoundError:
+        print('skipping QuaNet test due to missing torch package')
+        return
+
     dataset = qp.datasets.fetch_reviews('kindle', pickle=True)
     dataset = Dataset(dataset.training.sampling(100, *dataset.training.prevalence()),
                       dataset.test.sampling(100, *dataset.test.prevalence()))
