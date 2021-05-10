@@ -3,21 +3,31 @@ from . import base
 from . import meta
 from . import non_aggregative
 
+EXPLICIT_LOSS_MINIMIZATION_METHODS = {
+    aggregative.ELM,
+    aggregative.SVMQ,
+    aggregative.SVMAE,
+    aggregative.SVMKLD,
+    aggregative.SVMRAE,
+    aggregative.SVMNKLD
+}
+
 AGGREGATIVE_METHODS = {
     aggregative.CC,
     aggregative.ACC,
     aggregative.PCC,
     aggregative.PACC,
-    aggregative.ELM,
     aggregative.EMQ,
     aggregative.HDy
-}
+} | EXPLICIT_LOSS_MINIMIZATION_METHODS
+
 
 NON_AGGREGATIVE_METHODS = {
     non_aggregative.MaximumLikelihoodPrevalenceEstimation
 }
 
 META_METHODS = {
+    meta.Ensemble,
     meta.QuaNet
 }
 

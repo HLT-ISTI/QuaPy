@@ -187,6 +187,10 @@ class Ensemble(BaseQuantifier):
         return _select_k(predictions, order, k=self.red_size)
 
     @property
+    def classes_(self):
+        return self.base_quantifier.classes_
+
+    @property
     def binary(self):
         return self.base_quantifier.binary
 
