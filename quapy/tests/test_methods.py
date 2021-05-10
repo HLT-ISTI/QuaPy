@@ -6,6 +6,7 @@ from sklearn.svm import LinearSVC
 import quapy as qp
 from quapy.data import Dataset, LabelledCollection
 from quapy.method import AGGREGATIVE_METHODS, NON_AGGREGATIVE_METHODS, EXPLICIT_LOSS_MINIMIZATION_METHODS
+from quapy.method.aggregative import ACC, PACC, HDy
 from quapy.method.meta import Ensemble
 
 datasets = [pytest.param(qp.datasets.fetch_twitter('hcr'), id='hcr'),
@@ -21,7 +22,7 @@ def test_aggregative_methods(dataset: Dataset, aggregative_method, learner):
     model = aggregative_method(learner())
 
     if model.binary and not dataset.binary:
-        print(f'skipping the test of binary model {model} on non-binary dataset {dataset}')
+        print(f'skipping the test of binary model {type(model)} on non-binary dataset {dataset}')
         return
 
     model.fit(dataset.training)
@@ -139,6 +140,11 @@ def models_to_test_for_str_label_names():
 
 @pytest.mark.parametrize('model', models_to_test_for_str_label_names())
 def test_str_label_names(model):
+    if type(model) in {ACC, PACC, HDy}:
+        print(
+            f'skipping the test of binary model {type(model)} because it currently does not support random seed control.')
+        return
+
     dataset = qp.datasets.fetch_reviews('imdb', pickle=True)
     dataset = Dataset(dataset.training.sampling(1000, *dataset.training.prevalence()),
                       dataset.test.sampling(1000, *dataset.test.prevalence()))
@@ -171,4 +177,3 @@ def test_str_label_names(model):
 
     numpy.testing.assert_almost_equal(int_estim_prevalences[1],
                                       str_estim_prevalences[list(model.classes_).index('one')])
-

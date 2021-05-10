@@ -20,6 +20,7 @@ an instance of single-label with 2 labels. Check
 Add automatic reindex of class labels in LabelledCollection (currently, class indexes should be ordered and with no gaps)
 OVR I believe is currently tied to aggregative methods. We should provide a general interface also for general quantifiers
 Currently, being "binary" only adds one checker; we should figure out how to impose the check to be automatically performed
+Add random seed management to support replicability (see temp_seed in util.py).
 
 Improvements:
 ==========================================
