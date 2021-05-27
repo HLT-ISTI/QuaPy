@@ -132,7 +132,7 @@ def artificial_sampling_report(
     true_prevs, estim_prevs = artificial_sampling_prediction(
         model, test, sample_size, n_prevpoints, n_repetitions, eval_budget, n_jobs, random_seed, verbose
     )
-    return __sampling_report(true_prevs, estim_prevs, error_metrics)
+    return _sampling_report(true_prevs, estim_prevs, error_metrics)
 
 
 def natural_sampling_report(
@@ -148,10 +148,10 @@ def natural_sampling_report(
     true_prevs, estim_prevs = natural_sampling_prediction(
         model, test, sample_size, n_repetitions, n_jobs, random_seed, verbose
     )
-    return __sampling_report(true_prevs, estim_prevs, error_metrics)
+    return _sampling_report(true_prevs, estim_prevs, error_metrics)
 
 
-def __sampling_report(
+def _sampling_report(
         true_prevs,
         estim_prevs,
         error_metrics: Iterable[Union[str, Callable]] = 'mae'):
