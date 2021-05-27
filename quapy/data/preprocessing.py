@@ -29,13 +29,13 @@ def text2tfidf(dataset:Dataset, min_df=3, sublinear_tf=True, inplace=False, **kw
     test_documents = vectorizer.transform(dataset.test.instances)
 
     if inplace:
-        dataset.training = LabelledCollection(training_documents, dataset.training.labels, dataset.n_classes)
-        dataset.test = LabelledCollection(test_documents, dataset.test.labels, dataset.n_classes)
+        dataset.training = LabelledCollection(training_documents, dataset.training.labels, dataset.classes_)
+        dataset.test = LabelledCollection(test_documents, dataset.test.labels, dataset.classes_)
         dataset.vocabulary = vectorizer.vocabulary_
         return dataset
     else:
-        training = LabelledCollection(training_documents, dataset.training.labels.copy(), dataset.n_classes)
-        test = LabelledCollection(test_documents, dataset.test.labels.copy(), dataset.n_classes)
+        training = LabelledCollection(training_documents, dataset.training.labels.copy(), dataset.classes_)
+        test = LabelledCollection(test_documents, dataset.test.labels.copy(), dataset.classes_)
         return Dataset(training, test, vectorizer.vocabulary_)
 
 
@@ -66,8 +66,8 @@ def reduce_columns(dataset: Dataset, min_df=5, inplace=False):
         dataset.test.instances = Xte
         return dataset
     else:
-        training = LabelledCollection(Xtr, dataset.training.labels.copy(), dataset.n_classes)
-        test = LabelledCollection(Xte, dataset.test.labels.copy(), dataset.n_classes)
+        training = LabelledCollection(Xtr, dataset.training.labels.copy(), dataset.classes_)
+        test = LabelledCollection(Xte, dataset.test.labels.copy(), dataset.classes_)
         return Dataset(training, test)
 
 
@@ -100,13 +100,13 @@ def index(dataset: Dataset, min_df=5, inplace=False, **kwargs):
     test_index = indexer.transform(dataset.test.instances)
 
     if inplace:
-        dataset.training = LabelledCollection(training_index, dataset.training.labels, dataset.n_classes)
-        dataset.test = LabelledCollection(test_index, dataset.test.labels, dataset.n_classes)
+        dataset.training = LabelledCollection(training_index, dataset.training.labels, dataset.classes_)
+        dataset.test = LabelledCollection(test_index, dataset.test.labels, dataset.classes_)
         dataset.vocabulary = indexer.vocabulary_
         return dataset
     else:
-        training = LabelledCollection(training_index, dataset.training.labels.copy(), dataset.n_classes)
-        test = LabelledCollection(test_index, dataset.test.labels.copy(), dataset.n_classes)
+        training = LabelledCollection(training_index, dataset.training.labels.copy(), dataset.classes_)
+        test = LabelledCollection(test_index, dataset.test.labels.copy(), dataset.classes_)
         return Dataset(training, test, indexer.vocabulary_)
 
 

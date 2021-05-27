@@ -10,7 +10,7 @@ from . import model_selection
 from . import classification
 from quapy.method.base import isprobabilistic, isaggregative
 
-__version__ = '0.1'
+__version__ = '0.1.4'
 
 environ = {
     'SAMPLE_SIZE': None,

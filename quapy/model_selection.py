@@ -4,7 +4,6 @@ from copy import deepcopy
 from typing import Union, Callable
 
 import quapy as qp
-import quapy.functional as F
 from quapy.data.base import LabelledCollection
 from quapy.evaluation import artificial_sampling_prediction
 from quapy.method.aggregative import BaseQuantifier
@@ -80,7 +79,7 @@ class GridSearchQ(BaseQuantifier):
             return training, validation
         elif isinstance(validation, float):
             assert 0. < validation < 1., 'validation proportion should be in (0,1)'
-            training, validation = training.split_stratified(train_prop=1-validation)
+            training, validation = training.split_stratified(train_prop=1 - validation)
             return training, validation
         else:
             raise ValueError(f'"validation" must either be a LabelledCollection or a float in (0,1) indicating the'
@@ -97,7 +96,7 @@ class GridSearchQ(BaseQuantifier):
             raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
                              f'the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}')
 
-    def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float]=None):
+    def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float] = None):
         """
         :param training: the training set on which to optimize the hyperparameters
         :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
@@ -118,6 +117,7 @@ class GridSearchQ(BaseQuantifier):
             def handler(signum, frame):
                 self.sout('timeout reached')
                 raise TimeoutError()
+
             signal.signal(signal.SIGALRM, handler)
 
         self.sout(f'starting optimization with n_jobs={n_jobs}')
@@ -175,6 +175,10 @@ class GridSearchQ(BaseQuantifier):
     def quantify(self, instances):
         return self.best_model_.quantify(instances)
 
+    @property
+    def classes_(self):
+        return self.best_model_.classes_
+
     def set_params(self, **parameters):
         self.param_grid = parameters
 
@@ -185,4 +189,3 @@ class GridSearchQ(BaseQuantifier):
         if hasattr(self, 'best_model_'):
             return self.best_model_
         raise ValueError('best_model called before fit')
-

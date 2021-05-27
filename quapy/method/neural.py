@@ -58,6 +58,7 @@ class QuaNetTrainer(BaseQuantifier):
         self.device = torch.device(device)
 
         self.__check_params_colision(self.quanet_params, self.learner.get_params())
+        self._classes_ = None
 
     def fit(self, data: LabelledCollection, fit_learner=True):
         """
@@ -67,6 +68,7 @@ class QuaNetTrainer(BaseQuantifier):
         :param fit_learner: if true, trains the classifier on a split containing 40% of the data
         :return: self
         """
+        self._classes_ = data.classes_
         classifier_data, unused_data = data.split_stratified(0.4)
         train_data, valid_data = unused_data.split_stratified(0.66)  # 0.66 split of 60% makes 40% and 20%
 
@@ -255,6 +257,10 @@ class QuaNetTrainer(BaseQuantifier):
     def clean_checkpoint_dir(self):
         import shutil
         shutil.rmtree(self.checkpointdir, ignore_errors=True)
+
+    @property
+    def classes_(self):
+        return self._classes_
 
 
 def mae_loss(output, target):

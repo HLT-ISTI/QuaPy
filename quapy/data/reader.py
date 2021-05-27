@@ -3,7 +3,7 @@ from scipy.sparse import dok_matrix
 from tqdm import tqdm
 
 
-def from_text(path):
+def from_text(path, encoding='utf-8'):
     """
     Reas a labelled colletion of documents.
     File fomart <0 or 1>\t<document>\n
@@ -11,7 +11,7 @@ def from_text(path):
     :return: a list of sentences, and a list of labels
     """
     all_sentences, all_labels = [], []
-    for line in tqdm(open(path, 'rt').readlines(), f'loading {path}'):
+    for line in tqdm(open(path, 'rt', encoding=encoding).readlines(), f'loading {path}'):
         line = line.strip()
         if line:
             label, sentence = line.split('\t')
@@ -25,8 +25,8 @@ def from_text(path):
 
 def from_sparse(path):
     """
-    Reas a labelled colletion of real-valued instances expressed in sparse format
-    File fomart <-1 or 0 or 1>[\s col(int):val(float)]\n
+    Reads a labelled collection of real-valued instances expressed in sparse format
+    File format <-1 or 0 or 1>[\s col(int):val(float)]\n
     :param path: path to the labelled collection
     :return: a csr_matrix containing the instances (rows), and a ndarray containing the labels
     """
@@ -56,16 +56,16 @@ def from_sparse(path):
     return X, y
 
 
-def from_csv(path):
+def from_csv(path, encoding='utf-8'):
     """
-    Reas a csv file in which columns are separated by ','.
-    File fomart <label>,<feat1>,<feat2>,...,<featn>\n
+    Reads a csv file in which columns are separated by ','.
+    File format <label>,<feat1>,<feat2>,...,<featn>\n
     :param path: path to the csv file
     :return: a ndarray for the labels and a ndarray (float) for the covariates
     """
 
     X, y = [], []
-    for instance in tqdm(open(path, 'rt').readlines(), desc=f'reading {path}'):
+    for instance in tqdm(open(path, 'rt', encoding=encoding).readlines(), desc=f'reading {path}'):
         yi, *xi = instance.strip().split(',')
         X.append(list(map(float,xi)))
         y.append(yi)

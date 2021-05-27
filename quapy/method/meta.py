@@ -1,28 +1,32 @@
 from copy import deepcopy
 from typing import Union
 
+import numpy as np
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, make_scorer, accuracy_score
+from sklearn.model_selection import GridSearchCV, cross_val_predict
 from tqdm import tqdm
 
-import numpy as np
-from joblib import Parallel, delayed
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import GridSearchCV, cross_val_predict
-
 import quapy as qp
-from quapy.data import LabelledCollection
 from quapy import functional as F
+from quapy.data import LabelledCollection
 from quapy.evaluation import evaluate
 from quapy.model_selection import GridSearchQ
-from . import neural
-from .base import BaseQuantifier
-from quapy.method.aggregative import CC, ACC, PCC, PACC, HDy, EMQ
 
-QuaNet = neural.QuaNetTrainer
+try:
+    from . import neural
+except ModuleNotFoundError:
+    neural = None
+from .base import BaseQuantifier
+from quapy.method.aggregative import CC, ACC, PACC, HDy, EMQ
+
+if neural:
+    QuaNet = neural.QuaNetTrainer
+else:
+    QuaNet = "QuaNet is not available due to missing torch package"
 
 
 class Ensemble(BaseQuantifier):
-
     VALID_POLICIES = {'ave', 'ptr', 'ds'} | qp.error.QUANTIFICATION_ERROR_NAMES
 
     """
@@ -65,9 +69,9 @@ class Ensemble(BaseQuantifier):
         if self.verbose:
             print('[Ensemble]' + msg)
 
-    def fit(self, data: qp.data.LabelledCollection, val_split: Union[qp.data.LabelledCollection, float]=None):
+    def fit(self, data: qp.data.LabelledCollection, val_split: Union[qp.data.LabelledCollection, float] = None):
         self.sout('Fit')
-        if self.policy=='ds' and not data.binary:
+        if self.policy == 'ds' and not data.binary:
             raise ValueError(f'ds policy is only defined for binary quantification, but this dataset is not binary')
         if val_split is None:
             val_split = self.val_split
@@ -132,7 +136,7 @@ class Ensemble(BaseQuantifier):
         tests = [m[3] for m in self.ensemble]
         scores = []
         for i, model in enumerate(self.ensemble):
-            scores.append(evaluate(model[0], tests[:i] + tests[i+1:], error, self.n_jobs))
+            scores.append(evaluate(model[0], tests[:i] + tests[i + 1:], error, self.n_jobs))
         order = np.argsort(scores)
 
         self.ensemble = _select_k(self.ensemble, order, k=self.red_size)
@@ -168,7 +172,7 @@ class Ensemble(BaseQuantifier):
         lr_base = LogisticRegression(class_weight='balanced', max_iter=1000)
 
         optim = GridSearchCV(
-            lr_base, param_grid={'C': np.logspace(-4,4,9)}, cv=5, n_jobs=self.n_jobs, refit=True
+            lr_base, param_grid={'C': np.logspace(-4, 4, 9)}, cv=5, n_jobs=self.n_jobs, refit=True
         ).fit(X, y)
 
         posteriors = cross_val_predict(
@@ -187,6 +191,10 @@ class Ensemble(BaseQuantifier):
         return _select_k(predictions, order, k=self.red_size)
 
     @property
+    def classes_(self):
+        return self.base_quantifier.classes_
+
+    @property
     def binary(self):
         return self.base_quantifier.binary
 
@@ -200,8 +208,8 @@ class Ensemble(BaseQuantifier):
 
 
 def get_probability_distribution(posterior_probabilities, bins=8):
-    assert posterior_probabilities.shape[1]==2, 'the posterior probabilities do not seem to be for a binary problem'
-    posterior_probabilities = posterior_probabilities[:,1]  # take the positive posteriors only
+    assert posterior_probabilities.shape[1] == 2, 'the posterior probabilities do not seem to be for a binary problem'
+    posterior_probabilities = posterior_probabilities[:, 1]  # take the positive posteriors only
     distribution, _ = np.histogram(posterior_probabilities, bins=bins, range=(0, 1), density=True)
     return distribution
 
@@ -219,7 +227,7 @@ def _delayed_new_instance(args):
     if val_split is not None:
         if isinstance(val_split, float):
             assert 0 < val_split < 1, 'val_split should be in (0,1)'
-            data, val_split = data.split_stratified(train_prop=1-val_split)
+            data, val_split = data.split_stratified(train_prop=1 - val_split)
 
     sample_index = data.sampling_index(sample_size, *prev)
     sample = data.sampling_from_index(sample_index)
@@ -251,7 +259,7 @@ def _draw_simplex(ndim, min_val, max_trials=100):
     :return: a sample from the ndim-dimensional simplex that is uniform in S(ndim)-R where S(ndim) is the simplex
     and R is the simplex subset containing dimensions lower than min_val
     """
-    if min_val >= 1/ndim:
+    if min_val >= 1 / ndim:
         raise ValueError(f'no sample can be draw from the {ndim}-dimensional simplex so that '
                          f'all its values are >={min_val} (try with a larger value for min_pos)')
     trials = 0
@@ -296,14 +304,15 @@ def _check_error(error):
                          f'the name of an error function in {qp.error.ERROR_NAMES}')
 
 
-def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None, param_model_sel:dict=None, **kwargs):
-        if optim is not None:
-            if param_grid is None:
-                raise ValueError(f'param_grid is None but optim was requested.')
-            if param_model_sel is None:
-                raise ValueError(f'param_model_sel is None but optim was requested.')
-        error = _check_error(optim)
-        return _instantiate_ensemble(learner, base_quantifier_class, param_grid, error, param_model_sel, **kwargs)
+def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None, param_model_sel: dict = None,
+                    **kwargs):
+    if optim is not None:
+        if param_grid is None:
+            raise ValueError(f'param_grid is None but optim was requested.')
+        if param_model_sel is None:
+            raise ValueError(f'param_model_sel is None but optim was requested.')
+    error = _check_error(optim)
+    return _instantiate_ensemble(learner, base_quantifier_class, param_grid, error, param_model_sel, **kwargs)
 
 
 def ECC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
