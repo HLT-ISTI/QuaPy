@@ -590,12 +590,12 @@ class OneVsAll(AggregativeQuantifier):
             # some quantifiers (in particular, ELM-based ones) cannot be run with multiprocess, since the temp dir they
             # create during the fit will be removed and be no longer available for the predict...
             Parallel(n_jobs=self.n_jobs, backend='threading')(
-                delayed(func)(c, *args, **kwargs) for c in self.classes
+                delayed(func)(c, *args, **kwargs) for c in self.classes_
             )
         )
 
     @property
-    def classes(self):
+    def classes_(self):
         return sorted(self.dict_binary_quantifiers.keys())
 
     def set_params(self, **parameters):
