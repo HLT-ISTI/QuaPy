@@ -2,7 +2,6 @@ Packaging:
 ==========================================
 Documentation with sphinx
 Document methods with paper references
-allow for "pip install"
 unit-tests
 
 New features:
@@ -18,14 +17,13 @@ SVMperf-based learners do not remove temp files in __del__?
 In binary quantification (hp, kindle, imdb) we used F1 in the minority class (which in kindle and hp happens to be the
 negative class). This is not covered in this new implementation, in which the binary case is not treated as such, but as
 an instance of single-label with 2 labels. Check
-Add classnames to LabelledCollection? This should improve visualization of reports
 Add automatic reindex of class labels in LabelledCollection (currently, class indexes should be ordered and with no gaps)
 OVR I believe is currently tied to aggregative methods. We should provide a general interface also for general quantifiers
 Currently, being "binary" only adds one checker; we should figure out how to impose the check to be automatically performed
+Add random seed management to support replicability (see temp_seed in util.py).
 
 Improvements:
 ==========================================
-Clarify whether QuaNet is an aggregative method or not.
 Explore the hyperparameter "number of bins" in HDy
 Rename EMQ to SLD ?
 Parallelize the kFCV in ACC and PACC?

@@ -11,6 +11,12 @@ used for evaluating quantification methods.
 QuaPy also integrates commonly used datasets and offers visualization tools 
 for facilitating the analysis and interpretation of results.
 
+### Installation
+
+```commandline
+pip install quapy
+```
+
 ## A quick example:
 
 The following script fetchs a Twitter dataset, trains and evaluates an 
