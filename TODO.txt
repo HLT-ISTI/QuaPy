@@ -14,6 +14,7 @@ Do we want to cover cross-lingual quantification natively in QuaPy, or does it m
 
 Current issues:
 ==========================================
+SVMperf-based learners do not remove temp files in __del__?
 In binary quantification (hp, kindle, imdb) we used F1 in the minority class (which in kindle and hp happens to be the
 negative class). This is not covered in this new implementation, in which the binary case is not treated as such, but as
 an instance of single-label with 2 labels. Check

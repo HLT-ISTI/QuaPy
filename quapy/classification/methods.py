@@ -26,8 +26,10 @@ class PCALR(BaseEstimator):
 
     def fit(self, X, y):
         self.learner.fit(X, y)
-        self.pca = TruncatedSVD(self.n_components).fit(X, y)
-        # embedded = self.pca.transform(X)
+        nF = X.shape[1]
+        self.pca = None
+        if nF > self.n_components:
+            self.pca = TruncatedSVD(self.n_components).fit(X, y)
         self.classes_ = self.learner.classes_
         return self
 
@@ -40,4 +42,6 @@ class PCALR(BaseEstimator):
         return self.learner.predict_proba(X)
 
     def transform(self, X):
+        if self.pca is None:
+            return X
         return self.pca.transform(X)
