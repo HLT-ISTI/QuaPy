@@ -58,6 +58,8 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         if self.verbose:
             print('[Running]', cmd)
         p = subprocess.run(cmd.split(), stdout=PIPE, stderr=STDOUT)
+        if not exists(self.model):
+            print(p.stderr.decode('utf-8'))
         remove(traindat)
 
         if self.verbose:
@@ -102,5 +104,5 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
     def __del__(self):
         if hasattr(self, 'tmpdir'):
-            shutil.rmtree(self.tmpdir)
+            pass # shutil.rmtree(self.tmpdir, ignore_errors=True)
 
