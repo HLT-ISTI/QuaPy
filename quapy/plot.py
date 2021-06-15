@@ -172,6 +172,7 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=20, e
     # join all data, and keep the order in which the methods appeared for the first time
     data = defaultdict(lambda:{'x':np.empty(shape=(0)), 'y':np.empty(shape=(0))})
     method_order = []
+
     for method, test_prevs_i, estim_prevs_i, tr_prev_i in zip(method_names, true_prevs, estim_prevs, tr_prevs):
         tr_prev_i = np.repeat(tr_prev_i.reshape(1,-1), repeats=test_prevs_i.shape[0], axis=0)
 
@@ -185,6 +186,7 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=20, e
             method_order.append(method)
 
     bins = np.linspace(0, 1, n_bins+1)
+    inds_histogram_global = np.zeros(n_bins, dtype=np.float)  # we use this to keep track of how many datapoits contribute to each bin
     binwidth = 1 / n_bins
     min_x, max_x = None, None
     for method in method_order:
@@ -194,6 +196,8 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=20, e
             method_drifts=np.log(1+method_drifts)
 
         inds = np.digitize(tr_test_drifts, bins, right=True)
+        inds_histogram_global += np.histogram(tr_test_drifts, density=True, bins=bins)[0]
+
         xs, ys, ystds = [], [], []
         for ind in range(len(bins)):
             selected = inds==ind
@@ -213,6 +217,11 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=20, e
         ax.errorbar(xs, ys, fmt='-', marker='o', label=method, markersize=3, zorder=2)
         if show_std:
             ax.fill_between(xs, ys-ystds, ys+ystds, alpha=0.25)
+
+    # xs = bins[:-1]
+    # ys = inds_histogram_global
+    # print(xs.shape, ys.shape)
+    # ax.errorbar(xs, ys, label='density')
 
     ax.set(xlabel=f'Distribution shift between training set and test sample',
            ylabel=f'{error_name.upper()} (true distribution, predicted distribution)',

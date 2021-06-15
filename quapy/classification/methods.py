@@ -32,7 +32,7 @@ class PCALR(BaseEstimator):
             self.pca = TruncatedSVD(self.n_components).fit(X, y)
         self.classes_ = self.learner.classes_
         return self
-    
+
 
     def predict(self, X):
         # X = self.transform(X)
