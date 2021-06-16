@@ -513,6 +513,170 @@ class SVMRAE(ELM):
         super(SVMRAE, self).__init__(svmperf_base, loss='mrae', **kwargs)
 
 
+class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
+
+    def __init__(self, learner: BaseEstimator, val_split=0.4):
+        self.learner = learner
+        self.val_split = val_split
+
+    @abstractmethod
+    def optimize_threshold(self, y, probabilities):
+        ...
+
+    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
+        BinaryQuantifier._check_binary(data, "Threshold Optimization")
+
+        if val_split is None:
+            val_split = self.val_split
+        if isinstance(val_split, int):
+            # kFCV estimation of parameters
+            y, probabilities = [], []
+            kfcv = StratifiedKFold(n_splits=val_split)
+            pbar = tqdm(kfcv.split(*data.Xy), total=val_split)
+            for k, (training_idx, validation_idx) in enumerate(pbar):
+                pbar.set_description(f'{self.__class__.__name__} fitting fold {k}')
+                training = data.sampling_from_index(training_idx)
+                validation = data.sampling_from_index(validation_idx)
+                learner, val_data = training_helper(self.learner, training, fit_learner, val_split=validation)
+                probabilities.append(learner.predict_proba(val_data.instances))
+                y.append(val_data.labels)
+
+            y = np.concatenate(y)
+            probabilities = np.concatenate(probabilities)
+
+            # fit the learner on all data
+            self.learner, _ = training_helper(self.learner, data, fit_learner, val_split=None)
+
+        else:
+            self.learner, val_data = training_helper(self.learner, data, fit_learner, val_split=val_split)
+            probabilities = self.learner.predict_proba(val_data.instances)
+            y = val_data.labels
+
+        self.cc = CC(self.learner)
+
+        self.tpr, self.fpr = self.optimize_threshold(y, probabilities)
+
+        return self
+
+    @abstractmethod
+    def _condition(self, tpr, fpr) -> float:
+        """
+        Implements the criterion according to which the threshold should be selected.
+        This function should return a (float) score to be minimized.
+        """
+        ...
+
+    def optimize_threshold(self, y, probabilities):
+        best_candidate_threshold_score = None
+        best_tpr = 0
+        best_fpr = 0
+        candidate_thresholds = np.unique(probabilities[:, 1])
+        for candidate_threshold in candidate_thresholds:
+            y_ = [self.classes_[1] if p > candidate_threshold else self.classes_[0] for p in probabilities[:, 1]]
+            TP, FP, FN, TN = self.compute_table(y, y_)
+            tpr = self.compute_tpr(TP, FP)
+            fpr = self.compute_fpr(FP, TN)
+            condition_score = self._condition(tpr, fpr)
+            if best_candidate_threshold_score is None or condition_score < best_candidate_threshold_score:
+                best_candidate_threshold_score = condition_score
+                best_tpr = tpr
+                best_fpr = fpr
+
+        return best_tpr, best_fpr
+
+    def aggregate(self, classif_predictions):
+        prevs_estim = self.cc.aggregate(classif_predictions)
+        if self.tpr - self.fpr == 0:
+            return prevs_estim
+        adjusted_prevs_estim = np.clip((prevs_estim[1] - self.fpr) / (self.tpr - self.fpr), 0, 1)
+        adjusted_prevs_estim = np.array((1 - adjusted_prevs_estim, adjusted_prevs_estim))
+        return adjusted_prevs_estim
+
+    def compute_table(self, y, y_):
+        TP = np.logical_and(y == y_, y == self.classes_[1]).sum()
+        FP = np.logical_and(y != y_, y == self.classes_[0]).sum()
+        FN = np.logical_and(y != y_, y == self.classes_[1]).sum()
+        TN = np.logical_and(y == y_, y == self.classes_[0]).sum()
+        return TP, FP, FN, TN
+
+    def compute_tpr(self, TP, FP):
+        if TP + FP == 0:
+            return 0
+        return TP / (TP + FP)
+
+    def compute_fpr(self, FP, TN):
+        if FP + TN == 0:
+            return 0
+        return FP / (FP + TN)
+
+
+class T50(ThresholdOptimization):
+
+    def __init__(self, learner: BaseEstimator, val_split=0.4):
+        super().__init__(learner, val_split)
+
+    def _condition(self, tpr, fpr) -> float:
+        return abs(tpr - 0.5)
+
+
+class MAX(ThresholdOptimization):
+
+    def __init__(self, learner: BaseEstimator, val_split=0.4):
+        super().__init__(learner, val_split)
+
+    def _condition(self, tpr, fpr) -> float:
+        # MAX strives to maximize (tpr - fpr), which is equivalent to minimize (fpr - tpr)
+        return (fpr - tpr)
+
+
+class X(ThresholdOptimization):
+
+    def __init__(self, learner: BaseEstimator, val_split=0.4):
+        super().__init__(learner, val_split)
+
+    def _condition(self, tpr, fpr) -> float:
+        return abs(1 - (tpr + fpr))
+
+
+class MS(ThresholdOptimization):
+
+    def __init__(self, learner: BaseEstimator, val_split=0.4):
+        super().__init__(learner, val_split)
+
+    def optimize_threshold(self, y, probabilities):
+        tprs = []
+        fprs = []
+        candidate_thresholds = np.unique(probabilities[:, 1])
+        for candidate_threshold in candidate_thresholds:
+            y_ = [self.classes_[1] if p > candidate_threshold else self.classes_[0] for p in probabilities[:, 1]]
+            TP, FP, FN, TN = self.compute_table(y, y_)
+            tpr = self.compute_tpr(TP, FP)
+            fpr = self.compute_fpr(FP, TN)
+            tprs.append(tpr)
+            fprs.append(fpr)
+        return np.median(tprs), np.median(fprs)
+
+
+class MS2(MS):
+
+    def __init__(self, learner: BaseEstimator, val_split=0.4):
+        super().__init__(learner, val_split)
+
+    def optimize_threshold(self, y, probabilities):
+        tprs = [0, 1]
+        fprs = [0, 1]
+        candidate_thresholds = np.unique(probabilities[:, 1])
+        for candidate_threshold in candidate_thresholds:
+            y_ = [self.classes_[1] if p > candidate_threshold else self.classes_[0] for p in probabilities[:, 1]]
+            TP, FP, FN, TN = self.compute_table(y, y_)
+            tpr = self.compute_tpr(TP, FP)
+            fpr = self.compute_fpr(FP, TN)
+            if (tpr - fpr) > 0.25:
+                tprs.append(tpr)
+                fprs.append(fpr)
+        return np.median(tprs), np.median(fprs)
+
+
 ClassifyAndCount = CC
 AdjustedClassifyAndCount = ACC
 ProbabilisticClassifyAndCount = PCC
@@ -520,6 +684,8 @@ ProbabilisticAdjustedClassifyAndCount = PACC
 ExpectationMaximizationQuantifier = EMQ
 HellingerDistanceY = HDy
 ExplicitLossMinimisation = ELM
+MedianSweep = MS
+MedianSweep2 = MS2
 
 
 class OneVsAll(AggregativeQuantifier):

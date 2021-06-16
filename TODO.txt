@@ -4,6 +4,15 @@ Documentation with sphinx
 Document methods with paper references
 unit-tests
 
+Refactor:
+==========================================
+Unify ThresholdOptimization methods, as an extension of PACC (and not ACC), the fit methods are almost identical and
+    use a prob classifier (take into account that PACC uses pcc internally, whereas the threshold methods use cc
+    instead). The fit method of ACC and PACC has a block for estimating the validation estimates that should be unified
+    as well...
+Rename APP NPP
+Add NPP as an option for GridSearchQ
+
 New features:
 ==========================================
 Add NAE, NRAE
@@ -21,6 +30,7 @@ Add automatic reindex of class labels in LabelledCollection (currently, class in
 OVR I believe is currently tied to aggregative methods. We should provide a general interface also for general quantifiers
 Currently, being "binary" only adds one checker; we should figure out how to impose the check to be automatically performed
 Add random seed management to support replicability (see temp_seed in util.py).
+GridSearchQ is not trully parallelized. It only parallelizes on the predictions.
 
 Improvements:
 ==========================================
@@ -34,6 +44,7 @@ We might want to think of (improving and) adding the class Tabular (it is define
     to generate tables is typically a bad idea, but in this specific case we do have pretty good control of what an
     experiment looks like. (Do we want to abstract experimental results? this could be useful not only for tables but
     also for plots).
+Add proper logging system. Currently we use print
 
 Checks:
 ==========================================

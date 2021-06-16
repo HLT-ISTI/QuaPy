@@ -5,7 +5,7 @@ from typing import Union, Callable
 
 import quapy as qp
 from quapy.data.base import LabelledCollection
-from quapy.evaluation import artificial_sampling_prediction
+from quapy.evaluation import artificial_prevalence_prediction, natural_prevalence_prediction
 from quapy.method.aggregative import BaseQuantifier
 
 
@@ -15,6 +15,7 @@ class GridSearchQ(BaseQuantifier):
                  model: BaseQuantifier,
                  param_grid: dict,
                  sample_size: int,
+                 protocol='app',
                  n_prevpoints: int = None,
                  n_repetitions: int = 1,
                  eval_budget: int = None,
@@ -29,15 +30,15 @@ class GridSearchQ(BaseQuantifier):
         Optimizes the hyperparameters of a quantification method, based on an evaluation method and on an evaluation
         protocol for quantification.
         :param model: the quantifier to optimize
-        :param training: the training set on which to optimize the hyperparameters
-        :param validation: either a LabelledCollection on which to test the performance of the different settings, or
-        a float in [0,1] indicating the proportion of labelled data to extract from the training set
         :param param_grid: a dictionary with keys the parameter names and values the list of values to explore for
-        that particular parameter
         :param sample_size: the size of the samples to extract from the validation set
+        that particular parameter
+        :param protocol: either 'app' for the artificial prevalence protocol, or 'npp' for the natural prevalence
+        protocol
         :param n_prevpoints: if specified, indicates the number of equally distant point to extract from the interval
         [0,1] in order to define the prevalences of the samples; e.g., if n_prevpoints=5, then the prevalences for
-        each class will be explored in [0.00, 0.25, 0.50, 0.75, 1.00]. If not specified, then eval_budget is requested
+        each class will be explored in [0.00, 0.25, 0.50, 0.75, 1.00]. If not specified, then eval_budget is requested.
+        Ignored if protocol='npp'.
         :param n_repetitions: the number of repetitions for each combination of prevalences. This parameter is ignored
         if eval_budget is set and is lower than the number of combinations that would be generated using the value
         assigned to n_prevpoints (for the current number of classes and n_repetitions)
@@ -45,10 +46,13 @@ class GridSearchQ(BaseQuantifier):
         combination. For example, if there are 3 classes, n_repetitions=1 and eval_budget=20, then n_prevpoints will be
         set to 5, since this will generate 15 different prevalences:
          [0, 0, 1], [0, 0.25, 0.75], [0, 0.5, 0.5] ... [1, 0, 0]
+        Ignored if protocol='npp'.
         :param error: an error function (callable) or a string indicating the name of an error function (valid ones
         are those in qp.error.QUANTIFICATION_ERROR
         :param refit: whether or not to refit the model on the whole labelled collection (training+validation) with
         the best chosen hyperparameter combination
+        :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
+        a float in [0,1] indicating the proportion of labelled data to extract from the training set
         :param n_jobs: number of parallel jobs
         :param random_seed: set the seed of the random generator to replicate experiments
         :param timeout: establishes a timer (in seconds) for each of the hyperparameters configurations being tested.
@@ -59,6 +63,7 @@ class GridSearchQ(BaseQuantifier):
         self.model = model
         self.param_grid = param_grid
         self.sample_size = sample_size
+        self.protocol = protocol.lower()
         self.n_prevpoints = n_prevpoints
         self.n_repetitions = n_repetitions
         self.eval_budget = eval_budget
@@ -69,6 +74,19 @@ class GridSearchQ(BaseQuantifier):
         self.timeout = timeout
         self.verbose = verbose
         self.__check_error(error)
+        assert self.protocol in {'app', 'npp'}, \
+            'unknown protocol; valid ones are "app" or "npp" for the "artificial" or the "natural" prevalence protocols'
+        if self.protocol == 'npp':
+            if self.n_repetitions is None or self.n_repetitions == 1:
+                if self.eval_budget is not None:
+                    print(f'[warning] when protocol=="npp" the parameter n_repetitions should be indicated '
+                          f'(and not eval_budget). Setting n_repetitions={self.eval_budget}...')
+                    self.n_repetitions = self.eval_budget
+                else:
+                    raise ValueError(f'when protocol=="npp" the parameter n_repetitions should be indicated '
+                                     f'(and should be >1).')
+            if self.n_prevpoints is not None:
+                print('[warning] n_prevpoints has been set along with the npp protocol, and will be ignored')
 
     def sout(self, msg):
         if self.verbose:
@@ -83,7 +101,7 @@ class GridSearchQ(BaseQuantifier):
             return training, validation
         else:
             raise ValueError(f'"validation" must either be a LabelledCollection or a float in (0,1) indicating the'
-                             f'proportion of training documents to extract (found) {type(validation)}')
+                             f'proportion of training documents to extract (type found: {type(validation)})')
 
     def __check_error(self, error):
         if error in qp.error.QUANTIFICATION_ERROR:
@@ -95,6 +113,27 @@ class GridSearchQ(BaseQuantifier):
         else:
             raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
                              f'the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}')
+
+    def __generate_predictions(self, model, val_split):
+        commons = {
+            'n_repetitions': self.n_repetitions,
+            'n_jobs': self.n_jobs,
+            'random_seed': self.random_seed,
+            'verbose': False
+        }
+        if self.protocol == 'app':
+            return artificial_prevalence_prediction(
+                model, val_split, self.sample_size,
+                n_prevpoints=self.n_prevpoints,
+                eval_budget=self.eval_budget,
+                **commons
+            )
+        elif self.protocol == 'npp':
+            return natural_prevalence_prediction(
+                model, val_split, self.sample_size,
+                **commons)
+        else:
+            raise ValueError('unknown protocol')
 
     def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float] = None):
         """
@@ -134,16 +173,7 @@ class GridSearchQ(BaseQuantifier):
                 # overrides default parameters with the parameters being explored at this iteration
                 model.set_params(**params)
                 model.fit(training)
-                true_prevalences, estim_prevalences = artificial_sampling_prediction(
-                    model, val_split, self.sample_size,
-                    n_prevpoints=self.n_prevpoints,
-                    n_repetitions=self.n_repetitions,
-                    eval_budget=self.eval_budget,
-                    n_jobs=n_jobs,
-                    random_seed=self.random_seed,
-                    verbose=False
-                )
-
+                true_prevalences, estim_prevalences = self.__generate_predictions(model, val_split)
                 score = self.error(true_prevalences, estim_prevalences)
                 self.sout(f'checking hyperparams={params} got {self.error.__name__} score {score:.5f}')
                 if self.best_score_ is None or score < self.best_score_:
@@ -173,6 +203,7 @@ class GridSearchQ(BaseQuantifier):
         return self
 
     def quantify(self, instances):
+        assert hasattr(self, 'best_model_'), 'quantify called before fit'
         return self.best_model_.quantify(instances)
 
     @property

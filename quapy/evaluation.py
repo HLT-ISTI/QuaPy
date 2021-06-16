@@ -1,7 +1,6 @@
 from typing import Union, Callable, Iterable
 
 import numpy as np
-from joblib import Parallel, delayed
 from tqdm import tqdm
 
 import quapy as qp
@@ -12,8 +11,7 @@ import quapy.functional as F
 import pandas as pd
 
 
-
-def artificial_sampling_prediction(
+def artificial_prevalence_prediction(
         model: BaseQuantifier,
         test: LabelledCollection,
         sample_size,
@@ -51,7 +49,7 @@ def artificial_sampling_prediction(
     return _predict_from_indexes(indexes, model, test, n_jobs, verbose)
 
 
-def natural_sampling_prediction(
+def natural_prevalence_prediction(
         model: BaseQuantifier,
         test: LabelledCollection,
         sample_size,
@@ -117,7 +115,7 @@ def _predict_from_indexes(
     return true_prevalences, estim_prevalences
 
 
-def artificial_sampling_report(
+def artificial_prevalence_report(
         model: BaseQuantifier,
         test: LabelledCollection,
         sample_size,
@@ -129,13 +127,13 @@ def artificial_sampling_report(
         error_metrics:Iterable[Union[str,Callable]]='mae',
         verbose=False):
 
-    true_prevs, estim_prevs = artificial_sampling_prediction(
+    true_prevs, estim_prevs = artificial_prevalence_prediction(
         model, test, sample_size, n_prevpoints, n_repetitions, eval_budget, n_jobs, random_seed, verbose
     )
-    return _sampling_report(true_prevs, estim_prevs, error_metrics)
+    return _prevalence_report(true_prevs, estim_prevs, error_metrics)
 
 
-def natural_sampling_report(
+def natural_prevalence_report(
         model: BaseQuantifier,
         test: LabelledCollection,
         sample_size,
@@ -145,13 +143,13 @@ def natural_sampling_report(
         error_metrics:Iterable[Union[str,Callable]]='mae',
         verbose=False):
 
-    true_prevs, estim_prevs = natural_sampling_prediction(
+    true_prevs, estim_prevs = natural_prevalence_prediction(
         model, test, sample_size, n_repetitions, n_jobs, random_seed, verbose
     )
-    return _sampling_report(true_prevs, estim_prevs, error_metrics)
+    return _prevalence_report(true_prevs, estim_prevs, error_metrics)
 
 
-def _sampling_report(
+def _prevalence_report(
         true_prevs,
         estim_prevs,
         error_metrics: Iterable[Union[str, Callable]] = 'mae'):
@@ -173,7 +171,8 @@ def _sampling_report(
 
     return df
 
-def artificial_sampling_eval(
+
+def artificial_prevalence_protocol(
         model: BaseQuantifier,
         test: LabelledCollection,
         sample_size,
@@ -190,14 +189,14 @@ def artificial_sampling_eval(
 
     assert hasattr(error_metric, '__call__'), 'invalid error function'
 
-    true_prevs, estim_prevs = artificial_sampling_prediction(
+    true_prevs, estim_prevs = artificial_prevalence_prediction(
         model, test, sample_size, n_prevpoints, n_repetitions, eval_budget, n_jobs, random_seed, verbose
     )
 
     return error_metric(true_prevs, estim_prevs)
 
 
-def natural_sampling_eval(
+def natural_prevalence_protocol(
         model: BaseQuantifier,
         test: LabelledCollection,
         sample_size,
@@ -212,7 +211,7 @@ def natural_sampling_eval(
 
     assert hasattr(error_metric, '__call__'), 'invalid error function'
 
-    true_prevs, estim_prevs = natural_sampling_prediction(
+    true_prevs, estim_prevs = natural_prevalence_prediction(
         model, test, sample_size, n_repetitions, n_jobs, random_seed, verbose
     )
 

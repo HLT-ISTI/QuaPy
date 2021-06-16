@@ -88,12 +88,12 @@ class LabelledCollection:
 
         return indexes_sample
 
-    # def uniform_sampling_index(self, size):
-    #     return np.random.choice(len(self), size, replace=False)
+    def uniform_sampling_index(self, size):
+        return np.random.choice(len(self), size, replace=False)
 
-    # def uniform_sampling(self, size):
-    #     unif_index = self.uniform_sampling_index(size)
-    #     return self.sampling_from_index(unif_index)
+    def uniform_sampling(self, size):
+        unif_index = self.uniform_sampling_index(size)
+        return self.sampling_from_index(unif_index)
 
     def sampling(self, size, *prevs, shuffle=True):
         prev_index = self.sampling_index(size, *prevs, shuffle=shuffle)
