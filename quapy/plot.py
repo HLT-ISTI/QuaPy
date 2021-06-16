@@ -14,8 +14,9 @@ plt.rcParams['font.size'] = 16
 
 def _set_colors(ax, n_methods):
     NUM_COLORS = n_methods
-    cm = plt.get_cmap('gist_rainbow')
-    ax.set_color_cycle([cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
+    cm = plt.get_cmap('tab20')
+    ax.set_prop_cycle(color=[cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
+
 
 def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=None, show_std=True, legend=True,
                     train_prev=None, savepath=None):
