@@ -20,7 +20,7 @@ class GridSearchQ(BaseQuantifier):
                  n_repetitions: int = 1,
                  eval_budget: int = None,
                  error: Union[Callable, str] = qp.error.mae,
-                 refit=False,
+                 refit=True,
                  val_split=0.4,
                  n_jobs=1,
                  random_seed=42,

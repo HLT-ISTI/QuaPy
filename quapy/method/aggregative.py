@@ -524,7 +524,7 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
         ...
 
     def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
-        BinaryQuantifier._check_binary(data, "Threshold Optimization")
+        self._check_binary(data, "Threshold Optimization")
 
         if val_split is None:
             val_split = self.val_split
@@ -642,6 +642,9 @@ class MS(ThresholdOptimization):
 
     def __init__(self, learner: BaseEstimator, val_split=0.4):
         super().__init__(learner, val_split)
+
+    def _condition(self, tpr, fpr) -> float:
+        pass
 
     def optimize_threshold(self, y, probabilities):
         tprs = []
