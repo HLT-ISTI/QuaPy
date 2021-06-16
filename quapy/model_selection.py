@@ -179,8 +179,7 @@ class GridSearchQ(BaseQuantifier):
                 if self.best_score_ is None or score < self.best_score_:
                     self.best_score_ = score
                     self.best_params_ = params
-                    if not self.refit:
-                        self.best_model_ = deepcopy(model)
+                    self.best_model_ = deepcopy(model)
                 self.param_scores_[str(params)] = score
 
                 if self.timeout > 0:
@@ -193,8 +192,8 @@ class GridSearchQ(BaseQuantifier):
             raise TimeoutError('all jobs took more than the timeout time to end')
 
         self.sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f})')
-        model.set_params(**self.best_params_)
-        self.best_model_ = deepcopy(model)
+        # model.set_params(**self.best_params_)
+        # self.best_model_ = deepcopy(model)
 
         if self.refit:
             self.sout(f'refitting on the whole development set')
