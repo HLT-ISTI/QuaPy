@@ -18,7 +18,12 @@ AGGREGATIVE_METHODS = {
     aggregative.PCC,
     aggregative.PACC,
     aggregative.EMQ,
-    aggregative.HDy
+    aggregative.HDy,
+    aggregative.X,
+    aggregative.T50,
+    aggregative.MAX,
+    aggregative.MS,
+    aggregative.MS2,
 } | EXPLICIT_LOSS_MINIMIZATION_METHODS
 
 
