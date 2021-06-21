@@ -130,11 +130,15 @@ class LabelledCollection:
             yield self.uniform_sampling_index(sample_size)
 
     def __add__(self, other):
-        if issparse(self.instances) and issparse(other.instances):
+        if other is None:
+            return self
+        elif issparse(self.instances) and issparse(other.instances):
             join_instances = vstack([self.instances, other.instances])
         elif isinstance(self.instances, list) and isinstance(other.instances, list):
             join_instances = self.instances + other.instances
         elif isinstance(self.instances, np.ndarray) and isinstance(other.instances, np.ndarray):
+            print(self.instances.shape)
+            print(other.instances.shape)
             join_instances = np.concatenate([self.instances, other.instances])
         else:
             raise NotImplementedError('unsupported operation for collection types')

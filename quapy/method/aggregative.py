@@ -125,7 +125,7 @@ def training_helper(learner,
                 if not (0 < val_split < 1):
                     raise ValueError(f'train/val split {val_split} out of range, must be in (0,1)')
                 train, unused = data.split_stratified(train_prop=1 - val_split)
-            elif val_split.__class__.__name__ == LabelledCollection.__name__:  # isinstance(val_split, LabelledCollection):
+            elif isinstance(val_split, LabelledCollection):
                 train = data
                 unused = val_split
             else:
@@ -144,10 +144,8 @@ def training_helper(learner,
             if not hasattr(learner, 'predict_proba'):
                 raise AssertionError('error: the learner cannot be calibrated since fit_learner is set to False')
         unused = None
-        if val_split.__class__.__name__ == LabelledCollection.__name__:
+        if isinstance(val_split, LabelledCollection):
             unused = val_split
-        if data is not None:
-            unused = unused+data
 
     return learner, unused
 
@@ -307,19 +305,22 @@ class PACC(AggregativeProbabilisticQuantifier):
             # fit the learner on all data
             self.learner, _ = training_helper(self.learner, data, fit_learner, ensure_probabilistic=True,
                                               val_split=None)
+            classes = data.classes_
 
         else:
             self.learner, val_data = training_helper(
                 self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
             y_ = self.learner.predict_proba(val_data.instances)
             y = val_data.labels
+            classes = val_data.classes_
 
         self.pcc = PCC(self.learner)
 
         # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
-        confusion = np.empty(shape=(data.n_classes, data.n_classes))
-        for i,class_ in enumerate(data.classes_):
+        n_classes = len(classes)
+        confusion = np.empty(shape=(n_classes, n_classes))
+        for i, class_ in enumerate(classes):
             confusion[i] = y_[y == class_].mean(axis=0)
 
         self.Pte_cond_estim_ = confusion.T

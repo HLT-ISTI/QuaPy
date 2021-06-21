@@ -91,12 +91,14 @@ class QuaNetTrainer(BaseQuantifier):
         train_data.instances = self.learner.transform(train_data.instances)
 
         self.quantifiers = {
-            'cc': CC(self.learner).fit(classifier_data, fit_learner=False),
-            'acc': ACC(self.learner).fit(classifier_data, fit_learner=False, val_split=valid_data),
-            'pcc': PCC(self.learner).fit(classifier_data, fit_learner=False),
-            'pacc': PACC(self.learner).fit(classifier_data, fit_learner=False, val_split=valid_data),
-            'emq': EMQ(self.learner).fit(classifier_data, fit_learner=False),
+            'cc': CC(self.learner).fit(None, fit_learner=False),
+            'acc': ACC(self.learner).fit(None, fit_learner=False, val_split=valid_data),
+            'pcc': PCC(self.learner).fit(None, fit_learner=False),
+            'pacc': PACC(self.learner).fit(None, fit_learner=False, val_split=valid_data),
+            # 'emq': EMQ(self.learner).fit(classifier_data, fit_learner=False),
         }
+        if classifier_data is not None:
+            self.quantifiers['emq'] = EMQ(self.learner).fit(classifier_data, fit_learner=False)
 
         self.status = {
             'tr-loss': -1,
