@@ -137,8 +137,6 @@ class LabelledCollection:
         elif isinstance(self.instances, list) and isinstance(other.instances, list):
             join_instances = self.instances + other.instances
         elif isinstance(self.instances, np.ndarray) and isinstance(other.instances, np.ndarray):
-            print(self.instances.shape)
-            print(other.instances.shape)
             join_instances = np.concatenate([self.instances, other.instances])
         else:
             raise NotImplementedError('unsupported operation for collection types')
