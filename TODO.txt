@@ -3,6 +3,7 @@ Packaging:
 Documentation with sphinx
 Document methods with paper references
 unit-tests
+clean wiki_examples!
 
 Refactor:
 ==========================================
@@ -31,6 +32,9 @@ OVR I believe is currently tied to aggregative methods. We should provide a gene
 Currently, being "binary" only adds one checker; we should figure out how to impose the check to be automatically performed
 Add random seed management to support replicability (see temp_seed in util.py).
 GridSearchQ is not trully parallelized. It only parallelizes on the predictions.
+In the context of a quantifier (e.g., QuaNet or CC), the parameters of the learner should be prefixed with "estimator__",
+    in QuaNet this is resolved with a __check_params_colision, but this should be improved. It might be cumbersome to
+    impose the "estimator__" prefix for, e.g., quantifiers like CC though... This should be changed everywhere...
 
 Improvements:
 ==========================================

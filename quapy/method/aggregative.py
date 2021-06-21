@@ -138,12 +138,16 @@ def training_helper(learner,
         if isinstance(learner, BaseQuantifier):
             learner.fit(train)
         else:
-            learner.fit(train.instances, train.labels)
+            learner.fit(*train.Xy)
     else:
         if ensure_probabilistic:
             if not hasattr(learner, 'predict_proba'):
                 raise AssertionError('error: the learner cannot be calibrated since fit_learner is set to False')
-        unused = data
+        unused = None
+        if val_split.__class__.__name__ == LabelledCollection.__name__:
+            unused = val_split
+        if data is not None:
+            unused = unused+data
 
     return learner, unused
 
@@ -193,6 +197,8 @@ class ACC(AggregativeQuantifier):
         if val_split is None:
             val_split = self.val_split
         if isinstance(val_split, int):
+            assert fit_learner == True, \
+                'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
             # kFCV estimation of parameters
             y, y_ = [], []
             kfcv = StratifiedKFold(n_splits=val_split)
@@ -280,6 +286,8 @@ class PACC(AggregativeProbabilisticQuantifier):
             val_split = self.val_split
 
         if isinstance(val_split, int):
+            assert fit_learner == True, \
+                'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
             # kFCV estimation of parameters
             y, y_ = [], []
             kfcv = StratifiedKFold(n_splits=val_split)
@@ -529,6 +537,8 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
         if val_split is None:
             val_split = self.val_split
         if isinstance(val_split, int):
+            assert fit_learner == True, \
+                'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
             # kFCV estimation of parameters
             y, probabilities = [], []
             kfcv = StratifiedKFold(n_splits=val_split)

@@ -18,7 +18,7 @@ from quapy.util import EarlyStop
 class NeuralClassifierTrainer:
 
     def __init__(self,
-                 net,  # TextClassifierNet
+                 net: 'TextClassifierNet',
                  lr=1e-3,
                  weight_decay=0,
                  patience=10,
