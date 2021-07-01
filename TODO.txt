@@ -35,6 +35,8 @@ GridSearchQ is not trully parallelized. It only parallelizes on the predictions.
 In the context of a quantifier (e.g., QuaNet or CC), the parameters of the learner should be prefixed with "estimator__",
     in QuaNet this is resolved with a __check_params_colision, but this should be improved. It might be cumbersome to
     impose the "estimator__" prefix for, e.g., quantifiers like CC though... This should be changed everywhere...
+QuaNet needs refactoring. The base quantifiers ACC and PACC receive val_data with instances already transformed. This
+    issue is due to a bad design.
 
 Improvements:
 ==========================================
@@ -49,6 +51,10 @@ We might want to think of (improving and) adding the class Tabular (it is define
     experiment looks like. (Do we want to abstract experimental results? this could be useful not only for tables but
     also for plots).
 Add proper logging system. Currently we use print
+It might be good to simplify the number of methods that have to be implemented for any new Quantifier. At the moment,
+    there are many functions like get_params, set_params, and, specially, @property classes_, which are cumbersome to
+    implement for quick experiments. A possible solution is to impose get_params and set_params only in cases in which
+    the model extends some "ModelSelectable" interface only. The classes_ should have a default implementation.
 
 Checks:
 ==========================================
