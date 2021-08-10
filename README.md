@@ -21,7 +21,7 @@ pip install quapy
 
 The following script fetchs a Twitter dataset, trains and evaluates an 
 _Adjusted Classify & Count_ model in terms of the _Mean Absolute Error_ (MAE)
-between the class prevalences estimated for the test set and the true prevalences
+between the class prevalence values estimated for the test set and the true prevalence values
 of the test set.
 
 ```python
@@ -34,20 +34,20 @@ dataset = qp.datasets.fetch_twitter('semeval16')
 model = qp.method.aggregative.ACC(LogisticRegression())
 model.fit(dataset.training)
 
-estim_prevalences = model.quantify(dataset.test.instances)
-true_prevalences  = dataset.test.prevalence()
+estim_prevalence = model.quantify(dataset.test.instances)
+true_prevalence  = dataset.test.prevalence()
 
-error = qp.error.mae(true_prevalences, estim_prevalences)
+error = qp.error.mae(true_prevalence, estim_prevalence)
 
 print(f'Mean Absolute Error (MAE)={error:.3f}')
 ```
 
 Quantification is useful in scenarios of prior probability shift. In other
-words, we would not be interested in estimating the class prevalences of the test set if 
+words, we would not be interested in estimating the class prevalence values of the test set if 
 we could assume the IID assumption to hold, as this prevalence would simply coincide with the 
 class prevalence of the training set. For this reason, any Quantification model 
-should be tested across samples characterized by different class prevalences.
-QuaPy implements sampling procedures and evaluation protocols that automates this endeavour.
+should be tested across samples characterized by different class prevalence values.
+QuaPy implements sampling procedures and evaluation protocols that automate this endeavour.
 See the [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) for detailed examples.
 
 ## Features
