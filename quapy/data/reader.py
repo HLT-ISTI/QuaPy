@@ -3,20 +3,25 @@ from scipy.sparse import dok_matrix
 from tqdm import tqdm
 
 
-def from_text(path, encoding='utf-8'):
+def from_text(path, encoding='utf-8', verbose=1, class2int=True):
     """
-    Reas a labelled colletion of documents.
+    Reads a labelled colletion of documents.
     File fomart <0 or 1>\t<document>\n
     :param path: path to the labelled collection
     :return: a list of sentences, and a list of labels
     """
     all_sentences, all_labels = [], []
-    for line in tqdm(open(path, 'rt', encoding=encoding).readlines(), f'loading {path}'):
+    if verbose>0:
+        file = tqdm(open(path, 'rt', encoding=encoding).readlines(), f'loading {path}')
+    else:
+        file = open(path, 'rt', encoding=encoding).readlines()
+    for line in file:
         line = line.strip()
         if line:
             label, sentence = line.split('\t')
             sentence = sentence.strip()
-            label = int(label)
+            if class2int:
+                label = int(label)
             if sentence:
                 all_sentences.append(sentence)
                 all_labels.append(label)

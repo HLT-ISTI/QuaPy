@@ -39,8 +39,8 @@ class LabelledCollection:
         self.index = {class_: np.arange(n_docs)[self.labels == class_] for class_ in self.classes_}
 
     @classmethod
-    def load(cls, path: str, loader_func: callable):
-        return LabelledCollection(*loader_func(path))
+    def load(cls, path: str, loader_func: callable, classes=None):
+        return LabelledCollection(*loader_func(path), classes)
 
     def __len__(self):
         return self.instances.shape[0]
