@@ -10,6 +10,7 @@ class MaximumLikelihoodPrevalenceEstimation(BaseQuantifier):
     def fit(self, data: LabelledCollection, *args):
         self._classes_ = data.classes_
         self.estimated_prevalence = data.prevalence()
+        return self
 
     def quantify(self, documents, *args):
         return self.estimated_prevalence

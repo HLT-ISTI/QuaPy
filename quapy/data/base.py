@@ -35,7 +35,7 @@ class LabelledCollection:
             self.classes_ = np.unique(np.asarray(classes_))
             self.classes_.sort()
             if len(set(self.labels).difference(set(classes_))) > 0:
-                raise ValueError('labels contains values not included in classes_')
+                raise ValueError(f'labels ({set(self.labels)}) contain values not included in classes_ ({set(classes_)})')
         self.index = {class_: np.arange(n_docs)[self.labels == class_] for class_ in self.classes_}
 
     @classmethod

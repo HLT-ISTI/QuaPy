@@ -1,0 +1,7 @@
+1. los test hay que hacerlos suponiendo que las etiquetas no existen, es decir, viendo los resultados en los ficheros "prevalences" (renominar)
+2. tablas?
+3. fetch dataset (download, unzip, etc.)
+4. model selection
+5. plots
+6. estoy leyendo los samples en orden, y no hace falta. Sería mejor una función genérica que lee todos los ejemplos y
+    que de todos modos genera un output con el mismo nombre del file

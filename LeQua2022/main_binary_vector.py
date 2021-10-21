@@ -4,44 +4,54 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from tqdm import tqdm
+import pandas as pd
 
 import quapy as qp
 from quapy.data import LabelledCollection
 from quapy.method.aggregative import *
-from data import load_binary_raw_document
+import quapy.functional as F
+from data import load_binary_vectors
 import os
 
-path_binary_raw = 'binary_raw'
-result_path = os.path.join('results', 'binary_raw')
+path_binary_vector = './data/T1A'
+result_path = os.path.join('results', 'T1A')  # binary - vector
 os.makedirs(result_path, exist_ok=True)
 
-train_file = os.path.join(path_binary_raw, 'documents', 'training.txt')
+train_file = os.path.join(path_binary_vector, 'public', 'training_vectors.txt')
 
-train = LabelledCollection.load(train_file, load_binary_raw_document)
+train = LabelledCollection.load(train_file, load_binary_vectors)
 
-print(train.classes_)
-print(len(train))
-print(train.prevalence())
+nF = train.instances.shape[1]
 
-tfidf = TfidfVectorizer(min_df=5)
-train.instances = tfidf.fit_transform(train.instances)
+print(f'number of classes: {len(train.classes_)}')
+print(f'number of training documents: {len(train)}')
+print(f'training prevalence: {F.strprev(train.prevalence())}')
+print(f'training matrix shape: {train.instances.shape}')
+
+dev_prev = pd.read_csv(os.path.join(path_binary_vector, 'public', 'dev_prevalences.csv'), index_col=0)
+print(dev_prev)
+
+
+
 
 scores = {}
-for quantifier in [CC, ACC, PCC, PACC, EMQ, HDy]:
+for quantifier in [CC]: #, ACC, PCC, PACC, EMQ, HDy]:
+
     classifier = CalibratedClassifierCV(LogisticRegression())
     model = quantifier(classifier).fit(train)
-
     quantifier_name = model.__class__.__name__
+
     scores[quantifier_name]={}
-    for sample_set, sample_size in [('validation', 1000)]:#, ('test', 5000)]:
+    for sample_set, sample_size in [('dev', 1000)]:
         ae_errors, rae_errors = [], []
-        for i in tqdm(range(sample_size), total=sample_size, desc=f'testing {quantifier_name} in {sample_set}'):
-            test_file = os.path.join(path_binary_raw, 'documents', f'{sample_set}_{i}.txt')
-            test = LabelledCollection.load(test_file, load_binary_raw_document, classes=train.classes_)
-            test.instances = tfidf.transform(test.instances)
-            qp.environ['SAMPLE_SIZE'] = len(test)
-            prev_estim = model.quantify(test.instances)
-            prev_true  = test.prevalence()
+        for i, row in tqdm(dev_prev.iterrows(), total=len(dev_prev), desc=f'testing {quantifier_name} in {sample_set}'):
+            filename = row['filename']
+            prev_true = row[1:].values
+            sample_path = os.path.join(path_binary_vector, 'public', f'{sample_set}_vectors', filename)
+            sample, _ = load_binary_vectors(sample_path, nF)
+            qp.environ['SAMPLE_SIZE'] = sample.shape[0]
+            prev_estim = model.quantify(sample)
+            # prev_true  = sample.prevalence()
             ae_errors.append(qp.error.mae(prev_true, prev_estim))
             rae_errors.append(qp.error.mrae(prev_true, prev_estim))
 
