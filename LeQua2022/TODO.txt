@@ -5,3 +5,4 @@
 5. plots
 6. estoy leyendo los samples en orden, y no hace falta. Sería mejor una función genérica que lee todos los ejemplos y
     que de todos modos genera un output con el mismo nombre del file
+7. Make ResultSubmission class abstract, and create 4 instances thus forcing the field task_name to be set correctly

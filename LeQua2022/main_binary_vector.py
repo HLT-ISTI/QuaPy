@@ -1,7 +1,6 @@
 import pickle
 
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from tqdm import tqdm
 import pandas as pd
