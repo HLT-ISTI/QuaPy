@@ -31,8 +31,6 @@ dev_prev = pd.read_csv(os.path.join(path_binary_vector, 'public', 'dev_prevalenc
 print(dev_prev)
 
 
-
-
 scores = {}
 for quantifier in [CC]: #, ACC, PCC, PACC, EMQ, HDy]:
 
