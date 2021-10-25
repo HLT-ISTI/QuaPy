@@ -9,64 +9,44 @@ import quapy as qp
 from quapy.data import LabelledCollection
 from quapy.method.aggregative import *
 import quapy.functional as F
-from data import load_binary_vectors
+from data import *
 import os
+import constants
 
-path_binary_vector = './data/T1A'
-result_path = os.path.join('results', 'T1A')  # binary - vector
-os.makedirs(result_path, exist_ok=True)
+predictions_path = os.path.join('predictions', 'T1A')  # binary - vector
+os.makedirs(predictions_path, exist_ok=True)
 
-train_file = os.path.join(path_binary_vector, 'public', 'training_vectors.txt')
+pathT1A = './data/T1A/public'
+T1A_devvectors_path = os.path.join(pathT1A, 'dev_vectors')
+T1A_devprevalence_path = os.path.join(pathT1A, 'dev_prevalences.csv')
+T1A_trainpath = os.path.join(pathT1A, 'training_vectors.txt')
 
-train = LabelledCollection.load(train_file, load_binary_vectors)
-
+train = LabelledCollection.load(T1A_trainpath, load_binary_vectors)
 nF = train.instances.shape[1]
+
+qp.environ['SAMPLE_SIZE'] = constants.T1A_SAMPLE_SIZE
 
 print(f'number of classes: {len(train.classes_)}')
 print(f'number of training documents: {len(train)}')
 print(f'training prevalence: {F.strprev(train.prevalence())}')
 print(f'training matrix shape: {train.instances.shape}')
 
-dev_prev = pd.read_csv(os.path.join(path_binary_vector, 'public', 'dev_prevalences.csv'), index_col=0)
-print(dev_prev)
+true_prevalence = ResultSubmission.load(T1A_devprevalence_path)
 
-
-scores = {}
-for quantifier in [CC]: #, ACC, PCC, PACC, EMQ, HDy]:
+for quantifier in [CC, ACC, PCC, PACC, EMQ, HDy]:
 
     classifier = CalibratedClassifierCV(LogisticRegression())
     model = quantifier(classifier).fit(train)
     quantifier_name = model.__class__.__name__
 
-    scores[quantifier_name]={}
-    for sample_set, sample_size in [('dev', 1000)]:
-        ae_errors, rae_errors = [], []
-        for i, row in tqdm(dev_prev.iterrows(), total=len(dev_prev), desc=f'testing {quantifier_name} in {sample_set}'):
-            filename = row['filename']
-            prev_true = row[1:].values
-            sample_path = os.path.join(path_binary_vector, 'public', f'{sample_set}_vectors', filename)
-            sample, _ = load_binary_vectors(sample_path, nF)
-            qp.environ['SAMPLE_SIZE'] = sample.shape[0]
-            prev_estim = model.quantify(sample)
-            # prev_true  = sample.prevalence()
-            ae_errors.append(qp.error.mae(prev_true, prev_estim))
-            rae_errors.append(qp.error.mrae(prev_true, prev_estim))
+    predictions = ResultSubmission(categories=['negative', 'positive'])
+    for samplename, sample in tqdm(gen_load_samples_T1A(T1A_devvectors_path, nF),
+                                   desc=quantifier_name, total=len(true_prevalence)):
+        predictions.add(samplename, model.quantify(sample))
 
-        ae_errors = np.asarray(ae_errors)
-        rae_errors = np.asarray(rae_errors)
-
-        mae = ae_errors.mean()
-        mrae = rae_errors.mean()
-        scores[quantifier_name][sample_set] = {'mae': mae, 'mrae': mrae}
-        pickle.dump(ae_errors, open(os.path.join(result_path, f'{quantifier_name}.{sample_set}.ae.pickle'), 'wb'), pickle.HIGHEST_PROTOCOL)
-        pickle.dump(rae_errors, open(os.path.join(result_path, f'{quantifier_name}.{sample_set}.rae.pickle'), 'wb'), pickle.HIGHEST_PROTOCOL)
-        print(f'{quantifier_name} {sample_set} MAE={mae:.4f}')
-        print(f'{quantifier_name} {sample_set} MRAE={mrae:.4f}')
-
-for model in scores:
-    for sample_set in ['validation']:#, 'test']:
-        print(f'{model}\t{scores[model][sample_set]["mae"]:.4f}\t{scores[model][sample_set]["mrae"]:.4f}')
-
+    predictions.dump(os.path.join(predictions_path, quantifier_name + '.csv'))
+    mae, mrae = evaluate_submission(true_prevalence, predictions)
+    print(f'{quantifier_name} mae={mae:.3f} mrae={mrae:.3f}')
 
 """
 test:
