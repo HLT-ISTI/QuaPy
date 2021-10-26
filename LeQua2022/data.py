@@ -26,40 +26,45 @@ import constants
 def load_category_map(path):
     cat2code = {}
     with open(path, 'rt') as fin:
-        category, code = fin.readline().split()
-        cat2code[category] = int(code)
-    return cat2code
+        for line in fin:
+            category, code = line.split()
+            cat2code[category] = int(code)
+    code2cat = [cat for cat, code in sorted(cat2code.items(), key=lambda x:x[1])]
+    return cat2code, code2cat
 
 
 def load_binary_vectors(path, nF=None):
     return sklearn.datasets.load_svmlight_file(path, n_features=nF)
 
 
-def __gen_load_samples_with_groudtruth(path_dir:str, ground_truth_path:str, load_fn, **load_kwargs):
+def __gen_load_samples_with_groudtruth(path_dir:str, return_filename:bool, ground_truth_path:str, load_fn, **load_kwargs):
     true_prevs = ResultSubmission.load(ground_truth_path)
     for filename, prevalence in true_prevs.iterrows():
         sample, _ = load_fn(os.path.join(path_dir, filename), **load_kwargs)
-        yield filename, sample, prevalence
+        if return_filename:
+            yield filename, sample, prevalence
+        else:
+            yield sample, prevalence
 
 
-def __gen_load_samples_without_groudtruth(path_dir:str, load_fn, **load_kwargs):
+def __gen_load_samples_without_groudtruth(path_dir:str, return_filename:bool, load_fn, **load_kwargs):
     for filepath in glob(os.path.join(path_dir, '*_sample_*.txt')):
         sample, _ = load_fn(filepath, **load_kwargs)
-        yield os.path.basename(filepath), sample
+        if return_filename:
+            yield os.path.basename(filepath), sample
+        else:
+            yield sample
 
 
-def gen_load_samples_T1A(path_dir:str, nF:int, ground_truth_path:str = None):
+def gen_load_samples_T1(path_dir:str, nF:int, ground_truth_path:str = None, return_filename=True):
     if ground_truth_path is None:
-        for filename, sample in __gen_load_samples_without_groudtruth(path_dir, load_binary_vectors, nF=nF):
-            yield filename, sample
+        # the generator function returns tuples (filename:str, sample:csr_matrix)
+        gen_fn = __gen_load_samples_without_groudtruth(path_dir, return_filename, load_binary_vectors, nF=nF)
     else:
-        for filename, sample, prevalence in __gen_load_samples_with_groudtruth(path_dir, ground_truth_path, load_binary_vectors, nF=nF):
-            yield filename, sample, prevalence
-
-
-def gen_load_samples_T1B(path_dir:str, ground_truth_path:str = None):
-    # for ... : yield
-    pass
+        # the generator function returns tuples (filename:str, sample:csr_matrix, prevalence:ndarray)
+        gen_fn = __gen_load_samples_with_groudtruth(path_dir, return_filename, ground_truth_path, load_binary_vectors, nF=nF)
+    for r in gen_fn:
+        yield r
 
 
 def gen_load_samples_T2A(path_dir:str, ground_truth_path:str = None):
