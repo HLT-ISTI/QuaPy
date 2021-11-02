@@ -193,11 +193,11 @@ def evaluate_submission(true_prevs: ResultSubmission, predicted_prevs: ResultSub
 #     r.add(f'dev_sample_{i}.txt', np.asarray([0.5, 0.5]))
 # r.dump('./path.csv')
 
-r = ResultSubmission.load('./data/T1A/public/dummy_submission.csv')
-t = ResultSubmission.load('./data/T1A/public/dummy_submission (copy).csv')
+# r = ResultSubmission.load('./data/T1A/public/dummy_submission.csv')
+# t = ResultSubmission.load('./data/T1A/public/dummy_submission (copy).csv')
 # print(r.df)
 # print(r.get('dev_sample_10.txt'))
-print(evaluate_submission(r, t))
+# print(evaluate_submission(r, t))
 
 # s = ResultSubmission.load('./data/T1A/public/dummy_submission.csv')
 #
