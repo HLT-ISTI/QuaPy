@@ -28,10 +28,10 @@ def main(args):
     model = pickle.load(open(args.model, 'rb'))
 
     # predictions
-    predictions = ResultSubmission(categories=categories)
-    for samplename, sample in tqdm(gen_load_samples_T1(args.samples, args.nf),
+    predictions = ResultSubmission(categories=list(range(len(categories))))
+    for sampleid, sample in tqdm(gen_load_samples_T1(args.samples, args.nf),
                                    desc='predicting', total=nsamples):
-        predictions.add(samplename, model.quantify(sample))
+        predictions.add(sampleid, model.quantify(sample))
 
     # saving
     basedir = os.path.basename(args.output)

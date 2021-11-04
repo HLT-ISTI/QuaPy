@@ -20,7 +20,7 @@ def main(args):
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description='LeQua2022 official format-checker script')
-    parser.add_argument('prevalence_file', metavar='PREV-PATH', type=str,
+    parser.add_argument('prevalence_file', metavar='PREVALENCEFILE-PATH', type=str,
                         help='Path of the file containing prevalence values to check')
     args = parser.parse_args()
 
