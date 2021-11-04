@@ -9,6 +9,7 @@ from quapy.method.base import BaseQuantifier
 from quapy.util import temp_seed
 import quapy.functional as F
 import pandas as pd
+import inspect
 
 
 def artificial_prevalence_prediction(
@@ -76,6 +77,27 @@ def natural_prevalence_prediction(
         indexes = list(test.natural_sampling_index_generator(sample_size, n_repetitions))
 
     return _predict_from_indexes(indexes, model, test, n_jobs, verbose)
+
+
+def gen_prevalence_prediction(model: BaseQuantifier, gen_fn: Callable, eval_budget=None):
+    if not inspect.isgenerator(gen_fn()):
+        raise ValueError('param "gen_fun" is not a generator')
+
+    if not isinstance(eval_budget, int):
+        eval_budget = -1
+
+    true_prevalences, estim_prevalences = [], []
+    for sample_instances, true_prev in gen_fn():
+        true_prevalences.append(true_prev)
+        estim_prevalences.append(model.quantify(sample_instances))
+        eval_budget -= 1
+        if eval_budget == 0:
+            break
+
+    true_prevalences = np.asarray(true_prevalences)
+    estim_prevalences = np.asarray(estim_prevalences)
+
+    return true_prevalences, estim_prevalences
 
 
 def _predict_from_indexes(

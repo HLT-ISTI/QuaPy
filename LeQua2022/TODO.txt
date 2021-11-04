@@ -1,8 +1,13 @@
-1. los test hay que hacerlos suponiendo que las etiquetas no existen, es decir, viendo los resultados en los ficheros "prevalences" (renominar)
 2. tablas?
 3. fetch dataset (download, unzip, etc.)
 4. model selection
 5. plots
-6. estoy leyendo los samples en orden, y no hace falta. Sería mejor una función genérica que lee todos los ejemplos y
-    que de todos modos genera un output con el mismo nombre del file
-7. Make ResultSubmission class abstract, and create 4 instances thus forcing the field task_name to be set correctly
+8. No me convence que la lectura de los samples (caso en que no hay ground truth) viene en orden aleatorio
+9. Experimentar con vectores densos (PCA sobre tfidf por ejemplo)
+10. Si cambiamos el formato de los samples (por ejemplo, en lugar de svmlight con .txt a PCA con .dat) hay que cambiar
+    cosas en el código. Está escrito varias veces un glob(*.txt)
+11. Quitar las categorias como columnas de los ficheros de prevalences
+12. sample_size cannot be set to a non-integer in GridSearchQ whith protocol="gen" (it could, but is not indicated in doc)
+13. repair doc of GridSearchQ
+14. reparar la calibracion en LR (lo tuve que quitar para que funcionara GridSearchQ, y lo quité en todos los ficheros)
+15. podria poner que el eval_budget se usase en GridSearchQ con generator function para el progress bar de tqdm

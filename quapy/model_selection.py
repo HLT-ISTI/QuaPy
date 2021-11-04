@@ -5,8 +5,9 @@ from typing import Union, Callable
 
 import quapy as qp
 from quapy.data.base import LabelledCollection
-from quapy.evaluation import artificial_prevalence_prediction, natural_prevalence_prediction
+from quapy.evaluation import artificial_prevalence_prediction, natural_prevalence_prediction, gen_prevalence_prediction
 from quapy.method.aggregative import BaseQuantifier
+import inspect
 
 
 class GridSearchQ(BaseQuantifier):
@@ -74,8 +75,10 @@ class GridSearchQ(BaseQuantifier):
         self.timeout = timeout
         self.verbose = verbose
         self.__check_error(error)
-        assert self.protocol in {'app', 'npp'}, \
-            'unknown protocol; valid ones are "app" or "npp" for the "artificial" or the "natural" prevalence protocols'
+        assert self.protocol in {'app', 'npp', 'gen'}, \
+            'unknown protocol: valid ones are "app" or "npp" for the "artificial" or the "natural" prevalence ' \
+            'protocols. Use protocol="gen" when passing a generator function thorough val_split that yields a ' \
+            'sample (instances) and their prevalence (ndarray) at each iteration.'
         if self.protocol == 'npp':
             if self.n_repetitions is None or self.n_repetitions == 1:
                 if self.eval_budget is not None:
@@ -99,9 +102,14 @@ class GridSearchQ(BaseQuantifier):
             assert 0. < validation < 1., 'validation proportion should be in (0,1)'
             training, validation = training.split_stratified(train_prop=1 - validation)
             return training, validation
+        elif self.protocol=='gen' and inspect.isgenerator(validation()):
+            return training, validation
         else:
             raise ValueError(f'"validation" must either be a LabelledCollection or a float in (0,1) indicating the'
-                             f'proportion of training documents to extract (type found: {type(validation)})')
+                             f'proportion of training documents to extract (type found: {type(validation)}). '
+                             f'Optionally, "validation" can be a callable function returning a generator that yields '
+                             f'the sample instances along with their true prevalence at each iteration by '
+                             f'setting protocol="gen".')
 
     def __check_error(self, error):
         if error in qp.error.QUANTIFICATION_ERROR:
@@ -132,6 +140,8 @@ class GridSearchQ(BaseQuantifier):
             return natural_prevalence_prediction(
                 model, val_split, self.sample_size,
                 **commons)
+        elif self.protocol == 'gen':
+            return gen_prevalence_prediction(model, gen_fn=val_split, eval_budget=self.eval_budget)
         else:
             raise ValueError('unknown protocol')
 
@@ -144,7 +154,8 @@ class GridSearchQ(BaseQuantifier):
         if val_split is None:
             val_split = self.val_split
         training, val_split = self.__check_training_validation(training, val_split)
-        assert isinstance(self.sample_size, int) and self.sample_size > 0, 'sample_size must be a positive integer'
+        if self.protocol != 'gen':
+            assert isinstance(self.sample_size, int) and self.sample_size > 0, 'sample_size must be a positive integer'
 
         params_keys = list(self.param_grid.keys())
         params_values = list(self.param_grid.values())
@@ -192,8 +203,6 @@ class GridSearchQ(BaseQuantifier):
             raise TimeoutError('all jobs took more than the timeout time to end')
 
         self.sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f})')
-        # model.set_params(**self.best_params_)
-        # self.best_model_ = deepcopy(model)
 
         if self.refit:
             self.sout(f'refitting on the whole development set')
@@ -203,11 +212,11 @@ class GridSearchQ(BaseQuantifier):
 
     def quantify(self, instances):
         assert hasattr(self, 'best_model_'), 'quantify called before fit'
-        return self.best_model_.quantify(instances)
+        return self.best_model().quantify(instances)
 
     @property
     def classes_(self):
-        return self.best_model_.classes_
+        return self.best_model().classes_
 
     def set_params(self, **parameters):
         self.param_grid = parameters
