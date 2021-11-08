@@ -15,7 +15,7 @@ class GridSearchQ(BaseQuantifier):
     def __init__(self,
                  model: BaseQuantifier,
                  param_grid: dict,
-                 sample_size: int,
+                 sample_size: Union[int, None],
                  protocol='app',
                  n_prevpoints: int = None,
                  n_repetitions: int = 1,
@@ -32,30 +32,33 @@ class GridSearchQ(BaseQuantifier):
         protocol for quantification.
         :param model: the quantifier to optimize
         :param param_grid: a dictionary with keys the parameter names and values the list of values to explore for
-        :param sample_size: the size of the samples to extract from the validation set
-        that particular parameter
-        :param protocol: either 'app' for the artificial prevalence protocol, or 'npp' for the natural prevalence
-        protocol
-        :param n_prevpoints: if specified, indicates the number of equally distant point to extract from the interval
+        :param sample_size: the size of the samples to extract from the validation set (ignored if protocl='gen')
+        :param protocol: either 'app' for the artificial prevalence protocol, 'npp' for the natural prevalence
+        protocol, or 'gen' for using a custom sampling generator function
+        :param n_prevpoints: if specified, indicates the number of equally distant points to extract from the interval
         [0,1] in order to define the prevalences of the samples; e.g., if n_prevpoints=5, then the prevalences for
         each class will be explored in [0.00, 0.25, 0.50, 0.75, 1.00]. If not specified, then eval_budget is requested.
-        Ignored if protocol='npp'.
+        Ignored if protocol!='app'.
         :param n_repetitions: the number of repetitions for each combination of prevalences. This parameter is ignored
-        if eval_budget is set and is lower than the number of combinations that would be generated using the value
-        assigned to n_prevpoints (for the current number of classes and n_repetitions)
+        for the protocol='app' if eval_budget is set and is lower than the number of combinations that would be
+        generated using the value assigned to n_prevpoints (for the current number of classes and n_repetitions).
+        Ignored for protocol='npp' and protocol='gen' (use eval_budget for setting a maximum number of samples in
+        those cases).
         :param eval_budget: if specified, sets a ceil on the number of evaluations to perform for each hyper-parameter
-        combination. For example, if there are 3 classes, n_repetitions=1 and eval_budget=20, then n_prevpoints will be
-        set to 5, since this will generate 15 different prevalences:
-         [0, 0, 1], [0, 0.25, 0.75], [0, 0.5, 0.5] ... [1, 0, 0]
-        Ignored if protocol='npp'.
+        combination. For example, if protocol='app', there are 3 classes, n_repetitions=1 and eval_budget=20, then
+        n_prevpoints will be set to 5, since this will generate 15 different prevalences, i.e., [0, 0, 1],
+        [0, 0.25, 0.75], [0, 0.5, 0.5] ... [1, 0, 0], and since setting it to 6 would generate more than
+        20. When protocol='gen', indicates the maximum number of samples to generate, but less samples will be
+        generated if the generator yields less samples.
         :param error: an error function (callable) or a string indicating the name of an error function (valid ones
         are those in qp.error.QUANTIFICATION_ERROR
         :param refit: whether or not to refit the model on the whole labelled collection (training+validation) with
-        the best chosen hyperparameter combination
+        the best chosen hyperparameter combination. Ignored if protocol='gen'
         :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
-        a float in [0,1] indicating the proportion of labelled data to extract from the training set
+        a float in [0,1] indicating the proportion of labelled data to extract from the training set, or a callable
+        returning a generator function each time it is invoked (only for protocol='gen').
         :param n_jobs: number of parallel jobs
-        :param random_seed: set the seed of the random generator to replicate experiments
+        :param random_seed: set the seed of the random generator to replicate experiments. Ignored if protocol='gen'.
         :param timeout: establishes a timer (in seconds) for each of the hyperparameters configurations being tested.
         Whenever a run takes longer than this timer, that configuration will be ignored. If all configurations end up
         being ignored, a TimeoutError exception is raised. If -1 (default) then no time bound is set.
@@ -79,17 +82,13 @@ class GridSearchQ(BaseQuantifier):
             'unknown protocol: valid ones are "app" or "npp" for the "artificial" or the "natural" prevalence ' \
             'protocols. Use protocol="gen" when passing a generator function thorough val_split that yields a ' \
             'sample (instances) and their prevalence (ndarray) at each iteration.'
-        if self.protocol == 'npp':
-            if self.n_repetitions is None or self.n_repetitions == 1:
-                if self.eval_budget is not None:
-                    print(f'[warning] when protocol=="npp" the parameter n_repetitions should be indicated '
-                          f'(and not eval_budget). Setting n_repetitions={self.eval_budget}...')
-                    self.n_repetitions = self.eval_budget
-                else:
-                    raise ValueError(f'when protocol=="npp" the parameter n_repetitions should be indicated '
-                                     f'(and should be >1).')
-            if self.n_prevpoints is not None:
-                print('[warning] n_prevpoints has been set along with the npp protocol, and will be ignored')
+        assert self.eval_budget is None or isinstance(self.eval_budget, int)
+        if self.protocol in ['npp', 'gen']:
+            if self.protocol=='npp' and (self.eval_budget is None or self.eval_budget <= 0):
+                raise ValueError(f'when protocol="npp" the parameter eval_budget should be '
+                                 f'indicated (and should be >0).')
+            if self.n_prevpoints != 1:
+                print('[warning] n_prevpoints has been set and will be ignored for the selected protocol')
 
     def sout(self, msg):
         if self.verbose:
@@ -145,7 +144,7 @@ class GridSearchQ(BaseQuantifier):
         else:
             raise ValueError('unknown protocol')
 
-    def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float] = None):
+    def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float, Callable] = None):
         """
         :param training: the training set on which to optimize the hyperparameters
         :param val_split: either a LabelledCollection on which to test the performance of the different settings, or

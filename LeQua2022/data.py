@@ -80,21 +80,30 @@ def gen_load_samples_T2B(path_dir:str, ground_truth_path:str = None):
 
 class ResultSubmission:
 
-    def __init__(self, categories: List[str]):
-        if not isinstance(categories, list) or len(categories) < 2:
-            raise TypeError('wrong format for categories; a list with at least two category names (str) was expected')
-        self.categories = categories
-        self.df = pd.DataFrame(columns=list(categories))
-        self.df.index.rename('id', inplace=True)
+    def __init__(self):
+        self.df = None
+
+    def __init_df(self, categories:int):
+        if not isinstance(categories, int) or categories < 2:
+            raise TypeError('wrong format for categories: an int (>=2) was expected')
+        df = pd.DataFrame(columns=list(range(categories)))
+        df.index.set_names('id', inplace=True)
+        self.df = df
+
+    @property
+    def n_categories(self):
+        return len(self.df.columns.values)
 
     def add(self, sample_id:int, prevalence_values:np.ndarray):
         if not isinstance(sample_id, int):
             raise TypeError(f'error: expected int for sample_sample, found {type(sample_id)}')
         if not isinstance(prevalence_values, np.ndarray):
             raise TypeError(f'error: expected np.ndarray for prevalence_values, found {type(prevalence_values)}')
+        if self.df is None:
+            self.__init_df(categories=len(prevalence_values))
         if sample_id in self.df.index.values:
             raise ValueError(f'error: prevalence values for "{sample_id}" already added')
-        if prevalence_values.ndim!=1 and prevalence_values.size != len(self.categories):
+        if prevalence_values.ndim!=1 and prevalence_values.size != self.n_categories:
             raise ValueError(f'error: wrong shape found for prevalence vector {prevalence_values}')
         if (prevalence_values<0).any() or (prevalence_values>1).any():
             raise ValueError(f'error: prevalence values out of range [0,1] for "{sample_id}"')
@@ -102,9 +111,7 @@ class ResultSubmission:
             raise ValueError(f'error: prevalence values do not sum up to one for "{sample_id}"'
                              f'(error tolerance {constants.ERROR_TOL})')
 
-        # new_entry = dict([('id', sample_id)] + [(col_i, prev_i) for col_i, prev_i in enumerate(prevalence_values)])
-        new_entry = pd.DataFrame(prevalence_values.reshape(1,2), index=[sample_id], columns=self.df.columns)
-        self.df = self.df.append(new_entry, ignore_index=False)
+        self.df.loc[sample_id] = prevalence_values
 
     def __len__(self):
         return len(self.df)
@@ -112,7 +119,7 @@ class ResultSubmission:
     @classmethod
     def load(cls, path: str) -> 'ResultSubmission':
         df = ResultSubmission.check_file_format(path)
-        r = ResultSubmission(categories=df.columns.values.tolist())
+        r = ResultSubmission()
         r.df = df
         return r
 
@@ -120,16 +127,15 @@ class ResultSubmission:
         ResultSubmission.check_dataframe_format(self.df)
         self.df.to_csv(path)
 
-    def prevalence(self, sample_name:str):
-        sel = self.df.loc[self.df['filename'] == sample_name]
+    def prevalence(self, sample_id:int):
+        sel = self.df.loc[sample_id]
         if sel.empty:
             return None
         else:
-            return sel.loc[:,self.df.columns[1]:].values.flatten()
+            return sel.values.flatten()
 
     def iterrows(self):
         for index, row in self.df.iterrows():
-            # filename = row.filename
             prevalence = row.values.flatten()
             yield index, prevalence
 
@@ -146,10 +152,11 @@ class ResultSubmission:
 
         if df.index.name != 'id' or len(df.columns) < 2:
             raise ValueError(f'wrong header{hint_path}, '
-                             f'the format of the header should be "id,<cat_1>,...,<cat_n>"')
+                             f'the format of the header should be "id,0,...,n-1", '
+                             f'where n is the number of categories')
         if [int(ci) for ci in df.columns.values] != list(range(len(df.columns))):
-            raise ValueError(f'wrong header{hint_path}, category ids should be 0,1,2,...,n')
-
+            raise ValueError(f'wrong header{hint_path}, category ids should be 0,1,2,...,n-1, '
+                             f'where n is the number of categories')
         if df.empty:
             raise ValueError(f'error{hint_path}: results file is empty')
         elif len(df) != constants.DEV_SAMPLES and len(df) != constants.TEST_SAMPLES:
@@ -167,9 +174,9 @@ class ResultSubmission:
             if unexpected:
                 raise ValueError(f'there are {len(missing)} unexpected ids{hint_path}: {sorted(unexpected)}')
 
-        for category_name in df.columns:
-            if (df[category_name] < 0).any() or (df[category_name] > 1).any():
-                raise ValueError(f'error{hint_path} column "{category_name}" contains values out of range [0,1]')
+        for category_id in df.columns:
+            if (df[category_id] < 0).any() or (df[category_id] > 1).any():
+                raise ValueError(f'error{hint_path} column "{category_id}" contains values out of range [0,1]')
 
         prevs = df.values
         round_errors = np.abs(prevs.sum(axis=-1) - 1.) > constants.ERROR_TOL
@@ -179,13 +186,6 @@ class ResultSubmission:
                               f'probably due to some rounding errors.')
 
         return df
-
-    def sort_categories(self):
-        self.df = self.df.reindex([self.df.columns[0]] + sorted(self.df.columns[1:]), axis=1)
-        self.categories = sorted(self.categories)
-
-    def filenames(self):
-        return self.df.filename.values
 
 
 def evaluate_submission(true_prevs: ResultSubmission, predicted_prevs: ResultSubmission, sample_size=None, average=True):
@@ -199,22 +199,24 @@ def evaluate_submission(true_prevs: ResultSubmission, predicted_prevs: ResultSub
     if len(true_prevs) != len(predicted_prevs):
         raise ValueError(f'size mismatch, ground truth file has {len(true_prevs)} entries '
                          f'while the file of predictions contain {len(predicted_prevs)} entries')
-    true_prevs.sort_categories()
-    predicted_prevs.sort_categories()
-    if true_prevs.categories != predicted_prevs.categories:
+    if true_prevs.n_categories != predicted_prevs.n_categories:
         raise ValueError(f'these result files are not comparable since the categories are different: '
-                         f'true={true_prevs.categories} vs. predictions={predicted_prevs.categories}')
+                         f'true={true_prevs.n_categories} categories vs. '
+                         f'predictions={predicted_prevs.n_categories} categories')
     ae, rae = [], []
-    for sample_name, true_prevalence in true_prevs.iterrows():
-        pred_prevalence = predicted_prevs.prevalence(sample_name)
+    for sample_id, true_prevalence in true_prevs.iterrows():
+        pred_prevalence = predicted_prevs.prevalence(sample_id)
         ae.append(qp.error.ae(true_prevalence, pred_prevalence))
         rae.append(qp.error.rae(true_prevalence, pred_prevalence, eps=1./(2*sample_size)))
+
     ae = np.asarray(ae)
     rae = np.asarray(rae)
+
     if average:
         return ae.mean(), rae.mean()
     else:
         return ae, rae
+
 
 
 

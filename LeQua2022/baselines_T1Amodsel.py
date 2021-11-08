@@ -40,14 +40,17 @@ print(f'training matrix shape: {train.instances.shape}')
 
 true_prevalence = ResultSubmission.load(T1A_devprevalence_path)
 
-param_grid = {'C': np.logspace(-3,3,7), 'class_weight': ['balanced', None]}
+param_grid = {
+    'C': np.logspace(-3,3,7),
+    'class_weight': ['balanced', None]
+}
 
 
 def gen_samples():
     return gen_load_samples_T1(T1A_devvectors_path, nF, ground_truth_path=T1A_devprevalence_path, return_id=False)
 
 
-for quantifier in [CC, ACC, PCC, PACC, EMQ, HDy]:
+for quantifier in [CC]: #, ACC, PCC, PACC, EMQ, HDy]:
     #classifier = CalibratedClassifierCV(LogisticRegression(), n_jobs=-1)
     classifier = LogisticRegression()
     model = quantifier(classifier)
@@ -66,7 +69,7 @@ for quantifier in [CC, ACC, PCC, PACC, EMQ, HDy]:
     print(f'{quantifier_name} mae={model.best_score_:.3f} (params: {model.best_params_})')
 
     pickle.dump(model.best_model(),
-                open(os.path.join(models_path, quantifier_name+'.modsel.pkl'), 'wb'),
+                open(os.path.join(models_path, quantifier_name+'.pkl'), 'wb'),
                 protocol=pickle.HIGHEST_PROTOCOL)
 
 

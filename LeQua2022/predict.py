@@ -22,13 +22,13 @@ def main(args):
               f'dev samples ({constants.DEV_SAMPLES}) nor with the expected number of '
               f'test samples ({constants.TEST_SAMPLES}).')
 
-    _, categories = load_category_map(args.catmap)
+    # _, categories = load_category_map(args.catmap)
 
     # load pickled model
     model = pickle.load(open(args.model, 'rb'))
 
     # predictions
-    predictions = ResultSubmission(categories=list(range(len(categories))))
+    predictions = ResultSubmission()
     for sampleid, sample in tqdm(gen_load_samples_T1(args.samples, args.nf),
                                    desc='predicting', total=nsamples):
         predictions.add(sampleid, model.quantify(sample))
@@ -48,8 +48,6 @@ if __name__=='__main__':
                         help='Path to the directory containing the samples')
     parser.add_argument('output', metavar='PREDICTIONS-PATH', type=str,
                         help='Path where to store the predictions file')
-    parser.add_argument('catmap', metavar='CATEGORY-MAP-PATH', type=str,
-                        help='Path to the category map file')
     parser.add_argument('nf', metavar='NUM-FEATURES', type=int,
                         help='Number of features seen during training')
     args = parser.parse_args()

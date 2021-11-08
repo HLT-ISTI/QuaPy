@@ -81,7 +81,7 @@ def natural_prevalence_prediction(
 
 def gen_prevalence_prediction(model: BaseQuantifier, gen_fn: Callable, eval_budget=None):
     if not inspect.isgenerator(gen_fn()):
-        raise ValueError('param "gen_fun" is not a generator')
+        raise ValueError('param "gen_fun" is not a callable returning a generator')
 
     if not isinstance(eval_budget, int):
         eval_budget = -1

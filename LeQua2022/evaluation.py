@@ -9,8 +9,10 @@ LeQua2022 Official evaluation script
 """
 
 def main(args):
-    if args.task in {'T1A'}:
-        qp.environ['SAMPLE_SIZE'] = constants.T1A_SAMPLE_SIZE
+    if args.task in {'T1A', 'T2A'}:
+        qp.environ['SAMPLE_SIZE'] = constants.TXA_SAMPLE_SIZE
+    if args.task in {'T1B', 'T2B'}:
+        qp.environ['SAMPLE_SIZE'] = constants.TXB_SAMPLE_SIZE
     true_prev = ResultSubmission.load(args.true_prevalences)
     pred_prev = ResultSubmission.load(args.pred_prevalences)
     mae, mrae = evaluate_submission(true_prev, pred_prev)
