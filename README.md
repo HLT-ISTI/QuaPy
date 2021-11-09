@@ -99,7 +99,9 @@ This patch extends the former by also allowing SVMperf to optimize for
 _AE_ and _RAE_.
   
   
-## Wiki
+## Documentation
+
+The [developer API documentation](https://hlt-isti.github.io/QuaPy/build/html/modules.html) is available [here](https://hlt-isti.github.io/QuaPy/build/html/index.html). 
 
 Check out our [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) in which many examples
 are provided:
