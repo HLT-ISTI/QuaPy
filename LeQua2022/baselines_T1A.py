@@ -59,14 +59,6 @@ for quantifier in [CC, ACC, PCC, PACC, EMQ, HDy]:
     print(f'{quantifier_name} mae={mae:.3f} mrae={mrae:.3f}')
 
 """
-test:
-CC	0.1859	1.5406
-ACC	0.0453	0.2840
-PCC	0.1793	1.7187
-PACC	0.0287	0.1494
-EMQ	0.0225	0.1020
-HDy	0.0631	0.2307
-
 validation
 CC	0.1862	1.9587
 ACC	0.0394	0.2669
