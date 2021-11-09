@@ -2,7 +2,6 @@ import argparse
 import quapy as qp
 from data import ResultSubmission, evaluate_submission
 import constants
-import os
 
 """
 LeQua2022 Official evaluation script 
@@ -20,9 +19,7 @@ def main(args):
     print(f'MRAE: {mrae:.4f}')
 
     if args.output is not None:
-        outdir = os.path.dirname(args.output)
-        if outdir:
-            os.makedirs(outdir, exist_ok=True)
+        qp.util.create_parent_dir(args.output)
         with open(args.output, 'wt') as foo:
             foo.write(f'MAE: {mae:.4f}\n')
             foo.write(f'MRAE: {mrae:.4f}\n')

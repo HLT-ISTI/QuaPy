@@ -11,13 +11,12 @@ import numpy as np
 from joblib import Parallel, delayed
 
 
-def get_parallel_slices(n_tasks, n_jobs=-1):
+def _get_parallel_slices(n_tasks, n_jobs=-1):
     if n_jobs == -1:
         n_jobs = multiprocessing.cpu_count()
     batch = int(n_tasks / n_jobs)
     remainder = n_tasks % n_jobs
-    return [slice(job * batch, (job + 1) * batch + (remainder if job == n_jobs - 1 else 0)) for job in
-            range(n_jobs)]
+    return [slice(job * batch, (job + 1) * batch + (remainder if job == n_jobs - 1 else 0)) for job in range(n_jobs)]
 
 
 def map_parallel(func, args, n_jobs):
@@ -26,7 +25,7 @@ def map_parallel(func, args, n_jobs):
     func is applied in two parallel processes to args[0:50] and to args[50:99]
     """
     args = np.asarray(args)
-    slices = get_parallel_slices(len(args), n_jobs)
+    slices = _get_parallel_slices(len(args), n_jobs)
     results = Parallel(n_jobs=n_jobs)(
         delayed(func)(args[slice_i]) for slice_i in slices
     )
@@ -37,7 +36,7 @@ def parallel(func, args, n_jobs):
     """
     A wrapper of multiprocessing:
     Parallel(n_jobs=n_jobs)(
-        delayed(func)(args_i) for args_i in args
+         delayed(func)(args_i) for args_i in args
     )
     that takes the quapy.environ variable as input silently
     """
@@ -49,9 +48,14 @@ def parallel(func, args, n_jobs):
     )
 
 
-
 @contextlib.contextmanager
 def temp_seed(seed):
+    """
+    Can be used in a "with" context to set a temporal seed without modifying the outer numpy's current state. E.g.:
+    with temp_seed(random_seed):
+      # do any computation depending on np.random functionality
+    :param seed: the seed to set within the "with" context
+    """
     state = np.random.get_state()
     np.random.seed(seed)
     try:
@@ -88,10 +92,30 @@ def get_quapy_home():
 
 
 def create_parent_dir(path):
-    os.makedirs(Path(path).parent, exist_ok=True)
+    parentdir = Path(path).parent
+    if parentdir:
+        os.makedirs(parentdir, exist_ok=True)
+
+
+def save_text_file(path, text):
+    create_parent_dir(path)
+    with open(text, 'wt') as fout:
+        fout.write(text)
 
 
 def pickled_resource(pickle_path:str, generation_func:callable, *args):
+    """
+    Allows for fast reuse of resources that are generated only once by calling generation_func(*args). The next times
+    this function is invoked, it loads the pickled resource. Example:
+    def some_array(n):
+        return np.random.rand(n)
+    pickled_resource('./my_array.pkl', some_array, 10)  # the resource does not exist: it is created by some_array(10)
+    pickled_resource('./my_array.pkl', some_array, 10)  # the resource exists: it is loaded from './my_array.pkl'
+    :param pickle_path: the path where to save (first time) and load (next times) the resource
+    :param generation_func: the function that generates the resource, in case it does not exist in pickle_path
+    :param args: any arg that generation_func uses for generating the resources
+    :return: the resource
+    """
     if pickle_path is None:
         return generation_func(*args)
     else:

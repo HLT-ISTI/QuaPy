@@ -11,6 +11,46 @@ import inspect
 
 
 class GridSearchQ(BaseQuantifier):
+    """Grid Search optimization targeting a quantification-oriented metric.
+
+    Optimizes the hyperparameters of a quantification method, based on an evaluation method and on an evaluation
+    protocol for quantification.
+
+    :param model: the quantifier to optimize
+    :type model: BaseQuantifier
+    :param param_grid: a dictionary with keys the parameter names and values the list of values to explore
+    :param sample_size: the size of the samples to extract from the validation set (ignored if protocl='gen')
+    :param protocol: either 'app' for the artificial prevalence protocol, 'npp' for the natural prevalence
+        protocol, or 'gen' for using a custom sampling generator function
+    :param n_prevpoints: if specified, indicates the number of equally distant points to extract from the interval
+        [0,1] in order to define the prevalences of the samples; e.g., if n_prevpoints=5, then the prevalences for
+        each class will be explored in [0.00, 0.25, 0.50, 0.75, 1.00]. If not specified, then eval_budget is requested.
+        Ignored if protocol!='app'.
+    :param n_repetitions: the number of repetitions for each combination of prevalences. This parameter is ignored
+        for the protocol='app' if eval_budget is set and is lower than the number of combinations that would be
+        generated using the value assigned to n_prevpoints (for the current number of classes and n_repetitions).
+        Ignored for protocol='npp' and protocol='gen' (use eval_budget for setting a maximum number of samples in
+        those cases).
+    :param eval_budget: if specified, sets a ceil on the number of evaluations to perform for each hyper-parameter
+        combination. For example, if protocol='app', there are 3 classes, n_repetitions=1 and eval_budget=20, then
+        n_prevpoints will be set to 5, since this will generate 15 different prevalences, i.e., [0, 0, 1],
+        [0, 0.25, 0.75], [0, 0.5, 0.5] ... [1, 0, 0], and since setting it to 6 would generate more than
+        20. When protocol='gen', indicates the maximum number of samples to generate, but less samples will be
+        generated if the generator yields less samples.
+    :param error: an error function (callable) or a string indicating the name of an error function (valid ones
+        are those in qp.error.QUANTIFICATION_ERROR
+    :param refit: whether or not to refit the model on the whole labelled collection (training+validation) with
+        the best chosen hyperparameter combination. Ignored if protocol='gen'
+    :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
+        a float in [0,1] indicating the proportion of labelled data to extract from the training set, or a callable
+        returning a generator function each time it is invoked (only for protocol='gen').
+    :param n_jobs: number of parallel jobs
+    :param random_seed: set the seed of the random generator to replicate experiments. Ignored if protocol='gen'.
+    :param timeout: establishes a timer (in seconds) for each of the hyperparameters configurations being tested.
+        Whenever a run takes longer than this timer, that configuration will be ignored. If all configurations end up
+        being ignored, a TimeoutError exception is raised. If -1 (default) then no time bound is set.
+    :param verbose: set to True to get information through the stdout
+    """
 
     def __init__(self,
                  model: BaseQuantifier,
@@ -27,43 +67,7 @@ class GridSearchQ(BaseQuantifier):
                  random_seed=42,
                  timeout=-1,
                  verbose=False):
-        """
-        Optimizes the hyperparameters of a quantification method, based on an evaluation method and on an evaluation
-        protocol for quantification.
-        :param model: the quantifier to optimize
-        :param param_grid: a dictionary with keys the parameter names and values the list of values to explore for
-        :param sample_size: the size of the samples to extract from the validation set (ignored if protocl='gen')
-        :param protocol: either 'app' for the artificial prevalence protocol, 'npp' for the natural prevalence
-        protocol, or 'gen' for using a custom sampling generator function
-        :param n_prevpoints: if specified, indicates the number of equally distant points to extract from the interval
-        [0,1] in order to define the prevalences of the samples; e.g., if n_prevpoints=5, then the prevalences for
-        each class will be explored in [0.00, 0.25, 0.50, 0.75, 1.00]. If not specified, then eval_budget is requested.
-        Ignored if protocol!='app'.
-        :param n_repetitions: the number of repetitions for each combination of prevalences. This parameter is ignored
-        for the protocol='app' if eval_budget is set and is lower than the number of combinations that would be
-        generated using the value assigned to n_prevpoints (for the current number of classes and n_repetitions).
-        Ignored for protocol='npp' and protocol='gen' (use eval_budget for setting a maximum number of samples in
-        those cases).
-        :param eval_budget: if specified, sets a ceil on the number of evaluations to perform for each hyper-parameter
-        combination. For example, if protocol='app', there are 3 classes, n_repetitions=1 and eval_budget=20, then
-        n_prevpoints will be set to 5, since this will generate 15 different prevalences, i.e., [0, 0, 1],
-        [0, 0.25, 0.75], [0, 0.5, 0.5] ... [1, 0, 0], and since setting it to 6 would generate more than
-        20. When protocol='gen', indicates the maximum number of samples to generate, but less samples will be
-        generated if the generator yields less samples.
-        :param error: an error function (callable) or a string indicating the name of an error function (valid ones
-        are those in qp.error.QUANTIFICATION_ERROR
-        :param refit: whether or not to refit the model on the whole labelled collection (training+validation) with
-        the best chosen hyperparameter combination. Ignored if protocol='gen'
-        :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
-        a float in [0,1] indicating the proportion of labelled data to extract from the training set, or a callable
-        returning a generator function each time it is invoked (only for protocol='gen').
-        :param n_jobs: number of parallel jobs
-        :param random_seed: set the seed of the random generator to replicate experiments. Ignored if protocol='gen'.
-        :param timeout: establishes a timer (in seconds) for each of the hyperparameters configurations being tested.
-        Whenever a run takes longer than this timer, that configuration will be ignored. If all configurations end up
-        being ignored, a TimeoutError exception is raised. If -1 (default) then no time bound is set.
-        :param verbose: set to True to get information through the stdout
-        """
+
         self.model = model
         self.param_grid = param_grid
         self.sample_size = sample_size
@@ -90,7 +94,7 @@ class GridSearchQ(BaseQuantifier):
             if self.n_prevpoints != 1:
                 print('[warning] n_prevpoints has been set and will be ignored for the selected protocol')
 
-    def sout(self, msg):
+    def _sout(self, msg):
         if self.verbose:
             print(f'[{self.__class__.__name__}]: {msg}')
 
@@ -145,10 +149,11 @@ class GridSearchQ(BaseQuantifier):
             raise ValueError('unknown protocol')
 
     def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float, Callable] = None):
-        """
+        """ Learning routine. Fits methods with all combinations of hyperparameters and selects the one minimizing
+            the error metric.
         :param training: the training set on which to optimize the hyperparameters
         :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
-        a float in [0,1] indicating the proportion of labelled data to extract from the training set
+            a float in [0,1] indicating the proportion of labelled data to extract from the training set
         """
         if val_split is None:
             val_split = self.val_split
@@ -164,12 +169,12 @@ class GridSearchQ(BaseQuantifier):
 
         if self.timeout > 0:
             def handler(signum, frame):
-                self.sout('timeout reached')
+                self._sout('timeout reached')
                 raise TimeoutError()
 
             signal.signal(signal.SIGALRM, handler)
 
-        self.sout(f'starting optimization with n_jobs={n_jobs}')
+        self._sout(f'starting optimization with n_jobs={n_jobs}')
         self.param_scores_ = {}
         self.best_score_ = None
         some_timeouts = False
@@ -185,7 +190,7 @@ class GridSearchQ(BaseQuantifier):
                 model.fit(training)
                 true_prevalences, estim_prevalences = self.__generate_predictions(model, val_split)
                 score = self.error(true_prevalences, estim_prevalences)
-                self.sout(f'checking hyperparams={params} got {self.error.__name__} score {score:.5f}')
+                self._sout(f'checking hyperparams={params} got {self.error.__name__} score {score:.5f}')
                 if self.best_score_ is None or score < self.best_score_:
                     self.best_score_ = score
                     self.best_params_ = params
@@ -201,15 +206,19 @@ class GridSearchQ(BaseQuantifier):
         if self.best_score_ is None and some_timeouts:
             raise TimeoutError('all jobs took more than the timeout time to end')
 
-        self.sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f})')
+        self._sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f})')
 
         if self.refit:
-            self.sout(f'refitting on the whole development set')
+            self._sout(f'refitting on the whole development set')
             self.best_model_.fit(training + val_split)
 
         return self
 
     def quantify(self, instances):
+        """Estimate class prevalence values
+
+        :param instances: sample contanining the instances
+        """
         assert hasattr(self, 'best_model_'), 'quantify called before fit'
         return self.best_model().quantify(instances)
 
@@ -218,9 +227,18 @@ class GridSearchQ(BaseQuantifier):
         return self.best_model().classes_
 
     def set_params(self, **parameters):
+        """Sets the hyper-parameters to explore.
+
+        :param parameters: a dictionary with keys the parameter names and values the list of values to explore
+        """
         self.param_grid = parameters
 
     def get_params(self, deep=True):
+        """Returns the dictionary of hyper-parameters to explore (`param_grid`)
+
+        :param deep: Unused
+        :return: the dictionary `param_grid`
+        """
         return self.param_grid
 
     def best_model(self):

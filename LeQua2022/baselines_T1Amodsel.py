@@ -1,12 +1,5 @@
 import pickle
-
-import numpy as np
 from sklearn.linear_model import LogisticRegression
-from tqdm import tqdm
-import pandas as pd
-
-import quapy as qp
-from quapy.data import LabelledCollection
 from quapy.method.aggregative import *
 import quapy.functional as F
 from data import *
@@ -50,9 +43,11 @@ def gen_samples():
     return gen_load_samples_T1(T1A_devvectors_path, nF, ground_truth_path=T1A_devprevalence_path, return_id=False)
 
 
-for quantifier in [CC]: #, ACC, PCC, PACC, EMQ, HDy]:
-    #classifier = CalibratedClassifierCV(LogisticRegression(), n_jobs=-1)
-    classifier = LogisticRegression()
+for quantifier in [EMQ]: # [CC, ACC, PCC, PACC, EMQ, HDy]:
+    if quantifier == EMQ:
+        classifier = CalibratedClassifierCV(LogisticRegression(), n_jobs=-1)
+    else:
+        classifier = LogisticRegression()
     model = quantifier(classifier)
     print(f'{model.__class__.__name__}: Model selection')
     model = qp.model_selection.GridSearchQ(

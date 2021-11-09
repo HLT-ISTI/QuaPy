@@ -1,11 +1,11 @@
 import argparse
 import quapy as qp
-from data import ResultSubmission, evaluate_submission
+from data import ResultSubmission
 import constants
 import os
 import pickle
 from tqdm import tqdm
-from data import gen_load_samples_T1, load_category_map
+from data import gen_load_samples_T1
 from glob import glob
 import constants
 
@@ -22,21 +22,16 @@ def main(args):
               f'dev samples ({constants.DEV_SAMPLES}) nor with the expected number of '
               f'test samples ({constants.TEST_SAMPLES}).')
 
-    # _, categories = load_category_map(args.catmap)
-
     # load pickled model
     model = pickle.load(open(args.model, 'rb'))
 
     # predictions
     predictions = ResultSubmission()
-    for sampleid, sample in tqdm(gen_load_samples_T1(args.samples, args.nf),
-                                   desc='predicting', total=nsamples):
+    for sampleid, sample in tqdm(gen_load_samples_T1(args.samples, args.nf), desc='predicting', total=nsamples):
         predictions.add(sampleid, model.quantify(sample))
 
     # saving
-    basedir = os.path.basename(args.output)
-    if basedir:
-        os.makedirs(basedir, exist_ok=True)
+    qp.util.create_parent_dir(args.output)
     predictions.dump(args.output)
 
 
