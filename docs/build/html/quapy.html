@@ -1,0 +1,673 @@
+
+
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>quapy package &#8212; QuaPy 0.1.6 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="quapy.classification package" href="quapy.classification.html" />
+    <link rel="prev" title="quapy" href="modules.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quapy.classification.html" title="quapy.classification package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="quapy"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" accesskey="U">quapy</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quapy package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="quapy-package">
+<h1>quapy package<a class="headerlink" href="#quapy-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quapy.classification.html">quapy.classification package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quapy.classification.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.classification.html#module-quapy.classification.methods">quapy.classification.methods module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.classification.html#module-quapy.classification.neural">quapy.classification.neural module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.classification.html#module-quapy.classification.svmperf">quapy.classification.svmperf module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.classification.html#module-quapy.classification">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quapy.data.html">quapy.data package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quapy.data.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.data.html#module-quapy.data.base">quapy.data.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.data.html#module-quapy.data.datasets">quapy.data.datasets module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.data.html#module-quapy.data.preprocessing">quapy.data.preprocessing module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.data.html#module-quapy.data.reader">quapy.data.reader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.data.html#module-quapy.data">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quapy.method.html">quapy.method package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quapy.method.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.method.html#module-quapy.method.aggregative">quapy.method.aggregative module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.method.html#module-quapy.method.base">quapy.method.base module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.method.html#module-quapy.method.meta">quapy.method.meta module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.method.html#module-quapy.method.neural">quapy.method.neural module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.method.html#module-quapy.method.non_aggregative">quapy.method.non_aggregative module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quapy.method.html#module-quapy.method">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-quapy.error">
+<span id="quapy-error-module"></span><h2>quapy.error module<a class="headerlink" href="#module-quapy.error" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.absolute_error">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">absolute_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.absolute_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.acc_error">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">acc_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.acc_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.acce">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">acce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.acce" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.ae">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">ae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.ae" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.f1_error">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">f1_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.f1_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.f1e">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">f1e</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.f1e" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.from_name">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">from_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">err_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.from_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.kld">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">kld</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.kld" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.mae">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mae" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.mean_absolute_error">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mean_absolute_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mean_absolute_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.mean_relative_absolute_error">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mean_relative_absolute_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mean_relative_absolute_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.mkld">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mkld</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mkld" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.mnkld">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mnkld</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mnkld" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.mrae">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mrae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mrae" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.mse">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.nkld">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">nkld</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.nkld" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.rae">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">rae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.rae" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.relative_absolute_error">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">relative_absolute_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.relative_absolute_error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.se">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">se</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.se" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.error.smooth">
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.smooth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-quapy.evaluation">
+<span id="quapy-evaluation-module"></span><h2>quapy.evaluation module<a class="headerlink" href="#module-quapy.evaluation" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.evaluation.artificial_prevalence_prediction">
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">210</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.artificial_prevalence_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the predictions for all samples generated according to the artificial sampling protocol.
+:param model: the model in charge of generating the class prevalence estimations
+:param test: the test set on which to perform arificial sampling
+:param sample_size: the size of the samples
+:param n_prevpoints: the number of different prevalences to sample (or set to None if eval_budget is specified)
+:param n_repetitions: the number of repetitions for each prevalence
+:param eval_budget: if specified, sets a ceil on the number of evaluations to perform. For example, if there are 3
+classes, n_repetitions=1 and eval_budget=20, then n_prevpoints will be set to 5, since this will generate 15
+different prevalences ([0, 0, 1], [0, 0.25, 0.75], [0, 0.5, 0.5] … [1, 0, 0]) and since setting it n_prevpoints
+to 6 would produce more than 20 evaluations.
+:param n_jobs: number of jobs to be run in parallel
+:param random_seed: allows to replicate the samplings. The seed is local to the method and does not affect
+any other random process.
+:param verbose: if True, shows a progress bar
+:return: two ndarrays of shape (m,n) with m the number of samples (n_prevpoints*n_repetitions) and n the</p>
+<blockquote>
+<div><p>number of classes. The first one contains the true prevalences for the samples generated while the second one
+contains the the prevalence estimations</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.evaluation.artificial_prevalence_protocol">
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">210</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metric</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.artificial_prevalence_protocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.evaluation.artificial_prevalence_report">
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">210</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.artificial_prevalence_report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.evaluation.evaluate">
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_samples</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.evaluation.gen_prevalence_prediction">
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">gen_prevalence_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_fn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.gen_prevalence_prediction" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.evaluation.natural_prevalence_prediction">
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">natural_prevalence_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.natural_prevalence_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the predictions for all samples generated according to the artificial sampling protocol.
+:param model: the model in charge of generating the class prevalence estimations
+:param test: the test set on which to perform arificial sampling
+:param sample_size: the size of the samples
+:param n_repetitions: the number of repetitions for each prevalence
+:param n_jobs: number of jobs to be run in parallel
+:param random_seed: allows to replicate the samplings. The seed is local to the method and does not affect
+any other random process.
+:param verbose: if True, shows a progress bar
+:return: two ndarrays of shape (m,n) with m the number of samples (n_repetitions) and n the</p>
+<blockquote>
+<div><p>number of classes. The first one contains the true prevalences for the samples generated while the second one
+contains the the prevalence estimations</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.evaluation.natural_prevalence_protocol">
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">natural_prevalence_protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metric</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.natural_prevalence_protocol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.evaluation.natural_prevalence_report">
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">natural_prevalence_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.natural_prevalence_report" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-quapy.functional">
+<span id="quapy-functional-module"></span><h2>quapy.functional module<a class="headerlink" href="#module-quapy.functional" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.HellingerDistance">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">HellingerDistance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.HellingerDistance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.adjusted_quantification">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">adjusted_quantification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevalence_estim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tpr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fpr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.adjusted_quantification" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.artificial_prevalence_sampling">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevalences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_constrained_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.artificial_prevalence_sampling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.get_nprevpoints_approximation">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">get_nprevpoints_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">combinations_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repeats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.get_nprevpoints_approximation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches for the largest number of (equidistant) prevalence points to define for each of the n_classes classes so that
+the number of valid prevalences generated as combinations of prevalence points (points in a n_classes-dimensional
+simplex) do not exceed combinations_budget.
+:param n_classes: number of classes
+:param n_repeats: number of repetitions for each prevalence combination
+:param combinations_budget: maximum number of combinatios allowed
+:return: the largest number of prevalence points that generate less than combinations_budget valid prevalences</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.normalize_prevalence">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">normalize_prevalence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevalences</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.normalize_prevalence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.num_prevalence_combinations">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">num_prevalence_combinations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repeats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.num_prevalence_combinations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the number of prevalence combinations in the n_classes-dimensional simplex if nprevpoints equally distant
+prevalences are generated and n_repeats repetitions are requested
+:param n_classes: number of classes
+:param n_prevpoints: number of prevalence points.
+:param n_repeats: number of repetitions for each prevalence combination
+:return: The number of possible combinations. For example, if n_classes=2, n_prevpoints=5, n_repeats=1, then the
+number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.prevalence_from_labels">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">prevalence_from_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.prevalence_from_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.prevalence_from_probabilities">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">prevalence_from_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binarize</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.prevalence_from_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.prevalence_linspace">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">prevalence_linspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_prevalences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_limits_epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.prevalence_linspace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produces a uniformly separated values of prevalence. By default, produces an array 21 prevalences, with step 0.05
+and with the limits smoothed, i.e.:
+[0.01, 0.05, 0.10, 0.15, …, 0.90, 0.95, 0.99]
+:param n_prevalences: the number of prevalence values to sample from the [0,1] interval (default 21)
+:param repeat: number of times each prevalence is to be repeated (defaults to 1)
+:param smooth_limits_epsilon: the quantity to add and subtract to the limits 0 and 1
+:return: an array of uniformly separated prevalence values</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.strprev">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">strprev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevalences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.strprev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.uniform_prevalence_sampling">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">uniform_prevalence_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.uniform_prevalence_sampling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.functional.uniform_simplex_sampling">
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">uniform_simplex_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.uniform_simplex_sampling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-quapy.model_selection">
+<span id="quapy-model-selection-module"></span><h2>quapy.model_selection module<a class="headerlink" href="#module-quapy.model_selection" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.model_selection.</span></span><span class="sig-name descname"><span class="pre">GridSearchQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">model:</span> <span class="pre">quapy.method.base.BaseQuantifier,</span> <span class="pre">param_grid:</span> <span class="pre">dict,</span> <span class="pre">sample_size:</span> <span class="pre">Optional[int],</span> <span class="pre">protocol='app',</span> <span class="pre">n_prevpoints:</span> <span class="pre">Optional[int]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">n_repetitions:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">eval_budget:</span> <span class="pre">Optional[int]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">error:</span> <span class="pre">Union[Callable,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">mae&gt;,</span> <span class="pre">refit=True,</span> <span class="pre">val_split=0.4,</span> <span class="pre">n_jobs=1,</span> <span class="pre">random_seed=42,</span> <span class="pre">timeout=-1,</span> <span class="pre">verbose=False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.model_selection.GridSearchQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BaseQuantifier</span></code></a></p>
+<p>Grid Search optimization targeting a quantification-oriented metric.</p>
+<p>Optimizes the hyperparameters of a quantification method, based on an evaluation method and on an evaluation
+protocol for quantification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><em>BaseQuantifier</em></a>) – the quantifier to optimize</p></li>
+<li><p><strong>param_grid</strong> – a dictionary with keys the parameter names and values the list of values to explore</p></li>
+<li><p><strong>sample_size</strong> – the size of the samples to extract from the validation set (ignored if protocl=’gen’)</p></li>
+<li><p><strong>protocol</strong> – either ‘app’ for the artificial prevalence protocol, ‘npp’ for the natural prevalence
+protocol, or ‘gen’ for using a custom sampling generator function</p></li>
+<li><p><strong>n_prevpoints</strong> – if specified, indicates the number of equally distant points to extract from the interval
+[0,1] in order to define the prevalences of the samples; e.g., if n_prevpoints=5, then the prevalences for
+each class will be explored in [0.00, 0.25, 0.50, 0.75, 1.00]. If not specified, then eval_budget is requested.
+Ignored if protocol!=’app’.</p></li>
+<li><p><strong>n_repetitions</strong> – the number of repetitions for each combination of prevalences. This parameter is ignored
+for the protocol=’app’ if eval_budget is set and is lower than the number of combinations that would be
+generated using the value assigned to n_prevpoints (for the current number of classes and n_repetitions).
+Ignored for protocol=’npp’ and protocol=’gen’ (use eval_budget for setting a maximum number of samples in
+those cases).</p></li>
+<li><p><strong>eval_budget</strong> – if specified, sets a ceil on the number of evaluations to perform for each hyper-parameter
+combination. For example, if protocol=’app’, there are 3 classes, n_repetitions=1 and eval_budget=20, then
+n_prevpoints will be set to 5, since this will generate 15 different prevalences, i.e., [0, 0, 1],
+[0, 0.25, 0.75], [0, 0.5, 0.5] … [1, 0, 0], and since setting it to 6 would generate more than
+20. When protocol=’gen’, indicates the maximum number of samples to generate, but less samples will be
+generated if the generator yields less samples.</p></li>
+<li><p><strong>error</strong> – an error function (callable) or a string indicating the name of an error function (valid ones
+are those in qp.error.QUANTIFICATION_ERROR</p></li>
+<li><p><strong>refit</strong> – whether or not to refit the model on the whole labelled collection (training+validation) with
+the best chosen hyperparameter combination. Ignored if protocol=’gen’</p></li>
+<li><p><strong>val_split</strong> – either a LabelledCollection on which to test the performance of the different settings, or
+a float in [0,1] indicating the proportion of labelled data to extract from the training set, or a callable
+returning a generator function each time it is invoked (only for protocol=’gen’).</p></li>
+<li><p><strong>n_jobs</strong> – number of parallel jobs</p></li>
+<li><p><strong>random_seed</strong> – set the seed of the random generator to replicate experiments. Ignored if protocol=’gen’.</p></li>
+<li><p><strong>timeout</strong> – establishes a timer (in seconds) for each of the hyperparameters configurations being tested.
+Whenever a run takes longer than this timer, that configuration will be ignored. If all configurations end up
+being ignored, a TimeoutError exception is raised. If -1 (default) then no time bound is set.</p></li>
+<li><p><strong>verbose</strong> – set to True to get information through the stdout</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ.best_model">
+<span class="sig-name descname"><span class="pre">best_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.model_selection.GridSearchQ.best_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ.classes_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.model_selection.GridSearchQ.classes_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.model_selection.GridSearchQ.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Learning routine. Fits methods with all combinations of hyperparameters and selects the one minimizing</dt><dd><p>the error metric.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>training</strong> – the training set on which to optimize the hyperparameters</p></li>
+<li><p><strong>val_split</strong> – either a LabelledCollection on which to test the performance of the different settings, or
+a float in [0,1] indicating the proportion of labelled data to extract from the training set</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.model_selection.GridSearchQ.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dictionary of hyper-parameters to explore (<cite>param_grid</cite>)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deep</strong> – Unused</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the dictionary <cite>param_grid</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ.quantify">
+<span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.model_selection.GridSearchQ.quantify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate class prevalence values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – sample contanining the instances</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.model_selection.GridSearchQ.set_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the hyper-parameters to explore.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> – a dictionary with keys the parameter names and values the list of values to explore</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-quapy.plot">
+<span id="quapy-plot-module"></span><h2>quapy.plot module<a class="headerlink" href="#module-quapy.plot" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.plot.binary_bias_bins">
+<span class="sig-prename descclassname"><span class="pre">quapy.plot.</span></span><span class="sig-name descname"><span class="pre">binary_bias_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">method_names</span></em>, <em class="sig-param"><span class="pre">true_prevs</span></em>, <em class="sig-param"><span class="pre">estim_prevs</span></em>, <em class="sig-param"><span class="pre">pos_class=1</span></em>, <em class="sig-param"><span class="pre">title=None</span></em>, <em class="sig-param"><span class="pre">nbins=5</span></em>, <em class="sig-param"><span class="pre">colormap=&lt;matplotlib.colors.ListedColormap</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">vertical_xticks=False</span></em>, <em class="sig-param"><span class="pre">legend=True</span></em>, <em class="sig-param"><span class="pre">savepath=None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.plot.binary_bias_bins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.plot.binary_bias_global">
+<span class="sig-prename descclassname"><span class="pre">quapy.plot.</span></span><span class="sig-name descname"><span class="pre">binary_bias_global</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estim_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.plot.binary_bias_global" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.plot.binary_diagonal">
+<span class="sig-prename descclassname"><span class="pre">quapy.plot.</span></span><span class="sig-name descname"><span class="pre">binary_diagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estim_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.plot.binary_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.plot.error_by_drift">
+<span class="sig-prename descclassname"><span class="pre">quapy.plot.</span></span><span class="sig-name descname"><span class="pre">error_by_drift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estim_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Quantification</span> <span class="pre">error</span> <span class="pre">as</span> <span class="pre">a</span> <span class="pre">function</span> <span class="pre">of</span> <span class="pre">distribution</span> <span class="pre">shift'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.plot.error_by_drift" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.plot.save_or_show">
+<span class="sig-prename descclassname"><span class="pre">quapy.plot.</span></span><span class="sig-name descname"><span class="pre">save_or_show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">savepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.plot.save_or_show" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-quapy.util">
+<span id="quapy-util-module"></span><h2>quapy.util module<a class="headerlink" href="#module-quapy.util" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="quapy.util.EarlyStop">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">EarlyStop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patience</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_is_better</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.EarlyStop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.util.create_if_not_exist">
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">create_if_not_exist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.create_if_not_exist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.util.create_parent_dir">
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">create_parent_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.create_parent_dir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.util.download_file">
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archive_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.download_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.util.download_file_if_not_exists">
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">download_file_if_not_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archive_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.download_file_if_not_exists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.util.get_quapy_home">
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">get_quapy_home</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.get_quapy_home" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.util.map_parallel">
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">map_parallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.map_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and n_jobs=2, then
+func is applied in two parallel processes to args[0:50] and to args[50:99]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.util.parallel">
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">parallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper of multiprocessing:
+Parallel(n_jobs=n_jobs)(</p>
+<blockquote>
+<div><p>delayed(func)(args_i) for args_i in args</p>
+</div></blockquote>
+<p>)
+that takes the quapy.environ variable as input silently</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.util.pickled_resource">
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">pickled_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pickle_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_func</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.pickled_resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows for fast reuse of resources that are generated only once by calling generation_func(<a href="#id1"><span class="problematic" id="id2">*</span></a>args). The next times
+this function is invoked, it loads the pickled resource. Example:
+def some_array(n):</p>
+<blockquote>
+<div><p>return np.random.rand(n)</p>
+</div></blockquote>
+<p>pickled_resource(‘./my_array.pkl’, some_array, 10)  # the resource does not exist: it is created by some_array(10)
+pickled_resource(‘./my_array.pkl’, some_array, 10)  # the resource exists: it is loaded from ‘./my_array.pkl’
+:param pickle_path: the path where to save (first time) and load (next times) the resource
+:param generation_func: the function that generates the resource, in case it does not exist in pickle_path
+:param args: any arg that generation_func uses for generating the resources
+:return: the resource</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.util.save_text_file">
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">save_text_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.save_text_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.util.temp_seed">
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">temp_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.temp_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be used in a “with” context to set a temporal seed without modifying the outer numpy’s current state. E.g.:
+with temp_seed(random_seed):</p>
+<blockquote>
+<div><p># do any computation depending on np.random functionality</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seed</strong> – the seed to set within the “with” context</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-quapy">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-quapy" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.isbinary">
+<span class="sig-prename descclassname"><span class="pre">quapy.</span></span><span class="sig-name descname"><span class="pre">isbinary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.isbinary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">quapy package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-quapy.error">quapy.error module</a></li>
+<li><a class="reference internal" href="#module-quapy.evaluation">quapy.evaluation module</a></li>
+<li><a class="reference internal" href="#module-quapy.functional">quapy.functional module</a></li>
+<li><a class="reference internal" href="#module-quapy.model_selection">quapy.model_selection module</a></li>
+<li><a class="reference internal" href="#module-quapy.plot">quapy.plot module</a></li>
+<li><a class="reference internal" href="#module-quapy.util">quapy.util module</a></li>
+<li><a class="reference internal" href="#module-quapy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="modules.html"
+                        title="previous chapter">quapy</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="quapy.classification.html"
+                        title="next chapter">quapy.classification package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quapy.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quapy.classification.html" title="quapy.classification package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="quapy"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >quapy</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quapy package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Alejandro Moreo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

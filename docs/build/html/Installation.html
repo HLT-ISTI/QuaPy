@@ -1,0 +1,169 @@
+
+
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Installation &#8212; QuaPy 0.1.6 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Datasets" href="Datasets.html" />
+    <link rel="prev" title="Welcome to QuaPy’s documentation!" href="index.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Datasets.html" title="Datasets"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to QuaPy’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Installation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>QuaPy can be easily installed via <cite>pip</cite></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">quapy</span>
+</pre></div>
+</div>
+<p>See <a class="reference external" href="https://pypi.org/project/QuaPy/">pip page</a> for older versions.</p>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>scikit-learn, numpy, scipy</p></li>
+<li><p>pytorch (for QuaNet)</p></li>
+<li><p>svmperf patched for quantification (see below)</p></li>
+<li><p>joblib</p></li>
+<li><p>tqdm</p></li>
+<li><p>pandas, xlrd</p></li>
+<li><p>matplotlib</p></li>
+</ul>
+</div>
+<div class="section" id="svm-perf-with-quantification-oriented-losses">
+<h2>SVM-perf with quantification-oriented losses<a class="headerlink" href="#svm-perf-with-quantification-oriented-losses" title="Permalink to this headline">¶</a></h2>
+<p>In order to run experiments involving SVM(Q), SVM(KLD), SVM(NKLD),
+SVM(AE), or SVM(RAE), you have to first download the
+<a class="reference external" href="http://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">svmperf</a>
+package, apply the patch
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/svm-perf-quantification-ext.patch">svm-perf-quantification-ext.patch</a>,
+and compile the sources.
+The script
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh">prepare_svmperf.sh</a>,
+does all the job. Simply run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">prepare_svmperf</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>The resulting directory <cite>./svm_perf_quantification</cite> contains the
+patched version of <cite>svmperf</cite> with quantification-oriented losses.</p>
+<p>The
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/svm-perf-quantification-ext.patch">svm-perf-quantification-ext.patch</a>
+is an extension of the patch made available by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/2700406?casa_token=8D2fHsGCVn0AAAAA:ZfThYOvrzWxMGfZYlQW_y8Cagg-o_l6X_PcF09mdETQ4Tu7jK98mxFbGSXp9ZSO14JkUIYuDGFG0">Esuli et al. 2015</a>
+that allows SVMperf to optimize for
+the <cite>Q</cite> measure as proposed by
+<a class="reference external" href="https://www.sciencedirect.com/science/article/abs/pii/S003132031400291X">Barranquero et al. 2015</a>
+and for the <cite>KLD</cite> and <cite>NKLD</cite> as proposed by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/2700406?casa_token=8D2fHsGCVn0AAAAA:ZfThYOvrzWxMGfZYlQW_y8Cagg-o_l6X_PcF09mdETQ4Tu7jK98mxFbGSXp9ZSO14JkUIYuDGFG0">Esuli et al. 2015</a>
+for quantification.
+This patch extends the former by also allowing SVMperf to optimize for
+<cite>AE</cite> and <cite>RAE</cite>.</p>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#svm-perf-with-quantification-oriented-losses">SVM-perf with quantification-oriented losses</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to QuaPy’s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Datasets.html"
+                        title="next chapter">Datasets</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/Installation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Datasets.html" title="Datasets"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to QuaPy’s documentation!"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Installation</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Alejandro Moreo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,159 @@
+# Model Selection
+
+As a supervised machine learning task, quantification methods
+can strongly depend on a good choice of model hyper-parameters.
+The process whereby those hyper-parameters are chosen is
+typically known as _Model Selection_, and typically consists of
+testing different settings and picking the one that performed
+best in a held-out validation set in terms of any given
+evaluation measure.
+
+## Targeting a Quantification-oriented loss
+
+The task being optimized determines the evaluation protocol,
+i.e., the criteria according to which the performance of 
+any given method for solving is to be assessed.
+As a task on its own right, quantification should impose
+its own model selection strategies, i.e., strategies 
+aimed at finding appropriate configurations 
+specifically designed for the task of quantification. 
+
+Quantification has long been regarded as an add-on of
+classification, and thus the model selection strategies
+customarily adopted in classification have simply been
+applied to quantification (see the next section).
+It has been argued in _Moreo, Alejandro, and Fabrizio Sebastiani. 
+"Re-Assessing the" Classify and Count" Quantification Method." 
+arXiv preprint arXiv:2011.02552 (2020)._
+that specific model selection strategies should
+be adopted for quantification. That is, model selection
+strategies for quantification should target 
+quantification-oriented losses and be tested in a variety
+of scenarios exhibiting different degrees of prior 
+probability shift.
+
+The class
+_qp.model_selection.GridSearchQ_
+implements a grid-search exploration over the space of 
+hyper-parameter combinations that evaluates each  
+combination of hyper-parameters 
+by means of a given quantification-oriented
+error metric (e.g., any of the error functions implemented
+in _qp.error_) and according to the 
+[_artificial sampling protocol_](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation).
+
+The following is an example of model selection for quantification:
+
+```python
+import quapy as qp
+from quapy.method.aggregative import PCC
+from sklearn.linear_model import LogisticRegression
+import numpy as np
+
+# set a seed to replicate runs
+np.random.seed(0)
+qp.environ['SAMPLE_SIZE'] = 500
+
+dataset = qp.datasets.fetch_reviews('hp', tfidf=True, min_df=5)
+
+# The model will be returned by the fit method of GridSearchQ.
+# Model selection will be performed with a fixed budget of 1000 evaluations
+# for each hyper-parameter combination. The error to optimize is the MAE for
+# quantification, as evaluated on artificially drawn samples at prevalences 
+# covering the entire spectrum on a held-out portion (40%) of the training set.
+model = qp.model_selection.GridSearchQ(
+    model=PCC(LogisticRegression()),
+    param_grid={'C': np.logspace(-4,5,10), 'class_weight': ['balanced', None]},
+    sample_size=qp.environ['SAMPLE_SIZE'],
+    eval_budget=1000,
+    error='mae',
+    refit=True,  # retrain on the whole labelled set
+    val_split=0.4,
+    verbose=True  # show information as the process goes on
+).fit(dataset.training)
+
+print(f'model selection ended: best hyper-parameters={model.best_params_}')
+model = model.best_model_
+
+# evaluation in terms of MAE
+results = qp.evaluation.artificial_sampling_eval(
+    model,
+    dataset.test,
+    sample_size=qp.environ['SAMPLE_SIZE'],
+    n_prevpoints=101,
+    n_repetitions=10,
+    error_metric='mae'
+)
+
+print(f'MAE={results:.5f}')
+```
+
+In this example, the system outputs:
+```
+[GridSearchQ]: starting optimization with n_jobs=1
+[GridSearchQ]: checking hyperparams={'C': 0.0001, 'class_weight': 'balanced'} got mae score 0.24987
+[GridSearchQ]: checking hyperparams={'C': 0.0001, 'class_weight': None} got mae score 0.48135
+[GridSearchQ]: checking hyperparams={'C': 0.001, 'class_weight': 'balanced'} got mae score 0.24866
+[...]
+[GridSearchQ]: checking hyperparams={'C': 100000.0, 'class_weight': None} got mae score 0.43676
+[GridSearchQ]: optimization finished: best params {'C': 0.1, 'class_weight': 'balanced'} (score=0.19982)
+[GridSearchQ]: refitting on the whole development set
+model selection ended: best hyper-parameters={'C': 0.1, 'class_weight': 'balanced'}
+1010 evaluations will be performed for each combination of hyper-parameters
+[artificial sampling protocol] generating predictions: 100%|██████████| 1010/1010 [00:00<00:00, 5005.54it/s]
+MAE=0.20342
+```
+
+The parameter _val_split_ can alternatively be used to indicate
+a validation set (i.e., an instance of _LabelledCollection_) instead
+of a proportion. This could be useful if one wants to have control
+on the specific data split to be used across different model selection
+experiments.
+
+## Targeting a Classification-oriented loss
+
+Optimizing a model for quantification could rather be 
+computationally costly.
+In aggregative methods, one could alternatively try to optimize 
+the classifier's hyper-parameters for classification.
+Although this is theoretically suboptimal, many articles in 
+quantification literature have opted for this strategy.
+
+In QuaPy, this is achieved by simply instantiating the 
+classifier learner as a GridSearchCV from scikit-learn. 
+The following code illustrates how to do that: 
+
+```python
+learner = GridSearchCV(
+    LogisticRegression(),
+    param_grid={'C': np.logspace(-4, 5, 10), 'class_weight': ['balanced', None]},
+    cv=5)
+model = PCC(learner).fit(dataset.training)
+print(f'model selection ended: best hyper-parameters={model.learner.best_params_}')
+```
+
+In this example, the system outputs:
+```
+model selection ended: best hyper-parameters={'C': 10000.0, 'class_weight': None}
+1010 evaluations will be performed for each combination of hyper-parameters
+[artificial sampling protocol] generating predictions: 100%|██████████| 1010/1010 [00:00<00:00, 5379.55it/s]
+MAE=0.41734
+```
+
+Note that the MAE is worse than the one we obtained when optimizing 
+for quantification and, indeed, the hyper-parameters found optimal
+largely differ between the two selection modalities. The 
+hyper-parameters C=10000 and class_weight=None have been found 
+to work well for the specific training prevalence of the HP dataset,
+but these hyper-parameters turned out to be suboptimal when the
+class prevalences of the test set differs (as is indeed tested
+in scenarios of quantification).
+
+This is, however, not always the case, and one could, in practice, 
+find examples
+in which optimizing for classification ends up resulting in a better
+quantifier than when optimizing for quantification. 
+Nonetheless, this is theoretically unlikely to happen.
+
+
+

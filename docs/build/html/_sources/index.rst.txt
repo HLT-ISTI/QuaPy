@@ -1,0 +1,90 @@
+.. QuaPy documentation master file, created by
+   sphinx-quickstart on Tue Nov  9 11:31:32 2021.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to QuaPy's documentation!
+=================================
+
+QuaPy is an open source framework for Quantification (a.k.a. Supervised Prevalence Estimation)
+written in Python.
+
+Introduction
+------------
+
+QuaPy roots on the concept of data sample, and provides implementations of most important concepts
+in quantification literature, such as the most important quantification baselines, many advanced
+quantification methods, quantification-oriented model selection, many evaluation measures and protocols
+used for evaluating quantification methods.
+QuaPy also integrates commonly used datasets and offers visualization tools for facilitating the analysis and
+interpretation of results.
+
+A quick example:
+****************
+
+The following script fetchs a Twitter dataset, trains and evaluates an
+`Adjusted Classify & Count` model in terms of the `Mean Absolute Error` (MAE)
+between the class prevalences estimated for the test set and the true prevalences
+of the test set.
+
+::
+
+   import quapy as qp
+   from sklearn.linear_model import LogisticRegression
+
+   dataset = qp.datasets.fetch_twitter('semeval16')
+
+   # create an "Adjusted Classify & Count" quantifier
+   model = qp.method.aggregative.ACC(LogisticRegression())
+   model.fit(dataset.training)
+
+   estim_prevalences = model.quantify(dataset.test.instances)
+   true_prevalences  = dataset.test.prevalence()
+
+   error = qp.error.mae(true_prevalences, estim_prevalences)
+
+   print(f'Mean Absolute Error (MAE)={error:.3f}')
+
+
+Quantification is useful in scenarios of prior probability shift. In other
+words, we would not be interested in estimating the class prevalences of the test set if
+we could assume the IID assumption to hold, as this prevalence would simply coincide with the
+class prevalence of the training set. For this reason, any Quantification model
+should be tested across samples characterized by different class prevalences.
+QuaPy implements sampling procedures and evaluation protocols that automates this endeavour.
+See the :doc:`Evaluation` for detailed examples.
+
+Features
+********
+
+* Implementation of most popular quantification methods (Classify-&-Count variants, Expectation-Maximization, SVM-based variants for quantification, HDy, QuaNet, and Ensembles).
+* Versatile functionality for performing evaluation based on artificial sampling protocols.
+* Implementation of most commonly used evaluation metrics (e.g., MAE, MRAE, MSE, NKLD, etc.).
+* Popular datasets for Quantification (textual and numeric) available, including:
+    * 32 UCI Machine Learning datasets.
+    * 11 Twitter Sentiment datasets.
+    * 3 Reviews Sentiment datasets.
+* Native supports for binary and single-label scenarios of quantification.
+* Model selection functionality targeting quantification-oriented losses.
+* Visualization tools for analysing results.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   Installation
+   Datasets
+   Evaluation
+   Methods
+   Model Selection
+   Plotting
+   API Developer documentation<modules>
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

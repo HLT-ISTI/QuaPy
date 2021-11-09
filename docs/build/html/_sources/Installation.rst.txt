@@ -1,0 +1,56 @@
+Installation
+------------
+
+QuaPy can be easily installed via `pip`
+
+::
+
+   pip install quapy
+
+See `pip page <https://pypi.org/project/QuaPy/>`_ for older versions.
+
+Requirements
+************
+
+* scikit-learn, numpy, scipy
+* pytorch (for QuaNet)
+* svmperf patched for quantification (see below)
+* joblib
+* tqdm
+* pandas, xlrd
+* matplotlib
+
+
+SVM-perf with quantification-oriented losses
+********************************************
+
+In order to run experiments involving SVM(Q), SVM(KLD), SVM(NKLD),
+SVM(AE), or SVM(RAE), you have to first download the
+`svmperf <http://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_
+package, apply the patch
+`svm-perf-quantification-ext.patch <https://github.com/HLT-ISTI/QuaPy/blob/master/svm-perf-quantification-ext.patch>`_,
+and compile the sources.
+The script
+`prepare_svmperf.sh <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_,
+does all the job. Simply run:
+
+::
+
+   ./prepare_svmperf.sh
+
+
+The resulting directory `./svm_perf_quantification` contains the
+patched version of `svmperf` with quantification-oriented losses.
+
+The
+`svm-perf-quantification-ext.patch <https://github.com/HLT-ISTI/QuaPy/blob/master/svm-perf-quantification-ext.patch>`_
+is an extension of the patch made available by
+`Esuli et al. 2015 <https://dl.acm.org/doi/abs/10.1145/2700406?casa_token=8D2fHsGCVn0AAAAA:ZfThYOvrzWxMGfZYlQW_y8Cagg-o_l6X_PcF09mdETQ4Tu7jK98mxFbGSXp9ZSO14JkUIYuDGFG0>`_
+that allows SVMperf to optimize for
+the `Q` measure as proposed by
+`Barranquero et al. 2015 <https://www.sciencedirect.com/science/article/abs/pii/S003132031400291X>`_
+and for the `KLD` and `NKLD` as proposed by
+`Esuli et al. 2015 <https://dl.acm.org/doi/abs/10.1145/2700406?casa_token=8D2fHsGCVn0AAAAA:ZfThYOvrzWxMGfZYlQW_y8Cagg-o_l6X_PcF09mdETQ4Tu7jK98mxFbGSXp9ZSO14JkUIYuDGFG0>`_
+for quantification.
+This patch extends the former by also allowing SVMperf to optimize for
+`AE` and `RAE`.

@@ -1,0 +1,37 @@
+quapy.tests package
+===================
+
+Submodules
+----------
+
+quapy.tests.test\_base module
+-----------------------------
+
+.. automodule:: quapy.tests.test_base
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+quapy.tests.test\_datasets module
+---------------------------------
+
+.. automodule:: quapy.tests.test_datasets
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+quapy.tests.test\_methods module
+--------------------------------
+
+.. automodule:: quapy.tests.test_methods
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: quapy.tests
+   :members:
+   :undoc-members:
+   :show-inheritance:

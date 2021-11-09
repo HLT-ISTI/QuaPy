@@ -1,0 +1,504 @@
+
+
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>quapy.data package &#8212; QuaPy 0.1.6 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="quapy.method package" href="quapy.method.html" />
+    <link rel="prev" title="quapy.classification package" href="quapy.classification.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quapy.method.html" title="quapy.method package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="quapy.classification.html" title="quapy.classification package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >quapy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="quapy.html" accesskey="U">quapy package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quapy.data package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="quapy-data-package">
+<h1>quapy.data package<a class="headerlink" href="#quapy-data-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-quapy.data.base">
+<span id="quapy-data-base-module"></span><h2>quapy.data.base module<a class="headerlink" href="#module-quapy.data.base" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="quapy.data.base.Dataset">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.data.base.</span></span><span class="sig-name descname"><span class="pre">Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">vocabulary</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.Dataset.SplitStratified">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">SplitStratified</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.6</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.Dataset.SplitStratified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quapy.data.base.Dataset.binary">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#quapy.data.base.Dataset.binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quapy.data.base.Dataset.classes_">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.data.base.Dataset.classes_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.Dataset.kFCV">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">kFCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfolds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrepeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.Dataset.kFCV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.Dataset.load">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_func</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">callable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.Dataset.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quapy.data.base.Dataset.n_classes">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">n_classes</span></span><a class="headerlink" href="#quapy.data.base.Dataset.n_classes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.Dataset.stats">
+<span class="sig-name descname"><span class="pre">stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.Dataset.stats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quapy.data.base.Dataset.vocabulary_size">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">vocabulary_size</span></span><a class="headerlink" href="#quapy.data.base.Dataset.vocabulary_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.data.base.</span></span><span class="sig-name descname"><span class="pre">LabelledCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A LabelledCollection is a set of objects each with a label associated to it.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.Xy">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">Xy</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.Xy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.artificial_sampling_generator">
+<span class="sig-name descname"><span class="pre">artificial_sampling_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevalences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.artificial_sampling_generator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.artificial_sampling_index_generator">
+<span class="sig-name descname"><span class="pre">artificial_sampling_index_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevalences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.artificial_sampling_index_generator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.binary">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.counts">
+<span class="sig-name descname"><span class="pre">counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.counts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.kFCV">
+<span class="sig-name descname"><span class="pre">kFCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nfolds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrepeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.kFCV" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.load">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_func</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.n_classes">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">n_classes</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.n_classes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.natural_sampling_generator">
+<span class="sig-name descname"><span class="pre">natural_sampling_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.natural_sampling_generator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.natural_sampling_index_generator">
+<span class="sig-name descname"><span class="pre">natural_sampling_index_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.natural_sampling_index_generator" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.prevalence">
+<span class="sig-name descname"><span class="pre">prevalence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.prevalence" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.sampling">
+<span class="sig-name descname"><span class="pre">sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.sampling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.sampling_from_index">
+<span class="sig-name descname"><span class="pre">sampling_from_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.sampling_from_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.sampling_index">
+<span class="sig-name descname"><span class="pre">sampling_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.sampling_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.split_stratified">
+<span class="sig-name descname"><span class="pre">split_stratified</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_prop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.split_stratified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.stats">
+<span class="sig-name descname"><span class="pre">stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.stats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.uniform_sampling">
+<span class="sig-name descname"><span class="pre">uniform_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.uniform_sampling" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.uniform_sampling_index">
+<span class="sig-name descname"><span class="pre">uniform_sampling_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.uniform_sampling_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.base.isbinary">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.base.</span></span><span class="sig-name descname"><span class="pre">isbinary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.isbinary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-quapy.data.datasets">
+<span id="quapy-data-datasets-module"></span><h2>quapy.data.datasets module<a class="headerlink" href="#module-quapy.data.datasets" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.datasets.df_replace">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">df_replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">df</span></em>, <em class="sig-param"><span class="pre">col</span></em>, <em class="sig-param"><span class="pre">repl={'no':</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">'yes':</span> <span class="pre">1}</span></em>, <em class="sig-param"><span class="pre">astype=&lt;class</span> <span class="pre">'float'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.datasets.df_replace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.datasets.fetch_UCIDataset">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_UCIDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><span class="pre">quapy.data.base.Dataset</span></a></span></span><a class="headerlink" href="#quapy.data.datasets.fetch_UCIDataset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.datasets.fetch_UCILabelledCollection">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_UCILabelledCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><span class="pre">quapy.data.base.Dataset</span></a></span></span><a class="headerlink" href="#quapy.data.datasets.fetch_UCILabelledCollection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.datasets.fetch_reviews">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_reviews</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tfidf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pickle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><span class="pre">quapy.data.base.Dataset</span></a></span></span><a class="headerlink" href="#quapy.data.datasets.fetch_reviews" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a Reviews dataset as a Dataset instance, as used in:
+Esuli, A., Moreo, A., and Sebastiani, F. “A recurrent neural network for sentiment quantification.”
+Proceedings of the 27th ACM International Conference on Information and Knowledge Management. 2018.
+:param dataset_name: the name of the dataset: valid ones are ‘hp’, ‘kindle’, ‘imdb’
+:param tfidf: set to True to transform the raw documents into tfidf weighted matrices
+:param min_df: minimun number of documents that should contain a term in order for the term to be
+kept (ignored if tfidf==False)
+:param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+~/quay_data/ directory)
+:param pickle: set to True to pickle the Dataset object the first time it is generated, in order to allow for
+faster subsequent invokations
+:return: a Dataset instance</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.datasets.fetch_twitter">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_twitter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_model_selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pickle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><span class="pre">quapy.data.base.Dataset</span></a></span></span><a class="headerlink" href="#quapy.data.datasets.fetch_twitter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a Twitter dataset as a Dataset instance, as used in:
+Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
+Social Network Analysis and Mining6(19), 1–22 (2016)
+The datasets ‘semeval13’, ‘semeval14’, ‘semeval15’ share the same training set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dataset_name</strong> – the name of the dataset: valid ones are ‘gasp’, ‘hcr’, ‘omd’, ‘sanders’, ‘semeval13’,</p>
+</dd>
+</dl>
+<p>‘semeval14’, ‘semeval15’, ‘semeval16’, ‘sst’, ‘wa’, ‘wb’
+:param for_model_selection: if True, then returns the train split as the training set and the devel split
+as the test set; if False, then returns the train+devel split as the training set and the test set as the
+test set
+:param min_df: minimun number of documents that should contain a term in order for the term to be kept
+:param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+~/quay_data/ directory)
+:param pickle: set to True to pickle the Dataset object the first time it is generated, in order to allow for
+faster subsequent invokations
+:return: a Dataset instance</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.datasets.warn">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">warn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.datasets.warn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-quapy.data.preprocessing">
+<span id="quapy-data-preprocessing-module"></span><h2>quapy.data.preprocessing module<a class="headerlink" href="#module-quapy.data.preprocessing" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.IndexTransformer">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.data.preprocessing.</span></span><span class="sig-name descname"><span class="pre">IndexTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.IndexTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.IndexTransformer.add_word">
+<span class="sig-name descname"><span class="pre">add_word</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nogaps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.IndexTransformer.add_word" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.IndexTransformer.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.IndexTransformer.fit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> – a list of strings</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.IndexTransformer.fit_transform">
+<span class="sig-name descname"><span class="pre">fit_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.IndexTransformer.fit_transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.IndexTransformer.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.IndexTransformer.index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.IndexTransformer.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.IndexTransformer.transform" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.IndexTransformer.vocabulary_size">
+<span class="sig-name descname"><span class="pre">vocabulary_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.IndexTransformer.vocabulary_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.index">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.preprocessing.</span></span><span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><span class="pre">quapy.data.base.Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indexes a dataset of strings. To index a document means to replace each different token by a unique numerical index.
+Rare words (i.e., words occurring less than _min_df_ times) are replaced by a special token UNK
+:param dataset: a Dataset where the instances are lists of str
+:param min_df: minimum number of instances below which the term is replaced by a UNK index
+:param inplace: whether or not to apply the transformation inplace, or to a new copy
+:param kwargs: the rest of parameters of the transformation (as for sklearn.feature_extraction.text.CountVectorizer)
+:return: a new Dataset (if inplace=False) or a reference to the current Dataset (inplace=True)
+consisting of lists of integer values representing indices.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.reduce_columns">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.preprocessing.</span></span><span class="sig-name descname"><span class="pre">reduce_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><span class="pre">quapy.data.base.Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.reduce_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduces the dimensionality of the csr_matrix by removing the columns of words which are not present in at least
+_min_df_ instances
+:param dataset: a Dataset in sparse format (any subtype of scipy.sparse.spmatrix)
+:param min_df: minimum number of instances below which the columns are removed
+:param inplace: whether or not to apply the transformation inplace, or to a new copy
+:return: a new Dataset (if inplace=False) or a reference to the current Dataset (inplace=True)
+where the dimensions corresponding to infrequent instances have been removed</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.standardize">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.preprocessing.</span></span><span class="sig-name descname"><span class="pre">standardize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><span class="pre">quapy.data.base.Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.standardize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.preprocessing.text2tfidf">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.preprocessing.</span></span><span class="sig-name descname"><span class="pre">text2tfidf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><span class="pre">quapy.data.base.Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sublinear_tf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.preprocessing.text2tfidf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms a Dataset of textual instances into a Dataset of tfidf weighted sparse vectors
+:param dataset: a Dataset where the instances are lists of str
+:param min_df: minimum number of occurrences for a word to be considered as part of the vocabulary
+:param sublinear_tf: whether or not to apply the log scalling to the tf counters
+:param inplace: whether or not to apply the transformation inplace, or to a new copy
+:param kwargs: the rest of parameters of the transformation (as for sklearn.feature_extraction.text.TfidfVectorizer)
+:return: a new Dataset in csr_matrix format (if inplace=False) or a reference to the current Dataset (inplace=True)
+where the instances are stored in a csr_matrix of real-valued tfidf scores</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-quapy.data.reader">
+<span id="quapy-data-reader-module"></span><h2>quapy.data.reader module<a class="headerlink" href="#module-quapy.data.reader" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.reader.binarize">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.reader.</span></span><span class="sig-name descname"><span class="pre">binarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_class</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.reader.binarize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.reader.from_csv">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.reader.</span></span><span class="sig-name descname"><span class="pre">from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.reader.from_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a csv file in which columns are separated by ‘,’.
+File format &lt;label&gt;,&lt;feat1&gt;,&lt;feat2&gt;,…,&lt;featn&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – path to the csv file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a ndarray for the labels and a ndarray (float) for the covariates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.reader.from_sparse">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.reader.</span></span><span class="sig-name descname"><span class="pre">from_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.reader.from_sparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a labelled collection of real-valued instances expressed in sparse format
+File format &lt;-1 or 0 or 1&gt;[s col(int):val(float)]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – path to the labelled collection</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a csr_matrix containing the instances (rows), and a ndarray containing the labels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.reader.from_text">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.reader.</span></span><span class="sig-name descname"><span class="pre">from_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class2int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.reader.from_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a labelled colletion of documents.
+File fomart &lt;0 or 1&gt;        &lt;document&gt;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – path to the labelled collection</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of sentences, and a list of labels</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.data.reader.reindex_labels">
+<span class="sig-prename descclassname"><span class="pre">quapy.data.reader.</span></span><span class="sig-name descname"><span class="pre">reindex_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.reader.reindex_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Re-indexes a list of labels as a list of indexes, and returns the classnames corresponding to the indexes.
+E.g., y=[‘B’, ‘B’, ‘A’, ‘C’] -&gt; [1,1,0,2], [‘A’,’B’,’C’]
+:param y: the list or array of original labels
+:return: a ndarray (int) of class indexes, and a ndarray of classnames corresponding to the indexes.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-quapy.data">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-quapy.data" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">quapy.data package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-quapy.data.base">quapy.data.base module</a></li>
+<li><a class="reference internal" href="#module-quapy.data.datasets">quapy.data.datasets module</a></li>
+<li><a class="reference internal" href="#module-quapy.data.preprocessing">quapy.data.preprocessing module</a></li>
+<li><a class="reference internal" href="#module-quapy.data.reader">quapy.data.reader module</a></li>
+<li><a class="reference internal" href="#module-quapy.data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="quapy.classification.html"
+                        title="previous chapter">quapy.classification package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="quapy.method.html"
+                        title="next chapter">quapy.method package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/quapy.data.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="quapy.method.html" title="quapy.method package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="quapy.classification.html" title="quapy.classification package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >quapy</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="quapy.html" >quapy package</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">quapy.data package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Alejandro Moreo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>

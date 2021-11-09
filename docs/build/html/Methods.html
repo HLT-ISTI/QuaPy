@@ -1,0 +1,509 @@
+
+
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quantification Methods &#8212; QuaPy 0.1.6 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/bizstyle.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Plotting" href="Plotting.html" />
+    <link rel="prev" title="Evaluation" href="Evaluation.html" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <!--[if lt IE 9]>
+    <script src="_static/css3-mediaqueries.js"></script>
+    <![endif]-->
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Plotting.html" title="Plotting"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Evaluation.html" title="Evaluation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Quantification Methods</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="tex2jax_ignore mathjax_ignore section" id="quantification-methods">
+<h1>Quantification Methods<a class="headerlink" href="#quantification-methods" title="Permalink to this headline">¶</a></h1>
+<p>Quantification methods can be categorized as belonging to
+<em>aggregative</em> and <em>non-aggregative</em> groups.
+Most methods included in QuaPy at the moment are of type <em>aggregative</em>
+(though we plan to add many more methods in the near future), i.e.,
+are methods characterized by the fact that
+quantification is performed as an aggregation function of the individual
+products of classification.</p>
+<p>Any quantifier in QuaPy shoud extend the class <em>BaseQuantifier</em>,
+and implement some abstract methods:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span> <span class="o">...</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span> <span class="o">...</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">):</span> <span class="o">...</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>The meaning of those functions should be familiar to those
+used to work with scikit-learn since the class structure of QuaPy
+is directly inspired by scikit-learn’s <em>Estimators</em>. Functions
+<em>fit</em> and <em>quantify</em> are used to train the model and to provide
+class estimations (the reason why
+scikit-learn’ structure has not been adopted <em>as is</em> in QuaPy responds to
+the fact that scikit-learn’s <em>predict</em> function is expected to return
+one output for each input element –e.g., a predicted label for each
+instance in a sample– while in quantification the output for a sample
+is one single array of class prevalences), while functions <em>set_params</em>
+and <em>get_params</em> allow a
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection">model selector</a>
+to automate the process of hyperparameter search.</p>
+<div class="section" id="aggregative-methods">
+<h2>Aggregative Methods<a class="headerlink" href="#aggregative-methods" title="Permalink to this headline">¶</a></h2>
+<p>All quantification methods are implemented as part of the
+<em>qp.method</em> package. In particular, <em>aggregative</em> methods are defined in
+<em>qp.method.aggregative</em>, and extend <em>AggregativeQuantifier(BaseQuantifier)</em>.
+The methods that any <em>aggregative</em> quantifier must implement are:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_learner</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span> <span class="o">...</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>since, as mentioned before, aggregative methods base their prediction on the
+individual predictions of a classifier. Indeed, a default implementation
+of <em>BaseQuantifier.quantify</em> is already provided, which looks like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+    <span class="n">classif_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preclassify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Aggregative quantifiers are expected to maintain a classifier (which is
+accessed through the <em>&#64;property</em> <em>learner</em>). This classifier is
+given as input to the quantifier, and can be already fit
+on external data (in which case, the <em>fit_learner</em> argument should
+be set to False), or be fit by the quantifier’s fit (default).</p>
+<p>Another class of <em>aggregative</em> methods are the <em>probabilistic</em>
+aggregative methods, that should inherit from the abstract class
+<em>AggregativeProbabilisticQuantifier(AggregativeQuantifier)</em>.
+The particularity of <em>probabilistic</em> aggregative methods (w.r.t.
+non-probabilistic ones), is that the default quantifier is defined
+in terms of the posterior probabilities returned by a probabilistic
+classifier, and not by the crisp decisions of a hard classifier; i.e.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+        <span class="n">classif_posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">posterior_probabilities</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">classif_posteriors</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>One advantage of <em>aggregative</em> methods (either probabilistic or not)
+is that the evaluation according to any sampling procedure (e.g.,
+the <a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation">artificial sampling protocol</a>)
+can be achieved very efficiently, since the entire set can be pre-classified
+once, and the quantification estimations for different samples can directly
+reuse these predictions, without requiring to classify each element every time.
+QuaPy leverages this property to speed-up any procedure having to do with
+quantification over samples, as is customarily done in model selection or
+in evaluation.</p>
+<div class="section" id="the-classify-count-variants">
+<h3>The Classify &amp; Count variants<a class="headerlink" href="#the-classify-count-variants" title="Permalink to this headline">¶</a></h3>
+<p>QuaPy implements the four CC variants, i.e.:</p>
+<ul class="simple">
+<li><p><em>CC</em> (Classify &amp; Count), the simplest aggregative quantifier; one that
+simply relies on the label predictions of a classifier to deliver class estimates.</p></li>
+<li><p><em>ACC</em> (Adjusted Classify &amp; Count), the adjusted variant of CC.</p></li>
+<li><p><em>PCC</em> (Probabilistic Classify &amp; Count), the probabilistic variant of CC that
+relies on the soft estimations (or posterior probabilities) returned by a (probabilistic) classifier.</p></li>
+<li><p><em>PACC</em> (Probabilistic Adjusted Classify &amp; Count), the adjusted variant of PCC.</p></li>
+</ul>
+<p>The following code serves as a complete example using CC equipped
+with a SVM as the classifier:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">training</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">training</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span>
+
+<span class="c1"># instantiate a classifier learner, in this case a SVM</span>
+<span class="n">svm</span> <span class="o">=</span> <span class="n">LinearSVC</span><span class="p">()</span>
+
+<span class="c1"># instantiate a Classify &amp; Count with the SVM</span>
+<span class="c1"># (an alias is available in qp.method.aggregative.ClassifyAndCount)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">CC</span><span class="p">(</span><span class="n">svm</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The same code could be used to instantiate an ACC, by simply replacing
+the instantiation of the model with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">ACC</span><span class="p">(</span><span class="n">svm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the adjusted variants (ACC and PACC) need to estimate
+some parameters for performing the adjustment (e.g., the
+<em>true positive rate</em> and the <em>false positive rate</em> in case of
+binary classification) that are estimated on a validation split
+of the labelled set. In this case, the <strong>init</strong> method of
+ACC defines an additional parameter, <em>val_split</em> which, by
+default, is set to 0.4 and so, the 40% of the labelled data
+will be used for estimating the parameters for adjusting the
+predictions. This parameters can also be set with an integer,
+indicating that the parameters should be estimated by means of
+<em>k</em>-fold cross-validation, for which the integer indicates the
+number <em>k</em> of folds. Finally, <em>val_split</em> can be set to a
+specific held-out validation set (i.e., an instance of <em>LabelledCollection</em>).</p>
+<p>The specification of <em>val_split</em> can be
+postponed to the invokation of the fit method (if <em>val_split</em> was also
+set in the constructor, the one specified at fit time would prevail),
+e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">ACC</span><span class="p">(</span><span class="n">svm</span><span class="p">)</span>
+<span class="c1"># perform 5-fold cross validation for estimating ACC&#39;s parameters</span>
+<span class="c1"># (overrides the default val_split=0.4 in the constructor)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following code illustrates the case in which PCC is used:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">PCC</span><span class="p">(</span><span class="n">svm</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;classifier:&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">learner</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this case, QuaPy will print:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">The</span> <span class="n">learner</span> <span class="n">LinearSVC</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">seem</span> <span class="n">to</span> <span class="n">be</span> <span class="n">probabilistic</span><span class="o">.</span> <span class="n">The</span> <span class="n">learner</span> <span class="n">will</span> <span class="n">be</span> <span class="n">calibrated</span><span class="o">.</span>
+<span class="n">classifier</span><span class="p">:</span> <span class="n">CalibratedClassifierCV</span><span class="p">(</span><span class="n">base_estimator</span><span class="o">=</span><span class="n">LinearSVC</span><span class="p">(),</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The first output indicates that the learner (<em>LinearSVC</em> in this case)
+is not a probabilistic classifier (i.e., it does not implement the
+<em>predict_proba</em> method) and so, the classifier will be converted to
+a probabilistic one through <a class="reference external" href="https://scikit-learn.org/stable/modules/calibration.html">calibration</a>.
+As a result, the classifier that is printed in the second line points
+to a <em>CalibratedClassifier</em> instance. Note that calibration can only
+be applied to hard classifiers when <em>fit_learner=True</em>; an exception
+will be raised otherwise.</p>
+<p>Lastly, everything we said aboud ACC and PCC
+applies to PACC as well.</p>
+</div>
+<div class="section" id="expectation-maximization-emq">
+<h3>Expectation Maximization (EMQ)<a class="headerlink" href="#expectation-maximization-emq" title="Permalink to this headline">¶</a></h3>
+<p>The Expectation Maximization Quantifier (EMQ), also known as
+the SLD, is available at <em>qp.method.aggregative.EMQ</em> or via the
+alias <em>qp.method.aggregative.ExpectationMaximizationQuantifier</em>.
+The method is described in:</p>
+<p><em>Saerens, M., Latinne, P., and Decaestecker, C. (2002). Adjusting the outputs of a classifier
+to new a priori probabilities: A simple procedure. Neural Computation, 14(1):21–41.</em></p>
+<p>EMQ works with a probabilistic classifier (if the classifier
+given as input is a hard one, a calibration will be attempted).
+Although this method was originally proposed for improving the
+posterior probabilities of a probabilistic classifier, and not
+for improving the estimation of prior probabilities, EMQ ranks
+almost always among the most effective quantifiers in the
+experiments we have carried out.</p>
+<p>An example of use can be found below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">EMQ</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hellinger-distance-y-hdy">
+<h3>Hellinger Distance y (HDy)<a class="headerlink" href="#hellinger-distance-y-hdy" title="Permalink to this headline">¶</a></h3>
+<p>The method HDy is described in:</p>
+<p><em>Implementation of the method based on the Hellinger Distance y (HDy) proposed by
+González-Castro, V., Alaiz-Rodrı́guez, R., and Alegre, E. (2013). Class distribution
+estimation based on the Hellinger distance. Information Sciences, 218:146–164.</em></p>
+<p>It is implemented in <em>qp.method.aggregative.HDy</em> (also accessible
+through the allias <em>qp.method.aggregative.HellingerDistanceY</em>).
+This method works with a probabilistic classifier (hard classifiers
+can be used as well and will be calibrated) and requires a validation
+set to estimate parameter for the mixture model. Just like
+ACC and PACC, this quantifier receives a <em>val_split</em> argument
+in the constructor (or in the fit method, in which case the previous
+value is overridden) that can either be a float indicating the proportion
+of training data to be taken as the validation set (in a random
+stratified split), or a validation set (i.e., an instance of
+<em>LabelledCollection</em>) itself.</p>
+<p>HDy was proposed as a binary classifier and the implementation
+provided in QuaPy accepts only binary datasets.</p>
+<p>The following code shows an example of use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="c1"># load a binary dataset</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;hp&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">text2tfidf</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">HDy</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="explicit-loss-minimization">
+<h3>Explicit Loss Minimization<a class="headerlink" href="#explicit-loss-minimization" title="Permalink to this headline">¶</a></h3>
+<p>The Explicit Loss Minimization (ELM) represent a family of methods
+based on structured output learning, i.e., quantifiers relying on
+classifiers that have been optimized targeting a
+quantification-oriented evaluation measure.</p>
+<p>In QuaPy, the following methods, all relying on Joachim’s
+<a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">SVMperf</a>
+implementation, are available in <em>qp.method.aggregative</em>:</p>
+<ul class="simple">
+<li><p>SVMQ (SVM-Q) is a quantification method optimizing the metric <em>Q</em> defined
+in <em>Barranquero, J., Díez, J., and del Coz, J. J. (2015). Quantification-oriented learning based
+on reliable classifiers. Pattern Recognition, 48(2):591–604.</em></p></li>
+<li><p>SVMKLD (SVM for Kullback-Leibler Divergence) proposed in <em>Esuli, A. and Sebastiani, F. (2015).
+Optimizing text quantifiers for multivariate loss functions.
+ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27.</em></p></li>
+<li><p>SVMNKLD (SVM for Normalized Kullback-Leibler Divergence) proposed in <em>Esuli, A. and Sebastiani, F. (2015).
+Optimizing text quantifiers for multivariate loss functions.
+ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27.</em></p></li>
+<li><p>SVMAE (SVM for Mean Absolute Error)</p></li>
+<li><p>SVMRAE (SVM for Mean Relative Absolute Error)</p></li>
+</ul>
+<p>the last two methods (SVMAE and SVMRAE) have been implemented in
+QuaPy in order to make available ELM variants for what nowadays
+are considered the most well-behaved evaluation metrics in quantification.</p>
+<p>In order to make these models work, you would need to run the script
+<em>prepare_svmperf.sh</em> (distributed along with QuaPy) that
+downloads <em>SVMperf</em>’ source code, applies a patch that
+implements the quantification oriented losses, and compiles the
+sources.</p>
+<p>If you want to add any custom loss, you would need to modify
+the source code of <em>SVMperf</em> in order to implement it, and
+assign a valid loss code to it. Then you must re-compile
+the whole thing and instantiate the quantifier in QuaPy
+as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># you can either set the path to your custom svm_perf_quantification implementation</span>
+<span class="c1"># in the environment variable, or as an argument to the constructor of ELM</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SVMPERF_HOME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;./path/to/svm_perf_quantification&#39;</span>
+
+<span class="c1"># assign an alias to your custom loss and the id you have assigned to it</span>
+<span class="n">svmperf</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">svmperf</span><span class="o">.</span><span class="n">SVMperf</span>
+<span class="n">svmperf</span><span class="o">.</span><span class="n">valid_losses</span><span class="p">[</span><span class="s1">&#39;mycustomloss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">28</span>
+
+<span class="c1"># instantiate the ELM method indicating the loss</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">ELM</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mycustomloss&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All ELM are binary quantifiers since they rely on <em>SVMperf</em>, that
+currently supports only binary classification.
+ELM variants (any binary quantifier in general) can be extended
+to operate in single-label scenarios trivially by adopting a
+“one-vs-all” strategy (as, e.g., in
+<em>Gao, W. and Sebastiani, F. (2016). From classification to quantification in tweet sentiment
+analysis. Social Network Analysis and Mining, 6(19):1–22</em>).
+In QuaPy this is possible by using the <em>OneVsAll</em> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">SVMQ</span><span class="p">,</span> <span class="n">OneVsAll</span>
+
+<span class="c1"># load a single-label dataset (this one contains 3 classes)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># let qp know where svmperf is</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SVMPERF_HOME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;../svm_perf_quantification&#39;</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">OneVsAll</span><span class="p">(</span><span class="n">SVMQ</span><span class="p">(),</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># run them on parallel</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="meta-models">
+<h2>Meta Models<a class="headerlink" href="#meta-models" title="Permalink to this headline">¶</a></h2>
+<p>By <em>meta</em> models we mean quantification methods that are defined on top of other
+quantification methods, and that thus do not squarely belong to the aggregative nor
+the non-aggregative group (indeed, <em>meta</em> models could use quantifiers from any of those
+groups).
+<em>Meta</em> models are implemented in the <em>qp.method.meta</em> module.</p>
+<div class="section" id="ensembles">
+<h3>Ensembles<a class="headerlink" href="#ensembles" title="Permalink to this headline">¶</a></h3>
+<p>QuaPy implements (some of) the variants proposed in:</p>
+<ul class="simple">
+<li><p><em>Pérez-Gállego, P., Quevedo, J. R., &amp; del Coz, J. J. (2017).
+Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
+Information Fusion, 34, 87-100.</em></p></li>
+<li><p><em>Pérez-Gállego, P., Castano, A., Quevedo, J. R., &amp; del Coz, J. J. (2019).
+Dynamic ensemble selection for quantification tasks.
+Information Fusion, 45, 1-15.</em></p></li>
+</ul>
+<p>The following code shows how to instantiate an Ensemble of 30 <em>Adjusted Classify &amp; Count</em> (ACC)
+quantifiers operating with a <em>Logistic Regressor</em> (LR) as the base classifier, and using the
+<em>average</em> as the aggregation policy (see the original article for further details).
+The last parameter indicates to use all processors for parallelization.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">ACC</span>
+<span class="kn">from</span> <span class="nn">quapy.method.meta</span> <span class="kn">import</span> <span class="n">Ensemble</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIDataset</span><span class="p">(</span><span class="s1">&#39;haberman&#39;</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">quantifier</span><span class="o">=</span><span class="n">ACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">()),</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="s1">&#39;ave&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Other aggregation policies implemented in QuaPy include:</p>
+<ul class="simple">
+<li><p>‘ptr’ for applying a dynamic selection based on the training prevalence of the ensemble’s members</p></li>
+<li><p>‘ds’ for applying a dynamic selection based on the Hellinger Distance</p></li>
+<li><p><em>any valid quantification measure</em> (e.g., ‘mse’) for performing a static selection based on
+the performance estimated for each member of the ensemble in terms of that evaluation metric.</p></li>
+</ul>
+<p>When using any of the above options, it is important to set the <em>red_size</em> parameter, which
+informs of the number of members to retain.</p>
+<p>Please, check the <a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection">model selection</a>
+wiki if you want to optimize the hyperparameters of ensemble for classification or quantification.</p>
+</div>
+<div class="section" id="the-quanet-neural-network">
+<h3>The QuaNet neural network<a class="headerlink" href="#the-quanet-neural-network" title="Permalink to this headline">¶</a></h3>
+<p>QuaPy offers an implementation of QuaNet, a deep learning model presented in:</p>
+<p><em>Esuli, A., Moreo, A., &amp; Sebastiani, F. (2018, October).
+A recurrent neural network for sentiment quantification.
+In Proceedings of the 27th ACM International Conference on
+Information and Knowledge Management (pp. 1775-1778).</em></p>
+<p>This model requires <em>torch</em> to be installed.
+QuaNet also requires a classifier that can provide embedded representations
+of the inputs.
+In the original paper, QuaNet was tested using an LSTM as the base classifier.
+In the following example, we show an instantiation of QuaNet that instead uses CNN as a probabilistic classifier, taking its last layer representation as the document embedding:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.method.meta</span> <span class="kn">import</span> <span class="n">QuaNet</span>
+<span class="kn">from</span> <span class="nn">quapy.classification.neural</span> <span class="kn">import</span> <span class="n">NeuralClassifierTrainer</span><span class="p">,</span> <span class="n">CNNnet</span>
+
+<span class="c1"># use samples of 100 elements</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="c1"># load the kindle dataset as text, and convert words to numerical indexes</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># the text classifier is a CNN trained by NeuralClassifierTrainer</span>
+<span class="n">cnn</span> <span class="o">=</span> <span class="n">CNNnet</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">n_classes</span><span class="p">)</span>
+<span class="n">learner</span> <span class="o">=</span> <span class="n">NeuralClassifierTrainer</span><span class="p">(</span><span class="n">cnn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+
+<span class="c1"># train QuaNet</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">QuaNet</span><span class="p">(</span><span class="n">learner</span><span class="p">,</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Quantification Methods</a><ul>
+<li><a class="reference internal" href="#aggregative-methods">Aggregative Methods</a><ul>
+<li><a class="reference internal" href="#the-classify-count-variants">The Classify &amp; Count variants</a></li>
+<li><a class="reference internal" href="#expectation-maximization-emq">Expectation Maximization (EMQ)</a></li>
+<li><a class="reference internal" href="#hellinger-distance-y-hdy">Hellinger Distance y (HDy)</a></li>
+<li><a class="reference internal" href="#explicit-loss-minimization">Explicit Loss Minimization</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#meta-models">Meta Models</a><ul>
+<li><a class="reference internal" href="#ensembles">Ensembles</a></li>
+<li><a class="reference internal" href="#the-quanet-neural-network">The QuaNet neural network</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="Evaluation.html"
+                        title="previous chapter">Evaluation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="Plotting.html"
+                        title="next chapter">Plotting</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/Methods.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="Plotting.html" title="Plotting"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Evaluation.html" title="Evaluation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Quantification Methods</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Alejandro Moreo.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+    </div>
+  </body>
+</html>
