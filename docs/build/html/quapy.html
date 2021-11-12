@@ -14,6 +14,8 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -93,103 +95,418 @@
 <span id="quapy-error-module"></span><h2>quapy.error module<a class="headerlink" href="#module-quapy.error" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.absolute_error">
-<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">absolute_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.absolute_error" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">absolute_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.absolute_error" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Computes the absolute error between the two prevalence vectors.</dt><dd><p>Absolute error between two prevalence vectors <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\hat{p}\)</span>  is computed as
+<span class="math notranslate nohighlight">\(AE(p,\hat{p})=\frac{1}{|\mathcal{Y}|}\sum_{y\in \mathcal{Y}}|\hat{p}(y)-p(y)|\)</span>,
+where <span class="math notranslate nohighlight">\(\mathcal{Y}\)</span> are the classes of interest.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_classes,)</cite> with the predicted prevalence values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>absolute error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.acc_error">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">acc_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.acc_error" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the error in terms of 1-accuracy. The accuracy is computed as <span class="math notranslate nohighlight">\(\frac{tp+tn}{tp+fp+fn+tn}\)</span>, with
+<cite>tp</cite>, <cite>fp</cite>, <cite>fn</cite>, and <cite>tn</cite> standing for true positives, false positives, false negatives, and true negatives,
+respectively</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> – array-like of true labels</p></li>
+<li><p><strong>y_pred</strong> – array-like of predicted labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>1-accuracy</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.acce">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">acce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.acce" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the error in terms of 1-accuracy. The accuracy is computed as <span class="math notranslate nohighlight">\(\frac{tp+tn}{tp+fp+fn+tn}\)</span>, with
+<cite>tp</cite>, <cite>fp</cite>, <cite>fn</cite>, and <cite>tn</cite> standing for true positives, false positives, false negatives, and true negatives,
+respectively</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> – array-like of true labels</p></li>
+<li><p><strong>y_pred</strong> – array-like of predicted labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>1-accuracy</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.ae">
-<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">ae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.ae" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">ae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.ae" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Computes the absolute error between the two prevalence vectors.</dt><dd><p>Absolute error between two prevalence vectors <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\hat{p}\)</span>  is computed as
+<span class="math notranslate nohighlight">\(AE(p,\hat{p})=\frac{1}{|\mathcal{Y}|}\sum_{y\in \mathcal{Y}}|\hat{p}(y)-p(y)|\)</span>,
+where <span class="math notranslate nohighlight">\(\mathcal{Y}\)</span> are the classes of interest.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_classes,)</cite> with the predicted prevalence values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>absolute error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.f1_error">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">f1_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.f1_error" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>F1 error: simply computes the error in terms of macro <span class="math notranslate nohighlight">\(F_1\)</span>, i.e., <span class="math notranslate nohighlight">\(1-F_1^M\)</span>,
+where <span class="math notranslate nohighlight">\(F_1\)</span> is the harmonic mean of precision and recall, defined as <span class="math notranslate nohighlight">\(\frac{2tp}{2tp+fp+fn}\)</span>,
+with <cite>tp</cite>, <cite>fp</cite>, and <cite>fn</cite> standing for true positives, false positives, and false negatives, respectively.
+<cite>Macro</cite> averaging means the <span class="math notranslate nohighlight">\(F_1\)</span> is computed for each category independently, and then averaged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> – array-like of true labels</p></li>
+<li><p><strong>y_pred</strong> – array-like of predicted labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(1-F_1^M\)</span></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.f1e">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">f1e</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.f1e" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>F1 error: simply computes the error in terms of macro <span class="math notranslate nohighlight">\(F_1\)</span>, i.e., <span class="math notranslate nohighlight">\(1-F_1^M\)</span>,
+where <span class="math notranslate nohighlight">\(F_1\)</span> is the harmonic mean of precision and recall, defined as <span class="math notranslate nohighlight">\(\frac{2tp}{2tp+fp+fn}\)</span>,
+with <cite>tp</cite>, <cite>fp</cite>, and <cite>fn</cite> standing for true positives, false positives, and false negatives, respectively.
+<cite>Macro</cite> averaging means the <span class="math notranslate nohighlight">\(F_1\)</span> is computed for each category independently, and then averaged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> – array-like of true labels</p></li>
+<li><p><strong>y_pred</strong> – array-like of predicted labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(1-F_1^M\)</span></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.from_name">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">from_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">err_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.from_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Gets an error function from its name. E.g., <cite>from_name(“mae”)</cite> will return function <a class="reference internal" href="#quapy.error.mae" title="quapy.error.mae"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.mae()</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>err_name</strong> – string, the error name</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a callable implementing the requested error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.kld">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">kld</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.kld" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Computes the Kullback-Leibler divergence between the two prevalence distributions.</dt><dd><p>Kullback-Leibler divergence between two prevalence distributions <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\hat{p}\)</span> is computed as
+<span class="math notranslate nohighlight">\(KLD(p,\hat{p})=D_{KL}(p||\hat{p})=\sum_{y\in \mathcal{Y}} p(y)\log\frac{p(y)}{\hat{p}(y)}\)</span>, where
+<span class="math notranslate nohighlight">\(\mathcal{Y}\)</span> are the classes of interest.
+The distributions are smoothed using the <cite>eps</cite> factor (see <a class="reference internal" href="#quapy.error.smooth" title="quapy.error.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.smooth()</span></code></a>).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_classes,)</cite> with the predicted prevalence values</p></li>
+<li><p><strong>eps</strong> – smoothing factor. KLD is not defined in cases in which the distributions contain zeros; <cite>eps</cite>
+is typically set to be <span class="math notranslate nohighlight">\(\frac{1}{2T}\)</span>, with <span class="math notranslate nohighlight">\(T\)</span> the sample size. If <cite>eps=None</cite>, the sample size
+will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has thus to be set beforehand).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Kullback-Leibler divergence between the two distributions</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.mae">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mae" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the mean absolute error (see <a class="reference internal" href="#quapy.error.ae" title="quapy.error.ae"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.ae()</span></code></a>) across the sample pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the predicted prevalence values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mean absolute error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.mean_absolute_error">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mean_absolute_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mean_absolute_error" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the mean absolute error (see <a class="reference internal" href="#quapy.error.ae" title="quapy.error.ae"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.ae()</span></code></a>) across the sample pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the predicted prevalence values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mean absolute error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.mean_relative_absolute_error">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mean_relative_absolute_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mean_relative_absolute_error" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the mean relative absolute error (see <a class="reference internal" href="#quapy.error.rae" title="quapy.error.rae"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.rae()</span></code></a>) across the sample pairs.
+The distributions are smoothed using the <cite>eps</cite> factor (see <a class="reference internal" href="#quapy.error.smooth" title="quapy.error.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.smooth()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the predicted prevalence values</p></li>
+<li><p><strong>eps</strong> – smoothing factor. <cite>mrae</cite> is not defined in cases in which the true distribution contains zeros; <cite>eps</cite>
+is typically set to be <span class="math notranslate nohighlight">\(\frac{1}{2T}\)</span>, with <span class="math notranslate nohighlight">\(T\)</span> the sample size. If <cite>eps=None</cite>, the sample size
+will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has thus to be set beforehand).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mean relative absolute error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.mkld">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mkld</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mkld" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the mean Kullback-Leibler divergence (see <a class="reference internal" href="#quapy.error.kld" title="quapy.error.kld"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.kld()</span></code></a>) across the sample pairs.
+The distributions are smoothed using the <cite>eps</cite> factor (see <a class="reference internal" href="#quapy.error.smooth" title="quapy.error.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.smooth()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the predicted prevalence values</p></li>
+<li><p><strong>eps</strong> – smoothing factor. KLD is not defined in cases in which the distributions contain zeros; <cite>eps</cite>
+is typically set to be <span class="math notranslate nohighlight">\(\frac{1}{2T}\)</span>, with <span class="math notranslate nohighlight">\(T\)</span> the sample size. If <cite>eps=None</cite>, the sample size
+will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has thus to be set beforehand).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mean Kullback-Leibler distribution</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.mnkld">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mnkld</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mnkld" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the mean Normalized Kullback-Leibler divergence (see <a class="reference internal" href="#quapy.error.nkld" title="quapy.error.nkld"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.nkld()</span></code></a>) across the sample pairs.
+The distributions are smoothed using the <cite>eps</cite> factor (see <a class="reference internal" href="#quapy.error.smooth" title="quapy.error.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.smooth()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the predicted prevalence values</p></li>
+<li><p><strong>eps</strong> – smoothing factor. NKLD is not defined in cases in which the distributions contain zeros; <cite>eps</cite>
+is typically set to be <span class="math notranslate nohighlight">\(\frac{1}{2T}\)</span>, with <span class="math notranslate nohighlight">\(T\)</span> the sample size. If <cite>eps=None</cite>, the sample size
+will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has thus to be set beforehand).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mean Normalized Kullback-Leibler distribution</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.mrae">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mrae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mrae" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the mean relative absolute error (see <a class="reference internal" href="#quapy.error.rae" title="quapy.error.rae"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.rae()</span></code></a>) across the sample pairs.
+The distributions are smoothed using the <cite>eps</cite> factor (see <a class="reference internal" href="#quapy.error.smooth" title="quapy.error.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.smooth()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the predicted prevalence values</p></li>
+<li><p><strong>eps</strong> – smoothing factor. <cite>mrae</cite> is not defined in cases in which the true distribution contains zeros; <cite>eps</cite>
+is typically set to be <span class="math notranslate nohighlight">\(\frac{1}{2T}\)</span>, with <span class="math notranslate nohighlight">\(T\)</span> the sample size. If <cite>eps=None</cite>, the sample size
+will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has thus to be set beforehand).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mean relative absolute error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.mse">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">mse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.mse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the mean squared error (see <a class="reference internal" href="#quapy.error.se" title="quapy.error.se"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.se()</span></code></a>) across the sample pairs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_samples, n_classes,)</cite> with the predicted prevalence values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>mean squared error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.nkld">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">nkld</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.nkld" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Computes the Normalized Kullback-Leibler divergence between the two prevalence distributions.</dt><dd><p>Normalized Kullback-Leibler divergence between two prevalence distributions <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\hat{p}\)</span>
+is computed as <span class="math notranslate nohighlight">\(NKLD(p,\hat{p}) = 2\frac{e^{KLD(p,\hat{p})}}{e^{KLD(p,\hat{p})}+1}-1\)</span>, where
+<span class="math notranslate nohighlight">\(\mathcal{Y}\)</span> are the classes of interest.
+The distributions are smoothed using the <cite>eps</cite> factor (see <a class="reference internal" href="#quapy.error.smooth" title="quapy.error.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.smooth()</span></code></a>).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_classes,)</cite> with the predicted prevalence values</p></li>
+<li><p><strong>eps</strong> – smoothing factor. NKLD is not defined in cases in which the distributions contain zeros; <cite>eps</cite>
+is typically set to be <span class="math notranslate nohighlight">\(\frac{1}{2T}\)</span>, with <span class="math notranslate nohighlight">\(T\)</span> the sample size. If <cite>eps=None</cite>, the sample size
+will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has thus to be set beforehand).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Normalized Kullback-Leibler divergence between the two distributions</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.rae">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">rae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.rae" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Computes the absolute relative error between the two prevalence vectors.</dt><dd><p>Relative absolute error between two prevalence vectors <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\hat{p}\)</span>  is computed as
+<span class="math notranslate nohighlight">\(RAE(p,\hat{p})=\frac{1}{|\mathcal{Y}|}\sum_{y\in \mathcal{Y}}\frac{|\hat{p}(y)-p(y)|}{p(y)}\)</span>,
+where <span class="math notranslate nohighlight">\(\mathcal{Y}\)</span> are the classes of interest.
+The distributions are smoothed using the <cite>eps</cite> factor (see <a class="reference internal" href="#quapy.error.smooth" title="quapy.error.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.smooth()</span></code></a>).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_classes,)</cite> with the predicted prevalence values</p></li>
+<li><p><strong>eps</strong> – smoothing factor. <cite>rae</cite> is not defined in cases in which the true distribution contains zeros; <cite>eps</cite>
+is typically set to be <span class="math notranslate nohighlight">\(\frac{1}{2T}\)</span>, with <span class="math notranslate nohighlight">\(T\)</span> the sample size. If <cite>eps=None</cite>, the sample size
+will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has thus to be set beforehand).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>relative absolute error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.relative_absolute_error">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">relative_absolute_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.relative_absolute_error" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Computes the absolute relative error between the two prevalence vectors.</dt><dd><p>Relative absolute error between two prevalence vectors <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\hat{p}\)</span>  is computed as
+<span class="math notranslate nohighlight">\(RAE(p,\hat{p})=\frac{1}{|\mathcal{Y}|}\sum_{y\in \mathcal{Y}}\frac{|\hat{p}(y)-p(y)|}{p(y)}\)</span>,
+where <span class="math notranslate nohighlight">\(\mathcal{Y}\)</span> are the classes of interest.
+The distributions are smoothed using the <cite>eps</cite> factor (see <a class="reference internal" href="#quapy.error.smooth" title="quapy.error.smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.smooth()</span></code></a>).</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_classes,)</cite> with the predicted prevalence values</p></li>
+<li><p><strong>eps</strong> – smoothing factor. <cite>rae</cite> is not defined in cases in which the true distribution contains zeros; <cite>eps</cite>
+is typically set to be <span class="math notranslate nohighlight">\(\frac{1}{2T}\)</span>, with <span class="math notranslate nohighlight">\(T\)</span> the sample size. If <cite>eps=None</cite>, the sample size
+will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has thus to be set beforehand).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>relative absolute error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.se">
 <span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">se</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_hat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.se" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Computes the squared error between the two prevalence vectors.</dt><dd><p>Squared error between two prevalence vectors <span class="math notranslate nohighlight">\(p\)</span> and <span class="math notranslate nohighlight">\(\hat{p}\)</span>  is computed as
+<span class="math notranslate nohighlight">\(SE(p,\hat{p})=\frac{1}{|\mathcal{Y}|}\sum_{y\in \mathcal{Y}}(\hat{p}(y)-p(y))^2\)</span>, where
+<span class="math notranslate nohighlight">\(\mathcal{Y}\)</span> are the classes of interest.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>prevs_hat</strong> – array-like of shape <cite>(n_classes,)</cite> with the predicted prevalence values</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>absolute error</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.error.smooth">
-<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.smooth" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.error.</span></span><span class="sig-name descname"><span class="pre">smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.error.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smooths a prevalence distribution with <span class="math notranslate nohighlight">\(\epsilon\)</span> (<cite>eps</cite>) as:
+<span class="math notranslate nohighlight">\(\underline{p}(y)=\frac{\epsilon+p(y)}{\epsilon|\mathcal{Y}|+\displaystyle\sum_{y\in \mathcal{Y}}p(y)}\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevs</strong> – array-like of shape <cite>(n_classes,)</cite> with the true prevalence values</p></li>
+<li><p><strong>eps</strong> – smoothing factor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>array-like of shape <cite>(n_classes,)</cite> with the smoothed distribution</p>
+</dd>
+</dl>
+</dd></dl>
 
 </div>
 <div class="section" id="module-quapy.evaluation">
