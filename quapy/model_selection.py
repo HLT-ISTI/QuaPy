@@ -91,8 +91,8 @@ class GridSearchQ(BaseQuantifier):
             if self.protocol=='npp' and (self.eval_budget is None or self.eval_budget <= 0):
                 raise ValueError(f'when protocol="npp" the parameter eval_budget should be '
                                  f'indicated (and should be >0).')
-            if self.n_prevpoints != 1:
-                print('[warning] n_prevpoints has been set and will be ignored for the selected protocol')
+            if self.n_repetitions != 1:
+                print('[warning] n_repetitions has been set and will be ignored for the selected protocol')
 
     def _sout(self, msg):
         if self.verbose:
@@ -165,7 +165,6 @@ class GridSearchQ(BaseQuantifier):
         params_values = list(self.param_grid.values())
 
         model = self.model
-        n_jobs = self.n_jobs
 
         if self.timeout > 0:
             def handler(signum, frame):
@@ -174,7 +173,6 @@ class GridSearchQ(BaseQuantifier):
 
             signal.signal(signal.SIGALRM, handler)
 
-        self._sout(f'starting optimization with n_jobs={n_jobs}')
         self.param_scores_ = {}
         self.best_score_ = None
         some_timeouts = False

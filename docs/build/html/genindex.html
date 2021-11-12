@@ -231,8 +231,6 @@
 </li>
       <li><a href="quapy.method.html#quapy.method.aggregative.ThresholdOptimization.compute_tpr">compute_tpr() (quapy.method.aggregative.ThresholdOptimization method)</a>
 </li>
-      <li><a href="quapy.classification.html#quapy.classification.neural.CNNnet.conv_block">conv_block() (quapy.classification.neural.CNNnet method)</a>
-</li>
       <li><a href="quapy.data.html#quapy.data.base.LabelledCollection.counts">counts() (quapy.data.base.LabelledCollection method)</a>
 </li>
       <li><a href="quapy.html#quapy.util.create_if_not_exist">create_if_not_exist() (in module quapy.util)</a>
@@ -337,7 +335,7 @@
 </li>
       <li><a href="quapy.data.html#quapy.data.datasets.fetch_UCILabelledCollection">fetch_UCILabelledCollection() (in module quapy.data.datasets)</a>
 </li>
-      <li><a href="quapy.classification.html#quapy.classification.methods.PCALR.fit">fit() (quapy.classification.methods.PCALR method)</a>
+      <li><a href="quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.fit">fit() (quapy.classification.methods.LowRankLogisticRegression method)</a>
 
       <ul>
         <li><a href="quapy.classification.html#quapy.classification.neural.NeuralClassifierTrainer.fit">(quapy.classification.neural.NeuralClassifierTrainer method)</a>
@@ -407,7 +405,7 @@
 </li>
       <li><a href="quapy.html#quapy.functional.get_nprevpoints_approximation">get_nprevpoints_approximation() (in module quapy.functional)</a>
 </li>
-      <li><a href="quapy.classification.html#quapy.classification.methods.PCALR.get_params">get_params() (quapy.classification.methods.PCALR method)</a>
+      <li><a href="quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.get_params">get_params() (quapy.classification.methods.LowRankLogisticRegression method)</a>
 
       <ul>
         <li><a href="quapy.classification.html#quapy.classification.neural.CNNnet.get_params">(quapy.classification.neural.CNNnet method)</a>
@@ -469,12 +467,8 @@
       </ul></li>
       <li><a href="quapy.data.html#quapy.data.preprocessing.IndexTransformer">IndexTransformer (class in quapy.data.preprocessing)</a>
 </li>
-      <li><a href="quapy.classification.html#quapy.classification.neural.LSTMnet.init_hidden">init_hidden() (quapy.classification.neural.LSTMnet method)</a>
-
-      <ul>
-        <li><a href="quapy.method.html#quapy.method.neural.QuaNetModule.init_hidden">(quapy.method.neural.QuaNetModule method)</a>
+      <li><a href="quapy.method.html#quapy.method.neural.QuaNetModule.init_hidden">init_hidden() (quapy.method.neural.QuaNetModule method)</a>
 </li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="quapy.method.html#quapy.method.base.isaggregative">isaggregative() (in module quapy.method.base)</a>
@@ -515,14 +509,16 @@
 </li>
       <li><a href="quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.learner">learner (quapy.method.aggregative.AggregativeQuantifier property)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="quapy.data.html#quapy.data.base.Dataset.load">load() (quapy.data.base.Dataset class method)</a>
 
       <ul>
         <li><a href="quapy.data.html#quapy.data.base.LabelledCollection.load">(quapy.data.base.LabelledCollection class method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression">LowRankLogisticRegression (class in quapy.classification.methods)</a>
+</li>
       <li><a href="quapy.classification.html#quapy.classification.neural.LSTMnet">LSTMnet (class in quapy.classification.neural)</a>
 </li>
   </ul></td>
@@ -674,8 +670,6 @@
 </li>
       <li><a href="quapy.html#quapy.util.parallel">parallel() (in module quapy.util)</a>
 </li>
-      <li><a href="quapy.classification.html#quapy.classification.methods.PCALR">PCALR (class in quapy.classification.methods)</a>
-</li>
       <li><a href="quapy.method.html#quapy.method.aggregative.PCC">PCC (class in quapy.method.aggregative)</a>
 </li>
       <li><a href="quapy.html#quapy.util.pickled_resource">pickled_resource() (in module quapy.util)</a>
@@ -686,7 +680,7 @@
         <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAll.posterior_probabilities">(quapy.method.aggregative.OneVsAll method)</a>
 </li>
       </ul></li>
-      <li><a href="quapy.classification.html#quapy.classification.methods.PCALR.predict">predict() (quapy.classification.methods.PCALR method)</a>
+      <li><a href="quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.predict">predict() (quapy.classification.methods.LowRankLogisticRegression method)</a>
 
       <ul>
         <li><a href="quapy.classification.html#quapy.classification.neural.NeuralClassifierTrainer.predict">(quapy.classification.neural.NeuralClassifierTrainer method)</a>
@@ -694,7 +688,7 @@
         <li><a href="quapy.classification.html#quapy.classification.svmperf.SVMperf.predict">(quapy.classification.svmperf.SVMperf method)</a>
 </li>
       </ul></li>
-      <li><a href="quapy.classification.html#quapy.classification.methods.PCALR.predict_proba">predict_proba() (quapy.classification.methods.PCALR method)</a>
+      <li><a href="quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.predict_proba">predict_proba() (quapy.classification.methods.LowRankLogisticRegression method)</a>
 
       <ul>
         <li><a href="quapy.classification.html#quapy.classification.neural.NeuralClassifierTrainer.predict_proba">(quapy.classification.neural.NeuralClassifierTrainer method)</a>
@@ -952,7 +946,7 @@
 </li>
       <li><a href="quapy.html#quapy.error.se">se() (in module quapy.error)</a>
 </li>
-      <li><a href="quapy.classification.html#quapy.classification.methods.PCALR.set_params">set_params() (quapy.classification.methods.PCALR method)</a>
+      <li><a href="quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.set_params">set_params() (quapy.classification.methods.LowRankLogisticRegression method)</a>
 
       <ul>
         <li><a href="quapy.classification.html#quapy.classification.neural.NeuralClassifierTrainer.set_params">(quapy.classification.neural.NeuralClassifierTrainer method)</a>
@@ -1032,7 +1026,7 @@
 </li>
       <li><a href="quapy.method.html#quapy.method.aggregative.training_helper">training_helper() (in module quapy.method.aggregative)</a>
 </li>
-      <li><a href="quapy.classification.html#quapy.classification.methods.PCALR.transform">transform() (quapy.classification.methods.PCALR method)</a>
+      <li><a href="quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.transform">transform() (quapy.classification.methods.LowRankLogisticRegression method)</a>
 
       <ul>
         <li><a href="quapy.classification.html#quapy.classification.neural.NeuralClassifierTrainer.transform">(quapy.classification.neural.NeuralClassifierTrainer method)</a>

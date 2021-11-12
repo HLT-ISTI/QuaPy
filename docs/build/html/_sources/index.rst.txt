@@ -78,7 +78,7 @@ Features
    Methods
    Model Selection
    Plotting
-   API Developer documentation<modules>
+   API Developers documentation<modules>
 
 
 

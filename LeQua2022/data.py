@@ -34,27 +34,23 @@ def load_category_map(path):
 
 
 def load_binary_vectors(path, nF=None):
-    return sklearn.datasets.load_svmlight_file(path, n_features=nF)
+    X, y = sklearn.datasets.load_svmlight_file(path, n_features=nF)
+    y = y.astype(int)
+    return X, y
 
 
 def __gen_load_samples_with_groudtruth(path_dir:str, return_id:bool, ground_truth_path:str, load_fn, **load_kwargs):
     true_prevs = ResultSubmission.load(ground_truth_path)
     for id, prevalence in true_prevs.iterrows():
         sample, _ = load_fn(os.path.join(path_dir, f'{id}.txt'), **load_kwargs)
-        if return_id:
-            yield id, sample, prevalence
-        else:
-            yield sample, prevalence
+        yield (id, sample, prevalence) if return_id else (sample, prevalence)
 
 
 def __gen_load_samples_without_groudtruth(path_dir:str, return_id:bool, load_fn, **load_kwargs):
     nsamples = len(glob(os.path.join(path_dir, '*.txt')))
     for id in range(nsamples):
         sample, _ = load_fn(os.path.join(path_dir, f'{id}.txt'), **load_kwargs)
-        if return_id:
-            yield id, sample
-        else:
-            yield sample
+        yield (id, sample) if return_id else sample
 
 
 def gen_load_samples_T1(path_dir:str, nF:int, ground_truth_path:str = None, return_id=True):
@@ -64,6 +60,17 @@ def gen_load_samples_T1(path_dir:str, nF:int, ground_truth_path:str = None, retu
     else:
         # the generator function returns tuples (filename:str, sample:csr_matrix, prevalence:ndarray)
         gen_fn = __gen_load_samples_with_groudtruth(path_dir, return_id, ground_truth_path, load_binary_vectors, nF=nF)
+    for r in gen_fn:
+        yield r
+
+
+def genSVD_load_samples_T1(load_fn, path_dir:str, nF:int, ground_truth_path:str = None, return_id=True):
+    if ground_truth_path is None:
+        # the generator function returns tuples (filename:str, sample:csr_matrix)
+        gen_fn = __gen_load_samples_without_groudtruth(path_dir, return_id, load_fn, nF=nF)
+    else:
+        # the generator function returns tuples (filename:str, sample:csr_matrix, prevalence:ndarray)
+        gen_fn = __gen_load_samples_with_groudtruth(path_dir, return_id, ground_truth_path, load_fn, nF=nF)
     for r in gen_fn:
         yield r
 

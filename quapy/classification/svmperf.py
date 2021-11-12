@@ -1,17 +1,29 @@
 import random
 import subprocess
-import tempfile
 from os import remove, makedirs
 from os.path import join, exists
 from subprocess import PIPE, STDOUT
-import shutil
-
 import numpy as np
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.datasets import dump_svmlight_file
 
 
 class SVMperf(BaseEstimator, ClassifierMixin):
+    """A wrapper for the `SVM-perf package <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`__ by Thorsten Joachims.
+    When using losses for quantification, the source code has to be patched. See
+    the `installation documentation <https://hlt-isti.github.io/QuaPy/build/html/Installation.html#svm-perf-with-quantification-oriented-losses>`__
+    for further details.
+
+    References:
+
+        * `Esuli et al.2015 <https://dl.acm.org/doi/abs/10.1145/2700406?casa_token=8D2fHsGCVn0AAAAA:ZfThYOvrzWxMGfZYlQW_y8Cagg-o_l6X_PcF09mdETQ4Tu7jK98mxFbGSXp9ZSO14JkUIYuDGFG0>`__
+        * `Barranquero et al.2015 <https://www.sciencedirect.com/science/article/abs/pii/S003132031400291X>`__
+
+    :param svmperf_base: path to directory containing the binary files `svm_perf_learn` and `svm_perf_classify`
+    :param C: trade-off between training error and margin (default 0.01)
+    :param verbose: set to True to print svm-perf std outputs
+    :param loss: the loss to optimize for. Available losses are "01", "f1", "kld", "nkld", "q", "qacc", "qf1", "qgm", "mae", "mrae".
+    """
 
     # losses with their respective codes in svm_perf implementation
     valid_losses = {'01':0, 'f1':1, 'kld':12, 'nkld':13, 'q':22, 'qacc':23, 'qf1':24, 'qgm':25, 'mae':26, 'mrae':27}
@@ -24,10 +36,22 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         self.loss = loss
 
     def set_params(self, **parameters):
+        """
+        Set the hyper-parameters for svm-perf. Currently, only the `C` parameter is supported
+
+        :param parameters: a `**kwargs` dictionary `{'C': <float>}`
+        """
         assert list(parameters.keys()) == ['C'], 'currently, only the C parameter is supported'
         self.C = parameters['C']
 
     def fit(self, X, y):
+        """
+        Trains the SVM for the multivariate performance loss
+
+        :param X: training instances
+        :param y: a binary vector of labels
+        :return: `self`
+        """
         assert self.loss in SVMperf.valid_losses, \
             f'unsupported loss {self.loss}, valid ones are {list(SVMperf.valid_losses.keys())}'
 
@@ -68,11 +92,24 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         return self
 
     def predict(self, X):
+        """
+        Predicts labels for the instances `X`
+        :param X: array-like of shape `(n_samples, n_features)` instances to classify
+        :return: a `numpy` array of length `n` containing the label predictions, where `n` is the number of
+            instances in `X`
+        """
         confidence_scores = self.decision_function(X)
         predictions = (confidence_scores > 0) * 1
         return predictions
 
     def decision_function(self, X, y=None):
+        """
+        Evaluate the decision function for the samples in `X`.
+
+        :param X: array-like of shape `(n_samples, n_features)` containing the instances to classify
+        :param y: unused
+        :return: array-like of shape `(n_samples,)` containing the decision scores of the instances
+        """
         assert hasattr(self, 'tmpdir'), 'predict called before fit'
         assert self.tmpdir is not None, 'model directory corrupted'
         assert exists(self.model), 'model not found'

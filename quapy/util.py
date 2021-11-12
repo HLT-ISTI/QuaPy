@@ -83,6 +83,7 @@ def download_file_if_not_exists(url, archive_path):
 
 def create_if_not_exist(path):
     os.makedirs(path, exist_ok=True)
+    return path
 
 
 def get_quapy_home():
