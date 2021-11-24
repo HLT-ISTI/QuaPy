@@ -5,6 +5,25 @@ import numpy as np
 
 
 def artificial_prevalence_sampling(dimensions, n_prevalences=21, repeat=1, return_constrained_dim=False):
+    """
+    Generates vectors of prevalence values artificially drawn from an exhaustive grid of prevalence values. The
+    number of prevalence values explored for each dimension depends on `n_prevalences`, so that, if, for example,
+    `n_prevalences=11` then the prevalence values of the grid are taken from [0, 0.1, 0.2, ..., 0.9, 1]. Only
+    valid prevalence distributions are returned, i.e., vectors of prevalence values that sum up to 1. For each
+    valid vector of prevalence values, `repeat` copies are returned. The vector of prevalence values can be
+    implicit (by setting `return_constrained_dim=False`), meaning that the last dimension (which is constrained
+    to 1 - sum of the rest) is not returned (note that, quite obviously, in this case the vector does not sum up to 1).
+
+    :param dimensions: the number of classes
+    :param n_prevalences: the number of equidistant prevalence points to extract from the [0,1] interval for the grid
+        (default is 21)
+    :param repeat: number of copies for each valid prevalence vector (default is 1)
+    :param return_constrained_dim: set to True to return all dimensions, or to False (default) for ommitting the
+        constrained dimension
+    :return: an ndarray of shape `(n, dimensions)` if `return_constrained_dim=True` or of shape `(n, dimensions-1)`
+        if `return_constrained_dim=False`, where `n` is the number of valid combinations found in the grid multiplied
+        by `repeat`
+    """
     s = np.linspace(0., 1., n_prevalences, endpoint=True)
     s = [s] * (dimensions - 1)
     prevs = [p for p in itertools.product(*s, repeat=1) if sum(p)<=1]
@@ -18,9 +37,10 @@ def artificial_prevalence_sampling(dimensions, n_prevalences=21, repeat=1, retur
 
 def prevalence_linspace(n_prevalences=21, repeat=1, smooth_limits_epsilon=0.01):
     """
-    Produces a uniformly separated values of prevalence. By default, produces an array 21 prevalences, with step 0.05
-    and with the limits smoothed, i.e.:
+    Produces a uniformly separated values of prevalence. By default, produces an array of 21 prevalence values, with
+    step 0.05 and with the limits smoothed, i.e.:
     [0.01, 0.05, 0.10, 0.15, ..., 0.90, 0.95, 0.99]
+
     :param n_prevalences: the number of prevalence values to sample from the [0,1] interval (default 21)
     :param repeat: number of times each prevalence is to be repeated (defaults to 1)
     :param smooth_limits_epsilon: the quantity to add and subtract to the limits 0 and 1
@@ -36,12 +56,20 @@ def prevalence_linspace(n_prevalences=21, repeat=1, smooth_limits_epsilon=0.01):
     return p
 
 
-def prevalence_from_labels(labels, classes_):
+def prevalence_from_labels(labels, classes):
+    """
+    Computed the prevalence values from a vector of labels.
+
+    :param labels: array-like of shape `(n_instances)` with the label for each instance
+    :param classes: the class labels. This is needed in order to correctly compute the prevalence vector even when
+        some classes have no examples.
+    :return: an ndarray of shape `(len(classes))` with the class prevalence values
+    """
     if labels.ndim != 1:
         raise ValueError(f'param labels does not seem to be a ndarray of label predictions')
     unique, counts = np.unique(labels, return_counts=True)
     by_class = defaultdict(lambda:0, dict(zip(unique, counts)))
-    prevalences = np.asarray([by_class[class_] for class_ in classes_], dtype=np.float)
+    prevalences = np.asarray([by_class[class_] for class_ in classes], dtype=np.float)
     prevalences /= prevalences.sum()
     return prevalences
 

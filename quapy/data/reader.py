@@ -18,13 +18,16 @@ def from_text(path, encoding='utf-8', verbose=1, class2int=True):
     for line in file:
         line = line.strip()
         if line:
-            label, sentence = line.split('\t')
-            sentence = sentence.strip()
-            if class2int:
-                label = int(label)
-            if sentence:
-                all_sentences.append(sentence)
-                all_labels.append(label)
+            try:
+                label, sentence = line.split('\t')
+                sentence = sentence.strip()
+                if class2int:
+                    label = int(label)
+                if sentence:
+                    all_sentences.append(sentence)
+                    all_labels.append(label)
+            except ValueError:
+                print(f'format error in {line}')
     return all_sentences, all_labels
 
 

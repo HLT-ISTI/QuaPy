@@ -12,17 +12,6 @@ from glob import glob
 import constants
 
 
-# def load_binary_raw_document(path):
-#     documents, labels = qp.data.from_text(path, verbose=0, class2int=True)
-#     labels = np.asarray(labels)
-#     labels[np.logical_or(labels == 1, labels == 2)] = 0
-#     labels[np.logical_or(labels == 4, labels == 5)] = 1
-#     return documents, labels
-
-
-# def load_multiclass_raw_document(path):
-#     return qp.data.from_text(path, verbose=0, class2int=False)
-
 def load_category_map(path):
     cat2code = {}
     with open(path, 'rt') as fin:
@@ -33,7 +22,19 @@ def load_category_map(path):
     return cat2code, code2cat
 
 
-def load_binary_vectors(path, nF=None):
+def load_raw_documents(path):
+    return qp.data.from_text(path, verbose=0, class2int=True)
+
+
+def load_raw_unlabelled_documents(path, vectorizer=None):
+    with open(path, 'rt', encoding='utf-8') as file:
+        documents = [d.strip() for d in file.readlines()]
+    if vectorizer:
+        documents = vectorizer.transform(documents)
+    return documents, None
+
+
+def load_vector_documents(path, nF=None):
     X, y = sklearn.datasets.load_svmlight_file(path, n_features=nF)
     y = y.astype(int)
     return X, y
@@ -53,13 +54,13 @@ def __gen_load_samples_without_groudtruth(path_dir:str, return_id:bool, load_fn,
         yield (id, sample) if return_id else sample
 
 
-def gen_load_samples_T1(path_dir:str, nF:int, ground_truth_path:str = None, return_id=True):
+def gen_load_samples(path_dir:str, ground_truth_path:str = None, return_id=True, load_fn=load_vector_documents, **load_kwargs):
     if ground_truth_path is None:
-        # the generator function returns tuples (filename:str, sample:csr_matrix)
-        gen_fn = __gen_load_samples_without_groudtruth(path_dir, return_id, load_binary_vectors, nF=nF)
+        # the generator function returns tuples (docid:str, sample:csr_matrix or str)
+        gen_fn = __gen_load_samples_without_groudtruth(path_dir, return_id, load_fn, **load_kwargs)
     else:
-        # the generator function returns tuples (filename:str, sample:csr_matrix, prevalence:ndarray)
-        gen_fn = __gen_load_samples_with_groudtruth(path_dir, return_id, ground_truth_path, load_binary_vectors, nF=nF)
+        # the generator function returns tuples (docid:str, sample:csr_matrix or str, prevalence:ndarray)
+        gen_fn = __gen_load_samples_with_groudtruth(path_dir, return_id, ground_truth_path, load_fn, **load_kwargs)
     for r in gen_fn:
         yield r
 
@@ -73,16 +74,6 @@ def genSVD_load_samples_T1(load_fn, path_dir:str, nF:int, ground_truth_path:str 
         gen_fn = __gen_load_samples_with_groudtruth(path_dir, return_id, ground_truth_path, load_fn, nF=nF)
     for r in gen_fn:
         yield r
-
-
-def gen_load_samples_T2A(path_dir:str, ground_truth_path:str = None):
-    # for ... : yield
-    pass
-
-
-def gen_load_samples_T2B(path_dir:str, ground_truth_path:str = None):
-    # for ... : yield
-    pass
 
 
 class ResultSubmission:

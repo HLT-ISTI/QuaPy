@@ -82,7 +82,7 @@ def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=No
                   bbox_to_anchor=(1, -0.5),
                   ncol=(len(method_names)+1)//2)
 
-    save_or_show(savepath)
+    _save_or_show(savepath)
 
 
 def binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=1, title=None, savepath=None):
@@ -116,12 +116,14 @@ def binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=1, title
     plt.xticks(rotation=45)
     ax.set(ylabel='error bias', title=title)
 
-    save_or_show(savepath)
+    _save_or_show(savepath)
 
 
 def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=None, nbins=5, colormap=cm.tab10,
                      vertical_xticks=False, legend=True, savepath=None):
     """
+    Box-plots displaying the local bias (i.e., signed error computed as the estimated value minus the true value)
+    for different bins of (true) prevalence of the positive classs, for each quantification method.
 
     :param method_names: array-like with the method names for each experiment
     :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for
@@ -132,7 +134,7 @@ def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=N
     :param title: the title to be displayed in the plot
     :param nbins: number of bins
     :param colormap: the matplotlib colormap to use (default cm.tab10)
-    :param vertical_xticks:
+    :param vertical_xticks: whether or not to add secondary grid (default is False)
     :param legend: whether or not to display the legend (default is True)
     :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.
     """
@@ -202,39 +204,44 @@ def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=N
 
     # x-axis and y-axis labels and limits
     ax.set(xlabel='prevalence', ylabel='error bias', title=title)
-    # ax.set_ylim(-1, 1)
     ax.set_xlim(0, 1)
 
-    save_or_show(savepath)
+    _save_or_show(savepath)
 
 
-def _merge(method_names, true_prevs, estim_prevs):
-    ndims = true_prevs[0].shape[1]
-    data = defaultdict(lambda: {'true': np.empty(shape=(0, ndims)), 'estim': np.empty(shape=(0, ndims))})
-    method_order=[]
-    for method, true_prev, estim_prev in zip(method_names, true_prevs, estim_prevs):
-        data[method]['true'] = np.concatenate([data[method]['true'], true_prev])
-        data[method]['estim'] = np.concatenate([data[method]['estim'], estim_prev])
-        if method not in method_order:
-            method_order.append(method)
-    true_prevs_ = [data[m]['true'] for m in method_order]
-    estim_prevs_ = [data[m]['estim'] for m in method_order]
-    return method_order, true_prevs_, estim_prevs_
-
-
-def _set_colors(ax, n_methods):
-    NUM_COLORS = n_methods
-    cm = plt.get_cmap('tab20')
-    ax.set_prop_cycle(color=[cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
-
-
-def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=20, error_name='ae', show_std=False,
+def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
+                   n_bins=20, error_name='ae', show_std=False,
                    show_density=True,
                    logscale=False,
                    title=f'Quantification error as a function of distribution shift',
-                   savepath=None,
                    vlines=None,
-                   method_order=None):
+                   method_order=None,
+                   savepath=None):
+    """
+    Plots the error (along the x-axis, as measured in terms of `error_name`) as a function of the train-test shift
+    (along the y-axis, as measured in terms of :meth:`quapy.error.ae`). This plot is useful especially for multiclass
+    problems, in which "diagonal plots" may be cumbersone, and in order to gain understanding about how methods
+    fare in different regions of the prior probability shift spectrum (e.g., in the low-shift regime vs. in the
+    high-shift regime).
+
+    :param method_names: array-like with the method names for each experiment
+    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for
+        each experiment
+    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)
+        for each experiment
+    :param tr_prevs: training prevalence of each experiment
+    :param n_bins: number of bins in which the y-axis is to be divided (default is 20)
+    :param error_name: a string representing the name of an error function (as defined in `quapy.error`, default is "ae")
+    :param show_std: whether or not to show standard deviations as color bands (default is False)
+    :param show_density: whether or not to display the distribution of experiments for each bin (default is True)
+    :param logscale: whether or not to log-scale the y-error measure (default is False)
+    :param title: title of the plot (default is "Quantification error as a function of distribution shift")
+    :param vlines: array-like list of values (default is None). If indicated, highlights some regions of the space
+        using vertical dotted lines.
+    :param method_order: if indicated (default is None), imposes the order in which the methods are processed (i.e.,
+        listed in the legend and associated with matplotlib colors).
+    :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.
+    """
 
     fig, ax = plt.subplots()
     ax.grid()
@@ -245,7 +252,7 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=20, e
     # get all data as a dictionary {'m':{'x':ndarray, 'y':ndarray}} where 'm' is a method name (in the same
     # order as in method_order (if specified), and where 'x' are the train-test shifts (computed as according to
     # x_error function) and 'y' is the estim-test shift (computed as according to y_error)
-    data = __join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error, y_error, method_order)
+    data = _join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error, y_error, method_order)
 
     _set_colors(ax, n_methods=len(method_order))
 
@@ -302,13 +309,46 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=20, e
     ax.set_xlim(0, max_x)
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
-    save_or_show(savepath)
+    _save_or_show(savepath)
 
 
-def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, n_bins=20, binning='isomerous',
+def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
+                                 n_bins=20, binning='isomerous',
                                  x_error='ae', y_error='ae', ttest_alpha=0.005, tail_density_threshold=0.005,
                                  method_order=None,
                                  savepath=None):
+    """
+    Displays (only) the top performing methods for different regions of the train-test shift in form of a broken
+    bar chart, in which each method has bars only for those regions in which either one of the following conditions
+    hold: (i) it is the best method (in average) for the bin, or (ii) it is not statistically significantly different
+    (in average) as according to a two-sided t-test on independent samples at confidence `ttest_alpha`.
+    The binning can be made "isometric" (same size), or "isomerous" (same number of experiments -- default). A second
+    plot is displayed on top, that displays the distribution of experiments for each bin (when binning="isometric") or
+    the percentiles points of the distribution (when binning="isomerous").
+
+    :param method_names: array-like with the method names for each experiment
+    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for
+        each experiment
+    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)
+        for each experiment
+    :param tr_prevs: training prevalence of each experiment
+    :param n_bins: number of bins in which the y-axis is to be divided (default is 20)
+    :param binning: type of binning, either "isomerous" (default) or "isometric"
+    :param x_error: a string representing the name of an error function (as defined in `quapy.error`) to be used for
+        measuring the amount of train-test shift (default is "ae")
+    :param y_error: a string representing the name of an error function (as defined in `quapy.error`) to be used for
+        measuring the amount of error in the prevalence estimations (default is "ae")
+    :param ttest_alpha: the confidence interval above which a p-value (two-sided t-test on independent samples) is
+        to be considered as an indicator that the two means are not statistically significantly different. Default is
+        0.005, meaning that a `p-value > 0.005` indicates the two methods involved are to be considered similar
+    :param tail_density_threshold: sets a threshold on the density of experiments (over the total number of experiments)
+        below which a bin in the tail (i.e., the right-most ones) will be discarded. This is in order to avoid some
+        bins to be shown for train-test outliers.
+    :param method_order: if indicated (default is None), imposes the order in which the methods are processed (i.e.,
+        listed in the legend and associated with matplotlib colors).
+    :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.
+    :return:
+    """
     assert binning in ['isomerous', 'isometric'], 'unknown binning type; valid types are "isomerous" and "isometric"'
 
     x_error = getattr(qp.error, x_error)
@@ -317,7 +357,7 @@ def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs
     # get all data as a dictionary {'m':{'x':ndarray, 'y':ndarray}} where 'm' is a method name (in the same
     # order as in method_order (if specified), and where 'x' are the train-test shifts (computed as according to
     # x_error function) and 'y' is the estim-test shift (computed as according to y_error)
-    data = __join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error, y_error, method_order)
+    data = _join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error, y_error, method_order)
 
     if binning == 'isomerous':
         # take bins containing the same amount of examples
@@ -449,10 +489,30 @@ def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs
         ax.get_xaxis().set_visible(False)
         plt.subplots_adjust(wspace=0, hspace=0)
 
-    save_or_show(savepath)
+    _save_or_show(savepath)
 
 
-def save_or_show(savepath):
+def _merge(method_names, true_prevs, estim_prevs):
+    ndims = true_prevs[0].shape[1]
+    data = defaultdict(lambda: {'true': np.empty(shape=(0, ndims)), 'estim': np.empty(shape=(0, ndims))})
+    method_order=[]
+    for method, true_prev, estim_prev in zip(method_names, true_prevs, estim_prevs):
+        data[method]['true'] = np.concatenate([data[method]['true'], true_prev])
+        data[method]['estim'] = np.concatenate([data[method]['estim'], estim_prev])
+        if method not in method_order:
+            method_order.append(method)
+    true_prevs_ = [data[m]['true'] for m in method_order]
+    estim_prevs_ = [data[m]['estim'] for m in method_order]
+    return method_order, true_prevs_, estim_prevs_
+
+
+def _set_colors(ax, n_methods):
+    NUM_COLORS = n_methods
+    cm = plt.get_cmap('tab20')
+    ax.set_prop_cycle(color=[cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
+
+
+def _save_or_show(savepath):
     # if savepath is specified, then saves the plot in that path; otherwise the plot is shown
     if savepath is not None:
         qp.util.create_parent_dir(savepath)
@@ -462,7 +522,7 @@ def save_or_show(savepath):
         plt.show()
 
 
-def __join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error, y_error, method_order):
+def _join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error, y_error, method_order):
     data = defaultdict(lambda: {'x': np.empty(shape=(0)), 'y': np.empty(shape=(0))})
 
     if method_order is None:

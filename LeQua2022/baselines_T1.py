@@ -2,13 +2,14 @@ import argparse
 import pickle
 from sklearn.linear_model import LogisticRegression as LR
 from quapy.method.aggregative import *
+from quapy.method.non_aggregative import MaximumLikelihoodPrevalenceEstimation as MLPE
 import quapy.functional as F
 from data import *
 import os
 import constants
 
 
-# LeQua official baselines for task T1B (Multiclass/Vector)
+# LeQua official baselines for task T1A (Binary/Vector) and T1B (Multiclass/Vector)
 # =========================================================
 
 def baselines():
@@ -17,7 +18,8 @@ def baselines():
     yield PCC(LR(n_jobs=-1)), "PCC"
     yield PACC(LR(n_jobs=-1)), "PACC"
     yield EMQ(CalibratedClassifierCV(LR(), n_jobs=-1)), "SLD"
-    yield HDy(LR(n_jobs=-1)) if args.task == 'T1A' else OneVsAll(HDy(LR()), n_jobs=-1), "HDy"
+    # yield HDy(LR(n_jobs=-1)) if args.task == 'T1A' else OneVsAll(HDy(LR()), n_jobs=-1), "HDy"
+    # yield MLPE(), "MLPE"
 
 
 def main(args):
@@ -30,7 +32,7 @@ def main(args):
 
     qp.environ['SAMPLE_SIZE'] = constants.SAMPLE_SIZE[args.task]
 
-    train = LabelledCollection.load(path_train, load_binary_vectors)
+    train = LabelledCollection.load(path_train, load_vector_documents)
     nF = train.instances.shape[1]
 
     print(f'number of classes: {len(train.classes_)}')
@@ -38,13 +40,19 @@ def main(args):
     print(f'training prevalence: {F.strprev(train.prevalence())}')
     print(f'training matrix shape: {train.instances.shape}')
 
+    # param_grid = {
+    #     'C': np.logspace(-3, 3, 7),
+    #     'class_weight': ['balanced', None]
+    # }
+
     param_grid = {
-        'C': np.logspace(-3,3,7),
-        'class_weight': ['balanced', None]
+        'C': [1],
+        'class_weight': ['balanced']
     }
 
     def gen_samples():
-        return gen_load_samples_T1(path_dev_vectors, nF, ground_truth_path=path_dev_prevs, return_id=False)
+        return gen_load_samples(path_dev_vectors, ground_truth_path=path_dev_prevs, return_id=False,
+                                load_fn=load_vector_documents, nF=nF)
 
     for quantifier, q_name in baselines():
         print(f'{q_name}: Model selection')

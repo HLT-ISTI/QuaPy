@@ -151,9 +151,11 @@ class GridSearchQ(BaseQuantifier):
     def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float, Callable] = None):
         """ Learning routine. Fits methods with all combinations of hyperparameters and selects the one minimizing
             the error metric.
+
         :param training: the training set on which to optimize the hyperparameters
         :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
             a float in [0,1] indicating the proportion of labelled data to extract from the training set
+        :return: self
         """
         if val_split is None:
             val_split = self.val_split
@@ -213,15 +215,21 @@ class GridSearchQ(BaseQuantifier):
         return self
 
     def quantify(self, instances):
-        """Estimate class prevalence values
+        """Estimate class prevalence values using the best model found after calling the :meth:`fit` method.
 
         :param instances: sample contanining the instances
+        :return: a ndarray of shape `(n_classes)` with class prevalence estimates as according to the best model found
+            by the model selection process.
         """
         assert hasattr(self, 'best_model_'), 'quantify called before fit'
         return self.best_model().quantify(instances)
 
     @property
     def classes_(self):
+        """
+        Classes on which the quantifier has been trained on.
+        :return: a ndarray of shape `(n_classes)` with the class identifiers
+        """
         return self.best_model().classes_
 
     def set_params(self, **parameters):
@@ -240,6 +248,12 @@ class GridSearchQ(BaseQuantifier):
         return self.param_grid
 
     def best_model(self):
+        """
+        Returns the best model found after calling the :meth:`fit` method, i.e., the one trained on the combination
+        of hyper-parameters that minimized the error function.
+
+        :return: a trained quantifier
+        """
         if hasattr(self, 'best_model_'):
             return self.best_model_
         raise ValueError('best_model called before fit')

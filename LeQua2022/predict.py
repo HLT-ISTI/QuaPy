@@ -5,7 +5,7 @@ import constants
 import os
 import pickle
 from tqdm import tqdm
-from data import gen_load_samples_T1
+from data import gen_load_samples
 from glob import glob
 import constants
 
@@ -27,7 +27,7 @@ def main(args):
 
     # predictions
     predictions = ResultSubmission()
-    for sampleid, sample in tqdm(gen_load_samples_T1(args.samples, args.nf), desc='predicting', total=nsamples):
+    for sampleid, sample in tqdm(gen_load_samples(args.samples, args.nf), desc='predicting', total=nsamples):
         predictions.add(sampleid, model.quantify(sample))
 
     # saving

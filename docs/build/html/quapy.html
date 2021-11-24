@@ -721,12 +721,21 @@ being ignored, a TimeoutError exception is raised. If -1 (default) then no time 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ.best_model">
 <span class="sig-name descname"><span class="pre">best_model</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.model_selection.GridSearchQ.best_model" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the best model found after calling the <a class="reference internal" href="#quapy.model_selection.GridSearchQ.fit" title="quapy.model_selection.GridSearchQ.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> method, i.e., the one trained on the combination
+of hyper-parameters that minimized the error function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a trained quantifier</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ.classes_">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.model_selection.GridSearchQ.classes_" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Classes on which the quantifier has been trained on.
+:return: a ndarray of shape <cite>(n_classes)</cite> with the class identifiers</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ.fit">
@@ -742,6 +751,9 @@ being ignored, a TimeoutError exception is raised. If -1 (default) then no time 
 <li><p><strong>val_split</strong> – either a LabelledCollection on which to test the performance of the different settings, or
 a float in [0,1] indicating the proportion of labelled data to extract from the training set</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
 </dd>
 </dl>
 </dd></dl>
@@ -763,10 +775,14 @@ a float in [0,1] indicating the proportion of labelled data to extract from the 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.model_selection.GridSearchQ.quantify">
 <span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.model_selection.GridSearchQ.quantify" title="Permalink to this definition">¶</a></dt>
-<dd><p>Estimate class prevalence values</p>
+<dd><p>Estimate class prevalence values using the best model found after calling the <a class="reference internal" href="#quapy.model_selection.GridSearchQ.fit" title="quapy.model_selection.GridSearchQ.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>instances</strong> – sample contanining the instances</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a ndarray of shape <cite>(n_classes)</cite> with class prevalence estimates as according to the best model found
+by the model selection process.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -790,7 +806,9 @@ a float in [0,1] indicating the proportion of labelled data to extract from the 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.plot.binary_bias_bins">
 <span class="sig-prename descclassname"><span class="pre">quapy.plot.</span></span><span class="sig-name descname"><span class="pre">binary_bias_bins</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">method_names</span></em>, <em class="sig-param"><span class="pre">true_prevs</span></em>, <em class="sig-param"><span class="pre">estim_prevs</span></em>, <em class="sig-param"><span class="pre">pos_class=1</span></em>, <em class="sig-param"><span class="pre">title=None</span></em>, <em class="sig-param"><span class="pre">nbins=5</span></em>, <em class="sig-param"><span class="pre">colormap=&lt;matplotlib.colors.ListedColormap</span> <span class="pre">object&gt;</span></em>, <em class="sig-param"><span class="pre">vertical_xticks=False</span></em>, <em class="sig-param"><span class="pre">legend=True</span></em>, <em class="sig-param"><span class="pre">savepath=None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.plot.binary_bias_bins" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Box-plots displaying the local bias (i.e., signed error computed as the estimated value minus the true value)
+for different bins of (true) prevalence of the positive classs, for each quantification method.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>method_names</strong> – array-like with the method names for each experiment</p></li>
@@ -802,7 +820,7 @@ for each experiment</p></li>
 <li><p><strong>title</strong> – the title to be displayed in the plot</p></li>
 <li><p><strong>nbins</strong> – number of bins</p></li>
 <li><p><strong>colormap</strong> – the matplotlib colormap to use (default cm.tab10)</p></li>
-<li><p><strong>vertical_xticks</strong> – </p></li>
+<li><p><strong>vertical_xticks</strong> – whether or not to add secondary grid (default is False)</p></li>
 <li><p><strong>legend</strong> – whether or not to display the legend (default is True)</p></li>
 <li><p><strong>savepath</strong> – path where to save the plot. If not indicated (as default), the plot is shown.</p></li>
 </ul>
@@ -865,17 +883,77 @@ listed in the legend and associated with matplotlib colors).</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.plot.brokenbar_supremacy_by_drift">
 <span class="sig-prename descclassname"><span class="pre">quapy.plot.</span></span><span class="sig-name descname"><span class="pre">brokenbar_supremacy_by_drift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estim_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binning</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'isomerous'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ttest_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_density_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.plot.brokenbar_supremacy_by_drift" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Displays (only) the top performing methods for different regions of the train-test shift in form of a broken
+bar chart, in which each method has bars only for those regions in which either one of the following conditions
+hold: (i) it is the best method (in average) for the bin, or (ii) it is not statistically significantly different
+(in average) as according to a two-sided t-test on independent samples at confidence <cite>ttest_alpha</cite>.
+The binning can be made “isometric” (same size), or “isomerous” (same number of experiments – default). A second
+plot is displayed on top, that displays the distribution of experiments for each bin (when binning=”isometric”) or
+the percentiles points of the distribution (when binning=”isomerous”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method_names</strong> – array-like with the method names for each experiment</p></li>
+<li><p><strong>true_prevs</strong> – array-like with the true prevalence values (each being a ndarray with n_classes components) for
+each experiment</p></li>
+<li><p><strong>estim_prevs</strong> – array-like with the estimated prevalence values (each being a ndarray with n_classes components)
+for each experiment</p></li>
+<li><p><strong>tr_prevs</strong> – training prevalence of each experiment</p></li>
+<li><p><strong>n_bins</strong> – number of bins in which the y-axis is to be divided (default is 20)</p></li>
+<li><p><strong>binning</strong> – type of binning, either “isomerous” (default) or “isometric”</p></li>
+<li><p><strong>x_error</strong> – a string representing the name of an error function (as defined in <cite>quapy.error</cite>) to be used for
+measuring the amount of train-test shift (default is “ae”)</p></li>
+<li><p><strong>y_error</strong> – a string representing the name of an error function (as defined in <cite>quapy.error</cite>) to be used for
+measuring the amount of error in the prevalence estimations (default is “ae”)</p></li>
+<li><p><strong>ttest_alpha</strong> – the confidence interval above which a p-value (two-sided t-test on independent samples) is
+to be considered as an indicator that the two means are not statistically significantly different. Default is
+0.005, meaning that a <cite>p-value &gt; 0.005</cite> indicates the two methods involved are to be considered similar</p></li>
+<li><p><strong>tail_density_threshold</strong> – sets a threshold on the density of experiments (over the total number of experiments)
+below which a bin in the tail (i.e., the right-most ones) will be discarded. This is in order to avoid some
+bins to be shown for train-test outliers.</p></li>
+<li><p><strong>method_order</strong> – if indicated (default is None), imposes the order in which the methods are processed (i.e.,
+listed in the legend and associated with matplotlib colors).</p></li>
+<li><p><strong>savepath</strong> – path where to save the plot. If not indicated (as default), the plot is shown.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.plot.error_by_drift">
-<span class="sig-prename descclassname"><span class="pre">quapy.plot.</span></span><span class="sig-name descname"><span class="pre">error_by_drift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estim_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Quantification</span> <span class="pre">error</span> <span class="pre">as</span> <span class="pre">a</span> <span class="pre">function</span> <span class="pre">of</span> <span class="pre">distribution</span> <span class="pre">shift'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.plot.error_by_drift" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="quapy.plot.save_or_show">
-<span class="sig-prename descclassname"><span class="pre">quapy.plot.</span></span><span class="sig-name descname"><span class="pre">save_or_show</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">savepath</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.plot.save_or_show" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.plot.</span></span><span class="sig-name descname"><span class="pre">error_by_drift</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">estim_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Quantification</span> <span class="pre">error</span> <span class="pre">as</span> <span class="pre">a</span> <span class="pre">function</span> <span class="pre">of</span> <span class="pre">distribution</span> <span class="pre">shift'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">savepath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.plot.error_by_drift" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the error (along the x-axis, as measured in terms of <cite>error_name</cite>) as a function of the train-test shift
+(along the y-axis, as measured in terms of <a class="reference internal" href="#quapy.error.ae" title="quapy.error.ae"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.ae()</span></code></a>). This plot is useful especially for multiclass
+problems, in which “diagonal plots” may be cumbersone, and in order to gain understanding about how methods
+fare in different regions of the prior probability shift spectrum (e.g., in the low-shift regime vs. in the
+high-shift regime).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>method_names</strong> – array-like with the method names for each experiment</p></li>
+<li><p><strong>true_prevs</strong> – array-like with the true prevalence values (each being a ndarray with n_classes components) for
+each experiment</p></li>
+<li><p><strong>estim_prevs</strong> – array-like with the estimated prevalence values (each being a ndarray with n_classes components)
+for each experiment</p></li>
+<li><p><strong>tr_prevs</strong> – training prevalence of each experiment</p></li>
+<li><p><strong>n_bins</strong> – number of bins in which the y-axis is to be divided (default is 20)</p></li>
+<li><p><strong>error_name</strong> – a string representing the name of an error function (as defined in <cite>quapy.error</cite>, default is “ae”)</p></li>
+<li><p><strong>show_std</strong> – whether or not to show standard deviations as color bands (default is False)</p></li>
+<li><p><strong>show_density</strong> – whether or not to display the distribution of experiments for each bin (default is True)</p></li>
+<li><p><strong>logscale</strong> – whether or not to log-scale the y-error measure (default is False)</p></li>
+<li><p><strong>title</strong> – title of the plot (default is “Quantification error as a function of distribution shift”)</p></li>
+<li><p><strong>vlines</strong> – array-like list of values (default is None). If indicated, highlights some regions of the space
+using vertical dotted lines.</p></li>
+<li><p><strong>method_order</strong> – if indicated (default is None), imposes the order in which the methods are processed (i.e.,
+listed in the legend and associated with matplotlib colors).</p></li>
+<li><p><strong>savepath</strong> – path where to save the plot. If not indicated (as default), the plot is shown.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-quapy.util">
@@ -884,82 +962,184 @@ listed in the legend and associated with matplotlib colors).</p></li>
 <dt class="sig sig-object py" id="quapy.util.EarlyStop">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">EarlyStop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patience</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_is_better</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.EarlyStop" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class implementing the early-stopping condition typically used for training neural networks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>patience</strong> – the number of (consecutive) times that a monitored evaluation metric (typically obtaind in a</p>
+</dd>
+</dl>
+<p>held-out validation split) can be found to be worse than the best one obtained so far, before flagging the
+stopping condition. An instance of this class is <cite>callable</cite>, and is to be used as follows:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">earlystop</span> <span class="o">=</span> <span class="n">EarlyStop</span><span class="p">(</span><span class="n">patience</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">earlystop</span><span class="p">(</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">earlystop</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">earlystop</span><span class="o">.</span><span class="n">IMPROVED</span>  <span class="c1"># is True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">earlystop</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">earlystop</span><span class="o">.</span><span class="n">STOP</span>  <span class="c1"># is False (patience=1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">earlystop</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">earlystop</span><span class="o">.</span><span class="n">STOP</span>  <span class="c1"># is True (patience=0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">earlystop</span><span class="o">.</span><span class="n">best_epoch</span>  <span class="c1"># is 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">earlystop</span><span class="o">.</span><span class="n">best_score</span>  <span class="c1"># is 0.7</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lower_is_better</strong> – if True (default) the metric is to be minimized.</p>
+</dd>
+<dt class="field-even">Variables</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>best_score</strong> – keeps track of the best value seen so far</p></li>
+<li><p><strong>best_epoch</strong> – keeps track of the epoch in which the best score was set</p></li>
+<li><p><strong>STOP</strong> – flag (boolean) indicating the stopping condition</p></li>
+<li><p><strong>IMPROVED</strong> – flag (boolean) indicating whether there was an improvement in the last call</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.create_if_not_exist">
 <span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">create_if_not_exist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.create_if_not_exist" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>An alias to <cite>os.makedirs(path, exist_ok=True)</cite> that also returns the path. This is useful in cases like, e.g.:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">create_if_not_exist</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">dir</span><span class="p">,</span> <span class="n">subdir</span><span class="p">,</span> <span class="n">anotherdir</span><span class="p">))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – path to create</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the path itself</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.create_parent_dir">
 <span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">create_parent_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.create_parent_dir" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates the parent dir (if any) of a given path, if not exists. E.g., for <cite>./path/to/file.txt</cite>, the path <cite>./path/to</cite>
+is created.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – the path</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.download_file">
 <span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archive_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.download_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Downloads a file from a url</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> – the url</p></li>
+<li><p><strong>archive_filename</strong> – destination filename</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.download_file_if_not_exists">
-<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">download_file_if_not_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archive_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.download_file_if_not_exists" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">download_file_if_not_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archive_filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.download_file_if_not_exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dowloads a function (using <a class="reference internal" href="#quapy.util.download_file" title="quapy.util.download_file"><code class="xref py py-meth docutils literal notranslate"><span class="pre">download_file()</span></code></a>) if the file does not exist.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>url</strong> – the url</p></li>
+<li><p><strong>archive_filename</strong> – destination filename</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.get_quapy_home">
 <span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">get_quapy_home</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.get_quapy_home" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Gets the home directory of QuaPy, i.e., the directory where QuaPy saves permanent data, such as dowloaded datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a string representing the path</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.map_parallel">
 <span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">map_parallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.map_parallel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and n_jobs=2, then
 func is applied in two parallel processes to args[0:50] and to args[50:99]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – function to be parallelized</p></li>
+<li><p><strong>args</strong> – array-like of arguments to be passed to the function in different parallel calls</p></li>
+<li><p><strong>n_jobs</strong> – the number of workers</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.parallel">
 <span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">parallel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.parallel" title="Permalink to this definition">¶</a></dt>
-<dd><p>A wrapper of multiprocessing:
-Parallel(n_jobs=n_jobs)(</p>
-<blockquote>
-<div><p>delayed(func)(args_i) for args_i in args</p>
-</div></blockquote>
-<p>)
-that takes the quapy.environ variable as input silently</p>
+<dd><p>A wrapper of multiprocessing:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)(</span>
+<span class="gp">&gt;&gt;&gt; </span>     <span class="n">delayed</span><span class="p">(</span><span class="n">func</span><span class="p">)(</span><span class="n">args_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">args_i</span> <span class="ow">in</span> <span class="n">args</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>that takes the <cite>quapy.environ</cite> variable as input silently</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.pickled_resource">
 <span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">pickled_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pickle_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_func</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.pickled_resource" title="Permalink to this definition">¶</a></dt>
 <dd><p>Allows for fast reuse of resources that are generated only once by calling generation_func(<a href="#id1"><span class="problematic" id="id2">*</span></a>args). The next times
-this function is invoked, it loads the pickled resource. Example:
-def some_array(n):</p>
-<blockquote>
-<div><p>return np.random.rand(n)</p>
-</div></blockquote>
-<p>pickled_resource(‘./my_array.pkl’, some_array, 10)  # the resource does not exist: it is created by some_array(10)
-pickled_resource(‘./my_array.pkl’, some_array, 10)  # the resource exists: it is loaded from ‘./my_array.pkl’
-:param pickle_path: the path where to save (first time) and load (next times) the resource
-:param generation_func: the function that generates the resource, in case it does not exist in pickle_path
-:param args: any arg that generation_func uses for generating the resources
-:return: the resource</p>
+this function is invoked, it loads the pickled resource. Example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">some_array</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>  <span class="c1"># a mock resource created with one parameter (`n`)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pickled_resource</span><span class="p">(</span><span class="s1">&#39;./my_array.pkl&#39;</span><span class="p">,</span> <span class="n">some_array</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># the resource does not exist: it is created by calling some_array(10)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pickled_resource</span><span class="p">(</span><span class="s1">&#39;./my_array.pkl&#39;</span><span class="p">,</span> <span class="n">some_array</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># the resource exists; it is loaded from &#39;./my_array.pkl&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pickle_path</strong> – the path where to save (first time) and load (next times) the resource</p></li>
+<li><p><strong>generation_func</strong> – the function that generates the resource, in case it does not exist in pickle_path</p></li>
+<li><p><strong>args</strong> – any arg that generation_func uses for generating the resources</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the resource</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.save_text_file">
 <span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">save_text_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.save_text_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Saves a text file to disk, given its full path, and creates the parent directory if missing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – path where to save the path.</p></li>
+<li><p><strong>text</strong> – text to save.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.temp_seed">
 <span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">temp_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.temp_seed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Can be used in a “with” context to set a temporal seed without modifying the outer numpy’s current state. E.g.:
-with temp_seed(random_seed):</p>
-<blockquote>
-<div><p># do any computation depending on np.random functionality</p>
-</div></blockquote>
+<dd><p>Can be used in a “with” context to set a temporal seed without modifying the outer numpy’s current state. E.g.:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">temp_seed</span><span class="p">(</span><span class="n">random_seed</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="k">pass</span> <span class="c1"># do any computation depending on np.random functionality</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>seed</strong> – the seed to set within the “with” context</p>
