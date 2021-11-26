@@ -14,10 +14,10 @@ import constants
 
 def baselines():
     yield CC(LR(n_jobs=-1)), "CC"
-    yield ACC(LR(n_jobs=-1)), "ACC"
-    yield PCC(LR(n_jobs=-1)), "PCC"
-    yield PACC(LR(n_jobs=-1)), "PACC"
-    yield EMQ(CalibratedClassifierCV(LR(), n_jobs=-1)), "SLD"
+    # yield ACC(LR(n_jobs=-1)), "ACC"
+    # yield PCC(LR(n_jobs=-1)), "PCC"
+    # yield PACC(LR(n_jobs=-1)), "PACC"
+    # yield EMQ(CalibratedClassifierCV(LR(), n_jobs=-1)), "SLD"
     # yield HDy(LR(n_jobs=-1)) if args.task == 'T1A' else OneVsAll(HDy(LR()), n_jobs=-1), "HDy"
     # yield MLPE(), "MLPE"
 
@@ -28,7 +28,7 @@ def main(args):
 
     path_dev_vectors = os.path.join(args.datadir, 'dev_vectors')
     path_dev_prevs = os.path.join(args.datadir, 'dev_prevalences.csv')
-    path_train = os.path.join(args.datadir, 'training_vectors.txt')
+    path_train = os.path.join(args.datadir, 'training_vectors.csv')
 
     qp.environ['SAMPLE_SIZE'] = constants.SAMPLE_SIZE[args.task]
 
@@ -46,13 +46,15 @@ def main(args):
     # }
 
     param_grid = {
-        'C': [1],
+        'C': [0.01],
         'class_weight': ['balanced']
     }
+    target_metric = qp.error.mrae
 
     def gen_samples():
         return gen_load_samples(path_dev_vectors, ground_truth_path=path_dev_prevs, return_id=False,
-                                load_fn=load_vector_documents, nF=nF)
+                                load_fn=load_vector_documents, ext='csv')
+
 
     for quantifier, q_name in baselines():
         print(f'{q_name}: Model selection')
@@ -61,12 +63,12 @@ def main(args):
             param_grid,
             sample_size=None,
             protocol='gen',
-            error=qp.error.mae,
+            error=target_metric,  #qp.error.mae,
             refit=False,
             verbose=True
         ).fit(train, gen_samples)
 
-        print(f'{q_name} got MAE={quantifier.best_score_:.3f} (hyper-params: {quantifier.best_params_})')
+        print(f'{q_name} got MRAE={quantifier.best_score_:.5f} (hyper-params: {quantifier.best_params_})')
 
         model_path = os.path.join(models_path, q_name+'.pkl')
         print(f'saving model in {model_path}')
@@ -91,8 +93,8 @@ if __name__ == '__main__':
         raise ValueError(f'path {args.datadir} is not a valid directory')
     if not os.path.exists(os.path.join(args.datadir, "dev_prevalences.csv")):
         raise FileNotFoundError(f'path {args.datadir} does not contain "dev_prevalences.csv" file')
-    if not os.path.exists(os.path.join(args.datadir, "training_vectors.txt")):
-        raise FileNotFoundError(f'path {args.datadir} does not contain "training_vectors.txt" file')
+    if not os.path.exists(os.path.join(args.datadir, "training_vectors.csv")):
+        raise FileNotFoundError(f'path {args.datadir} does not contain "training_vectors.csv" file')
     if not os.path.exists(os.path.join(args.datadir, "dev_vectors")):
         raise FileNotFoundError(f'path {args.datadir} does not contain "dev_vectors" folder')
 

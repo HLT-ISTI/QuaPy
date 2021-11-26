@@ -1,8 +1,14 @@
 import argparse
 import pickle
 
+from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression as LR
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+from LeQua2022.pretrained_embeddings import TfidfWordEmbeddingTransformer, WordEmbeddingAverageTransformer
+from LeQua2022.word_class_embeddings import WordClassEmbeddingsTransformer, ConcatenateEmbeddingsTransformer
 from quapy.method.aggregative import *
 from quapy.method.non_aggregative import MaximumLikelihoodPrevalenceEstimation as MLPE
 import quapy.functional as F
@@ -20,7 +26,7 @@ def baselines():
     yield PCC(LR(n_jobs=-1)), "PCC"
     yield PACC(LR(n_jobs=-1)), "PACC"
     yield EMQ(CalibratedClassifierCV(LR(), n_jobs=-1)), "SLD"
-    yield HDy(LR(n_jobs=-1)) if args.task == 'T2A' else OneVsAll(HDy(LR()), n_jobs=-1), "HDy"
+    # yield HDy(LR(n_jobs=-1)) if args.task == 'T2A' else OneVsAll(HDy(LR()), n_jobs=-1), "HDy"
     # yield MLPE(), "MLPE"
 
 
@@ -35,9 +41,69 @@ def main(args):
     qp.environ['SAMPLE_SIZE'] = constants.SAMPLE_SIZE[args.task]
 
     train = LabelledCollection.load(path_train, load_raw_documents)
-    tfidf = TfidfVectorizer(lowercase=True, stop_words='english', min_df=4)  # TfidfVectorizer(min_df=5)
-    train.instances = tfidf.fit_transform(train.instances)
-    nF = train.instances.shape[1]
+
+    if args.mode == 'tfidf1':
+        tfidf = TfidfVectorizer(min_df=5, sublinear_tf=True)
+    if args.mode == 'tfidf2':
+        tfidf = TfidfVectorizer(min_df=5, sublinear_tf=True, ngram_range=(1,2))
+    if args.mode == 'tfidf3':
+        tfidf = Pipeline([
+            ('tfidf', TfidfVectorizer(min_df=5, sublinear_tf=True)),
+            ('svd', TruncatedSVD(n_components=300))
+        ])
+    if args.mode == 'tfidf4':
+        tfidf = Pipeline([
+            ('tfidf', TfidfVectorizer(min_df=5, sublinear_tf=True, ngram_range=(1,2))),
+            ('svd', TruncatedSVD(n_components=300))
+        ])
+    if args.mode == 'glove1':
+        tfidf = Pipeline([
+            ('glove-ave', WordEmbeddingAverageTransformer(wordset_name='glove', path='/mnt/1T/Datasets/GloVe')),
+            ('zscore', StandardScaler())
+        ])
+    if args.mode == 'glove2':
+        tfidf = WordEmbeddingAverageTransformer(wordset_name='glove', path='/mnt/1T/Datasets/GloVe')
+    if args.mode == 'glove3':
+        vect = TfidfVectorizer(min_df=5, sublinear_tf=True)
+        tfidf = Pipeline([
+            ('tfidf', vect),
+            ('embedding', TfidfWordEmbeddingTransformer(
+                wordset_name='glove',
+                features_call=vect.get_feature_names_out,
+                path='/mnt/1T/Datasets/GloVe')),
+            ('zscore', StandardScaler())
+        ])
+    if args.mode == 'glove4':
+        vect = TfidfVectorizer(min_df=5, sublinear_tf=True)
+        tfidf = Pipeline([
+            ('tfidf', vect),
+            ('embedding', TfidfWordEmbeddingTransformer(
+                wordset_name='glove',
+                features_call=vect.get_feature_names_out,
+                path='/mnt/1T/Datasets/GloVe'))
+        ])
+    if args.mode == 'wce1':
+        tfidf = WordClassEmbeddingsTransformer()
+    if args.mode == 'wce2':
+        glove = Pipeline([
+            ('glove-ave', WordEmbeddingAverageTransformer(wordset_name='glove', path='/mnt/1T/Datasets/GloVe')),
+            ('zscore', StandardScaler())
+        ])
+        wce = WordClassEmbeddingsTransformer()
+        tfidf = ConcatenateEmbeddingsTransformer([glove, wce])
+    if args.mode == 'wce3':
+        glove = Pipeline([
+            ('glove-ave', WordEmbeddingAverageTransformer(wordset_name='glove', path='/mnt/1T/Datasets/GloVe')),
+            ('zscore', StandardScaler())
+        ])
+        wce = WordClassEmbeddingsTransformer()
+        tfidf = Pipeline([
+            ('glove-wce', ConcatenateEmbeddingsTransformer([glove, wce])),
+            ('svd', TruncatedSVD(n_components=300))
+            ])
+    target_metric = qp.error.mrae
+
+    train.instances = tfidf.fit_transform(*train.Xy)
 
     print(f'number of classes: {len(train.classes_)}')
     print(f'number of training documents: {len(train)}')
@@ -58,6 +124,7 @@ def main(args):
         return gen_load_samples(path_dev_vectors, ground_truth_path=path_dev_prevs, return_id=False,
                                 load_fn=load_raw_unlabelled_documents, vectorizer=tfidf)
 
+    outs = []
     for quantifier, q_name in baselines():
         print(f'{q_name}: Model selection')
         quantifier = qp.model_selection.GridSearchQ(
@@ -65,16 +132,24 @@ def main(args):
             param_grid,
             sample_size=None,
             protocol='gen',
-            error=qp.error.mae,
+            error=target_metric,  #qp.error.mae,
             refit=False,
             verbose=True
         ).fit(train, gen_samples)
 
-        print(f'{q_name} got MAE={quantifier.best_score_:.3f} (hyper-params: {quantifier.best_params_})')
+        print(f'{q_name} got MAE={quantifier.best_score_:.5f} (hyper-params: {quantifier.best_params_})')
+        outs.append(f'{q_name} got MAE={quantifier.best_score_:.5f} (hyper-params: {quantifier.best_params_})')
 
         model_path = os.path.join(models_path, q_name+'.'+args.task+'.pkl')
         print(f'saving model in {model_path}')
         pickle.dump(quantifier.best_model(), open(model_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
+
+    print(tfidf)
+    print(args.mode)
+    print(outs)
+    with open(f'{args.mode}.{args.task}.txt', 'wt') as foo:
+        for line in outs:
+            foo.write(f'{line}\n')
 
 
 if __name__ == '__main__':
@@ -87,6 +162,8 @@ if __name__ == '__main__':
     parser.add_argument('modeldir', metavar='MODEL-PATH', type=str,
                         help='Path where to save the models. '
                              'A subdirectory named <task> will be automatically created.')
+    parser.add_argument('mode', metavar='PREPROCESSMODE', type=str,
+                        help='modality of preprocessing')
     args = parser.parse_args()
 
     if not os.path.exists(args.datadir):

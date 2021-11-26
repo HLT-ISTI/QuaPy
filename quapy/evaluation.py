@@ -24,6 +24,7 @@ def artificial_prevalence_prediction(
         verbose=False):
     """
     Performs the predictions for all samples generated according to the artificial sampling protocol.
+
     :param model: the model in charge of generating the class prevalence estimations
     :param test: the test set on which to perform arificial sampling
     :param sample_size: the size of the samples

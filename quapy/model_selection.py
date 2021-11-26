@@ -3,6 +3,8 @@ import signal
 from copy import deepcopy
 from typing import Union, Callable
 
+import numpy as np
+
 import quapy as qp
 from quapy.data.base import LabelledCollection
 from quapy.evaluation import artificial_prevalence_prediction, natural_prevalence_prediction, gen_prevalence_prediction
@@ -190,6 +192,7 @@ class GridSearchQ(BaseQuantifier):
                 model.fit(training)
                 true_prevalences, estim_prevalences = self.__generate_predictions(model, val_split)
                 score = self.error(true_prevalences, estim_prevalences)
+
                 self._sout(f'checking hyperparams={params} got {self.error.__name__} score {score:.5f}')
                 if self.best_score_ is None or score < self.best_score_:
                     self.best_score_ = score
