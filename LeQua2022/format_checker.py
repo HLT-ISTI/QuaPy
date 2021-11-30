@@ -1,8 +1,6 @@
 import argparse
-import quapy as qp
-from data import ResultSubmission, evaluate_submission
-import constants
-import os
+from data import ResultSubmission
+
 
 """
 LeQua2022 Official format-checker script 
@@ -13,9 +11,9 @@ def main(args):
         ResultSubmission.check_file_format(args.prevalence_file)
     except Exception as e:
         print(e)
-        print('Format check: not passed')
+        print('Format check: [not passed]')
     else:
-        print('Format check: passed')
+        print('Format check: [passed]')
 
 
 if __name__=='__main__':

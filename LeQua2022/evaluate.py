@@ -8,21 +8,20 @@ LeQua2022 Official evaluation script
 """
 
 def main(args):
-    if args.task in {'T1A', 'T2A'}:
-        qp.environ['SAMPLE_SIZE'] = constants.TXA_SAMPLE_SIZE
-    if args.task in {'T1B', 'T2B'}:
-        qp.environ['SAMPLE_SIZE'] = constants.TXB_SAMPLE_SIZE
+
+    sample_size = constants.SAMPLE_SIZE[args.task]
+
     true_prev = ResultSubmission.load(args.true_prevalences)
     pred_prev = ResultSubmission.load(args.pred_prevalences)
-    mae, mrae = evaluate_submission(true_prev, pred_prev)
-    print(f'MAE: {mae:.4f}')
+
+    mrae, mae = evaluate_submission(true_prev, pred_prev, sample_size)
     print(f'MRAE: {mrae:.4f}')
+    print(f'MAE: {mae:.4f}')
 
     if args.output is not None:
-        qp.util.create_parent_dir(args.output)
         with open(args.output, 'wt') as foo:
-            foo.write(f'MAE: {mae:.4f}\n')
             foo.write(f'MRAE: {mrae:.4f}\n')
+            foo.write(f'MAE: {mae:.4f}\n')
 
 
 if __name__=='__main__':
@@ -36,5 +35,8 @@ if __name__=='__main__':
     parser.add_argument('--output', metavar='SCORES-PATH', type=str, default=None,
                         help='Path where to store the evaluation scores')
     args = parser.parse_args()
+
+    if args.output is not None:
+        qp.util.create_parent_dir(args.output)
 
     main(args)

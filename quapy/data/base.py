@@ -9,111 +9,6 @@ from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
 from quapy.functional import artificial_prevalence_sampling, strprev
 
 
-# class Sampling:
-#
-#     @abstractmethod
-#     def load(cls, path: str, loader_func: callable, classes=None): ...
-#
-#     @abstractmethod
-#     @property
-#     def __len__(self): ...
-#
-#     @abstractmethod
-#     @property
-#     def prevalence(self): ...
-#
-#     @abstractmethod
-#     @property
-#     def n_classes(self):
-#
-#     @property
-#     def binary(self):
-#         return self.n_classes == 2
-#
-#     def uniform_sampling_index(self, size):
-#         return np.random.choice(len(self), size, replace=False)
-#
-#     def uniform_sampling(self, size):
-#         unif_index = self.uniform_sampling_index(size)
-#         return self.sampling_from_index(unif_index)
-#
-#     def sampling(self, size, *prevs, shuffle=True):
-#         prev_index = self.sampling_index(size, *prevs, shuffle=shuffle)
-#         return self.sampling_from_index(prev_index)
-#
-#     def sampling_from_index(self, index):
-#         documents = self.instances[index]
-#         labels = self.labels[index]
-#         return LabelledCollection(documents, labels, classes_=self.classes_)
-#
-#     def split_stratified(self, train_prop=0.6, random_state=None):
-#         # with temp_seed(42):
-#         tr_docs, te_docs, tr_labels, te_labels = \
-#             train_test_split(self.instances, self.labels, train_size=train_prop, stratify=self.labels,
-#                              random_state=random_state)
-#         return LabelledCollection(tr_docs, tr_labels), LabelledCollection(te_docs, te_labels)
-#
-#     def artificial_sampling_generator(self, sample_size, n_prevalences=101, repeats=1):
-#         dimensions = self.n_classes
-#         for prevs in artificial_prevalence_sampling(dimensions, n_prevalences, repeats):
-#             yield self.sampling(sample_size, *prevs)
-#
-#     def artificial_sampling_index_generator(self, sample_size, n_prevalences=101, repeats=1):
-#         dimensions = self.n_classes
-#         for prevs in artificial_prevalence_sampling(dimensions, n_prevalences, repeats):
-#             yield self.sampling_index(sample_size, *prevs)
-#
-#     def natural_sampling_generator(self, sample_size, repeats=100):
-#         for _ in range(repeats):
-#             yield self.uniform_sampling(sample_size)
-#
-#     def natural_sampling_index_generator(self, sample_size, repeats=100):
-#         for _ in range(repeats):
-#             yield self.uniform_sampling_index(sample_size)
-#
-#     def __add__(self, other):
-#         if other is None:
-#             return self
-#         elif issparse(self.instances) and issparse(other.instances):
-#             join_instances = vstack([self.instances, other.instances])
-#         elif isinstance(self.instances, list) and isinstance(other.instances, list):
-#             join_instances = self.instances + other.instances
-#         elif isinstance(self.instances, np.ndarray) and isinstance(other.instances, np.ndarray):
-#             join_instances = np.concatenate([self.instances, other.instances])
-#         else:
-#             raise NotImplementedError('unsupported operation for collection types')
-#         labels = np.concatenate([self.labels, other.labels])
-#         return LabelledCollection(join_instances, labels)
-#
-#     @property
-#     def Xy(self):
-#         return self.instances, self.labels
-#
-#     def stats(self, show=True):
-#         ninstances = len(self)
-#         instance_type = type(self.instances[0])
-#         if instance_type == list:
-#             nfeats = len(self.instances[0])
-#         elif instance_type == np.ndarray or issparse(self.instances):
-#             nfeats = self.instances.shape[1]
-#         else:
-#             nfeats = '?'
-#         stats_ = {'instances': ninstances,
-#                   'type': instance_type,
-#                   'features': nfeats,
-#                   'classes': self.classes_,
-#                   'prevs': strprev(self.prevalence())}
-#         if show:
-#             print(f'#instances={stats_["instances"]}, type={stats_["type"]}, #features={stats_["features"]}, '
-#                   f'#classes={stats_["classes"]}, prevs={stats_["prevs"]}')
-#         return stats_
-#
-#     def kFCV(self, nfolds=5, nrepeats=1, random_state=0):
-#         kf = RepeatedStratifiedKFold(n_splits=nfolds, n_repeats=nrepeats, random_state=random_state)
-#         for train_index, test_index in kf.split(*self.Xy):
-#             train = self.sampling_from_index(train_index)
-#             test = self.sampling_from_index(test_index)
-#             yield train, test
 
 class LabelledCollection:
     '''
@@ -146,8 +41,8 @@ class LabelledCollection:
         self.index = {class_: np.arange(n_docs)[self.labels == class_] for class_ in self.classes_}
 
     @classmethod
-    def load(cls, path: str, loader_func: callable, classes=None):
-        return LabelledCollection(*loader_func(path), classes)
+    def load(cls, path: str, loader_func: callable, classes=None, **loader_kwargs):
+        return LabelledCollection(*loader_func(path, **loader_kwargs), classes)
 
     def __len__(self):
         return self.instances.shape[0]

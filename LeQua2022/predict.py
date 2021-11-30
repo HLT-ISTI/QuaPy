@@ -1,7 +1,6 @@
 import argparse
 import quapy as qp
 from data import ResultSubmission
-import constants
 import os
 import pickle
 from tqdm import tqdm
@@ -27,7 +26,7 @@ def main(args):
 
     # predictions
     predictions = ResultSubmission()
-    for sampleid, sample in tqdm(gen_load_samples(args.samples, args.nf), desc='predicting', total=nsamples):
+    for sampleid, sample in tqdm(gen_load_samples(args.samples, return_id=True, load_fn=), desc='predicting', total=nsamples):
         predictions.add(sampleid, model.quantify(sample))
 
     # saving
