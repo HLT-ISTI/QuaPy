@@ -46,7 +46,7 @@ def main(args):
 
         def gen_samples():
             return gen_load_samples(path_dev_vectors, ground_truth_path=path_dev_prevs,
-                                    load_fn=load_raw_unlabelled_documents, vectorizer=tfidf)
+                                    load_fn=load_raw_documents, vectorizer=tfidf)
 
     print(f'number of classes: {len(train.classes_)}')
     print(f'number of training documents: {len(train)}')
@@ -58,10 +58,10 @@ def main(args):
         'class_weight': ['balanced', None]
     }
 
-    # param_grid = {
-    #     'C': [0.01, 0.1, 1],
-    #     'class_weight': ['balanced']
-    # }
+    param_grid = {
+        'C': [0.01],
+        'class_weight': ['balanced']
+    }
 
     for quantifier, q_name in baselines():
         print(f'{q_name}: Model selection')

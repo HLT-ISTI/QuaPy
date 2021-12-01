@@ -22,16 +22,15 @@ def load_category_map(path):
     return cat2code, code2cat
 
 
-def load_raw_documents(path):
-    return qp.data.from_text(path, verbose=0, class2int=True)
-
-
-def load_raw_unlabelled_documents(path, vectorizer=None):
-    with open(path, 'rt', encoding='utf-8') as file:
-        documents = [d.strip() for d in file.readlines()]
+def load_raw_documents(path, vectorizer=None):
+    df = pd.read_csv(path)
+    documents = list(df["text"].values)
     if vectorizer:
         documents = vectorizer.transform(documents)
-    return documents, None
+    labels = None
+    if "label" in df.columns:
+        labels = df["label"].values.astype(np.int)
+    return documents, labels
 
 
 def load_vector_documents(path):
