@@ -7,7 +7,10 @@ def from_text(path, encoding='utf-8', verbose=1, class2int=True):
     """
     Reads a labelled colletion of documents.
     File fomart <0 or 1>\t<document>\n
+
     :param path: path to the labelled collection
+    :param encoding: the text encoding used to open the file
+    :param verbose: if >0 (default) shows some progress information in standard output
     :return: a list of sentences, and a list of labels
     """
     all_sentences, all_labels = [], []
@@ -35,8 +38,9 @@ def from_sparse(path):
     """
     Reads a labelled collection of real-valued instances expressed in sparse format
     File format <-1 or 0 or 1>[\s col(int):val(float)]\n
+
     :param path: path to the labelled collection
-    :return: a csr_matrix containing the instances (rows), and a ndarray containing the labels
+    :return: a `csr_matrix` containing the instances (rows), and a ndarray containing the labels
     """
 
     def split_col_val(col_val):
@@ -68,8 +72,10 @@ def from_csv(path, encoding='utf-8'):
     """
     Reads a csv file in which columns are separated by ','.
     File format <label>,<feat1>,<feat2>,...,<featn>\n
+
     :param path: path to the csv file
-    :return: a ndarray for the labels and a ndarray (float) for the covariates
+    :param encoding: the text encoding used to open the file
+    :return: a np.ndarray for the labels and a ndarray (float) for the covariates
     """
 
     X, y = [], []
@@ -85,11 +91,16 @@ def from_csv(path, encoding='utf-8'):
 def reindex_labels(y):
     """
     Re-indexes a list of labels as a list of indexes, and returns the classnames corresponding to the indexes.
-    E.g., y=['B', 'B', 'A', 'C'] -> [1,1,0,2], ['A','B','C']
+    E.g.:
+
+    >>> reindex_labels(['B', 'B', 'A', 'C'])
+    >>> (array([1, 1, 0, 2]), array(['A', 'B', 'C'], dtype='<U1'))
+
     :param y: the list or array of original labels
     :return: a ndarray (int) of class indexes, and a ndarray of classnames corresponding to the indexes.
     """
-    classnames = sorted(np.unique(y))
+    y = np.asarray(y)
+    classnames = np.asarray(sorted(np.unique(y)))
     label2index = {label: index for index, label in enumerate(classnames)}
     indexed = np.empty(y.shape, dtype=np.int)
     for label in classnames:
@@ -98,6 +109,17 @@ def reindex_labels(y):
 
 
 def binarize(y, pos_class):
+    """
+    Binarizes a categorical array-like collection of labels towards the positive class `pos_class`. E.g.,:
+
+    >>> binarize([1, 2, 3, 1, 1, 0], pos_class=2)
+    >>> array([0, 1, 0, 0, 0, 0])
+
+    :param y: array-like of labels
+    :param pos_class: integer, the positive class
+    :return: a binary np.ndarray, in which values 1 corresponds to positions in whcih `y` had `pos_class` labels, and
+        0 otherwise
+    """
     y = np.asarray(y)
     ybin = np.zeros(y.shape, dtype=np.int)
     ybin[y == pos_class] = 1

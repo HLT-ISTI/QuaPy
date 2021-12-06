@@ -515,14 +515,20 @@ will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.artificial_prevalence_prediction">
 <span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">210</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.artificial_prevalence_prediction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs the predictions for all samples generated according to the artificial sampling protocol.
-:param model: the model in charge of generating the class prevalence estimations
-:param test: the test set on which to perform arificial sampling
-:param sample_size: the size of the samples
-:param n_prevpoints: the number of different prevalences to sample (or set to None if eval_budget is specified)
-:param n_repetitions: the number of repetitions for each prevalence
-:param eval_budget: if specified, sets a ceil on the number of evaluations to perform. For example, if there are 3
-classes, n_repetitions=1 and eval_budget=20, then n_prevpoints will be set to 5, since this will generate 15
+<dd><p>Performs the predictions for all samples generated according to the artificial sampling protocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the model in charge of generating the class prevalence estimations</p></li>
+<li><p><strong>test</strong> – the test set on which to perform arificial sampling</p></li>
+<li><p><strong>sample_size</strong> – the size of the samples</p></li>
+<li><p><strong>n_prevpoints</strong> – the number of different prevalences to sample (or set to None if eval_budget is specified)</p></li>
+<li><p><strong>n_repetitions</strong> – the number of repetitions for each prevalence</p></li>
+<li><p><strong>eval_budget</strong> – if specified, sets a ceil on the number of evaluations to perform. For example, if there are 3</p></li>
+</ul>
+</dd>
+</dl>
+<p>classes, n_repetitions=1 and eval_budget=20, then n_prevpoints will be set to 5, since this will generate 15
 different prevalences ([0, 0, 1], [0, 0.25, 0.75], [0, 0.5, 0.5] … [1, 0, 0]) and since setting it n_prevpoints
 to 6 would produce more than 20 evaluations.
 :param n_jobs: number of jobs to be run in parallel
@@ -601,7 +607,31 @@ contains the the prevalence estimations</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.artificial_prevalence_sampling">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dimensions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevalences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_constrained_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.artificial_prevalence_sampling" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generates vectors of prevalence values artificially drawn from an exhaustive grid of prevalence values. The
+number of prevalence values explored for each dimension depends on <cite>n_prevalences</cite>, so that, if, for example,
+<cite>n_prevalences=11</cite> then the prevalence values of the grid are taken from [0, 0.1, 0.2, …, 0.9, 1]. Only
+valid prevalence distributions are returned, i.e., vectors of prevalence values that sum up to 1. For each
+valid vector of prevalence values, <cite>repeat</cite> copies are returned. The vector of prevalence values can be
+implicit (by setting <cite>return_constrained_dim=False</cite>), meaning that the last dimension (which is constrained
+to 1 - sum of the rest) is not returned (note that, quite obviously, in this case the vector does not sum up to 1).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dimensions</strong> – the number of classes</p></li>
+<li><p><strong>n_prevalences</strong> – the number of equidistant prevalence points to extract from the [0,1] interval for the grid
+(default is 21)</p></li>
+<li><p><strong>repeat</strong> – number of copies for each valid prevalence vector (default is 1)</p></li>
+<li><p><strong>return_constrained_dim</strong> – set to True to return all dimensions, or to False (default) for ommitting the
+constrained dimension</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an ndarray of shape <cite>(n, dimensions)</cite> if <cite>return_constrained_dim=True</cite> or of shape <cite>(n, dimensions-1)</cite>
+if <cite>return_constrained_dim=False</cite>, where <cite>n</cite> is the number of valid combinations found in the grid multiplied
+by <cite>repeat</cite></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.get_nprevpoints_approximation">
@@ -634,8 +664,21 @@ number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.prevalence_from_labels">
-<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">prevalence_from_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.prevalence_from_labels" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">prevalence_from_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.prevalence_from_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computed the prevalence values from a vector of labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>labels</strong> – array-like of shape <cite>(n_instances)</cite> with the label for each instance</p></li>
+<li><p><strong>classes</strong> – the class labels. This is needed in order to correctly compute the prevalence vector even when
+some classes have no examples.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an ndarray of shape <cite>(len(classes))</cite> with the class prevalence values</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.prevalence_from_probabilities">
@@ -645,13 +688,21 @@ number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.prevalence_linspace">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">prevalence_linspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_prevalences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_limits_epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.prevalence_linspace" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces a uniformly separated values of prevalence. By default, produces an array 21 prevalences, with step 0.05
-and with the limits smoothed, i.e.:
-[0.01, 0.05, 0.10, 0.15, …, 0.90, 0.95, 0.99]
-:param n_prevalences: the number of prevalence values to sample from the [0,1] interval (default 21)
-:param repeat: number of times each prevalence is to be repeated (defaults to 1)
-:param smooth_limits_epsilon: the quantity to add and subtract to the limits 0 and 1
-:return: an array of uniformly separated prevalence values</p>
+<dd><p>Produces a uniformly separated values of prevalence. By default, produces an array of 21 prevalence values, with
+step 0.05 and with the limits smoothed, i.e.:
+[0.01, 0.05, 0.10, 0.15, …, 0.90, 0.95, 0.99]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_prevalences</strong> – the number of prevalence values to sample from the [0,1] interval (default 21)</p></li>
+<li><p><strong>repeat</strong> – number of times each prevalence is to be repeated (defaults to 1)</p></li>
+<li><p><strong>smooth_limits_epsilon</strong> – the quantity to add and subtract to the limits 0 and 1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an array of uniformly separated prevalence values</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

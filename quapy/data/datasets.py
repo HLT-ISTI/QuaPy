@@ -5,9 +5,6 @@ warnings.warn = warn
 import os
 import zipfile
 from os.path import join
-from urllib.error import HTTPError
-from sklearn.model_selection import StratifiedKFold
-
 import pandas as pd
 
 from quapy.data.base import Dataset, LabelledCollection
@@ -49,18 +46,20 @@ UCI_DATASETS = ['acute.a', 'acute.b',
 
 def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False) -> Dataset:
     """
-    Load a Reviews dataset as a Dataset instance, as used in:
-    Esuli, A., Moreo, A., and Sebastiani, F. "A recurrent neural network for sentiment quantification."
-    Proceedings of the 27th ACM International Conference on Information and Knowledge Management. 2018.
+    Loads a Reviews dataset as a Dataset instance, as used in
+    `Esuli, A., Moreo, A., and Sebastiani, F. "A recurrent neural network for sentiment quantification."
+    Proceedings of the 27th ACM International Conference on Information and Knowledge Management. 2018. <https://dl.acm.org/doi/abs/10.1145/3269206.3269287>`_.
+    The list of valid dataset names can be accessed in `quapy.data.datasets.REVIEWS_SENTIMENT_DATASETS`
+
     :param dataset_name: the name of the dataset: valid ones are 'hp', 'kindle', 'imdb'
     :param tfidf: set to True to transform the raw documents into tfidf weighted matrices
     :param min_df: minimun number of documents that should contain a term in order for the term to be
-    kept (ignored if tfidf==False)
+        kept (ignored if tfidf==False)
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
-    ~/quay_data/ directory)
+        ~/quay_data/ directory)
     :param pickle: set to True to pickle the Dataset object the first time it is generated, in order to allow for
-    faster subsequent invokations
-    :return: a Dataset instance
+        faster subsequent invokations
+    :return: a :class:`quapy.data.base.Dataset` instance
     """
     assert dataset_name in REVIEWS_SENTIMENT_DATASETS, \
         f'Name {dataset_name} does not match any known dataset for sentiment reviews. ' \
@@ -93,22 +92,25 @@ def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle
 
 def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_home=None, pickle=False) -> Dataset:
     """
-    Load a Twitter dataset as a Dataset instance, as used in:
-    Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
-    Social Network Analysis and Mining6(19), 1–22 (2016)
-    The datasets 'semeval13', 'semeval14', 'semeval15' share the same training set.
+    Loads a Twitter dataset as a :class:`quapy.data.base.Dataset` instance, as used in:
+    `Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
+    Social Network Analysis and Mining6(19), 1–22 (2016) <https://link.springer.com/content/pdf/10.1007/s13278-016-0327-z.pdf>`_
+    Note that the datasets 'semeval13', 'semeval14', 'semeval15' share the same training set.
+    The list of valid dataset names corresponding to training sets can be accessed in
+    `quapy.data.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN`, while the test sets can be accessed in
+    `quapy.data.datasets.TWITTER_SENTIMENT_DATASETS_TEST`
 
     :param dataset_name: the name of the dataset: valid ones are 'gasp', 'hcr', 'omd', 'sanders', 'semeval13',
-    'semeval14', 'semeval15', 'semeval16', 'sst', 'wa', 'wb'
+        'semeval14', 'semeval15', 'semeval16', 'sst', 'wa', 'wb'
     :param for_model_selection: if True, then returns the train split as the training set and the devel split
-    as the test set; if False, then returns the train+devel split as the training set and the test set as the
-    test set
+        as the test set; if False, then returns the train+devel split as the training set and the test set as the
+        test set
     :param min_df: minimun number of documents that should contain a term in order for the term to be kept
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
-    ~/quay_data/ directory)
+        ~/quay_data/ directory)
     :param pickle: set to True to pickle the Dataset object the first time it is generated, in order to allow for
-    faster subsequent invokations
-    :return: a Dataset instance
+        faster subsequent invokations
+    :return: a :class:`quapy.data.base.Dataset` instance
     """
     assert dataset_name in TWITTER_SENTIMENT_DATASETS_TRAIN + TWITTER_SENTIMENT_DATASETS_TEST, \
         f'Name {dataset_name} does not match any known dataset for sentiment twitter. ' \
@@ -163,11 +165,58 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
 
 
 def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
+    """
+    Loads a UCI dataset as an instance of :class:`quapy.data.base.Dataset`, as used in
+    `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
+    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
+    Information Fusion, 34, 87-100. <https://www.sciencedirect.com/science/article/pii/S1566253516300628>`_
+    and
+    `Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019).
+    Dynamic ensemble selection for quantification tasks.
+    Information Fusion, 45, 1-15. <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
+    The datasets do not come with a predefined train-test split (see :meth:`fetch_UCILabelledCollection` for further
+    information on how to use these collections), and so a train-test split is generated at desired proportion.
+    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
+
+    :param dataset_name: a dataset name
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
+    :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
+    :return: a :class:`quapy.data.base.Dataset` instance
+    """
     data = fetch_UCILabelledCollection(dataset_name, data_home, verbose)
     return Dataset(*data.split_stratified(1 - test_split, random_state=0))
 
 
 def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> Dataset:
+    """
+    Loads a UCI collection as an instance of :class:`quapy.data.base.LabelledCollection`, as used in
+    `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
+    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
+    Information Fusion, 34, 87-100. <https://www.sciencedirect.com/science/article/pii/S1566253516300628>`_
+    and
+    `Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019).
+    Dynamic ensemble selection for quantification tasks.
+    Information Fusion, 45, 1-15. <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
+    The datasets do not come with a predefined train-test split, and so Pérez-Gállego et al. adopted a 5FCVx2 evaluation
+    protocol, meaning that each collection was used to generate two rounds (hence the x2) of 5 fold cross validation.
+    This can be reproduced by using :meth:`quapy.data.base.Dataset.kFCV`, e.g.:
+
+    >>> import quapy as qp
+    >>> collection = qp.datasets.fetch_UCILabelledCollection("yeast")
+    >>> for data in qp.data.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
+    >>>     ...
+
+    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
+
+    :param dataset_name: a dataset name
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
+    :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
+    :return: a :class:`quapy.data.base.Dataset` instance
+    """
 
     assert dataset_name in UCI_DATASETS, \
         f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository. ' \
@@ -302,7 +351,7 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
         df = pd.read_csv(data_path, header=None, encoding='utf-16', sep='\t')
 
         df[0] = df[0].apply(lambda x: float(x.replace(',', '.'))).astype(float, copy=False)
-        [df_replace(df, col) for col in range(1, 6)]
+        [_df_replace(df, col) for col in range(1, 6)]
         X = df.loc[:, 0:5].values
         if dataset_name == 'acute.a':
             y = binarize(df[6], pos_class='yes')
@@ -482,5 +531,5 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     return data
 
 
-def df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
+def _df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
     df[col] = df[col].apply(lambda x:repl[x]).astype(astype, copy=False)
