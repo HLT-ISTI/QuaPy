@@ -447,7 +447,7 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
             Px_test, _ = np.histogram(Px, bins=bins, range=(0, 1), density=True)
 
             prev_selected, min_dist = None, None
-            for prev in F.prevalence_linspace(n_prevalences=100, repeat=1, smooth_limits_epsilon=0.0):
+            for prev in F.prevalence_linspace(n_prevalences=100, repeats=1, smooth_limits_epsilon=0.0):
                 Px_train = prev * Pxy1_density + (1 - prev) * Pxy0_density
                 hdy = F.HellingerDistance(Px_train, Px_test)
                 if prev_selected is None or hdy < min_dist:

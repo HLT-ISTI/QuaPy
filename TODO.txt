@@ -1,4 +1,3 @@
-Looks like there are some "multilingual" stuff in the master branch? See, e.g., MultilingualLabelledCollection in data/base.py
 
 Packaging:
 ==========================================
@@ -13,8 +12,8 @@ Unify ThresholdOptimization methods, as an extension of PACC (and not ACC), the 
     use a prob classifier (take into account that PACC uses pcc internally, whereas the threshold methods use cc
     instead). The fit method of ACC and PACC has a block for estimating the validation estimates that should be unified
     as well...
-Rename APP NPP
-Add NPP as an option for GridSearchQ
+Refactor protocols. APP and NPP related functionalities are duplicated in functional, LabelledCollection, and evaluation
+
 
 New features:
 ==========================================

@@ -1,6 +1,6 @@
 import itertools
 from collections import defaultdict
-
+import scipy
 import numpy as np
 
 
@@ -20,7 +20,7 @@ def artificial_prevalence_sampling(dimensions, n_prevalences=21, repeat=1, retur
     :param repeat: number of copies for each valid prevalence vector (default is 1)
     :param return_constrained_dim: set to True to return all dimensions, or to False (default) for ommitting the
         constrained dimension
-    :return: an ndarray of shape `(n, dimensions)` if `return_constrained_dim=True` or of shape `(n, dimensions-1)`
+    :return: a `np.ndarray` of shape `(n, dimensions)` if `return_constrained_dim=True` or of shape `(n, dimensions-1)`
         if `return_constrained_dim=False`, where `n` is the number of valid combinations found in the grid multiplied
         by `repeat`
     """
@@ -35,14 +35,15 @@ def artificial_prevalence_sampling(dimensions, n_prevalences=21, repeat=1, retur
     return prevs
 
 
-def prevalence_linspace(n_prevalences=21, repeat=1, smooth_limits_epsilon=0.01):
+def prevalence_linspace(n_prevalences=21, repeats=1, smooth_limits_epsilon=0.01):
     """
-    Produces a uniformly separated values of prevalence. By default, produces an array of 21 prevalence values, with
+    Produces an array of uniformly separated values of prevalence.
+    By default, produces an array of 21 prevalence values, with
     step 0.05 and with the limits smoothed, i.e.:
     [0.01, 0.05, 0.10, 0.15, ..., 0.90, 0.95, 0.99]
 
     :param n_prevalences: the number of prevalence values to sample from the [0,1] interval (default 21)
-    :param repeat: number of times each prevalence is to be repeated (defaults to 1)
+    :param repeats: number of times each prevalence is to be repeated (defaults to 1)
     :param smooth_limits_epsilon: the quantity to add and subtract to the limits 0 and 1
     :return: an array of uniformly separated prevalence values
     """
@@ -51,8 +52,8 @@ def prevalence_linspace(n_prevalences=21, repeat=1, smooth_limits_epsilon=0.01):
     p[-1] -= smooth_limits_epsilon
     if p[0] > p[1]:
         raise ValueError(f'the smoothing in the limits is greater than the prevalence step')
-    if repeat > 1:
-        p = np.repeat(p, repeat)
+    if repeats > 1:
+        p = np.repeat(p, repeats)
     return p
 
 
@@ -75,6 +76,14 @@ def prevalence_from_labels(labels, classes):
 
 
 def prevalence_from_probabilities(posteriors, binarize: bool = False):
+    """
+    Returns a vector of prevalence values from a matrix of posterior probabilities.
+
+    :param posteriors: array-like of shape `(n_instances, n_classes,)` with posterior probabilities for each class
+    :param binarize: set to True (default is False) for computing the prevalence values on crisp decisions (i.e.,
+        converting the vectors of posterior probabilities into class indices, by taking the argmax).
+    :return: array of shape `(n_classes,)` containing the prevalence values
+    """
     if posteriors.ndim != 2:
         raise ValueError(f'param posteriors does not seem to be a ndarray of posteior probabilities')
     if binarize:
@@ -87,15 +96,34 @@ def prevalence_from_probabilities(posteriors, binarize: bool = False):
 
 
 def HellingerDistance(P, Q):
+    """
+    Computes the Hellingher Distance (HD) between (discretized) distributions `P` and `Q`.
+    The HD for two discrete distributions of `k` bins is defined as:
+
+    .. math::
+        HD(P,Q) = \\frac{ 1 }{ \\sqrt{ 2 } } \\sqrt{ \sum_{i=1}^k ( \\sqrt{p_i} - \\sqrt{q_i} )^2 }
+
+    :param P: real-valued array-like of shape `(k,)` representing a discrete distribution
+    :param Q: real-valued array-like of shape `(k,)` representing a discrete distribution
+    :return: float
+    """
     return np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q))**2))
 
 
 def uniform_prevalence_sampling(n_classes, size=1):
+    """
+    Implements the `Kraemer algorithm <http://www.cs.cmu.edu/~nasmith/papers/smith+tromble.tr04.pdf>`_
+    for sampling uniformly at random from the unit simplex. This implementation is adapted from this
+    `post <https://cs.stackexchange.com/questions/3227/uniform-sampling-from-a-simplex>_`.
+
+    :param n_classes: integer, number of classes (dimensionality of the simplex)
+    :param size: number of samples to return
+    :return: `np.ndarray` of shape `(size, n_classes,)` if `size>1`, or of shape `(n_classes,)` otherwise
+    """
     if n_classes == 2:
         u = np.random.rand(size)
         u = np.vstack([1-u, u]).T
     else:
-        # from https://cs.stackexchange.com/questions/3227/uniform-sampling-from-a-simplex
         u = np.random.rand(size, n_classes-1)
         u.sort(axis=-1)
         _0s = np.zeros(shape=(size, 1))
@@ -106,15 +134,41 @@ def uniform_prevalence_sampling(n_classes, size=1):
     if size == 1:
         u = u.flatten()
     return u
-        #return np.asarray([uniform_simplex_sampling(n_classes) for _ in range(size)])
+
 
 uniform_simplex_sampling = uniform_prevalence_sampling
 
+
 def strprev(prevalences, prec=3):
+    """
+    Returns a string representation for a prevalence vector. E.g.,
+
+    >>> strprev([1/3, 2/3], prec=2)
+    >>> '[0.33, 0.67]'
+
+    :param prevalences: a vector of prevalence values
+    :param prec: float precision
+    :return: string
+    """
     return '['+ ', '.join([f'{p:.{prec}f}' for p in prevalences]) + ']'
 
 
 def adjusted_quantification(prevalence_estim, tpr, fpr, clip=True):
+    """
+    Implements the adjustment of ACC and PACC for the binary case. The adjustment for a prevalence estimate of the
+    positive class `p` comes down to computing:
+
+    .. math::
+        ACC(p) = \\frac{ p - fpr }{ tpr - fpr }
+
+
+    :param prevalence_estim: float, the estimated value for the positive class
+    :param tpr: float, the true positive rate of the classifier
+    :param fpr: float, the false positive rate of the classifier
+    :param clip: set to True (default) to clip values that might exceed the range [0,1]
+    :return: float, the adjusted count
+    """
+
     den = tpr - fpr
     if den == 0:
         den += 1e-8
@@ -125,6 +179,14 @@ def adjusted_quantification(prevalence_estim, tpr, fpr, clip=True):
 
 
 def normalize_prevalence(prevalences):
+    """
+    Normalize a vector or matrix of prevalence values. The normalization consists of applying a L1 normalization in
+    cases in which the prevalence values are not all-zeros, and to convert the prevalence values into `1/n_classes` in
+    cases in which all values are zero.
+
+    :param prevalences: array-like of shape `(n_classes,)` or of shape `(n_samples, n_classes,)` with prevalence values
+    :return: a normalized vector or matrix of prevalence values
+    """
     prevalences = np.asarray(prevalences)
     n_classes = prevalences.shape[-1]
     accum = prevalences.sum(axis=-1, keepdims=True)
@@ -138,13 +200,14 @@ def normalize_prevalence(prevalences):
     return prevalences
 
 
-def num_prevalence_combinations(n_prevpoints:int, n_classes:int, n_repeats:int=1):
+def __num_prevalence_combinations_depr(n_prevpoints:int, n_classes:int, n_repeats:int=1):
     """
-    Computes the number of prevalence combinations in the n_classes-dimensional simplex if nprevpoints equally distant
-    prevalences are generated and n_repeats repetitions are requested
-    :param n_classes: number of classes
-    :param n_prevpoints: number of prevalence points.
-    :param n_repeats: number of repetitions for each prevalence combination
+    Computes the number of prevalence combinations in the n_classes-dimensional simplex if `nprevpoints` equally distant
+    prevalence values are generated and `n_repeats` repetitions are requested.
+
+    :param n_classes: integer, number of classes
+    :param n_prevpoints: integer, number of prevalence points.
+    :param n_repeats: integer, number of repetitions for each prevalence combination
     :return: The number of possible combinations. For example, if n_classes=2, n_prevpoints=5, n_repeats=1, then the
     number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
     """
@@ -161,14 +224,40 @@ def num_prevalence_combinations(n_prevpoints:int, n_classes:int, n_repeats:int=1
     return __f(n_classes, n_prevpoints) * n_repeats
 
 
+def num_prevalence_combinations(n_prevpoints:int, n_classes:int, n_repeats:int=1):
+    """
+    Computes the number of valid prevalence combinations in the n_classes-dimensional simplex if `n_prevpoints` equally
+    distant prevalence values are generated and `n_repeats` repetitions are requested.
+    The computation comes down to calculating:
+
+    .. math::
+        \\binom{N+C-1}{C-1} \\times r
+
+    where `N` is `n_prevpoints-1`, i.e., the number of probability mass blocks to allocate, `C` is the number of
+    classes, and `r` is `n_repeats`. This solution comes from the
+    `Stars and Bars <https://brilliant.org/wiki/integer-equations-star-and-bars/>`_ problem.
+
+    :param n_classes: integer, number of classes
+    :param n_prevpoints: integer, number of prevalence points.
+    :param n_repeats: integer, number of repetitions for each prevalence combination
+    :return: The number of possible combinations. For example, if n_classes=2, n_prevpoints=5, n_repeats=1, then the
+    number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
+    """
+    N = n_prevpoints-1
+    C = n_classes
+    r = n_repeats
+    return int(scipy.special.binom(N + C - 1, C - 1) * r)
+
+
 def get_nprevpoints_approximation(combinations_budget:int, n_classes:int, n_repeats:int=1):
     """
-    Searches for the largest number of (equidistant) prevalence points to define for each of the n_classes classes so that
-    the number of valid prevalences generated as combinations of prevalence points (points in a n_classes-dimensional
-    simplex) do not exceed combinations_budget.
-    :param n_classes: number of classes
-    :param n_repeats: number of repetitions for each prevalence combination
-    :param combinations_budget: maximum number of combinatios allowed
+    Searches for the largest number of (equidistant) prevalence points to define for each of the `n_classes` classes so
+    that the number of valid prevalence values generated as combinations of prevalence points (points in a
+    `n_classes`-dimensional simplex) do not exceed combinations_budget.
+
+    :param combinations_budget: integer, maximum number of combinatios allowed
+    :param n_classes: integer, number of classes
+    :param n_repeats: integer, number of repetitions for each prevalence combination
     :return: the largest number of prevalence points that generate less than combinations_budget valid prevalences
     """
     assert n_classes > 0 and n_repeats > 0 and combinations_budget > 0, 'parameters must be positive integers'

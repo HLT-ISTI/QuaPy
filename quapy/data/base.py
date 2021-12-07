@@ -214,11 +214,12 @@ class LabelledCollection:
 
     def artificial_sampling_generator(self, sample_size, n_prevalences=101, repeats=1):
         """
-        A generator of samples that implements the artificial prevalence protocol (APP). The APP consists of exploring
-        a grid of prevalence values (e.g., [0, 0.05, 0.1, 0.15, ..., 1]), and generating all valid combinations of
+        A generator of samples that implements the artificial prevalence protocol (APP).
+        The APP consists of exploring a grid of prevalence values containing `n_prevalences` points (e.g.,
+        [0, 0.05, 0.1, 0.15, ..., 1], if `n_prevalences=21`), and generating all valid combinations of
         prevalence values for all classes (e.g., for 3 classes, samples with [0, 0, 1], [0, 0.05, 0.95], ...,
         [1, 0, 0] prevalence values of size `sample_size` will be yielded). The number of samples for each valid
-        combination of prevalence values is indicated by `repeats`
+        combination of prevalence values is indicated by `repeats`.
 
         :param sample_size: the number of instances in each sample
         :param n_prevalences: the number of prevalence points to be taken from the [0,1] interval (including the

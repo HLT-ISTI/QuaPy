@@ -238,11 +238,12 @@ from the labels. The classes must be indicated in cases in which some of the lab
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.artificial_sampling_generator">
 <span class="sig-name descname"><span class="pre">artificial_sampling_generator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevalences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.artificial_sampling_generator" title="Permalink to this definition">¶</a></dt>
-<dd><p>A generator of samples that implements the artificial prevalence protocol (APP). The APP consists of exploring
-a grid of prevalence values (e.g., [0, 0.05, 0.1, 0.15, …, 1]), and generating all valid combinations of
+<dd><p>A generator of samples that implements the artificial prevalence protocol (APP).
+The APP consists of exploring a grid of prevalence values containing <cite>n_prevalences</cite> points (e.g.,
+[0, 0.05, 0.1, 0.15, …, 1], if <cite>n_prevalences=21</cite>), and generating all valid combinations of
 prevalence values for all classes (e.g., for 3 classes, samples with [0, 0, 1], [0, 0.05, 0.95], …,
 [1, 0, 0] prevalence values of size <cite>sample_size</cite> will be yielded). The number of samples for each valid
-combination of prevalence values is indicated by <cite>repeats</cite></p>
+combination of prevalence values is indicated by <cite>repeats</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">

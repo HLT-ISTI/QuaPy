@@ -514,82 +514,276 @@ will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has 
 <span id="quapy-evaluation-module"></span><h2>quapy.evaluation module<a class="headerlink" href="#module-quapy.evaluation" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.artificial_prevalence_prediction">
-<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">210</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.artificial_prevalence_prediction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs the predictions for all samples generated according to the artificial sampling protocol.</p>
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.artificial_prevalence_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the predictions for all samples generated according to the Artificial Prevalence Protocol (APP).
+The APP consists of exploring a grid of prevalence values containing <cite>n_prevalences</cite> points (e.g.,
+[0, 0.05, 0.1, 0.15, …, 1], if <cite>n_prevalences=21</cite>), and generating all valid combinations of
+prevalence values for all classes (e.g., for 3 classes, samples with [0, 0, 1], [0, 0.05, 0.95], …,
+[1, 0, 0] prevalence values of size <cite>sample_size</cite> will be considered). The number of samples for each valid
+combination of prevalence values is indicated by <cite>repeats</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> – the model in charge of generating the class prevalence estimations</p></li>
-<li><p><strong>test</strong> – the test set on which to perform arificial sampling</p></li>
-<li><p><strong>sample_size</strong> – the size of the samples</p></li>
-<li><p><strong>n_prevpoints</strong> – the number of different prevalences to sample (or set to None if eval_budget is specified)</p></li>
-<li><p><strong>n_repetitions</strong> – the number of repetitions for each prevalence</p></li>
-<li><p><strong>eval_budget</strong> – if specified, sets a ceil on the number of evaluations to perform. For example, if there are 3</p></li>
+<li><p><strong>test</strong> – the test set on which to perform APP</p></li>
+<li><p><strong>sample_size</strong> – integer, the size of the samples</p></li>
+<li><p><strong>n_prevpoints</strong> – integer, the number of different prevalences to sample (or set to None if eval_budget
+is specified; default 101, i.e., steps of 1%)</p></li>
+<li><p><strong>repeats</strong> – integer, the number of repetitions for each prevalence (default 1)</p></li>
+<li><p><strong>eval_budget</strong> – integer, if specified, sets a ceil on the number of evaluations to perform. For example, if
+there are 3 classes, <cite>repeats=1</cite>, and <cite>eval_budget=20</cite>, then <cite>n_prevpoints</cite> will be set to 5, since this
+will generate 15 different prevalence vectors ([0, 0, 1], [0, 0.25, 0.75], [0, 0.5, 0.5] … [1, 0, 0]) and
+since setting <cite>n_prevpoints=6</cite> would produce more than 20 evaluations.</p></li>
+<li><p><strong>n_jobs</strong> – integer, number of jobs to be run in parallel (default 1)</p></li>
+<li><p><strong>random_seed</strong> – integer, allows to replicate the samplings. The seed is local to the method and does not affect
+any other random process (default 42)</p></li>
+<li><p><strong>verbose</strong> – if True, shows a progress bar</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a tuple containing two <cite>np.ndarrays</cite> of shape <cite>(m,n,)</cite> with <cite>m</cite> the number of samples
+<cite>(n_prevpoints*repeats)</cite> and <cite>n</cite> the number of classes. The first one contains the true prevalence values
+for the samples generated while the second one contains the prevalence estimations</p>
+</dd>
 </dl>
-<p>classes, n_repetitions=1 and eval_budget=20, then n_prevpoints will be set to 5, since this will generate 15
-different prevalences ([0, 0, 1], [0, 0.25, 0.75], [0, 0.5, 0.5] … [1, 0, 0]) and since setting it n_prevpoints
-to 6 would produce more than 20 evaluations.
-:param n_jobs: number of jobs to be run in parallel
-:param random_seed: allows to replicate the samplings. The seed is local to the method and does not affect
-any other random process.
-:param verbose: if True, shows a progress bar
-:return: two ndarrays of shape (m,n) with m the number of samples (n_prevpoints*n_repetitions) and n the</p>
-<blockquote>
-<div><p>number of classes. The first one contains the true prevalences for the samples generated while the second one
-contains the the prevalence estimations</p>
-</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.artificial_prevalence_protocol">
-<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">210</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metric</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.artificial_prevalence_protocol" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metric</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.artificial_prevalence_protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates samples according to the Artificial Prevalence Protocol (APP).
+The APP consists of exploring a grid of prevalence values containing <cite>n_prevalences</cite> points (e.g.,
+[0, 0.05, 0.1, 0.15, …, 1], if <cite>n_prevalences=21</cite>), and generating all valid combinations of
+prevalence values for all classes (e.g., for 3 classes, samples with [0, 0, 1], [0, 0.05, 0.95], …,
+[1, 0, 0] prevalence values of size <cite>sample_size</cite> will be considered). The number of samples for each valid
+combination of prevalence values is indicated by <cite>repeats</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the model in charge of generating the class prevalence estimations</p></li>
+<li><p><strong>test</strong> – the test set on which to perform APP</p></li>
+<li><p><strong>sample_size</strong> – integer, the size of the samples</p></li>
+<li><p><strong>n_prevpoints</strong> – integer, the number of different prevalences to sample (or set to None if eval_budget
+is specified; default 101, i.e., steps of 1%)</p></li>
+<li><p><strong>repeats</strong> – integer, the number of repetitions for each prevalence (default 1)</p></li>
+<li><p><strong>eval_budget</strong> – integer, if specified, sets a ceil on the number of evaluations to perform. For example, if
+there are 3 classes, <cite>repeats=1</cite>, and <cite>eval_budget=20</cite>, then <cite>n_prevpoints</cite> will be set to 5, since this
+will generate 15 different prevalence vectors ([0, 0, 1], [0, 0.25, 0.75], [0, 0.5, 0.5] … [1, 0, 0]) and
+since setting <cite>n_prevpoints=6</cite> would produce more than 20 evaluations.</p></li>
+<li><p><strong>n_jobs</strong> – integer, number of jobs to be run in parallel (default 1)</p></li>
+<li><p><strong>random_seed</strong> – integer, allows to replicate the samplings. The seed is local to the method and does not affect
+any other random process (default 42)</p></li>
+<li><p><strong>error_metric</strong> – a string indicating the name of the error (as defined in <a class="reference internal" href="#module-quapy.error" title="quapy.error"><code class="xref py py-mod docutils literal notranslate"><span class="pre">quapy.error</span></code></a>) or a
+callable error function</p></li>
+<li><p><strong>verbose</strong> – set to True (default False) for displaying some information on standard output</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>yields one sample at a time</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.artificial_prevalence_report">
-<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">210</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.artificial_prevalence_report" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">artificial_prevalence_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">101</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.artificial_prevalence_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an evaluation report for all samples generated according to the Artificial Prevalence Protocol (APP).
+The APP consists of exploring a grid of prevalence values containing <cite>n_prevalences</cite> points (e.g.,
+[0, 0.05, 0.1, 0.15, …, 1], if <cite>n_prevalences=21</cite>), and generating all valid combinations of
+prevalence values for all classes (e.g., for 3 classes, samples with [0, 0, 1], [0, 0.05, 0.95], …,
+[1, 0, 0] prevalence values of size <cite>sample_size</cite> will be considered). The number of samples for each valid
+combination of prevalence values is indicated by <cite>repeats</cite>.
+Te report takes the form of a
+pandas’ <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html">dataframe</a>
+in which the rows correspond to different samples, and the columns inform of the true prevalence values,
+the estimated prevalence values, and the score obtained by each of the evaluation measures indicated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the model in charge of generating the class prevalence estimations</p></li>
+<li><p><strong>test</strong> – the test set on which to perform APP</p></li>
+<li><p><strong>sample_size</strong> – integer, the size of the samples</p></li>
+<li><p><strong>n_prevpoints</strong> – integer, the number of different prevalences to sample (or set to None if eval_budget
+is specified; default 101, i.e., steps of 1%)</p></li>
+<li><p><strong>repeats</strong> – integer, the number of repetitions for each prevalence (default 1)</p></li>
+<li><p><strong>eval_budget</strong> – integer, if specified, sets a ceil on the number of evaluations to perform. For example, if
+there are 3 classes, <cite>repeats=1</cite>, and <cite>eval_budget=20</cite>, then <cite>n_prevpoints</cite> will be set to 5, since this
+will generate 15 different prevalence vectors ([0, 0, 1], [0, 0.25, 0.75], [0, 0.5, 0.5] … [1, 0, 0]) and
+since setting <cite>n_prevpoints=6</cite> would produce more than 20 evaluations.</p></li>
+<li><p><strong>n_jobs</strong> – integer, number of jobs to be run in parallel (default 1)</p></li>
+<li><p><strong>random_seed</strong> – integer, allows to replicate the samplings. The seed is local to the method and does not affect
+any other random process (default 42)</p></li>
+<li><p><strong>error_metrics</strong> – a string indicating the name of the error (as defined in <a class="reference internal" href="#module-quapy.error" title="quapy.error"><code class="xref py py-mod docutils literal notranslate"><span class="pre">quapy.error</span></code></a>) or a
+callable error function; optionally, a list of strings or callables can be indicated, if the results
+are to be evaluated with more than one error metric. Default is “mae”</p></li>
+<li><p><strong>verbose</strong> – if True, shows a progress bar</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>pandas’ dataframe with rows corresponding to different samples, and with columns informing of the
+true prevalence values, the estimated prevalence values, and the score obtained by each of the evaluation
+measures indicated.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.evaluate">
-<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_samples</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.evaluate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_samples</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metric</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates a model on a sequence of test samples in terms of a given error metric.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the model in charge of generating the class prevalence estimations</p></li>
+<li><p><strong>test_samples</strong> – an iterable yielding one sample at a time</p></li>
+<li><p><strong>error_metric</strong> – a string indicating the name of the error (as defined in <a class="reference internal" href="#module-quapy.error" title="quapy.error"><code class="xref py py-mod docutils literal notranslate"><span class="pre">quapy.error</span></code></a>) or a
+callable error function</p></li>
+<li><p><strong>n_jobs</strong> – integer, number of jobs to be run in parallel (default 1)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the score obtained using <cite>error_metric</cite></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.gen_prevalence_prediction">
 <span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">gen_prevalence_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_fn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.gen_prevalence_prediction" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generates prevalence predictions for a custom protocol defined as a generator function that yields
+samples at each iteration. The sequence of samples is processed exhaustively if <cite>eval_budget=None</cite>
+or up to the <cite>eval_budget</cite> iterations if specified.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the model in charge of generating the class prevalence estimations</p></li>
+<li><p><strong>gen_fn</strong> – a generator function yielding one sample at each iteration</p></li>
+<li><p><strong>eval_budget</strong> – a maximum number of evaluations to run. Set to None (default) for exploring the
+entire sequence</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a tuple containing two <cite>np.ndarrays</cite> of shape <cite>(m,n,)</cite> with <cite>m</cite> the number of samples
+generated and <cite>n</cite> the number of classes. The first one contains the true prevalence values
+for the samples generated while the second one contains the prevalence estimations</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.evaluation.gen_prevalence_report">
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">gen_prevalence_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_fn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_budget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.gen_prevalence_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>GGenerates an evaluation report for a custom protocol defined as a generator function that yields
+samples at each iteration. The sequence of samples is processed exhaustively if <cite>eval_budget=None</cite>
+or up to the <cite>eval_budget</cite> iterations if specified.
+Te report takes the form of a
+pandas’ <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html">dataframe</a>
+in which the rows correspond to different samples, and the columns inform of the true prevalence values,
+the estimated prevalence values, and the score obtained by each of the evaluation measures indicated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the model in charge of generating the class prevalence estimations</p></li>
+<li><p><strong>gen_fn</strong> – a generator function yielding one sample at each iteration</p></li>
+<li><p><strong>eval_budget</strong> – a maximum number of evaluations to run. Set to None (default) for exploring the
+entire sequence</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a tuple containing two <cite>np.ndarrays</cite> of shape <cite>(m,n,)</cite> with <cite>m</cite> the number of samples
+generated. The first one contains the true prevalence values
+for the samples generated while the second one contains the prevalence estimations</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.natural_prevalence_prediction">
-<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">natural_prevalence_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.natural_prevalence_prediction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs the predictions for all samples generated according to the artificial sampling protocol.
-:param model: the model in charge of generating the class prevalence estimations
-:param test: the test set on which to perform arificial sampling
-:param sample_size: the size of the samples
-:param n_repetitions: the number of repetitions for each prevalence
-:param n_jobs: number of jobs to be run in parallel
-:param random_seed: allows to replicate the samplings. The seed is local to the method and does not affect
-any other random process.
-:param verbose: if True, shows a progress bar
-:return: two ndarrays of shape (m,n) with m the number of samples (n_repetitions) and n the</p>
-<blockquote>
-<div><p>number of classes. The first one contains the true prevalences for the samples generated while the second one
-contains the the prevalence estimations</p>
-</div></blockquote>
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">natural_prevalence_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.natural_prevalence_prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the predictions for all samples generated according to the Natural Prevalence Protocol (NPP).
+The NPP consists of drawing samples uniformly at random, therefore approximately preserving the natural
+prevalence of the collection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the model in charge of generating the class prevalence estimations</p></li>
+<li><p><strong>test</strong> – the test set on which to perform NPP</p></li>
+<li><p><strong>sample_size</strong> – integer, the size of the samples</p></li>
+<li><p><strong>repeats</strong> – integer, the number of samples to generate</p></li>
+<li><p><strong>n_jobs</strong> – integer, number of jobs to be run in parallel (default 1)</p></li>
+<li><p><strong>random_seed</strong> – allows to replicate the samplings. The seed is local to the method and does not affect
+any other random process (default 42)</p></li>
+<li><p><strong>verbose</strong> – if True, shows a progress bar</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a tuple containing two <cite>np.ndarrays</cite> of shape <cite>(m,n,)</cite> with <cite>m</cite> the number of samples
+<cite>(repeats)</cite> and <cite>n</cite> the number of classes. The first one contains the true prevalence values
+for the samples generated while the second one contains the prevalence estimations</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.natural_prevalence_protocol">
-<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">natural_prevalence_protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metric</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.natural_prevalence_protocol" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">natural_prevalence_protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metric</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.natural_prevalence_protocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates samples according to the Natural Prevalence Protocol (NPP).
+The NPP consists of drawing samples uniformly at random, therefore approximately preserving the natural
+prevalence of the collection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the model in charge of generating the class prevalence estimations</p></li>
+<li><p><strong>test</strong> – the test set on which to perform NPP</p></li>
+<li><p><strong>sample_size</strong> – integer, the size of the samples</p></li>
+<li><p><strong>repeats</strong> – integer, the number of samples to generate</p></li>
+<li><p><strong>n_jobs</strong> – integer, number of jobs to be run in parallel (default 1)</p></li>
+<li><p><strong>random_seed</strong> – allows to replicate the samplings. The seed is local to the method and does not affect
+any other random process (default 42)</p></li>
+<li><p><strong>error_metric</strong> – a string indicating the name of the error (as defined in <a class="reference internal" href="#module-quapy.error" title="quapy.error"><code class="xref py py-mod docutils literal notranslate"><span class="pre">quapy.error</span></code></a>) or a
+callable error function</p></li>
+<li><p><strong>verbose</strong> – if True, shows a progress bar</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>yields one sample at a time</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.natural_prevalence_report">
-<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">natural_prevalence_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.natural_prevalence_report" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">natural_prevalence_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metrics</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.natural_prevalence_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an evaluation report for all samples generated according to the Natural Prevalence Protocol (NPP).
+The NPP consists of drawing samples uniformly at random, therefore approximately preserving the natural
+prevalence of the collection.
+Te report takes the form of a
+pandas’ <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html">dataframe</a>
+in which the rows correspond to different samples, and the columns inform of the true prevalence values,
+the estimated prevalence values, and the score obtained by each of the evaluation measures indicated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – the model in charge of generating the class prevalence estimations</p></li>
+<li><p><strong>test</strong> – the test set on which to perform NPP</p></li>
+<li><p><strong>sample_size</strong> – integer, the size of the samples</p></li>
+<li><p><strong>repeats</strong> – integer, the number of samples to generate</p></li>
+<li><p><strong>n_jobs</strong> – integer, number of jobs to be run in parallel (default 1)</p></li>
+<li><p><strong>random_seed</strong> – allows to replicate the samplings. The seed is local to the method and does not affect
+any other random process (default 42)</p></li>
+<li><p><strong>error_metrics</strong> – a string indicating the name of the error (as defined in <a class="reference internal" href="#module-quapy.error" title="quapy.error"><code class="xref py py-mod docutils literal notranslate"><span class="pre">quapy.error</span></code></a>) or a
+callable error function; optionally, a list of strings or callables can be indicated, if the results
+are to be evaluated with more than one error metric. Default is “mae”</p></li>
+<li><p><strong>verbose</strong> – if True, shows a progress bar</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a tuple containing two <cite>np.ndarrays</cite> of shape <cite>(m,n,)</cite> with <cite>m</cite> the number of samples
+<cite>(repeats)</cite> and <cite>n</cite> the number of classes. The first one contains the true prevalence values
+for the samples generated while the second one contains the prevalence estimations</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-quapy.functional">
@@ -597,12 +791,44 @@ contains the the prevalence estimations</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.HellingerDistance">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">HellingerDistance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.HellingerDistance" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the Hellingher Distance (HD) between (discretized) distributions <cite>P</cite> and <cite>Q</cite>.
+The HD for two discrete distributions of <cite>k</cite> bins is defined as:</p>
+<div class="math notranslate nohighlight">
+\[HD(P,Q) = \frac{ 1 }{ \sqrt{ 2 } } \sqrt{ \sum_{i=1}^k ( \sqrt{p_i} - \sqrt{q_i} )^2 }\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>P</strong> – real-valued array-like of shape <cite>(k,)</cite> representing a discrete distribution</p></li>
+<li><p><strong>Q</strong> – real-valued array-like of shape <cite>(k,)</cite> representing a discrete distribution</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.adjusted_quantification">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">adjusted_quantification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevalence_estim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tpr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fpr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.adjusted_quantification" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the adjustment of ACC and PACC for the binary case. The adjustment for a prevalence estimate of the
+positive class <cite>p</cite> comes down to computing:</p>
+<div class="math notranslate nohighlight">
+\[ACC(p) = \frac{ p - fpr }{ tpr - fpr }\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevalence_estim</strong> – float, the estimated value for the positive class</p></li>
+<li><p><strong>tpr</strong> – float, the true positive rate of the classifier</p></li>
+<li><p><strong>fpr</strong> – float, the false positive rate of the classifier</p></li>
+<li><p><strong>clip</strong> – set to True (default) to clip values that might exceed the range [0,1]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float, the adjusted count</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.artificial_prevalence_sampling">
@@ -626,7 +852,7 @@ constrained dimension</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>an ndarray of shape <cite>(n, dimensions)</cite> if <cite>return_constrained_dim=True</cite> or of shape <cite>(n, dimensions-1)</cite>
+<dd class="field-even"><p>a <cite>np.ndarray</cite> of shape <cite>(n, dimensions)</cite> if <cite>return_constrained_dim=True</cite> or of shape <cite>(n, dimensions-1)</cite>
 if <cite>return_constrained_dim=False</cite>, where <cite>n</cite> is the number of valid combinations found in the grid multiplied
 by <cite>repeat</cite></p>
 </dd>
@@ -636,30 +862,63 @@ by <cite>repeat</cite></p>
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.get_nprevpoints_approximation">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">get_nprevpoints_approximation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">combinations_budget</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repeats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.get_nprevpoints_approximation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Searches for the largest number of (equidistant) prevalence points to define for each of the n_classes classes so that
-the number of valid prevalences generated as combinations of prevalence points (points in a n_classes-dimensional
-simplex) do not exceed combinations_budget.
-:param n_classes: number of classes
-:param n_repeats: number of repetitions for each prevalence combination
-:param combinations_budget: maximum number of combinatios allowed
-:return: the largest number of prevalence points that generate less than combinations_budget valid prevalences</p>
+<dd><p>Searches for the largest number of (equidistant) prevalence points to define for each of the <cite>n_classes</cite> classes so
+that the number of valid prevalence values generated as combinations of prevalence points (points in a
+<cite>n_classes</cite>-dimensional simplex) do not exceed combinations_budget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>combinations_budget</strong> – integer, maximum number of combinatios allowed</p></li>
+<li><p><strong>n_classes</strong> – integer, number of classes</p></li>
+<li><p><strong>n_repeats</strong> – integer, number of repetitions for each prevalence combination</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the largest number of prevalence points that generate less than combinations_budget valid prevalences</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.normalize_prevalence">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">normalize_prevalence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevalences</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.normalize_prevalence" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Normalize a vector or matrix of prevalence values. The normalization consists of applying a L1 normalization in
+cases in which the prevalence values are not all-zeros, and to convert the prevalence values into <cite>1/n_classes</cite> in
+cases in which all values are zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>prevalences</strong> – array-like of shape <cite>(n_classes,)</cite> or of shape <cite>(n_samples, n_classes,)</cite> with prevalence values</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a normalized vector or matrix of prevalence values</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.num_prevalence_combinations">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">num_prevalence_combinations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_prevpoints</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_repeats</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.num_prevalence_combinations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Computes the number of prevalence combinations in the n_classes-dimensional simplex if nprevpoints equally distant
-prevalences are generated and n_repeats repetitions are requested
-:param n_classes: number of classes
-:param n_prevpoints: number of prevalence points.
-:param n_repeats: number of repetitions for each prevalence combination
-:return: The number of possible combinations. For example, if n_classes=2, n_prevpoints=5, n_repeats=1, then the
-number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]</p>
+<dd><p>Computes the number of valid prevalence combinations in the n_classes-dimensional simplex if <cite>n_prevpoints</cite> equally
+distant prevalence values are generated and <cite>n_repeats</cite> repetitions are requested.
+The computation comes down to calculating:</p>
+<div class="math notranslate nohighlight">
+\[\binom{N+C-1}{C-1} \times r\]</div>
+<p>where <cite>N</cite> is <cite>n_prevpoints-1</cite>, i.e., the number of probability mass blocks to allocate, <cite>C</cite> is the number of
+classes, and <cite>r</cite> is <cite>n_repeats</cite>. This solution comes from the
+<a class="reference external" href="https://brilliant.org/wiki/integer-equations-star-and-bars/">Stars and Bars</a> problem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_classes</strong> – integer, number of classes</p></li>
+<li><p><strong>n_prevpoints</strong> – integer, number of prevalence points.</p></li>
+<li><p><strong>n_repeats</strong> – integer, number of repetitions for each prevalence combination</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The number of possible combinations. For example, if n_classes=2, n_prevpoints=5, n_repeats=1, then the</p>
+</dd>
+</dl>
+<p>number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]</p>
 </dd></dl>
 
 <dl class="py function">
@@ -683,19 +942,33 @@ some classes have no examples.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.prevalence_from_probabilities">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">prevalence_from_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binarize</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.prevalence_from_probabilities" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a vector of prevalence values from a matrix of posterior probabilities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>posteriors</strong> – array-like of shape <cite>(n_instances, n_classes,)</cite> with posterior probabilities for each class</p></li>
+<li><p><strong>binarize</strong> – set to True (default is False) for computing the prevalence values on crisp decisions (i.e.,
+converting the vectors of posterior probabilities into class indices, by taking the argmax).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>array of shape <cite>(n_classes,)</cite> containing the prevalence values</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.prevalence_linspace">
-<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">prevalence_linspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_prevalences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_limits_epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.prevalence_linspace" title="Permalink to this definition">¶</a></dt>
-<dd><p>Produces a uniformly separated values of prevalence. By default, produces an array of 21 prevalence values, with
+<span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">prevalence_linspace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_prevalences</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">21</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_limits_epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.prevalence_linspace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produces an array of uniformly separated values of prevalence.
+By default, produces an array of 21 prevalence values, with
 step 0.05 and with the limits smoothed, i.e.:
 [0.01, 0.05, 0.10, 0.15, …, 0.90, 0.95, 0.99]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>n_prevalences</strong> – the number of prevalence values to sample from the [0,1] interval (default 21)</p></li>
-<li><p><strong>repeat</strong> – number of times each prevalence is to be repeated (defaults to 1)</p></li>
+<li><p><strong>repeats</strong> – number of times each prevalence is to be repeated (defaults to 1)</p></li>
 <li><p><strong>smooth_limits_epsilon</strong> – the quantity to add and subtract to the limits 0 and 1</p></li>
 </ul>
 </dd>
@@ -708,17 +981,61 @@ step 0.05 and with the limits smoothed, i.e.:
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.strprev">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">strprev</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prevalences</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.strprev" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a string representation for a prevalence vector. E.g.,</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">strprev</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="o">/</span><span class="mi">3</span><span class="p">],</span> <span class="n">prec</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;[0.33, 0.67]&#39;</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prevalences</strong> – a vector of prevalence values</p></li>
+<li><p><strong>prec</strong> – float precision</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.uniform_prevalence_sampling">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">uniform_prevalence_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.uniform_prevalence_sampling" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the <a class="reference external" href="http://www.cs.cmu.edu/~nasmith/papers/smith+tromble.tr04.pdf">Kraemer algorithm</a>
+for sampling uniformly at random from the unit simplex. This implementation is adapted from this
+<cite>post &lt;https://cs.stackexchange.com/questions/3227/uniform-sampling-from-a-simplex&gt;_</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_classes</strong> – integer, number of classes (dimensionality of the simplex)</p></li>
+<li><p><strong>size</strong> – number of samples to return</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(size, n_classes,)</cite> if <cite>size&gt;1</cite>, or of shape <cite>(n_classes,)</cite> otherwise</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.functional.uniform_simplex_sampling">
 <span class="sig-prename descclassname"><span class="pre">quapy.functional.</span></span><span class="sig-name descname"><span class="pre">uniform_simplex_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.functional.uniform_simplex_sampling" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the <a class="reference external" href="http://www.cs.cmu.edu/~nasmith/papers/smith+tromble.tr04.pdf">Kraemer algorithm</a>
+for sampling uniformly at random from the unit simplex. This implementation is adapted from this
+<cite>post &lt;https://cs.stackexchange.com/questions/3227/uniform-sampling-from-a-simplex&gt;_</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_classes</strong> – integer, number of classes (dimensionality of the simplex)</p></li>
+<li><p><strong>size</strong> – number of samples to return</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(size, n_classes,)</cite> if <cite>size&gt;1</cite>, or of shape <cite>(n_classes,)</cite> otherwise</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-quapy.model_selection">
@@ -1147,7 +1464,7 @@ func is applied in two parallel processes to args[0:50] and to args[50:99]</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.util.pickled_resource">
 <span class="sig-prename descclassname"><span class="pre">quapy.util.</span></span><span class="sig-name descname"><span class="pre">pickled_resource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pickle_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generation_func</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.util.pickled_resource" title="Permalink to this definition">¶</a></dt>
-<dd><p>Allows for fast reuse of resources that are generated only once by calling generation_func(<a href="#id1"><span class="problematic" id="id2">*</span></a>args). The next times
+<dd><p>Allows for fast reuse of resources that are generated only once by calling generation_func(<a href="#id4"><span class="problematic" id="id5">*</span></a>args). The next times
 this function is invoked, it loads the pickled resource. Example:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">some_array</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>  <span class="c1"># a mock resource created with one parameter (`n`)</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
