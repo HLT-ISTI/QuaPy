@@ -15,6 +15,8 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -59,31 +61,67 @@
 <dt class="sig sig-object py" id="quapy.method.aggregative.ACC">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">ACC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ACC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier" title="quapy.method.aggregative.AggregativeQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.AggregativeQuantifier</span></code></a></p>
+<p><a class="reference external" href="https://link.springer.com/article/10.1007/s10618-008-0097-y">Adjusted Classify &amp; Count</a>,
+the “adjusted” variant of <a class="reference internal" href="#quapy.method.aggregative.CC" title="quapy.method.aggregative.CC"><code class="xref py py-class docutils literal notranslate"><span class="pre">CC</span></code></a>, that corrects the predictions of CC
+according to the <cite>misclassification rates</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>val_split</strong> – indicates the proportion of data to be used as a stratified held-out validation set in which the
+misclassification rates are to be estimated.
+This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+validation data, or as an integer, indicating that the misclassification rates should be estimated via
+<cite>k</cite>-fold cross validation (this integer stands for the number of folds <cite>k</cite>), or as a
+<a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> (the split itself).</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.ACC.aggregate">
 <span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_predictions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ACC.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the aggregation of label predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>classif_predictions</strong> – <cite>np.ndarray</cite> of label predictions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.ACC.classify">
 <span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ACC.classify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Provides the label predictions for the given instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray of shape <cite>(n_instances,)</cite> with label predictions</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.ACC.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ACC.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trains a ACC quantifier
-:param data: the training set
-:param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
-:param val_split: either a float in (0,1) indicating the proportion of training instances to use for</p>
-<blockquote>
-<div><p>validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
-indicating the validation set itself, or an int indicating the number k of folds to be used in kFCV
-to estimate the parameters</p>
-</div></blockquote>
+<dd><p>Trains a ACC quantifier.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>self</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – the training set</p></li>
+<li><p><strong>fit_learner</strong> – set to False to bypass the training (the learner is assumed to be already fit)</p></li>
+<li><p><strong>val_split</strong> – either a float in (0,1) indicating the proportion of training instances to use for
+validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
+indicating the validation set itself, or an int indicating the number <cite>k</cite> of folds to be used in <cite>k</cite>-fold
+cross validation to estimate the parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
 </dd>
 </dl>
 </dd></dl>
@@ -91,7 +129,21 @@ to estimate the parameters</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.ACC.solve_adjustment">
 <em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">solve_adjustment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">PteCondEstim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prevs_estim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ACC.solve_adjustment" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Solves the system linear system <span class="math notranslate nohighlight">\(Ax = B\)</span> with <span class="math notranslate nohighlight">\(A\)</span> = <cite>PteCondEstim</cite> and <span class="math notranslate nohighlight">\(B\)</span> = <cite>prevs_estim</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>PteCondEstim</strong> – a <cite>np.ndarray</cite> of shape <cite>(n_classes,n_classes,)</cite> with entry <cite>(i,j)</cite> being the estimate
+of <span class="math notranslate nohighlight">\(P(y_i|y_j)\)</span>, that is, the probability that an instance that belongs to <span class="math notranslate nohighlight">\(y_j\)</span> ends up being
+classified as belonging to <span class="math notranslate nohighlight">\(y_i\)</span></p></li>
+<li><p><strong>prevs_estim</strong> – a <cite>np.ndarray</cite> of shape <cite>(n_classes,)</cite> with the class prevalence estimates</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an adjusted <cite>np.ndarray</cite> of shape <cite>(n_classes,)</cite> with the corrected class prevalence estimates</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -122,17 +174,39 @@ probabilities.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeProbabilisticQuantifier.probabilistic">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">probabilistic</span></span><a class="headerlink" href="#quapy.method.aggregative.AggregativeProbabilisticQuantifier.probabilistic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Indicates whether the quantifier is of type probabilistic or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>False (to be overridden)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeProbabilisticQuantifier.quantify">
 <span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.AggregativeProbabilisticQuantifier.quantify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generate class prevalence estimates for the sample’s instances by aggregating the label predictions generated
+by the classifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeProbabilisticQuantifier.set_params">
 <span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.AggregativeProbabilisticQuantifier.set_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set the parameters of the quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> – dictionary of param-value pairs</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -141,56 +215,131 @@ probabilities.</p>
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">AggregativeQuantifier</span></span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BaseQuantifier</span></code></a></p>
 <p>Abstract class for quantification methods that base their estimations on the aggregation of classification
-results. Aggregative Quantifiers thus implement a _classify_ method and maintain a _learner_ attribute.</p>
+results. Aggregative Quantifiers thus implement a <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier.classify" title="quapy.method.aggregative.AggregativeQuantifier.classify"><code class="xref py py-meth docutils literal notranslate"><span class="pre">classify()</span></code></a> method and maintain a <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier.learner" title="quapy.method.aggregative.AggregativeQuantifier.learner"><code class="xref py py-attr docutils literal notranslate"><span class="pre">learner</span></code></a> attribute.
+Subclasses of this abstract class must implement the method <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier.aggregate" title="quapy.method.aggregative.AggregativeQuantifier.aggregate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">aggregate()</span></code></a> which computes the aggregation
+of label predictions. The method <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier.quantify" title="quapy.method.aggregative.AggregativeQuantifier.quantify"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quantify()</span></code></a> comes with a default implementation based on</p>
+<blockquote>
+<div><p><a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier.classify" title="quapy.method.aggregative.AggregativeQuantifier.classify"><code class="xref py py-meth docutils literal notranslate"><span class="pre">classify()</span></code></a> and <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier.aggregate" title="quapy.method.aggregative.AggregativeQuantifier.aggregate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">aggregate()</span></code></a>.</p>
+</div></blockquote>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeQuantifier.aggregate">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the aggregation of label predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>classif_predictions</strong> – <cite>np.ndarray</cite> of label predictions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeQuantifier.aggregative">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">aggregative</span></span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier.aggregative" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns True, indicating the quantifier is of type aggregative.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeQuantifier.classes_">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier.classes_" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Class labels, in the same order in which class prevalence values are to be computed.
+This default implementation actually returns the class labels of the learner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeQuantifier.classify">
 <span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier.classify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Provides the label predictions for the given instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray of shape <cite>(n_instances,)</cite> with label predictions</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeQuantifier.fit">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Trains the aggregative quantifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p></li>
+<li><p><strong>fit_learner</strong> – whether or not to train the learner (default is True). Set to False if the
+learner has been trained outside the quantifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeQuantifier.get_params">
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier.get_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current parameters of the quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deep</strong> – for compatibility with sklearn</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dictionary of param-value pairs</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeQuantifier.learner">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">learner</span></span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier.learner" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeQuantifier.n_classes">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">n_classes</span></span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier.n_classes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Gives access to the classifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the classifier (typically an sklearn’s Estimator)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeQuantifier.quantify">
 <span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier.quantify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generate class prevalence estimates for the sample’s instances by aggregating the label predictions generated
+by the classifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.AggregativeQuantifier.set_params">
 <span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.AggregativeQuantifier.set_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set the parameters of the quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> – dictionary of param-value pairs</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -198,20 +347,43 @@ results. Aggregative Quantifiers thus implement a _classify_ method and maintain
 <dt class="sig sig-object py" id="quapy.method.aggregative.CC">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">CC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.CC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier" title="quapy.method.aggregative.AggregativeQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.AggregativeQuantifier</span></code></a></p>
-<p>The most basic Quantification method. One that simply classifies all instances and countes how many have been
-attributed each of the classes in order to compute class prevalence estimates.</p>
+<p>The most basic Quantification method. One that simply classifies all instances and counts how many have been
+attributed to each of the classes in order to compute class prevalence estimates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.CC.aggregate">
-<span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_predictions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.CC.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.CC.aggregate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes class prevalence estimates by counting the prevalence of each of the predicted labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>classif_predictions</strong> – array-like with label predictions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.CC.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.CC.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trains the Classify &amp; Count method unless _fit_learner_ is False, in which case it is assumed to be already fit.
-:param data: training data
-:param fit_learner: if False, the classifier is assumed to be fit
-:return: self</p>
+<dd><p>Trains the Classify &amp; Count method unless <cite>fit_learner</cite> is False, in which case, the classifier is assumed to
+be already fit and there is nothing else to do.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p></li>
+<li><p><strong>fit_learner</strong> – if False, the classifier is assumed to be fit</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -226,20 +398,67 @@ attributed each of the classes in order to compute class prevalence estimates.</
 <dt class="sig sig-object py" id="quapy.method.aggregative.ELM">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">ELM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'01'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ELM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier" title="quapy.method.aggregative.AggregativeQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.AggregativeQuantifier</span></code></a>, <a class="reference internal" href="#quapy.method.base.BinaryQuantifier" title="quapy.method.base.BinaryQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BinaryQuantifier</span></code></a></p>
+<p>Class of Explicit Loss Minimization (ELM) quantifiers.
+Quantifiers based on ELM represent a family of methods based on structured output learning;
+these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+measure. This implementation relies on
+<a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">Joachims’ SVM perf</a> structured output
+learning algorithm, which has to be installed and patched for the purpose (see this
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh">script</a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
+<li><p><strong>loss</strong> – the loss to optimize (see <a class="reference internal" href="quapy.classification.html#quapy.classification.svmperf.SVMperf.valid_losses" title="quapy.classification.svmperf.SVMperf.valid_losses"><code class="xref py py-attr docutils literal notranslate"><span class="pre">quapy.classification.svmperf.SVMperf.valid_losses</span></code></a>)</p></li>
+<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.ELM.aggregate">
 <span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_predictions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ELM.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the aggregation of label predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>classif_predictions</strong> – <cite>np.ndarray</cite> of label predictions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.ELM.classify">
 <span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ELM.classify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Provides the label predictions for the given instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray of shape <cite>(n_instances,)</cite> with label predictions</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.ELM.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ELM.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Trains the aggregative quantifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p></li>
+<li><p><strong>fit_learner</strong> – whether or not to train the learner (default is True). Set to False if the
+learner has been trained outside the quantifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -247,14 +466,36 @@ attributed each of the classes in order to compute class prevalence estimates.</
 <dt class="sig sig-object py" id="quapy.method.aggregative.EMQ">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">EMQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.EMQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeProbabilisticQuantifier" title="quapy.method.aggregative.AggregativeProbabilisticQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.AggregativeProbabilisticQuantifier</span></code></a></p>
-<p>The method is described in:
-Saerens, M., Latinne, P., and Decaestecker, C. (2002).
-Adjusting the outputs of a classifier to new a priori probabilities: A simple procedure.
-Neural Computation, 14(1): 21–41.</p>
+<p><a class="reference external" href="https://ieeexplore.ieee.org/abstract/document/6789744">Expectation Maximization for Quantification</a> (EMQ),
+aka <cite>Saerens-Latinne-Decaestecker</cite> (SLD) algorithm.
+EMQ consists of using the well-known <cite>Expectation Maximization algorithm</cite> to iteratively update the posterior
+probabilities generated by a probabilistic classifier and the class prevalence estimates obtained via
+maximum-likelihood estimation, in a mutually recursive way, until convergence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.EMQ.EM">
 <em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">EM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tr_prev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">posterior_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.EMQ.EM" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Computes the <cite>Expectation Maximization</cite> routine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tr_prev</strong> – array-like, the training prevalence</p></li>
+<li><p><strong>posterior_probabilities</strong> – <cite>np.ndarray</cite> of shape <cite>(n_instances, n_classes,)</cite> with the
+posterior probabilities</p></li>
+<li><p><strong>epsilon</strong> – float, the threshold different between two consecutive iterations
+to reach before stopping the loop</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a tuple with the estimated prevalence values (shape <cite>(n_classes,)</cite>) and
+the corrected posterior probabilities (shape <cite>(n_instances, n_classes,)</cite>)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="quapy.method.aggregative.EMQ.EPSILON">
@@ -269,12 +510,34 @@ Neural Computation, 14(1): 21–41.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.EMQ.aggregate">
 <span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.EMQ.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the aggregation of label predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>classif_predictions</strong> – <cite>np.ndarray</cite> of label predictions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.EMQ.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.EMQ.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Trains the aggregative quantifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p></li>
+<li><p><strong>fit_learner</strong> – whether or not to train the learner (default is True). Set to False if the
+learner has been trained outside the quantifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.EMQ.predict_proba">
@@ -299,28 +562,52 @@ Neural Computation, 14(1): 21–41.</p>
 <dt class="sig sig-object py" id="quapy.method.aggregative.HDy">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">HDy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.HDy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeProbabilisticQuantifier" title="quapy.method.aggregative.AggregativeProbabilisticQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.AggregativeProbabilisticQuantifier</span></code></a>, <a class="reference internal" href="#quapy.method.base.BinaryQuantifier" title="quapy.method.base.BinaryQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BinaryQuantifier</span></code></a></p>
-<p>Implementation of the method based on the Hellinger Distance y (HDy) proposed by
-González-Castro, V., Alaiz-Rodrı́guez, R., and Alegre, E. (2013). Class distribution
-estimation based on the Hellinger distance. Information Sciences, 218:146–164.</p>
+<p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0020025512004069">Hellinger Distance y</a> (HDy).
+HDy is a probabilistic method for training binary quantifiers, that models quantification as the problem of
+minimizing the divergence (in terms of the Hellinger Distance) between two cumulative distributions of posterior
+probabilities returned by the classifier. One of the distributions is generated from the unlabelled examples and
+the other is generated from a validation set. This latter distribution is defined as a mixture of the
+class-conditional distributions of the posterior probabilities returned for the positive and negative validation
+examples, respectively. The parameters of the mixture thus represent the estimates of the class prevalence values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – a sklearn’s Estimator that generates a binary classifier</p></li>
+<li><p><strong>val_split</strong> – a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
+validation distribution, or a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> (the split itself).</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.HDy.aggregate">
 <span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_posteriors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.HDy.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the aggregation of label predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>classif_predictions</strong> – <cite>np.ndarray</cite> of label predictions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.HDy.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.HDy.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trains a HDy quantifier
-:param data: the training set
-:param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
-:param val_split: either a float in (0,1) indicating the proportion of training instances to use for</p>
-<blockquote>
-<div><p>validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
-indicating the validation set itself</p>
-</div></blockquote>
+<dd><p>Trains a HDy quantifier.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>self</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – the training set</p></li>
+<li><p><strong>fit_learner</strong> – set to False to bypass the training (the learner is assumed to be already fit)</p></li>
+<li><p><strong>val_split</strong> – either a float in (0,1) indicating the proportion of training instances to use for
+validation (e.g., 0.3 for using 30% of the training set as validation data), or a
+<a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> indicating the validation set itself</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
 </dd>
 </dl>
 </dd></dl>
@@ -337,28 +624,73 @@ indicating the validation set itself</p>
 <dt class="sig sig-object py" id="quapy.method.aggregative.MAX">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">MAX</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.MAX" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ThresholdOptimization" title="quapy.method.aggregative.ThresholdOptimization"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ThresholdOptimization</span></code></a></p>
+<p>Threshold Optimization variant for <a class="reference internal" href="#quapy.method.aggregative.ACC" title="quapy.method.aggregative.ACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">ACC</span></code></a> as proposed by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/1150402.1150423">Forman 2006</a> and
+<a class="reference external" href="https://link.springer.com/article/10.1007/s10618-008-0097-y">Forman 2008</a> that looks
+for the threshold that maximizes <cite>tpr-fpr</cite>.
+The goal is to bring improved stability to the denominator of the adjustment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>val_split</strong> – indicates the proportion of data to be used as a stratified held-out validation set in which the
+misclassification rates are to be estimated.
+This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+validation data, or as an integer, indicating that the misclassification rates should be estimated via
+<cite>k</cite>-fold cross validation (this integer stands for the number of folds <cite>k</cite>), or as a
+<a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> (the split itself).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.MS">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">MS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.MS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ThresholdOptimization" title="quapy.method.aggregative.ThresholdOptimization"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ThresholdOptimization</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.MS.optimize_threshold">
-<span class="sig-name descname"><span class="pre">optimize_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probabilities</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.MS.optimize_threshold" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>Median Sweep. Threshold Optimization variant for <a class="reference internal" href="#quapy.method.aggregative.ACC" title="quapy.method.aggregative.ACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">ACC</span></code></a> as proposed by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/1150402.1150423">Forman 2006</a> and
+<a class="reference external" href="https://link.springer.com/article/10.1007/s10618-008-0097-y">Forman 2008</a> that generates
+class prevalence estimates for all decision thresholds and returns the median of them all.
+The goal is to bring improved stability to the denominator of the adjustment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>val_split</strong> – indicates the proportion of data to be used as a stratified held-out validation set in which the
+misclassification rates are to be estimated.
+This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+validation data, or as an integer, indicating that the misclassification rates should be estimated via
+<cite>k</cite>-fold cross validation (this integer stands for the number of folds <cite>k</cite>), or as a
+<a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> (the split itself).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.MS2">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">MS2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.MS2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.MS" title="quapy.method.aggregative.MS"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.MS</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.MS2.optimize_threshold">
-<span class="sig-name descname"><span class="pre">optimize_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probabilities</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.MS2.optimize_threshold" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>Median Sweep 2. Threshold Optimization variant for <a class="reference internal" href="#quapy.method.aggregative.ACC" title="quapy.method.aggregative.ACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">ACC</span></code></a> as proposed by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/1150402.1150423">Forman 2006</a> and
+<a class="reference external" href="https://link.springer.com/article/10.1007/s10618-008-0097-y">Forman 2008</a> that generates
+class prevalence estimates for all decision thresholds and returns the median of for cases in
+which <cite>tpr-fpr&gt;0.25</cite>
+The goal is to bring improved stability to the denominator of the adjustment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>val_split</strong> – indicates the proportion of data to be used as a stratified held-out validation set in which the
+misclassification rates are to be estimated.
+This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+validation data, or as an integer, indicating that the misclassification rates should be estimated via
+<cite>k</cite>-fold cross validation (this integer stands for the number of folds <cite>k</cite>), or as a
+<a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> (the split itself).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -377,60 +709,158 @@ indicating the validation set itself</p>
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">OneVsAll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier" title="quapy.method.aggregative.AggregativeQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.AggregativeQuantifier</span></code></a></p>
-<p>Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary
-quantifier for each class, and then l1-normalizes the outputs so that the class prevelences sum up to 1.
-This variant was used, along with the ExplicitLossMinimization quantifier in
-Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.
-Social Network Analysis and Mining 6(19), 1–22 (2016)</p>
+<p>Allows any binary quantifier to perform quantification on single-label datasets.
+The method maintains one binary quantifier for each class, and then l1-normalizes the outputs so that the
+class prevelences sum up to 1.
+This variant was used, along with the <a class="reference internal" href="#quapy.method.aggregative.EMQ" title="quapy.method.aggregative.EMQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">EMQ</span></code></a> quantifier, in
+<a class="reference external" href="https://link.springer.com/content/pdf/10.1007/s13278-016-0327-z.pdf">Gao and Sebastiani, 2016</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – a sklearn’s Estimator that generates a binary classifier</p></li>
+<li><p><strong>n_jobs</strong> – number of parallel workers</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.aggregate">
 <span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_predictions_bin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the aggregation of label predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>classif_predictions</strong> – <cite>np.ndarray</cite> of label predictions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.binary">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.binary" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Informs that the classifier is not binary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>False</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.classes_">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.classes_" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Class labels, in the same order in which class prevalence values are to be computed.
+This default implementation actually returns the class labels of the learner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.classify">
 <span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.classify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a matrix of shape <cite>(n,m,)</cite> with <cite>n</cite> the number of instances and <cite>m</cite> the number of classes. The entry
+<cite>(i,j)</cite> is a binary value indicating whether instance <cite>i `belongs to class `j</cite>. The binary classifications are
+independent of each other, meaning that an instance can end up be attributed to 0, 1, or more classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Trains the aggregative quantifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p></li>
+<li><p><strong>fit_learner</strong> – whether or not to train the learner (default is True). Set to False if the
+learner has been trained outside the quantifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.get_params">
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.get_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current parameters of the quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deep</strong> – for compatibility with sklearn</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dictionary of param-value pairs</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.posterior_probabilities">
 <span class="sig-name descname"><span class="pre">posterior_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.posterior_probabilities" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a matrix of shape <cite>(n,m,2)</cite> with <cite>n</cite> the number of instances and <cite>m</cite> the number of classes. The entry
+<cite>(i,j,1)</cite> (resp. <cite>(i,j,0)</cite>) is a value in [0,1] indicating the posterior probability that instance <cite>i</cite> belongs
+(resp. does not belong) to class <cite>j</cite>.
+The posterior probabilities are independent of each other, meaning that, in general, they do not sum
+up to one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.probabilistic">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">probabilistic</span></span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.probabilistic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Indicates if the classifier is probabilistic or not (depending on the nature of the base classifier).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.quantify">
 <span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.quantify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generate class prevalence estimates for the sample’s instances by aggregating the label predictions generated
+by the classifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.set_params">
 <span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.set_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set the parameters of the quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> – dictionary of param-value pairs</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -438,31 +868,66 @@ Social Network Analysis and Mining 6(19), 1–22 (2016)</p>
 <dt class="sig sig-object py" id="quapy.method.aggregative.PACC">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">PACC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.PACC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeProbabilisticQuantifier" title="quapy.method.aggregative.AggregativeProbabilisticQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.AggregativeProbabilisticQuantifier</span></code></a></p>
+<p><a class="reference external" href="https://ieeexplore.ieee.org/abstract/document/5694031">Probabilistic Adjusted Classify &amp; Count</a>,
+the probabilistic variant of ACC that relies on the posterior probabilities returned by a probabilistic classifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>val_split</strong> – indicates the proportion of data to be used as a stratified held-out validation set in which the
+misclassification rates are to be estimated.
+This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+validation data, or as an integer, indicating that the misclassification rates should be estimated via
+<cite>k</cite>-fold cross validation (this integer stands for the number of folds <cite>k</cite>), or as a
+<a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> (the split itself).</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.PACC.aggregate">
 <span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_posteriors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.PACC.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the aggregation of label predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>classif_predictions</strong> – <cite>np.ndarray</cite> of label predictions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.PACC.classify">
 <span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.PACC.classify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Provides the label predictions for the given instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>np.ndarray of shape <cite>(n_instances,)</cite> with label predictions</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.PACC.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.PACC.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trains a PACC quantifier
-:param data: the training set
-:param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
-:param val_split: either a float in (0,1) indicating the proportion of training instances to use for</p>
-<blockquote>
-<div><p>validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
-indicating the validation set itself, or an int indicating the number k of folds to be used in kFCV
-to estimate the parameters</p>
-</div></blockquote>
+<dd><p>Trains a PACC quantifier.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>self</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – the training set</p></li>
+<li><p><strong>fit_learner</strong> – set to False to bypass the training (the learner is assumed to be already fit)</p></li>
+<li><p><strong>val_split</strong> – either a float in (0,1) indicating the proportion of training instances to use for
+validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
+indicating the validation set itself, or an int indicating the number k of folds to be used in kFCV
+to estimate the parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
 </dd>
 </dl>
 </dd></dl>
@@ -473,15 +938,44 @@ to estimate the parameters</p>
 <dt class="sig sig-object py" id="quapy.method.aggregative.PCC">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">PCC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.PCC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeProbabilisticQuantifier" title="quapy.method.aggregative.AggregativeProbabilisticQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.AggregativeProbabilisticQuantifier</span></code></a></p>
+<p><a class="reference external" href="https://ieeexplore.ieee.org/abstract/document/5694031">Probabilistic Classify &amp; Count</a>,
+the probabilistic variant of CC that relies on the posterior probabilities returned by a probabilistic classifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.PCC.aggregate">
 <span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_posteriors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.PCC.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the aggregation of label predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>classif_predictions</strong> – <cite>np.ndarray</cite> of label predictions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.PCC.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.PCC.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Trains the aggregative quantifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p></li>
+<li><p><strong>fit_learner</strong> – whether or not to train the learner (default is True). Set to False if the
+learner has been trained outside the quantifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -497,84 +991,193 @@ to estimate the parameters</p>
 <dd><p>alias of <a class="reference internal" href="#quapy.method.aggregative.PCC" title="quapy.method.aggregative.PCC"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.PCC</span></code></a></p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quapy.method.aggregative.SLD">
+<span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SLD</span></span><a class="headerlink" href="#quapy.method.aggregative.SLD" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#quapy.method.aggregative.EMQ" title="quapy.method.aggregative.EMQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.EMQ</span></code></a></p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.SVMAE">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SVMAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.SVMAE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ELM</span></code></a></p>
+<p>SVM(AE), which attempts to minimize Absolute Error as first used by
+<a class="reference external" href="https://arxiv.org/abs/2011.02552">Moreo and Sebastiani, 2021</a>.
+Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
+<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.SVMKLD">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SVMKLD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.SVMKLD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ELM</span></code></a></p>
-<p>Esuli, A. and Sebastiani, F. (2015).
-Optimizing text quantifiers for multivariate loss functions.
-ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27.</p>
+<p>SVM(KLD), which attempts to minimize the Kullback-Leibler Divergence as proposed by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/2700406">Esuli et al. 2015</a>.
+Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;kld&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
+<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.SVMNKLD">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SVMNKLD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.SVMNKLD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ELM</span></code></a></p>
-<p>Esuli, A. and Sebastiani, F. (2015).
-Optimizing text quantifiers for multivariate loss functions.
-ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27.</p>
+<p>SVM(NKLD), which attempts to minimize a version of the the Kullback-Leibler Divergence normalized
+via the logistic function, as proposed by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/2700406">Esuli et al. 2015</a>.
+Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;nkld&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
+<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.SVMQ">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SVMQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.SVMQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ELM</span></code></a></p>
-<p>Barranquero, J., Díez, J., and del Coz, J. J. (2015).
-Quantification-oriented learning based on reliable classifiers.
-Pattern Recognition, 48(2):591–604.</p>
+<p>SVM(Q), which attempts to minimize the <cite>Q</cite> loss combining a classification-oriented loss and a
+quantification-oriented loss, as proposed by
+<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S003132031400291X">Barranquero et al. 2015</a>.
+Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
+<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.SVMRAE">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SVMRAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.SVMRAE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ELM</span></code></a></p>
+<p>SVM(RAE), which attempts to minimize Relative Absolute Error as first used by
+<a class="reference external" href="https://arxiv.org/abs/2011.02552">Moreo and Sebastiani, 2021</a>.
+Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mrae&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
+<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.T50">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">T50</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.T50" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ThresholdOptimization" title="quapy.method.aggregative.ThresholdOptimization"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ThresholdOptimization</span></code></a></p>
+<p>Threshold Optimization variant for <a class="reference internal" href="#quapy.method.aggregative.ACC" title="quapy.method.aggregative.ACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">ACC</span></code></a> as proposed by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/1150402.1150423">Forman 2006</a> and
+<a class="reference external" href="https://link.springer.com/article/10.1007/s10618-008-0097-y">Forman 2008</a> that looks
+for the threshold that makes <cite>tpr</cite> cosest to 0.5.
+The goal is to bring improved stability to the denominator of the adjustment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>val_split</strong> – indicates the proportion of data to be used as a stratified held-out validation set in which the
+misclassification rates are to be estimated.
+This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+validation data, or as an integer, indicating that the misclassification rates should be estimated via
+<cite>k</cite>-fold cross validation (this integer stands for the number of folds <cite>k</cite>), or as a
+<a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> (the split itself).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.ThresholdOptimization">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">ThresholdOptimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ThresholdOptimization" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier" title="quapy.method.aggregative.AggregativeQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.AggregativeQuantifier</span></code></a>, <a class="reference internal" href="#quapy.method.base.BinaryQuantifier" title="quapy.method.base.BinaryQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BinaryQuantifier</span></code></a></p>
+<p>Abstract class of Threshold Optimization variants for <a class="reference internal" href="#quapy.method.aggregative.ACC" title="quapy.method.aggregative.ACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">ACC</span></code></a> as proposed by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/1150402.1150423">Forman 2006</a> and
+<a class="reference external" href="https://link.springer.com/article/10.1007/s10618-008-0097-y">Forman 2008</a>.
+The goal is to bring improved stability to the denominator of the adjustment.
+The different variants are based on different heuristics for choosing a decision threshold
+that would allow for more true positives and many more false positives, on the grounds this
+would deliver larger denominators.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>val_split</strong> – indicates the proportion of data to be used as a stratified held-out validation set in which the
+misclassification rates are to be estimated.
+This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+validation data, or as an integer, indicating that the misclassification rates should be estimated via
+<cite>k</cite>-fold cross validation (this integer stands for the number of folds <cite>k</cite>), or as a
+<a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> (the split itself).</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.ThresholdOptimization.aggregate">
 <span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_predictions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ThresholdOptimization.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.ThresholdOptimization.compute_fpr">
-<span class="sig-name descname"><span class="pre">compute_fpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">TN</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ThresholdOptimization.compute_fpr" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.ThresholdOptimization.compute_table">
-<span class="sig-name descname"><span class="pre">compute_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ThresholdOptimization.compute_table" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.ThresholdOptimization.compute_tpr">
-<span class="sig-name descname"><span class="pre">compute_tpr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">TP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FP</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ThresholdOptimization.compute_tpr" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements the aggregation of label predictions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>classif_predictions</strong> – <cite>np.ndarray</cite> of label predictions</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.aggregative.ThresholdOptimization.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ThresholdOptimization.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.ThresholdOptimization.optimize_threshold">
-<span class="sig-name descname"><span class="pre">optimize_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probabilities</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ThresholdOptimization.optimize_threshold" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Trains the aggregative quantifier</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p></li>
+<li><p><strong>fit_learner</strong> – whether or not to train the learner (default is True). Set to False if the
+learner has been trained outside the quantifier.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -582,22 +1185,24 @@ Pattern Recognition, 48(2):591–604.</p>
 <dt class="sig sig-object py" id="quapy.method.aggregative.X">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">X</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">sklearn.base.BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.X" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ThresholdOptimization" title="quapy.method.aggregative.ThresholdOptimization"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ThresholdOptimization</span></code></a></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="quapy.method.aggregative.training_helper">
-<span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">training_helper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_probabilistic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.training_helper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Training procedure common to all Aggregative Quantifiers.
-:param learner: the learner to be fit
-:param data: the data on which to fit the learner. If requested, the data will be split before fitting the learner.
-:param fit_learner: whether or not to fit the learner (if False, then bypasses any action)
-:param ensure_probabilistic: if True, guarantees that the resulting classifier implements predict_proba (if the
-learner is not probabilistic, then a CalibratedCV instance of it is trained)
-:param val_split: if specified as a float, indicates the proportion of training instances that will define the
-validation split (e.g., 0.3 for using 30% of the training set as validation data); if specified as a
-LabelledCollection, represents the validation split itself
-:return: the learner trained on the training set, and the unused data (a _LabelledCollection_ if train_val_split&gt;0
-or None otherwise) to be used as a validation set for any subsequent parameter fitting</p>
+<p>Threshold Optimization variant for <a class="reference internal" href="#quapy.method.aggregative.ACC" title="quapy.method.aggregative.ACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">ACC</span></code></a> as proposed by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/1150402.1150423">Forman 2006</a> and
+<a class="reference external" href="https://link.springer.com/article/10.1007/s10618-008-0097-y">Forman 2008</a> that looks
+for the threshold that yields <cite>tpr=1-fpr</cite>.
+The goal is to bring improved stability to the denominator of the adjustment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – a sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>val_split</strong> – indicates the proportion of data to be used as a stratified held-out validation set in which the
+misclassification rates are to be estimated.
+This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+validation data, or as an integer, indicating that the misclassification rates should be estimated via
+<cite>k</cite>-fold cross validation (this integer stands for the number of folds <cite>k</cite>), or as a
+<a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> (the split itself).</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -607,45 +1212,116 @@ or None otherwise) to be used as a validation set for any subsequent parameter f
 <dt class="sig sig-object py" id="quapy.method.base.BaseQuantifier">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">BaseQuantifier</span></span><a class="headerlink" href="#quapy.method.base.BaseQuantifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Abstract Quantifier. A quantifier is defined as an object of a class that implements the method <a class="reference internal" href="#quapy.method.base.BaseQuantifier.fit" title="quapy.method.base.BaseQuantifier.fit"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fit()</span></code></a> on
+<a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a>, the method <a class="reference internal" href="#quapy.method.base.BaseQuantifier.quantify" title="quapy.method.base.BaseQuantifier.quantify"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quantify()</span></code></a>, and the <a class="reference internal" href="#quapy.method.base.BaseQuantifier.set_params" title="quapy.method.base.BaseQuantifier.set_params"><code class="xref py py-meth docutils literal notranslate"><span class="pre">set_params()</span></code></a> and
+<a class="reference internal" href="#quapy.method.base.BaseQuantifier.get_params" title="quapy.method.base.BaseQuantifier.get_params"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_params()</span></code></a> for model selection (see <a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ()</span></code></a>)</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.base.BaseQuantifier.aggregative">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">aggregative</span></span><a class="headerlink" href="#quapy.method.base.BaseQuantifier.aggregative" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Indicates whether the quantifier is of type aggregative or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>False (to be overridden)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.base.BaseQuantifier.binary">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#quapy.method.base.BaseQuantifier.binary" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Indicates whether the quantifier is binary or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>False (to be overridden)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.base.BaseQuantifier.classes_">
 <em class="property"><span class="pre">abstract</span> <span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.method.base.BaseQuantifier.classes_" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Class labels, in the same order in which class prevalence values are to be computed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.base.BaseQuantifier.fit">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.BaseQuantifier.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Trains a quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.base.BaseQuantifier.get_params">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.BaseQuantifier.get_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current parameters of the quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deep</strong> – for compatibility with sklearn</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dictionary of param-value pairs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quapy.method.base.BaseQuantifier.n_classes">
+<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">n_classes</span></span><a class="headerlink" href="#quapy.method.base.BaseQuantifier.n_classes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of classes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>integer</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.base.BaseQuantifier.probabilistic">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">probabilistic</span></span><a class="headerlink" href="#quapy.method.base.BaseQuantifier.probabilistic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Indicates whether the quantifier is of type probabilistic or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>False (to be overridden)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.base.BaseQuantifier.quantify">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.BaseQuantifier.quantify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generate class prevalence estimates for the sample’s instances</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.base.BaseQuantifier.set_params">
 <em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.BaseQuantifier.set_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set the parameters of the quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> – dictionary of param-value pairs</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -653,27 +1329,62 @@ or None otherwise) to be used as a validation set for any subsequent parameter f
 <dt class="sig sig-object py" id="quapy.method.base.BinaryQuantifier">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">BinaryQuantifier</span></span><a class="headerlink" href="#quapy.method.base.BinaryQuantifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BaseQuantifier</span></code></a></p>
+<p>Abstract class of binary quantifiers, i.e., quantifiers estimating class prevalence values for only two classes
+(typically, to be interpreted as one class and its complement).</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.base.BinaryQuantifier.binary">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#quapy.method.base.BinaryQuantifier.binary" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Informs that the quantifier is binary</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.method.base.isaggregative">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">isaggregative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.isaggregative" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Alias for property <cite>aggregative</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> – the model</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the model is aggregative, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.method.base.isbinary">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">isbinary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.isbinary" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Alias for property <cite>binary</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> – the model</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the model is binary, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.method.base.isprobabilistic">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">isprobabilistic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.isprobabilistic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Alias for property <cite>probabilistic</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>model</strong> – the model</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the model is probabilistic, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-quapy.method.meta">
@@ -681,139 +1392,313 @@ or None otherwise) to be used as a validation set for any subsequent parameter f
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.method.meta.EACC">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">EACC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_mod_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.EACC" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements an ensemble of <a class="reference internal" href="#quapy.method.aggregative.ACC" title="quapy.method.aggregative.ACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ACC</span></code></a> quantifiers, as used by
+<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253517303652">Pérez-Gállego et al., 2019</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>param_grid</strong> – a dictionary with the grid of parameters to optimize for</p></li>
+<li><p><strong>optim</strong> – a valid quantification or classification error, or a string name of it</p></li>
+<li><p><strong>param_model_sel</strong> – a dictionary containing any keyworded argument to pass to
+<a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – kwargs for the class <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an instance of <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.method.meta.ECC">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">ECC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_mod_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.ECC" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements an ensemble of <a class="reference internal" href="#quapy.method.aggregative.CC" title="quapy.method.aggregative.CC"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.CC</span></code></a> quantifiers, as used by
+<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253517303652">Pérez-Gállego et al., 2019</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>param_grid</strong> – a dictionary with the grid of parameters to optimize for</p></li>
+<li><p><strong>optim</strong> – a valid quantification or classification error, or a string name of it</p></li>
+<li><p><strong>param_model_sel</strong> – a dictionary containing any keyworded argument to pass to
+<a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – kwargs for the class <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an instance of <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.method.meta.EEMQ">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">EEMQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_mod_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.EEMQ" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements an ensemble of <a class="reference internal" href="#quapy.method.aggregative.EMQ" title="quapy.method.aggregative.EMQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.EMQ</span></code></a> quantifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>param_grid</strong> – a dictionary with the grid of parameters to optimize for</p></li>
+<li><p><strong>optim</strong> – a valid quantification or classification error, or a string name of it</p></li>
+<li><p><strong>param_model_sel</strong> – a dictionary containing any keyworded argument to pass to
+<a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – kwargs for the class <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an instance of <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.method.meta.EHDy">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">EHDy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_mod_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.EHDy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements an ensemble of <a class="reference internal" href="#quapy.method.aggregative.HDy" title="quapy.method.aggregative.HDy"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.HDy</span></code></a> quantifiers, as used by
+<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253517303652">Pérez-Gállego et al., 2019</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>param_grid</strong> – a dictionary with the grid of parameters to optimize for</p></li>
+<li><p><strong>optim</strong> – a valid quantification or classification error, or a string name of it</p></li>
+<li><p><strong>param_model_sel</strong> – a dictionary containing any keyworded argument to pass to
+<a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – kwargs for the class <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an instance of <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.method.meta.EPACC">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">EPACC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_mod_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.EPACC" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Implements an ensemble of <a class="reference internal" href="#quapy.method.aggregative.PACC" title="quapy.method.aggregative.PACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.PACC</span></code></a> quantifiers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>param_grid</strong> – a dictionary with the grid of parameters to optimize for</p></li>
+<li><p><strong>optim</strong> – a valid quantification or classification error, or a string name of it</p></li>
+<li><p><strong>param_model_sel</strong> – a dictionary containing any keyworded argument to pass to
+<a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – kwargs for the class <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an instance of <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.meta.Ensemble">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">Ensemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantifier</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">red_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ave'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">Ensemble</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantifier</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">quapy.method.base.BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">red_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_pos</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ave'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BaseQuantifier</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="quapy.method.meta.Ensemble.VALID_POLICIES">
 <span class="sig-name descname"><span class="pre">VALID_POLICIES</span></span><em class="property"> <span class="pre">=</span> <span class="pre">{'ave',</span> <span class="pre">'ds',</span> <span class="pre">'mae',</span> <span class="pre">'mkld',</span> <span class="pre">'mnkld',</span> <span class="pre">'mrae',</span> <span class="pre">'mse',</span> <span class="pre">'ptr'}</span></em><a class="headerlink" href="#quapy.method.meta.Ensemble.VALID_POLICIES" title="Permalink to this definition">¶</a></dt>
-<dd><p>Methods from the articles:
-Pérez-Gállego, P., Quevedo, J. R., &amp; del Coz, J. J. (2017).
-Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
-Information Fusion, 34, 87-100.
+<dd><p>Implementation of the Ensemble methods for quantification described by
+<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253516300628">Pérez-Gállego et al., 2017</a>
 and
-Pérez-Gállego, P., Castano, A., Quevedo, J. R., &amp; del Coz, J. J. (2019).
-Dynamic ensemble selection for quantification tasks.
-Information Fusion, 45, 1-15.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.meta.Ensemble.accuracy_policy">
-<span class="sig-name descname"><span class="pre">accuracy_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble.accuracy_policy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Selects the red_size best performant quantifiers in a static way (i.e., dropping all non-selected instances).
-For each model in the ensemble, the performance is measured in terms of _error_name_ on the quantification of
-the samples used for training the rest of the models in the ensemble.</p>
+<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253517303652">Pérez-Gállego et al., 2019</a>.
+The policies implemented include:</p>
+<ul class="simple">
+<li><p>Average (<cite>policy=’ave’</cite>): computes class prevalence estimates as the average of the estimates
+returned by the base quantifiers.</p></li>
+<li><p>Training Prevalence (<cite>policy=’ptr’</cite>): applies a dynamic selection to the ensemble’s members by retaining only
+those members such that the class prevalence values in the samples they use as training set are closest to
+preliminary class prevalence estimates computed as the average of the estimates of all the members. The final
+estimate is recomputed by considering only the selected members.</p></li>
+<li><p>Distribution Similarity (<cite>policy=’ds’</cite>): performs a dynamic selection of base members by retaining
+the members trained on samples whose distribution of posterior probabilities is closest, in terms of the
+Hellinger Distance, to the distribution of posterior probabilities in the test sample</p></li>
+<li><p>Accuracy (<cite>policy=’&lt;valid error name&gt;’</cite>): performs a static selection of the ensemble members by
+retaining those that minimize a quantification error measure, which is passed as an argument.</p></li>
+</ul>
+<p>Example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">quantifier</span><span class="o">=</span><span class="n">ACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">()),</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="s1">&#39;ave&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>quantifier</strong> – base quantification member of the ensemble</p></li>
+<li><p><strong>size</strong> – number of members</p></li>
+<li><p><strong>red_size</strong> – number of members to retain after selection (depending on the policy)</p></li>
+<li><p><strong>min_pos</strong> – minimum number of positive instances to consider a sample as valid</p></li>
+<li><p><strong>policy</strong> – the selection policy; available policies include: <cite>ave</cite> (default), <cite>ptr</cite>, <cite>ds</cite>, and accuracy
+(which is instantiated via a valid error name, e.g., <cite>mae</cite>)</p></li>
+<li><p><strong>max_sample_size</strong> – maximum number of instances to consider in the samples (set to None
+to indicate no limit, default)</p></li>
+<li><p><strong>val_split</strong> – a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
+validation split, or a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> (the split itself).</p></li>
+<li><p><strong>n_jobs</strong> – number of parallel workers (default 1)</p></li>
+<li><p><strong>verbose</strong> – set to True (default is False) to get some information in standard output</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.meta.Ensemble.aggregative">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">aggregative</span></span><a class="headerlink" href="#quapy.method.meta.Ensemble.aggregative" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Indicates that the quantifier is not aggregative.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>False</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.meta.Ensemble.binary">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#quapy.method.meta.Ensemble.binary" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a boolean indicating whether the base quantifiers are binary or not</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.meta.Ensemble.classes_">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.method.meta.Ensemble.classes_" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.meta.Ensemble.ds_policy">
-<span class="sig-name descname"><span class="pre">ds_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble.ds_policy" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.meta.Ensemble.ds_policy_get_posteriors">
-<span class="sig-name descname"><span class="pre">ds_policy_get_posteriors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble.ds_policy_get_posteriors" title="Permalink to this definition">¶</a></dt>
-<dd><p>In the original article, this procedure is not described in a sufficient level of detail. The paper only says
-that the distribution of posterior probabilities from training and test examples is compared by means of the
-Hellinger Distance. However, how these posterior probabilities are generated is not specified. In the article,
-a Logistic Regressor (LR) is used as the classifier device and that could be used for this purpose. However, in
-general, a Quantifier is not necessarily an instance of Aggreggative Probabilistic Quantifiers, and so, that the
-quantifier builds on top of a probabilistic classifier cannot be given for granted. Additionally, it would not
-be correct to generate the posterior probabilities for training documents that have concurred in training the
-classifier that generates them.
-This function thus generates the posterior probabilities for all training documents in a cross-validation way,
-using a LR with hyperparameters that have previously been optimized via grid search in 5FCV.
-:return P,f, where P is a ndarray containing the posterior probabilities of the training data, generated via
-cross-validation and using an optimized LR, and the function to be used in order to generate posterior
-probabilities for test instances.</p>
+<dd><p>Class labels, in the same order in which class prevalence values are to be computed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.meta.Ensemble.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Trains a quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.meta.Ensemble.get_params">
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble.get_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This function should not be used within <a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ</span></code></a> (is here for compatibility
+with the abstract class).
+Instead, use <cite>Ensemble(GridSearchQ(q),…)</cite>, with <cite>q</cite> a Quantifier (recommended), or
+<cite>Ensemble(Q(GridSearchCV(l)))</cite> with <cite>Q</cite> a quantifier class that has a learner <cite>l</cite> optimized for</p>
+<blockquote>
+<div><p>classification (not recommended).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>raises an Exception</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.meta.Ensemble.probabilistic">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">probabilistic</span></span><a class="headerlink" href="#quapy.method.meta.Ensemble.probabilistic" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.meta.Ensemble.ptr_policy">
-<span class="sig-name descname"><span class="pre">ptr_policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble.ptr_policy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Selects the predictions made by models that have been trained on samples with a prevalence that is most similar
-to a first approximation of the test prevalence as made by all models in the ensemble.</p>
+<dd><p>Indicates that the quantifier is not probabilistic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>False</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.meta.Ensemble.quantify">
 <span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble.quantify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generate class prevalence estimates for the sample’s instances</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.meta.Ensemble.set_params">
 <span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble.set_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.meta.Ensemble.sout">
-<span class="sig-name descname"><span class="pre">sout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.Ensemble.sout" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>This function should not be used within <a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ</span></code></a> (is here for compatibility
+with the abstract class).
+Instead, use <cite>Ensemble(GridSearchQ(q),…)</cite>, with <cite>q</cite> a Quantifier (recommended), or
+<cite>Ensemble(Q(GridSearchCV(l)))</cite> with <cite>Q</cite> a quantifier class that has a learner <cite>l</cite> optimized for</p>
+<blockquote>
+<div><p>classification (not recommended).</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> – dictionary</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>raises an Exception</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.method.meta.ensembleFactory">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">ensembleFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_quantifier_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_model_sel</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.ensembleFactory" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Ensemble factory. Provides a unified interface for instantiating ensembles that can be optimized (via model
+selection for quantification) for a given evaluation metric using <a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ</span></code></a>.
+If the evaluation metric is classification-oriented
+(instead of quantification-oriented), then the optimization will be carried out via sklearn’s
+<a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html">GridSearchCV</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learner</strong> – sklearn’s Estimator that generates a classifier</p></li>
+<li><p><strong>base_quantifier_class</strong> – a class of quantifiers</p></li>
+<li><p><strong>param_grid</strong> – a dictionary with the grid of parameters to optimize for</p></li>
+<li><p><strong>optim</strong> – a valid quantification or classification error, or a string name of it</p></li>
+<li><p><strong>param_model_sel</strong> – a dictionary containing any keyworded argument to pass to
+<a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ</span></code></a></p></li>
+<li><p><strong>kwargs</strong> – kwargs for the class <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an instance of <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.method.meta.get_probability_distribution">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">get_probability_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posterior_probabilities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.get_probability_distribution" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Gets a histogram out of the posterior probabilities (only for the binary case).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>posterior_probabilities</strong> – array-like of shape <cite>(n_instances, 2,)</cite></p></li>
+<li><p><strong>bins</strong> – integer</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> with the relative frequencies for each bin (for the positive class only)</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="module-quapy.method.neural">
@@ -855,7 +1740,13 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.neural.QuaNetTrainer.classes_">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.method.neural.QuaNetTrainer.classes_" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Class labels, in the same order in which class prevalence values are to be computed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.neural.QuaNetTrainer.clean_checkpoint">
@@ -875,15 +1766,20 @@ registered hooks while the latter silently ignores them.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.neural.QuaNetTrainer.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_learner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.neural.QuaNetTrainer.fit" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Trains QuaNet.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> – the training data on which to train QuaNet. If fit_learner=True, the data will be split in</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – the training data on which to train QuaNet. If fit_learner=True, the data will be split in
+40/40/20 for training the classifier, training QuaNet, and validating QuaNet, respectively. If
+fit_learner=False, the data will be split in 66/34 for training QuaNet and validating it, respectively.</p></li>
+<li><p><strong>fit_learner</strong> – if true, trains the classifier on a split containing 40% of the data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
 </dd>
 </dl>
-<p>40/40/20 for training the classifier, training QuaNet, and validating QuaNet, respectively. If
-fit_learner=False, the data will be split in 66/34 for training QuaNet and validating it, respectively.
-:param fit_learner: if true, trains the classifier on a split containing 40% of the data
-:return: self</p>
 </dd></dl>
 
 <dl class="py method">
@@ -894,17 +1790,41 @@ fit_learner=False, the data will be split in 66/34 for training QuaNet and valid
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.neural.QuaNetTrainer.get_params">
 <span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.neural.QuaNetTrainer.get_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Return the current parameters of the quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deep</strong> – for compatibility with sklearn</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dictionary of param-value pairs</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.neural.QuaNetTrainer.quantify">
 <span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.neural.QuaNetTrainer.quantify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Generate class prevalence estimates for the sample’s instances</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(self.n_classes_,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.neural.QuaNetTrainer.set_params">
 <span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.neural.QuaNetTrainer.set_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Set the parameters of the quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> – dictionary of param-value pairs</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -918,32 +1838,76 @@ fit_learner=False, the data will be split in 66/34 for training QuaNet and valid
 <span id="quapy-method-non-aggregative-module"></span><h2>quapy.method.non_aggregative module<a class="headerlink" href="#module-quapy.method.non_aggregative" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.non_aggregative.</span></span><span class="sig-name descname"><span class="pre">MaximumLikelihoodPrevalenceEstimation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">quapy.method.non_aggregative.</span></span><span class="sig-name descname"><span class="pre">MaximumLikelihoodPrevalenceEstimation</span></span><a class="headerlink" href="#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BaseQuantifier</span></code></a></p>
+<p>The <cite>Maximum Likelihood Prevalence Estimation</cite> (MLPE) method is a lazy method that assumes there is no prior
+probability shift between training and test instances (put it other way, that the i.i.d. assumpion holds).
+The estimation of class prevalence values for any test sample is always (i.e., irrespective of the test sample
+itself) the class prevalence seen during training. This method is considered to be a lower-bound quantifier that
+any quantification method should beat.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.classes_">
 <em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.classes_" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Number of classes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>integer</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">quapy.data.base.LabelledCollection</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the training prevalence and stores it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> – the training sample</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.get_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.get_params" title="Permalink to this definition">¶</a></dt>
+<dd><p>Does nothing, since this learner has no parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>deep</strong> – for compatibility with sklearn</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><cite>None</cite></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.quantify">
-<span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.quantify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.quantify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ignores the input instances and returns, as the class prevalence estimantes, the training prevalence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like (ignored)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the class prevalence seen during training</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.set_params">
 <span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.set_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Does nothing, since this learner has no parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters</strong> – dictionary of param-value pairs (ignored)</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

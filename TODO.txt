@@ -24,6 +24,10 @@ Do we want to cover cross-lingual quantification natively in QuaPy, or does it m
 
 Current issues:
 ==========================================
+Revise the class structure of quantification methods and the methods they inherit... There is some confusion regarding
+    methods isbinary, isprobabilistic, and the like. The attribute "learner_" in aggregative quantifiers is also
+    confusing, since there is a getter and a setter.
+Remove the "deep" in get_params. There is no real compatibility with scikit-learn as for now.
 SVMperf-based learners do not remove temp files in __del__?
 In binary quantification (hp, kindle, imdb) we used F1 in the minority class (which in kindle and hp happens to be the
 negative class). This is not covered in this new implementation, in which the binary case is not treated as such, but as

@@ -6,39 +6,107 @@ from quapy.data import LabelledCollection
 # Base Quantifier abstract class
 # ------------------------------------
 class BaseQuantifier(metaclass=ABCMeta):
+    """
+    Abstract Quantifier. A quantifier is defined as an object of a class that implements the method :meth:`fit` on
+    :class:`quapy.data.base.LabelledCollection`, the method :meth:`quantify`, and the :meth:`set_params` and
+    :meth:`get_params` for model selection (see :meth:`quapy.model_selection.GridSearchQ`)
+    """
 
     @abstractmethod
-    def fit(self, data: LabelledCollection): ...
+    def fit(self, data: LabelledCollection):
+        """
+        Trains a quantifier.
+
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :return: self
+        """
+        ...
 
     @abstractmethod
-    def quantify(self, instances): ...
+    def quantify(self, instances):
+        """
+        Generate class prevalence estimates for the sample's instances
+
+        :param instances: array-like
+        :return: `np.ndarray` of shape `(self.n_classes_,)` with class prevalence estimates.
+        """
+        ...
 
     @abstractmethod
-    def set_params(self, **parameters): ...
+    def set_params(self, **parameters):
+        """
+        Set the parameters of the quantifier.
+
+        :param parameters: dictionary of param-value pairs
+        """
+        ...
 
     @abstractmethod
-    def get_params(self, deep=True): ...
+    def get_params(self, deep=True):
+        """
+        Return the current parameters of the quantifier.
+
+        :param deep: for compatibility with sklearn
+        :return: a dictionary of param-value pairs
+        """
+        ...
 
     @property
     @abstractmethod
-    def classes_(self): ...
+    def classes_(self):
+        """
+        Class labels, in the same order in which class prevalence values are to be computed.
+
+        :return: array-like
+        """
+        ...
+
+    @property
+    def n_classes(self):
+        """
+        Returns the number of classes
+
+        :return: integer
+        """
+        return len(self.classes_)
 
     # these methods allows meta-learners to reimplement the decision based on their constituents, and not
     # based on class structure
     @property
     def binary(self):
+        """
+        Indicates whether the quantifier is binary or not.
+
+        :return: False (to be overridden)
+        """
         return False
 
     @property
     def aggregative(self):
+        """
+        Indicates whether the quantifier is of type aggregative or not
+
+        :return: False (to be overridden)
+        """
+
         return False
 
     @property
     def probabilistic(self):
+        """
+        Indicates whether the quantifier is of type probabilistic or not
+
+        :return: False (to be overridden)
+        """
+
         return False
 
 
 class BinaryQuantifier(BaseQuantifier):
+    """
+    Abstract class of binary quantifiers, i.e., quantifiers estimating class prevalence values for only two classes
+    (typically, to be interpreted as one class and its complement).
+    """
 
     def _check_binary(self, data: LabelledCollection, quantifier_name):
         assert data.binary, f'{quantifier_name} works only on problems of binary classification. ' \
@@ -46,18 +114,43 @@ class BinaryQuantifier(BaseQuantifier):
 
     @property
     def binary(self):
+        """
+        Informs that the quantifier is binary
+
+        :return: True
+        """
         return True
 
 
 def isbinary(model:BaseQuantifier):
+    """
+    Alias for property `binary`
+
+    :param model: the model
+    :return: True if the model is binary, False otherwise
+    """
     return model.binary
 
 
 def isaggregative(model:BaseQuantifier):
+    """
+    Alias for property `aggregative`
+
+    :param model: the model
+    :return: True if the model is aggregative, False otherwise
+    """
+
     return model.aggregative
 
 
 def isprobabilistic(model:BaseQuantifier):
+    """
+    Alias for property `probabilistic`
+
+    :param model: the model
+    :return: True if the model is probabilistic, False otherwise
+    """
+
     return model.probabilistic
 
 

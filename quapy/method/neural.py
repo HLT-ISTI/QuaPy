@@ -62,9 +62,11 @@ class QuaNetTrainer(BaseQuantifier):
 
     def fit(self, data: LabelledCollection, fit_learner=True):
         """
+        Trains QuaNet.
+
         :param data: the training data on which to train QuaNet. If fit_learner=True, the data will be split in
-        40/40/20 for training the classifier, training QuaNet, and validating QuaNet, respectively. If
-        fit_learner=False, the data will be split in 66/34 for training QuaNet and validating it, respectively.
+            40/40/20 for training the classifier, training QuaNet, and validating QuaNet, respectively. If
+            fit_learner=False, the data will be split in 66/34 for training QuaNet and validating it, respectively.
         :param fit_learner: if true, trains the classifier on a split containing 40% of the data
         :return: self
         """

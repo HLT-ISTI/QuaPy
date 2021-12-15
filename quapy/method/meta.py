@@ -1,6 +1,5 @@
 from copy import deepcopy
 from typing import Union
-
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, make_scorer, accuracy_score
@@ -30,14 +29,40 @@ class Ensemble(BaseQuantifier):
     VALID_POLICIES = {'ave', 'ptr', 'ds'} | qp.error.QUANTIFICATION_ERROR_NAMES
 
     """
-    Methods from the articles:
-    Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
-    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
-    Information Fusion, 34, 87-100.
+    Implementation of the Ensemble methods for quantification described by 
+    `Pérez-Gállego et al., 2017 <https://www.sciencedirect.com/science/article/pii/S1566253516300628>`_
     and
-    Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019). 
-    Dynamic ensemble selection for quantification tasks. 
-    Information Fusion, 45, 1-15.
+    `Pérez-Gállego et al., 2019 <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
+    The policies implemented include:
+    
+    - Average (`policy='ave'`): computes class prevalence estimates as the average of the estimates 
+      returned by the base quantifiers.
+    - Training Prevalence (`policy='ptr'`): applies a dynamic selection to the ensemble’s members by retaining only 
+      those members such that the class prevalence values in the samples they use as training set are closest to 
+      preliminary class prevalence estimates computed as the average of the estimates of all the members. The final 
+      estimate is recomputed by considering only the selected members.
+    - Distribution Similarity (`policy='ds'`): performs a dynamic selection of base members by retaining
+      the members trained on samples whose distribution of posterior probabilities is closest, in terms of the
+      Hellinger Distance, to the distribution of posterior probabilities in the test sample
+    - Accuracy (`policy='<valid error name>'`): performs a static selection of the ensemble members by
+      retaining those that minimize a quantification error measure, which is passed as an argument.
+      
+    Example:
+    
+    >>> model = Ensemble(quantifier=ACC(LogisticRegression()), size=30, policy='ave', n_jobs=-1)
+    
+    :param quantifier: base quantification member of the ensemble 
+    :param size: number of members
+    :param red_size: number of members to retain after selection (depending on the policy)
+    :param min_pos: minimum number of positive instances to consider a sample as valid 
+    :param policy: the selection policy; available policies include: `ave` (default), `ptr`, `ds`, and accuracy 
+        (which is instantiated via a valid error name, e.g., `mae`)
+    :param max_sample_size: maximum number of instances to consider in the samples (set to None 
+        to indicate no limit, default)
+    :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
+        validation split, or a :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param n_jobs: number of parallel workers (default 1)
+    :param verbose: set to True (default is False) to get some information in standard output
     """
 
     def __init__(self,
@@ -47,7 +72,7 @@ class Ensemble(BaseQuantifier):
                  min_pos=5,
                  policy='ave',
                  max_sample_size=None,
-                 val_split=None,
+                 val_split:Union[qp.data.LabelledCollection, float]=None,
                  n_jobs=1,
                  verbose=False):
         assert policy in Ensemble.VALID_POLICIES, \
@@ -65,12 +90,12 @@ class Ensemble(BaseQuantifier):
         self.verbose = verbose
         self.max_sample_size = max_sample_size
 
-    def sout(self, msg):
+    def _sout(self, msg):
         if self.verbose:
             print('[Ensemble]' + msg)
 
     def fit(self, data: qp.data.LabelledCollection, val_split: Union[qp.data.LabelledCollection, float] = None):
-        self.sout('Fit')
+        self._sout('Fit')
         if self.policy == 'ds' and not data.binary:
             raise ValueError(f'ds policy is only defined for binary quantification, but this dataset is not binary')
         if val_split is None:
@@ -84,7 +109,7 @@ class Ensemble(BaseQuantifier):
         posteriors = None
         if self.policy == 'ds':
             # precompute the training posterior probabilities
-            posteriors, self.post_proba_fn = self.ds_policy_get_posteriors(data)
+            posteriors, self.post_proba_fn = self._ds_policy_get_posteriors(data)
 
         is_static_policy = (self.policy in qp.error.QUANTIFICATION_ERROR_NAMES)
 
@@ -99,9 +124,9 @@ class Ensemble(BaseQuantifier):
 
         # static selection policy (the name of a quantification-oriented error function to minimize)
         if self.policy in qp.error.QUANTIFICATION_ERROR_NAMES:
-            self.accuracy_policy(error_name=self.policy)
+            self._accuracy_policy(error_name=self.policy)
 
-        self.sout('Fit [Done]')
+        self._sout('Fit [Done]')
         return self
 
     def quantify(self, instances):
@@ -110,23 +135,42 @@ class Ensemble(BaseQuantifier):
         )
 
         if self.policy == 'ptr':
-            predictions = self.ptr_policy(predictions)
+            predictions = self._ptr_policy(predictions)
         elif self.policy == 'ds':
-            predictions = self.ds_policy(predictions, instances)
+            predictions = self._ds_policy(predictions, instances)
 
         predictions = np.mean(predictions, axis=0)
         return F.normalize_prevalence(predictions)
 
     def set_params(self, **parameters):
+        """
+        This function should not be used within :class:`quapy.model_selection.GridSearchQ` (is here for compatibility
+        with the abstract class).
+        Instead, use `Ensemble(GridSearchQ(q),...)`, with `q` a Quantifier (recommended), or
+        `Ensemble(Q(GridSearchCV(l)))` with `Q` a quantifier class that has a learner `l` optimized for
+         classification (not recommended).
+
+        :param parameters: dictionary
+        :return: raises an Exception
+        """
         raise NotImplementedError(f'{self.__class__.__name__} should not be used within GridSearchQ; '
                                   f'instead, use Ensemble(GridSearchQ(q),...), with q a Quantifier (recommended), '
                                   f'or Ensemble(Q(GridSearchCV(l))) with Q a quantifier class that has a learner '
                                   f'l optimized for classification (not recommended).')
 
     def get_params(self, deep=True):
+        """
+        This function should not be used within :class:`quapy.model_selection.GridSearchQ` (is here for compatibility
+        with the abstract class).
+        Instead, use `Ensemble(GridSearchQ(q),...)`, with `q` a Quantifier (recommended), or
+        `Ensemble(Q(GridSearchCV(l)))` with `Q` a quantifier class that has a learner `l` optimized for
+         classification (not recommended).
+
+        :return: raises an Exception
+        """
         raise NotImplementedError()
 
-    def accuracy_policy(self, error_name):
+    def _accuracy_policy(self, error_name):
         """
         Selects the red_size best performant quantifiers in a static way (i.e., dropping all non-selected instances).
         For each model in the ensemble, the performance is measured in terms of _error_name_ on the quantification of
@@ -141,7 +185,7 @@ class Ensemble(BaseQuantifier):
 
         self.ensemble = _select_k(self.ensemble, order, k=self.red_size)
 
-    def ptr_policy(self, predictions):
+    def _ptr_policy(self, predictions):
         """
         Selects the predictions made by models that have been trained on samples with a prevalence that is most similar
         to a first approximation of the test prevalence as made by all models in the ensemble.
@@ -152,7 +196,7 @@ class Ensemble(BaseQuantifier):
         order = np.argsort(ptr_differences)
         return _select_k(predictions, order, k=self.red_size)
 
-    def ds_policy_get_posteriors(self, data: LabelledCollection):
+    def _ds_policy_get_posteriors(self, data: LabelledCollection):
         """
         In the original article, this procedure is not described in a sufficient level of detail. The paper only says
         that the distribution of posterior probabilities from training and test examples is compared by means of the
@@ -182,7 +226,7 @@ class Ensemble(BaseQuantifier):
 
         return posteriors, posteriors_generator
 
-    def ds_policy(self, predictions, test):
+    def _ds_policy(self, predictions, test):
         test_posteriors = self.post_proba_fn(test)
         test_distribution = get_probability_distribution(test_posteriors)
         tr_distributions = [m[2] for m in self.ensemble]
@@ -196,18 +240,40 @@ class Ensemble(BaseQuantifier):
 
     @property
     def binary(self):
+        """
+        Returns a boolean indicating whether the base quantifiers are binary or not
+
+        :return: boolean
+        """
         return self.base_quantifier.binary
 
     @property
     def aggregative(self):
+        """
+        Indicates that the quantifier is not aggregative.
+
+        :return: False
+        """
         return False
 
     @property
     def probabilistic(self):
+        """
+        Indicates that the quantifier is not probabilistic.
+
+        :return: False
+        """
         return False
 
 
 def get_probability_distribution(posterior_probabilities, bins=8):
+    """
+    Gets a histogram out of the posterior probabilities (only for the binary case).
+
+    :param posterior_probabilities: array-like of shape `(n_instances, 2,)`
+    :param bins: integer
+    :return: `np.ndarray` with the relative frequencies for each bin (for the positive class only)
+    """
     assert posterior_probabilities.shape[1] == 2, 'the posterior probabilities do not seem to be for a binary problem'
     posterior_probabilities = posterior_probabilities[:, 1]  # take the positive posteriors only
     distribution, _ = np.histogram(posterior_probabilities, bins=bins, range=(0, 1), density=True)
@@ -306,6 +372,23 @@ def _check_error(error):
 
 def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None, param_model_sel: dict = None,
                     **kwargs):
+    """
+    Ensemble factory. Provides a unified interface for instantiating ensembles that can be optimized (via model
+    selection for quantification) for a given evaluation metric using :class:`quapy.model_selection.GridSearchQ`.
+    If the evaluation metric is classification-oriented
+    (instead of quantification-oriented), then the optimization will be carried out via sklearn's
+    `GridSearchCV <https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html>`_.
+
+
+    :param learner: sklearn's Estimator that generates a classifier
+    :param base_quantifier_class: a class of quantifiers
+    :param param_grid: a dictionary with the grid of parameters to optimize for
+    :param optim: a valid quantification or classification error, or a string name of it
+    :param param_model_sel: a dictionary containing any keyworded argument to pass to
+        :class:`quapy.model_selection.GridSearchQ`
+    :param kwargs: kwargs for the class :class:`Ensemble`
+    :return: an instance of :class:`Ensemble`
+    """
     if optim is not None:
         if param_grid is None:
             raise ValueError(f'param_grid is None but optim was requested.')
@@ -316,20 +399,83 @@ def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None,
 
 
 def ECC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+    """
+    Implements an ensemble of :class:`quapy.method.aggregative.CC` quantifiers, as used by
+    `Pérez-Gállego et al., 2019 <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
+
+    :param learner: sklearn's Estimator that generates a classifier
+    :param param_grid: a dictionary with the grid of parameters to optimize for
+    :param optim: a valid quantification or classification error, or a string name of it
+    :param param_model_sel: a dictionary containing any keyworded argument to pass to
+        :class:`quapy.model_selection.GridSearchQ`
+    :param kwargs: kwargs for the class :class:`Ensemble`
+    :return: an instance of :class:`Ensemble`
+    """
+
     return ensembleFactory(learner, CC, param_grid, optim, param_mod_sel, **kwargs)
 
 
 def EACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+    """
+    Implements an ensemble of :class:`quapy.method.aggregative.ACC` quantifiers, as used by
+    `Pérez-Gállego et al., 2019 <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
+
+    :param learner: sklearn's Estimator that generates a classifier
+    :param param_grid: a dictionary with the grid of parameters to optimize for
+    :param optim: a valid quantification or classification error, or a string name of it
+    :param param_model_sel: a dictionary containing any keyworded argument to pass to
+        :class:`quapy.model_selection.GridSearchQ`
+    :param kwargs: kwargs for the class :class:`Ensemble`
+    :return: an instance of :class:`Ensemble`
+    """
+
     return ensembleFactory(learner, ACC, param_grid, optim, param_mod_sel, **kwargs)
 
 
 def EPACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+    """
+    Implements an ensemble of :class:`quapy.method.aggregative.PACC` quantifiers.
+
+    :param learner: sklearn's Estimator that generates a classifier
+    :param param_grid: a dictionary with the grid of parameters to optimize for
+    :param optim: a valid quantification or classification error, or a string name of it
+    :param param_model_sel: a dictionary containing any keyworded argument to pass to
+        :class:`quapy.model_selection.GridSearchQ`
+    :param kwargs: kwargs for the class :class:`Ensemble`
+    :return: an instance of :class:`Ensemble`
+    """
+
     return ensembleFactory(learner, PACC, param_grid, optim, param_mod_sel, **kwargs)
 
 
 def EHDy(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+    """
+    Implements an ensemble of :class:`quapy.method.aggregative.HDy` quantifiers, as used by
+    `Pérez-Gállego et al., 2019 <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
+
+    :param learner: sklearn's Estimator that generates a classifier
+    :param param_grid: a dictionary with the grid of parameters to optimize for
+    :param optim: a valid quantification or classification error, or a string name of it
+    :param param_model_sel: a dictionary containing any keyworded argument to pass to
+        :class:`quapy.model_selection.GridSearchQ`
+    :param kwargs: kwargs for the class :class:`Ensemble`
+    :return: an instance of :class:`Ensemble`
+    """
+
     return ensembleFactory(learner, HDy, param_grid, optim, param_mod_sel, **kwargs)
 
 
 def EEMQ(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+    """
+    Implements an ensemble of :class:`quapy.method.aggregative.EMQ` quantifiers.
+
+    :param learner: sklearn's Estimator that generates a classifier
+    :param param_grid: a dictionary with the grid of parameters to optimize for
+    :param optim: a valid quantification or classification error, or a string name of it
+    :param param_model_sel: a dictionary containing any keyworded argument to pass to
+        :class:`quapy.model_selection.GridSearchQ`
+    :param kwargs: kwargs for the class :class:`Ensemble`
+    :return: an instance of :class:`Ensemble`
+    """
+
     return ensembleFactory(learner, EMQ, param_grid, optim, param_mod_sel, **kwargs)
