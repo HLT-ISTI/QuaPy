@@ -379,6 +379,29 @@ def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None,
     (instead of quantification-oriented), then the optimization will be carried out via sklearn's
     `GridSearchCV <https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html>`_.
 
+    Example to instantiate an :class:`Ensemble` based on :class:`quapy.method.aggregative.PACC`
+    in which the base members are optimized for :meth:`quapy.error.mae` via
+    :class:`quapy.model_selection.GridSearchQ`. The ensemble follows the policy `Accuracy` based
+    on :meth:`quapy.error.mae` (the same measure being optimized),
+    meaning that a static selection of members of the ensemble is made based on their performance
+    in terms of this error.
+
+    >>> param_grid = {
+    >>>     'C': np.logspace(-3,3,7),
+    >>>     'class_weight': ['balanced', None]
+    >>> }
+    >>> param_mod_sel = {
+    >>>     'sample_size': 500,
+    >>>     'protocol': 'app'
+    >>> }
+    >>> common={
+    >>>     'max_sample_size': 1000,
+    >>>     'n_jobs': -1,
+    >>>     'param_grid': param_grid,
+    >>>     'param_mod_sel': param_mod_sel,
+    >>> }
+    >>>
+    >>> ensembleFactory(LogisticRegression(), PACC, optim='mae', policy='mae', **common)
 
     :param learner: sklearn's Estimator that generates a classifier
     :param base_quantifier_class: a class of quantifiers
@@ -403,6 +426,12 @@ def ECC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     Implements an ensemble of :class:`quapy.method.aggregative.CC` quantifiers, as used by
     `Pérez-Gállego et al., 2019 <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
 
+    Equivalent to:
+
+    >>> ensembleFactory(learner, CC, param_grid, optim, param_mod_sel, **kwargs)
+
+    See :meth:`ensembleFactory` for further details.
+
     :param learner: sklearn's Estimator that generates a classifier
     :param param_grid: a dictionary with the grid of parameters to optimize for
     :param optim: a valid quantification or classification error, or a string name of it
@@ -420,6 +449,12 @@ def EACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     Implements an ensemble of :class:`quapy.method.aggregative.ACC` quantifiers, as used by
     `Pérez-Gállego et al., 2019 <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
 
+    Equivalent to:
+
+    >>> ensembleFactory(learner, ACC, param_grid, optim, param_mod_sel, **kwargs)
+
+    See :meth:`ensembleFactory` for further details.
+
     :param learner: sklearn's Estimator that generates a classifier
     :param param_grid: a dictionary with the grid of parameters to optimize for
     :param optim: a valid quantification or classification error, or a string name of it
@@ -435,6 +470,12 @@ def EACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
 def EPACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     """
     Implements an ensemble of :class:`quapy.method.aggregative.PACC` quantifiers.
+
+    Equivalent to:
+
+    >>> ensembleFactory(learner, PACC, param_grid, optim, param_mod_sel, **kwargs)
+
+    See :meth:`ensembleFactory` for further details.
 
     :param learner: sklearn's Estimator that generates a classifier
     :param param_grid: a dictionary with the grid of parameters to optimize for
@@ -453,6 +494,12 @@ def EHDy(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     Implements an ensemble of :class:`quapy.method.aggregative.HDy` quantifiers, as used by
     `Pérez-Gállego et al., 2019 <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
 
+    Equivalent to:
+
+    >>> ensembleFactory(learner, HDy, param_grid, optim, param_mod_sel, **kwargs)
+
+    See :meth:`ensembleFactory` for further details.
+
     :param learner: sklearn's Estimator that generates a classifier
     :param param_grid: a dictionary with the grid of parameters to optimize for
     :param optim: a valid quantification or classification error, or a string name of it
@@ -468,6 +515,12 @@ def EHDy(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
 def EEMQ(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     """
     Implements an ensemble of :class:`quapy.method.aggregative.EMQ` quantifiers.
+
+    Equivalent to:
+
+    >>> ensembleFactory(learner, EMQ, param_grid, optim, param_mod_sel, **kwargs)
+
+    See :meth:`ensembleFactory` for further details.
 
     :param learner: sklearn's Estimator that generates a classifier
     :param param_grid: a dictionary with the grid of parameters to optimize for

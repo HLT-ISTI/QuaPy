@@ -1394,6 +1394,11 @@ validation data, or as an integer, indicating that the misclassification rates s
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">EACC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_mod_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.EACC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements an ensemble of <a class="reference internal" href="#quapy.method.aggregative.ACC" title="quapy.method.aggregative.ACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ACC</span></code></a> quantifiers, as used by
 <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253517303652">Pérez-Gállego et al., 2019</a>.</p>
+<p>Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ensembleFactory</span><span class="p">(</span><span class="n">learner</span><span class="p">,</span> <span class="n">ACC</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#quapy.method.meta.ensembleFactory" title="quapy.method.meta.ensembleFactory"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ensembleFactory()</span></code></a> for further details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1416,6 +1421,11 @@ validation data, or as an integer, indicating that the misclassification rates s
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">ECC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_mod_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.ECC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements an ensemble of <a class="reference internal" href="#quapy.method.aggregative.CC" title="quapy.method.aggregative.CC"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.CC</span></code></a> quantifiers, as used by
 <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253517303652">Pérez-Gállego et al., 2019</a>.</p>
+<p>Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ensembleFactory</span><span class="p">(</span><span class="n">learner</span><span class="p">,</span> <span class="n">CC</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#quapy.method.meta.ensembleFactory" title="quapy.method.meta.ensembleFactory"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ensembleFactory()</span></code></a> for further details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1437,6 +1447,11 @@ validation data, or as an integer, indicating that the misclassification rates s
 <dt class="sig sig-object py" id="quapy.method.meta.EEMQ">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">EEMQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_mod_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.EEMQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements an ensemble of <a class="reference internal" href="#quapy.method.aggregative.EMQ" title="quapy.method.aggregative.EMQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.EMQ</span></code></a> quantifiers.</p>
+<p>Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ensembleFactory</span><span class="p">(</span><span class="n">learner</span><span class="p">,</span> <span class="n">EMQ</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#quapy.method.meta.ensembleFactory" title="quapy.method.meta.ensembleFactory"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ensembleFactory()</span></code></a> for further details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1459,6 +1474,11 @@ validation data, or as an integer, indicating that the misclassification rates s
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">EHDy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_mod_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.EHDy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements an ensemble of <a class="reference internal" href="#quapy.method.aggregative.HDy" title="quapy.method.aggregative.HDy"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.HDy</span></code></a> quantifiers, as used by
 <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253517303652">Pérez-Gállego et al., 2019</a>.</p>
+<p>Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ensembleFactory</span><span class="p">(</span><span class="n">learner</span><span class="p">,</span> <span class="n">HDy</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#quapy.method.meta.ensembleFactory" title="quapy.method.meta.ensembleFactory"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ensembleFactory()</span></code></a> for further details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1480,6 +1500,11 @@ validation data, or as an integer, indicating that the misclassification rates s
 <dt class="sig sig-object py" id="quapy.method.meta.EPACC">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.meta.</span></span><span class="sig-name descname"><span class="pre">EPACC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_mod_sel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.meta.EPACC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements an ensemble of <a class="reference internal" href="#quapy.method.aggregative.PACC" title="quapy.method.aggregative.PACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.PACC</span></code></a> quantifiers.</p>
+<p>Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ensembleFactory</span><span class="p">(</span><span class="n">learner</span><span class="p">,</span> <span class="n">PACC</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#quapy.method.meta.ensembleFactory" title="quapy.method.meta.ensembleFactory"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ensembleFactory()</span></code></a> for further details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1665,6 +1690,30 @@ selection for quantification) for a given evaluation metric using <a class="refe
 If the evaluation metric is classification-oriented
 (instead of quantification-oriented), then the optimization will be carried out via sklearn’s
 <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html">GridSearchCV</a>.</p>
+<p>Example to instantiate an <a class="reference internal" href="#quapy.method.meta.Ensemble" title="quapy.method.meta.Ensemble"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ensemble</span></code></a> based on <a class="reference internal" href="#quapy.method.aggregative.PACC" title="quapy.method.aggregative.PACC"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.PACC</span></code></a>
+in which the base members are optimized for <a class="reference internal" href="quapy.html#quapy.error.mae" title="quapy.error.mae"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.mae()</span></code></a> via
+<a class="reference internal" href="quapy.html#quapy.model_selection.GridSearchQ" title="quapy.model_selection.GridSearchQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.model_selection.GridSearchQ</span></code></a>. The ensemble follows the policy <cite>Accuracy</cite> based
+on <a class="reference internal" href="quapy.html#quapy.error.mae" title="quapy.error.mae"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.error.mae()</span></code></a> (the same measure being optimized),
+meaning that a static selection of members of the ensemble is made based on their performance
+in terms of this error.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;class_weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;balanced&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">param_mod_sel</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;sample_size&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;protocol&#39;</span><span class="p">:</span> <span class="s1">&#39;app&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">common</span><span class="o">=</span><span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;max_sample_size&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;n_jobs&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;param_grid&#39;</span><span class="p">:</span> <span class="n">param_grid</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;param_mod_sel&#39;</span><span class="p">:</span> <span class="n">param_mod_sel</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">}</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ensembleFactory</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">PACC</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">common</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
