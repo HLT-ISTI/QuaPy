@@ -13,7 +13,8 @@ for facilitating the analysis and interpretation of results.
 
 ### Last updates:
 
-* A detailed developer API documentation is now available [here]()!
+* A detailed documentation is now available [here](https://hlt-isti.github.io/QuaPy/)git s
+* The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/modules.html)
 
 ### Installation
 
