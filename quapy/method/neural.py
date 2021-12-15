@@ -11,6 +11,53 @@ from quapy.util import EarlyStop
 
 
 class QuaNetTrainer(BaseQuantifier):
+    """
+    Implementation of `QuaNet <https://dl.acm.org/doi/abs/10.1145/3269206.3269287>`_, a neural network for
+    quantification. This implementation uses `PyTorch <https://pytorch.org/>`_ and can take advantage of GPU
+    for speeding-up the training phase.
+
+    Example:
+
+    >>> import quapy as qp
+    >>> from quapy.method.meta import QuaNet
+    >>> from quapy.classification.neural import NeuralClassifierTrainer, CNNnet
+    >>>
+    >>> # use samples of 100 elements
+    >>> qp.environ['SAMPLE_SIZE'] = 100
+    >>>
+    >>> # load the kindle dataset as text, and convert words to numerical indexes
+    >>> dataset = qp.datasets.fetch_reviews('kindle', pickle=True)
+    >>> qp.data.preprocessing.index(dataset, min_df=5, inplace=True)
+    >>>
+    >>> # the text classifier is a CNN trained by NeuralClassifierTrainer
+    >>> cnn = CNNnet(dataset.vocabulary_size, dataset.n_classes)
+    >>> learner = NeuralClassifierTrainer(cnn, device='cuda')
+    >>>
+    >>> # train QuaNet (QuaNet is an alias to QuaNetTrainer)
+    >>> model = QuaNet(learner, qp.environ['SAMPLE_SIZE'], device='cuda')
+    >>> model.fit(dataset.training)
+    >>> estim_prevalence = model.quantify(dataset.test.instances)
+
+    :param learner: an object implementing `fit` (i.e., that can be trained on labelled data),
+        `predict_proba` (i.e., that can generate posterior probabilities of unlabelled examples) and
+        `transform` (i.e., that can generate embedded representations of the unlabelled instances).
+    :param sample_size: integer, the sample size
+    :param n_epochs: integer, maximum number of training epochs
+    :param tr_iter_per_poch: integer, number of training iterations before considering an epoch complete
+    :param va_iter_per_poch: integer, number of validation iterations to perform after each epoch
+    :param lr: float, the learning rate
+    :param lstm_hidden_size: integer, hidden dimensionality of the LSTM cells
+    :param lstm_nlayers: integer, number of LSTM layers
+    :param ff_layers: list of integers, dimensions of the densely-connected FF layers on top of the
+        quantification embedding
+    :param bidirectional: boolean, indicates whether the LSTM is bidirectional or not
+    :param qdrop_p: float, dropout probability
+    :param patience: integer, number of epochs showing no improvement in the validation set before stopping the
+        training phase (early stopping)
+    :param checkpointdir: string, a path where to store models' checkpoints
+    :param checkpointname: string (optional), the name of the model's checkpoint
+    :param device: string, indicate "cpu" or "cuda"
+    """
 
     def __init__(self,
                  learner,
@@ -28,6 +75,7 @@ class QuaNetTrainer(BaseQuantifier):
                  checkpointdir='../checkpoint',
                  checkpointname=None,
                  device='cuda'):
+
         assert hasattr(learner, 'transform'), \
             f'the learner {learner.__class__.__name__} does not seem to be able to produce document embeddings ' \
                 f'since it does not implement the method "transform"'
@@ -64,10 +112,10 @@ class QuaNetTrainer(BaseQuantifier):
         """
         Trains QuaNet.
 
-        :param data: the training data on which to train QuaNet. If fit_learner=True, the data will be split in
+        :param data: the training data on which to train QuaNet. If `fit_learner=True`, the data will be split in
             40/40/20 for training the classifier, training QuaNet, and validating QuaNet, respectively. If
-            fit_learner=False, the data will be split in 66/34 for training QuaNet and validating it, respectively.
-        :param fit_learner: if true, trains the classifier on a split containing 40% of the data
+            `fit_learner=False`, the data will be split in 66/34 for training QuaNet and validating it, respectively.
+        :param fit_learner: if True, trains the classifier on a split containing 40% of the data
         :return: self
         """
         self._classes_ = data.classes_
@@ -125,8 +173,8 @@ class QuaNetTrainer(BaseQuantifier):
         checkpoint = self.checkpoint
 
         for epoch_i in range(1, self.n_epochs):
-            self.epoch(train_data_embed, train_posteriors, self.tr_iter, epoch_i, early_stop, train=True)
-            self.epoch(valid_data_embed, valid_posteriors, self.va_iter, epoch_i, early_stop, train=False)
+            self._epoch(train_data_embed, train_posteriors, self.tr_iter, epoch_i, early_stop, train=True)
+            self._epoch(valid_data_embed, valid_posteriors, self.va_iter, epoch_i, early_stop, train=False)
 
             early_stop(self.status['va-loss'], epoch_i)
             if early_stop.IMPROVED:
@@ -139,7 +187,7 @@ class QuaNetTrainer(BaseQuantifier):
 
         return self
 
-    def get_aggregative_estims(self, posteriors):
+    def _get_aggregative_estims(self, posteriors):
         label_predictions = np.argmax(posteriors, axis=-1)
         prevs_estim = []
         for quantifier in self.quantifiers.values():
@@ -150,10 +198,10 @@ class QuaNetTrainer(BaseQuantifier):
 
         return prevs_estim
 
-    def quantify(self, instances, *args):
+    def quantify(self, instances):
         posteriors = self.learner.predict_proba(instances)
         embeddings = self.learner.transform(instances)
-        quant_estims = self.get_aggregative_estims(posteriors)
+        quant_estims = self._get_aggregative_estims(posteriors)
         self.quanet.eval()
         with torch.no_grad():
             prevalence = self.quanet.forward(embeddings, posteriors, quant_estims)
@@ -162,7 +210,7 @@ class QuaNetTrainer(BaseQuantifier):
             prevalence = prevalence.numpy().flatten()
         return prevalence
 
-    def epoch(self, data: LabelledCollection, posteriors, iterations, epoch, early_stop, train):
+    def _epoch(self, data: LabelledCollection, posteriors, iterations, epoch, early_stop, train):
         mse_loss = MSELoss()
 
         self.quanet.train(mode=train)
@@ -181,7 +229,7 @@ class QuaNetTrainer(BaseQuantifier):
         for it, index in enumerate(pbar):
             sample_data = data.sampling_from_index(index)
             sample_posteriors = posteriors[index]
-            quant_estims = self.get_aggregative_estims(sample_posteriors)
+            quant_estims = self._get_aggregative_estims(sample_posteriors)
             ptrue = torch.as_tensor([sample_data.prevalence()], dtype=torch.float, device=self.device)
             if train:
                 self.optim.zero_grad()
@@ -236,9 +284,15 @@ class QuaNetTrainer(BaseQuantifier):
                              f'the parameters of QuaNet or the learner {self.learner.__class__.__name__}')
 
     def clean_checkpoint(self):
+        """
+        Removes the checkpoint
+        """
         os.remove(self.checkpoint)
 
     def clean_checkpoint_dir(self):
+        """
+        Removes anything contained in the checkpoint directory
+        """
         import shutil
         shutil.rmtree(self.checkpointdir, ignore_errors=True)
 
@@ -248,10 +302,33 @@ class QuaNetTrainer(BaseQuantifier):
 
 
 def mae_loss(output, target):
+    """
+    Torch-like wrapper for the Mean Absolute Error
+
+    :param output: predictions
+    :param target: ground truth values
+    :return: mean absolute error loss
+    """
     return torch.mean(torch.abs(output - target))
 
 
 class QuaNetModule(torch.nn.Module):
+    """
+    Implements the `QuaNet <https://dl.acm.org/doi/abs/10.1145/3269206.3269287>`_ forward pass.
+    See :class:`QuaNetTrainer` for training QuaNet.
+
+    :param doc_embedding_size: integer, the dimensionality of the document embeddings
+    :param n_classes: integer, number of classes
+    :param stats_size: integer, number of statistics estimated by simple quantification methods
+    :param lstm_hidden_size: integer, hidden dimensionality of the LSTM cell
+    :param lstm_nlayers: integer, number of LSTM layers
+    :param ff_layers: list of integers, dimensions of the densely-connected FF layers on top of the
+        quantification embedding
+    :param bidirectional: boolean, whether or not to use bidirectional LSTM
+    :param qdrop_p: float, dropout probability
+    :param order_by: integer, class for which the document embeddings are to be sorted
+    """
+
     def __init__(self,
                  doc_embedding_size,
                  n_classes,
@@ -262,6 +339,7 @@ class QuaNetModule(torch.nn.Module):
                  bidirectional=True,
                  qdrop_p=0.5,
                  order_by=0):
+
         super().__init__()
 
         self.n_classes = n_classes
@@ -289,7 +367,7 @@ class QuaNetModule(torch.nn.Module):
     def device(self):
         return torch.device('cuda') if next(self.parameters()).is_cuda else torch.device('cpu')
 
-    def init_hidden(self):
+    def _init_hidden(self):
         directions = 2 if self.bidirectional else 1
         var_hidden = torch.zeros(self.nlayers * directions, 1, self.hidden_size)
         var_cell = torch.zeros(self.nlayers * directions, 1, self.hidden_size)
@@ -315,7 +393,7 @@ class QuaNetModule(torch.nn.Module):
         embeded_posteriors = embeded_posteriors.unsqueeze(0)
 
         self.lstm.flatten_parameters()
-        _, (rnn_hidden,_) = self.lstm(embeded_posteriors, self.init_hidden())
+        _, (rnn_hidden,_) = self.lstm(embeded_posteriors, self._init_hidden())
         rnn_hidden = rnn_hidden.view(self.nlayers, self.ndirections, 1, self.hidden_size)
         quant_embedding = rnn_hidden[0].view(-1)
         quant_embedding = torch.cat((quant_embedding, statistics))

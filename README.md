@@ -11,6 +11,10 @@ used for evaluating quantification methods.
 QuaPy also integrates commonly used datasets and offers visualization tools 
 for facilitating the analysis and interpretation of results.
 
+### Last updates:
+
+* A detailed developer API documentation is now available [here]()!
+
 ### Installation
 
 ```commandline
