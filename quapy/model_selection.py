@@ -21,7 +21,7 @@ class GridSearchQ(BaseQuantifier):
     :param model: the quantifier to optimize
     :type model: BaseQuantifier
     :param param_grid: a dictionary with keys the parameter names and values the list of values to explore
-    :param sample_size: the size of the samples to extract from the validation set (ignored if protocl='gen')
+    :param sample_size: the size of the samples to extract from the validation set (ignored if protocol='gen')
     :param protocol: either 'app' for the artificial prevalence protocol, 'npp' for the natural prevalence
         protocol, or 'gen' for using a custom sampling generator function
     :param n_prevpoints: if specified, indicates the number of equally distant points to extract from the interval

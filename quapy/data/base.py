@@ -3,7 +3,7 @@ from scipy.sparse import issparse
 from scipy.sparse import vstack
 from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
 
-from quapy.functional import artificial_prevalence_sampling, strprev
+from quapy.functional import strprev
 
 
 class LabelledCollection:
@@ -120,21 +120,24 @@ class LabelledCollection:
         assert len(prevs) == self.n_classes, 'unexpected number of prevalences'
         assert sum(prevs) == 1, f'prevalences ({prevs}) wrong range (sum={sum(prevs)})'
 
-        taken = 0
-        indexes_sample = []
-        for i, class_ in enumerate(self.classes_):
-            if i == self.n_classes - 1:
-                n_requested = size - taken
-            else:
-                n_requested = int(size * prevs[i])
+        # Decide how many instances should be taken for each class in order to satisfy the requested prevalence
+        # accurately, and the number of instances in the sample (exactly). If int(size * prevs[i]) (which is
+        # <= size * prevs[i]) examples are drawn from class i, there could be a remainder number of instances to take
+        # to satisfy the size constrain. The remainder is distributed along the classes with probability = prevs.
+        # (This aims at avoiding the remainder to be placed in a class for which the prevalence requested is 0.)
+        n_requests = {class_: int(size * prevs[i]) for i, class_ in enumerate(self.classes_)}
+        remainder = size - sum(n_requests.values())
+        for rand_class in np.random.choice(self.classes_, size=remainder, p=prevs):
+            n_requests[rand_class] += 1
 
+        indexes_sample = []
+        for class_, n_requested in n_requests.items():
             n_candidates = len(self.index[class_])
             index_sample = self.index[class_][
                 np.random.choice(n_candidates, size=n_requested, replace=(n_requested > n_candidates))
             ] if n_requested > 0 else []
 
             indexes_sample.append(index_sample)
-            taken += n_requested
 
         indexes_sample = np.concatenate(indexes_sample).astype(int)
 
@@ -152,7 +155,7 @@ class LabelledCollection:
         :param size: integer, the size of the uniform sample
         :return: a np.ndarray of shape `(size)` with the indexes
         """
-        return np.random.choice(len(self), size, replace=False)
+        return np.random.choice(len(self), size, replace=size > len(self))
 
     def sampling(self, size, *prevs, shuffle=True):
         """
@@ -211,68 +214,6 @@ class LabelledCollection:
             train_test_split(self.instances, self.labels, train_size=train_prop, stratify=self.labels,
                              random_state=random_state)
         return LabelledCollection(tr_docs, tr_labels), LabelledCollection(te_docs, te_labels)
-
-    def artificial_sampling_generator(self, sample_size, n_prevalences=101, repeats=1):
-        """
-        A generator of samples that implements the artificial prevalence protocol (APP).
-        The APP consists of exploring a grid of prevalence values containing `n_prevalences` points (e.g.,
-        [0, 0.05, 0.1, 0.15, ..., 1], if `n_prevalences=21`), and generating all valid combinations of
-        prevalence values for all classes (e.g., for 3 classes, samples with [0, 0, 1], [0, 0.05, 0.95], ...,
-        [1, 0, 0] prevalence values of size `sample_size` will be yielded). The number of samples for each valid
-        combination of prevalence values is indicated by `repeats`.
-
-        :param sample_size: the number of instances in each sample
-        :param n_prevalences: the number of prevalence points to be taken from the [0,1] interval (including the
-            limits {0,1}). E.g., if `n_prevalences=11`, then the prevalence points to take are [0, 0.1, 0.2, ..., 1]
-        :param repeats: the number of samples to generate for each valid combination of prevalence values (default 1)
-        :return: yield samples generated at artificially controlled prevalence values
-        """
-        dimensions = self.n_classes
-        for prevs in artificial_prevalence_sampling(dimensions, n_prevalences, repeats):
-            yield self.sampling(sample_size, *prevs)
-
-    def artificial_sampling_index_generator(self, sample_size, n_prevalences=101, repeats=1):
-        """
-        A generator of sample indexes implementing the artificial prevalence protocol (APP).
-        The APP consists of exploring
-        a grid of prevalence values (e.g., [0, 0.05, 0.1, 0.15, ..., 1]), and generating all valid combinations of
-        prevalence values for all classes (e.g., for 3 classes, samples with [0, 0, 1], [0, 0.05, 0.95], ...,
-        [1, 0, 0] prevalence values of size `sample_size` will be yielded). The number of sample indexes for each valid
-        combination of prevalence values is indicated by `repeats`
-
-        :param sample_size: the number of instances in each sample (i.e., length of each index)
-        :param n_prevalences: the number of prevalence points to be taken from the [0,1] interval (including the
-            limits {0,1}). E.g., if `n_prevalences=11`, then the prevalence points to take are [0, 0.1, 0.2, ..., 1]
-        :param repeats: the number of samples to generate for each valid combination of prevalence values (default 1)
-        :return: yield the indexes that generate the samples according to APP
-        """
-        dimensions = self.n_classes
-        for prevs in artificial_prevalence_sampling(dimensions, n_prevalences, repeats):
-            yield self.sampling_index(sample_size, *prevs)
-
-    def natural_sampling_generator(self, sample_size, repeats=100):
-        """
-        A generator of samples that implements the natural prevalence protocol (NPP). The NPP consists of drawing
-        samples uniformly at random, therefore approximately preserving the natural prevalence of the collection.
-
-        :param sample_size: integer, the number of instances in each sample
-        :param repeats: the number of samples to generate
-        :return: yield instances of :class:`LabelledCollection`
-        """
-        for _ in range(repeats):
-            yield self.uniform_sampling(sample_size)
-
-    def natural_sampling_index_generator(self, sample_size, repeats=100):
-        """
-        A generator of sample indexes according to the natural prevalence protocol (NPP). The NPP consists of drawing
-        samples uniformly at random, therefore approximately preserving the natural prevalence of the collection.
-
-        :param sample_size: integer, the number of instances in each sample (i.e., the length of each index)
-        :param repeats: the number of indexes to generate
-        :return: yield `repeats` instances of np.ndarray with shape `(sample_size,)`
-        """
-        for _ in range(repeats):
-            yield self.uniform_sampling_index(sample_size)
 
     def __add__(self, other):
         """

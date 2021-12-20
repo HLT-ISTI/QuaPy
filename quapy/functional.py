@@ -4,36 +4,6 @@ import scipy
 import numpy as np
 
 
-def artificial_prevalence_sampling(dimensions, n_prevalences=21, repeat=1, return_constrained_dim=False):
-    """
-    Generates vectors of prevalence values artificially drawn from an exhaustive grid of prevalence values. The
-    number of prevalence values explored for each dimension depends on `n_prevalences`, so that, if, for example,
-    `n_prevalences=11` then the prevalence values of the grid are taken from [0, 0.1, 0.2, ..., 0.9, 1]. Only
-    valid prevalence distributions are returned, i.e., vectors of prevalence values that sum up to 1. For each
-    valid vector of prevalence values, `repeat` copies are returned. The vector of prevalence values can be
-    implicit (by setting `return_constrained_dim=False`), meaning that the last dimension (which is constrained
-    to 1 - sum of the rest) is not returned (note that, quite obviously, in this case the vector does not sum up to 1).
-
-    :param dimensions: the number of classes
-    :param n_prevalences: the number of equidistant prevalence points to extract from the [0,1] interval for the grid
-        (default is 21)
-    :param repeat: number of copies for each valid prevalence vector (default is 1)
-    :param return_constrained_dim: set to True to return all dimensions, or to False (default) for ommitting the
-        constrained dimension
-    :return: a `np.ndarray` of shape `(n, dimensions)` if `return_constrained_dim=True` or of shape `(n, dimensions-1)`
-        if `return_constrained_dim=False`, where `n` is the number of valid combinations found in the grid multiplied
-        by `repeat`
-    """
-    s = np.linspace(0., 1., n_prevalences, endpoint=True)
-    s = [s] * (dimensions - 1)
-    prevs = [p for p in itertools.product(*s, repeat=1) if sum(p)<=1]
-    if return_constrained_dim:
-        prevs = [p+(1-sum(p),) for p in prevs]
-    prevs = np.asarray(prevs).reshape(len(prevs), -1)
-    if repeat>1:
-        prevs = np.repeat(prevs, repeat, axis=0)
-    return prevs
-
 
 def prevalence_linspace(n_prevalences=21, repeats=1, smooth_limits_epsilon=0.01):
     """
