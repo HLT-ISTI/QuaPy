@@ -114,7 +114,7 @@ setup(
 
     python_requires='>=3.6, <4',
 
-    install_requires=['scikit-learn', 'pandas', 'tqdm', 'matplotlib'],
+    install_requires=['scikit-learn', 'pandas', 'tqdm', 'matplotlib', 'ncompress'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
