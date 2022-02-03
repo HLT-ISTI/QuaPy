@@ -16,12 +16,12 @@ import constants
 
 def baselines():
     yield CC(LR(n_jobs=-1)), "CC"
-    # yield ACC(LR(n_jobs=-1)), "ACC"
-    # yield PCC(LR(n_jobs=-1)), "PCC"
+    yield ACC(LR(n_jobs=-1)), "ACC"
+    yield PCC(LR(n_jobs=-1)), "PCC"
     yield PACC(LR(n_jobs=-1)), "PACC"
     yield EMQ(CalibratedClassifierCV(LR(), n_jobs=-1)), "SLD"
-    # yield HDy(LR(n_jobs=-1)) if args.task == 'T1A' else OneVsAll(HDy(LR()), n_jobs=-1), "HDy"
-    # yield MLPE(), "MLPE"
+    yield HDy(LR(n_jobs=-1)) if args.task == 'T1A' else OneVsAll(HDy(LR()), n_jobs=-1), "HDy"
+    yield MLPE(), "MLPE"
 
 
 def main(args):
@@ -56,11 +56,6 @@ def main(args):
     param_grid = {
         'C': np.logspace(-3, 3, 7),
         'class_weight': ['balanced', None]
-    }
-
-    param_grid = {
-        'C': [0.01],
-        'class_weight': ['balanced']
     }
 
     for quantifier, q_name in baselines():
