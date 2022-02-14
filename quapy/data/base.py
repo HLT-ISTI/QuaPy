@@ -103,8 +103,8 @@ class LabelledCollection:
         """
         Returns an index to be used to extract a random sample of desired size and desired prevalence values. If the
         prevalence values are not specified, then returns the index of a uniform sampling.
-        For each class, the sampling is drawn without replacement if the requested prevalence is larger than
-        the actual prevalence of the class, or with replacement otherwise.
+        For each class, the sampling is drawn with replacement if the requested prevalence is larger than
+        the actual prevalence of the class, or without replacement otherwise.
 
         :param size: integer, the requested size
         :param prevs: the prevalence for each class; the prevalence value for the last class can be lead empty since
@@ -146,7 +146,7 @@ class LabelledCollection:
     def uniform_sampling_index(self, size):
         """
         Returns an index to be used to extract a uniform sample of desired size. The sampling is drawn
-        without replacement if the requested size is greater than the number of instances, or with replacement
+        with replacement if the requested size is greater than the number of instances, or without replacement
         otherwise.
 
         :param size: integer, the size of the uniform sample
@@ -174,7 +174,7 @@ class LabelledCollection:
     def uniform_sampling(self, size):
         """
         Returns a uniform sample (an instance of :class:`LabelledCollection`) of desired size. The sampling is drawn
-        without replacement if the requested size is greater than the number of instances, or with replacement
+        with replacement if the requested size is greater than the number of instances, or without replacement
         otherwise.
 
         :param size: integer, the requested size
