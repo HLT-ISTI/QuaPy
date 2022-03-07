@@ -460,13 +460,15 @@ class EMQ(AggregativeProbabilisticQuantifier):
     maximum-likelihood estimation, in a mutually recursive way, until convergence.
 
     :param learner: a sklearn's Estimator that generates a classifier
+    :param transform_prior: an optional function :math:`R^c -> R^c` that transforms each intermediate estimate
     """
 
     MAX_ITER = 1000
     EPSILON = 1e-4
 
-    def __init__(self, learner: BaseEstimator):
+    def __init__(self, learner: BaseEstimator, transform_prior=None):
         self.learner = learner
+        self.transform_prior = transform_prior
 
     def fit(self, data: LabelledCollection, fit_learner=True):
         self.learner, _ = _training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
@@ -474,16 +476,16 @@ class EMQ(AggregativeProbabilisticQuantifier):
         return self
 
     def aggregate(self, classif_posteriors, epsilon=EPSILON):
-        priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon)
+        priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon, self.transform_prior)
         return priors
 
     def predict_proba(self, instances, epsilon=EPSILON):
         classif_posteriors = self.learner.predict_proba(instances)
-        priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon)
+        priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon, self.transform_prior)
         return posteriors
 
     @classmethod
-    def EM(cls, tr_prev, posterior_probabilities, epsilon=EPSILON):
+    def EM(cls, tr_prev, posterior_probabilities, epsilon=EPSILON, transform_prior=None):
         """
         Computes the `Expectation Maximization` routine.
 
@@ -514,6 +516,10 @@ class EMQ(AggregativeProbabilisticQuantifier):
 
             qs_prev_ = qs
             s += 1
+
+            # transformation of intermediate estimates
+            if transform_prior is not None and not converged:
+                qs = transform_prior(qs)
 
         if not converged:
             print('[warning] the method has reached the maximum number of iterations; it might have not converged')
