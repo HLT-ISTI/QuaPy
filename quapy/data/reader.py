@@ -1,9 +1,10 @@
 import numpy as np
 from scipy.sparse import dok_matrix
 from tqdm import tqdm
+from time import time
 
 
-def from_text(path, encoding='utf-8', verbose=1, class2int=True):
+def from_text(path, encoding='utf-8', verbose=0, class2int=True):
     """
     Reads a labelled colletion of documents.
     File fomart <0 or 1>\t<document>\n
