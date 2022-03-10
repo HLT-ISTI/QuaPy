@@ -183,7 +183,7 @@ def _training_helper(learner,
             if not hasattr(learner, 'predict_proba'):
                 print(f'The learner {learner.__class__.__name__} does not seem to be probabilistic. '
                       f'The learner will be calibrated.')
-                learner = CalibratedClassifierCV(learner, cv=5)
+                learner = CalibratedClassifierCV(learner, cv=5, ensemble=True)
         if val_split is not None:
             if isinstance(val_split, float):
                 if not (0 < val_split < 1):

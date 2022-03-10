@@ -15,8 +15,6 @@ def load_samples(path_dir, classes):
 def load_samples_pkl(path_dir, filter=None):
     nsamples = len(glob(join(path_dir, f'*.pkl')))
     for id in range(nsamples):
-        if filter is not None:
-            if id not in filter:
-                continue
-        yield pickle.load(open(join(path_dir, f'{id}.pkl'), 'rb'))
+        if (filter is None) or id in filter:
+            yield pickle.load(open(join(path_dir, f'{id}.pkl'), 'rb'))
 

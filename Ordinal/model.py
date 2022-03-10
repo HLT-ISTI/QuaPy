@@ -118,11 +118,12 @@ class RegressionQuantification:
     def quantify(self, instances):
         Xs = self.base_quantifier.quantify(instances).reshape(1, -1)
         # Xs = self.norm.transform(Xs)
-        Xs = self.reg.predict(Xs)
+        Xs = self.reg.predict(Xs).flatten()
         # Xs = self.norm.inverse_transform(Xs)
+        Xs = np.clip(Xs, 0, 1)
         adjusted = Xs / Xs.sum()
         # adjusted = np.clip(Xs, 0, 1)
-        adjusted = adjusted.flatten()
+        adjusted = adjusted
         return adjusted
 
     def get_params(self, deep=True):
@@ -133,13 +134,13 @@ class RegressionQuantification:
 
 
 class RegressorClassifier(BaseEstimator, ClassifierMixin):
-    def __init__(self):
-        self.regressor = LinearSVR()
-        # self.regressor = SVR()
-        # self.regressor = Ridge(normalize=True)
-
+    def __init__(self, C=1.0):
+        self.C = C
 
     def fit(self, X, y):
+        self.regressor = LinearSVR(C=self.C)
+        # self.regressor = SVR()
+        # self.regressor = Ridge(normalize=True)
         self.nclasses = len(np.unique(y))
         self.regressor.fit(X, y)
         return self
@@ -151,13 +152,20 @@ class RegressorClassifier(BaseEstimator, ClassifierMixin):
         c[c>(self.nclasses-1)]=self.nclasses-1
         return c.astype(np.int)
 
-    def predict_proba(self, X):
+    # def predict_proba(self, X):
+    #     r = self.regressor.predict(X)
+    #     nC = len(self.classes_)
+    #     r = np.clip(r, 0, nC - 1)
+    #     dists = np.abs(np.tile(np.arange(nC), (len(r), 1)) - r.reshape(-1,1))
+    #     invdist = 1 - dists
+    #     invdist[invdist < 0] = 0
+    #     return invdist
+
+    def decision_function(self, X):
         r = self.regressor.predict(X)
         nC = len(self.classes_)
-        r = np.clip(r, 0, nC - 1)
         dists = np.abs(np.tile(np.arange(nC), (len(r), 1)) - r.reshape(-1,1))
         invdist = 1 - dists
-        invdist[invdist < 0] = 0
         return invdist
 
     @property
@@ -165,8 +173,9 @@ class RegressorClassifier(BaseEstimator, ClassifierMixin):
         return np.arange(self.nclasses)
 
     def get_params(self, deep=True):
-        return self.regressor.get_params()
+        return {'C':self.C}
 
     def set_params(self, **params):
-        self.regressor.set_params(**params)
+        self.C = params['C']
+
 
