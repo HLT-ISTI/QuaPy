@@ -1,11 +1,10 @@
-import itertools
-
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 import quapy as qp
 import numpy as np
 
-from Ordinal.model import OrderedLogisticRegression, StackedClassifier, RegressionQuantification, RegressorClassifier
+from Ordinal.model import OrderedLogisticRegression, StackedClassifier, RegressionQuantification, RegressorClassifier, \
+    LogisticAT
 from quapy.method.aggregative import PACC, CC, EMQ, PCC, ACC, SLD, HDy
 from quapy.data import LabelledCollection
 from os.path import join
@@ -16,6 +15,14 @@ from time import time
 import pickle
 from tqdm import tqdm
 import mord
+
+
+#TODO:
+# Ordinal LR, LAD -> balance sample_weight
+# use BERT to extract features
+# other domains? Kitchen, Electronics...
+# try with the inverse of the distance
+# add drift='all'
 
 
 def load_test_samples():
@@ -34,22 +41,11 @@ def load_dev_samples():
         yield sample.instances, sample.prevalence()
 
 
-class LAD(mord.LAD):
-    def fit(self, X, y):
-        self.classes_ = sorted(np.unique(y))
-        return super().fit(X, y)
-
-
-class OrdinalRidge(mord.OrdinalRidge):
-    def fit(self, X, y):
-        self.classes_ = sorted(np.unique(y))
-        return super().fit(X, y)
-
-
 def quantifiers():
     params_LR = {'C': np.logspace(-3,3,7), 'class_weight': [None, 'balanced']}
-    params_OLR = {'alpha':np.logspace(-3, 3, 7)}
-    params_SVR = {'C': np.logspace(-3,3,7)}
+    # params_OLR = {'alpha':np.logspace(-3, 3, 7), 'class_weight': [None, 'balanced']}
+    params_OLR = {'alpha': np.logspace(-3, 3, 7), 'class_weight': [None, 'balanced']}
+    params_SVR = {'C': np.logspace(-3,3,7), 'class_weight': [None, 'balanced']}
     # params_SVR = {'C': np.logspace(0, 1, 2)}
 
     # baselines
@@ -62,12 +58,12 @@ def quantifiers():
 
     # with order-aware classifiers
     # threshold-based ordinal regression (see https://pythonhosted.org/mord/)
-    yield 'CC(OLR-AT)', CC(mord.LogisticAT()), params_OLR
-    yield 'PCC(OLR-AT)', PCC(mord.LogisticAT()), params_OLR
-    yield 'ACC(OLR-AT)', ACC(mord.LogisticAT()), params_OLR
-    yield 'PACC(OLR-AT)', PACC(mord.LogisticAT()), params_OLR
+    yield 'CC(OLR-AT)', CC(LogisticAT()), params_OLR
+    yield 'PCC(OLR-AT)', PCC(LogisticAT()), params_OLR
+    yield 'ACC(OLR-AT)', ACC(LogisticAT()), params_OLR
+    yield 'PACC(OLR-AT)', PACC(LogisticAT()), params_OLR
     #yield 'HDy(OLR-AT)', HDy(mord.LogisticAT()), params_OLR
-    yield 'SLD(OLR-AT)', EMQ(mord.LogisticAT()), params_OLR
+    yield 'SLD(OLR-AT)', EMQ(LogisticAT()), params_OLR
     # other options include mord.LogisticIT(alpha=1.), mord.LogisticSE(alpha=1.)
 
     # regression-based ordinal regression (see https://pythonhosted.org/mord/) 
@@ -75,6 +71,7 @@ def quantifiers():
     # the other implementation has OrdinalRidge(alpha=1.0) and LAD(C=1.0) with my wrapper classes for having the nclasses_; those do
     # not implement predict_proba nor decision_score
     yield 'CC(SVR)', CC(RegressorClassifier()), params_SVR
+    yield 'CC-bal(SVR)', CC(RegressorClassifier()), params_SVR
     # yield 'PCC(SVR)', PCC(RegressorClassifier()), params_SVR
     # yield 'PCC-cal(SVR)', PCC(RegressorClassifier()), params_SVR
     # yield 'ACC(SVR)', ACC(RegressorClassifier()), params_SVR
@@ -137,7 +134,7 @@ if __name__ == '__main__':
     train = pickle.load(open(join(datapath, domain, 'training_data.pkl'), 'rb'))
 
     with open(join(resultpath, 'hyper.txt'), 'at') as foo:
-        for drift in ['low', 'mid', 'high']:
+        for drift in ['low', 'mid', 'high', 'all']:
             params = [(*qs, drift) for qs in quantifiers()]
             hypers = qp.util.parallel(run_experiment, params, n_jobs=-2)
             for h in hypers:

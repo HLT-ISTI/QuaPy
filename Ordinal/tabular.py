@@ -284,7 +284,7 @@ class Table:
             if average:
                 tab += ' & '
                 tab += self.average.latexCell('ave', row)
-                tab += '\\\\\hline\n'
+            tab += '\\\\\hline\n'
         return tab
 
     def latexRow(self, benchmark, endl='\\\\\hline\n'):

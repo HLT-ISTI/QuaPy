@@ -10,6 +10,8 @@ from sklearn.multioutput import MultiOutputRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVR, SVR
 from statsmodels.miscmodels.ordinal_model import OrderedModel
+import mord
+from sklearn.utils.class_weight import compute_class_weight
 
 
 class OrderedLogisticRegression:
@@ -134,15 +136,20 @@ class RegressionQuantification:
 
 
 class RegressorClassifier(BaseEstimator, ClassifierMixin):
-    def __init__(self, C=1.0):
+    def __init__(self, C=1.0, class_weight=None):
         self.C = C
+        self.class_weight = class_weight
 
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weight=None):
         self.regressor = LinearSVR(C=self.C)
         # self.regressor = SVR()
         # self.regressor = Ridge(normalize=True)
-        self.nclasses = len(np.unique(y))
-        self.regressor.fit(X, y)
+        classes = sorted(np.unique(y))
+        self.nclasses = len(classes)
+        if self.class_weight == 'balanced':
+            class_weight = compute_class_weight('balanced', classes=classes, y=y)
+            sample_weight = class_weight[y]
+        self.regressor.fit(X, y, sample_weight=sample_weight)
         return self
 
     def predict(self, X):
@@ -178,4 +185,29 @@ class RegressorClassifier(BaseEstimator, ClassifierMixin):
     def set_params(self, **params):
         self.C = params['C']
 
+
+class LogisticAT(mord.LogisticAT):
+    def __init__(self, alpha=1.0, class_weight=None):
+        assert class_weight in [None, 'balanced'], 'unexpected value for class_weight'
+        self.class_weight = class_weight
+        super(LogisticAT, self).__init__(alpha=alpha)
+
+    def fit(self, X, y, sample_weight=None):
+        if self.class_weight == 'balanced':
+            classes = sorted(np.unique(y))
+            class_weight = compute_class_weight('balanced', classes=classes, y=y)
+            sample_weight = class_weight[y]
+        return super(LogisticAT, self).fit(X, y, sample_weight=sample_weight)
+
+
+class LAD(mord.LAD):
+    def fit(self, X, y):
+        self.classes_ = sorted(np.unique(y))
+        return super().fit(X, y)
+
+
+class OrdinalRidge(mord.OrdinalRidge):
+    def fit(self, X, y):
+        self.classes_ = sorted(np.unique(y))
+        return super().fit(X, y)
 
