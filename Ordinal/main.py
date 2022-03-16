@@ -9,7 +9,7 @@ from quapy.method.aggregative import PACC, CC, EMQ, PCC, ACC, SLD, HDy
 from quapy.data import LabelledCollection
 from os.path import join
 import os
-from utils import load_samples, load_samples_pkl
+from utils import load_samples_folder, load_simple_sample_npytxt, load_single_sample_pkl
 from evaluation import nmd, mnmd
 from time import time
 import pickle
@@ -23,22 +23,6 @@ import mord
 # other domains? Kitchen, Electronics...
 # try with the inverse of the distance
 # add drift='all'
-
-
-def load_test_samples():
-    ids = np.load(join(datapath, domain, protocol, f'{drift}drift.test.id.npy'))
-    ids = set(ids)
-    pklpath = join(datapath, domain, protocol, 'test_samples')
-    for sample in tqdm(load_samples_pkl(pklpath, filter=ids), total=len(ids)):
-        yield sample.instances, sample.prevalence()
-
-
-def load_dev_samples():
-    ids = np.load(join(datapath, domain, protocol, f'{drift}drift.dev.id.npy'))
-    ids = set(ids)
-    pklpath = join(datapath, domain, protocol, 'dev_samples')
-    for sample in tqdm(load_samples_pkl(pklpath, filter=ids), total=len(ids)):
-        yield sample.instances, sample.prevalence()
 
 
 def quantifiers():
@@ -58,21 +42,20 @@ def quantifiers():
 
     # with order-aware classifiers
     # threshold-based ordinal regression (see https://pythonhosted.org/mord/)
-    yield 'CC(OLR-AT)', CC(LogisticAT()), params_OLR
-    yield 'PCC(OLR-AT)', PCC(LogisticAT()), params_OLR
-    yield 'ACC(OLR-AT)', ACC(LogisticAT()), params_OLR
-    yield 'PACC(OLR-AT)', PACC(LogisticAT()), params_OLR
+    #yield 'CC(OLR-AT)', CC(LogisticAT()), params_OLR
+    #yield 'PCC(OLR-AT)', PCC(LogisticAT()), params_OLR
+    #yield 'ACC(OLR-AT)', ACC(LogisticAT()), params_OLR
+    #yield 'PACC(OLR-AT)', PACC(LogisticAT()), params_OLR
     #yield 'HDy(OLR-AT)', HDy(mord.LogisticAT()), params_OLR
-    yield 'SLD(OLR-AT)', EMQ(LogisticAT()), params_OLR
+    #yield 'SLD(OLR-AT)', EMQ(LogisticAT()), params_OLR
     # other options include mord.LogisticIT(alpha=1.), mord.LogisticSE(alpha=1.)
 
     # regression-based ordinal regression (see https://pythonhosted.org/mord/) 
     # I am using my implementation, which caters for predict_proba (linear distance to the two closest classes, 0 in the rest)
     # the other implementation has OrdinalRidge(alpha=1.0) and LAD(C=1.0) with my wrapper classes for having the nclasses_; those do
     # not implement predict_proba nor decision_score
-    yield 'CC(SVR)', CC(RegressorClassifier()), params_SVR
-    yield 'CC-bal(SVR)', CC(RegressorClassifier()), params_SVR
-    # yield 'PCC(SVR)', PCC(RegressorClassifier()), params_SVR
+    #yield 'CC(SVR)', CC(RegressorClassifier()), params_SVR
+    #yield 'PCC(SVR)', PCC(RegressorClassifier()), params_SVR
     # yield 'PCC-cal(SVR)', PCC(RegressorClassifier()), params_SVR
     # yield 'ACC(SVR)', ACC(RegressorClassifier()), params_SVR
     # yield 'PACC(SVR)', PACC(RegressorClassifier()), params_SVR
@@ -82,12 +65,29 @@ def quantifiers():
 
 def run_experiment(params):
     qname, q, param_grid, drift = params
+    qname += posfix
     resultfile = join(resultpath, f'{qname}.{drift}.csv')
     if os.path.exists(resultfile):
         print(f'result file {resultfile} already exists: continue')
         return None
 
     print(f'fitting {qname} for {drift}-drift')
+
+
+    def load_test_samples():
+        ids = np.load(join(datapath, domain, protocol, f'{drift}drift.test.id.npy'))
+        ids = set(ids)
+        folderpath = join(datapath, domain, protocol, 'test_samples')
+        for sample in tqdm(load_samples_folder(folderpath, filter=ids, load_fn=load_sample_fn), total=len(ids)):
+            yield sample.instances, sample.prevalence()
+
+
+    def load_dev_samples():
+        ids = np.load(join(datapath, domain, protocol, f'{drift}drift.dev.id.npy'))
+        ids = set(ids)
+        folderpath = join(datapath, domain, protocol, 'dev_samples')
+        for sample in tqdm(load_samples_folder(folderpath, filter=ids, load_fn=load_sample_fn), total=len(ids)):
+            yield sample.instances, sample.prevalence()
 
     q = qp.model_selection.GridSearchQ(
         q,
@@ -125,22 +125,34 @@ def run_experiment(params):
 
 
 if __name__ == '__main__':
-    domain = 'Books-tfidf'
+    #preprocessing = 'roberta.last'
+    preprocessing = 'roberta.average'
+    #preprocessing = 'tfidf'
+    if preprocessing=='tfidf':
+        domain = 'Books-tfidf'
+        posfix = ''
+    elif preprocessing=='roberta.last':
+        domain = 'Books-roberta-base-finetuned-pkl/checkpoint-1188-last'
+        posfix = '-RoBERTa-last'
+    elif preprocessing=='roberta.average':
+        domain = 'Books-roberta-base-finetuned-pkl/checkpoint-1188-average'
+        posfix = '-RoBERTa-average'
+    load_sample_fn = load_single_sample_pkl
     datapath = './data'
     protocol = 'app'
     resultpath = join('./results', domain, protocol)
     os.makedirs(resultpath, exist_ok=True)
 
-    train = pickle.load(open(join(datapath, domain, 'training_data.pkl'), 'rb'))
+    train = load_sample_fn(join(datapath, domain), 'training_data')
 
     with open(join(resultpath, 'hyper.txt'), 'at') as foo:
-        for drift in ['low', 'mid', 'high', 'all']:
-            params = [(*qs, drift) for qs in quantifiers()]
-            hypers = qp.util.parallel(run_experiment, params, n_jobs=-2)
-            for h in hypers:
-                if h is not None:
-                    foo.write(h)
-                    foo.write('\n')
+        #for drift in [f'smooth{i}' for i in range(5)] + ['all']:
+        params = [(*qs, drift) for qs in quantifiers() for drift in ['low', 'mid', 'high', 'all']]
+        hypers = qp.util.parallel(run_experiment, params, n_jobs=-2)
+        for h in hypers:
+            if h is not None:
+                foo.write(h)
+                foo.write('\n')
 
 
 

@@ -1,6 +1,11 @@
 import numpy as np
 
 
+def smoothness(p):
+    return 0.5 * sum((-p_prev + 2*p_i - p_next)**2 for p_prev, p_i, p_next in zip(p[:-2], p[1:-1], p[2:]))
+
+
+
 def _check_arrays(prevs):
     prevs = np.asarray(prevs)
     if prevs.ndim==1:

@@ -1,7 +1,7 @@
 import numpy as np
 import quapy as qp
-from Ordinal.evaluation import nmd
-from Ordinal.utils import load_samples_pkl
+from evaluation import nmd
+from Ordinal.utils import load_samples_folder, load_single_sample_pkl
 from quapy.data import LabelledCollection
 import pickle
 import os
@@ -13,7 +13,8 @@ def partition_by_drift(split, training_prevalence):
     assert split in ['dev', 'test'], 'invalid split name'
     total=1000 if split=='dev' else 5000
     drifts = []
-    for sample in tqdm(load_samples_pkl(join(datapath, domain, 'app', f'{split}_samples')), total=total):
+    folderpath = join(datapath, domain, 'app', f'{split}_samples')
+    for sample in tqdm(load_samples_folder(folderpath, load_fn=load_single_sample_pkl), total=total):
         drifts.append(nmd(training_prevalence, sample.prevalence()))
     drifts = np.asarray(drifts)
     order = np.argsort(drifts)
@@ -34,7 +35,7 @@ def partition_by_drift(split, training_prevalence):
     print(f'all drift: interval [{all.min():.4f}, {all.max():.4f}] mean: {all.mean():.4f}')
 
 
-domain = 'Books-tfidf'
+domain = 'Books-roberta-base-finetuned-pkl/checkpoint-1188-average'
 datapath = './data'
 
 training = pickle.load(open(join(datapath,domain,'training_data.pkl'), 'rb'))
