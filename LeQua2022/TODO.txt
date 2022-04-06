@@ -1,8 +1,0 @@
-2. tablas?
-3. fetch dataset (download, unzip, etc.)
-5. plots
-11. Quitar las categorias como columnas de los ficheros de prevalences
-12. sample_size cannot be set to a non-integer in GridSearchQ whith protocol="gen" (it could, but is not indicated in doc)
-13. repair doc of GridSearchQ
-14. reparar la calibracion en LR (lo tuve que quitar para que funcionara GridSearchQ, y lo quité en todos los ficheros)
-15. podria poner que el eval_budget se usase en GridSearchQ con generator function para el progress bar de tqdm
