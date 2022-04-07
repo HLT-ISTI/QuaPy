@@ -1,7 +1,11 @@
+sample_size should not be mandatory when qp.environ['SAMPLE_SIZE'] has been specified
+clean all the cumbersome methods that have to be implemented for new quantifiers (e.g., n_classes_ prop, etc.)
+make truly parallel the GridSearchQ
+abstract protocols
+
 
 Packaging:
 ==========================================
-Documentation with sphinx
 Document methods with paper references
 unit-tests
 clean wiki_examples!
