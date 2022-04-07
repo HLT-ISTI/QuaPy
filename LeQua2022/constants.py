@@ -10,7 +10,9 @@ SAMPLE_SIZE={
     'T1A': TXA_SAMPLE_SIZE,
     'T1B': TXB_SAMPLE_SIZE,
     'T2A': TXA_SAMPLE_SIZE,
-    'T2B': TXB_SAMPLE_SIZE
+    'T2B': TXB_SAMPLE_SIZE,
+    'binary': TXA_SAMPLE_SIZE,
+    'multiclass': TXB_SAMPLE_SIZE
 }
 
 ERROR_TOL = 1E-3

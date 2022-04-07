@@ -43,6 +43,16 @@ def load_vector_documents(path):
     return X, y
 
 
+def load_npy_documents(path, labeled=False):
+    D = np.load(path.replace('.txt', '.npy'))
+    if labeled:
+        y, X = D[:,0], D[:,1:]
+    else:
+        y, X = None, D
+    return X, y
+
+
+
 def __gen_load_samples_with_groudtruth(path_dir:str, return_id:bool, ground_truth_path:str, load_fn, **load_kwargs):
     true_prevs = ResultSubmission.load(ground_truth_path)
     for id, prevalence in true_prevs.iterrows():

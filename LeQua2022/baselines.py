@@ -12,7 +12,7 @@ import constants
 
 
 # LeQua official baselines for task T1A (Binary/Vector) and T1B (Multiclass/Vector)
-# =========================================================
+# =================================================================================
 
 def baselines():
     yield CC(LR(n_jobs=-1)), "CC"
@@ -20,13 +20,13 @@ def baselines():
     yield PCC(LR(n_jobs=-1)), "PCC"
     yield PACC(LR(n_jobs=-1)), "PACC"
     yield EMQ(CalibratedClassifierCV(LR(), n_jobs=-1)), "SLD"
-    yield HDy(LR(n_jobs=-1)) if args.task == 'T1A' else OneVsAll(HDy(LR()), n_jobs=-1), "HDy"
+    yield HDy(LR(n_jobs=-1)) if args.task == 'binary' else OneVsAll(HDy(LR()), n_jobs=-1), "HDy"
     yield MLPE(), "MLPE"
 
 
 def main(args):
 
-    models_path = qp.util.create_if_not_exist(os.path.join(args.modeldir, args.task))
+    models_path = qp.util.create_if_not_exist(args.modeldir)
 
     path_dev_vectors = os.path.join(args.datadir, 'dev_samples')
     path_dev_prevs = os.path.join(args.datadir, 'dev_prevalences.txt')
@@ -34,19 +34,24 @@ def main(args):
 
     qp.environ['SAMPLE_SIZE'] = constants.SAMPLE_SIZE[args.task]
 
-    if args.task in {'T1A', 'T1B'}:
+    if args.format == 'vector':
         train = LabelledCollection.load(path_train, load_vector_documents)
 
         def gen_samples():
-            return gen_load_samples(path_dev_vectors, ground_truth_path=path_dev_prevs, load_fn=load_vector_documents)
-    else:
+            return gen_load_samples(path_dev_vectors, path_dev_prevs, load_fn=load_vector_documents)
+
+    elif args.format == 'raw':
         train = LabelledCollection.load(path_train, load_raw_documents)
         tfidf = TfidfVectorizer(min_df=5, sublinear_tf=True, ngram_range=(1, 2))
         train.instances = tfidf.fit_transform(*train.Xy)
 
         def gen_samples():
-            return gen_load_samples(path_dev_vectors, ground_truth_path=path_dev_prevs,
-                                    load_fn=load_raw_documents, vectorizer=tfidf)
+            return gen_load_samples(path_dev_vectors, path_dev_prevs, load_fn=load_raw_documents, vectorizer=tfidf)
+    else:
+        train = LabelledCollection(*load_npy_documents(path_train, labeled=True))
+
+        def gen_samples():
+            return gen_load_samples(path_dev_vectors, path_dev_prevs, load_fn=load_npy_documents)
 
     print(f'number of classes: {len(train.classes_)}')
     print(f'number of training documents: {len(train)}')
@@ -79,14 +84,20 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='LeQua2022 baselines')
-    parser.add_argument('task', metavar='TASK', type=str, choices=['T1A', 'T1B', 'T2A', 'T2B'],
-                        help='Task name (T1A, T1B, T2A, T2B)')
+    # parser.add_argument('task', metavar='TASK', type=str, choices=['T1A', 'T1B', 'T2A', 'T2B'],
+    #                     help='Task name (T1A, T1B, T2A, T2B)')
+    parser.add_argument('task', metavar='TASK', type=str, choices=['binary', 'multiclass'],
+                        help='Task type (binary, multiclass)')
     parser.add_argument('datadir', metavar='DATA-PATH', type=str,
-                        help='Path of the directory containing "dev_prevalences.txt", "training_data.txt", and '
+                        help='Path of the directory containing "dev_prevalences.txt", "training_data.txt|.npy", and '
                              'the directory "dev_samples"')
     parser.add_argument('modeldir', metavar='MODEL-PATH', type=str,
-                        help='Path where to save the models. '
-                             'A subdirectory named <task> will be automatically created.')
+                        help='Path where to save the models.')
+    parser.add_argument('format', metavar='FORMAT', type=str, choices=['raw', 'vector', 'npy'],
+                        help='Format in which the samples are represented. '
+                             'Use "raw" for textual documents, or '
+                             '"vector" for vectorial representations (dumped as .txt files), or'
+                             '"npy" for vectorial representation (dumped as .npy files --see prepickle_folder.py).')
     args = parser.parse_args()
 
     if not os.path.exists(args.datadir):
@@ -95,8 +106,12 @@ if __name__ == '__main__':
         raise ValueError(f'path {args.datadir} is not a valid directory')
     if not os.path.exists(os.path.join(args.datadir, "dev_prevalences.txt")):
         raise FileNotFoundError(f'path {args.datadir} does not contain "dev_prevalences.txt" file')
-    if not os.path.exists(os.path.join(args.datadir, "training_data.txt")):
-        raise FileNotFoundError(f'path {args.datadir} does not contain "training_data.txt" file')
+    if args.format == 'npy':
+        if not os.path.exists(os.path.join(args.datadir, "training_data.npy")):
+            raise FileNotFoundError(f'path {args.datadir} does not contain "training_data.npy" file')
+    else:
+        if not os.path.exists(os.path.join(args.datadir, "training_data.txt")):
+            raise FileNotFoundError(f'path {args.datadir} does not contain "training_data.txt" file')
     if not os.path.exists(os.path.join(args.datadir, "dev_samples")):
         raise FileNotFoundError(f'path {args.datadir} does not contain "dev_samples" folder')
 
