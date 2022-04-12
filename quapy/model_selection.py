@@ -11,6 +11,8 @@ from quapy.evaluation import artificial_prevalence_prediction, natural_prevalenc
 from quapy.method.aggregative import BaseQuantifier
 import inspect
 
+from util import _check_sample_size
+
 
 class GridSearchQ(BaseQuantifier):
     """Grid Search optimization targeting a quantification-oriented metric.
@@ -57,7 +59,7 @@ class GridSearchQ(BaseQuantifier):
     def __init__(self,
                  model: BaseQuantifier,
                  param_grid: dict,
-                 sample_size: Union[int, None],
+                 sample_size: Union[int, None] = None,
                  protocol='app',
                  n_prevpoints: int = None,
                  n_repetitions: int = 1,
@@ -105,7 +107,7 @@ class GridSearchQ(BaseQuantifier):
             return training, validation
         elif isinstance(validation, float):
             assert 0. < validation < 1., 'validation proportion should be in (0,1)'
-            training, validation = training.split_stratified(train_prop=1 - validation)
+            training, validation = training.split_stratified(train_prop=1 - validation, random_state=self.random_seed)
             return training, validation
         elif self.protocol=='gen' and inspect.isgenerator(validation()):
             return training, validation
@@ -163,7 +165,7 @@ class GridSearchQ(BaseQuantifier):
             val_split = self.val_split
         training, val_split = self.__check_training_validation(training, val_split)
         if self.protocol != 'gen':
-            assert isinstance(self.sample_size, int) and self.sample_size > 0, 'sample_size must be a positive integer'
+            self.sample_size = _check_sample_size(self.sample_size)
 
         params_keys = list(self.param_grid.keys())
         params_values = list(self.param_grid.values())
