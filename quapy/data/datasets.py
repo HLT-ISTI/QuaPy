@@ -6,6 +6,8 @@ import os
 import zipfile
 from os.path import join
 import pandas as pd
+import io
+from ncompress import decompress as unlzw
 
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
@@ -448,14 +450,9 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
         y = binarize(Xy.iloc[:,5], pos_class=1)
 
     if identifier == 'page-blocks':
-        data_path_ = data_path.replace('.Z', '')
-        if not os.path.exists(data_path_):
-            raise FileNotFoundError(f'Warning: file {data_path_} does not exist. If this is the first time you '
-                                    f'attempt to load this dataset, then you have to manually unzip the {data_path} '
-                                    f'and name the extracted file {data_path_} (unfortunately, neither zipfile, nor '
-                                    f'gzip can handle unix compressed files automatically -- there is a repo in GitHub '
-                                    f'https://github.com/umeat/unlzw where the problem seems to be solved anyway).')
-        df = pd.read_csv(data_path_, header=None, delim_whitespace=True)
+        with open(data_path, "rb") as f:
+            content = unlzw(f).decode()
+        df = pd.read_csv(io.StringIO(content), header=None, delim_whitespace=True)
         X = df.iloc[:, 0:10].astype(float).values
         y = df[10].values
         y = binarize(y, pos_class=5)  # 5==block "graphic"
