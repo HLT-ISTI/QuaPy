@@ -1,6 +1,6 @@
 import argparse
 import quapy as qp
-from data import ResultSubmission
+from data import ResultSubmission, load_npy_documents
 import os
 import pickle
 from tqdm import tqdm
@@ -15,7 +15,7 @@ LeQua2022 prediction script
 def main(args):
 
     # check the number of samples
-    nsamples = len(glob(os.path.join(args.samples, '*.txt')))
+    nsamples = len(glob(os.path.join(args.samples, '*.npy')))
     if nsamples not in {constants.DEV_SAMPLES, constants.TEST_SAMPLES}:
         print(f'Warning: The number of samples does neither coincide with the expected number of '
               f'dev samples ({constants.DEV_SAMPLES}) nor with the expected number of '
@@ -26,7 +26,7 @@ def main(args):
 
     # predictions
     predictions = ResultSubmission()
-    for sampleid, sample in tqdm(gen_load_samples(args.samples, return_id=True), desc='predicting', total=nsamples):
+    for sampleid, sample in tqdm(gen_load_samples(args.samples, return_id=True, ext='npy', load_fn=load_npy_documents), desc='predicting', total=nsamples):
         predictions.add(sampleid, model.quantify(sample))
 
     # saving
@@ -42,8 +42,6 @@ if __name__=='__main__':
                         help='Path to the directory containing the samples')
     parser.add_argument('output', metavar='PREDICTIONS-PATH', type=str,
                         help='Path where to store the predictions file')
-    parser.add_argument('nf', metavar='NUM-FEATURES', type=int,
-                        help='Number of features seen during training')
     args = parser.parse_args()
 
     if not os.path.exists(args.samples):

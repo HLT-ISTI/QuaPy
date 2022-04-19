@@ -53,27 +53,27 @@ def load_npy_documents(path, labeled=False):
 
 
 
-def __gen_load_samples_with_groudtruth(path_dir:str, return_id:bool, ground_truth_path:str, load_fn, **load_kwargs):
+def __gen_load_samples_with_groudtruth(path_dir:str, return_id:bool, ground_truth_path:str, ext, load_fn, **load_kwargs):
     true_prevs = ResultSubmission.load(ground_truth_path)
     for id, prevalence in true_prevs.iterrows():
-        sample, _ = load_fn(os.path.join(path_dir, f'{id}.txt'), **load_kwargs)
+        sample, _ = load_fn(os.path.join(path_dir, f'{id}.{ext}'), **load_kwargs)
         yield (id, sample, prevalence) if return_id else (sample, prevalence)
 
 
-def __gen_load_samples_without_groudtruth(path_dir:str, return_id:bool, load_fn, **load_kwargs):
-    nsamples = len(glob(os.path.join(path_dir, f'*.txt')))
+def __gen_load_samples_without_groudtruth(path_dir:str, return_id:bool, ext, load_fn, **load_kwargs):
+    nsamples = len(glob(os.path.join(path_dir, f'*.{ext}')))
     for id in range(nsamples):
-        sample, _ = load_fn(os.path.join(path_dir, f'{id}.txt'), **load_kwargs)
+        sample, _ = load_fn(os.path.join(path_dir, f'{id}.{ext}'), **load_kwargs)
         yield (id, sample) if return_id else sample
 
 
-def gen_load_samples(path_dir:str, ground_truth_path:str = None, return_id=False, load_fn=load_vector_documents, **load_kwargs):
+def gen_load_samples(path_dir:str, ground_truth_path:str = None, return_id=False, ext='txt', load_fn=load_vector_documents, **load_kwargs):
     if ground_truth_path is None:
         # the generator function returns tuples (docid:str, sample:csr_matrix or str)
-        gen_fn = __gen_load_samples_without_groudtruth(path_dir, return_id, load_fn, **load_kwargs)
+        gen_fn = __gen_load_samples_without_groudtruth(path_dir, return_id, ext, load_fn, **load_kwargs)
     else:
         # the generator function returns tuples (docid:str, sample:csr_matrix or str, prevalence:ndarray)
-        gen_fn = __gen_load_samples_with_groudtruth(path_dir, return_id, ground_truth_path, load_fn, **load_kwargs)
+        gen_fn = __gen_load_samples_with_groudtruth(path_dir, return_id, ground_truth_path, ext, load_fn, **load_kwargs)
     for r in gen_fn:
         yield r
 
