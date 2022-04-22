@@ -3,6 +3,7 @@ import pickle
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression as LR
+from LeQua2022.methods import TfidfPipeline
 from quapy.method.aggregative import *
 from quapy.method.non_aggregative import MaximumLikelihoodPrevalenceEstimation as MLPE
 import quapy.functional as F
@@ -34,24 +35,18 @@ def main(args):
 
     qp.environ['SAMPLE_SIZE'] = constants.SAMPLE_SIZE[args.task]
 
+    tfidfwrap = False
     if args.format == 'vector':
-        train = LabelledCollection.load(path_train, load_vector_documents)
-
-        def gen_samples():
-            return gen_load_samples(path_dev_vectors, path_dev_prevs, load_fn=load_vector_documents)
-
+        load_fn, loader_kwargs = load_vector_documents, {}
     elif args.format == 'raw':
-        train = LabelledCollection.load(path_train, load_raw_documents)
-        tfidf = TfidfVectorizer(min_df=5, sublinear_tf=True, ngram_range=(1, 2))
-        train.instances = tfidf.fit_transform(*train.Xy)
-
-        def gen_samples():
-            return gen_load_samples(path_dev_vectors, path_dev_prevs, load_fn=load_raw_documents, vectorizer=tfidf)
+        load_fn, loader_kwargs = load_raw_documents, {}
+        tfidfwrap = True
     else:
-        train = LabelledCollection(*load_npy_documents(path_train, labeled=True))
+        load_fn, loader_kwargs = load_npy_documents, {'labeled':True}
 
-        def gen_samples():
-            return gen_load_samples(path_dev_vectors, path_dev_prevs, load_fn=load_npy_documents)
+    train = LabelledCollection.load(path_train, load_fn, **loader_kwargs)
+    def gen_samples():
+        return gen_load_samples(path_dev_vectors, path_dev_prevs, load_fn=load_fn)
 
     print(f'number of classes: {len(train.classes_)}')
     print(f'number of training documents: {len(train)}')
@@ -64,6 +59,7 @@ def main(args):
     }
 
     for quantifier, q_name in baselines():
+        quantifier = TfidfPipeline(quantifier) if tfidfwrap else quantifier
         print(f'{q_name}: Model selection')
         quantifier = qp.model_selection.GridSearchQ(
             quantifier,
