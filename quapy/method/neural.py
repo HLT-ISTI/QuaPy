@@ -275,7 +275,7 @@ class QuaNetTrainer(BaseQuantifier):
                 learner_params[key] = val
         self.learner.set_params(**learner_params)
 
-    def __check_params_colision(self, quanet_params, learner_params):
+    def _check_params_colision(self, quanet_params, learner_params):
         quanet_keys = set(quanet_params.keys())
         learner_keys = set(learner_params.keys())
         intersection = quanet_keys.intersection(learner_keys)

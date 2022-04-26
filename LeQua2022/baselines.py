@@ -4,12 +4,12 @@ import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression as LR
 from LeQua2022.methods import TfidfPipeline
+from LeQua2022.quanet_lequa import QuaNetTrainerLeQua2022
 from quapy.method.aggregative import *
 from quapy.method.non_aggregative import MaximumLikelihoodPrevalenceEstimation as MLPE
 import quapy.functional as F
 from data import *
 import os
-import constants
 
 
 # LeQua official baselines for task T1A (Binary/Vector) and T1B (Multiclass/Vector)
@@ -80,8 +80,6 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='LeQua2022 baselines')
-    # parser.add_argument('task', metavar='TASK', type=str, choices=['T1A', 'T1B', 'T2A', 'T2B'],
-    #                     help='Task name (T1A, T1B, T2A, T2B)')
     parser.add_argument('task', metavar='TASK', type=str, choices=['binary', 'multiclass'],
                         help='Task type (binary, multiclass)')
     parser.add_argument('datadir', metavar='DATA-PATH', type=str,
