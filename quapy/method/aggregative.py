@@ -442,14 +442,6 @@ class PACC(AggregativeProbabilisticQuantifier):
             classes = val_data.classes_
 
         self.pcc = PCC(self.learner)
-
-        # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
-        # document that belongs to yj ends up being classified as belonging to yi
-        n_classes = len(classes)
-        confusion = np.empty(shape=(n_classes, n_classes))
-        for i, class_ in enumerate(classes):
-            confusion[i] = y_[y == class_].mean(axis=0)
-
         self.Pte_cond_estim_ = self.getPteCondEstim(classes, y, y_)
 
         return self
