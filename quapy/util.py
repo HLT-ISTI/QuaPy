@@ -176,6 +176,16 @@ def pickled_resource(pickle_path:str, generation_func:callable, *args):
             return instance
 
 
+def _check_sample_size(sample_size):
+    if sample_size is None:
+        assert qp.environ['SAMPLE_SIZE'] is not None, \
+            'error: sample_size set to None, and cannot be resolved from the environment'
+        sample_size = qp.environ['SAMPLE_SIZE']
+    assert isinstance(sample_size, int) and sample_size > 0, \
+        'error: sample_size is not a positive integer'
+    return sample_size
+
+
 class EarlyStop:
     """
     A class implementing the early-stopping condition typically used for training neural networks.

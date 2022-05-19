@@ -6,7 +6,7 @@ import inspect
 import quapy as qp
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier
-from quapy.util import temp_seed
+from quapy.util import temp_seed, _check_sample_size
 import quapy.functional as F
 import pandas as pd
 
@@ -14,9 +14,9 @@ import pandas as pd
 def artificial_prevalence_prediction(
         model: BaseQuantifier,
         test: LabelledCollection,
-        sample_size,
+        sample_size=None,
         n_prevpoints=101,
-        repeats=1,
+        n_repetitions=1,
         eval_budget: int = None,
         n_jobs=1,
         random_seed=42,
@@ -31,10 +31,11 @@ def artificial_prevalence_prediction(
 
     :param model: the model in charge of generating the class prevalence estimations
     :param test: the test set on which to perform APP
-    :param sample_size: integer, the size of the samples
+    :param sample_size: integer, the size of the samples; if None, then the sample size is
+        taken from qp.environ['SAMPLE_SIZE']
     :param n_prevpoints: integer, the number of different prevalences to sample (or set to None if eval_budget
         is specified; default 101, i.e., steps of 1%)
-    :param repeats: integer, the number of repetitions for each prevalence (default 1)
+    :param n_repetitions: integer, the number of repetitions for each prevalence (default 1)
     :param eval_budget: integer, if specified, sets a ceil on the number of evaluations to perform. For example, if
         there are 3 classes, `repeats=1`, and `eval_budget=20`, then `n_prevpoints` will be set to 5, since this
         will generate 15 different prevalence vectors ([0, 0, 1], [0, 0.25, 0.75], [0, 0.5, 0.5] ... [1, 0, 0]) and
@@ -48,10 +49,11 @@ def artificial_prevalence_prediction(
         for the samples generated while the second one contains the prevalence estimations
     """
 
-    n_prevpoints, _ = qp.evaluation._check_num_evals(test.n_classes, n_prevpoints, eval_budget, repeats, verbose)
+    sample_size = _check_sample_size(sample_size)
+    n_prevpoints, _ = qp.evaluation._check_num_evals(test.n_classes, n_prevpoints, eval_budget, n_repetitions, verbose)
 
     with temp_seed(random_seed):
-        indexes = list(test.artificial_sampling_index_generator(sample_size, n_prevpoints, repeats))
+        indexes = list(test.artificial_sampling_index_generator(sample_size, n_prevpoints, n_repetitions))
 
     return _predict_from_indexes(indexes, model, test, n_jobs, verbose)
 
@@ -59,8 +61,8 @@ def artificial_prevalence_prediction(
 def natural_prevalence_prediction(
         model: BaseQuantifier,
         test: LabelledCollection,
-        sample_size,
-        repeats,
+        sample_size=None,
+        repeats=100,
         n_jobs=1,
         random_seed=42,
         verbose=False):
@@ -71,8 +73,9 @@ def natural_prevalence_prediction(
 
     :param model: the model in charge of generating the class prevalence estimations
     :param test: the test set on which to perform NPP
-    :param sample_size: integer, the size of the samples
-    :param repeats: integer, the number of samples to generate
+    :param sample_size: integer, the size of the samples; if None, then the sample size is
+        taken from qp.environ['SAMPLE_SIZE']
+    :param repeats: integer, the number of samples to generate (default 100)
     :param n_jobs: integer, number of jobs to be run in parallel (default 1)
     :param random_seed: allows to replicate the samplings. The seed is local to the method and does not affect
         any other random process (default 42)
@@ -82,6 +85,7 @@ def natural_prevalence_prediction(
         for the samples generated while the second one contains the prevalence estimations
     """
 
+    sample_size = _check_sample_size(sample_size)
     with temp_seed(random_seed):
         indexes = list(test.natural_sampling_index_generator(sample_size, repeats))
 
@@ -162,9 +166,9 @@ def _predict_from_indexes(
 def artificial_prevalence_report(
         model: BaseQuantifier,
         test: LabelledCollection,
-        sample_size,
+        sample_size=None,
         n_prevpoints=101,
-        repeats=1,
+        n_repetitions=1,
         eval_budget: int = None,
         n_jobs=1,
         random_seed=42,
@@ -184,10 +188,11 @@ def artificial_prevalence_report(
 
     :param model: the model in charge of generating the class prevalence estimations
     :param test: the test set on which to perform APP
-    :param sample_size: integer, the size of the samples
+    :param sample_size: integer, the size of the samples; if None, then the sample size is
+        taken from qp.environ['SAMPLE_SIZE']
     :param n_prevpoints: integer, the number of different prevalences to sample (or set to None if eval_budget
         is specified; default 101, i.e., steps of 1%)
-    :param repeats: integer, the number of repetitions for each prevalence (default 1)
+    :param n_repetitions: integer, the number of repetitions for each prevalence (default 1)
     :param eval_budget: integer, if specified, sets a ceil on the number of evaluations to perform. For example, if
         there are 3 classes, `repeats=1`, and `eval_budget=20`, then `n_prevpoints` will be set to 5, since this
         will generate 15 different prevalence vectors ([0, 0, 1], [0, 0.25, 0.75], [0, 0.5, 0.5] ... [1, 0, 0]) and
@@ -205,7 +210,7 @@ def artificial_prevalence_report(
     """
 
     true_prevs, estim_prevs = artificial_prevalence_prediction(
-        model, test, sample_size, n_prevpoints, repeats, eval_budget, n_jobs, random_seed, verbose
+        model, test, sample_size, n_prevpoints, n_repetitions, eval_budget, n_jobs, random_seed, verbose
     )
     return _prevalence_report(true_prevs, estim_prevs, error_metrics)
 
@@ -213,8 +218,8 @@ def artificial_prevalence_report(
 def natural_prevalence_report(
         model: BaseQuantifier,
         test: LabelledCollection,
-        sample_size,
-        repeats=1,
+        sample_size=None,
+        repeats=100,
         n_jobs=1,
         random_seed=42,
         error_metrics:Iterable[Union[str,Callable]]='mae',
@@ -230,8 +235,9 @@ def natural_prevalence_report(
 
     :param model: the model in charge of generating the class prevalence estimations
     :param test: the test set on which to perform NPP
-    :param sample_size: integer, the size of the samples
-    :param repeats: integer, the number of samples to generate
+    :param sample_size: integer, the size of the samples; if None, then the sample size is
+        taken from qp.environ['SAMPLE_SIZE']
+    :param repeats: integer, the number of samples to generate (default 100)
     :param n_jobs: integer, number of jobs to be run in parallel (default 1)
     :param random_seed: allows to replicate the samplings. The seed is local to the method and does not affect
         any other random process (default 42)
@@ -244,7 +250,7 @@ def natural_prevalence_report(
         for the samples generated while the second one contains the prevalence estimations
 
     """
-
+    sample_size = _check_sample_size(sample_size)
     true_prevs, estim_prevs = natural_prevalence_prediction(
         model, test, sample_size, repeats, n_jobs, random_seed, verbose
     )
@@ -300,7 +306,7 @@ def _prevalence_report(
 def artificial_prevalence_protocol(
         model: BaseQuantifier,
         test: LabelledCollection,
-        sample_size,
+        sample_size=None,
         n_prevpoints=101,
         repeats=1,
         eval_budget: int = None,
@@ -318,7 +324,8 @@ def artificial_prevalence_protocol(
 
     :param model: the model in charge of generating the class prevalence estimations
     :param test: the test set on which to perform APP
-    :param sample_size: integer, the size of the samples
+    :param sample_size: integer, the size of the samples; if None, then the sample size is
+        taken from qp.environ['SAMPLE_SIZE']
     :param n_prevpoints: integer, the number of different prevalences to sample (or set to None if eval_budget
         is specified; default 101, i.e., steps of 1%)
     :param repeats: integer, the number of repetitions for each prevalence (default 1)
@@ -350,8 +357,8 @@ def artificial_prevalence_protocol(
 def natural_prevalence_protocol(
         model: BaseQuantifier,
         test: LabelledCollection,
-        sample_size,
-        repeats=1,
+        sample_size=None,
+        repeats=100,
         n_jobs=1,
         random_seed=42,
         error_metric:Union[str,Callable]='mae',
@@ -363,7 +370,8 @@ def natural_prevalence_protocol(
 
     :param model: the model in charge of generating the class prevalence estimations
     :param test: the test set on which to perform NPP
-    :param sample_size: integer, the size of the samples
+    :param sample_size: integer, the size of the samples; if None, then the sample size is
+        taken from qp.environ['SAMPLE_SIZE']
     :param repeats: integer, the number of samples to generate
     :param n_jobs: integer, number of jobs to be run in parallel (default 1)
     :param random_seed: allows to replicate the samplings. The seed is local to the method and does not affect
