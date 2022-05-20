@@ -12,7 +12,7 @@ from data import *
 import os
 
 
-# LeQua official baselines for task T1A (Binary/Vector) and T1B (Multiclass/Vector)
+# LeQua official baselines for LeQua2022
 # =================================================================================
 
 def baselines():
