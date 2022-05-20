@@ -239,3 +239,24 @@ def get_nprevpoints_approximation(combinations_budget:int, n_classes:int, n_repe
         else:
             n_prevpoints += 1
 
+
+def check_prevalence_vector(p, raise_exception=False, toleranze=1e-08):
+    """
+    Checks that p is a valid prevalence vector, i.e., that it contains values in [0,1] and that the values sum up to 1.
+    :param p: the prevalence vector to check
+    :return: True if `p` is valid, False otherwise
+    """
+    p = np.asarray(p)
+    if not all(p>=0):
+        if raise_exception:
+            raise ValueError('the prevalence vector contains negative numbers')
+        return False
+    if not all(p<=1):
+        if raise_exception:
+            raise ValueError('the prevalence vector contains values >1')
+        return False
+    if not np.isclose(p.sum(), 1, atol=toleranze):
+        if raise_exception:
+            raise ValueError('the prevalence vector does not sum up to 1')
+        return False
+    return True
