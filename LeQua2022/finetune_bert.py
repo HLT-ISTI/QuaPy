@@ -19,7 +19,7 @@ from LeQua2022.utils import clean_checkpoints
 """
 This script fine-tunes a pre-trained language model on a given textual training set.
 The training goes for a maximum of 10 epochs, but stores the model parameters of the best performing epoch according
-to the validation loss in a held-out val split of 1000 documents (stratified).
+to the validation loss in a held-out val split of 10% documents (stratified).
 
 Example: to fine-tune RoBERTa on task T2A, use:
 $> python3 ./data/T2A.train_dev/T2A/public/training_data.txt --checkpoint roberta-base --modelname roberta-finetuned-T2A
