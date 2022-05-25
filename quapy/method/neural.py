@@ -191,7 +191,7 @@ class QuaNetTrainer(BaseQuantifier):
         label_predictions = np.argmax(posteriors, axis=-1)
         prevs_estim = []
         for quantifier in self.quantifiers.values():
-            predictions = posteriors if quantifier.probabilistic else label_predictions
+            predictions = posteriors if isinstance(quantifier, AggregativeProbabilisticQuantifier) else label_predictions
             prevs_estim.extend(quantifier.aggregate(predictions))
 
         # there is no real need for adding static estims like the TPR or FPR from training since those are constant

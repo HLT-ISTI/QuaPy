@@ -235,19 +235,6 @@ class Ensemble(BaseQuantifier):
         return _select_k(predictions, order, k=self.red_size)
 
     @property
-    def classes_(self):
-        return self.base_quantifier.classes_
-
-    @property
-    def binary(self):
-        """
-        Returns a boolean indicating whether the base quantifiers are binary or not
-
-        :return: boolean
-        """
-        return self.base_quantifier.binary
-
-    @property
     def aggregative(self):
         """
         Indicates that the quantifier is not aggregative.

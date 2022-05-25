@@ -1,15 +1,13 @@
 from abc import abstractmethod
 from copy import deepcopy
 from typing import Union
-
 import numpy as np
 from joblib import Parallel, delayed
 from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from tqdm import tqdm
-
 import quapy as qp
 import quapy.functional as F
 from quapy.classification.svmperf import SVMperf
@@ -61,7 +59,9 @@ class AggregativeQuantifier(BaseQuantifier):
 
     def classify(self, instances):
         """
-        Provides the label predictions for the given instances.
+        Provides the label predictions for the given instances. The predictions should respect the format expected by
+        :meth:`aggregate`, i.e., posterior probabilities for probabilistic quantifiers, or crisp predictions for
+        non-probabilistic quantifiers
 
         :param instances: array-like
         :return: np.ndarray of shape `(n_instances,)` with label predictions
@@ -118,16 +118,6 @@ class AggregativeQuantifier(BaseQuantifier):
         """
         return self.learner.classes_
 
-    @property
-    def aggregative(self):
-        """
-        Returns True, indicating the quantifier is of type aggregative.
-
-        :return: True
-        """
-
-        return True
-
 
 class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
     """
@@ -137,28 +127,25 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
     probabilities.
     """
 
-    def posterior_probabilities(self, instances):
+    def classify(self, instances):
         return self.learner.predict_proba(instances)
-
-    def predict_proba(self, instances):
-        return self.posterior_probabilities(instances)
-
-    def quantify(self, instances):
-        classif_posteriors = self.posterior_probabilities(instances)
-        return self.aggregate(classif_posteriors)
 
     def set_params(self, **parameters):
         if isinstance(self.learner, CalibratedClassifierCV):
             parameters = {'base_estimator__' + k: v for k, v in parameters.items()}
         self.learner.set_params(**parameters)
 
-    @property
-    def probabilistic(self):
-        return True
-
 
 # Helper
 # ------------------------------------
+def _ensure_probabilistic(learner):
+    if not hasattr(learner, 'predict_proba'):
+        print(f'The learner {learner.__class__.__name__} does not seem to be probabilistic. '
+              f'The learner will be calibrated.')
+        learner = CalibratedClassifierCV(learner, cv=5)
+    return learner
+
+
 def _training_helper(learner,
                      data: LabelledCollection,
                      fit_learner: bool = True,
@@ -180,10 +167,7 @@ def _training_helper(learner,
     """
     if fit_learner:
         if ensure_probabilistic:
-            if not hasattr(learner, 'predict_proba'):
-                print(f'The learner {learner.__class__.__name__} does not seem to be probabilistic. '
-                      f'The learner will be calibrated.')
-                learner = CalibratedClassifierCV(learner, cv=5)
+            learner = _ensure_probabilistic(learner)
         if val_split is not None:
             if isinstance(val_split, float):
                 if not (0 < val_split < 1):
@@ -213,6 +197,89 @@ def _training_helper(learner,
 
     return learner, unused
 
+
+def cross_generate_predictions(
+        data,
+        learner,
+        val_split,
+        probabilistic,
+        fit_learner,
+        n_jobs
+):
+
+    if isinstance(val_split, int):
+        assert fit_learner == True, \
+            'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
+
+        if probabilistic:
+            learner = _ensure_probabilistic(learner)
+            predict = 'predict_proba'
+        else:
+            predict = 'predict'
+        y_pred = cross_val_predict(learner, *data.Xy, cv=val_split, n_jobs=n_jobs, method=predict)
+        class_count = data.counts()
+
+        # fit the learner on all data
+        learner.fit(*data.Xy)
+        classes = data.classes_
+    else:
+        learner, val_data = _training_helper(
+            learner, data, fit_learner, ensure_probabilistic=probabilistic, val_split=val_split
+        )
+        y_pred = learner.predict_proba(val_data.instances) if probabilistic else learner.predict(val_data.instances)
+        y = val_data.labels
+        classes = val_data.classes_
+        class_count = val_data.counts()
+
+    return learner, y, y_pred, classes, class_count
+
+
+def cross_generate_predictions_depr(
+        data,
+        learner,
+        val_split,
+        probabilistic,
+        fit_learner,
+        method_name=''
+):
+    predict = learner.predict_proba if probabilistic else learner.predict
+    if isinstance(val_split, int):
+        assert fit_learner == True, \
+            'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
+        # kFCV estimation of parameters
+        y, y_ = [], []
+        kfcv = StratifiedKFold(n_splits=val_split)
+        pbar = tqdm(kfcv.split(*data.Xy), total=val_split)
+        for k, (training_idx, validation_idx) in enumerate(pbar):
+            pbar.set_description(f'{method_name}\tfitting fold {k}')
+            training = data.sampling_from_index(training_idx)
+            validation = data.sampling_from_index(validation_idx)
+            learner, val_data = _training_helper(
+                learner, training, fit_learner, ensure_probabilistic=probabilistic, val_split=validation
+            )
+            y_.append(predict(val_data.instances))
+            y.append(val_data.labels)
+
+        y = np.concatenate(y)
+        y_ = np.concatenate(y_)
+        class_count = data.counts()
+
+        # fit the learner on all data
+        learner, _ = _training_helper(
+            learner, data, fit_learner, ensure_probabilistic=probabilistic, val_split=None
+        )
+        classes = data.classes_
+
+    else:
+        learner, val_data = _training_helper(
+            learner, data, fit_learner, ensure_probabilistic=probabilistic, val_split=val_split
+        )
+        y_ = predict(val_data.instances)
+        y = val_data.labels
+        classes = val_data.classes_
+        class_count = val_data.counts()
+
+    return learner, y, y_, classes, class_count
 
 # Methods
 # ------------------------------------
@@ -264,9 +331,10 @@ class ACC(AggregativeQuantifier):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
+    def __init__(self, learner: BaseEstimator, val_split=0.4, n_jobs=1):
         self.learner = learner
         self.val_split = val_split
+        self.n_jobs = n_jobs
 
     def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
         """
@@ -280,43 +348,32 @@ class ACC(AggregativeQuantifier):
             cross validation to estimate the parameters
         :return: self
         """
+
         if val_split is None:
             val_split = self.val_split
-        if isinstance(val_split, int):
-            assert fit_learner == True, \
-                'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
-            # kFCV estimation of parameters
-            y, y_ = [], []
-            kfcv = StratifiedKFold(n_splits=val_split)
-            pbar = tqdm(kfcv.split(*data.Xy), total=val_split)
-            for k, (training_idx, validation_idx) in enumerate(pbar):
-                pbar.set_description(f'{self.__class__.__name__} fitting fold {k}')
-                training = data.sampling_from_index(training_idx)
-                validation = data.sampling_from_index(validation_idx)
-                learner, val_data = _training_helper(self.learner, training, fit_learner, val_split=validation)
-                y_.append(learner.predict(val_data.instances))
-                y.append(val_data.labels)
 
-            y = np.concatenate(y)
-            y_ = np.concatenate(y_)
-            class_count = data.counts()
-
-            # fit the learner on all data
-            self.learner, _ = _training_helper(self.learner, data, fit_learner, val_split=None)
-
-        else:
-            self.learner, val_data = _training_helper(self.learner, data, fit_learner, val_split=val_split)
-            y_ = self.learner.predict(val_data.instances)
-            y = val_data.labels
-            class_count = val_data.counts()
+        self.learner, y, y_, classes, class_count = cross_generate_predictions(
+            data, self.learner, val_split, probabilistic=False, fit_learner=fit_learner, n_jobs=self.n_jobs
+        )
 
         self.cc = CC(self.learner)
-
-        # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
-        # document that belongs to yj ends up being classified as belonging to yi
-        self.Pte_cond_estim_ = confusion_matrix(y, y_).T / class_count
+        self.Pte_cond_estim_ = self.getPteCondEstim(data.classes_, y, y_)
 
         return self
+
+    @classmethod
+    def getPteCondEstim(cls, classes, y, y_):
+        # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
+        # document that belongs to yj ends up being classified as belonging to yi
+        conf = confusion_matrix(y, y_, labels=classes).T
+        conf = conf.astype(np.float)
+        class_counts = conf.sum(axis=0)
+        for i, _ in enumerate(classes):
+            if class_counts[i] == 0:
+                conf[i, i] = 1
+            else:
+                conf[:, i] /= class_counts[i]
+        return conf
 
     def classify(self, data):
         return self.cc.classify(data)
@@ -380,9 +437,10 @@ class PACC(AggregativeProbabilisticQuantifier):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
+    def __init__(self, learner: BaseEstimator, val_split=0.4, n_jobs=1):
         self.learner = learner
         self.val_split = val_split
+        self.n_jobs = n_jobs
 
     def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
         """
@@ -396,52 +454,31 @@ class PACC(AggregativeProbabilisticQuantifier):
          to estimate the parameters
         :return: self
         """
+
         if val_split is None:
             val_split = self.val_split
 
-        if isinstance(val_split, int):
-            assert fit_learner == True, \
-                'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
-            # kFCV estimation of parameters
-            y, y_ = [], []
-            kfcv = StratifiedKFold(n_splits=val_split)
-            pbar = tqdm(kfcv.split(*data.Xy), total=val_split)
-            for k, (training_idx, validation_idx) in enumerate(pbar):
-                pbar.set_description(f'{self.__class__.__name__} fitting fold {k}')
-                training = data.sampling_from_index(training_idx)
-                validation = data.sampling_from_index(validation_idx)
-                learner, val_data = _training_helper(
-                    self.learner, training, fit_learner, ensure_probabilistic=True, val_split=validation)
-                y_.append(learner.predict_proba(val_data.instances))
-                y.append(val_data.labels)
-
-            y = np.concatenate(y)
-            y_ = np.vstack(y_)
-
-            # fit the learner on all data
-            self.learner, _ = _training_helper(self.learner, data, fit_learner, ensure_probabilistic=True,
-                                               val_split=None)
-            classes = data.classes_
-
-        else:
-            self.learner, val_data = _training_helper(
-                self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
-            y_ = self.learner.predict_proba(val_data.instances)
-            y = val_data.labels
-            classes = val_data.classes_
+        self.learner, y, y_, classes, class_count = cross_generate_predictions(
+            data, self.learner, val_split, probabilistic=True, fit_learner=fit_learner, n_jobs=self.n_jobs
+        )
 
         self.pcc = PCC(self.learner)
+        self.Pte_cond_estim_ = self.getPteCondEstim(classes, y, y_)
 
+        return self
+
+    @classmethod
+    def getPteCondEstim(cls, classes, y, y_):
         # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
         n_classes = len(classes)
-        confusion = np.empty(shape=(n_classes, n_classes))
+        confusion = np.eye(n_classes)
         for i, class_ in enumerate(classes):
-            confusion[i] = y_[y == class_].mean(axis=0)
+            idx = y == class_
+            if idx.any():
+                confusion[i] = y_[idx].mean(axis=0)
 
-        self.Pte_cond_estim_ = confusion.T
-
-        return self
+        return confusion.T
 
     def aggregate(self, classif_posteriors):
         prevs_estim = self.pcc.aggregate(classif_posteriors)
@@ -557,7 +594,7 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         self._check_binary(data, self.__class__.__name__)
         self.learner, validation = _training_helper(
             self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
-        Px = self.posterior_probabilities(validation.instances)[:, 1]  # takes only the P(y=+1|x)
+        Px = self.classify(validation.instances)[:, 1]  # takes only the P(y=+1|x)
         self.Pxy1 = Px[validation.labels == self.learner.classes_[1]]
         self.Pxy0 = Px[validation.labels == self.learner.classes_[0]]
         # pre-compute the histogram for positive and negative examples
@@ -732,44 +769,24 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
+    def __init__(self, learner: BaseEstimator, val_split=0.4, n_jobs=1):
         self.learner = learner
         self.val_split = val_split
+        self.n_jobs = n_jobs
 
     def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
         self._check_binary(data, "Threshold Optimization")
 
         if val_split is None:
             val_split = self.val_split
-        if isinstance(val_split, int):
-            assert fit_learner == True, \
-                'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
-            # kFCV estimation of parameters
-            y, probabilities = [], []
-            kfcv = StratifiedKFold(n_splits=val_split)
-            pbar = tqdm(kfcv.split(*data.Xy), total=val_split)
-            for k, (training_idx, validation_idx) in enumerate(pbar):
-                pbar.set_description(f'{self.__class__.__name__} fitting fold {k}')
-                training = data.sampling_from_index(training_idx)
-                validation = data.sampling_from_index(validation_idx)
-                learner, val_data = _training_helper(self.learner, training, fit_learner, val_split=validation)
-                probabilities.append(learner.predict_proba(val_data.instances))
-                y.append(val_data.labels)
 
-            y = np.concatenate(y)
-            probabilities = np.concatenate(probabilities)
-
-            # fit the learner on all data
-            self.learner, _ = _training_helper(self.learner, data, fit_learner, val_split=None)
-
-        else:
-            self.learner, val_data = _training_helper(self.learner, data, fit_learner, val_split=val_split)
-            probabilities = self.learner.predict_proba(val_data.instances)
-            y = val_data.labels
+        self.learner, y, y_, classes, class_count = cross_generate_predictions(
+            data, self.learner, val_split, probabilistic=True, fit_learner=fit_learner, n_jobs=self.n_jobs
+        )
 
         self.cc = CC(self.learner)
 
-        self.tpr, self.fpr = self._optimize_threshold(y, probabilities)
+        self.tpr, self.fpr = self._optimize_threshold(y, y_)
 
         return self
 
@@ -828,7 +845,7 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
 
     def _compute_tpr(self, TP, FP):
         if TP + FP == 0:
-            return 0
+            return 1
         return TP / (TP + FP)
 
     def _compute_fpr(self, FP, TN):
@@ -1022,54 +1039,59 @@ class OneVsAll(AggregativeQuantifier):
 
     def classify(self, instances):
         """
-        Returns a matrix of shape `(n,m,)` with `n` the number of instances and `m` the number of classes. The entry
-        `(i,j)` is a binary value indicating whether instance `i `belongs to class `j`. The binary classifications are
-        independent of each other, meaning that an instance can end up be attributed to 0, 1, or more classes.
+        If the base quantifier is not probabilistic, returns a matrix of shape `(n,m,)` with `n` the number of
+        instances and `m` the number of classes. The entry `(i,j)` is a binary value indicating whether instance
+        `i `belongs to class `j`. The binary classifications are independent of each other, meaning that an instance
+        can end up be attributed to 0, 1, or more classes.
+        If the base quantifier is probabilistic, returns a matrix of shape `(n,m,2)` with `n` the number of instances
+        and `m` the number of classes. The entry `(i,j,1)` (resp. `(i,j,0)`) is a value in [0,1] indicating the
+        posterior probability that instance `i` belongs (resp. does not belong) to class `j`. The posterior
+        probabilities are independent of each other, meaning that, in general, they do not sum up to one.
 
         :param instances: array-like
         :return: `np.ndarray`
         """
 
-        classif_predictions_bin = self.__parallel(self._delayed_binary_classification, instances)
-        return classif_predictions_bin.T
-
-    def posterior_probabilities(self, instances):
-        """
-        Returns a matrix of shape `(n,m,2)` with `n` the number of instances and `m` the number of classes. The entry
-        `(i,j,1)` (resp. `(i,j,0)`) is a value in [0,1] indicating the posterior probability that instance `i` belongs
-        (resp. does not belong) to class `j`.
-        The posterior probabilities are independent of each other, meaning that, in general, they do not sum
-        up to one.
-
-        :param instances: array-like
-        :return: `np.ndarray`
-        """
-
-        if not self.binary_quantifier.probabilistic:
-            raise NotImplementedError(f'{self.__class__.__name__} does not implement posterior_probabilities because '
-                                      f'the base quantifier {self.binary_quantifier.__class__.__name__} is not '
-                                      f'probabilistic')
-        posterior_predictions_bin = self.__parallel(self._delayed_binary_posteriors, instances)
-        return np.swapaxes(posterior_predictions_bin, 0, 1)
-
-    def aggregate(self, classif_predictions_bin):
-        if self.probabilistic:
-            assert classif_predictions_bin.shape[1] == self.n_classes and classif_predictions_bin.shape[2] == 2, \
-                'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of posterior ' \
-                'probabilities (2 dimensions) for each document (row) and class (columns)'
+        classif_predictions = self.__parallel(self._delayed_binary_classification, instances)
+        if isinstance(self.binary_quantifier, AggregativeProbabilisticQuantifier):
+            return np.swapaxes(classif_predictions, 0, 1)
         else:
-            assert set(np.unique(classif_predictions_bin)).issubset({0, 1}), \
-                'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
-                'predictions for each document (row) and class (columns)'
-        prevalences = self.__parallel(self._delayed_binary_aggregate, classif_predictions_bin)
+            return classif_predictions.T
+    #
+    # def posterior_probabilities(self, instances):
+    #     """
+    #     Returns a matrix of shape `(n,m,2)` with `n` the number of instances and `m` the number of classes. The entry
+    #     `(i,j,1)` (resp. `(i,j,0)`) is a value in [0,1] indicating the posterior probability that instance `i` belongs
+    #     (resp. does not belong) to class `j`.
+    #     The posterior probabilities are independent of each other, meaning that, in general, they do not sum
+    #     up to one.
+    #
+    #     :param instances: array-like
+    #     :return: `np.ndarray`
+    #     """
+    #
+    #     if not isinstance(self.binary_quantifier, AggregativeProbabilisticQuantifier):
+    #         raise NotImplementedError(f'{self.__class__.__name__} does not implement posterior_probabilities because '
+    #                                   f'the base quantifier {self.binary_quantifier.__class__.__name__} is not '
+    #                                   f'probabilistic')
+    #     posterior_predictions_bin = self.__parallel(self._delayed_binary_posteriors, instances)
+    #     return np.swapaxes(posterior_predictions_bin, 0, 1)
+
+    def aggregate(self, classif_predictions):
+        # if self.probabilistic:
+        #     assert classif_predictions.shape[1] == self.n_classes and classif_predictions.shape[2] == 2, \
+        #         'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of posterior ' \
+        #         'probabilities (2 dimensions) for each document (row) and class (columns)'
+        # else:
+        #     assert set(np.unique(classif_predictions)).issubset({0, 1}), \
+        #         'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
+        #         'predictions for each document (row) and class (columns)'
+        prevalences = self.__parallel(self._delayed_binary_aggregate, classif_predictions)
         return F.normalize_prevalence(prevalences)
 
-    def quantify(self, X):
-        if self.probabilistic:
-            predictions = self.posterior_probabilities(X)
-        else:
-            predictions = self.classify(X)
-        return self.aggregate(predictions)
+    # def quantify(self, X):
+    #     predictions = self.classify(X)
+    #     return self.aggregate(predictions)
 
     def __parallel(self, func, *args, **kwargs):
         return np.asarray(
@@ -1093,9 +1115,6 @@ class OneVsAll(AggregativeQuantifier):
     def _delayed_binary_classification(self, c, X):
         return self.dict_binary_quantifiers[c].classify(X)
 
-    def _delayed_binary_posteriors(self, c, X):
-        return self.dict_binary_quantifiers[c].posterior_probabilities(X)
-
     def _delayed_binary_aggregate(self, c, classif_predictions):
         # the estimation for the positive class prevalence
         return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:, c])[1]
@@ -1104,21 +1123,3 @@ class OneVsAll(AggregativeQuantifier):
         bindata = LabelledCollection(data.instances, data.labels == c, classes_=[False, True])
         self.dict_binary_quantifiers[c].fit(bindata)
 
-    @property
-    def binary(self):
-        """
-        Informs that the classifier is not binary
-
-        :return: False
-        """
-        return False
-
-    @property
-    def probabilistic(self):
-        """
-        Indicates if the classifier is probabilistic or not (depending on the nature of the base classifier).
-
-        :return: boolean
-        """
-
-        return self.binary_quantifier.probabilistic

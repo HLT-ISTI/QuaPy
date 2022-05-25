@@ -210,10 +210,12 @@ class LabelledCollection:
         :return: two instances of :class:`LabelledCollection`, the first one with `train_prop` elements, and the
             second one with `1-train_prop` elements
         """
-        tr_docs, te_docs, tr_labels, te_labels = \
-            train_test_split(self.instances, self.labels, train_size=train_prop, stratify=self.labels,
-                             random_state=random_state)
-        return LabelledCollection(tr_docs, tr_labels), LabelledCollection(te_docs, te_labels)
+        tr_docs, te_docs, tr_labels, te_labels = train_test_split(
+            self.instances, self.labels, train_size=train_prop, stratify=self.labels, random_state=random_state
+        )
+        training = LabelledCollection(tr_docs, tr_labels, classes_=self.classes_)
+        test = LabelledCollection(te_docs, te_labels, classes_=self.classes_)
+        return training, test
 
     def __add__(self, other):
         """
@@ -418,13 +420,3 @@ class Dataset:
             yield Dataset(train, test, name=f'fold {(i % nfolds) + 1}/{nfolds} (round={(i // nfolds) + 1})')
 
 
-def isbinary(data):
-    """
-    Returns True if `data` is either a binary :class:`Dataset` or a binary :class:`LabelledCollection`
-
-    :param data: a :class:`Dataset` or a :class:`LabelledCollection` object
-    :return: True if labelled according to two classes
-    """
-    if isinstance(data, Dataset) or isinstance(data, LabelledCollection):
-        return data.binary
-    return False

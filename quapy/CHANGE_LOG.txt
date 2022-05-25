@@ -1,0 +1,34 @@
+# main changes in 0.1.7
+
+- Protocols is now an abstraction, AbstractProtocol. There is a new class extending AbstractProtocol called
+    AbstractStochasticSeededProtocol, which implements a seeding policy to allow replicate the series of samplings.
+    There are some examples of protocols, APP, NPP, USimplexPP, CovariateShiftPP (experimental).
+    The idea is to start the sampling by simpli calling the __call__ method.
+    This change has a great impact in the framework, since many functions in qp.evaluation, qp.model_selection,
+    and sampling functions in LabelledCollection make use of the old functions.
+
+- ACC, PACC, Forman's threshold variants have been parallelized.
+
+
+Things to fix:
+- eval budget policy?
+- clean functions like binary, aggregative, probabilistic, etc; those should be resolved via isinstance()
+- clean classes_ and n_classes from methods (maybe not from aggregative ones, but those have to be used only
+    internally and not imposed in any abstract class)
+- optimize "qp.evaluation.prediction" for aggregative methods (pre-classification)
+- update unit tests
+- Policies should be able to set their output to "labelled_collection" or "instances_prevalence" or something similar.
+- Policies should implement the "gen()" one, taking a reader function as an input, and a folder path maybe
+- Review all documentation, redo the Sphinx doc, update Wikis...
+- Resolve the OneVsAll thing (it is in base.py and in aggregative.py
+- Better handle the environment (e.g., with n_jobs)
+- test cross_generate_predictions and cancel cross_generate_predictions_depr
+- Add a proper log?
+- test LoadSamplesFromDirectory (in protocols.py)
+- improve plots?
+- I have removed the distinction between "classify" and "posterior_probabilities" in the Aggregative quantifiers,
+    so that probabilistic classifiers actually return posterior probabilities, while non-probabilistic quantifiers
+    return instead crisp decisions. The idea was to unify the quantification function (i.e., now it is always
+    classify & aggregate, irrespective of the class). However, this has caused a problem with OneVsAll. This has to
+    be checked, since it is now innecessarily complicated (it also has old references to .probabilistic, and all this
+    stuff).

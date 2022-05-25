@@ -51,56 +51,6 @@ class BaseQuantifier(metaclass=ABCMeta):
         """
         ...
 
-    @property
-    @abstractmethod
-    def classes_(self):
-        """
-        Class labels, in the same order in which class prevalence values are to be computed.
-
-        :return: array-like
-        """
-        ...
-
-    @property
-    def n_classes(self):
-        """
-        Returns the number of classes
-
-        :return: integer
-        """
-        return len(self.classes_)
-
-    # these methods allows meta-learners to reimplement the decision based on their constituents, and not
-    # based on class structure
-    @property
-    def binary(self):
-        """
-        Indicates whether the quantifier is binary or not.
-
-        :return: False (to be overridden)
-        """
-        return False
-
-    @property
-    def aggregative(self):
-        """
-        Indicates whether the quantifier is of type aggregative or not
-
-        :return: False (to be overridden)
-        """
-
-        return False
-
-    @property
-    def probabilistic(self):
-        """
-        Indicates whether the quantifier is of type probabilistic or not
-
-        :return: False (to be overridden)
-        """
-
-        return False
-
 
 class BinaryQuantifier(BaseQuantifier):
     """
@@ -112,46 +62,8 @@ class BinaryQuantifier(BaseQuantifier):
         assert data.binary, f'{quantifier_name} works only on problems of binary classification. ' \
                             f'Use the class OneVsAll to enable {quantifier_name} work on single-label data.'
 
-    @property
-    def binary(self):
-        """
-        Informs that the quantifier is binary
-
-        :return: True
-        """
-        return True
 
 
-def isbinary(model:BaseQuantifier):
-    """
-    Alias for property `binary`
-
-    :param model: the model
-    :return: True if the model is binary, False otherwise
-    """
-    return model.binary
-
-
-def isaggregative(model:BaseQuantifier):
-    """
-    Alias for property `aggregative`
-
-    :param model: the model
-    :return: True if the model is aggregative, False otherwise
-    """
-
-    return model.aggregative
-
-
-def isprobabilistic(model:BaseQuantifier):
-    """
-    Alias for property `probabilistic`
-
-    :param model: the model
-    :return: True if the model is probabilistic, False otherwise
-    """
-
-    return model.probabilistic
 
 
 # class OneVsAll:

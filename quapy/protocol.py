@@ -1,12 +1,16 @@
+from copy import deepcopy
+
+import quapy as qp
 import numpy as np
 import itertools
 from collections.abc import Generator
 from contextlib import ExitStack
 from abc import ABCMeta, abstractmethod
-
 from quapy.data import LabelledCollection
 import quapy.functional as F
 from tqdm import tqdm
+from os.path import exists
+from glob import glob
 
 
 # 0.1.7
@@ -61,6 +65,8 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
         the sequence will be different every time the protocol is called.
     """
 
+    _random_seed = -1  # means "not set"
+
     def __init__(self, seed=None):
         self.random_seed = seed
 
@@ -93,13 +99,47 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
 
     def __call__(self):
         with ExitStack() as stack:
+            if self.random_seed == -1:
+                raise ValueError('The random seed has never been initialized. '
+                                 'Set it to None not to impose replicability.')
             if self.random_seed is not None:
                 stack.enter_context(qp.util.temp_seed(self.random_seed))
             for params in self.samples_parameters():
                 yield self.sample(params)
 
 
-class APP(AbstractStochasticSeededProtocol):
+class OnLabelledCollectionProtocol:
+    def get_labelled_collection(self):
+        return self.data
+
+    def on_preclassified_instances(self, pre_classifications, in_place=False):
+        assert len(pre_classifications) == len(self.data), \
+            f'error: the pre-classified data has different shape ' \
+            f'(expected {len(self.data)}, found {len(pre_classifications)})'
+        if in_place:
+            self.data.instances = pre_classifications
+            return self
+        else:
+            new = deepcopy(self)
+            return new.on_preclassified_instances(pre_classifications, in_place=True)
+
+
+class LoadSamplesFromDirectory(AbstractProtocol):
+
+    def __init__(self, folder_path, loader_fn, classes=None, **loader_kwargs):
+        assert exists(folder_path), f'folder {folder_path} does not exist'
+        assert callable(loader_fn), f'the passed load_fn does not seem to be callable'
+        self.folder_path = folder_path
+        self.loader_fn = loader_fn
+        self.classes = classes
+        self.loader_kwargs = loader_kwargs
+
+    def __call__(self):
+        for file in sorted(glob(self.folder_path, '*')):
+            yield LabelledCollection.load(file, loader_func=self.loader_fn, classes=self.classes, **self.loader_kwargs)
+
+
+class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     """
     Implementation of the artificial prevalence protocol (APP).
     The APP consists of exploring a grid of prevalence values containing `n_prevalences` points (e.g.,
@@ -123,7 +163,7 @@ class APP(AbstractStochasticSeededProtocol):
         self.n_prevalences = n_prevalences
         self.repeats = repeats
 
-    def prevalence_grid(self, dimensions):
+    def prevalence_grid(self):
         """
         Generates vectors of prevalence values from an exhaustive grid of prevalence values. The
         number of prevalence values explored for each dimension depends on `n_prevalences`, so that, if, for example,
@@ -134,14 +174,14 @@ class APP(AbstractStochasticSeededProtocol):
         to 1 - sum of the rest) is not returned (note that, quite obviously, in this case the vector does not sum up to
         1). Note that this method is deterministic, i.e., there is no random sampling anywhere.
 
-        :param dimensions: the number of classes
         :return: a `np.ndarray` of shape `(n, dimensions)` if `return_constrained_dim=True` or of shape
             `(n, dimensions-1)` if `return_constrained_dim=False`, where `n` is the number of valid combinations found
             in the grid multiplied by `repeat`
         """
+        dimensions = self.data.n_classes
         s = np.linspace(0., 1., self.n_prevalences, endpoint=True)
         s = [s] * (dimensions - 1)
-        prevs = [p for p in itertools.product(*s, repeat=1) if sum(p) <= 1]
+        prevs = [p for p in itertools.product(*s, repeat=1) if (sum(p) <= 1.0)]
         prevs = np.asarray(prevs).reshape(len(prevs), -1)
         if self.repeats > 1:
             prevs = np.repeat(prevs, self.repeats, axis=0)
@@ -149,8 +189,8 @@ class APP(AbstractStochasticSeededProtocol):
 
     def samples_parameters(self):
         indexes = []
-        for prevs in self.prevalence_grid(dimensions=self.data.n_classes):
-            index = data.sampling_index(self.sample_size, *prevs)
+        for prevs in self.prevalence_grid():
+            index = self.data.sampling_index(self.sample_size, *prevs)
             indexes.append(index)
         return indexes
 
@@ -161,7 +201,7 @@ class APP(AbstractStochasticSeededProtocol):
         return F.num_prevalence_combinations(self.n_prevalences, self.data.n_classes, self.repeats)
 
 
-class NPP(AbstractStochasticSeededProtocol):
+class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     """
     A generator of samples that implements the natural prevalence protocol (NPP). The NPP consists of drawing
     samples uniformly at random, therefore approximately preserving the natural prevalence of the collection.
@@ -182,7 +222,7 @@ class NPP(AbstractStochasticSeededProtocol):
     def samples_parameters(self):
         indexes = []
         for _ in range(self.repeats):
-            index = data.uniform_sampling_index(self.sample_size)
+            index = self.data.uniform_sampling_index(self.sample_size)
             indexes.append(index)
         return indexes
 
@@ -193,8 +233,7 @@ class NPP(AbstractStochasticSeededProtocol):
         return self.repeats
 
 
-
-class USimplexPP(AbstractStochasticSeededProtocol):
+class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     """
     A variant of :class:`APP` that, instead of using a grid of equidistant prevalence values,
     relies on the Kraemer algorithm for sampling unit (k-1)-simplex uniformly at random, with
@@ -218,8 +257,8 @@ class USimplexPP(AbstractStochasticSeededProtocol):
 
     def samples_parameters(self):
         indexes = []
-        for prevs in F.uniform_simplex_sampling(n_classes=data.n_classes, size=self.repeats):
-            index = data.sampling_index(self.sample_size, *prevs)
+        for prevs in F.uniform_simplex_sampling(n_classes=self.data.n_classes, size=self.repeats):
+            index = self.data.sampling_index(self.sample_size, *prevs)
             indexes.append(index)
         return indexes
 
@@ -228,7 +267,6 @@ class USimplexPP(AbstractStochasticSeededProtocol):
 
     def total(self):
         return self.repeats
-
 
 
 class CovariateShiftPP(AbstractStochasticSeededProtocol):
@@ -299,34 +337,4 @@ class CovariateShiftPP(AbstractStochasticSeededProtocol):
     def total(self):
         return self.repeats * len(self.mixture_points)
 
-
-
-
-if __name__=='__main__':
-    import numpy as np
-    import quapy as qp
-
-    # domainA
-    y = [0]*25 + [1]*25 + [2]*25 + [3]*25
-    X = ['A:'+str(i)+'-'+str(yi) for i, yi in enumerate(y)]
-    data = LabelledCollection(X, y, classes_=sorted(np.unique(y)))
-
-    # domain B
-    y = [0]*25 + [1]*25 + [2]*25 + [3]*25
-    X = ['B:'+str(i)+'-'+str(yi) for i, yi in enumerate(y)]
-    dataB = LabelledCollection(X, y, classes_=sorted(np.unique(y)))
-
-    # p = APP(data, sample_size=10, n_prevalences=11, random_seed=42)
-    # p = NPP(data, sample_size=10, repeats=10, random_seed=42)
-    # p = NPP(data, sample_size=10, repeats=10)
-    # p = USimplexPP(data, sample_size=10, repeats=10)
-    p = CovariateShiftPP(data, dataB, sample_size=10, mixture_points=11, random_seed=1)
-
-    for _ in range(2):
-        print('init generator', p.__class__.__name__)
-        for i in tqdm(p(), total=p.total()):
-            # print(i)
-            print(i.instances, i.labels, i.prevalence())
-
-    print('done')
 
