@@ -1,9 +1,9 @@
 # main changes in 0.1.7
 
-- Protocols is now an abstraction, AbstractProtocol. There is a new class extending AbstractProtocol called
+- Protocols are now abstracted as AbstractProtocol. There is a new class extending AbstractProtocol called
     AbstractStochasticSeededProtocol, which implements a seeding policy to allow replicate the series of samplings.
     There are some examples of protocols, APP, NPP, USimplexPP, CovariateShiftPP (experimental).
-    The idea is to start the sampling by simpli calling the __call__ method.
+    The idea is to start the sampling by simply calling the __call__ method.
     This change has a great impact in the framework, since many functions in qp.evaluation, qp.model_selection,
     and sampling functions in LabelledCollection make use of the old functions.
 
@@ -11,7 +11,6 @@
 
 
 Things to fix:
-- eval budget policy?
 - clean functions like binary, aggregative, probabilistic, etc; those should be resolved via isinstance()
 - clean classes_ and n_classes from methods (maybe not from aggregative ones, but those have to be used only
     internally and not imposed in any abstract class)
@@ -32,3 +31,19 @@ Things to fix:
     classify & aggregate, irrespective of the class). However, this has caused a problem with OneVsAll. This has to
     be checked, since it is now innecessarily complicated (it also has old references to .probabilistic, and all this
     stuff).
+- Check method  def __parallel(self, func, *args, **kwargs) in aggregative.OneVsAll
+
+# 0.1.7
+# change the LabelledCollection API (removing protocol-related samplings)
+# need to change the two references to the above in the wiki / doc, and code examples...
+# removed artificial_prevalence_sampling from functional
+
+# also: some parameters in the init could be used to indicate that the method should return a tuple with
+# unlabelled instances and the vector of prevalence values (and not a LabelledCollection).
+# Or: this can be done in a different function; i.e., we use one function (now __call__) to return
+# LabelledCollections, and another new one for returning the other output, which is more general for
+# evaluation purposes.
+
+# the so-called "gen" function has to be implemented as a protocol. The problem here is that this function
+# should be able to return only unlabelled instances plus a vector of prevalences (and not LabelledCollections).
+# This was coded as different functions in 0.1.6

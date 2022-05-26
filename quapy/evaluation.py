@@ -11,16 +11,35 @@ import quapy.functional as F
 import pandas as pd
 
 
-def prediction(model: BaseQuantifier, protocol: AbstractProtocol, verbose=False):
+def prediction(model: BaseQuantifier, protocol: AbstractProtocol, aggr_speedup='auto', verbose=False):
+    assert aggr_speedup in [False, True, 'auto', 'force'], 'invalid value for aggr_speedup'
+
     sout = lambda x: print(x) if verbose else None
-    from method.aggregative import AggregativeQuantifier
-    if isinstance(model, AggregativeQuantifier) and isinstance(protocol, OnLabelledCollectionProtocol):
-        sout('speeding up the prediction for the aggregative quantifier')
+
+    apply_optimization = False
+
+    if aggr_speedup in [True, 'auto', 'force']:
+        # checks whether the prediction can be made more efficiently; this check consists in verifying if the model is
+        # of type aggregative, if the protocol is based on LabelledCollection, and if the total number of documents to
+        # classify using the protocol would exceed the number of test documents in the original collection
+        from method.aggregative import AggregativeQuantifier
+        if isinstance(model, AggregativeQuantifier) and isinstance(protocol, OnLabelledCollectionProtocol):
+            if aggr_speedup == 'force':
+                apply_optimization = True
+                sout(f'forcing aggregative speedup')
+            elif hasattr(protocol, 'sample_size'):
+                nD = len(protocol.get_labelled_collection())
+                samplesD = protocol.total() * protocol.sample_size
+                if nD < samplesD:
+                    apply_optimization = True
+                    sout(f'speeding up the prediction for the aggregative quantifier, '
+                         f'total classifications {nD} instead of {samplesD}')
+
+    if apply_optimization:
         pre_classified = model.classify(protocol.get_labelled_collection().instances)
-        return __prediction_helper(model.aggregate, protocol.on_preclassified_instances(pre_classified), verbose)
+        protocol_with_predictions = protocol.on_preclassified_instances(pre_classified)
+        return __prediction_helper(model.aggregate, protocol_with_predictions, verbose)
     else:
-        sout(f'the method is not aggregative, or the protocol is not an instance of '
-             f'{OnLabelledCollectionProtocol.__name__}, so no optimization can be carried out')
         return __prediction_helper(model.quantify, protocol, verbose)
 
 
@@ -38,10 +57,11 @@ def __prediction_helper(quantification_fn, protocol: AbstractProtocol, verbose=F
 
 def evaluation_report(model: BaseQuantifier,
                       protocol: AbstractProtocol,
-                      error_metrics:Iterable[Union[str,Callable]]='mae',
+                      error_metrics: Iterable[Union[str,Callable]] = 'mae',
+                      aggr_speedup='auto',
                       verbose=False):
 
-    true_prevs, estim_prevs = prediction(model, protocol, verbose)
+    true_prevs, estim_prevs = prediction(model, protocol, aggr_speedup=aggr_speedup, verbose=verbose)
     return _prevalence_report(true_prevs, estim_prevs, error_metrics)
 
 
@@ -65,38 +85,18 @@ def _prevalence_report(true_prevs, estim_prevs, error_metrics: Iterable[Union[st
     return df
 
 
-def evaluate(model: BaseQuantifier, protocol: AbstractProtocol, error_metric:Union[str, Callable], verbose=False):
+def evaluate(
+        model: BaseQuantifier,
+        protocol: AbstractProtocol,
+        error_metric:Union[str, Callable],
+        aggr_speedup='auto',
+        verbose=False):
+
     if isinstance(error_metric, str):
         error_metric = qp.error.from_name(error_metric)
-    true_prevs, estim_prevs = prediction(model, protocol, verbose)
+    true_prevs, estim_prevs = prediction(model, protocol, aggr_speedup=aggr_speedup, verbose=verbose)
     return error_metric(true_prevs, estim_prevs)
 
 
 
-def _check_num_evals(n_classes, n_prevpoints=None, eval_budget=None, repeats=1, verbose=False):
-    if n_prevpoints is None and eval_budget is None:
-        raise ValueError('either n_prevpoints or eval_budget has to be specified')
-    elif n_prevpoints is None:
-        assert eval_budget > 0, 'eval_budget must be a positive integer'
-        n_prevpoints = F.get_nprevpoints_approximation(eval_budget, n_classes, repeats)
-        eval_computations = F.num_prevalence_combinations(n_prevpoints, n_classes, repeats)
-        if verbose:
-            print(f'setting n_prevpoints={n_prevpoints} so that the number of '
-                  f'evaluations ({eval_computations}) does not exceed the evaluation '
-                  f'budget ({eval_budget})')
-    elif eval_budget is None:
-        eval_computations = F.num_prevalence_combinations(n_prevpoints, n_classes, repeats)
-        if verbose:
-            print(f'{eval_computations} evaluations will be performed for each '
-                  f'combination of hyper-parameters')
-    else:
-        eval_computations = F.num_prevalence_combinations(n_prevpoints, n_classes, repeats)
-        if eval_computations > eval_budget:
-            n_prevpoints = F.get_nprevpoints_approximation(eval_budget, n_classes, repeats)
-            new_eval_computations = F.num_prevalence_combinations(n_prevpoints, n_classes, repeats)
-            if verbose:
-                print(f'the budget of evaluations would be exceeded with '
-                  f'n_prevpoints={n_prevpoints}. Chaning to n_prevpoints={n_prevpoints}. This will produce '
-                  f'{new_eval_computations} evaluation computations for each hyper-parameter combination.')
-    return n_prevpoints, eval_computations
 

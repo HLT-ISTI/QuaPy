@@ -13,24 +13,6 @@ from os.path import exists
 from glob import glob
 
 
-# 0.1.7
-# change the LabelledCollection API (removing protocol-related samplings)
-# need to change the two references to the above in the wiki / doc, and code examples...
-# removed artificial_prevalence_sampling from functional
-
-# maybe add some parameters in the init of the protocols (or maybe only for IndexableWhateverProtocols
-# indicating that the protocol should return indexes, and not samples themselves?
-# also: some parameters in the init could be used to indicate that the method should return a tuple with
-# unlabelled instances and the vector of prevalence values (and not a LabelledCollection).
-# Or: this can be done in a different function; i.e., we use one function (now __call__) to return
-# LabelledCollections, and another new one for returning the other output, which is more general for
-# evaluation purposes.
-
-# the so-called "gen" function has to be implemented as a protocol. The problem here is that this function
-# should be able to return only unlabelled instances plus a vector of prevalences (and not LabelledCollections).
-# This was coded as different functions in 0.1.6
-
-
 class AbstractProtocol(metaclass=ABCMeta):
 
     @abstractmethod
@@ -133,10 +115,20 @@ class LoadSamplesFromDirectory(AbstractProtocol):
         self.loader_fn = loader_fn
         self.classes = classes
         self.loader_kwargs = loader_kwargs
+        self._list_files = None
 
     def __call__(self):
-        for file in sorted(glob(self.folder_path, '*')):
+        for file in self.list_files:
             yield LabelledCollection.load(file, loader_func=self.loader_fn, classes=self.classes, **self.loader_kwargs)
+
+    @property
+    def list_files(self):
+        if self._list_files is None:
+            self._list_files = sorted(glob(self.folder_path, '*'))
+        return self._list_files
+
+    def total(self):
+        return len(self.list_files)
 
 
 class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):

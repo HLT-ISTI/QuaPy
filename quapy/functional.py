@@ -4,7 +4,6 @@ import scipy
 import numpy as np
 
 
-
 def prevalence_linspace(n_prevalences=21, repeats=1, smooth_limits_epsilon=0.01):
     """
     Produces an array of uniformly separated values of prevalence.

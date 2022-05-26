@@ -1023,15 +1023,18 @@ class OneVsAll(AggregativeQuantifier):
     """
 
     def __init__(self, binary_quantifier, n_jobs=-1):
+        assert isinstance(self.binary_quantifier, BaseQuantifier), \
+            f'{self.binary_quantifier} does not seem to be a Quantifier'
+        assert isinstance(self.binary_quantifier, AggregativeQuantifier), \
+            f'{self.binary_quantifier} does not seem to be of type Aggregative'
         self.binary_quantifier = binary_quantifier
         self.n_jobs = n_jobs
 
     def fit(self, data: LabelledCollection, fit_learner=True):
         assert not data.binary, \
             f'{self.__class__.__name__} expect non-binary data'
-        assert isinstance(self.binary_quantifier, BaseQuantifier), \
-            f'{self.binary_quantifier} does not seem to be a Quantifier'
-        assert fit_learner == True, 'fit_learner must be True'
+        assert fit_learner == True, \
+            'fit_learner must be True'
 
         self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in data.classes_}
         self.__parallel(self._delayed_binary_fit, data)
@@ -1057,41 +1060,10 @@ class OneVsAll(AggregativeQuantifier):
             return np.swapaxes(classif_predictions, 0, 1)
         else:
             return classif_predictions.T
-    #
-    # def posterior_probabilities(self, instances):
-    #     """
-    #     Returns a matrix of shape `(n,m,2)` with `n` the number of instances and `m` the number of classes. The entry
-    #     `(i,j,1)` (resp. `(i,j,0)`) is a value in [0,1] indicating the posterior probability that instance `i` belongs
-    #     (resp. does not belong) to class `j`.
-    #     The posterior probabilities are independent of each other, meaning that, in general, they do not sum
-    #     up to one.
-    #
-    #     :param instances: array-like
-    #     :return: `np.ndarray`
-    #     """
-    #
-    #     if not isinstance(self.binary_quantifier, AggregativeProbabilisticQuantifier):
-    #         raise NotImplementedError(f'{self.__class__.__name__} does not implement posterior_probabilities because '
-    #                                   f'the base quantifier {self.binary_quantifier.__class__.__name__} is not '
-    #                                   f'probabilistic')
-    #     posterior_predictions_bin = self.__parallel(self._delayed_binary_posteriors, instances)
-    #     return np.swapaxes(posterior_predictions_bin, 0, 1)
 
     def aggregate(self, classif_predictions):
-        # if self.probabilistic:
-        #     assert classif_predictions.shape[1] == self.n_classes and classif_predictions.shape[2] == 2, \
-        #         'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of posterior ' \
-        #         'probabilities (2 dimensions) for each document (row) and class (columns)'
-        # else:
-        #     assert set(np.unique(classif_predictions)).issubset({0, 1}), \
-        #         'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
-        #         'predictions for each document (row) and class (columns)'
         prevalences = self.__parallel(self._delayed_binary_aggregate, classif_predictions)
         return F.normalize_prevalence(prevalences)
-
-    # def quantify(self, X):
-    #     predictions = self.classify(X)
-    #     return self.aggregate(predictions)
 
     def __parallel(self, func, *args, **kwargs):
         return np.asarray(
