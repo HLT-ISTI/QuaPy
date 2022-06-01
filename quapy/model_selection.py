@@ -81,6 +81,8 @@ class GridSearchQ(BaseQuantifier):
         self.param_scores_ = {}
         self.best_score_ = None
 
+        tinit = time()
+
         hyper = [dict({k: values[i] for i, k in enumerate(params_keys)}) for values in itertools.product(*params_values)]
         scores = qp.util.parallel(self._delayed_eval, ((params, training) for params in hyper), n_jobs=n_jobs)
 
@@ -94,10 +96,13 @@ class GridSearchQ(BaseQuantifier):
             else:
                 self.param_scores_[str(params)] = 'timeout'
 
+        tend = time()-tinit
+
         if self.best_score_ is None:
             raise TimeoutError('all jobs took more than the timeout time to end')
 
-        self._sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f})')
+        self._sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f}) '
+                   f'[took {tend:.4f}s]')
 
         if self.refit:
             if isinstance(protocol, OnLabelledCollectionProtocol):

@@ -2,8 +2,8 @@ import unittest
 import quapy as qp
 from sklearn.linear_model import LogisticRegression
 from time import time
-from method.aggregative import EMQ
-from method.base import BaseQuantifier
+from quapy.method.aggregative import EMQ
+from quapy.method.base import BaseQuantifier
 
 
 class EvalTestCase(unittest.TestCase):
@@ -12,7 +12,7 @@ class EvalTestCase(unittest.TestCase):
         data = qp.datasets.fetch_reviews('hp', tfidf=True, min_df=10, pickle=True)
         train, test = data.training, data.test
 
-        protocol = qp.protocol.APP(test, sample_size=1000, n_prevalences=21, repeats=1, random_seed=1)
+        protocol = qp.protocol.APP(test, sample_size=1000, n_prevalences=11, repeats=1, random_seed=1)
 
         class SlowLR(LogisticRegression):
             def predict_proba(self, X):
@@ -23,7 +23,7 @@ class EvalTestCase(unittest.TestCase):
         emq = EMQ(SlowLR()).fit(train)
 
         tinit = time()
-        score = qp.evaluation.evaluate(emq, protocol, error_metric='mae', verbose=True)
+        score = qp.evaluation.evaluate(emq, protocol, error_metric='mae', verbose=True, aggr_speedup='force')
         tend_optim = time()-tinit
         print(f'evaluation (with optimization) took {tend_optim}s [MAE={score:.4f}]')
 
@@ -50,7 +50,7 @@ class EvalTestCase(unittest.TestCase):
         tend_no_optim = time() - tinit
         print(f'evaluation (w/o optimization) took {tend_no_optim}s [MAE={score:.4f}]')
 
-        self.assertEqual(tend_no_optim>tend_optim, True)
+        self.assertEqual(tend_no_optim>(tend_optim/2), True)
 
 
 if __name__ == '__main__':

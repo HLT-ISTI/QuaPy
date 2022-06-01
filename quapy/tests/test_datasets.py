@@ -1,7 +1,8 @@
 import pytest
 
 from quapy.data.datasets import REVIEWS_SENTIMENT_DATASETS, TWITTER_SENTIMENT_DATASETS_TEST, \
-    TWITTER_SENTIMENT_DATASETS_TRAIN, UCI_DATASETS, fetch_reviews, fetch_twitter, fetch_UCIDataset
+    TWITTER_SENTIMENT_DATASETS_TRAIN, UCI_DATASETS, LEQUA2022_TASKS, \
+    fetch_reviews, fetch_twitter, fetch_UCIDataset, fetch_lequa2022
 
 
 @pytest.mark.parametrize('dataset_name', REVIEWS_SENTIMENT_DATASETS)
@@ -41,3 +42,13 @@ def test_fetch_UCIDataset(dataset_name):
     print('Training set stats')
     dataset.training.stats()
     print('Test set stats')
+
+
+@pytest.mark.parametrize('dataset_name', LEQUA2022_TASKS)
+def test_fetch_lequa2022(dataset_name):
+    fetch_lequa2022(dataset_name)
+    # dataset = fetch_lequa2022(dataset_name)
+    # print(f'Dataset {dataset_name}')
+    # print('Training set stats')
+    # dataset.training.stats()
+    # print('Test set stats')

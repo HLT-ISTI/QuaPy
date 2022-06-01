@@ -1,13 +1,9 @@
 from typing import Union, Callable, Iterable
 import numpy as np
 from tqdm import tqdm
-import inspect
 import quapy as qp
 from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
-from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier
-from quapy.util import temp_seed
-import quapy.functional as F
 import pandas as pd
 
 
@@ -22,7 +18,7 @@ def prediction(model: BaseQuantifier, protocol: AbstractProtocol, aggr_speedup='
         # checks whether the prediction can be made more efficiently; this check consists in verifying if the model is
         # of type aggregative, if the protocol is based on LabelledCollection, and if the total number of documents to
         # classify using the protocol would exceed the number of test documents in the original collection
-        from method.aggregative import AggregativeQuantifier
+        from quapy.method.aggregative import AggregativeQuantifier
         if isinstance(model, AggregativeQuantifier) and isinstance(protocol, OnLabelledCollectionProtocol):
             if aggr_speedup == 'force':
                 apply_optimization = True
@@ -45,9 +41,9 @@ def prediction(model: BaseQuantifier, protocol: AbstractProtocol, aggr_speedup='
 
 def __prediction_helper(quantification_fn, protocol: AbstractProtocol, verbose=False):
     true_prevs, estim_prevs = [], []
-    for sample in tqdm(protocol(), total=protocol.total()) if verbose else protocol():
-        estim_prevs.append(quantification_fn(sample.instances))
-        true_prevs.append(sample.prevalence())
+    for sample_instances, sample_prev in tqdm(protocol(), total=protocol.total()) if verbose else protocol():
+        estim_prevs.append(quantification_fn(sample_instances))
+        true_prevs.append(sample_prev)
 
     true_prevs = np.asarray(true_prevs)
     estim_prevs = np.asarray(estim_prevs)

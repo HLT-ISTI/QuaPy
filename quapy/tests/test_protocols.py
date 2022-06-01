@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
-from data import LabelledCollection
-from protocol import APP, NPP, USimplexPP, CovariateShiftPP, AbstractStochasticSeededProtocol
+from quapy.data import LabelledCollection
+from quapy.protocol import APP, NPP, USimplexPP, CovariateShiftPP, AbstractStochasticSeededProtocol
 
 
 def mock_labelled_collection(prefix=''):
@@ -132,7 +132,6 @@ class TestProtocols(unittest.TestCase):
             for sample in p():
                 pass
             print('done')
-
 
 
 if __name__ == '__main__':

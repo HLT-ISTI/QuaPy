@@ -9,9 +9,19 @@
 
 - ACC, PACC, Forman's threshold variants have been parallelized.
 
+- Exploration of hyperparameters in Model selection can now be run in parallel (it was a n_jobs argument in
+    QuaPy 0.1.6 but only the evaluation part for one specific hyperparameter was run in parallel).
+
+- The prediction function has been refactored, so it applies the optimization for aggregative quantifiers (that
+    consists in pre-classifying all instances, and then only invoking aggregate on the samples) only in cases in
+    which the total number of classifications would be smaller than the number of classifications with the standard
+    procedure. The user can now specify "force", "auto", True of False, in order to actively decide for applying it
+    or not.
 
 Things to fix:
-- clean functions like binary, aggregative, probabilistic, etc; those should be resolved via isinstance()
+- clean functions like binary, aggregative, probabilistic, etc; those should be resolved via isinstance():
+    this is not working; I don't know how to make the isinstance work. Looks like there is some problem with the
+    path of the imported class wrt the path of the class that arrives from another module...
 - clean classes_ and n_classes from methods (maybe not from aggregative ones, but those have to be used only
     internally and not imposed in any abstract class)
 - optimize "qp.evaluation.prediction" for aggregative methods (pre-classification)
@@ -32,6 +42,10 @@ Things to fix:
     be checked, since it is now innecessarily complicated (it also has old references to .probabilistic, and all this
     stuff).
 - Check method  def __parallel(self, func, *args, **kwargs) in aggregative.OneVsAll
+
+New features:
+- Add LeQua2022 to datasets (everything automatic, and with proper protocols "gen")
+- Add an "experimental room", with scripts to quickly test new ideas and see results.
 
 # 0.1.7
 # change the LabelledCollection API (removing protocol-related samplings)

@@ -9,7 +9,6 @@ from tqdm import tqdm
 import quapy as qp
 from quapy import functional as F
 from quapy.data import LabelledCollection
-from quapy.evaluation import evaluate
 from quapy.model_selection import GridSearchQ
 
 try:
@@ -176,6 +175,7 @@ class Ensemble(BaseQuantifier):
         For each model in the ensemble, the performance is measured in terms of _error_name_ on the quantification of
         the samples used for training the rest of the models in the ensemble.
         """
+        from quapy.evaluation import evaluate
         error = qp.error.from_name(error_name)
         tests = [m[3] for m in self.ensemble]
         scores = []

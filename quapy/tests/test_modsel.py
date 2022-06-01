@@ -8,6 +8,7 @@ import quapy as qp
 from method.aggregative import PACC
 from model_selection import GridSearchQ
 from protocol import APP
+import time
 
 
 class ModselTestCase(unittest.TestCase):
@@ -18,7 +19,6 @@ class ModselTestCase(unittest.TestCase):
 
         data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10)
         training, validation = data.training.split_stratified(0.7, random_state=1)
-        # test = data.test
 
         param_grid = {'C': np.logspace(-3,3,7)}
         app = APP(validation, sample_size=100, random_seed=1)
@@ -49,6 +49,37 @@ class ModselTestCase(unittest.TestCase):
 
         self.assertEqual(q.best_params_['C'], 10.0)
         self.assertEqual(q.best_model().get_params()['C'], 10.0)
+
+    def test_modsel_parallel_speedup(self):
+        class SlowLR(LogisticRegression):
+            def fit(self, X, y, sample_weight=None):
+                time.sleep(1)
+                return super(SlowLR, self).fit(X, y, sample_weight)
+
+        q = PACC(SlowLR(random_state=1, max_iter=5000))
+
+        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10)
+        training, validation = data.training.split_stratified(0.7, random_state=1)
+
+        param_grid = {'C': np.logspace(-3, 3, 7)}
+        app = APP(validation, sample_size=100, random_seed=1)
+
+        tinit = time.time()
+        GridSearchQ(
+            q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=1, verbose=True
+        ).fit(training)
+        tend_nooptim = time.time()-tinit
+
+        tinit = time.time()
+        GridSearchQ(
+            q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=-1, verbose=True
+        ).fit(training)
+        tend_optim = time.time() - tinit
+
+        print(f'parallel training took {tend_optim:.4f}s')
+        print(f'sequential training took {tend_nooptim:.4f}s')
+
+        self.assertEqual(tend_optim < (0.5*tend_nooptim), True)
 
     def test_modsel_timeout(self):
 

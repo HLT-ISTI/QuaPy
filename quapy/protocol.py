@@ -1,14 +1,11 @@
 from copy import deepcopy
-
 import quapy as qp
 import numpy as np
 import itertools
-from collections.abc import Generator
 from contextlib import ExitStack
 from abc import ABCMeta, abstractmethod
 from quapy.data import LabelledCollection
 import quapy.functional as F
-from tqdm import tqdm
 from os.path import exists
 from glob import glob
 
@@ -87,10 +84,14 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
             if self.random_seed is not None:
                 stack.enter_context(qp.util.temp_seed(self.random_seed))
             for params in self.samples_parameters():
-                yield self.sample(params)
+                yield self.collator_fn(self.sample(params))
+
+    def set_collator(self, collator_fn):
+        self.collator_fn = collator_fn
 
 
 class OnLabelledCollectionProtocol:
+
     def get_labelled_collection(self):
         return self.data
 
@@ -104,31 +105,6 @@ class OnLabelledCollectionProtocol:
         else:
             new = deepcopy(self)
             return new.on_preclassified_instances(pre_classifications, in_place=True)
-
-
-class LoadSamplesFromDirectory(AbstractProtocol):
-
-    def __init__(self, folder_path, loader_fn, classes=None, **loader_kwargs):
-        assert exists(folder_path), f'folder {folder_path} does not exist'
-        assert callable(loader_fn), f'the passed load_fn does not seem to be callable'
-        self.folder_path = folder_path
-        self.loader_fn = loader_fn
-        self.classes = classes
-        self.loader_kwargs = loader_kwargs
-        self._list_files = None
-
-    def __call__(self):
-        for file in self.list_files:
-            yield LabelledCollection.load(file, loader_func=self.loader_fn, classes=self.classes, **self.loader_kwargs)
-
-    @property
-    def list_files(self):
-        if self._list_files is None:
-            self._list_files = sorted(glob(self.folder_path, '*'))
-        return self._list_files
-
-    def total(self):
-        return len(self.list_files)
 
 
 class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
@@ -154,6 +130,7 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         self.sample_size = sample_size
         self.n_prevalences = n_prevalences
         self.repeats = repeats
+        self.set_collator(collator_fn=lambda x: (x.instances, x.prevalence()))
 
     def prevalence_grid(self):
         """
@@ -210,6 +187,7 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         self.sample_size = sample_size
         self.repeats = repeats
         self.random_seed = random_seed
+        self.set_collator(collator_fn=lambda x: (x.instances, x.prevalence()))
 
     def samples_parameters(self):
         indexes = []
@@ -246,6 +224,7 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
         self.sample_size = sample_size
         self.repeats = repeats
         self.random_seed = random_seed
+        self.set_collator(collator_fn=lambda x: (x.instances, x.prevalence()))
 
     def samples_parameters(self):
         indexes = []
@@ -259,6 +238,31 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
 
     def total(self):
         return self.repeats
+
+
+# class LoadSamplesFromDirectory(AbstractProtocol):
+#
+#     def __init__(self, folder_path, loader_fn, classes=None, **loader_kwargs):
+#         assert exists(folder_path), f'folder {folder_path} does not exist'
+#         assert callable(loader_fn), f'the passed load_fn does not seem to be callable'
+#         self.folder_path = folder_path
+#         self.loader_fn = loader_fn
+#         self.classes = classes
+#         self.loader_kwargs = loader_kwargs
+#         self._list_files = None
+#
+#     def __call__(self):
+#         for file in self.list_files:
+#             yield LabelledCollection.load(file, loader_func=self.loader_fn, classes=self.classes, **self.loader_kwargs)
+#
+#     @property
+#     def list_files(self):
+#         if self._list_files is None:
+#             self._list_files = sorted(glob(self.folder_path, '*'))
+#         return self._list_files
+#
+#     def total(self):
+#         return len(self.list_files)
 
 
 class CovariateShiftPP(AbstractStochasticSeededProtocol):

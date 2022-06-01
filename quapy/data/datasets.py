@@ -43,6 +43,8 @@ UCI_DATASETS = ['acute.a', 'acute.b',
                 'wine-q-red', 'wine-q-white',
                 'yeast']
 
+LEQUA2022_TASKS = ['T1A', 'T1B', 'T2A', 'T2B']
+
 
 def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False) -> Dataset:
     """
@@ -533,3 +535,52 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
 
 def _df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
     df[col] = df[col].apply(lambda x:repl[x]).astype(astype, copy=False)
+
+
+def fetch_lequa2022(task, data_home=None):
+    """
+    """
+    from quapy.data._lequa2022 import load_raw_documents, load_vector_documents, SamplesFromDir
+
+    assert task in LEQUA2022_TASKS, \
+        f'Unknown task {task}. Valid ones are {LEQUA2022_TASKS}'
+    if data_home is None:
+        data_home = get_quapy_home()
+
+    URL_TRAINDEV=f'https://zenodo.org/record/6546188/files/{task}.train_dev.zip'
+    URL_TEST=f'https://zenodo.org/record/6546188/files/{task}.test.zip'
+    URL_TEST_PREV=f'https://zenodo.org/record/6546188/files/{task}.test_prevalences.zip'
+
+    lequa_dir = join(data_home, 'lequa2022')
+    os.makedirs(lequa_dir, exist_ok=True)
+
+    def download_unzip_and_remove(unzipped_path, url):
+        tmp_path = join(lequa_dir, task + '_tmp.zip')
+        download_file_if_not_exists(url, tmp_path)
+        with zipfile.ZipFile(tmp_path) as file:
+            file.extractall(unzipped_path)
+        os.remove(tmp_path)
+
+    if not os.path.exists(join(lequa_dir, task)):
+        download_unzip_and_remove(lequa_dir, URL_TRAINDEV)
+        download_unzip_and_remove(lequa_dir, URL_TEST)
+        download_unzip_and_remove(lequa_dir, URL_TEST_PREV)
+
+    if task in ['T1A', 'T1B']:
+        load_fn = load_vector_documents
+    elif task in ['T2A', 'T2B']:
+        load_fn = load_raw_documents
+
+    tr_path = join(lequa_dir, task, 'public', 'training_data.txt')
+    train = LabelledCollection.load(tr_path, loader_func=load_fn)
+
+    val_samples_path = join(lequa_dir, task, 'public', 'dev_samples')
+    val_true_prev_path = join(lequa_dir, task, 'public', 'dev_prevalences.txt')
+    val_gen = SamplesFromDir(val_samples_path, val_true_prev_path, load_fn=load_fn)
+
+    test_samples_path = join(lequa_dir, task, 'public', 'dev_samples')
+    test_true_prev_path = join(lequa_dir, task, 'public', 'test_prevalences.txt')
+    test_gen = SamplesFromDir(val_samples_path, val_true_prev_path, load_fn=load_fn)
+
+    return train, val_gen, test_gen
+
