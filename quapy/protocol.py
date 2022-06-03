@@ -84,13 +84,15 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
             if self.random_seed is not None:
                 stack.enter_context(qp.util.temp_seed(self.random_seed))
             for params in self.samples_parameters():
-                yield self.collator_fn(self.sample(params))
+                yield self.collator(self.sample(params))
 
-    def set_collator(self, collator_fn):
-        self.collator_fn = collator_fn
+    def collator(self, sample, *args):
+        return sample
 
 
 class OnLabelledCollectionProtocol:
+
+    RETURN_TYPES = ['sample_prev', 'labelled_collection']
 
     def get_labelled_collection(self):
         return self.data
@@ -105,6 +107,15 @@ class OnLabelledCollectionProtocol:
         else:
             new = deepcopy(self)
             return new.on_preclassified_instances(pre_classifications, in_place=True)
+
+    @classmethod
+    def get_collator(cls, return_type='sample_prev'):
+        assert return_type in cls.RETURN_TYPES, \
+            f'unknown return type passed as argument; valid ones are {cls.RETURN_TYPES}'
+        if return_type=='sample_prev':
+            return lambda lc:lc.Xp
+        elif return_type=='labelled_collection':
+            return lambda lc:lc
 
 
 class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):

@@ -63,6 +63,7 @@ class LabelledCollection:
         """
         return self.instances.shape[0]
 
+    @property
     def prevalence(self):
         """
         Returns the prevalence, or relative frequency, of the classes of interest.
@@ -247,6 +248,43 @@ class LabelledCollection:
         :return: a tuple `(instances, labels)` from this collection
         """
         return self.instances, self.labels
+
+    @property
+    def Xp(self):
+        """
+        Gets the instances and the true prevalence. This is useful when implementing evaluation protocols
+
+        :return: a tuple `(instances, prevalence)` from this collection
+        """
+        return self.instances, self.prevalence()
+
+    @property
+    def X(self):
+        """
+        An alias to self.instances
+
+        :return: self.instances
+        """
+        return self.instances
+
+    @property
+    def y(self):
+        """
+        An alias to self.labels
+
+        :return: self.labels
+        """
+        return self.labels
+
+    @property
+    def p(self):
+        """
+        An alias to self.prevalence()
+
+        :return: self.prevalence()
+        """
+        return self.prevalence()
+
 
     def stats(self, show=True):
         """
