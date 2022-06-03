@@ -12,8 +12,8 @@ def mock_labelled_collection(prefix=''):
 
 def samples_to_str(protocol):
     samples_str = ""
-    for sample in protocol():
-        samples_str += f'{sample.instances}\t{sample.labels}\t{sample.prevalence()}\n'
+    for instances, prev in protocol():
+        samples_str += f'{instances}\t{prev}\n'
     return samples_str
 
 

@@ -63,10 +63,9 @@ class LabelledCollection:
         """
         return self.instances.shape[0]
 
-    @property
     def prevalence(self):
         """
-        Returns the prevalence, or relative frequency, of the classes of interest.
+        Returns the prevalence, or relative frequency, of the classes in the codeframe.
 
         :return: a np.ndarray of shape `(n_classes)` with the relative frequencies of each class, in the same order
             as listed by `self.classes_`
@@ -75,7 +74,7 @@ class LabelledCollection:
 
     def counts(self):
         """
-        Returns the number of instances for each of the classes of interest.
+        Returns the number of instances for each of the classes in the codeframe.
 
         :return: a np.ndarray of shape `(n_classes)` with the number of instances of each class, in the same order
             as listed by `self.classes_`
@@ -252,7 +251,8 @@ class LabelledCollection:
     @property
     def Xp(self):
         """
-        Gets the instances and the true prevalence. This is useful when implementing evaluation protocols
+        Gets the instances and the true prevalence. This is useful when implementing evaluation protocols from
+        a `LabelledCollection` object.
 
         :return: a tuple `(instances, prevalence)` from this collection
         """
@@ -419,6 +419,16 @@ class Dataset:
         :return: integer
         """
         return len(self.vocabulary)
+
+    @property
+    def train_test(self):
+        """
+        Alias to `self.training` and `self.test`
+
+        :return: the training and test collections
+        :return: the training and test collections
+        """
+        return self.training, self.test
 
     def stats(self, show):
         """

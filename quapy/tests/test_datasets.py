@@ -46,9 +46,7 @@ def test_fetch_UCIDataset(dataset_name):
 
 @pytest.mark.parametrize('dataset_name', LEQUA2022_TASKS)
 def test_fetch_lequa2022(dataset_name):
-    fetch_lequa2022(dataset_name)
-    # dataset = fetch_lequa2022(dataset_name)
-    # print(f'Dataset {dataset_name}')
-    # print('Training set stats')
-    # dataset.training.stats()
-    # print('Test set stats')
+    train, gen_val, gen_test = fetch_lequa2022(dataset_name)
+    print(train.stats())
+    print('Val:', gen_val.total())
+    print('Test:', gen_test.total())

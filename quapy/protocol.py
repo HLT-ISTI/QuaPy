@@ -135,13 +135,13 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     :param random_seed: allows replicating samples across runs (default None)
     """
 
-    def __init__(self, data:LabelledCollection, sample_size, n_prevalences=21, repeats=10, random_seed=None):
+    def __init__(self, data:LabelledCollection, sample_size, n_prevalences=21, repeats=10, random_seed=None, return_type='sample_prev'):
         super(APP, self).__init__(random_seed)
         self.data = data
         self.sample_size = sample_size
         self.n_prevalences = n_prevalences
         self.repeats = repeats
-        self.set_collator(collator_fn=lambda x: (x.instances, x.prevalence()))
+        self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
 
     def prevalence_grid(self):
         """
@@ -192,13 +192,13 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     :param random_seed: allows replicating samples across runs (default None)
     """
 
-    def __init__(self, data:LabelledCollection, sample_size, repeats=100, random_seed=None):
+    def __init__(self, data:LabelledCollection, sample_size, repeats=100, random_seed=None, return_type='sample_prev'):
         super(NPP, self).__init__(random_seed)
         self.data = data
         self.sample_size = sample_size
         self.repeats = repeats
         self.random_seed = random_seed
-        self.set_collator(collator_fn=lambda x: (x.instances, x.prevalence()))
+        self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
 
     def samples_parameters(self):
         indexes = []
@@ -229,13 +229,13 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
     :param random_seed: allows replicating samples across runs (default None)
     """
 
-    def __init__(self, data: LabelledCollection, sample_size, repeats=100, random_seed=None):
+    def __init__(self, data: LabelledCollection, sample_size, repeats=100, random_seed=None, return_type='sample_prev'):
         super(USimplexPP, self).__init__(random_seed)
         self.data = data
         self.sample_size = sample_size
         self.repeats = repeats
         self.random_seed = random_seed
-        self.set_collator(collator_fn=lambda x: (x.instances, x.prevalence()))
+        self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
 
     def samples_parameters(self):
         indexes = []
@@ -339,7 +339,7 @@ class CovariateShiftPP(AbstractStochasticSeededProtocol):
         indexesA, indexesB = indexes
         sampleA = self.A.sampling_from_index(indexesA)
         sampleB = self.B.sampling_from_index(indexesB)
-        return sampleA+sampleB
+        return (sampleA+sampleB).Xp
 
     def total(self):
         return self.repeats * len(self.mixture_points)
