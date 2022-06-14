@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
-
+import quapy as qp
 from quapy.data import LabelledCollection
 
 
@@ -63,17 +63,18 @@ class BinaryQuantifier(BaseQuantifier):
         assert data.binary, f'{quantifier_name} works only on problems of binary classification. ' \
                             f'Use the class OneVsAll to enable {quantifier_name} work on single-label data.'
 
+
 class OneVsAllGeneric:
     """
     Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary
     quantifier for each class, and then l1-normalizes the outputs so that the class prevelences sum up to 1.
     """
 
-    def __init__(self, binary_quantifier, n_jobs=1):
+    def __init__(self, binary_quantifier, n_jobs=None):
         assert isinstance(binary_quantifier, BaseQuantifier), \
             f'{binary_quantifier} does not seem to be a Quantifier'
         self.binary_quantifier = binary_quantifier
-        self.n_jobs = n_jobs
+        self.n_jobs = qp.get_njobs(n_jobs)
 
     def fit(self, data: LabelledCollection, **kwargs):
         assert not data.binary, \

@@ -37,7 +37,7 @@ class GridSearchQ(BaseQuantifier):
                  error: Union[Callable, str] = qp.error.mae,
                  refit=True,
                  timeout=-1,
-                 n_jobs=1,
+                 n_jobs=None,
                  verbose=False):
 
         self.model = model
@@ -45,7 +45,7 @@ class GridSearchQ(BaseQuantifier):
         self.protocol = protocol
         self.refit = refit
         self.timeout = timeout
-        self.n_jobs = n_jobs
+        self.n_jobs = qp.get_njobs(n_jobs)
         self.verbose = verbose
         self.__check_error(error)
         assert isinstance(protocol, AbstractProtocol), 'unknown protocol'
@@ -76,7 +76,6 @@ class GridSearchQ(BaseQuantifier):
         params_values = list(self.param_grid.values())
 
         protocol = self.protocol
-        n_jobs = self.n_jobs
 
         self.param_scores_ = {}
         self.best_score_ = None
@@ -84,7 +83,7 @@ class GridSearchQ(BaseQuantifier):
         tinit = time()
 
         hyper = [dict({k: values[i] for i, k in enumerate(params_keys)}) for values in itertools.product(*params_values)]
-        scores = qp.util.parallel(self._delayed_eval, ((params, training) for params in hyper), n_jobs=n_jobs)
+        scores = qp.util.parallel(self._delayed_eval, ((params, training) for params in hyper), n_jobs=self.n_jobs)
 
         for params, score, model in scores:
             if score is not None:

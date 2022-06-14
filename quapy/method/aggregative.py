@@ -207,6 +207,8 @@ def cross_generate_predictions(
         n_jobs
 ):
 
+    n_jobs = qp.get_njobs(n_jobs)
+
     if isinstance(val_split, int):
         assert fit_learner == True, \
             'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
@@ -331,10 +333,10 @@ class ACC(AggregativeQuantifier):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4, n_jobs=1):
+    def __init__(self, learner: BaseEstimator, val_split=0.4, n_jobs=None):
         self.learner = learner
         self.val_split = val_split
-        self.n_jobs = n_jobs
+        self.n_jobs = qp.get_njobs(n_jobs)
 
     def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
         """
@@ -437,10 +439,10 @@ class PACC(AggregativeProbabilisticQuantifier):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4, n_jobs=1):
+    def __init__(self, learner: BaseEstimator, val_split=0.4, n_jobs=None):
         self.learner = learner
         self.val_split = val_split
-        self.n_jobs = n_jobs
+        self.n_jobs = qp.get_njobs(n_jobs)
 
     def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
         """
@@ -769,10 +771,10 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4, n_jobs=1):
+    def __init__(self, learner: BaseEstimator, val_split=0.4, n_jobs=None):
         self.learner = learner
         self.val_split = val_split
-        self.n_jobs = n_jobs
+        self.n_jobs = qp.get_njobs(n_jobs)
 
     def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
         self._check_binary(data, "Threshold Optimization")
@@ -1022,13 +1024,13 @@ class OneVsAll(AggregativeQuantifier):
     :param n_jobs: number of parallel workers
     """
 
-    def __init__(self, binary_quantifier, n_jobs=-1):
+    def __init__(self, binary_quantifier, n_jobs=None):
         assert isinstance(self.binary_quantifier, BaseQuantifier), \
             f'{self.binary_quantifier} does not seem to be a Quantifier'
         assert isinstance(self.binary_quantifier, AggregativeQuantifier), \
             f'{self.binary_quantifier} does not seem to be of type Aggregative'
         self.binary_quantifier = binary_quantifier
-        self.n_jobs = n_jobs
+        self.n_jobs = qp.get_njobs(n_jobs)
 
     def fit(self, data: LabelledCollection, fit_learner=True):
         assert not data.binary, \

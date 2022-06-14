@@ -72,7 +72,7 @@ class Ensemble(BaseQuantifier):
                  policy='ave',
                  max_sample_size=None,
                  val_split:Union[qp.data.LabelledCollection, float]=None,
-                 n_jobs=1,
+                 n_jobs=None,
                  verbose=False):
         assert policy in Ensemble.VALID_POLICIES, \
             f'unknown policy={policy}; valid are {Ensemble.VALID_POLICIES}'
@@ -84,7 +84,7 @@ class Ensemble(BaseQuantifier):
         self.red_size = red_size
         self.policy = policy
         self.val_split = val_split
-        self.n_jobs = n_jobs
+        self.n_jobs = qp.get_njobs(n_jobs)
         self.post_proba_fn = None
         self.verbose = verbose
         self.max_sample_size = max_sample_size

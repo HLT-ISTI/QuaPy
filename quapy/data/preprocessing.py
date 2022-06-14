@@ -169,7 +169,7 @@ class IndexTransformer:
         self.pad = self.add_word(qp.environ['PAD_TOKEN'], qp.environ['PAD_INDEX'])
         return self
 
-    def transform(self, X, n_jobs=-1):
+    def transform(self, X, n_jobs=None):
         """
         Transforms the strings in `X` as lists of numerical ids
 
@@ -179,6 +179,7 @@ class IndexTransformer:
         """
         # given the number of tasks and the number of jobs, generates the slices for the parallel processes
         assert self.unk != -1, 'transform called before fit'
+        n_jobs = qp.get_njobs(n_jobs)
         indexed = map_parallel(func=self._index, args=X, n_jobs=n_jobs)
         return np.asarray(indexed)
 
@@ -186,7 +187,7 @@ class IndexTransformer:
         vocab = self.vocabulary_.copy()
         return [[vocab.prevalence(word, self.unk) for word in self.analyzer(doc)] for doc in tqdm(documents, 'indexing')]
 
-    def fit_transform(self, X, n_jobs=-1):
+    def fit_transform(self, X, n_jobs=None):
         """
         Fits the transform on `X` and transforms it.
 

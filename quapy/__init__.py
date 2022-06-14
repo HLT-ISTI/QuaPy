@@ -18,7 +18,14 @@ environ = {
     'UNK_INDEX': 0,
     'PAD_TOKEN': '[PAD]',
     'PAD_INDEX': 1,
-    'SVMPERF_HOME': './svm_perf_quantification'
+    'SVMPERF_HOME': './svm_perf_quantification',
+    'N_JOBS': 1
 }
+
+
+def get_njobs(n_jobs):
+    return environ['N_JOBS'] if n_jobs is None else n_jobs
+
+
 
 
