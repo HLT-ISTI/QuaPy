@@ -580,7 +580,7 @@ def fetch_lequa2022(task, data_home=None):
 
     test_samples_path = join(lequa_dir, task, 'public', 'dev_samples')
     test_true_prev_path = join(lequa_dir, task, 'public', 'test_prevalences.txt')
-    test_gen = SamplesFromDir(val_samples_path, val_true_prev_path, load_fn=load_fn)
+    test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
 
     return train, val_gen, test_gen
 
