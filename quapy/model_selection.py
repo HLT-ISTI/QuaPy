@@ -2,9 +2,9 @@ import itertools
 import signal
 from copy import deepcopy
 from typing import Union, Callable
-import evaluation
 import quapy as qp
-from protocol import AbstractProtocol, OnLabelledCollectionProtocol
+from quapy import evaluation
+from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
 from quapy.data.base import LabelledCollection
 from quapy.method.aggregative import BaseQuantifier
 from time import time
