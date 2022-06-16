@@ -430,7 +430,7 @@ class Dataset:
         """
         return self.training, self.test
 
-    def stats(self, show):
+    def stats(self, show=True):
         """
         Returns (and eventually prints) a dictionary with some stats of this dataset. E.g.,:
 
