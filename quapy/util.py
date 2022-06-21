@@ -57,17 +57,17 @@ def parallel(func, args, n_jobs):
 
 
 @contextlib.contextmanager
-def temp_seed(seed):
+def temp_seed(random_state):
     """
     Can be used in a "with" context to set a temporal seed without modifying the outer numpy's current state. E.g.:
 
     >>> with temp_seed(random_seed):
     >>>  pass # do any computation depending on np.random functionality
 
-    :param seed: the seed to set within the "with" context
+    :param random_state: the seed to set within the "with" context
     """
     state = np.random.get_state()
-    np.random.seed(seed)
+    np.random.seed(random_state)
     try:
         yield
     finally:
