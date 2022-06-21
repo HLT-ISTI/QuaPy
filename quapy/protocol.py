@@ -341,7 +341,7 @@ class CovariateShiftPP(AbstractStochasticSeededProtocol):
         indexesA, indexesB = indexes
         sampleA = self.A.sampling_from_index(indexesA)
         sampleB = self.B.sampling_from_index(indexesB)
-        return self.collator(sampleA+sampleB)
+        return sampleA+sampleB
 
     def total(self):
         return self.repeats * len(self.mixture_points)
