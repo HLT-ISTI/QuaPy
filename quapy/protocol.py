@@ -40,22 +40,22 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
     needed for extracting the samples, and :meth:`sample` that, given some parameters as input,
     deterministically generates a sample.
 
-    :param seed: the seed for allowing to replicate any sequence of samples. Default is None, meaning that
+    :param random_state: the seed for allowing to replicate any sequence of samples. Default is None, meaning that
         the sequence will be different every time the protocol is called.
     """
 
-    _random_seed = -1  # means "not set"
+    _random_state = -1  # means "not set"
 
-    def __init__(self, seed=None):
-        self.random_seed = seed
+    def __init__(self, random_state=None):
+        self.random_state = random_state
 
     @property
-    def random_seed(self):
-        return self._random_seed
+    def random_state(self):
+        return self._random_state
 
-    @random_seed.setter
-    def random_seed(self, seed):
-        self._random_seed = seed
+    @random_state.setter
+    def random_state(self, random_state):
+        self._random_state = random_state
 
     @abstractmethod
     def samples_parameters(self):
@@ -78,11 +78,11 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
 
     def __call__(self):
         with ExitStack() as stack:
-            if self.random_seed == -1:
+            if self.random_state == -1:
                 raise ValueError('The random seed has never been initialized. '
                                  'Set it to None not to impose replicability.')
-            if self.random_seed is not None:
-                stack.enter_context(qp.util.temp_seed(self.random_seed))
+            if self.random_state is not None:
+                stack.enter_context(qp.util.temp_seed(self.random_state))
             for params in self.samples_parameters():
                 yield self.collator(self.sample(params))
 
@@ -132,11 +132,11 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     :param n_prevalences: the number of equidistant prevalence points to extract from the [0,1] interval for the
         grid (default is 21)
     :param repeats: number of copies for each valid prevalence vector (default is 10)
-    :param random_seed: allows replicating samples across runs (default None)
+    :param random_state: allows replicating samples across runs (default None)
     """
 
-    def __init__(self, data:LabelledCollection, sample_size, n_prevalences=21, repeats=10, random_seed=None, return_type='sample_prev'):
-        super(APP, self).__init__(random_seed)
+    def __init__(self, data:LabelledCollection, sample_size, n_prevalences=21, repeats=10, random_state=None, return_type='sample_prev'):
+        super(APP, self).__init__(random_state)
         self.data = data
         self.sample_size = sample_size
         self.n_prevalences = n_prevalences
@@ -189,15 +189,15 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     :param data: a `LabelledCollection` from which the samples will be drawn
     :param sample_size: integer, the number of instances in each sample
     :param repeats: the number of samples to generate. Default is 100.
-    :param random_seed: allows replicating samples across runs (default None)
+    :param random_state: allows replicating samples across runs (default None)
     """
 
-    def __init__(self, data:LabelledCollection, sample_size, repeats=100, random_seed=None, return_type='sample_prev'):
-        super(NPP, self).__init__(random_seed)
+    def __init__(self, data:LabelledCollection, sample_size, repeats=100, random_state=None, return_type='sample_prev'):
+        super(NPP, self).__init__(random_state)
         self.data = data
         self.sample_size = sample_size
         self.repeats = repeats
-        self.random_seed = random_seed
+        self.random_state = random_state
         self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
 
     def samples_parameters(self):
@@ -226,15 +226,15 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
     :param data: a `LabelledCollection` from which the samples will be drawn
     :param sample_size: integer, the number of instances in each sample
     :param repeats: the number of samples to generate. Default is 100.
-    :param random_seed: allows replicating samples across runs (default None)
+    :param random_state: allows replicating samples across runs (default None)
     """
 
-    def __init__(self, data: LabelledCollection, sample_size, repeats=100, random_seed=None, return_type='sample_prev'):
-        super(USimplexPP, self).__init__(random_seed)
+    def __init__(self, data: LabelledCollection, sample_size, repeats=100, random_state=None, return_type='sample_prev'):
+        super(USimplexPP, self).__init__(random_state)
         self.data = data
         self.sample_size = sample_size
         self.repeats = repeats
-        self.random_seed = random_seed
+        self.random_state = random_state
         self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
 
     def samples_parameters(self):
@@ -290,7 +290,7 @@ class CovariateShiftPP(AbstractStochasticSeededProtocol):
     :param mixture_points: an integer indicating the number of points to take from a linear scale (e.g., 21 will
         generate the mixture points [1, 0.95, 0.9, ..., 0]), or the array of mixture values itself.
         the specific points
-    :param random_seed:
+    :param random_state:
     """
 
     def __init__(
@@ -301,9 +301,9 @@ class CovariateShiftPP(AbstractStochasticSeededProtocol):
             repeats=1,
             prevalence=None,
             mixture_points=11,
-            random_seed=None,
+            random_state=None,
             return_type='sample_prev'):
-        super(CovariateShiftPP, self).__init__(random_seed)
+        super(CovariateShiftPP, self).__init__(random_state)
         self.A = domainA
         self.B = domainB
         self.sample_size = sample_size
@@ -322,7 +322,7 @@ class CovariateShiftPP(AbstractStochasticSeededProtocol):
             self.mixture_points = np.asarray(mixture_points)
             assert all(np.logical_and(self.mixture_points >= 0, self.mixture_points<=1)), \
                 'mixture_model datatype not understood (expected int or a sequence of real values in [0,1])'
-        self.random_seed = random_seed
+        self.random_state = random_state
         self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
 
     def samples_parameters(self):

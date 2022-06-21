@@ -2,7 +2,7 @@ import numpy as np
 from scipy.sparse import issparse
 from scipy.sparse import vstack
 from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
-
+from numpy.random import RandomState
 from quapy.functional import strprev
 
 
@@ -146,16 +146,21 @@ class LabelledCollection:
 
         return indexes_sample
 
-    def uniform_sampling_index(self, size):
+    def uniform_sampling_index(self, size, random_state=None):
         """
         Returns an index to be used to extract a uniform sample of desired size. The sampling is drawn
         without replacement if the requested size is greater than the number of instances, or with replacement
         otherwise.
 
         :param size: integer, the size of the uniform sample
+        :param random_state: if specified, guarantees reproducibility of the split.
         :return: a np.ndarray of shape `(size)` with the indexes
         """
-        return np.random.choice(len(self), size, replace=size > len(self))
+        if random_state is not None:
+            ng = RandomState(seed=random_state)
+        else:
+            ng = np.random
+        return ng.choice(len(self), size, replace=size > len(self))
 
     def sampling(self, size, *prevs, shuffle=True):
         """
@@ -174,16 +179,17 @@ class LabelledCollection:
         prev_index = self.sampling_index(size, *prevs, shuffle=shuffle)
         return self.sampling_from_index(prev_index)
 
-    def uniform_sampling(self, size):
+    def uniform_sampling(self, size, random_state=None):
         """
         Returns a uniform sample (an instance of :class:`LabelledCollection`) of desired size. The sampling is drawn
         without replacement if the requested size is greater than the number of instances, or with replacement
         otherwise.
 
         :param size: integer, the requested size
+        :param random_state: if specified, guarantees reproducibility of the split.
         :return: an instance of :class:`LabelledCollection` with length == `size`
         """
-        unif_index = self.uniform_sampling_index(size)
+        unif_index = self.uniform_sampling_index(size, random_state=random_state)
         return self.sampling_from_index(unif_index)
 
     def sampling_from_index(self, index):

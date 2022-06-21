@@ -21,7 +21,7 @@ class TestProtocols(unittest.TestCase):
 
     def test_app_replicate(self):
         data = mock_labelled_collection()
-        p = APP(data, sample_size=5, n_prevalences=11, random_seed=42)
+        p = APP(data, sample_size=5, n_prevalences=11, random_state=42)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)
@@ -57,7 +57,7 @@ class TestProtocols(unittest.TestCase):
 
     def test_npp_replicate(self):
         data = mock_labelled_collection()
-        p = NPP(data, sample_size=5, repeats=5, random_seed=42)
+        p = NPP(data, sample_size=5, repeats=5, random_state=42)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)
@@ -75,7 +75,7 @@ class TestProtocols(unittest.TestCase):
 
     def test_kraemer_replicate(self):
         data = mock_labelled_collection()
-        p = USimplexPP(data, sample_size=5, repeats=10, random_seed=42)
+        p = USimplexPP(data, sample_size=5, repeats=10, random_state=42)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)
@@ -94,7 +94,7 @@ class TestProtocols(unittest.TestCase):
     def test_covariate_shift_replicate(self):
         dataA = mock_labelled_collection('domA')
         dataB = mock_labelled_collection('domB')
-        p = CovariateShiftPP(dataA, dataB, sample_size=10, mixture_points=11, random_seed=1)
+        p = CovariateShiftPP(dataA, dataB, sample_size=10, mixture_points=11, random_state=1)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)

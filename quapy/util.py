@@ -50,7 +50,6 @@ def parallel(func, args, n_jobs):
     def func_dec(environ, *args):
         qp.environ = environ.copy()
         qp.environ['N_JOBS'] = 1
-        print(f'setting n_jobs from {environ["N_JOBS"]} to 1')
         return func(*args)
     return Parallel(n_jobs=n_jobs)(
         delayed(func_dec)(qp.environ, args_i) for args_i in args

@@ -21,7 +21,7 @@ class ModselTestCase(unittest.TestCase):
         training, validation = data.training.split_stratified(0.7, random_state=1)
 
         param_grid = {'C': np.logspace(-3,3,7)}
-        app = APP(validation, sample_size=100, random_seed=1)
+        app = APP(validation, sample_size=100, random_state=1)
         q = GridSearchQ(
             q, param_grid, protocol=app, error='mae', refit=True, timeout=-1, verbose=True
         ).fit(training)
@@ -40,7 +40,7 @@ class ModselTestCase(unittest.TestCase):
         # test = data.test
 
         param_grid = {'C': np.logspace(-3,3,7)}
-        app = APP(validation, sample_size=100, random_seed=1)
+        app = APP(validation, sample_size=100, random_state=1)
         q = GridSearchQ(
             q, param_grid, protocol=app, error='mae', refit=True, timeout=-1, n_jobs=-1, verbose=True
         ).fit(training)
@@ -62,7 +62,7 @@ class ModselTestCase(unittest.TestCase):
         training, validation = data.training.split_stratified(0.7, random_state=1)
 
         param_grid = {'C': np.logspace(-3, 3, 7)}
-        app = APP(validation, sample_size=100, random_seed=1)
+        app = APP(validation, sample_size=100, random_state=1)
 
         tinit = time.time()
         GridSearchQ(
@@ -96,7 +96,7 @@ class ModselTestCase(unittest.TestCase):
         # test = data.test
 
         param_grid = {'C': np.logspace(-3,3,7)}
-        app = APP(validation, sample_size=100, random_seed=1)
+        app = APP(validation, sample_size=100, random_state=1)
         q = GridSearchQ(
             q, param_grid, protocol=app, error='mae', refit=True, timeout=3, n_jobs=-1, verbose=True
         )

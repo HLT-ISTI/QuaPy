@@ -12,7 +12,7 @@ class EvalTestCase(unittest.TestCase):
         data = qp.datasets.fetch_reviews('hp', tfidf=True, min_df=10, pickle=True)
         train, test = data.training, data.test
 
-        protocol = qp.protocol.APP(test, sample_size=1000, n_prevalences=11, repeats=1, random_seed=1)
+        protocol = qp.protocol.APP(test, sample_size=1000, n_prevalences=11, repeats=1, random_state=1)
 
         class SlowLR(LogisticRegression):
             def predict_proba(self, X):
