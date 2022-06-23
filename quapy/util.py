@@ -46,7 +46,6 @@ def parallel(func, args, n_jobs):
 
     that takes the `quapy.environ` variable as input silently
     """
-    print('n_jobs',n_jobs)
     def func_dec(environ, *args):
         qp.environ = environ.copy()
         qp.environ['N_JOBS'] = 1
