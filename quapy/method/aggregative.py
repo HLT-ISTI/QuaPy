@@ -223,6 +223,7 @@ def cross_generate_predictions(
 
         # fit the learner on all data
         learner.fit(*data.Xy)
+        y = data.y
         classes = data.classes_
     else:
         learner, val_data = _training_helper(
