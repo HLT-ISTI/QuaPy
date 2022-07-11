@@ -438,6 +438,7 @@ class PACC(AggregativeProbabilisticQuantifier):
         validation data, or as an integer, indicating that the misclassification rates should be estimated via
         `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param n_jobs: number of parallel workers
     """
 
     def __init__(self, learner: BaseEstimator, val_split=0.4, n_jobs=None):
