@@ -83,7 +83,8 @@ class GridSearchQ(BaseQuantifier):
         tinit = time()
 
         hyper = [dict({k: values[i] for i, k in enumerate(params_keys)}) for values in itertools.product(*params_values)]
-        scores = qp.util.parallel(self._delayed_eval, ((params, training) for params in hyper), n_jobs=self.n_jobs)
+        #pass a seed to parallel so it is set in clild processes
+        scores = qp.util.parallel(self._delayed_eval, ((params, training) for params in hyper), seed=qp.environ.get('_R_SEED', None), n_jobs=self.n_jobs)
 
         for params, score, model in scores:
             if score is not None:

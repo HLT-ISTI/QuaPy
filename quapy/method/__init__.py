@@ -19,6 +19,8 @@ AGGREGATIVE_METHODS = {
     aggregative.PACC,
     aggregative.EMQ,
     aggregative.HDy,
+    aggregative.DyS,
+    aggregative.SMM,
     aggregative.X,
     aggregative.T50,
     aggregative.MAX,
