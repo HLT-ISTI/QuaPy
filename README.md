@@ -22,6 +22,20 @@ for facilitating the analysis and interpretation of the experimental results.
 pip install quapy
 ```
 
+### Cite QuaPy
+
+If you find QuaPy useful (and we hope you will), plese consider citing the original paper in your research:
+
+```
+@inproceedings{moreo2021quapy,
+  title={QuaPy: a python-based framework for quantification},
+  author={Moreo, Alejandro and Esuli, Andrea and Sebastiani, Fabrizio},
+  booktitle={Proceedings of the 30th ACM International Conference on Information \& Knowledge Management},
+  pages={4534--4543},
+  year={2021}
+}
+```
+
 ## A quick example:
 
 The following script fetches a dataset of tweets, trains, applies, and evaluates a quantifier based on the 
