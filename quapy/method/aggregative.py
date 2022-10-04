@@ -282,6 +282,7 @@ class ACC(AggregativeQuantifier):
         """
         if val_split is None:
             val_split = self.val_split
+            classes = data.classes_
         if isinstance(val_split, int):
             assert fit_learner == True, \
                 'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
@@ -300,6 +301,7 @@ class ACC(AggregativeQuantifier):
             y = np.concatenate(y)
             y_ = np.concatenate(y_)
             class_count = data.counts()
+            classes = data.classes_
 
             # fit the learner on all data
             self.learner, _ = _training_helper(self.learner, data, fit_learner, val_split=None)
@@ -308,10 +310,11 @@ class ACC(AggregativeQuantifier):
             self.learner, val_data = _training_helper(self.learner, data, fit_learner, val_split=val_split)
             y_ = self.learner.predict(val_data.instances)
             y = val_data.labels
+            classes = val_data.classes_
 
         self.cc = CC(self.learner)
 
-        self.Pte_cond_estim_ = self.getPteCondEstim(data.classes_, y, y_)
+        self.Pte_cond_estim_ = self.getPteCondEstim(classes, y, y_)
 
         return self
 

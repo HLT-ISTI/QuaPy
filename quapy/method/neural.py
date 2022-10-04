@@ -82,6 +82,7 @@ class QuaNetTrainer(BaseQuantifier):
         assert hasattr(learner, 'predict_proba'), \
             f'the learner {learner.__class__.__name__} does not seem to be able to produce posterior probabilities ' \
                 f'since it does not implement the method "predict_proba"'
+        assert sample_size is not None, 'sample_size cannot be None'
         self.learner = learner
         self.sample_size = sample_size
         self.n_epochs = n_epochs
