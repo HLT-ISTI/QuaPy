@@ -11,7 +11,7 @@ from quapy.evaluation import artificial_prevalence_prediction, natural_prevalenc
 from quapy.method.aggregative import BaseQuantifier
 import inspect
 
-from util import _check_sample_size
+from quapy.util import _check_sample_size
 
 
 class GridSearchQ(BaseQuantifier):
