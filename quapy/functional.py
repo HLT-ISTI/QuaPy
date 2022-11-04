@@ -78,6 +78,12 @@ def HellingerDistance(P, Q):
     """
     return np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q))**2))
 
+def TopsoeDistance(P, Q, epsilon=1e-20):
+    """ Topsoe
+    """
+    return np.sum(P*np.log((2*P+epsilon)/(P+Q+epsilon)) +
+                  Q*np.log((2*Q+epsilon)/(P+Q+epsilon)))
+                  
 
 def uniform_prevalence_sampling(n_classes, size=1):
     """
