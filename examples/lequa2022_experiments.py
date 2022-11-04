@@ -5,6 +5,7 @@ from data.datasets import LEQUA2022_SAMPLE_SIZE, fetch_lequa2022
 from evaluation import evaluation_report
 from method.aggregative import EMQ
 from model_selection import GridSearchQ
+import pandas as pd
 
 
 task = 'T1A'
@@ -21,6 +22,8 @@ model_selection = GridSearchQ(quantifier, param_grid, protocol=val_generator, n_
 quantifier = model_selection.fit(training)
 
 # evaluation
-report = evaluation_report(quantifier, protocol=test_generator, error_metrics=['mae', 'mrae'], verbose=True)
+report = evaluation_report(quantifier, protocol=test_generator, error_metrics=['mae', 'mrae', 'mkld'], verbose=True)
 
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 1000)
 print(report)
