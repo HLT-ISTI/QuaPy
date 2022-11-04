@@ -9,7 +9,7 @@ from model_selection import GridSearchQ
 
 task = 'T1A'
 
-qp.environ['SAMPLE_SIZE']=LEQUA2022_SAMPLE_SIZE[task]
+qp.environ['SAMPLE_SIZE'] = LEQUA2022_SAMPLE_SIZE[task]
 training, val_generator, test_generator = fetch_lequa2022(task=task)
 
 # define the quantifier
