@@ -12,6 +12,7 @@ from quapy.data.preprocessing import text2tfidf, reduce_columns
 from quapy.data.reader import *
 from quapy.util import download_file_if_not_exists, download_file, get_quapy_home, pickled_resource
 
+
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
 TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',
                               'semeval13', 'semeval14', 'semeval15', 'semeval16',
@@ -44,6 +45,20 @@ UCI_DATASETS = ['acute.a', 'acute.b',
                 'yeast']
 
 LEQUA2022_TASKS = ['T1A', 'T1B', 'T2A', 'T2B']
+
+_TXA_SAMPLE_SIZE = 250
+_TXB_SAMPLE_SIZE = 1000
+
+LEQUA2022_SAMPLE_SIZE = {
+    'TXA': _TXA_SAMPLE_SIZE,
+    'TXB': _TXB_SAMPLE_SIZE,
+    'T1A': _TXA_SAMPLE_SIZE,
+    'T1B': _TXB_SAMPLE_SIZE,
+    'T2A': _TXA_SAMPLE_SIZE,
+    'T2B': _TXB_SAMPLE_SIZE,
+    'binary': _TXA_SAMPLE_SIZE,
+    'multiclass': _TXB_SAMPLE_SIZE
+}
 
 
 def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False) -> Dataset:
@@ -578,7 +593,7 @@ def fetch_lequa2022(task, data_home=None):
     val_true_prev_path = join(lequa_dir, task, 'public', 'dev_prevalences.txt')
     val_gen = SamplesFromDir(val_samples_path, val_true_prev_path, load_fn=load_fn)
 
-    test_samples_path = join(lequa_dir, task, 'public', 'dev_samples')
+    test_samples_path = join(lequa_dir, task, 'public', 'test_samples')
     test_true_prev_path = join(lequa_dir, task, 'public', 'test_prevalences.txt')
     test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
 

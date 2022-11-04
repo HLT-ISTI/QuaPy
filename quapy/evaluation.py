@@ -41,7 +41,7 @@ def prediction(model: BaseQuantifier, protocol: AbstractProtocol, aggr_speedup='
 
 def __prediction_helper(quantification_fn, protocol: AbstractProtocol, verbose=False):
     true_prevs, estim_prevs = [], []
-    for sample_instances, sample_prev in tqdm(protocol(), total=protocol.total()) if verbose else protocol():
+    for sample_instances, sample_prev in tqdm(protocol(), total=protocol.total(), desc='predicting') if verbose else protocol():
         estim_prevs.append(quantification_fn(sample_instances))
         true_prevs.append(sample_prev)
 

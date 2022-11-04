@@ -11,11 +11,11 @@ def from_name(err_name):
     """
     assert err_name in ERROR_NAMES, f'unknown error {err_name}'
     callable_error = globals()[err_name]
-    if err_name in QUANTIFICATION_ERROR_SMOOTH_NAMES:
-        eps = __check_eps()
-        def bound_callable_error(y_true, y_pred):
-            return callable_error(y_true, y_pred, eps)
-        return bound_callable_error
+    # if err_name in QUANTIFICATION_ERROR_SMOOTH_NAMES:
+    #     eps = __check_eps()
+    #     def bound_callable_error(y_true, y_pred):
+    #         return callable_error(y_true, y_pred, eps)
+    #     return bound_callable_error
     return callable_error
 
 
