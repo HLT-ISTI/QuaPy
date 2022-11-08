@@ -9,7 +9,7 @@
 
 - ACC, PACC, Forman's threshold variants have been parallelized.
 
-- Exploration of hyperparameters in Model selection can now be run in parallel (it was a n_jobs argument in
+- Exploration of hyperparameters in Model selection can now be run in parallel (there was a n_jobs argument in
     QuaPy 0.1.6 but only the evaluation part for one specific hyperparameter was run in parallel).
 
 - The prediction function has been refactored, so it applies the optimization for aggregative quantifiers (that
@@ -19,6 +19,8 @@
     or not.
 
 - n_jobs is now taken from the environment if set to None
+
+- examples directory created!
 
 Things to fix:
 - clean functions like binary, aggregative, probabilistic, etc; those should be resolved via isinstance():
