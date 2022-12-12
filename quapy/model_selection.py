@@ -2,6 +2,10 @@ import itertools
 import signal
 from copy import deepcopy
 from typing import Union, Callable
+
+import numpy as np
+from sklearn import clone
+
 import quapy as qp
 from quapy import evaluation
 from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
@@ -185,5 +189,30 @@ class GridSearchQ(BaseQuantifier):
         if hasattr(self, 'best_model_'):
             return self.best_model_
         raise ValueError('best_model called before fit')
+
+
+
+
+def cross_val_predict(quantifier: BaseQuantifier, data: LabelledCollection, nfolds=3, random_state=0):
+    """
+    Akin to `scikit-learn's cross_val_predict <https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_predict.html>`_
+    but for quantification.
+
+    :param quantifier: a quantifier issuing class prevalence values
+    :param data: a labelled collection
+    :param nfolds: number of folds for k-fold cross validation generation
+    :param random_state: random seed for reproducibility
+    :return: a vector of class prevalence values
+    """
+
+    total_prev = np.zeros(shape=data.n_classes)
+
+    for train, test in data.kFCV(nfolds=nfolds, random_state=random_state):
+        quantifier.fit(train)
+        fold_prev = quantifier.quantify(test.X)
+        rel_size = len(test.X)/len(data)
+        total_prev += fold_prev*rel_size
+
+    return total_prev
 
 

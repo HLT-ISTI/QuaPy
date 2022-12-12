@@ -3,6 +3,8 @@ clean all the cumbersome methods that have to be implemented for new quantifiers
 make truly parallel the GridSearchQ
 make more examples in the "examples" directory
 merge with master, because I had to fix some problems with QuaNet due to an issue notified via GitHub!
+added cross_val_predict in qp.model_selection (i.e., a cross_val_predict for quantification) --would be nice to have
+    it parallelized
 
 
 Packaging:

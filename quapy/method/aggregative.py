@@ -3,7 +3,7 @@ from copy import deepcopy
 from typing import Callable, Union
 import numpy as np
 from joblib import Parallel, delayed
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, clone
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
@@ -503,7 +503,7 @@ class EMQ(AggregativeProbabilisticQuantifier):
     :param learner: a sklearn's Estimator that generates a classifier
     :param exact_train_prev: set to True (default) for using, as the initial observation, the true training prevalence;
         or set to False for computing the training prevalence as an estimate, akin to PCC, i.e., as the expected
-        value of the posterior probabilities of the trianing documents as suggested in
+        value of the posterior probabilities of the training instances as suggested in
         `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
     """
 
@@ -519,7 +519,12 @@ class EMQ(AggregativeProbabilisticQuantifier):
         if self.exact_train_prev:
             self.train_prevalence = F.prevalence_from_labels(data.labels, self.classes_)
         else:
-            self.train_prevalence = PCC(learner=self.learner).fit(data, fit_learner=False).quantify(data.X)
+            self.train_prevalence = qp.model_selection.cross_val_predict(
+                quantifier=PCC(clone(self.learner)),
+                data=data,
+                nfolds=3,
+                random_state=0
+            )
         return self
 
     def aggregate(self, classif_posteriors, epsilon=EPSILON):
