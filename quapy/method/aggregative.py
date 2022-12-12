@@ -501,17 +501,25 @@ class EMQ(AggregativeProbabilisticQuantifier):
     maximum-likelihood estimation, in a mutually recursive way, until convergence.
 
     :param learner: a sklearn's Estimator that generates a classifier
+    :param exact_train_prev: set to True (default) for using, as the initial observation, the true training prevalence;
+        or set to False for computing the training prevalence as an estimate, akin to PCC, i.e., as the expected
+        value of the posterior probabilities of the trianing documents as suggested in
+        `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
     """
 
     MAX_ITER = 1000
     EPSILON = 1e-4
 
-    def __init__(self, learner: BaseEstimator):
+    def __init__(self, learner: BaseEstimator, exact_train_prev=True):
         self.learner = learner
+        self.exact_train_prev = exact_train_prev
 
     def fit(self, data: LabelledCollection, fit_learner=True):
         self.learner, _ = _training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
-        self.train_prevalence = F.prevalence_from_labels(data.labels, self.classes_)
+        if self.exact_train_prev:
+            self.train_prevalence = F.prevalence_from_labels(data.labels, self.classes_)
+        else:
+            self.train_prevalence = PCC(learner=self.learner).fit(data, fit_learner=False).quantify(data.X)
         return self
 
     def aggregate(self, classif_posteriors, epsilon=EPSILON):
