@@ -134,6 +134,8 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     :param repeats: number of copies for each valid prevalence vector (default is 10)
     :param smooth_limits_epsilon: the quantity to add and subtract to the limits 0 and 1
     :param random_state: allows replicating samples across runs (default None)
+    :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or
+        to "labelled_collection" to get instead instances of LabelledCollection
     """
 
     def __init__(self, data:LabelledCollection, sample_size, n_prevalences=21, repeats=10, smooth_limits_epsilon=0, random_state=None, return_type='sample_prev'):
@@ -192,6 +194,8 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     :param sample_size: integer, the number of instances in each sample
     :param repeats: the number of samples to generate. Default is 100.
     :param random_state: allows replicating samples across runs (default None)
+    :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or
+        to "labelled_collection" to get instead instances of LabelledCollection
     """
 
     def __init__(self, data:LabelledCollection, sample_size, repeats=100, random_state=None, return_type='sample_prev'):
@@ -229,6 +233,8 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
     :param sample_size: integer, the number of instances in each sample
     :param repeats: the number of samples to generate. Default is 100.
     :param random_state: allows replicating samples across runs (default None)
+    :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or
+        to "labelled_collection" to get instead instances of LabelledCollection
     """
 
     def __init__(self, data: LabelledCollection, sample_size, repeats=100, random_state=None, return_type='sample_prev'):
