@@ -22,6 +22,18 @@
 
 - examples directory created!
 
+- cross_val_predict (for quantification) added to model_selection: would be nice to allow the user specifies a
+    test protocol maybe, or None for bypassing it?
+
+- I think Pablo added DyS, Topsoe distance and binary search.
+
+- I think Pablo added multi-thread reproducibility.
+
+- Bugfix: adding two labelled collections (with +) now checks for consistency in the classes
+
+- newer versions of numpy raise a warning when accessing types (e.g., np.float). I have replaced all such instances
+    with the plain python type (e.g., float).
+
 Things to fix:
 - clean functions like binary, aggregative, probabilistic, etc; those should be resolved via isinstance():
     this is not working; I don't know how to make the isinstance work. Looks like there is some problem with the

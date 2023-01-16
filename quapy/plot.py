@@ -370,7 +370,7 @@ def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs
     bins[-1] += 0.001
 
     # we use this to keep track of how many datapoits contribute to each bin
-    inds_histogram_global = np.zeros(n_bins, dtype=np.float)
+    inds_histogram_global = np.zeros(n_bins, dtype=float)
     n_methods = len(method_order)
     buckets = np.zeros(shape=(n_methods, n_bins, 3))
     for i, method in enumerate(method_order):

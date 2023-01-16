@@ -23,7 +23,8 @@ def _get_parallel_slices(n_tasks, n_jobs):
 def map_parallel(func, args, n_jobs):
     """
     Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and n_jobs=2, then
-    func is applied in two parallel processes to args[0:50] and to args[50:99]
+    func is applied in two parallel processes to args[0:50] and to args[50:99]. func is a function
+    that already works with a list of arguments.
 
     :param func: function to be parallelized
     :param args: array-like of arguments to be passed to the function in different parallel calls

@@ -26,15 +26,15 @@ def load_raw_documents(path):
     documents = list(df["text"].values)
     labels = None
     if "label" in df.columns:
-        labels = df["label"].values.astype(np.int)
+        labels = df["label"].values.astype(int)
     return documents, labels
 
 
 def load_vector_documents(path):
-    D = pd.read_csv(path).to_numpy(dtype=np.float)
+    D = pd.read_csv(path).to_numpy(dtype=float)
     labelled = D.shape[1] == 301
     if labelled:
-        X, y = D[:, 1:], D[:, 0].astype(np.int).flatten()
+        X, y = D[:, 1:], D[:, 0].astype(int).flatten()
     else:
         X, y = D, None
     return X, y

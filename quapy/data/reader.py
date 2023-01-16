@@ -102,7 +102,7 @@ def reindex_labels(y):
     y = np.asarray(y)
     classnames = np.asarray(sorted(np.unique(y)))
     label2index = {label: index for index, label in enumerate(classnames)}
-    indexed = np.empty(y.shape, dtype=np.int)
+    indexed = np.empty(y.shape, dtype=int)
     for label in classnames:
         indexed[y==label] = label2index[label]
     return indexed, classnames
@@ -121,7 +121,7 @@ def binarize(y, pos_class):
         0 otherwise
     """
     y = np.asarray(y)
-    ybin = np.zeros(y.shape, dtype=np.int)
+    ybin = np.zeros(y.shape, dtype=int)
     ybin[y == pos_class] = 1
     return ybin
 

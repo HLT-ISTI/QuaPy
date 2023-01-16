@@ -1,3 +1,5 @@
+from functools import cached_property
+
 import numpy as np
 from scipy.sparse import issparse
 from scipy.sparse import vstack
@@ -223,13 +225,44 @@ class LabelledCollection:
         test = LabelledCollection(te_docs, te_labels, classes_=self.classes_)
         return training, test
 
+
+    def split_random(self, train_prop=0.6, random_state=None):
+        """
+        Returns two instances of :class:`LabelledCollection` split randomly from this collection, at desired
+        proportion.
+
+        :param train_prop: the proportion of elements to include in the left-most returned collection (typically used
+            as the training collection). The rest of elements are included in the right-most returned collection
+            (typically used as a test collection).
+        :param random_state: if specified, guarantees reproducibility of the split.
+        :return: two instances of :class:`LabelledCollection`, the first one with `train_prop` elements, and the
+            second one with `1-train_prop` elements
+        """
+        indexes = np.random.RandomState(seed=random_state).permutation(len(self))
+        if isinstance(train_prop, int):
+            assert train_prop < len(self), \
+                'argument train_prop cannot be greater than the number of elements in the collection'
+            splitpoint = train_prop
+        elif isinstance(train_prop, float):
+            assert 0 < train_prop < 1, \
+                'argument train_prop out of range (0,1)'
+            splitpoint = int(np.round(len(self)*train_prop))
+        left, right = indexes[:splitpoint], indexes[splitpoint:]
+        training = self.sampling_from_index(left)
+        test = self.sampling_from_index(right)
+        return training, test
+
     def __add__(self, other):
         """
-        Returns a new :class:`LabelledCollection` as the union of this collection with another collection
+        Returns a new :class:`LabelledCollection` as the union of this collection with another collection.
+        Both labelled collections must have the same classes.
 
         :param other: another :class:`LabelledCollection`
         :return: a :class:`LabelledCollection` representing the union of both collections
         """
+        if not all(np.sort(self.classes_)==np.sort(other.classes_)):
+            raise NotImplementedError('unsupported operation for collections on different classes')
+
         if other is None:
             return self
         elif issparse(self.instances) and issparse(other.instances):
@@ -241,7 +274,7 @@ class LabelledCollection:
         else:
             raise NotImplementedError('unsupported operation for collection types')
         labels = np.concatenate([self.labels, other.labels])
-        return LabelledCollection(join_instances, labels)
+        return LabelledCollection(join_instances, labels, classes_=self.classes_)
 
     @property
     def Xy(self):

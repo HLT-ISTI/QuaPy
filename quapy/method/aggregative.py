@@ -132,7 +132,11 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
 
     def set_params(self, **parameters):
         if isinstance(self.learner, CalibratedClassifierCV):
-            parameters = {'base_estimator__' + k: v for k, v in parameters.items()}
+            if self.learner.get_params().get('base_estimator') == 'deprecated':
+                key_prefix = 'estimator__'  # this has changed in the newer versions of sklearn
+            else:
+                key_prefix = 'base_estimator__'
+            parameters = {key_prefix + k: v for k, v in parameters.items()}
         self.learner.set_params(**parameters)
 
 
@@ -369,7 +373,7 @@ class ACC(AggregativeQuantifier):
         # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
         conf = confusion_matrix(y, y_, labels=classes).T
-        conf = conf.astype(np.float)
+        conf = conf.astype(float)
         class_counts = conf.sum(axis=0)
         for i, _ in enumerate(classes):
             if class_counts[i] == 0:
