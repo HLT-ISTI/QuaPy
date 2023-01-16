@@ -309,11 +309,11 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
         for vline in vlines:
             ax.axvline(vline, 0, 1, linestyle='--', color='k')
 
-    if not show_legend:
-        ax.get_legend().remove()
 
     ax.set_xlim(min_x, max_x)
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    
+    if not show_legend:
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
     _save_or_show(savepath)
 
