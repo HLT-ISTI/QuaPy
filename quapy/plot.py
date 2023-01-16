@@ -212,6 +212,7 @@ def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=N
 def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
                    n_bins=20, error_name='ae', show_std=False,
                    show_density=True,
+                   show_legend=True,
                    logscale=False,
                    title=f'Quantification error as a function of distribution shift',
                    vlines=None,
@@ -234,6 +235,7 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
     :param error_name: a string representing the name of an error function (as defined in `quapy.error`, default is "ae")
     :param show_std: whether or not to show standard deviations as color bands (default is False)
     :param show_density: whether or not to display the distribution of experiments for each bin (default is True)
+    :param show_density: whether or not to display the legend of the chart (default is True)
     :param logscale: whether or not to log-scale the y-error measure (default is False)
     :param title: title of the plot (default is "Quantification error as a function of distribution shift")
     :param vlines: array-like list of values (default is None). If indicated, highlights some regions of the space
@@ -306,7 +308,11 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
     if vlines:
         for vline in vlines:
             ax.axvline(vline, 0, 1, linestyle='--', color='k')
-    ax.set_xlim(0, max_x)
+
+    if not show_legend:
+        ax.get_legend().remove()
+
+    ax.set_xlim(min_x, max_x)
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
     _save_or_show(savepath)
