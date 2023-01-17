@@ -10,6 +10,7 @@ from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from tqdm import tqdm
 import quapy as qp
 import quapy.functional as F
+from classification.calibration import RecalibratedClassifier
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier
@@ -137,6 +138,7 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
             else:
                 key_prefix = 'base_estimator__'
             parameters = {key_prefix + k: v for k, v in parameters.items()}
+
         self.learner.set_params(**parameters)
 
 
