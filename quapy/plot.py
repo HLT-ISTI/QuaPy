@@ -5,6 +5,7 @@ import numpy as np
 from matplotlib import cm
 from scipy.stats import ttest_ind_from_stats
 from matplotlib.ticker import ScalarFormatter
+import math
 
 import quapy as qp
 
@@ -272,9 +273,8 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
         if logscale:
             ax.set_yscale("log")
             ax.yaxis.set_major_formatter(ScalarFormatter())
-            ax.yaxis.set_minor_formatter(ScalarFormatter())
             ax.yaxis.get_major_formatter().set_scientific(False)
-            ax.yaxis.get_minor_formatter().set_scientific(False)
+            ax.minorticks_off()
 
         inds = np.digitize(tr_test_drifts, bins, right=True)
 
@@ -307,12 +307,10 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
     if show_density:
         ax2 = ax.twinx()
         ax2.bar([ind * binwidth-binwidth/2 for ind in range(len(bins))],
-               max_y*npoints/np.max(npoints), alpha=0.15, color='g', width=binwidth, label='density')
-        #ax2.set_ylabel("bar data")
+               npoints/np.sum(npoints), alpha=0.15, color='g', width=binwidth, label='density')
         ax2.set_ylim(0,1)
         ax2.spines['right'].set_color('g')
         ax2.tick_params(axis='y', colors='g')
-        #ax2.yaxis.set_visible(False)
     
     ax.set(xlabel=f'Distribution shift between training set and test sample',
            ylabel=f'{error_name.upper()} (true distribution, predicted distribution)',
@@ -325,9 +323,13 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
 
 
     ax.set_xlim(min_x, max_x)
+    if logscale:
+        #nice scale for the logaritmic axis
+        ax.set_ylim(0,10 ** math.ceil(math.log10(max_y)))
+    
     
     if show_legend:
-        fig.legend(loc='right')
+        fig.legend(bbox_to_anchor=(1.05, 1), loc="upper right")
       
     _save_or_show(savepath)
 
@@ -549,7 +551,7 @@ def _join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error
         method_order = []
 
     for method, test_prevs_i, estim_prevs_i, tr_prev_i in zip(method_names, true_prevs, estim_prevs, tr_prevs):
-        tr_prev_i = np.repeat(tr_prev_i.reshape(1, -1), repeats=test_prevs_i.shape[0], axis=0)
+        tr_prev_i = np.repeat(tr_prevs.reshape(1, -1), repeats=test_prevs_i.shape[0], axis=0)
 
         tr_test_drifts = x_error(test_prevs_i, tr_prev_i)
         data[method]['x'] = np.concatenate([data[method]['x'], tr_test_drifts])
