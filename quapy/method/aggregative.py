@@ -10,7 +10,8 @@ from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from tqdm import tqdm
 import quapy as qp
 import quapy.functional as F
-from classification.calibration import RecalibratedClassifier
+from classification.calibration import RecalibratedClassifier, NBVSCalibration, BCTSCalibration, TSCalibration, \
+    VSCalibration
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier
@@ -138,8 +139,11 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
             else:
                 key_prefix = 'base_estimator__'
             parameters = {key_prefix + k: v for k, v in parameters.items()}
+        elif isinstance(self.learner, RecalibratedClassifier):
+            parameters = {'estimator__' + k: v for k, v in parameters.items()}
 
         self.learner.set_params(**parameters)
+        return self
 
 
 # Helper
@@ -511,22 +515,38 @@ class EMQ(AggregativeProbabilisticQuantifier):
         or set to False for computing the training prevalence as an estimate, akin to PCC, i.e., as the expected
         value of the posterior probabilities of the training instances as suggested in
         `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
+    :param recalib: a string indicating the method of recalibration. Available choices include "nbvs" (No-Bias Vector
+        Scaling), "bcts" (Bias-Corrected Temperature Scaling), "ts" (Temperature Scaling), and "vs" (Vector Scaling).
+        The default value is None, indicating no recalibration.
     """
 
     MAX_ITER = 1000
     EPSILON = 1e-4
 
-    def __init__(self, learner: BaseEstimator, exact_train_prev=True):
+    def __init__(self, learner: BaseEstimator, exact_train_prev=True, recalib=None):
         self.learner = learner
         self.exact_train_prev = exact_train_prev
+        self.recalib = recalib
 
     def fit(self, data: LabelledCollection, fit_learner=True):
+        if self.recalib is not None:
+            if self.recalib == 'nbvs':
+                self.learner = NBVSCalibration(self.learner)
+            elif self.recalib == 'bcts':
+                self.learner = BCTSCalibration(self.learner)
+            elif self.recalib == 'ts':
+                self.learner = TSCalibration(self.learner)
+            elif self.recalib == 'vs':
+                self.learner = VSCalibration(self.learner)
+            else:
+                raise ValueError('invalid param argument for recalibration method; available ones are '
+                                 '"nbvs", "bcts", "ts", and "vs".')
         self.learner, _ = _training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
         if self.exact_train_prev:
             self.train_prevalence = F.prevalence_from_labels(data.labels, self.classes_)
         else:
             self.train_prevalence = qp.model_selection.cross_val_predict(
-                quantifier=PCC(clone(self.learner)),
+                quantifier=PCC(deepcopy(self.learner)),
                 data=data,
                 nfolds=3,
                 random_state=0

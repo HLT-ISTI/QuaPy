@@ -323,7 +323,6 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
         for vline in vlines:
             ax.axvline(vline, 0, 1, linestyle='--', color='k')
 
-
     ax.set_xlim(min_x, max_x)
     
     if show_legend:
