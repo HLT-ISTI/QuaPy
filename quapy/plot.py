@@ -306,9 +306,10 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
 
     if show_density:
         ax2 = ax.twinx()
+        densities = npoints/np.sum(npoints)
         ax2.bar([ind * binwidth-binwidth/2 for ind in range(len(bins))],
-               npoints/np.sum(npoints), alpha=0.15, color='g', width=binwidth, label='density')
-        ax2.set_ylim(0,1)
+               densities, alpha=0.15, color='g', width=binwidth, label='density')
+        ax2.set_ylim(0,max(densities))
         ax2.spines['right'].set_color('g')
         ax2.tick_params(axis='y', colors='g')
     
@@ -329,7 +330,9 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
     
     
     if show_legend:
-        fig.legend(bbox_to_anchor=(1.05, 1), loc="upper right")
+        fig.legend(loc='lower center',
+                  bbox_to_anchor=(1, 0.5),
+                  ncol=(len(method_names)+1)//2)
       
     _save_or_show(savepath)
 
