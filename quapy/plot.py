@@ -554,7 +554,7 @@ def _join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error
         method_order = []
 
     for method, test_prevs_i, estim_prevs_i, tr_prev_i in zip(method_names, true_prevs, estim_prevs, tr_prevs):
-        tr_prev_i = np.repeat(tr_prevs.reshape(1, -1), repeats=test_prevs_i.shape[0], axis=0)
+        tr_prev_i = np.repeat(tr_prev_i.reshape(1, -1), repeats=test_prevs_i.shape[0], axis=0)
 
         tr_test_drifts = x_error(test_prevs_i, tr_prev_i)
         data[method]['x'] = np.concatenate([data[method]['x'], tr_test_drifts])
