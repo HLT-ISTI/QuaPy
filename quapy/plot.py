@@ -5,6 +5,7 @@ import numpy as np
 from matplotlib import cm
 from scipy.stats import ttest_ind_from_stats
 from matplotlib.ticker import ScalarFormatter
+import math
 
 import quapy as qp
 
@@ -272,9 +273,8 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
         if logscale:
             ax.set_yscale("log")
             ax.yaxis.set_major_formatter(ScalarFormatter())
-            ax.yaxis.set_minor_formatter(ScalarFormatter())
             ax.yaxis.get_major_formatter().set_scientific(False)
-            ax.yaxis.get_minor_formatter().set_scientific(False)
+            ax.minorticks_off()
 
         inds = np.digitize(tr_test_drifts, bins, right=True)
 
@@ -306,13 +306,12 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
 
     if show_density:
         ax2 = ax.twinx()
+        densities = npoints/np.sum(npoints)
         ax2.bar([ind * binwidth-binwidth/2 for ind in range(len(bins))],
-               max_y*npoints/np.max(npoints), alpha=0.15, color='g', width=binwidth, label='density')
-        #ax2.set_ylabel("bar data")
-        ax2.set_ylim(0,1)
+               densities, alpha=0.15, color='g', width=binwidth, label='density')
+        ax2.set_ylim(0,max(densities))
         ax2.spines['right'].set_color('g')
         ax2.tick_params(axis='y', colors='g')
-        #ax2.yaxis.set_visible(False)
     
     ax.set(xlabel=f'Distribution shift between training set and test sample',
            ylabel=f'{error_name.upper()} (true distribution, predicted distribution)',
@@ -325,9 +324,15 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
 
 
     ax.set_xlim(min_x, max_x)
+    if logscale:
+        #nice scale for the logaritmic axis
+        ax.set_ylim(0,10 ** math.ceil(math.log10(max_y)))
+    
     
     if show_legend:
-        fig.legend(loc='right')
+        fig.legend(loc='lower center',
+                  bbox_to_anchor=(1, 0.5),
+                  ncol=(len(method_names)+1)//2)
       
     _save_or_show(savepath)
 
