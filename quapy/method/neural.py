@@ -31,14 +31,14 @@ class QuaNetTrainer(BaseQuantifier):
     >>>
     >>> # the text classifier is a CNN trained by NeuralClassifierTrainer
     >>> cnn = CNNnet(dataset.vocabulary_size, dataset.n_classes)
-    >>> learner = NeuralClassifierTrainer(cnn, device='cuda')
+    >>> classifier = NeuralClassifierTrainer(cnn, device='cuda')
     >>>
     >>> # train QuaNet (QuaNet is an alias to QuaNetTrainer)
-    >>> model = QuaNet(learner, qp.environ['SAMPLE_SIZE'], device='cuda')
+    >>> model = QuaNet(classifier, qp.environ['SAMPLE_SIZE'], device='cuda')
     >>> model.fit(dataset.training)
     >>> estim_prevalence = model.quantify(dataset.test.instances)
 
-    :param learner: an object implementing `fit` (i.e., that can be trained on labelled data),
+    :param classifier: an object implementing `fit` (i.e., that can be trained on labelled data),
         `predict_proba` (i.e., that can generate posterior probabilities of unlabelled examples) and
         `transform` (i.e., that can generate embedded representations of the unlabelled instances).
     :param sample_size: integer, the sample size
@@ -60,7 +60,7 @@ class QuaNetTrainer(BaseQuantifier):
     """
 
     def __init__(self,
-                 learner,
+                 classifier,
                  sample_size,
                  n_epochs=100,
                  tr_iter_per_poch=500,
@@ -76,13 +76,13 @@ class QuaNetTrainer(BaseQuantifier):
                  checkpointname=None,
                  device='cuda'):
 
-        assert hasattr(learner, 'transform'), \
-            f'the learner {learner.__class__.__name__} does not seem to be able to produce document embeddings ' \
+        assert hasattr(classifier, 'transform'), \
+            f'the classifier {classifier.__class__.__name__} does not seem to be able to produce document embeddings ' \
                 f'since it does not implement the method "transform"'
-        assert hasattr(learner, 'predict_proba'), \
-            f'the learner {learner.__class__.__name__} does not seem to be able to produce posterior probabilities ' \
+        assert hasattr(classifier, 'predict_proba'), \
+            f'the classifier {classifier.__class__.__name__} does not seem to be able to produce posterior probabilities ' \
                 f'since it does not implement the method "predict_proba"'
-        self.learner = learner
+        self.classifier = classifier
         self.sample_size = sample_size
         self.n_epochs = n_epochs
         self.tr_iter = tr_iter_per_poch
@@ -105,26 +105,26 @@ class QuaNetTrainer(BaseQuantifier):
         self.checkpoint = os.path.join(checkpointdir, checkpointname)
         self.device = torch.device(device)
 
-        self.__check_params_colision(self.quanet_params, self.learner.get_params())
+        self.__check_params_colision(self.quanet_params, self.classifier.get_params())
         self._classes_ = None
 
-    def fit(self, data: LabelledCollection, fit_learner=True):
+    def fit(self, data: LabelledCollection, fit_classifier=True):
         """
         Trains QuaNet.
 
-        :param data: the training data on which to train QuaNet. If `fit_learner=True`, the data will be split in
+        :param data: the training data on which to train QuaNet. If `fit_classifier=True`, the data will be split in
             40/40/20 for training the classifier, training QuaNet, and validating QuaNet, respectively. If
-            `fit_learner=False`, the data will be split in 66/34 for training QuaNet and validating it, respectively.
-        :param fit_learner: if True, trains the classifier on a split containing 40% of the data
+            `fit_classifier=False`, the data will be split in 66/34 for training QuaNet and validating it, respectively.
+        :param fit_classifier: if True, trains the classifier on a split containing 40% of the data
         :return: self
         """
         self._classes_ = data.classes_
         os.makedirs(self.checkpointdir, exist_ok=True)
 
-        if fit_learner:
+        if fit_classifier:
             classifier_data, unused_data = data.split_stratified(0.4)
             train_data, valid_data = unused_data.split_stratified(0.66)  # 0.66 split of 60% makes 40% and 20%
-            self.learner.fit(*classifier_data.Xy)
+            self.classifier.fit(*classifier_data.Xy)
         else:
             classifier_data = None
             train_data, valid_data = data.split_stratified(0.66)
@@ -133,21 +133,21 @@ class QuaNetTrainer(BaseQuantifier):
         self.tr_prev = data.prevalence()
 
         # compute the posterior probabilities of the instances
-        valid_posteriors = self.learner.predict_proba(valid_data.instances)
-        train_posteriors = self.learner.predict_proba(train_data.instances)
+        valid_posteriors = self.classifier.predict_proba(valid_data.instances)
+        train_posteriors = self.classifier.predict_proba(train_data.instances)
 
         # turn instances' original representations into embeddings
-        valid_data_embed = LabelledCollection(self.learner.transform(valid_data.instances), valid_data.labels, self._classes_)
-        train_data_embed = LabelledCollection(self.learner.transform(train_data.instances), train_data.labels, self._classes_)
+        valid_data_embed = LabelledCollection(self.classifier.transform(valid_data.instances), valid_data.labels, self._classes_)
+        train_data_embed = LabelledCollection(self.classifier.transform(train_data.instances), train_data.labels, self._classes_)
 
         self.quantifiers = {
-            'cc': CC(self.learner).fit(None, fit_learner=False),
-            'acc': ACC(self.learner).fit(None, fit_learner=False, val_split=valid_data),
-            'pcc': PCC(self.learner).fit(None, fit_learner=False),
-            'pacc': PACC(self.learner).fit(None, fit_learner=False, val_split=valid_data),
+            'cc': CC(self.classifier).fit(None, fit_classifier=False),
+            'acc': ACC(self.classifier).fit(None, fit_classifier=False, val_split=valid_data),
+            'pcc': PCC(self.classifier).fit(None, fit_classifier=False),
+            'pacc': PACC(self.classifier).fit(None, fit_classifier=False, val_split=valid_data),
         }
         if classifier_data is not None:
-            self.quantifiers['emq'] = EMQ(self.learner).fit(classifier_data, fit_learner=False)
+            self.quantifiers['emq'] = EMQ(self.classifier).fit(classifier_data, fit_classifier=False)
 
         self.status = {
             'tr-loss': -1,
@@ -199,8 +199,8 @@ class QuaNetTrainer(BaseQuantifier):
         return prevs_estim
 
     def quantify(self, instances):
-        posteriors = self.learner.predict_proba(instances)
-        embeddings = self.learner.transform(instances)
+        posteriors = self.classifier.predict_proba(instances)
+        embeddings = self.classifier.transform(instances)
         quant_estims = self._get_aggregative_estims(posteriors)
         self.quanet.eval()
         with torch.no_grad():
@@ -264,7 +264,7 @@ class QuaNetTrainer(BaseQuantifier):
                                      f'patience={early_stop.patience}/{early_stop.PATIENCE_LIMIT}')
 
     def get_params(self, deep=True):
-        return {**self.learner.get_params(), **self.quanet_params}
+        return {**self.classifier.get_params(), **self.quanet_params}
 
     def set_params(self, **parameters):
         learner_params = {}
@@ -273,7 +273,7 @@ class QuaNetTrainer(BaseQuantifier):
                 self.quanet_params[key] = val
             else:
                 learner_params[key] = val
-        self.learner.set_params(**learner_params)
+        self.classifier.set_params(**learner_params)
 
     def __check_params_colision(self, quanet_params, learner_params):
         quanet_keys = set(quanet_params.keys())
@@ -281,7 +281,7 @@ class QuaNetTrainer(BaseQuantifier):
         intersection = quanet_keys.intersection(learner_keys)
         if len(intersection) > 0:
             raise ValueError(f'the use of parameters {intersection} is ambiguous sine those can refer to '
-                             f'the parameters of QuaNet or the learner {self.learner.__class__.__name__}')
+                             f'the parameters of QuaNet or the learner {self.classifier.__class__.__name__}')
 
     def clean_checkpoint(self):
         """

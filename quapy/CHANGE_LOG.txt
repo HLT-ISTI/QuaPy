@@ -37,6 +37,12 @@
 - new dependency "abstention" (to add to the project requirements and setup). Calibration methods from
     https://github.com/kundajelab/abstention added.
 
+- the internal classifier of aggregative methods is now called "classifier" instead of "learner"
+
+- when optimizing the hyperparameters of an aggregative quantifier, the classifier's specific hyperparameters
+    should be marked with a "classifier__" prefix (just like in scikit-learn), while the quantifier's specific
+    hyperparameters are named directly. For example, PCC(LogisticRegression()) quantifier has
+
 Things to fix:
 - calibration with recalibration methods has to be fixed for exact_train_prev in EMQ (conflicts with clone, deepcopy, etc.)
 - clean functions like binary, aggregative, probabilistic, etc; those should be resolved via isinstance():

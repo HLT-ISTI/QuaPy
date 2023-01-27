@@ -88,7 +88,12 @@ class GridSearchQ(BaseQuantifier):
 
         hyper = [dict({k: values[i] for i, k in enumerate(params_keys)}) for values in itertools.product(*params_values)]
         #pass a seed to parallel so it is set in clild processes
-        scores = qp.util.parallel(self._delayed_eval, ((params, training) for params in hyper), seed=qp.environ.get('_R_SEED', None), n_jobs=self.n_jobs)
+        scores = qp.util.parallel(
+            self._delayed_eval,
+            ((params, training) for params in hyper),
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=self.n_jobs
+        )
 
         for params, score, model in scores:
             if score is not None:
@@ -103,7 +108,7 @@ class GridSearchQ(BaseQuantifier):
         tend = time()-tinit
 
         if self.best_score_ is None:
-            raise TimeoutError('all jobs took more than the timeout time to end')
+            raise TimeoutError('no combination of hyperparameters seem to work')
 
         self._sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f}) '
                    f'[took {tend:.4f}s]')
@@ -149,6 +154,13 @@ class GridSearchQ(BaseQuantifier):
                 signal.alarm(0)
         except TimeoutError:
             self._sout(f'timeout ({self.timeout}s) reached for config {params}')
+            score = None
+        except ValueError as e:
+            self._sout(f'the combination of hyperparameters {params} is invalid')
+            raise e
+        except Exception as e:
+            self._sout(f'something went wrong for config {params}; skipping:')
+            self._sout(f'\tException: {e}')
             score = None
 
         return params, score, model

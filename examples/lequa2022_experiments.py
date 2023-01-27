@@ -17,7 +17,7 @@ training, val_generator, test_generator = fetch_lequa2022(task=task)
 
 # define the quantifier
 learner = CalibratedClassifierCV(LogisticRegression())
-quantifier = EMQ(learner=learner)
+quantifier = EMQ(classifier=learner)
 
 # model selection
 param_grid = {'C': np.logspace(-3, 3, 7), 'class_weight': ['balanced', None]}

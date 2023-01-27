@@ -11,27 +11,27 @@ import numpy as np
 # see https://github.com/kundajelab/abstention
 
 
-class RecalibratedClassifier:
+class RecalibratedProbabilisticClassifier:
     pass
 
 
-class RecalibratedClassifierBase(BaseEstimator, RecalibratedClassifier):
+class RecalibratedProbabilisticClassifierBase(BaseEstimator, RecalibratedProbabilisticClassifier):
     """
     Applies a (re)calibration method from abstention.calibration, as defined in
     `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
 
-    :param estimator: a scikit-learn probabilistic classifier
+    :param classifier: a scikit-learn probabilistic classifier
     :param calibrator: the calibration object (an instance of abstention.calibration.CalibratorFactory)
-    :param val_split: indicate an integer k for performing kFCV to obtain the posterior prevalences, or a float p
+    :param val_split: indicate an integer k for performing kFCV to obtain the posterior probabilities, or a float p
         in (0,1) to indicate that the posteriors are obtained in a stratified validation split containing p% of the
         training instances (the rest is used for training). In any case, the classifier is retrained in the whole
         training set afterwards.
-    :param n_jobs: indicate the number of parallel workers (only when val_split is an integer)
+    :param n_jobs: indicate the number of parallel workers (only when val_split is an integer); default=None
     :param verbose: whether or not to display information in the standard output
     """
 
-    def __init__(self, estimator, calibrator, val_split=5, n_jobs=1, verbose=False):
-        self.estimator = estimator
+    def __init__(self, classifier, calibrator, val_split=5, n_jobs=None, verbose=False):
+        self.classifier = classifier
         self.calibrator = calibrator
         self.val_split = val_split
         self.n_jobs = n_jobs
@@ -50,39 +50,39 @@ class RecalibratedClassifierBase(BaseEstimator, RecalibratedClassifier):
 
     def fit_cv(self, X, y):
         posteriors = cross_val_predict(
-            self.estimator, X, y, cv=self.val_split, n_jobs=self.n_jobs, verbose=self.verbose, method="predict_proba"
+            self.classifier, X, y, cv=self.val_split, n_jobs=self.n_jobs, verbose=self.verbose, method='predict_proba'
         )
-        self.estimator.fit(X, y)
+        self.classifier.fit(X, y)
         nclasses = len(np.unique(y))
         self.calibration_function = self.calibrator(posteriors, np.eye(nclasses)[y], posterior_supplied=True)
         return self
 
     def fit_tr_val(self, X, y):
         Xtr, Xva, ytr, yva = train_test_split(X, y, test_size=self.val_split, stratify=y)
-        self.estimator.fit(Xtr, ytr)
-        posteriors = self.estimator.predict_proba(Xva)
+        self.classifier.fit(Xtr, ytr)
+        posteriors = self.classifier.predict_proba(Xva)
         nclasses = len(np.unique(yva))
         self.calibrator = self.calibrator(posteriors, np.eye(nclasses)[yva], posterior_supplied=True)
         return self
 
     def predict(self, X):
-        return self.estimator.predict(X)
+        return self.classifier.predict(X)
 
     def predict_proba(self, X):
-        posteriors = self.estimator.predict_proba(X)
+        posteriors = self.classifier.predict_proba(X)
         return self.calibration_function(posteriors)
 
     @property
     def classes_(self):
-        return self.estimator.classes_
+        return self.classifier.classes_
 
 
-class NBVSCalibration(RecalibratedClassifierBase):
+class NBVSCalibration(RecalibratedProbabilisticClassifierBase):
     """
     Applies the No-Bias Vector Scaling (NBVS) calibration method from abstention.calibration, as defined in
     `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
 
-    :param estimator: a scikit-learn probabilistic classifier
+    :param classifier: a scikit-learn probabilistic classifier
     :param val_split: indicate an integer k for performing kFCV to obtain the posterior prevalences, or a float p
         in (0,1) to indicate that the posteriors are obtained in a stratified validation split containing p% of the
         training instances (the rest is used for training). In any case, the classifier is retrained in the whole
@@ -91,20 +91,20 @@ class NBVSCalibration(RecalibratedClassifierBase):
     :param verbose: whether or not to display information in the standard output
     """
 
-    def __init__(self, estimator, val_split=5, n_jobs=1, verbose=False):
-        self.estimator = estimator
+    def __init__(self, classifier, val_split=5, n_jobs=1, verbose=False):
+        self.classifier = classifier
         self.calibrator = NoBiasVectorScaling(verbose=verbose)
         self.val_split = val_split
         self.n_jobs = n_jobs
         self.verbose = verbose
 
 
-class BCTSCalibration(RecalibratedClassifierBase):
+class BCTSCalibration(RecalibratedProbabilisticClassifierBase):
     """
     Applies the Bias-Corrected Temperature Scaling (BCTS) calibration method from abstention.calibration, as defined in
     `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
 
-    :param estimator: a scikit-learn probabilistic classifier
+    :param classifier: a scikit-learn probabilistic classifier
     :param val_split: indicate an integer k for performing kFCV to obtain the posterior prevalences, or a float p
         in (0,1) to indicate that the posteriors are obtained in a stratified validation split containing p% of the
         training instances (the rest is used for training). In any case, the classifier is retrained in the whole
@@ -113,20 +113,20 @@ class BCTSCalibration(RecalibratedClassifierBase):
     :param verbose: whether or not to display information in the standard output
     """
 
-    def __init__(self, estimator, val_split=5, n_jobs=1, verbose=False):
-        self.estimator = estimator
+    def __init__(self, classifier, val_split=5, n_jobs=1, verbose=False):
+        self.classifier = classifier
         self.calibrator = TempScaling(verbose=verbose, bias_positions='all')
         self.val_split = val_split
         self.n_jobs = n_jobs
         self.verbose = verbose
 
 
-class TSCalibration(RecalibratedClassifierBase):
+class TSCalibration(RecalibratedProbabilisticClassifierBase):
     """
     Applies the Temperature Scaling (TS) calibration method from abstention.calibration, as defined in
     `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
 
-    :param estimator: a scikit-learn probabilistic classifier
+    :param classifier: a scikit-learn probabilistic classifier
     :param val_split: indicate an integer k for performing kFCV to obtain the posterior prevalences, or a float p
         in (0,1) to indicate that the posteriors are obtained in a stratified validation split containing p% of the
         training instances (the rest is used for training). In any case, the classifier is retrained in the whole
@@ -135,20 +135,20 @@ class TSCalibration(RecalibratedClassifierBase):
     :param verbose: whether or not to display information in the standard output
     """
 
-    def __init__(self, estimator, val_split=5, n_jobs=1, verbose=False):
-        self.estimator = estimator
+    def __init__(self, classifier, val_split=5, n_jobs=1, verbose=False):
+        self.classifier = classifier
         self.calibrator = TempScaling(verbose=verbose)
         self.val_split = val_split
         self.n_jobs = n_jobs
         self.verbose = verbose
 
 
-class VSCalibration(RecalibratedClassifierBase):
+class VSCalibration(RecalibratedProbabilisticClassifierBase):
     """
     Applies the Vector Scaling (VS) calibration method from abstention.calibration, as defined in
     `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
 
-    :param estimator: a scikit-learn probabilistic classifier
+    :param classifier: a scikit-learn probabilistic classifier
     :param val_split: indicate an integer k for performing kFCV to obtain the posterior prevalences, or a float p
         in (0,1) to indicate that the posteriors are obtained in a stratified validation split containing p% of the
         training instances (the rest is used for training). In any case, the classifier is retrained in the whole
@@ -157,8 +157,8 @@ class VSCalibration(RecalibratedClassifierBase):
     :param verbose: whether or not to display information in the standard output
     """
 
-    def __init__(self, estimator, val_split=5, n_jobs=1, verbose=False):
-        self.estimator = estimator
+    def __init__(self, classifier, val_split=5, n_jobs=1, verbose=False):
+        self.classifier = classifier
         self.calibrator = VectorScaling(verbose=verbose)
         self.val_split = val_split
         self.n_jobs = n_jobs

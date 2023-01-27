@@ -1,12 +1,15 @@
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
+
+from sklearn.base import BaseEstimator
+
 import quapy as qp
 from quapy.data import LabelledCollection
 
 
 # Base Quantifier abstract class
 # ------------------------------------
-class BaseQuantifier(metaclass=ABCMeta):
+class BaseQuantifier(BaseEstimator):
     """
     Abstract Quantifier. A quantifier is defined as an object of a class that implements the method :meth:`fit` on
     :class:`quapy.data.base.LabelledCollection`, the method :meth:`quantify`, and the :meth:`set_params` and
@@ -33,24 +36,24 @@ class BaseQuantifier(metaclass=ABCMeta):
         """
         ...
 
-    @abstractmethod
-    def set_params(self, **parameters):
-        """
-        Set the parameters of the quantifier.
-
-        :param parameters: dictionary of param-value pairs
-        """
-        ...
-
-    @abstractmethod
-    def get_params(self, deep=True):
-        """
-        Return the current parameters of the quantifier.
-
-        :param deep: for compatibility with sklearn
-        :return: a dictionary of param-value pairs
-        """
-        ...
+    # @abstractmethod
+    # def set_params(self, **parameters):
+    #     """
+    #     Set the parameters of the quantifier.
+    #
+    #     :param parameters: dictionary of param-value pairs
+    #     """
+    #     ...
+    #
+    # @abstractmethod
+    # def get_params(self, deep=True):
+    #     """
+    #     Return the current parameters of the quantifier.
+    #
+    #     :param deep: for compatibility with sklearn
+    #     :return: a dictionary of param-value pairs
+    #     """
+    #     ...
 
 
 class BinaryQuantifier(BaseQuantifier):
@@ -67,7 +70,7 @@ class BinaryQuantifier(BaseQuantifier):
 class OneVsAllGeneric:
     """
     Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary
-    quantifier for each class, and then l1-normalizes the outputs so that the class prevelences sum up to 1.
+    quantifier for each class, and then l1-normalizes the outputs so that the class prevelence values sum up to 1.
     """
 
     def __init__(self, binary_quantifier, n_jobs=None):
@@ -103,11 +106,11 @@ class OneVsAllGeneric:
     def get_params(self, deep=True):
         return self.binary_quantifier.get_params()
 
-    def _delayed_binary_predict(self, c, learners, X):
-        return learners[c].quantify(X)[:,1]  # the mean is the estimation for the positive class prevalence
+    def _delayed_binary_predict(self, c, quantifiers, X):
+        return quantifiers[c].quantify(X)[:, 1]  # the mean is the estimation for the positive class prevalence
 
-    def _delayed_binary_fit(self, c, learners, data, **kwargs):
+    def _delayed_binary_fit(self, c, quantifiers, data, **kwargs):
         bindata = LabelledCollection(data.instances, data.labels == c, n_classes=2)
-        learners[c].fit(bindata, **kwargs)
+        quantifiers[c].fit(bindata, **kwargs)
 
 
