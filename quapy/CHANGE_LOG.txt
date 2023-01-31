@@ -25,9 +25,9 @@
 - cross_val_predict (for quantification) added to model_selection: would be nice to allow the user specifies a
     test protocol maybe, or None for bypassing it?
 
-- I think Pablo added DyS, Topsoe distance and binary search.
+- DyS, Topsoe distance and binary search (thanks to Pablo González)
 
-- I think Pablo added multi-thread reproducibility.
+- Multi-thread reproducibility via seeding (thanks to Pablo González)
 
 - Bugfix: adding two labelled collections (with +) now checks for consistency in the classes
 
@@ -40,8 +40,16 @@
 - the internal classifier of aggregative methods is now called "classifier" instead of "learner"
 
 - when optimizing the hyperparameters of an aggregative quantifier, the classifier's specific hyperparameters
-    should be marked with a "classifier__" prefix (just like in scikit-learn), while the quantifier's specific
-    hyperparameters are named directly. For example, PCC(LogisticRegression()) quantifier has
+    should be marked with a "classifier__" prefix (just like in scikit-learn with estimators), while the quantifier's
+    specific hyperparameters are named directly. For example, PCC(LogisticRegression()) quantifier has hyperparameters
+    "classifier__C", "classifier__class_weight", etc., instead of "C" and "class_weight" as in v0.1.6.
+
+- hyperparameters yielding to inconsistent runs raise a ValueError exception, while hyperparameter combinations
+    yielding to internal errors of surrogate functions are reported and skipped, without stopping the grid search.
+
+- DistributionMatching methods added. This is a general framework for distribution matching methods that catters for
+    multiclass quantification. That is to say, one could get a multiclass variant of the (originally binary) HDy
+    method aligned with the Firat's formulation.
 
 Things to fix:
 - calibration with recalibration methods has to be fixed for exact_train_prev in EMQ (conflicts with clone, deepcopy, etc.)
