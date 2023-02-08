@@ -76,7 +76,7 @@ Features
    Datasets
    Evaluation
    Methods
-   Model Selection
+   Model-Selection
    Plotting
    API Developers documentation<modules>
 

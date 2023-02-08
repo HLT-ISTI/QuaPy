@@ -94,6 +94,7 @@ class SVMperf(BaseEstimator, ClassifierMixin):
     def predict(self, X):
         """
         Predicts labels for the instances `X`
+
         :param X: array-like of shape `(n_samples, n_features)` instances to classify
         :return: a `numpy` array of length `n` containing the label predictions, where `n` is the number of
             instances in `X`

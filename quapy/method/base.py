@@ -32,28 +32,9 @@ class BaseQuantifier(BaseEstimator):
         Generate class prevalence estimates for the sample's instances
 
         :param instances: array-like
-        :return: `np.ndarray` of shape `(self.n_classes_,)` with class prevalence estimates.
+        :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.
         """
         ...
-
-    # @abstractmethod
-    # def set_params(self, **parameters):
-    #     """
-    #     Set the parameters of the quantifier.
-    #
-    #     :param parameters: dictionary of param-value pairs
-    #     """
-    #     ...
-    #
-    # @abstractmethod
-    # def get_params(self, deep=True):
-    #     """
-    #     Return the current parameters of the quantifier.
-    #
-    #     :param deep: for compatibility with sklearn
-    #     :return: a dictionary of param-value pairs
-    #     """
-    #     ...
 
 
 class BinaryQuantifier(BaseQuantifier):
@@ -77,7 +58,7 @@ class OneVsAllGeneric:
         assert isinstance(binary_quantifier, BaseQuantifier), \
             f'{binary_quantifier} does not seem to be a Quantifier'
         self.binary_quantifier = binary_quantifier
-        self.n_jobs = qp.get_njobs(n_jobs)
+        self.n_jobs = qp._get_njobs(n_jobs)
 
     def fit(self, data: LabelledCollection, **kwargs):
         assert not data.binary, \

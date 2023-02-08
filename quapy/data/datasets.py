@@ -554,7 +554,31 @@ def _df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
 
 def fetch_lequa2022(task, data_home=None):
     """
+    Loads the official datasets provided for the `LeQua <https://lequa2022.github.io/index>`_ competition.
+    In brief, there are 4 tasks (T1A, T1B, T2A, T2B) having to do with text quantification
+    problems. Tasks T1A and T1B provide documents in vector form, while T2A and T2B provide raw documents instead.
+    Tasks T1A and T2A are binary sentiment quantification problems, while T2A and T2B are multiclass quantification
+    problems consisting of estimating the class prevalence values of 28 different merchandise products.
+    We refer to the `Esuli, A., Moreo, A., Sebastiani, F., & Sperduti, G. (2022).
+    A Detailed Overview of LeQua@ CLEF 2022: Learning to Quantify.
+    <https://ceur-ws.org/Vol-3180/paper-146.pdf>`_ for a detailed description
+    on the tasks and datasets.
+
+    The datasets are downloaded only once, and stored for fast reuse.
+
+    See `lequa2022_experiments.py` provided in the example folder, that can serve as a guide on how to use these
+    datasets.
+
+
+    :param task: a string representing the task name; valid ones are T1A, T1B, T2A, and T2B
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: a tuple `(train, val_gen, test_gen)` where `train` is an instance of
+        :class:`quapy.data.base.LabelledCollection`, `val_gen` and `test_gen` are instances of
+        :class:`quapy.protocol.SamplesFromDir`, i.e., are sampling protocols that return a series of samples
+        labelled by prevalence.
     """
+
     from quapy.data._lequa2022 import load_raw_documents, load_vector_documents, SamplesFromDir
 
     assert task in LEQUA2022_TASKS, \

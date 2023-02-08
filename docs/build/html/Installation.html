@@ -2,18 +2,21 @@
 
 <!doctype html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Installation &#8212; QuaPy 0.1.6 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Installation &#8212; QuaPy 0.1.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,7 +42,7 @@
         <li class="right" >
           <a href="index.html" title="Welcome to QuaPy’s documentation!"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Installation</a></li> 
       </ul>
     </div>  
@@ -49,15 +52,15 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+  <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading">¶</a></h1>
 <p>QuaPy can be easily installed via <cite>pip</cite></p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">quapy</span>
 </pre></div>
 </div>
 <p>See <a class="reference external" href="https://pypi.org/project/QuaPy/">pip page</a> for older versions.</p>
-<div class="section" id="requirements">
-<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline">¶</a></h2>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>scikit-learn, numpy, scipy</p></li>
 <li><p>pytorch (for QuaNet)</p></li>
@@ -67,9 +70,9 @@
 <li><p>pandas, xlrd</p></li>
 <li><p>matplotlib</p></li>
 </ul>
-</div>
-<div class="section" id="svm-perf-with-quantification-oriented-losses">
-<h2>SVM-perf with quantification-oriented losses<a class="headerlink" href="#svm-perf-with-quantification-oriented-losses" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="svm-perf-with-quantification-oriented-losses">
+<h2>SVM-perf with quantification-oriented losses<a class="headerlink" href="#svm-perf-with-quantification-oriented-losses" title="Permalink to this heading">¶</a></h2>
 <p>In order to run experiments involving SVM(Q), SVM(KLD), SVM(NKLD),
 SVM(AE), or SVM(RAE), you have to first download the
 <a class="reference external" href="http://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">svmperf</a>
@@ -96,8 +99,8 @@ and for the <cite>KLD</cite> and <cite>NKLD</cite> as proposed by
 for quantification.
 This patch extends the former by also allowing SVMperf to optimize for
 <cite>AE</cite> and <cite>RAE</cite>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -106,8 +109,9 @@ This patch extends the former by also allowing SVMperf to optimize for
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Installation</a><ul>
 <li><a class="reference internal" href="#requirements">Requirements</a></li>
 <li><a class="reference internal" href="#svm-perf-with-quantification-oriented-losses">SVM-perf with quantification-oriented losses</a></li>
@@ -115,12 +119,17 @@ This patch extends the former by also allowing SVMperf to optimize for
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">Welcome to QuaPy’s documentation!</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="Datasets.html"
-                        title="next chapter">Datasets</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">Welcome to QuaPy’s documentation!</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Datasets.html"
+                          title="next chapter">Datasets</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -137,7 +146,7 @@ This patch extends the former by also allowing SVMperf to optimize for
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -157,13 +166,13 @@ This patch extends the former by also allowing SVMperf to optimize for
         <li class="right" >
           <a href="index.html" title="Welcome to QuaPy’s documentation!"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Installation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Alejandro Moreo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

@@ -11,13 +11,17 @@ from glob import glob
 
 
 class AbstractProtocol(metaclass=ABCMeta):
+    """
+    Abstract parent class for sample generation protocols.
+    """
 
     @abstractmethod
     def __call__(self):
         """
-        Implements the protocol. Yields one sample at a time
+        Implements the protocol. Yields one sample at a time along with its prevalence
 
-        :return: yields one sample at a time
+        :return: yields a tuple `(sample, prev) at a time, where `sample` is a set of instances
+            and in which `prev` is an `nd.array` with the class prevalence values
         """
         ...
 
@@ -32,9 +36,10 @@ class AbstractProtocol(metaclass=ABCMeta):
 
 class AbstractStochasticSeededProtocol(AbstractProtocol):
     """
-    An AbstractStochasticSeededProtocol is a protocol that generates, via any random procedure (e.g.,
-    via random sapling), sequences of `LabelledCollection` samples. The protocol abstraction enforces
-    the object to be instantiated using a seed, so that the sequence can be completely replicated.
+    An `AbstractStochasticSeededProtocol` is a protocol that generates, via any random procedure (e.g.,
+    via random sampling), sequences of :class:`quapy.data.base.LabelledCollection` samples.
+    The protocol abstraction enforces
+    the object to be instantiated using a seed, so that the sequence can be fully replicated.
     In order to make this functionality possible, the classes extending this abstraction need to
     implement only two functions, :meth:`samples_parameters` which generates all the parameters
     needed for extracting the samples, and :meth:`sample` that, given some parameters as input,
@@ -128,7 +133,8 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     combination of prevalence values is indicated by `repeats`.
 
     :param data: a `LabelledCollection` from which the samples will be drawn
-    :param sample_size: integer, number of instances in each sample
+    :param sample_size: integer, number of instances in each sample; if None (default) then it is taken from
+        qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.
     :param n_prevalences: the number of equidistant prevalence points to extract from the [0,1] interval for the
         grid (default is 21)
     :param repeats: number of copies for each valid prevalence vector (default is 10)
@@ -138,10 +144,11 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         to "labelled_collection" to get instead instances of LabelledCollection
     """
 
-    def __init__(self, data:LabelledCollection, sample_size, n_prevalences=21, repeats=10, smooth_limits_epsilon=0, random_state=None, return_type='sample_prev'):
+    def __init__(self, data:LabelledCollection, sample_size=None, n_prevalences=21, repeats=10,
+                 smooth_limits_epsilon=0, random_state=None, return_type='sample_prev'):
         super(APP, self).__init__(random_state)
         self.data = data
-        self.sample_size = sample_size
+        self.sample_size = qp._get_sample_size(sample_size)
         self.n_prevalences = n_prevalences
         self.repeats = repeats
         self.smooth_limits_epsilon = smooth_limits_epsilon
@@ -191,17 +198,18 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     samples uniformly at random, therefore approximately preserving the natural prevalence of the collection.
 
     :param data: a `LabelledCollection` from which the samples will be drawn
-    :param sample_size: integer, the number of instances in each sample
+    :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from
+        qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.
     :param repeats: the number of samples to generate. Default is 100.
     :param random_state: allows replicating samples across runs (default None)
     :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or
         to "labelled_collection" to get instead instances of LabelledCollection
     """
 
-    def __init__(self, data:LabelledCollection, sample_size, repeats=100, random_state=None, return_type='sample_prev'):
+    def __init__(self, data:LabelledCollection, sample_size=None, repeats=100, random_state=None, return_type='sample_prev'):
         super(NPP, self).__init__(random_state)
         self.data = data
-        self.sample_size = sample_size
+        self.sample_size = qp._get_sample_size(sample_size)
         self.repeats = repeats
         self.random_state = random_state
         self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
@@ -230,17 +238,19 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
     combinations of the grid values of APP makes this endeavour intractable.
 
     :param data: a `LabelledCollection` from which the samples will be drawn
-    :param sample_size: integer, the number of instances in each sample
+    :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from
+        qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.
     :param repeats: the number of samples to generate. Default is 100.
     :param random_state: allows replicating samples across runs (default None)
     :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or
         to "labelled_collection" to get instead instances of LabelledCollection
     """
 
-    def __init__(self, data: LabelledCollection, sample_size, repeats=100, random_state=None, return_type='sample_prev'):
+    def __init__(self, data: LabelledCollection, sample_size=None, repeats=100, random_state=None,
+                 return_type='sample_prev'):
         super(USimplexPP, self).__init__(random_state)
         self.data = data
-        self.sample_size = sample_size
+        self.sample_size = qp._get_sample_size(sample_size)
         self.repeats = repeats
         self.random_state = random_state
         self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
@@ -259,32 +269,7 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
         return self.repeats
 
 
-# class LoadSamplesFromDirectory(AbstractProtocol):
-#
-#     def __init__(self, folder_path, loader_fn, classes=None, **loader_kwargs):
-#         assert exists(folder_path), f'folder {folder_path} does not exist'
-#         assert callable(loader_fn), f'the passed load_fn does not seem to be callable'
-#         self.folder_path = folder_path
-#         self.loader_fn = loader_fn
-#         self.classes = classes
-#         self.loader_kwargs = loader_kwargs
-#         self._list_files = None
-#
-#     def __call__(self):
-#         for file in self.list_files:
-#             yield LabelledCollection.load(file, loader_func=self.loader_fn, classes=self.classes, **self.loader_kwargs)
-#
-#     @property
-#     def list_files(self):
-#         if self._list_files is None:
-#             self._list_files = sorted(glob(self.folder_path, '*'))
-#         return self._list_files
-#
-#     def total(self):
-#         return len(self.list_files)
-
-
-class CovariateShiftPP(AbstractStochasticSeededProtocol):
+class DomainMixer(AbstractStochasticSeededProtocol):
     """
     Generates mixtures of two domains (A and B) at controlled rates, but preserving the original class prevalence.
 
@@ -311,10 +296,10 @@ class CovariateShiftPP(AbstractStochasticSeededProtocol):
             mixture_points=11,
             random_state=None,
             return_type='sample_prev'):
-        super(CovariateShiftPP, self).__init__(random_state)
+        super(DomainMixer, self).__init__(random_state)
         self.A = domainA
         self.B = domainB
-        self.sample_size = sample_size
+        self.sample_size = qp._get_sample_size(sample_size)
         self.repeats = repeats
         if prevalence is None:
             self.prevalence = domainA.prevalence()

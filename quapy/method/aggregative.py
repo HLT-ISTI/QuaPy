@@ -76,7 +76,7 @@ class AggregativeQuantifier(BaseQuantifier):
         by the classifier.
 
         :param instances: array-like
-        :return: `np.ndarray` of shape `(self.n_classes_,)` with class prevalence estimates.
+        :return: `np.ndarray` of shape `(n_classes)` with class prevalence estimates.
         """
         classif_predictions = self.classify(instances)
         return self.aggregate(classif_predictions)
@@ -87,7 +87,7 @@ class AggregativeQuantifier(BaseQuantifier):
         Implements the aggregation of label predictions.
 
         :param classif_predictions: `np.ndarray` of label predictions
-        :return: `np.ndarray` of shape `(self.n_classes_,)` with class prevalence estimates.
+        :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.
         """
         ...
 
@@ -112,19 +112,6 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
 
     def classify(self, instances):
         return self.classifier.predict_proba(instances)
-
-    # def set_params(self, **parameters):
-    #     if isinstance(self.classifier, CalibratedClassifierCV):
-    #         if self.classifier.get_params().get('base_estimator') == 'deprecated':
-    #             key_prefix = 'estimator__'  # this has changed in the newer versions of sklearn
-    #         else:
-    #             key_prefix = 'base_estimator__'
-    #         parameters = {key_prefix + k: v for k, v in parameters.items()}
-    #     elif isinstance(self.classifier, RecalibratedClassifier):
-    #         parameters = {'estimator__' + k: v for k, v in parameters.items()}
-    #
-    #     self.classifier.set_params(**parameters)
-    #     return self
 
 
 # Helper
@@ -198,7 +185,7 @@ def cross_generate_predictions(
         n_jobs
 ):
 
-    n_jobs = qp.get_njobs(n_jobs)
+    n_jobs = qp._get_njobs(n_jobs)
 
     if isinstance(val_split, int):
         assert fit_classifier == True, \
@@ -305,7 +292,7 @@ class CC(AggregativeQuantifier):
         Computes class prevalence estimates by counting the prevalence of each of the predicted labels.
 
         :param classif_predictions: array-like with label predictions
-        :return: `np.ndarray` of shape `(self.n_classes_,)` with class prevalence estimates.
+        :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.
         """
         return F.prevalence_from_labels(classif_predictions, self.classes_)
 
@@ -328,7 +315,7 @@ class ACC(AggregativeQuantifier):
     def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None):
         self.classifier = classifier
         self.val_split = val_split
-        self.n_jobs = qp.get_njobs(n_jobs)
+        self.n_jobs = qp._get_njobs(n_jobs)
 
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, int, LabelledCollection] = None):
         """
@@ -435,7 +422,7 @@ class PACC(AggregativeProbabilisticQuantifier):
     def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None):
         self.classifier = classifier
         self.val_split = val_split
-        self.n_jobs = qp.get_njobs(n_jobs)
+        self.n_jobs = qp._get_njobs(n_jobs)
 
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, int, LabelledCollection] = None):
         """
@@ -660,6 +647,20 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         return np.asarray([1 - class1_prev, class1_prev])
 
 
+def _get_divergence(divergence: Union[str, Callable]):
+    if isinstance(divergence, str):
+        if divergence=='HD':
+            return F.HellingerDistance
+        elif divergence=='topsoe':
+            return F.TopsoeDistance
+        else:
+            raise ValueError(f'unknown divergence {divergence}')
+    elif callable(divergence):
+        return divergence
+    else:
+        raise ValueError(f'argument "divergence" not understood; use a str or a callable function')
+
+
 class DyS(AggregativeProbabilisticQuantifier, BinaryQuantifier):
     """
     `DyS framework <https://ojs.aaai.org/index.php/AAAI/article/view/4376>`_ (DyS).
@@ -765,25 +766,13 @@ class SMM(AggregativeProbabilisticQuantifier, BinaryQuantifier):
 
         return np.asarray([1 - class1_prev, class1_prev])
 
-def _get_divergence(divergence: Union[str, Callable]):
-    if isinstance(divergence, str):
-        if divergence=='HD':
-            return F.HellingerDistance
-        elif divergence=='topsoe':
-            return F.TopsoeDistance
-        else:
-            raise ValueError(f'unknown divergence {divergence}')
-    elif callable(divergence):
-        return divergence
-    else:
-        raise ValueError(f'argument "divergence" not understood; use a str or a callable function')
 
 class DistributionMatching(AggregativeProbabilisticQuantifier):
     """
     Generic Distribution Matching quantifier for binary or multiclass quantification.
     This implementation takes the number of bins, the divergence, and the possibility to work on CDF as hyperparameters.
 
-    :param classifier: a sklearn's Estimator that generates a probabilistic classifier
+    :param classifier: a `sklearn`'s Estimator that generates a probabilistic classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set to model the
         validation distribution.
         This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
@@ -799,7 +788,6 @@ class DistributionMatching(AggregativeProbabilisticQuantifier):
     """
 
     def __init__(self, classifier, val_split=0.4, nbins=8, divergence: Union[str, Callable]='HD', cdf=False, n_jobs=None):
-
         self.classifier = classifier
         self.val_split = val_split
         self.nbins = nbins
@@ -1020,7 +1008,7 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
     def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None):
         self.classifier = classifier
         self.val_split = val_split
-        self.n_jobs = qp.get_njobs(n_jobs)
+        self.n_jobs = qp._get_njobs(n_jobs)
 
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, int, LabelledCollection] = None):
         self._check_binary(data, "Threshold Optimization")
@@ -1277,7 +1265,7 @@ class OneVsAll(AggregativeQuantifier):
         assert isinstance(self.binary_quantifier, AggregativeQuantifier), \
             f'{self.binary_quantifier} does not seem to be of type Aggregative'
         self.binary_quantifier = binary_quantifier
-        self.n_jobs = qp.get_njobs(n_jobs)
+        self.n_jobs = qp._get_njobs(n_jobs)
 
     def fit(self, data: LabelledCollection, fit_classifier=True):
         assert not data.binary, \

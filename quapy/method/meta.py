@@ -84,7 +84,7 @@ class Ensemble(BaseQuantifier):
         self.red_size = red_size
         self.policy = policy
         self.val_split = val_split
-        self.n_jobs = qp.get_njobs(n_jobs)
+        self.n_jobs = qp._get_njobs(n_jobs)
         self.post_proba_fn = None
         self.verbose = verbose
         self.max_sample_size = max_sample_size
@@ -147,7 +147,7 @@ class Ensemble(BaseQuantifier):
         with the abstract class).
         Instead, use `Ensemble(GridSearchQ(q),...)`, with `q` a Quantifier (recommended), or
         `Ensemble(Q(GridSearchCV(l)))` with `Q` a quantifier class that has a classifier `l` optimized for
-         classification (not recommended).
+        classification (not recommended).
 
         :param parameters: dictionary
         :return: raises an Exception
@@ -163,10 +163,12 @@ class Ensemble(BaseQuantifier):
         with the abstract class).
         Instead, use `Ensemble(GridSearchQ(q),...)`, with `q` a Quantifier (recommended), or
         `Ensemble(Q(GridSearchCV(l)))` with `Q` a quantifier class that has a classifier `l` optimized for
-         classification (not recommended).
+        classification (not recommended).
 
+        :param deep: for compatibility with scikit-learn
         :return: raises an Exception
         """
+
         raise NotImplementedError()
 
     def _accuracy_policy(self, error_name):

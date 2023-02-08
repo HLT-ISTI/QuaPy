@@ -2,21 +2,26 @@
 
 <!doctype html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Model Selection &#8212; QuaPy 0.1.6 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Model Selection &#8212; QuaPy 0.1.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Plotting" href="Plotting.html" />
+    <link rel="prev" title="Quantification Methods" href="Methods.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
     <script src="_static/css3-mediaqueries.js"></script>
@@ -31,7 +36,13 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="right" >
+          <a href="Plotting.html" title="Plotting"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="Methods.html" title="Quantification Methods"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Model Selection</a></li> 
       </ul>
     </div>  
@@ -41,8 +52,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="model-selection">
-<h1>Model Selection<a class="headerlink" href="#model-selection" title="Permalink to this headline">¶</a></h1>
+  <section id="model-selection">
+<h1>Model Selection<a class="headerlink" href="#model-selection" title="Permalink to this heading">¶</a></h1>
 <p>As a supervised machine learning task, quantification methods
 can strongly depend on a good choice of model hyper-parameters.
 The process whereby those hyper-parameters are chosen is
@@ -50,8 +61,8 @@ typically known as <em>Model Selection</em>, and typically consists of
 testing different settings and picking the one that performed
 best in a held-out validation set in terms of any given
 evaluation measure.</p>
-<div class="section" id="targeting-a-quantification-oriented-loss">
-<h2>Targeting a Quantification-oriented loss<a class="headerlink" href="#targeting-a-quantification-oriented-loss" title="Permalink to this headline">¶</a></h2>
+<section id="targeting-a-quantification-oriented-loss">
+<h2>Targeting a Quantification-oriented loss<a class="headerlink" href="#targeting-a-quantification-oriented-loss" title="Permalink to this heading">¶</a></h2>
 <p>The task being optimized determines the evaluation protocol,
 i.e., the criteria according to which the performance of
 any given method for solving is to be assessed.
@@ -145,9 +156,9 @@ a validation set (i.e., an instance of <em>LabelledCollection</em>) instead
 of a proportion. This could be useful if one wants to have control
 on the specific data split to be used across different model selection
 experiments.</p>
-</div>
-<div class="section" id="targeting-a-classification-oriented-loss">
-<h2>Targeting a Classification-oriented loss<a class="headerlink" href="#targeting-a-classification-oriented-loss" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="targeting-a-classification-oriented-loss">
+<h2>Targeting a Classification-oriented loss<a class="headerlink" href="#targeting-a-classification-oriented-loss" title="Permalink to this heading">¶</a></h2>
 <p>Optimizing a model for quantification could rather be
 computationally costly.
 In aggregative methods, one could alternatively try to optimize
@@ -185,8 +196,8 @@ find examples
 in which optimizing for classification ends up resulting in a better
 quantifier than when optimizing for quantification.
 Nonetheless, this is theoretically unlikely to happen.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -195,8 +206,9 @@ Nonetheless, this is theoretically unlikely to happen.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Model Selection</a><ul>
 <li><a class="reference internal" href="#targeting-a-quantification-oriented-loss">Targeting a Quantification-oriented loss</a></li>
 <li><a class="reference internal" href="#targeting-a-classification-oriented-loss">Targeting a Classification-oriented loss</a></li>
@@ -204,6 +216,17 @@ Nonetheless, this is theoretically unlikely to happen.</p>
 </li>
 </ul>
 
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Methods.html"
+                          title="previous chapter">Quantification Methods</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Plotting.html"
+                          title="next chapter">Plotting</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -220,7 +243,7 @@ Nonetheless, this is theoretically unlikely to happen.</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -234,13 +257,19 @@ Nonetheless, this is theoretically unlikely to happen.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="right" >
+          <a href="Plotting.html" title="Plotting"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="Methods.html" title="Quantification Methods"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Model Selection</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Alejandro Moreo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

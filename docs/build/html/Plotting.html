@@ -2,23 +2,26 @@
 
 <!doctype html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Plotting &#8212; QuaPy 0.1.6 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Plotting &#8212; QuaPy 0.1.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="quapy" href="modules.html" />
-    <link rel="prev" title="Quantification Methods" href="Methods.html" />
+    <link rel="prev" title="Model Selection" href="Model-Selection.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
     <script src="_static/css3-mediaqueries.js"></script>
@@ -37,9 +40,9 @@
           <a href="modules.html" title="quapy"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="Methods.html" title="Quantification Methods"
+          <a href="Model-Selection.html" title="Model Selection"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Plotting</a></li> 
       </ul>
     </div>  
@@ -49,8 +52,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="plotting">
-<h1>Plotting<a class="headerlink" href="#plotting" title="Permalink to this headline">¶</a></h1>
+  <section id="plotting">
+<h1>Plotting<a class="headerlink" href="#plotting" title="Permalink to this heading">¶</a></h1>
 <p>The module <em>qp.plot</em> implements some basic plotting functions
 that can help analyse the performance of a quantification method.</p>
 <p>All plotting functions receive as inputs the outcomes of
@@ -137,8 +140,8 @@ generating 100 random samples at each prevalence).</p>
 </pre></div>
 </div>
 <p>the plots that can be generated are explained below.</p>
-<div class="section" id="diagonal-plot">
-<h2>Diagonal Plot<a class="headerlink" href="#diagonal-plot" title="Permalink to this headline">¶</a></h2>
+<section id="diagonal-plot">
+<h2>Diagonal Plot<a class="headerlink" href="#diagonal-plot" title="Permalink to this heading">¶</a></h2>
 <p>The <em>diagonal</em> plot shows a very insightful view of the
 quantifier’s performance. It plots the predicted class
 prevalence (in the y-axis) against the true class prevalence
@@ -164,9 +167,9 @@ the complete list of arguments in the documentation).</p>
 <p>Finally, note how most quantifiers, and specially the “unadjusted”
 variants CC and PCC, are strongly biased towards the
 prevalence seen during training.</p>
-</div>
-<div class="section" id="quantification-bias">
-<h2>Quantification bias<a class="headerlink" href="#quantification-bias" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="quantification-bias">
+<h2>Quantification bias<a class="headerlink" href="#quantification-bias" title="Permalink to this heading">¶</a></h2>
 <p>This plot aims at evincing the bias that any quantifier
 displays with respect to the training prevalences by
 means of <a class="reference external" href="https://en.wikipedia.org/wiki/Box_plot">box plots</a>.
@@ -209,7 +212,7 @@ like this:</p>
             <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">sample</span><span class="p">,</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">],</span> <span class="n">n_repetitions</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">n_prevpoints</span><span class="o">=</span><span class="mi">21</span>
         <span class="p">)</span>
         <span class="c1"># method names can contain Latex syntax</span>
-        <span class="n">method_name</span> <span class="o">=</span> <span class="s1">&#39;CC$_{&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">training_prevalence</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;\%}$&#39;</span>
+        <span class="n">method_name</span> <span class="o">=</span> <span class="s1">&#39;CC$_{&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">training_prevalence</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;\%}$&#39;</span>
         <span class="n">method_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">method_name</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">,</span> <span class="n">training</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()))</span>
 
     <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">method_data</span><span class="p">)</span>
@@ -237,9 +240,9 @@ and a negative bias (or a tendency to underestimate) in cases of high prevalence
 <p><img alt="diag plot on IMDb" src="_images/bin_diag_cc.png" /></p>
 <p>showing pretty clearly the dependency of CC on the prior probabilities
 of the labeled set it was trained on.</p>
-</div>
-<div class="section" id="error-by-drift">
-<h2>Error by Drift<a class="headerlink" href="#error-by-drift" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="error-by-drift">
+<h2>Error by Drift<a class="headerlink" href="#error-by-drift" title="Permalink to this heading">¶</a></h2>
 <p>Above discussed plots are useful for analyzing and comparing
 the performance of different quantification methods, but are
 limited to the binary case. The “error by drift” is a plot
@@ -270,8 +273,8 @@ In those cases, however, it is likely that the variances of each
 method get higher, to the detriment of the visualization.
 We recommend to set <em>show_std=False</em> in those cases
 in order to hide the color bands.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -280,8 +283,9 @@ in order to hide the color bands.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Plotting</a><ul>
 <li><a class="reference internal" href="#diagonal-plot">Diagonal Plot</a></li>
 <li><a class="reference internal" href="#quantification-bias">Quantification bias</a></li>
@@ -290,12 +294,17 @@ in order to hide the color bands.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="Methods.html"
-                        title="previous chapter">Quantification Methods</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="modules.html"
-                        title="next chapter">quapy</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Model-Selection.html"
+                          title="previous chapter">Model Selection</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="modules.html"
+                          title="next chapter">quapy</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -312,7 +321,7 @@ in order to hide the color bands.</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -330,15 +339,15 @@ in order to hide the color bands.</p>
           <a href="modules.html" title="quapy"
              >next</a> |</li>
         <li class="right" >
-          <a href="Methods.html" title="Quantification Methods"
+          <a href="Model-Selection.html" title="Model Selection"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Plotting</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Alejandro Moreo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

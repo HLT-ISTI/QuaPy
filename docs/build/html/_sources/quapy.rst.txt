@@ -1,67 +1,78 @@
+:tocdepth: 2
+
 quapy package
 =============
-
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   quapy.classification
-   quapy.data
-   quapy.method
-   quapy.tests
 
 Submodules
 ----------
 
-quapy.error module
-------------------
+quapy.error
+-----------
 
 .. automodule:: quapy.error
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.evaluation module
------------------------
+quapy.evaluation
+----------------
 
 .. automodule:: quapy.evaluation
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.functional module
------------------------
+quapy.protocol
+--------------
+
+.. versionadded:: 0.1.7
+.. automodule:: quapy.protocol
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+quapy.functional
+----------------
 
 .. automodule:: quapy.functional
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.model\_selection module
------------------------------
+quapy.model\_selection
+----------------------
 
 .. automodule:: quapy.model_selection
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.plot module
------------------
+quapy.plot
+----------
 
 .. automodule:: quapy.plot
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.util module
------------------
+quapy.util
+----------
 
 .. automodule:: quapy.util
    :members:
    :undoc-members:
    :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 3
+
+   quapy.classification
+   quapy.data
+   quapy.method
+
 
 Module contents
 ---------------
@@ -70,3 +81,4 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+

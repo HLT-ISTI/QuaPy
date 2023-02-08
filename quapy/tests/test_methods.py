@@ -4,6 +4,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
 import quapy as qp
+from quapy.method.base import BinaryQuantifier
 from quapy.data import Dataset, LabelledCollection
 from quapy.method import AGGREGATIVE_METHODS, NON_AGGREGATIVE_METHODS, EXPLICIT_LOSS_MINIMIZATION_METHODS
 from quapy.method.aggregative import ACC, PACC, HDy
@@ -21,7 +22,7 @@ learners = [LogisticRegression, LinearSVC]
 def test_aggregative_methods(dataset: Dataset, aggregative_method, learner):
     model = aggregative_method(learner())
 
-    if model.binary and not dataset.binary:
+    if isinstance(model, BinaryQuantifier) and not dataset.binary:
         print(f'skipping the test of binary model {type(model)} on non-binary dataset {dataset}')
         return
 
@@ -45,7 +46,7 @@ def test_elm_methods(dataset: Dataset, elm_method):
             print('Missing SVMperf binary program, skipping test')
             return
 
-    if model.binary and not dataset.binary:
+    if isinstance(model, BinaryQuantifier) and not dataset.binary:
         print(f'skipping the test of binary model {model} on non-binary dataset {dataset}')
         return
 
@@ -64,7 +65,7 @@ def test_elm_methods(dataset: Dataset, elm_method):
 def test_non_aggregative_methods(dataset: Dataset, non_aggregative_method):
     model = non_aggregative_method()
 
-    if model.binary and not dataset.binary:
+    if isinstance(model, BinaryQuantifier) and not dataset.binary:
         print(f'skipping the test of binary model {model} on non-binary dataset {dataset}')
         return
 
@@ -85,7 +86,7 @@ def test_non_aggregative_methods(dataset: Dataset, non_aggregative_method):
 def test_ensemble_method(base_method, learner, dataset: Dataset, policy):
     qp.environ['SAMPLE_SIZE'] = len(dataset.training)
     model = Ensemble(quantifier=base_method(learner()), size=5, policy=policy, n_jobs=-1)
-    if model.binary and not dataset.binary:
+    if isinstance(model, BinaryQuantifier) and not dataset.binary:
         print(f'skipping the test of binary model {model} on non-binary dataset {dataset}')
         return
 
@@ -120,7 +121,7 @@ def test_quanet_method():
     from quapy.method.meta import QuaNet
     model = QuaNet(learner, sample_size=len(dataset.training), device='cuda')
 
-    if model.binary and not dataset.binary:
+    if isinstance(model, BinaryQuantifier) and not dataset.binary:
         print(f'skipping the test of binary model {model} on non-binary dataset {dataset}')
         return
 
@@ -138,7 +139,7 @@ def models_to_test_for_str_label_names():
     models = list()
     learner = LogisticRegression
     for method in AGGREGATIVE_METHODS.difference(EXPLICIT_LOSS_MINIMIZATION_METHODS):
-        models.append(method(learner()))
+        models.append(method(learner(random_state=0)))
     for method in NON_AGGREGATIVE_METHODS:
         models.append(method())
     return models
@@ -156,6 +157,7 @@ def test_str_label_names(model):
                       dataset.test.sampling(1000, *dataset.test.prevalence()))
     qp.data.preprocessing.text2tfidf(dataset, min_df=5, inplace=True)
 
+    numpy.random.seed(0)
     model.fit(dataset.training)
 
     int_estim_prevalences = model.quantify(dataset.test.instances)
@@ -168,7 +170,8 @@ def test_str_label_names(model):
                                              ['one' if label == 1 else 'zero' for label in dataset.training.labels]),
                           LabelledCollection(dataset.test.instances,
                                              ['one' if label == 1 else 'zero' for label in dataset.test.labels]))
-
+    assert all(dataset_str.training.classes_ == dataset_str.test.classes_), 'wrong indexation'
+    numpy.random.seed(0)
     model.fit(dataset_str.training)
 
     str_estim_prevalences = model.quantify(dataset_str.test.instances)

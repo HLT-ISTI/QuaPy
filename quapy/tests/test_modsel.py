@@ -5,9 +5,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 
 import quapy as qp
-from method.aggregative import PACC
-from model_selection import GridSearchQ
-from protocol import APP
+from quapy.method.aggregative import PACC
+from quapy.model_selection import GridSearchQ
+from quapy.protocol import APP
 import time
 
 
@@ -20,7 +20,7 @@ class ModselTestCase(unittest.TestCase):
         data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10)
         training, validation = data.training.split_stratified(0.7, random_state=1)
 
-        param_grid = {'C': np.logspace(-3,3,7)}
+        param_grid = {'classifier__C': np.logspace(-3,3,7)}
         app = APP(validation, sample_size=100, random_state=1)
         q = GridSearchQ(
             q, param_grid, protocol=app, error='mae', refit=True, timeout=-1, verbose=True
@@ -28,8 +28,8 @@ class ModselTestCase(unittest.TestCase):
         print('best params', q.best_params_)
         print('best score', q.best_score_)
 
-        self.assertEqual(q.best_params_['C'], 10.0)
-        self.assertEqual(q.best_model().get_params()['C'], 10.0)
+        self.assertEqual(q.best_params_['classifier__C'], 10.0)
+        self.assertEqual(q.best_model().get_params()['classifier__C'], 10.0)
 
     def test_modsel_parallel(self):
 
@@ -39,7 +39,7 @@ class ModselTestCase(unittest.TestCase):
         training, validation = data.training.split_stratified(0.7, random_state=1)
         # test = data.test
 
-        param_grid = {'C': np.logspace(-3,3,7)}
+        param_grid = {'classifier__C': np.logspace(-3,3,7)}
         app = APP(validation, sample_size=100, random_state=1)
         q = GridSearchQ(
             q, param_grid, protocol=app, error='mae', refit=True, timeout=-1, n_jobs=-1, verbose=True
@@ -47,8 +47,8 @@ class ModselTestCase(unittest.TestCase):
         print('best params', q.best_params_)
         print('best score', q.best_score_)
 
-        self.assertEqual(q.best_params_['C'], 10.0)
-        self.assertEqual(q.best_model().get_params()['C'], 10.0)
+        self.assertEqual(q.best_params_['classifier__C'], 10.0)
+        self.assertEqual(q.best_model().get_params()['classifier__C'], 10.0)
 
     def test_modsel_parallel_speedup(self):
         class SlowLR(LogisticRegression):
@@ -61,7 +61,7 @@ class ModselTestCase(unittest.TestCase):
         data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10)
         training, validation = data.training.split_stratified(0.7, random_state=1)
 
-        param_grid = {'C': np.logspace(-3, 3, 7)}
+        param_grid = {'classifier__C': np.logspace(-3, 3, 7)}
         app = APP(validation, sample_size=100, random_state=1)
 
         tinit = time.time()
@@ -95,7 +95,7 @@ class ModselTestCase(unittest.TestCase):
         training, validation = data.training.split_stratified(0.7, random_state=1)
         # test = data.test
 
-        param_grid = {'C': np.logspace(-3,3,7)}
+        param_grid = {'classifier__C': np.logspace(-3,3,7)}
         app = APP(validation, sample_size=100, random_state=1)
         q = GridSearchQ(
             q, param_grid, protocol=app, error='mae', refit=True, timeout=3, n_jobs=-1, verbose=True

@@ -2,18 +2,21 @@
 
 <!doctype html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Evaluation &#8212; QuaPy 0.1.6 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Evaluation &#8212; QuaPy 0.1.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -39,7 +42,7 @@
         <li class="right" >
           <a href="Datasets.html" title="Datasets"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Evaluation</a></li> 
       </ul>
     </div>  
@@ -49,8 +52,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="evaluation">
-<h1>Evaluation<a class="headerlink" href="#evaluation" title="Permalink to this headline">¶</a></h1>
+  <section id="evaluation">
+<h1>Evaluation<a class="headerlink" href="#evaluation" title="Permalink to this heading">¶</a></h1>
 <p>Quantification is an appealing tool in scenarios of dataset shift,
 and particularly in scenarios of prior-probability shift.
 That is, the interest in estimating the class prevalences arises
@@ -62,8 +65,8 @@ to be unlikely (as is the case in general scenarios of
 machine learning governed by the iid assumption).
 In brief, quantification requires dedicated evaluation protocols,
 which are implemented in QuaPy and explained here.</p>
-<div class="section" id="error-measures">
-<h2>Error Measures<a class="headerlink" href="#error-measures" title="Permalink to this headline">¶</a></h2>
+<section id="error-measures">
+<h2>Error Measures<a class="headerlink" href="#error-measures" title="Permalink to this heading">¶</a></h2>
 <p>The module quapy.error implements the following error measures for quantification:</p>
 <ul class="simple">
 <li><p><em>mae</em>: mean absolute error</p></li>
@@ -116,9 +119,9 @@ error functions from strings using, e.g.:</p>
 <span class="n">error</span> <span class="o">=</span> <span class="n">error_function</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="evaluation-protocols">
-<h2>Evaluation Protocols<a class="headerlink" href="#evaluation-protocols" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="evaluation-protocols">
+<h2>Evaluation Protocols<a class="headerlink" href="#evaluation-protocols" title="Permalink to this heading">¶</a></h2>
 <p>QuaPy implements the so-called “artificial sampling protocol”,
 according to which a test set is used to generate samplings at
 desired prevalences of fixed size and covering the full spectrum
@@ -254,8 +257,8 @@ given evaluation metric, returning the average instead of a dataframe.</p></li>
 true prevalences and the estimated prevalences.</p></li>
 </ul>
 <p>See the documentation for further details.</p>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -264,8 +267,9 @@ true prevalences and the estimated prevalences.</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Evaluation</a><ul>
 <li><a class="reference internal" href="#error-measures">Error Measures</a></li>
 <li><a class="reference internal" href="#evaluation-protocols">Evaluation Protocols</a></li>
@@ -273,12 +277,17 @@ true prevalences and the estimated prevalences.</p></li>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="Datasets.html"
-                        title="previous chapter">Datasets</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="Methods.html"
-                        title="next chapter">Quantification Methods</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Datasets.html"
+                          title="previous chapter">Datasets</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Methods.html"
+                          title="next chapter">Quantification Methods</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -295,7 +304,7 @@ true prevalences and the estimated prevalences.</p></li>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -315,13 +324,13 @@ true prevalences and the estimated prevalences.</p></li>
         <li class="right" >
           <a href="Datasets.html" title="Datasets"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Evaluation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Alejandro Moreo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

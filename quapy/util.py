@@ -22,7 +22,7 @@ def _get_parallel_slices(n_tasks, n_jobs):
 
 def map_parallel(func, args, n_jobs):
     """
-    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and n_jobs=2, then
+    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and `n_jobs`=2, then
     func is applied in two parallel processes to args[0:50] and to args[50:99]. func is a function
     that already works with a list of arguments.
 
@@ -128,6 +128,7 @@ def create_if_not_exist(path):
 def get_quapy_home():
     """
     Gets the home directory of QuaPy, i.e., the directory where QuaPy saves permanent data, such as dowloaded datasets.
+    This directory is `~/quapy_data`
 
     :return: a string representing the path
     """
@@ -162,7 +163,7 @@ def save_text_file(path, text):
 
 def pickled_resource(pickle_path:str, generation_func:callable, *args):
     """
-    Allows for fast reuse of resources that are generated only once by calling generation_func(*args). The next times
+    Allows for fast reuse of resources that are generated only once by calling generation_func(\\*args). The next times
     this function is invoked, it loads the pickled resource. Example:
 
     >>> def some_array(n):  # a mock resource created with one parameter (`n`)
@@ -191,10 +192,6 @@ class EarlyStop:
     """
     A class implementing the early-stopping condition typically used for training neural networks.
 
-    :param patience: the number of (consecutive) times that a monitored evaluation metric (typically obtaind in a
-    held-out validation split) can be found to be worse than the best one obtained so far, before flagging the
-    stopping condition. An instance of this class is `callable`, and is to be used as follows:
-
     >>> earlystop = EarlyStop(patience=2, lower_is_better=True)
     >>> earlystop(0.9, epoch=0)
     >>> earlystop(0.7, epoch=1)
@@ -206,14 +203,14 @@ class EarlyStop:
     >>> earlystop.best_epoch  # is 1
     >>> earlystop.best_score  # is 0.7
 
-
+    :param patience: the number of (consecutive) times that a monitored evaluation metric (typically obtaind in a
+        held-out validation split) can be found to be worse than the best one obtained so far, before flagging the
+        stopping condition. An instance of this class is `callable`, and is to be used as follows:
     :param lower_is_better: if True (default) the metric is to be minimized.
-
     :ivar best_score: keeps track of the best value seen so far
     :ivar best_epoch: keeps track of the epoch in which the best score was set
     :ivar STOP: flag (boolean) indicating the stopping condition
     :ivar IMPROVED: flag (boolean) indicating whether there was an improvement in the last call
-
     """
 
     def __init__(self, patience, lower_is_better=True):
@@ -244,3 +241,4 @@ class EarlyStop:
             self.patience -= 1
             if self.patience <= 0:
                 self.STOP = True
+

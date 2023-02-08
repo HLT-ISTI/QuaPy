@@ -2,22 +2,25 @@
 
 <!doctype html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quantification Methods &#8212; QuaPy 0.1.6 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Quantification Methods &#8212; QuaPy 0.1.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Plotting" href="Plotting.html" />
+    <link rel="next" title="Model Selection" href="Model-Selection.html" />
     <link rel="prev" title="Evaluation" href="Evaluation.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
@@ -34,12 +37,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Plotting.html" title="Plotting"
+          <a href="Model-Selection.html" title="Model Selection"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="Evaluation.html" title="Evaluation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Quantification Methods</a></li> 
       </ul>
     </div>  
@@ -49,8 +52,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="quantification-methods">
-<h1>Quantification Methods<a class="headerlink" href="#quantification-methods" title="Permalink to this headline">¶</a></h1>
+  <section id="quantification-methods">
+<h1>Quantification Methods<a class="headerlink" href="#quantification-methods" title="Permalink to this heading">¶</a></h1>
 <p>Quantification methods can be categorized as belonging to
 <em>aggregative</em> and <em>non-aggregative</em> groups.
 Most methods included in QuaPy at the moment are of type <em>aggregative</em>
@@ -86,8 +89,8 @@ is one single array of class prevalences), while functions <em>set_params</em>
 and <em>get_params</em> allow a
 <a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection">model selector</a>
 to automate the process of hyperparameter search.</p>
-<div class="section" id="aggregative-methods">
-<h2>Aggregative Methods<a class="headerlink" href="#aggregative-methods" title="Permalink to this headline">¶</a></h2>
+<section id="aggregative-methods">
+<h2>Aggregative Methods<a class="headerlink" href="#aggregative-methods" title="Permalink to this heading">¶</a></h2>
 <p>All quantification methods are implemented as part of the
 <em>qp.method</em> package. In particular, <em>aggregative</em> methods are defined in
 <em>qp.method.aggregative</em>, and extend <em>AggregativeQuantifier(BaseQuantifier)</em>.
@@ -133,8 +136,8 @@ reuse these predictions, without requiring to classify each element every time.
 QuaPy leverages this property to speed-up any procedure having to do with
 quantification over samples, as is customarily done in model selection or
 in evaluation.</p>
-<div class="section" id="the-classify-count-variants">
-<h3>The Classify &amp; Count variants<a class="headerlink" href="#the-classify-count-variants" title="Permalink to this headline">¶</a></h3>
+<section id="the-classify-count-variants">
+<h3>The Classify &amp; Count variants<a class="headerlink" href="#the-classify-count-variants" title="Permalink to this heading">¶</a></h3>
 <p>QuaPy implements the four CC variants, i.e.:</p>
 <ul class="simple">
 <li><p><em>CC</em> (Classify &amp; Count), the simplest aggregative quantifier; one that
@@ -214,9 +217,9 @@ be applied to hard classifiers when <em>fit_learner=True</em>; an exception
 will be raised otherwise.</p>
 <p>Lastly, everything we said aboud ACC and PCC
 applies to PACC as well.</p>
-</div>
-<div class="section" id="expectation-maximization-emq">
-<h3>Expectation Maximization (EMQ)<a class="headerlink" href="#expectation-maximization-emq" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="expectation-maximization-emq">
+<h3>Expectation Maximization (EMQ)<a class="headerlink" href="#expectation-maximization-emq" title="Permalink to this heading">¶</a></h3>
 <p>The Expectation Maximization Quantifier (EMQ), also known as
 the SLD, is available at <em>qp.method.aggregative.EMQ</em> or via the
 alias <em>qp.method.aggregative.ExpectationMaximizationQuantifier</em>.
@@ -241,9 +244,9 @@ experiments we have carried out.</p>
 <span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="hellinger-distance-y-hdy">
-<h3>Hellinger Distance y (HDy)<a class="headerlink" href="#hellinger-distance-y-hdy" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="hellinger-distance-y-hdy">
+<h3>Hellinger Distance y (HDy)<a class="headerlink" href="#hellinger-distance-y-hdy" title="Permalink to this heading">¶</a></h3>
 <p>The method HDy is described in:</p>
 <p><em>Implementation of the method based on the Hellinger Distance y (HDy) proposed by
 González-Castro, V., Alaiz-Rodrı́guez, R., and Alegre, E. (2013). Class distribution
@@ -274,9 +277,9 @@ provided in QuaPy accepts only binary datasets.</p>
 <span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="explicit-loss-minimization">
-<h3>Explicit Loss Minimization<a class="headerlink" href="#explicit-loss-minimization" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="explicit-loss-minimization">
+<h3>Explicit Loss Minimization<a class="headerlink" href="#explicit-loss-minimization" title="Permalink to this heading">¶</a></h3>
 <p>The Explicit Loss Minimization (ELM) represent a family of methods
 based on structured output learning, i.e., quantifiers relying on
 classifiers that have been optimized targeting a
@@ -344,17 +347,17 @@ In QuaPy this is possible by using the <em>OneVsAll</em> class:</p>
 <span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="meta-models">
-<h2>Meta Models<a class="headerlink" href="#meta-models" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="meta-models">
+<h2>Meta Models<a class="headerlink" href="#meta-models" title="Permalink to this heading">¶</a></h2>
 <p>By <em>meta</em> models we mean quantification methods that are defined on top of other
 quantification methods, and that thus do not squarely belong to the aggregative nor
 the non-aggregative group (indeed, <em>meta</em> models could use quantifiers from any of those
 groups).
 <em>Meta</em> models are implemented in the <em>qp.method.meta</em> module.</p>
-<div class="section" id="ensembles">
-<h3>Ensembles<a class="headerlink" href="#ensembles" title="Permalink to this headline">¶</a></h3>
+<section id="ensembles">
+<h3>Ensembles<a class="headerlink" href="#ensembles" title="Permalink to this heading">¶</a></h3>
 <p>QuaPy implements (some of) the variants proposed in:</p>
 <ul class="simple">
 <li><p><em>Pérez-Gállego, P., Quevedo, J. R., &amp; del Coz, J. J. (2017).
@@ -391,9 +394,9 @@ the performance estimated for each member of the ensemble in terms of that evalu
 informs of the number of members to retain.</p>
 <p>Please, check the <a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection">model selection</a>
 wiki if you want to optimize the hyperparameters of ensemble for classification or quantification.</p>
-</div>
-<div class="section" id="the-quanet-neural-network">
-<h3>The QuaNet neural network<a class="headerlink" href="#the-quanet-neural-network" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="the-quanet-neural-network">
+<h3>The QuaNet neural network<a class="headerlink" href="#the-quanet-neural-network" title="Permalink to this heading">¶</a></h3>
 <p>QuaPy offers an implementation of QuaNet, a deep learning model presented in:</p>
 <p><em>Esuli, A., Moreo, A., &amp; Sebastiani, F. (2018, October).
 A recurrent neural network for sentiment quantification.
@@ -425,9 +428,9 @@ In the following example, we show an instantiation of QuaNet that instead uses C
 <span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -436,8 +439,9 @@ In the following example, we show an instantiation of QuaNet that instead uses C
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Quantification Methods</a><ul>
 <li><a class="reference internal" href="#aggregative-methods">Aggregative Methods</a><ul>
 <li><a class="reference internal" href="#the-classify-count-variants">The Classify &amp; Count variants</a></li>
@@ -455,12 +459,17 @@ In the following example, we show an instantiation of QuaNet that instead uses C
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="Evaluation.html"
-                        title="previous chapter">Evaluation</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="Plotting.html"
-                        title="next chapter">Plotting</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Evaluation.html"
+                          title="previous chapter">Evaluation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Model-Selection.html"
+                          title="next chapter">Model Selection</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -477,7 +486,7 @@ In the following example, we show an instantiation of QuaNet that instead uses C
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -492,18 +501,18 @@ In the following example, we show an instantiation of QuaNet that instead uses C
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Plotting.html" title="Plotting"
+          <a href="Model-Selection.html" title="Model Selection"
              >next</a> |</li>
         <li class="right" >
           <a href="Evaluation.html" title="Evaluation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Quantification Methods</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Alejandro Moreo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

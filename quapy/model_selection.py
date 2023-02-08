@@ -49,7 +49,7 @@ class GridSearchQ(BaseQuantifier):
         self.protocol = protocol
         self.refit = refit
         self.timeout = timeout
-        self.n_jobs = qp.get_njobs(n_jobs)
+        self.n_jobs = qp._get_njobs(n_jobs)
         self.verbose = verbose
         self.__check_error(error)
         assert isinstance(protocol, AbstractProtocol), 'unknown protocol'

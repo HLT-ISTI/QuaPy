@@ -21,7 +21,6 @@ class MaximumLikelihoodPrevalenceEstimation(BaseQuantifier):
         :param data: the training sample
         :return: self
         """
-        self._classes_ = data.classes_
         self.estimated_prevalence = data.prevalence()
         return self
 
@@ -34,29 +33,3 @@ class MaximumLikelihoodPrevalenceEstimation(BaseQuantifier):
         """
         return self.estimated_prevalence
 
-    @property
-    def classes_(self):
-        """
-        Number of classes
-
-        :return: integer
-        """
-
-        return self._classes_
-
-    def get_params(self, deep=True):
-        """
-        Does nothing, since this learner has no parameters.
-
-        :param deep: for compatibility with sklearn
-        :return: `None`
-        """
-        return None
-
-    def set_params(self, **parameters):
-        """
-        Does nothing, since this learner has no parameters.
-
-        :param parameters: dictionary of param-value pairs (ignored)
-        """
-        pass

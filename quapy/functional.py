@@ -70,7 +70,7 @@ def HellingerDistance(P, Q):
     The HD for two discrete distributions of `k` bins is defined as:
 
     .. math::
-        HD(P,Q) = \\frac{ 1 }{ \\sqrt{ 2 } } \\sqrt{ \sum_{i=1}^k ( \\sqrt{p_i} - \\sqrt{q_i} )^2 }
+        HD(P,Q) = \\frac{ 1 }{ \\sqrt{ 2 } } \\sqrt{ \\sum_{i=1}^k ( \\sqrt{p_i} - \\sqrt{q_i} )^2 }
 
     :param P: real-valued array-like of shape `(k,)` representing a discrete distribution
     :param Q: real-valued array-like of shape `(k,)` representing a discrete distribution
@@ -78,11 +78,21 @@ def HellingerDistance(P, Q):
     """
     return np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q))**2))
 
+
 def TopsoeDistance(P, Q, epsilon=1e-20):
-    """ Topsoe
     """
-    return np.sum(P*np.log((2*P+epsilon)/(P+Q+epsilon)) +
-                  Q*np.log((2*Q+epsilon)/(P+Q+epsilon)))
+    Topsoe distance between two (discretized) distributions `P` and `Q`.
+    The Topsoe distance for two discrete distributions of `k` bins is defined as:
+
+    .. math::
+        Topsoe(P,Q) = \\sum_{i=1}^k \\left( p_i \\log\\left(\\frac{ 2 p_i + \\epsilon }{ p_i+q_i+\\epsilon }\\right) +
+            q_i \\log\\left(\\frac{ 2 q_i + \\epsilon }{ p_i+q_i+\\epsilon }\\right) \\right)
+
+    :param P: real-valued array-like of shape `(k,)` representing a discrete distribution
+    :param Q: real-valued array-like of shape `(k,)` representing a discrete distribution
+    :return: float
+    """
+    return np.sum(P*np.log((2*P+epsilon)/(P+Q+epsilon)) + Q*np.log((2*Q+epsilon)/(P+Q+epsilon)))
                   
 
 def uniform_prevalence_sampling(n_classes, size=1):
@@ -136,7 +146,6 @@ def adjusted_quantification(prevalence_estim, tpr, fpr, clip=True):
     .. math::
         ACC(p) = \\frac{ p - fpr }{ tpr - fpr }
 
-
     :param prevalence_estim: float, the estimated value for the positive class
     :param tpr: float, the true positive rate of the classifier
     :param fpr: float, the false positive rate of the classifier
@@ -184,7 +193,7 @@ def __num_prevalence_combinations_depr(n_prevpoints:int, n_classes:int, n_repeat
     :param n_prevpoints: integer, number of prevalence points.
     :param n_repeats: integer, number of repetitions for each prevalence combination
     :return: The number of possible combinations. For example, if n_classes=2, n_prevpoints=5, n_repeats=1, then the
-    number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
+        number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
     """
     __cache={}
     def __f(nc,np):
@@ -216,7 +225,7 @@ def num_prevalence_combinations(n_prevpoints:int, n_classes:int, n_repeats:int=1
     :param n_prevpoints: integer, number of prevalence points.
     :param n_repeats: integer, number of repetitions for each prevalence combination
     :return: The number of possible combinations. For example, if n_classes=2, n_prevpoints=5, n_repeats=1, then the
-    number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
+        number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
     """
     N = n_prevpoints-1
     C = n_classes
@@ -230,7 +239,7 @@ def get_nprevpoints_approximation(combinations_budget:int, n_classes:int, n_repe
     that the number of valid prevalence values generated as combinations of prevalence points (points in a
     `n_classes`-dimensional simplex) do not exceed combinations_budget.
 
-    :param combinations_budget: integer, maximum number of combinatios allowed
+    :param combinations_budget: integer, maximum number of combinations allowed
     :param n_classes: integer, number of classes
     :param n_repeats: integer, number of repetitions for each prevalence combination
     :return: the largest number of prevalence points that generate less than combinations_budget valid prevalences
@@ -248,6 +257,7 @@ def get_nprevpoints_approximation(combinations_budget:int, n_classes:int, n_repe
 def check_prevalence_vector(p, raise_exception=False, toleranze=1e-08):
     """
     Checks that p is a valid prevalence vector, i.e., that it contains values in [0,1] and that the values sum up to 1.
+
     :param p: the prevalence vector to check
     :return: True if `p` is valid, False otherwise
     """
@@ -265,3 +275,4 @@ def check_prevalence_vector(p, raise_exception=False, toleranze=1e-08):
             raise ValueError('the prevalence vector does not sum up to 1')
         return False
     return True
+

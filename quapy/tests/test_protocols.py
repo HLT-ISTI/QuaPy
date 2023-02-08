@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from quapy.data import LabelledCollection
-from quapy.protocol import APP, NPP, USimplexPP, CovariateShiftPP, AbstractStochasticSeededProtocol
+from quapy.protocol import APP, NPP, USimplexPP, DomainMixer, AbstractStochasticSeededProtocol
 
 
 def mock_labelled_collection(prefix=''):
@@ -94,7 +94,7 @@ class TestProtocols(unittest.TestCase):
     def test_covariate_shift_replicate(self):
         dataA = mock_labelled_collection('domA')
         dataB = mock_labelled_collection('domB')
-        p = CovariateShiftPP(dataA, dataB, sample_size=10, mixture_points=11, random_state=1)
+        p = DomainMixer(dataA, dataB, sample_size=10, mixture_points=11, random_state=1)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)
@@ -104,7 +104,7 @@ class TestProtocols(unittest.TestCase):
     def test_covariate_shift_not_replicate(self):
         dataA = mock_labelled_collection('domA')
         dataB = mock_labelled_collection('domB')
-        p = CovariateShiftPP(dataA, dataB, sample_size=10, mixture_points=11)
+        p = DomainMixer(dataA, dataB, sample_size=10, mixture_points=11)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)
