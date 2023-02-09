@@ -76,11 +76,15 @@ Change Log 0.1.7
     so that probabilistic classifiers return posterior probabilities, while non-probabilistic quantifiers
     return crisp decisions.
 
+- OneVsAll fixed. There are now two classes: a generic one OneVsAllGeneric that works with any quantifier (e.g.,
+    any instance of BaseQuantifier), and a subclass of it called OneVsAllAggregative which implements the
+    classify / aggregate interface. Both are instances of OneVsAll. There is a method getOneVsAll that returns the
+    best instance based on the type of quantifier.
+
 Things to fix:
 --------------
 - update unit tests
 - update Wikis...
-- Resolve the OneVsAll thing (it is in base.py and in aggregative.py)
 - improve plots
 - documentation of protocols is incomplete
 
