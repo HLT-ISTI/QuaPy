@@ -73,14 +73,16 @@ def temp_seed(random_state):
 
     :param random_state: the seed to set within the "with" context
     """
-    state = np.random.get_state()
-    #save the seed just in case is needed (for instance for setting the seed to child processes)
-    qp.environ['_R_SEED'] = random_state
-    np.random.seed(random_state)
+    if random_state is not None:
+        state = np.random.get_state()
+        #save the seed just in case is needed (for instance for setting the seed to child processes)
+        qp.environ['_R_SEED'] = random_state
+        np.random.seed(random_state)
     try:
         yield
     finally:
-        np.random.set_state(state)
+        if random_state is not None:
+            np.random.set_state(state)
 
 
 def download_file(url, archive_filename):

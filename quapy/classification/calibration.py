@@ -65,7 +65,7 @@ class RecalibratedProbabilisticClassifierBase(BaseEstimator, RecalibratedProbabi
         """
         Fits the calibration in a cross-validation manner, i.e., it generates posterior probabilities for all
         training instances via cross-validation, and then retrains the classifier on all training instances.
-        The posterior probabilities thus generated are used for calibrating the outpus of the classifier.
+        The posterior probabilities thus generated are used for calibrating the outputs of the classifier.
 
         :param X: array-like of shape `(n_samples, n_features)` with the data instances
         :param y: array-like of shape `(n_samples,)` with the class labels

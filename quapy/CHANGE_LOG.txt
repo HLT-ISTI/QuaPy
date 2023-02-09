@@ -83,7 +83,6 @@ Things to fix:
 - update unit tests
 - update Wikis...
 - Resolve the OneVsAll thing (it is in base.py and in aggregative.py)
-- Add a proper log?
 - improve plots
 - documentation of protocols is incomplete
 

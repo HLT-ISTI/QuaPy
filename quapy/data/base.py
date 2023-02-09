@@ -6,21 +6,22 @@ from scipy.sparse import vstack
 from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
 from numpy.random import RandomState
 from quapy.functional import strprev
+from quapy.util import temp_seed
 
 
 class LabelledCollection:
     """
-    A LabelledCollection is a set of objects each with a label associated to it. This class implements many sampling
-    routines.
-
+    A LabelledCollection is a set of objects each with a label attached to each of them. 
+    This class implements several sampling routines and other utilities.
+    
     :param instances: array-like (np.ndarray, list, or csr_matrix are supported)
     :param labels: array-like with the same length of instances
-    :param classes_: optional, list of classes from which labels are taken. If not specified, the classes are inferred
+    :param classes: optional, list of classes from which labels are taken. If not specified, the classes are inferred
         from the labels. The classes must be indicated in cases in which some of the labels might have no examples
         (i.e., a prevalence of 0)
     """
 
-    def __init__(self, instances, labels, classes_=None):
+    def __init__(self, instances, labels, classes=None):
         if issparse(instances):
             self.instances = instances
         elif isinstance(instances, list) and len(instances) > 0 and isinstance(instances[0], str):
@@ -30,14 +31,14 @@ class LabelledCollection:
             self.instances = np.asarray(instances)
         self.labels = np.asarray(labels)
         n_docs = len(self)
-        if classes_ is None:
+        if classes is None:
             self.classes_ = np.unique(self.labels)
             self.classes_.sort()
         else:
-            self.classes_ = np.unique(np.asarray(classes_))
+            self.classes_ = np.unique(np.asarray(classes))
             self.classes_.sort()
-            if len(set(self.labels).difference(set(classes_))) > 0:
-                raise ValueError(f'labels ({set(self.labels)}) contain values not included in classes_ ({set(classes_)})')
+            if len(set(self.labels).difference(set(classes))) > 0:
+                raise ValueError(f'labels ({set(self.labels)}) contain values not included in classes_ ({set(classes)})')
         self.index = {class_: np.arange(n_docs)[self.labels == class_] for class_ in self.classes_}
 
     @classmethod
@@ -101,7 +102,7 @@ class LabelledCollection:
         """
         return self.n_classes == 2
 
-    def sampling_index(self, size, *prevs, shuffle=True):
+    def sampling_index(self, size, *prevs, shuffle=True, random_state=None):
         """
         Returns an index to be used to extract a random sample of desired size and desired prevalence values. If the
         prevalence values are not specified, then returns the index of a uniform sampling.
@@ -113,10 +114,11 @@ class LabelledCollection:
             it is constrained. E.g., for binary collections, only the prevalence `p` for the first class (as listed in
             `self.classes_` can be specified, while the other class takes prevalence value `1-p`
         :param shuffle: if set to True (default), shuffles the index before returning it
+        :param random_state: seed for reproducing sampling
         :return: a np.ndarray of shape `(size)` with the indexes
         """
         if len(prevs) == 0:  # no prevalence was indicated; returns an index for uniform sampling
-            return self.uniform_sampling_index(size)
+            return self.uniform_sampling_index(size, random_state=random_state)
         if len(prevs) == self.n_classes - 1:
             prevs = prevs + (1 - sum(prevs),)
         assert len(prevs) == self.n_classes, 'unexpected number of prevalences'
@@ -129,22 +131,23 @@ class LabelledCollection:
         # (This aims at avoiding the remainder to be placed in a class for which the prevalence requested is 0.)
         n_requests = {class_: int(size * prevs[i]) for i, class_ in enumerate(self.classes_)}
         remainder = size - sum(n_requests.values())
-        for rand_class in np.random.choice(self.classes_, size=remainder, p=prevs):
-            n_requests[rand_class] += 1
+        with temp_seed(random_state):
+            for rand_class in np.random.choice(self.classes_, size=remainder, p=prevs):
+                n_requests[rand_class] += 1
 
-        indexes_sample = []
-        for class_, n_requested in n_requests.items():
-            n_candidates = len(self.index[class_])
-            index_sample = self.index[class_][
-                np.random.choice(n_candidates, size=n_requested, replace=(n_requested > n_candidates))
-            ] if n_requested > 0 else []
+            indexes_sample = []
+            for class_, n_requested in n_requests.items():
+                n_candidates = len(self.index[class_])
+                index_sample = self.index[class_][
+                    np.random.choice(n_candidates, size=n_requested, replace=(n_requested > n_candidates))
+                ] if n_requested > 0 else []
 
-            indexes_sample.append(index_sample)
+                indexes_sample.append(index_sample)
 
-        indexes_sample = np.concatenate(indexes_sample).astype(int)
+            indexes_sample = np.concatenate(indexes_sample).astype(int)
 
-        if shuffle:
-            indexes_sample = np.random.permutation(indexes_sample)
+            if shuffle:
+                indexes_sample = np.random.permutation(indexes_sample)
 
         return indexes_sample
 
@@ -164,7 +167,7 @@ class LabelledCollection:
             ng = np.random
         return ng.choice(len(self), size, replace=size > len(self))
 
-    def sampling(self, size, *prevs, shuffle=True):
+    def sampling(self, size, *prevs, shuffle=True, random_state=None):
         """
         Return a random sample (an instance of :class:`LabelledCollection`) of desired size and desired prevalence
         values. For each class, the sampling is drawn without replacement if the requested prevalence is larger than
@@ -175,10 +178,11 @@ class LabelledCollection:
             it is constrained. E.g., for binary collections, only the prevalence `p` for the first class (as listed in
             `self.classes_` can be specified, while the other class takes prevalence value `1-p`
         :param shuffle: if set to True (default), shuffles the index before returning it
+        :param random_state: seed for reproducing sampling
         :return: an instance of :class:`LabelledCollection` with length == `size` and prevalence close to `prevs` (or
             prevalence == `prevs` if the exact prevalence values can be met as proportions of instances)
         """
-        prev_index = self.sampling_index(size, *prevs, shuffle=shuffle)
+        prev_index = self.sampling_index(size, *prevs, shuffle=shuffle, random_state=random_state)
         return self.sampling_from_index(prev_index)
 
     def uniform_sampling(self, size, random_state=None):
@@ -204,7 +208,7 @@ class LabelledCollection:
         """
         documents = self.instances[index]
         labels = self.labels[index]
-        return LabelledCollection(documents, labels, classes_=self.classes_)
+        return LabelledCollection(documents, labels, classes=self.classes_)
 
     def split_stratified(self, train_prop=0.6, random_state=None):
         """
@@ -221,10 +225,9 @@ class LabelledCollection:
         tr_docs, te_docs, tr_labels, te_labels = train_test_split(
             self.instances, self.labels, train_size=train_prop, stratify=self.labels, random_state=random_state
         )
-        training = LabelledCollection(tr_docs, tr_labels, classes_=self.classes_)
-        test = LabelledCollection(te_docs, te_labels, classes_=self.classes_)
+        training = LabelledCollection(tr_docs, tr_labels, classes=self.classes_)
+        test = LabelledCollection(te_docs, te_labels, classes=self.classes_)
         return training, test
-
 
     def split_random(self, train_prop=0.6, random_state=None):
         """
@@ -261,20 +264,33 @@ class LabelledCollection:
         :return: a :class:`LabelledCollection` representing the union of both collections
         """
         if not all(np.sort(self.classes_)==np.sort(other.classes_)):
-            raise NotImplementedError('unsupported operation for collections on different classes')
+            raise NotImplementedError(f'unsupported operation for collections on different classes; '
+                                      f'expected {self.classes_}, found {other.classes_}')
+        return LabelledCollection.mix(self, other)
 
-        if other is None:
-            return self
-        elif issparse(self.instances) and issparse(other.instances):
-            join_instances = vstack([self.instances, other.instances])
-        elif isinstance(self.instances, list) and isinstance(other.instances, list):
-            join_instances = self.instances + other.instances
-        elif isinstance(self.instances, np.ndarray) and isinstance(other.instances, np.ndarray):
-            join_instances = np.concatenate([self.instances, other.instances])
+    @classmethod
+    def mix(cls, a:'LabelledCollection', b:'LabelledCollection'):
+        """
+        Returns a new :class:`LabelledCollection` as the union of this collection with another collection.
+
+        :param a: instance of :class:`LabelledCollection`
+        :param b: instance of :class:`LabelledCollection`
+        :return: a :class:`LabelledCollection` representing the union of both collections
+        """
+        if a is None: return b
+        if b is None: return a
+        elif issparse(a.instances) and issparse(b.instances):
+            join_instances = vstack([a.instances, b.instances])
+        elif isinstance(a.instances, list) and isinstance(b.instances, list):
+            join_instances = a.instances + b.instances
+        elif isinstance(a.instances, np.ndarray) and isinstance(b.instances, np.ndarray):
+            join_instances = np.concatenate([a.instances, b.instances])
         else:
             raise NotImplementedError('unsupported operation for collection types')
-        labels = np.concatenate([self.labels, other.labels])
-        return LabelledCollection(join_instances, labels, classes_=self.classes_)
+        labels = np.concatenate([a.labels, b.labels])
+        classes = np.unique(np.concatenate([a.classes_, b.classes_])).sort()
+        return LabelledCollection(join_instances, labels, classes=classes)
+
 
     @property
     def Xy(self):
@@ -291,7 +307,7 @@ class LabelledCollection:
     def Xp(self):
         """
         Gets the instances and the true prevalence. This is useful when implementing evaluation protocols from
-        a `LabelledCollection` object.
+        a :class:`LabelledCollection` object.
 
         :return: a tuple `(instances, prevalence)` from this collection
         """
@@ -357,7 +373,7 @@ class LabelledCollection:
                   f'#classes={stats_["classes"]}, prevs={stats_["prevs"]}')
         return stats_
 
-    def kFCV(self, nfolds=5, nrepeats=1, random_state=0):
+    def kFCV(self, nfolds=5, nrepeats=1, random_state=None):
         """
         Generator of stratified folds to be used in k-fold cross validation.
 

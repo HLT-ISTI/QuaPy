@@ -7,7 +7,7 @@ from quapy.protocol import APP, NPP, USimplexPP, DomainMixer, AbstractStochastic
 def mock_labelled_collection(prefix=''):
     y = [0] * 250 + [1] * 250 + [2] * 250 + [3] * 250
     X = [prefix + str(i) + '-' + str(yi) for i, yi in enumerate(y)]
-    return LabelledCollection(X, y, classes_=sorted(np.unique(y)))
+    return LabelledCollection(X, y, classes=sorted(np.unique(y)))
 
 
 def samples_to_str(protocol):

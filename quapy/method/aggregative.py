@@ -14,7 +14,7 @@ import quapy.functional as F
 from classification.calibration import NBVSCalibration, BCTSCalibration, TSCalibration, VSCalibration
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
-from quapy.method.base import BaseQuantifier, BinaryQuantifier
+from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric
 
 
 # Abstract classes
@@ -1246,7 +1246,7 @@ MedianSweep = MS
 MedianSweep2 = MS2
 
 
-class OneVsAll(AggregativeQuantifier):
+class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
     """
     Allows any binary quantifier to perform quantification on single-label datasets.
     The method maintains one binary quantifier for each class, and then l1-normalizes the outputs so that the
@@ -1257,25 +1257,19 @@ class OneVsAll(AggregativeQuantifier):
     :param binary_quantifier: a quantifier (binary) that will be employed to work on multiclass model in a
         one-vs-all manner
     :param n_jobs: number of parallel workers
+    :param parallel_backend: the parallel backend for joblib (default "loky"); this is helpful for some quantifiers
+        (e.g., ELM-based ones) that cannot be run with multiprocessing, since the temp dir they create during fit will
+        is removed and no longer available at predict time.
     """
 
-    def __init__(self, binary_quantifier, n_jobs=None):
-        assert isinstance(self.binary_quantifier, BaseQuantifier), \
+    def __init__(self, binary_quantifier, n_jobs=None, parallel_backend='loky'):
+        assert isinstance(binary_quantifier, BaseQuantifier), \
             f'{self.binary_quantifier} does not seem to be a Quantifier'
-        assert isinstance(self.binary_quantifier, AggregativeQuantifier), \
+        assert isinstance(binary_quantifier, AggregativeQuantifier), \
             f'{self.binary_quantifier} does not seem to be of type Aggregative'
         self.binary_quantifier = binary_quantifier
         self.n_jobs = qp._get_njobs(n_jobs)
-
-    def fit(self, data: LabelledCollection, fit_classifier=True):
-        assert not data.binary, \
-            f'{self.__class__.__name__} expect non-binary data'
-        assert fit_classifier == True, \
-            'fit_classifier must be True'
-
-        self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in data.classes_}
-        self.__parallel(self._delayed_binary_fit, data)
-        return self
+        self.parallel_backend = parallel_backend
 
     def classify(self, instances):
         """
@@ -1292,34 +1286,15 @@ class OneVsAll(AggregativeQuantifier):
         :return: `np.ndarray`
         """
 
-        classif_predictions = self.__parallel(self._delayed_binary_classification, instances)
+        classif_predictions = self._parallel(self._delayed_binary_classification, instances)
         if isinstance(self.binary_quantifier, AggregativeProbabilisticQuantifier):
             return np.swapaxes(classif_predictions, 0, 1)
         else:
             return classif_predictions.T
 
     def aggregate(self, classif_predictions):
-        prevalences = self.__parallel(self._delayed_binary_aggregate, classif_predictions)
+        prevalences = self._parallel(self._delayed_binary_aggregate, classif_predictions)
         return F.normalize_prevalence(prevalences)
-
-    def __parallel(self, func, *args, **kwargs):
-        return np.asarray(
-            # some quantifiers (in particular, ELM-based ones) cannot be run with multiprocess, since the temp dir they
-            # create during the fit will be removed and be no longer available for the predict...
-            Parallel(n_jobs=self.n_jobs, backend='threading')(
-                delayed(func)(c, *args, **kwargs) for c in self.classes_
-            )
-        )
-
-    @property
-    def classes_(self):
-        return sorted(self.dict_binary_quantifiers.keys())
-
-    def set_params(self, **parameters):
-        self.binary_quantifier.set_params(**parameters)
-
-    def get_params(self, deep=True):
-        return self.binary_quantifier.get_params()
 
     def _delayed_binary_classification(self, c, X):
         return self.dict_binary_quantifiers[c].classify(X)
@@ -1327,8 +1302,4 @@ class OneVsAll(AggregativeQuantifier):
     def _delayed_binary_aggregate(self, c, classif_predictions):
         # the estimation for the positive class prevalence
         return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:, c])[1]
-
-    def _delayed_binary_fit(self, c, data):
-        bindata = LabelledCollection(data.instances, data.labels == c, classes_=[False, True])
-        self.dict_binary_quantifiers[c].fit(bindata)
 

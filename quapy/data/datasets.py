@@ -6,6 +6,7 @@ import os
 import zipfile
 from os.path import join
 import pandas as pd
+import scipy
 
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
