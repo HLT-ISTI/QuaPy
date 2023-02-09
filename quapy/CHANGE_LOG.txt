@@ -78,8 +78,6 @@ Change Log 0.1.7
 
 Things to fix:
 --------------
-- OneVsAll is duplicated (in aggregative and in general), and is not well documented. It is not working either.
-    Check method  def __parallel(self, func, *args, **kwargs) in aggregative.OneVsAll
 - update unit tests
 - update Wikis...
 - Resolve the OneVsAll thing (it is in base.py and in aggregative.py)
