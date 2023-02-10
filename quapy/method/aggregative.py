@@ -1262,7 +1262,7 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
         is removed and no longer available at predict time.
     """
 
-    def __init__(self, binary_quantifier, n_jobs=None, parallel_backend='loky'):
+    def __init__(self, binary_quantifier, n_jobs=None, parallel_backend='multiprocessing'):
         assert isinstance(binary_quantifier, BaseQuantifier), \
             f'{self.binary_quantifier} does not seem to be a Quantifier'
         assert isinstance(binary_quantifier, AggregativeQuantifier), \

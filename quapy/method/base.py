@@ -54,13 +54,13 @@ class OneVsAll:
     pass
 
 
-def getOneVsAll(binary_quantifier, n_jobs=None, parallel_backend='loky'):
+def getOneVsAll(binary_quantifier, n_jobs=None):
     assert isinstance(binary_quantifier, BaseQuantifier), \
         f'{binary_quantifier} does not seem to be a Quantifier'
     if isinstance(binary_quantifier, qp.method.aggregative.AggregativeQuantifier):
-        return qp.method.aggregative.OneVsAllAggregative(binary_quantifier, n_jobs, parallel_backend)
+        return qp.method.aggregative.OneVsAllAggregative(binary_quantifier, n_jobs)
     else:
-        return OneVsAllGeneric(binary_quantifier, n_jobs, parallel_backend)
+        return OneVsAllGeneric(binary_quantifier, n_jobs)
 
 
 class OneVsAllGeneric(OneVsAll,BaseQuantifier):
@@ -69,7 +69,7 @@ class OneVsAllGeneric(OneVsAll,BaseQuantifier):
     quantifier for each class, and then l1-normalizes the outputs so that the class prevelence values sum up to 1.
     """
 
-    def __init__(self, binary_quantifier, n_jobs=None, parallel_backend='loky'):
+    def __init__(self, binary_quantifier, n_jobs=None):
         assert isinstance(binary_quantifier, BaseQuantifier), \
             f'{binary_quantifier} does not seem to be a Quantifier'
         if isinstance(binary_quantifier, qp.method.aggregative.AggregativeQuantifier):
@@ -77,7 +77,6 @@ class OneVsAllGeneric(OneVsAll,BaseQuantifier):
                   f'you might prefer instantiating {qp.method.aggregative.OneVsAllAggregative.__name__}')
         self.binary_quantifier = binary_quantifier
         self.n_jobs = qp._get_njobs(n_jobs)
-        self.parallel_backend = parallel_backend
 
     def fit(self, data: LabelledCollection, fit_classifier=True):
         assert not data.binary, f'{self.__class__.__name__} expect non-binary data'
@@ -89,7 +88,7 @@ class OneVsAllGeneric(OneVsAll,BaseQuantifier):
 
     def _parallel(self, func, *args, **kwargs):
         return np.asarray(
-            Parallel(n_jobs=self.n_jobs, backend=self.parallel_backend)(
+            Parallel(n_jobs=self.n_jobs, backend='threading')(
                 delayed(func)(c, *args, **kwargs) for c in self.classes_
             )
         )

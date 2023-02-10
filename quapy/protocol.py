@@ -45,13 +45,13 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
     needed for extracting the samples, and :meth:`sample` that, given some parameters as input,
     deterministically generates a sample.
 
-    :param random_state: the seed for allowing to replicate any sequence of samples. Default is None, meaning that
-        the sequence will be different every time the protocol is called.
+    :param random_state: the seed for allowing to replicate any sequence of samples. Default is 0, meaning that
+        the sequence will be consistent every time the protocol is called.
     """
 
     _random_state = -1  # means "not set"
 
-    def __init__(self, random_state=None):
+    def __init__(self, random_state=0):
         self.random_state = random_state
 
     @property
@@ -82,6 +82,13 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
         ...
 
     def __call__(self):
+        """
+        Yields one sample at a time. The type of object returned depends on the `collator` function. The
+        default behaviour returns tuples of the form `(sample, prevalence)`.
+
+        :return: a tuple `(sample, prevalence)` if  return_type='sample_prev', or an instance of
+            :class:`qp.data.LabelledCollection` if return_type='labelled_collection'
+        """
         with ExitStack() as stack:
             if self.random_state == -1:
                 raise ValueError('The random seed has never been initialized. '
@@ -96,13 +103,33 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
 
 
 class OnLabelledCollectionProtocol:
+    """
+    Protocols that generate samples from a :class:`qp.data.LabelledCollection` object.
+    """
 
     RETURN_TYPES = ['sample_prev', 'labelled_collection']
 
     def get_labelled_collection(self):
+        """
+        Returns the labelled collection on which this protocol acts.
+
+        :return: an object of type :class:`qp.data.LabelledCollection`
+        """
         return self.data
 
     def on_preclassified_instances(self, pre_classifications, in_place=False):
+        """
+        Returns a copy of this protocol that acts on a modified version of the original
+        :class:`qp.data.LabelledCollection` in which the original instances have been replaced
+        with the outputs of a classifier for each instance. (This is convenient for speeding-up
+        the evaluation procedures for many samples, by pre-classifying the instances in advance.)
+
+        :param pre_classifications: the predictions issued by a classifier, typically an array-like
+            with shape `(n_instances,)` when the classifier is a hard one, or with shape
+            `(n_instances, n_classes)` when the classifier is a probabilistic one.
+        :param in_place: whether or not to apply the modification in-place or in a new copy (default).
+        :return: a copy of this protocol
+        """
         assert len(pre_classifications) == len(self.data), \
             f'error: the pre-classified data has different shape ' \
             f'(expected {len(self.data)}, found {len(pre_classifications)})'
@@ -115,6 +142,15 @@ class OnLabelledCollectionProtocol:
 
     @classmethod
     def get_collator(cls, return_type='sample_prev'):
+        """
+        Returns a collator function, i.e., a function that prepares the yielded data
+
+        :param return_type: either 'sample_prev' (default) if the collator is requested to yield tuples of
+            `(sample, prevalence)`, or 'labelled_collection' when it is requested to yield instances of
+            :class:`qp.data.LabelledCollection`
+        :return: the collator function (a callable function that takes as input an instance of
+            :class:`qp.data.LabelledCollection`)
+        """
         assert return_type in cls.RETURN_TYPES, \
             f'unknown return type passed as argument; valid ones are {cls.RETURN_TYPES}'
         if return_type=='sample_prev':
@@ -139,13 +175,14 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         grid (default is 21)
     :param repeats: number of copies for each valid prevalence vector (default is 10)
     :param smooth_limits_epsilon: the quantity to add and subtract to the limits 0 and 1
-    :param random_state: allows replicating samples across runs (default None)
+    :param random_state: allows replicating samples across runs (default 0, meaning that the sequence of samples
+        will be the same every time the protocol is called)
     :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or
         to "labelled_collection" to get instead instances of LabelledCollection
     """
 
     def __init__(self, data:LabelledCollection, sample_size=None, n_prevalences=21, repeats=10,
-                 smooth_limits_epsilon=0, random_state=None, return_type='sample_prev'):
+                 smooth_limits_epsilon=0, random_state=0, return_type='sample_prev'):
         super(APP, self).__init__(random_state)
         self.data = data
         self.sample_size = qp._get_sample_size(sample_size)
@@ -179,6 +216,11 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         return prevs
 
     def samples_parameters(self):
+        """
+        Return all the necessary parameters to replicate the samples as according to the APP protocol.
+
+        :return: a list of indexes that realize the APP sampling
+        """
         indexes = []
         for prevs in self.prevalence_grid():
             index = self.data.sampling_index(self.sample_size, *prevs)
@@ -186,9 +228,20 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         return indexes
 
     def sample(self, index):
+        """
+        Realizes the sample given the index of the instances.
+
+        :param index: indexes of the instances to select
+        :return: an instance of :class:`qp.data.LabelledCollection`
+        """
         return self.data.sampling_from_index(index)
 
     def total(self):
+        """
+        Returns the number of samples that will be generated
+
+        :return: int
+        """
         return F.num_prevalence_combinations(self.n_prevalences, self.data.n_classes, self.repeats)
 
 
@@ -201,12 +254,14 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from
         qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.
     :param repeats: the number of samples to generate. Default is 100.
-    :param random_state: allows replicating samples across runs (default None)
+    :param random_state: allows replicating samples across runs (default 0, meaning that the sequence of samples
+        will be the same every time the protocol is called)
     :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or
         to "labelled_collection" to get instead instances of LabelledCollection
     """
 
-    def __init__(self, data:LabelledCollection, sample_size=None, repeats=100, random_state=None, return_type='sample_prev'):
+    def __init__(self, data:LabelledCollection, sample_size=None, repeats=100, random_state=0,
+                 return_type='sample_prev'):
         super(NPP, self).__init__(random_state)
         self.data = data
         self.sample_size = qp._get_sample_size(sample_size)
@@ -215,6 +270,11 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
 
     def samples_parameters(self):
+        """
+        Return all the necessary parameters to replicate the samples as according to the NPP protocol.
+
+        :return: a list of indexes that realize the NPP sampling
+        """
         indexes = []
         for _ in range(self.repeats):
             index = self.data.uniform_sampling_index(self.sample_size)
@@ -222,9 +282,20 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         return indexes
 
     def sample(self, index):
+        """
+        Realizes the sample given the index of the instances.
+
+        :param index: indexes of the instances to select
+        :return: an instance of :class:`qp.data.LabelledCollection`
+        """
         return self.data.sampling_from_index(index)
 
     def total(self):
+        """
+        Returns the number of samples that will be generated (equals to "repeats")
+
+        :return: int
+        """
         return self.repeats
 
 
@@ -241,12 +312,13 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
     :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from
         qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.
     :param repeats: the number of samples to generate. Default is 100.
-    :param random_state: allows replicating samples across runs (default None)
+    :param random_state: allows replicating samples across runs (default 0, meaning that the sequence of samples
+        will be the same every time the protocol is called)
     :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or
         to "labelled_collection" to get instead instances of LabelledCollection
     """
 
-    def __init__(self, data: LabelledCollection, sample_size=None, repeats=100, random_state=None,
+    def __init__(self, data: LabelledCollection, sample_size=None, repeats=100, random_state=0,
                  return_type='sample_prev'):
         super(USimplexPP, self).__init__(random_state)
         self.data = data
@@ -256,6 +328,11 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
         self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
 
     def samples_parameters(self):
+        """
+        Return all the necessary parameters to replicate the samples as according to the USimplexPP protocol.
+
+        :return: a list of indexes that realize the USimplexPP sampling
+        """
         indexes = []
         for prevs in F.uniform_simplex_sampling(n_classes=self.data.n_classes, size=self.repeats):
             index = self.data.sampling_index(self.sample_size, *prevs)
@@ -263,9 +340,20 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
         return indexes
 
     def sample(self, index):
+        """
+        Realizes the sample given the index of the instances.
+
+        :param index: indexes of the instances to select
+        :return: an instance of :class:`qp.data.LabelledCollection`
+        """
         return self.data.sampling_from_index(index)
 
     def total(self):
+        """
+        Returns the number of samples that will be generated (equals to "repeats")
+
+        :return: int
+        """
         return self.repeats
 
 
@@ -273,17 +361,19 @@ class DomainMixer(AbstractStochasticSeededProtocol):
     """
     Generates mixtures of two domains (A and B) at controlled rates, but preserving the original class prevalence.
 
-    :param domainA:
-    :param domainB:
-    :param sample_size:
-    :param repeats:
+    :param domainA: one domain, an object of :class:`qp.data.LabelledCollection`
+    :param domainB: another domain, an object of :class:`qp.data.LabelledCollection`
+    :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from
+        qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.
+    :param repeats: int, number of samples to draw for every mixture rate
     :param prevalence: the prevalence to preserv along the mixtures. If specified, should be an array containing
         one prevalence value (positive float) for each class and summing up to one. If not specified, the prevalence
         will be taken from the domain A (default).
     :param mixture_points: an integer indicating the number of points to take from a linear scale (e.g., 21 will
         generate the mixture points [1, 0.95, 0.9, ..., 0]), or the array of mixture values itself.
         the specific points
-    :param random_state:
+    :param random_state: allows replicating samples across runs (default 0, meaning that the sequence of samples
+        will be the same every time the protocol is called)
     """
 
     def __init__(
@@ -294,7 +384,7 @@ class DomainMixer(AbstractStochasticSeededProtocol):
             repeats=1,
             prevalence=None,
             mixture_points=11,
-            random_state=None,
+            random_state=0,
             return_type='sample_prev'):
         super(DomainMixer, self).__init__(random_state)
         self.A = domainA
@@ -319,6 +409,11 @@ class DomainMixer(AbstractStochasticSeededProtocol):
         self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
 
     def samples_parameters(self):
+        """
+        Return all the necessary parameters to replicate the samples as according to the this protocol.
+
+        :return: a list of zipped indexes (from A and B) that realize the sampling
+        """
         indexesA, indexesB = [], []
         for propA in self.mixture_points:
             for _ in range(self.repeats):
@@ -331,12 +426,23 @@ class DomainMixer(AbstractStochasticSeededProtocol):
         return list(zip(indexesA, indexesB))
 
     def sample(self, indexes):
+        """
+        Realizes the sample given a pair of indexes of the instances from A and B.
+
+        :param indexes: indexes of the instances to select from A and B
+        :return: an instance of :class:`qp.data.LabelledCollection`
+        """
         indexesA, indexesB = indexes
         sampleA = self.A.sampling_from_index(indexesA)
         sampleB = self.B.sampling_from_index(indexesB)
         return sampleA+sampleB
 
     def total(self):
+        """
+        Returns the number of samples that will be generated (equals to "repeats * mixture_points")
+
+        :return: int
+        """
         return self.repeats * len(self.mixture_points)
 
 

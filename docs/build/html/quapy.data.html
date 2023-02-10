@@ -222,10 +222,10 @@ the collection), <cite>prevs</cite> (the prevalence values for each class)</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.data.base.</span></span><span class="sig-name descname"><span class="pre">LabelledCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes_</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.data.base.</span></span><span class="sig-name descname"><span class="pre">LabelledCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A LabelledCollection is a set of objects each with a label associated to it. This class implements many sampling
-routines.</p>
+<p>A LabelledCollection is a set of objects each with a label attached to each of them.
+This class implements several sampling routines and other utilities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -252,7 +252,7 @@ from the labels. The classes must be indicated in cases in which some of the lab
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.Xp">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Xp</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.Xp" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the instances and the true prevalence. This is useful when implementing evaluation protocols from
-a <cite>LabelledCollection</cite> object.</p>
+a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>a tuple <cite>(instances, prevalence)</cite> from this collection</p>
@@ -299,7 +299,7 @@ as listed by <cite>self.classes_</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.kFCV">
-<span class="sig-name descname"><span class="pre">kFCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nfolds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrepeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.kFCV" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">kFCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nfolds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrepeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.kFCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator of stratified folds to be used in k-fold cross validation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -334,6 +334,23 @@ these arguments are used to call <cite>loader_func(path, **loader_kwargs)</cite>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.mix">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.mix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> as the union of this collection with another collection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> – instance of <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a></p></li>
+<li><p><strong>b</strong> – instance of <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> representing the union of both collections</p>
 </dd>
 </dl>
 </dd></dl>
@@ -374,7 +391,7 @@ as listed by <cite>self.classes_</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.sampling">
-<span class="sig-name descname"><span class="pre">sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.sampling" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.sampling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a random sample (an instance of <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a>) of desired size and desired prevalence
 values. For each class, the sampling is drawn without replacement if the requested prevalence is larger than
 the actual prevalence of the class, or with replacement otherwise.</p>
@@ -386,6 +403,7 @@ the actual prevalence of the class, or with replacement otherwise.</p>
 it is constrained. E.g., for binary collections, only the prevalence <cite>p</cite> for the first class (as listed in
 <cite>self.classes_</cite> can be specified, while the other class takes prevalence value <cite>1-p</cite></p></li>
 <li><p><strong>shuffle</strong> – if set to True (default), shuffles the index before returning it</p></li>
+<li><p><strong>random_state</strong> – seed for reproducing sampling</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -412,7 +430,7 @@ index.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.sampling_index">
-<span class="sig-name descname"><span class="pre">sampling_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.sampling_index" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">sampling_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.sampling_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an index to be used to extract a random sample of desired size and desired prevalence values. If the
 prevalence values are not specified, then returns the index of a uniform sampling.
 For each class, the sampling is drawn without replacement if the requested prevalence is larger than
@@ -425,6 +443,7 @@ the actual prevalence of the class, or with replacement otherwise.</p>
 it is constrained. E.g., for binary collections, only the prevalence <cite>p</cite> for the first class (as listed in
 <cite>self.classes_</cite> can be specified, while the other class takes prevalence value <cite>1-p</cite></p></li>
 <li><p><strong>shuffle</strong> – if set to True (default), shuffles the index before returning it</p></li>
+<li><p><strong>random_state</strong> – seed for reproducing sampling</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

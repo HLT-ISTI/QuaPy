@@ -84,7 +84,5 @@ Change Log 0.1.7
 Things to fix:
 --------------
 - update unit tests
-- update Wikis...
 - improve plots
-- documentation of protocols is incomplete
 

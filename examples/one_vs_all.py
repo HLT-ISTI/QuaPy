@@ -12,6 +12,7 @@ and positive. We will use a one-vs-all approach using a binary quantifier for de
 """
 
 qp.environ['SAMPLE_SIZE'] = 100
+qp.environ['N_JOBS'] = -1
 
 """
 Any binary quantifier can be turned into a single-label quantifier by means of getOneVsAll function.
@@ -21,7 +22,7 @@ an instance of AggregativeQuantifier. Although OneVsAllGeneric works in all case
 some additional advantages (namely, all the advantages that AggregativeQuantifiers enjoy, i.e., faster predictions
 during evaluation).
 """
-quantifier = getOneVsAll(MS2(LogisticRegression()), parallel_backend="loky")
+quantifier = getOneVsAll(MS2(LogisticRegression()))
 print(f'the quantifier is an instance of {quantifier.__class__.__name__}')
 
 # load a ternary dataset
@@ -38,8 +39,8 @@ param_grid = {
     'binary_quantifier__classifier__class_weight': ['balanced', None]  # classifier-dependent hyperparameter
 }
 print('starting model selection')
-gs = GridSearchQ(quantifier, param_grid, protocol=USimplexPP(val), n_jobs=-1, verbose=True, refit=False)
-quantifier = gs.fit(train_modsel).best_model()
+model_selection = GridSearchQ(quantifier, param_grid, protocol=USimplexPP(val), verbose=True, refit=False)
+quantifier = model_selection.fit(train_modsel).best_model()
 
 print('training on the whole training set')
 train, test = qp.datasets.fetch_twitter('hcr', for_model_selection=False, pickle=True).train_test

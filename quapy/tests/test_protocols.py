@@ -28,11 +28,25 @@ class TestProtocols(unittest.TestCase):
 
         self.assertEqual(samples1, samples2)
 
-    def test_app_not_replicate(self):
-        data = mock_labelled_collection()
-        p = APP(data, sample_size=5, n_prevalences=11)
+        p = APP(data, sample_size=5, n_prevalences=11)  # <- random_state is by default set to 0
 
         samples1 = samples_to_str(p)
+        samples2 = samples_to_str(p)
+
+        self.assertEqual(samples1, samples2)
+
+    def test_app_not_replicate(self):
+        data = mock_labelled_collection()
+        p = APP(data, sample_size=5, n_prevalences=11, random_state=None)
+
+        samples1 = samples_to_str(p)
+        samples2 = samples_to_str(p)
+
+        self.assertNotEqual(samples1, samples2)
+
+        p = APP(data, sample_size=5, n_prevalences=11, random_state=42)
+        samples1 = samples_to_str(p)
+        p = APP(data, sample_size=5, n_prevalences=11, random_state=0)
         samples2 = samples_to_str(p)
 
         self.assertNotEqual(samples1, samples2)
@@ -64,13 +78,26 @@ class TestProtocols(unittest.TestCase):
 
         self.assertEqual(samples1, samples2)
 
-    def test_npp_not_replicate(self):
-        data = mock_labelled_collection()
-        p = NPP(data, sample_size=5, repeats=5)
+        p = NPP(data, sample_size=5, repeats=5)  # <- random_state is by default set to 0
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)
 
+        self.assertEqual(samples1, samples2)
+
+    def test_npp_not_replicate(self):
+        data = mock_labelled_collection()
+        p = NPP(data, sample_size=5, repeats=5, random_state=None)
+
+        samples1 = samples_to_str(p)
+        samples2 = samples_to_str(p)
+
+        self.assertNotEqual(samples1, samples2)
+
+        p = NPP(data, sample_size=5, repeats=5, random_state=42)
+        samples1 = samples_to_str(p)
+        p = NPP(data, sample_size=5, repeats=5, random_state=0)
+        samples2 = samples_to_str(p)
         self.assertNotEqual(samples1, samples2)
 
     def test_kraemer_replicate(self):
@@ -82,9 +109,16 @@ class TestProtocols(unittest.TestCase):
 
         self.assertEqual(samples1, samples2)
 
+        p = USimplexPP(data, sample_size=5, repeats=10)  # <- random_state is by default set to 0
+
+        samples1 = samples_to_str(p)
+        samples2 = samples_to_str(p)
+
+        self.assertEqual(samples1, samples2)
+
     def test_kraemer_not_replicate(self):
         data = mock_labelled_collection()
-        p = USimplexPP(data, sample_size=5, repeats=10)
+        p = USimplexPP(data, sample_size=5, repeats=10, random_state=None)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)
@@ -101,10 +135,17 @@ class TestProtocols(unittest.TestCase):
 
         self.assertEqual(samples1, samples2)
 
+        p = DomainMixer(dataA, dataB, sample_size=10, mixture_points=11)  # <- random_state is by default set to 0
+
+        samples1 = samples_to_str(p)
+        samples2 = samples_to_str(p)
+
+        self.assertEqual(samples1, samples2)
+
     def test_covariate_shift_not_replicate(self):
         dataA = mock_labelled_collection('domA')
         dataB = mock_labelled_collection('domB')
-        p = DomainMixer(dataA, dataB, sample_size=10, mixture_points=11)
+        p = DomainMixer(dataA, dataB, sample_size=10, mixture_points=11, random_state=None)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)

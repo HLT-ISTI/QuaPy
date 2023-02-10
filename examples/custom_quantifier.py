@@ -11,7 +11,7 @@ from sklearn.linear_model import LogisticRegression
 # Define a custom quantifier: for this example, we will consider a new quantification algorithm that uses a
 # logistic regressor for generating posterior probabilities, and then applies a custom threshold value to the
 # posteriors. Since the quantifier internally uses a classifier, it is an aggregative quantifier; and since it
-# relies on posterior probabilities, then it is a probabilistic aggregative quantifier. Note also it has an
+# relies on posterior probabilities, it is a probabilistic-aggregative quantifier. Note also it has an
 # internal hyperparameter (let say, alpha) which is the decision threshold. Let's also assume the quantifier
 # is binary, for simplicity.
 
@@ -47,13 +47,13 @@ if __name__ == '__main__':
 
     # load the IMDb dataset
     train, test = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=5).train_test
-    train, val = train.split_stratified(train_prop=0.75)
 
     # model selection
     # let us assume we want to explore our hyperparameter alpha along with one hyperparameter of the classifier
+    train, val = train.split_stratified(train_prop=0.75)
     param_grid = {
-        'alpha': np.linspace(0,1,11),  # quantifier-dependent hyperparameter
-        'classifier__C': np.logspace(-2,2,5)  # classifier-dependent hyperparameter
+        'alpha': np.linspace(0, 1, 11),         # quantifier-dependent hyperparameter
+        'classifier__C': np.logspace(-2, 2, 5)  # classifier-dependent hyperparameter
     }
     quantifier = GridSearchQ(quantifier, param_grid, protocol=APP(val), n_jobs=-1, verbose=True).fit(train)
 

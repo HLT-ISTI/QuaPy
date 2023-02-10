@@ -113,7 +113,7 @@
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.HDy.aggregate">(quapy.method.aggregative.HDy method)</a>
 </li>
-        <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAll.aggregate">(quapy.method.aggregative.OneVsAll method)</a>
+        <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAllAggregative.aggregate">(quapy.method.aggregative.OneVsAllAggregative method)</a>
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.PACC.aggregate">(quapy.method.aggregative.PACC method)</a>
 </li>
@@ -178,8 +178,6 @@
 </li>
       <li><a href="quapy.html#quapy.functional.check_prevalence_vector">check_prevalence_vector() (in module quapy.functional)</a>
 </li>
-      <li><a href="quapy.method.html#quapy.method.base.OneVsAllGeneric.classes">classes (quapy.method.base.OneVsAllGeneric property)</a>
-</li>
       <li><a href="quapy.classification.html#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.classes_">classes_ (quapy.classification.calibration.RecalibratedProbabilisticClassifierBase property)</a>
 
       <ul>
@@ -187,7 +185,7 @@
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.classes_">(quapy.method.aggregative.AggregativeQuantifier property)</a>
 </li>
-        <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAll.classes_">(quapy.method.aggregative.OneVsAll property)</a>
+        <li><a href="quapy.method.html#quapy.method.base.OneVsAllGeneric.classes_">(quapy.method.base.OneVsAllGeneric property)</a>
 </li>
         <li><a href="quapy.method.html#quapy.method.neural.QuaNetTrainer.classes_">(quapy.method.neural.QuaNetTrainer property)</a>
 </li>
@@ -203,7 +201,7 @@
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.ELM.classify">(quapy.method.aggregative.ELM method)</a>
 </li>
-        <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAll.classify">(quapy.method.aggregative.OneVsAll method)</a>
+        <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAllAggregative.classify">(quapy.method.aggregative.OneVsAllAggregative method)</a>
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.PACC.classify">(quapy.method.aggregative.PACC method)</a>
 </li>
@@ -359,8 +357,6 @@
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.HDy.fit">(quapy.method.aggregative.HDy method)</a>
 </li>
-        <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAll.fit">(quapy.method.aggregative.OneVsAll method)</a>
-</li>
         <li><a href="quapy.method.html#quapy.method.aggregative.PACC.fit">(quapy.method.aggregative.PACC method)</a>
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.PCC.fit">(quapy.method.aggregative.PCC method)</a>
@@ -427,10 +423,6 @@
 </li>
         <li><a href="quapy.classification.html#quapy.classification.neural.TextClassifierNet.get_params">(quapy.classification.neural.TextClassifierNet method)</a>
 </li>
-        <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAll.get_params">(quapy.method.aggregative.OneVsAll method)</a>
-</li>
-        <li><a href="quapy.method.html#quapy.method.base.OneVsAllGeneric.get_params">(quapy.method.base.OneVsAllGeneric method)</a>
-</li>
         <li><a href="quapy.method.html#quapy.method.meta.Ensemble.get_params">(quapy.method.meta.Ensemble method)</a>
 </li>
         <li><a href="quapy.method.html#quapy.method.neural.QuaNetTrainer.get_params">(quapy.method.neural.QuaNetTrainer method)</a>
@@ -443,6 +435,8 @@
       <li><a href="quapy.method.html#quapy.method.meta.get_probability_distribution">get_probability_distribution() (in module quapy.method.meta)</a>
 </li>
       <li><a href="quapy.html#quapy.util.get_quapy_home">get_quapy_home() (in module quapy.util)</a>
+</li>
+      <li><a href="quapy.method.html#quapy.method.base.getOneVsAll">getOneVsAll() (in module quapy.method.base)</a>
 </li>
       <li><a href="quapy.method.html#quapy.method.aggregative.ACC.getPteCondEstim">getPteCondEstim() (quapy.method.aggregative.ACC class method)</a>
 
@@ -539,6 +533,8 @@
       <li><a href="quapy.method.html#quapy.method.aggregative.MedianSweep">MedianSweep (in module quapy.method.aggregative)</a>
 </li>
       <li><a href="quapy.method.html#quapy.method.aggregative.MedianSweep2">MedianSweep2 (in module quapy.method.aggregative)</a>
+</li>
+      <li><a href="quapy.data.html#quapy.data.base.LabelledCollection.mix">mix() (quapy.data.base.LabelledCollection class method)</a>
 </li>
       <li><a href="quapy.html#quapy.error.mkld">mkld() (in module quapy.error)</a>
 </li>
@@ -641,10 +637,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="quapy.html#quapy.protocol.OnLabelledCollectionProtocol.on_preclassified_instances">on_preclassified_instances() (quapy.protocol.OnLabelledCollectionProtocol method)</a>
 </li>
-      <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAll">OneVsAll (class in quapy.method.aggregative)</a>
+      <li><a href="quapy.method.html#quapy.method.base.OneVsAll">OneVsAll (class in quapy.method.base)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAllAggregative">OneVsAllAggregative (class in quapy.method.aggregative)</a>
+</li>
       <li><a href="quapy.method.html#quapy.method.base.OneVsAllGeneric">OneVsAllGeneric (class in quapy.method.base)</a>
 </li>
       <li><a href="quapy.html#quapy.protocol.OnLabelledCollectionProtocol">OnLabelledCollectionProtocol (class in quapy.protocol)</a>
@@ -975,10 +973,6 @@
         <li><a href="quapy.classification.html#quapy.classification.neural.NeuralClassifierTrainer.set_params">(quapy.classification.neural.NeuralClassifierTrainer method)</a>
 </li>
         <li><a href="quapy.classification.html#quapy.classification.svmperf.SVMperf.set_params">(quapy.classification.svmperf.SVMperf method)</a>
-</li>
-        <li><a href="quapy.method.html#quapy.method.aggregative.OneVsAll.set_params">(quapy.method.aggregative.OneVsAll method)</a>
-</li>
-        <li><a href="quapy.method.html#quapy.method.base.OneVsAllGeneric.set_params">(quapy.method.base.OneVsAllGeneric method)</a>
 </li>
         <li><a href="quapy.method.html#quapy.method.meta.Ensemble.set_params">(quapy.method.meta.Ensemble method)</a>
 </li>

@@ -781,9 +781,9 @@ validation data, or as an integer, indicating that the misclassification rates s
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">OneVsAll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier" title="quapy.method.aggregative.AggregativeQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregativeQuantifier</span></code></a></p>
+<dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAllAggregative">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">OneVsAllAggregative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'loky'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAllAggregative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#quapy.method.base.OneVsAllGeneric" title="quapy.method.base.OneVsAllGeneric"><code class="xref py py-class docutils literal notranslate"><span class="pre">OneVsAllGeneric</span></code></a>, <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier" title="quapy.method.aggregative.AggregativeQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregativeQuantifier</span></code></a></p>
 <p>Allows any binary quantifier to perform quantification on single-label datasets.
 The method maintains one binary quantifier for each class, and then l1-normalizes the outputs so that the
 class prevelences sum up to 1.
@@ -795,12 +795,15 @@ This variant was used, along with the <a class="reference internal" href="#quapy
 <li><p><strong>binary_quantifier</strong> – a quantifier (binary) that will be employed to work on multiclass model in a
 one-vs-all manner</p></li>
 <li><p><strong>n_jobs</strong> – number of parallel workers</p></li>
+<li><p><strong>parallel_backend</strong> – the parallel backend for joblib (default “loky”); this is helpful for some quantifiers
+(e.g., ELM-based ones) that cannot be run with multiprocessing, since the temp dir they create during fit will
+is removed and no longer available at predict time.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.aggregate">
-<span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_predictions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.aggregate" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAllAggregative.aggregate">
+<span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_predictions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAllAggregative.aggregate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implements the aggregation of label predictions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -812,21 +815,9 @@ one-vs-all manner</p></li>
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.classes_">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.classes_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class labels, in the same order in which class prevalence values are to be computed.
-This default implementation actually returns the class labels of the learner.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>array-like</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.classify">
-<span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.classify" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAllAggregative.classify">
+<span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAllAggregative.classify" title="Permalink to this definition">¶</a></dt>
 <dd><p>If the base quantifier is not probabilistic, returns a matrix of shape <cite>(n,m,)</cite> with <cite>n</cite> the number of
 instances and <cite>m</cite> the number of classes. The entry <cite>(i,j)</cite> is a binary value indicating whether instance
 <cite>i `belongs to class `j</cite>. The binary classifications are independent of each other, meaning that an instance
@@ -841,63 +832,6 @@ probabilities are independent of each other, meaning that, in general, they do n
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><cite>np.ndarray</cite></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_classifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trains the aggregative quantifier</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p></li>
-<li><p><strong>fit_classifier</strong> – whether or not to train the learner (default is True). Set to False if the
-learner has been trained outside the quantifier.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>self</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.get_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get parameters for this estimator.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>deep</strong> (<em>bool</em><em>, </em><em>default=True</em>) – If True, will return the parameters for this estimator and
-contained subobjects that are estimators.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>params</strong> – Parameter names mapped to their values.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAll.set_params">
-<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAll.set_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the parameters of this estimator.</p>
-<p>The method works on simple estimators as well as on nested objects
-(such as <code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code>). The latter have
-parameters of the form <code class="docutils literal notranslate"><span class="pre">&lt;component&gt;__&lt;parameter&gt;</span></code> so that it’s
-possible to update each component of a nested object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>**params</strong> (<em>dict</em>) – Estimator parameters.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>self</strong> – Estimator instance.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>estimator instance</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1362,37 +1296,56 @@ validation data, or as an integer, indicating that the misclassification rates s
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="quapy.method.base.OneVsAllGeneric">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">OneVsAllGeneric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="quapy.method.base.OneVsAll">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">OneVsAll</span></span><a class="headerlink" href="#quapy.method.base.OneVsAll" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quapy.method.base.OneVsAllGeneric">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">OneVsAllGeneric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'loky'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#quapy.method.base.OneVsAll" title="quapy.method.base.OneVsAll"><code class="xref py py-class docutils literal notranslate"><span class="pre">OneVsAll</span></code></a>, <a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuantifier</span></code></a></p>
 <p>Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary
 quantifier for each class, and then l1-normalizes the outputs so that the class prevelence values sum up to 1.</p>
 <dl class="py property">
-<dt class="sig sig-object py" id="quapy.method.base.OneVsAllGeneric.classes">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classes</span></span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric.classes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="quapy.method.base.OneVsAllGeneric.classes_">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric.classes_" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.base.OneVsAllGeneric.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric.fit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.base.OneVsAllGeneric.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric.get_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_classifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains a quantifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.method.base.OneVsAllGeneric.quantify">
-<span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric.quantify" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.base.OneVsAllGeneric.set_params">
-<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric.set_params" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">quantify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric.quantify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate class prevalence estimates for the sample’s instances</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(n_classes,)</cite> with class prevalence estimates.</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.method.base.getOneVsAll">
+<span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">getOneVsAll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'loky'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.getOneVsAll" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </section>
 <section id="module-quapy.method.meta">
