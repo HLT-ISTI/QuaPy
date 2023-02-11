@@ -44,6 +44,9 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         assert list(parameters.keys()) == ['C'], 'currently, only the C parameter is supported'
         self.C = parameters['C']
 
+    def get_params(self, deep=True):
+        return {'C': self.C}
+
     def fit(self, X, y):
         """
         Trains the SVM for the multivariate performance loss
