@@ -38,7 +38,7 @@ def map_parallel(func, args, n_jobs):
     return list(itertools.chain.from_iterable(results))
 
 
-def parallel(func, args, n_jobs, seed = None):
+def parallel(func, args, n_jobs, seed=None):
     """
     A wrapper of multiprocessing:
 

@@ -85,4 +85,5 @@ Things to fix:
 --------------
 - update unit tests
 - improve plots
+- svmperf clean temp dirs; check also ELM when instantiated using SVMperf directly
 

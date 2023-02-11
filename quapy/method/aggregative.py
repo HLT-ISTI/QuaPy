@@ -880,16 +880,27 @@ class ELM(AggregativeQuantifier, BinaryQuantifier):
     learning algorithm, which has to be installed and patched for the purpose (see this
     `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
 
+    :param classifier: an instance of `SVM perf` or None
     :param svmperf_base: path to the folder containing the binary files of `SVM perf`
     :param loss: the loss to optimize (see :attr:`quapy.classification.svmperf.SVMperf.valid_losses`)
     :param kwargs: rest of SVM perf's parameters
     """
 
-    def __init__(self, svmperf_base=None, loss='01', **kwargs):
+    def __init__(self, classifier=None, svmperf_base=None, loss='01', **kwargs):
         self.svmperf_base = svmperf_base if svmperf_base is not None else qp.environ['SVMPERF_HOME']
         self.loss = loss
         self.kwargs = kwargs
-        self.classifier = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs)
+        assert classifier is None or isinstance(classifier, SVMperf), \
+            'param error "classifier": instances of ELM can only be instantiated with classifier SVMperf. ' \
+            'This parameter should either be an instance of SVMperf or None, in which case an SVMperf object ' \
+            'will be instantiaded using "svmperf_base" and "loss"'
+        if classifier is None:
+            self.classifier = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs)
+        else:
+            if classifier.loss != loss:
+                print(f'[warning]: the loss of the SVMperf object passed to arg "classifier" ({classifier.loss}) '
+                      f'does not coincide with arg "loss" ({loss}); the latter will be ignored')
+            self.classifier = classifier
 
     def fit(self, data: LabelledCollection, fit_classifier=True):
         self._check_binary(data, self.__class__.__name__)
@@ -913,11 +924,14 @@ class SVMQ(ELM):
 
     >>> ELM(svmperf_base, loss='q', **kwargs)
 
+    :param classifier: not used, added for compatibility
     :param svmperf_base: path to the folder containing the binary files of `SVM perf`
     :param kwargs: rest of SVM perf's parameters
     """
 
-    def __init__(self, svmperf_base=None, **kwargs):
+    def __init__(self, classifier=None, svmperf_base=None, **kwargs):
+        assert classifier == None, \
+            'param "classifier" should be None. SVMperf will be instantiated using "svmperf_base" path.'
         super(SVMQ, self).__init__(svmperf_base, loss='q', **kwargs)
 
 
@@ -929,11 +943,14 @@ class SVMKLD(ELM):
 
     >>> ELM(svmperf_base, loss='kld', **kwargs)
 
+    :param classifier: not used, added for compatibility
     :param svmperf_base: path to the folder containing the binary files of `SVM perf`
     :param kwargs: rest of SVM perf's parameters
     """
 
-    def __init__(self, svmperf_base=None, **kwargs):
+    def __init__(self, classifier=None, svmperf_base=None, **kwargs):
+        assert classifier == None, \
+            'param "classifier" should be None. SVMperf will be instantiated using "svmperf_base" path.'
         super(SVMKLD, self).__init__(svmperf_base, loss='kld', **kwargs)
 
 
@@ -946,11 +963,14 @@ class SVMNKLD(ELM):
 
     >>> ELM(svmperf_base, loss='nkld', **kwargs)
 
+    :param classifier: not used, added for compatibility
     :param svmperf_base: path to the folder containing the binary files of `SVM perf`
     :param kwargs: rest of SVM perf's parameters
     """
 
-    def __init__(self, svmperf_base=None, **kwargs):
+    def __init__(self, classifier=None, svmperf_base=None, **kwargs):
+        assert classifier == None, \
+            'param "classifier" should be None. SVMperf will be instantiated using "svmperf_base" path.'
         super(SVMNKLD, self).__init__(svmperf_base, loss='nkld', **kwargs)
 
 
@@ -962,11 +982,14 @@ class SVMAE(ELM):
 
     >>> ELM(svmperf_base, loss='mae', **kwargs)
 
+    :param classifier: not used, added for compatibility
     :param svmperf_base: path to the folder containing the binary files of `SVM perf`
     :param kwargs: rest of SVM perf's parameters
     """
 
-    def __init__(self, svmperf_base=None, **kwargs):
+    def __init__(self, classifier=None, svmperf_base=None, **kwargs):
+        assert classifier == None, \
+            'param "classifier" should be None. SVMperf will be instantiated using "svmperf_base" path.'
         super(SVMAE, self).__init__(svmperf_base, loss='mae', **kwargs)
 
 
@@ -978,11 +1001,14 @@ class SVMRAE(ELM):
 
     >>> ELM(svmperf_base, loss='mrae', **kwargs)
 
+    :param classifier: not used, added for compatibility
     :param svmperf_base: path to the folder containing the binary files of `SVM perf`
     :param kwargs: rest of SVM perf's parameters
     """
 
-    def __init__(self, svmperf_base=None, **kwargs):
+    def __init__(self, classifier=None, svmperf_base=None, **kwargs):
+        assert classifier == None, \
+            'param "classifier" should be None. SVMperf will be instantiated using "svmperf_base" path.'
         super(SVMRAE, self).__init__(svmperf_base, loss='mrae', **kwargs)
 
 
