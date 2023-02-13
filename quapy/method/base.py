@@ -54,7 +54,7 @@ class OneVsAll:
     pass
 
 
-def getOneVsAll(binary_quantifier, n_jobs=None):
+def newOneVsAll(binary_quantifier, n_jobs=None):
     assert isinstance(binary_quantifier, BaseQuantifier), \
         f'{binary_quantifier} does not seem to be a Quantifier'
     if isinstance(binary_quantifier, qp.method.aggregative.AggregativeQuantifier):

@@ -1,6 +1,6 @@
 import quapy as qp
-from quapy.method.aggregative import MS2, OneVsAllAggregative, OneVsAllGeneric
-from quapy.method.base import getOneVsAll
+from quapy.method.aggregative import MS2
+from quapy.method.base import newOneVsAll
 from quapy.model_selection import GridSearchQ
 from quapy.protocol import USimplexPP
 from sklearn.linear_model import LogisticRegression
@@ -22,7 +22,7 @@ an instance of AggregativeQuantifier. Although OneVsAllGeneric works in all case
 some additional advantages (namely, all the advantages that AggregativeQuantifiers enjoy, i.e., faster predictions
 during evaluation).
 """
-quantifier = getOneVsAll(MS2(LogisticRegression()))
+quantifier = newOneVsAll(MS2(LogisticRegression()))
 print(f'the quantifier is an instance of {quantifier.__class__.__name__}')
 
 # load a ternary dataset

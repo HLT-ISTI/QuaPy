@@ -3,15 +3,6 @@ from . import base
 from . import meta
 from . import non_aggregative
 
-EXPLICIT_LOSS_MINIMIZATION_METHODS = {
-    aggregative.ELM,
-    aggregative.SVMQ,
-    aggregative.SVMAE,
-    aggregative.SVMKLD,
-    aggregative.SVMRAE,
-    aggregative.SVMNKLD
-}
-
 AGGREGATIVE_METHODS = {
     aggregative.CC,
     aggregative.ACC,
@@ -26,7 +17,7 @@ AGGREGATIVE_METHODS = {
     aggregative.MAX,
     aggregative.MS,
     aggregative.MS2,
-} | EXPLICIT_LOSS_MINIMIZATION_METHODS
+}
 
 
 NON_AGGREGATIVE_METHODS = {

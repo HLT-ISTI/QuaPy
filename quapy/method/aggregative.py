@@ -870,146 +870,155 @@ class DistributionMatching(AggregativeProbabilisticQuantifier):
         return r.x
 
 
-class ELM(AggregativeQuantifier, BinaryQuantifier):
+def newELM(svmperf_base=None, loss='01', C=1):
     """
-    Class of Explicit Loss Minimization (ELM) quantifiers.
+    Explicit Loss Minimization (ELM) quantifiers.
     Quantifiers based on ELM represent a family of methods based on structured output learning;
     these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
     measure. This implementation relies on
     `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
     learning algorithm, which has to be installed and patched for the purpose (see this
     `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function equivalent to:
 
-    :param classifier: an instance of `SVM perf` or None
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
+    >>> CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
     :param loss: the loss to optimize (see :attr:`quapy.classification.svmperf.SVMperf.valid_losses`)
-    :param kwargs: rest of SVM perf's parameters
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
     """
-
-    def __init__(self, classifier=None, svmperf_base=None, loss='01', **kwargs):
-        self.svmperf_base = svmperf_base if svmperf_base is not None else qp.environ['SVMPERF_HOME']
-        self.loss = loss
-        self.kwargs = kwargs
-        assert classifier is None or isinstance(classifier, SVMperf), \
-            'param error "classifier": instances of ELM can only be instantiated with classifier SVMperf. ' \
-            'This parameter should either be an instance of SVMperf or None, in which case an SVMperf object ' \
-            'will be instantiaded using "svmperf_base" and "loss"'
-        if classifier is None:
-            self.classifier = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs)
-        else:
-            if classifier.loss != loss:
-                print(f'[warning]: the loss of the SVMperf object passed to arg "classifier" ({classifier.loss}) '
-                      f'does not coincide with arg "loss" ({loss}); the latter will be ignored')
-            self.classifier = classifier
-
-    def fit(self, data: LabelledCollection, fit_classifier=True):
-        self._check_binary(data, self.__class__.__name__)
-        assert fit_classifier, 'the method requires that fit_classifier=True'
-        self.classifier.fit(data.instances, data.labels)
-        return self
-
-    def aggregate(self, classif_predictions: np.ndarray):
-        return F.prevalence_from_labels(classif_predictions, self.classes_)
-
-    def classify(self, X, y=None):
-        return self.classifier.predict(X)
+    if svmperf_base is None:
+        svmperf_base = qp.environ['SVMPERF_HOME']
+    assert svmperf_base is not None, \
+        'param svmperf_base was not specified, and the variable SVMPERF_HOME has not been set in the environment'
+    return CC(SVMperf(svmperf_base, loss=loss, C=C))
 
 
-class SVMQ(ELM):
+def newSVMQ(svmperf_base=None, C=1):
     """
-    SVM(Q), which attempts to minimize the `Q` loss combining a classification-oriented loss and a
-    quantification-oriented loss, as proposed by
+    SVM(Q) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the `Q` loss combining a
+    classification-oriented loss and a quantification-oriented loss, as proposed by
     `Barranquero et al. 2015 <https://www.sciencedirect.com/science/article/pii/S003132031400291X>`_.
     Equivalent to:
 
-    >>> ELM(svmperf_base, loss='q', **kwargs)
+    >>> CC(SVMperf(svmperf_base, loss='q', C=C))
 
-    :param classifier: not used, added for compatibility
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
-    :param kwargs: rest of SVM perf's parameters
+    Quantifiers based on ELM represent a family of methods based on structured output learning;
+    these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+    measure. This implementation relies on
+    `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
+    learning algorithm, which has to be installed and patched for the purpose (see this
+    `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
     """
+    return newELM(svmperf_base, loss='q', C=C)
 
-    def __init__(self, classifier=None, svmperf_base=None, **kwargs):
-        assert classifier == None, \
-            'param "classifier" should be None. SVMperf will be instantiated using "svmperf_base" path.'
-        super(SVMQ, self).__init__(svmperf_base, loss='q', **kwargs)
-
-
-class SVMKLD(ELM):
+def newSVMKLD(svmperf_base=None, C=1):
     """
-    SVM(KLD), which attempts to minimize the Kullback-Leibler Divergence as proposed by
+    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
+    as proposed by `Esuli et al. 2015 <https://dl.acm.org/doi/abs/10.1145/2700406>`_.
+    Equivalent to:
+
+    >>> CC(SVMperf(svmperf_base, loss='kld', C=C))
+
+    Quantifiers based on ELM represent a family of methods based on structured output learning;
+    these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+    measure. This implementation relies on
+    `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
+    learning algorithm, which has to be installed and patched for the purpose (see this
+    `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
+    """
+    return newELM(svmperf_base, loss='kld', C=C)
+
+
+def newSVMKLD(svmperf_base=None, C=1):
+    """
+    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
+    normalized via the logistic function, as proposed by
     `Esuli et al. 2015 <https://dl.acm.org/doi/abs/10.1145/2700406>`_.
     Equivalent to:
 
-    >>> ELM(svmperf_base, loss='kld', **kwargs)
+    >>> CC(SVMperf(svmperf_base, loss='nkld', C=C))
 
-    :param classifier: not used, added for compatibility
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
-    :param kwargs: rest of SVM perf's parameters
+    Quantifiers based on ELM represent a family of methods based on structured output learning;
+    these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+    measure. This implementation relies on
+    `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
+    learning algorithm, which has to be installed and patched for the purpose (see this
+    `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
     """
+    return newELM(svmperf_base, loss='nkld', C=C)
 
-    def __init__(self, classifier=None, svmperf_base=None, **kwargs):
-        assert classifier == None, \
-            'param "classifier" should be None. SVMperf will be instantiated using "svmperf_base" path.'
-        super(SVMKLD, self).__init__(svmperf_base, loss='kld', **kwargs)
-
-
-class SVMNKLD(ELM):
+def newSVMAE(svmperf_base=None, C=1):
     """
-    SVM(NKLD), which attempts to minimize a version of the the Kullback-Leibler Divergence normalized
-    via the logistic function, as proposed by
-    `Esuli et al. 2015 <https://dl.acm.org/doi/abs/10.1145/2700406>`_.
-    Equivalent to:
-
-    >>> ELM(svmperf_base, loss='nkld', **kwargs)
-
-    :param classifier: not used, added for compatibility
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
-    :param kwargs: rest of SVM perf's parameters
-    """
-
-    def __init__(self, classifier=None, svmperf_base=None, **kwargs):
-        assert classifier == None, \
-            'param "classifier" should be None. SVMperf will be instantiated using "svmperf_base" path.'
-        super(SVMNKLD, self).__init__(svmperf_base, loss='nkld', **kwargs)
-
-
-class SVMAE(ELM):
-    """
-    SVM(AE), which attempts to minimize Absolute Error as first used by
+    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Absolute Error as first used by
     `Moreo and Sebastiani, 2021 <https://arxiv.org/abs/2011.02552>`_.
     Equivalent to:
 
-    >>> ELM(svmperf_base, loss='mae', **kwargs)
+    >>> CC(SVMperf(svmperf_base, loss='mae', C=C))
 
-    :param classifier: not used, added for compatibility
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
-    :param kwargs: rest of SVM perf's parameters
+    Quantifiers based on ELM represent a family of methods based on structured output learning;
+    these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+    measure. This implementation relies on
+    `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
+    learning algorithm, which has to be installed and patched for the purpose (see this
+    `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
     """
+    return newELM(svmperf_base, loss='mae', C=C)
 
-    def __init__(self, classifier=None, svmperf_base=None, **kwargs):
-        assert classifier == None, \
-            'param "classifier" should be None. SVMperf will be instantiated using "svmperf_base" path.'
-        super(SVMAE, self).__init__(svmperf_base, loss='mae', **kwargs)
-
-
-class SVMRAE(ELM):
+def newSVMAE(svmperf_base=None, C=1):
     """
-    SVM(RAE), which attempts to minimize Relative Absolute Error as first used by
-    `Moreo and Sebastiani, 2021 <https://arxiv.org/abs/2011.02552>`_.
+    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Relative Absolute Error as first
+    used by `Moreo and Sebastiani, 2021 <https://arxiv.org/abs/2011.02552>`_.
     Equivalent to:
 
-    >>> ELM(svmperf_base, loss='mrae', **kwargs)
+    >>> CC(SVMperf(svmperf_base, loss='mrae', C=C))
 
-    :param classifier: not used, added for compatibility
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
-    :param kwargs: rest of SVM perf's parameters
+    Quantifiers based on ELM represent a family of methods based on structured output learning;
+    these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+    measure. This implementation relies on
+    `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
+    learning algorithm, which has to be installed and patched for the purpose (see this
+    `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
     """
-
-    def __init__(self, classifier=None, svmperf_base=None, **kwargs):
-        assert classifier == None, \
-            'param "classifier" should be None. SVMperf will be instantiated using "svmperf_base" path.'
-        super(SVMRAE, self).__init__(svmperf_base, loss='mrae', **kwargs)
+    return newELM(svmperf_base, loss='mrae', C=C)
 
 
 class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
@@ -1267,7 +1276,6 @@ ProbabilisticAdjustedClassifyAndCount = PACC
 ExpectationMaximizationQuantifier = EMQ
 SLD = EMQ
 HellingerDistanceY = HDy
-ExplicitLossMinimisation = ELM
 MedianSweep = MS
 MedianSweep2 = MS2
 

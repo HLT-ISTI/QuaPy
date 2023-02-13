@@ -1,5 +1,7 @@
 import random
+import shutil
 import subprocess
+import tempfile
 from os import remove, makedirs
 from os.path import join, exists
 from subprocess import PIPE, STDOUT
@@ -23,29 +25,34 @@ class SVMperf(BaseEstimator, ClassifierMixin):
     :param C: trade-off between training error and margin (default 0.01)
     :param verbose: set to True to print svm-perf std outputs
     :param loss: the loss to optimize for. Available losses are "01", "f1", "kld", "nkld", "q", "qacc", "qf1", "qgm", "mae", "mrae".
+    :param host_folder: directory where to store the trained model; set to None (default) for using a tmp directory
+        (temporal directories are automatically deleted)
     """
 
     # losses with their respective codes in svm_perf implementation
     valid_losses = {'01':0, 'f1':1, 'kld':12, 'nkld':13, 'q':22, 'qacc':23, 'qf1':24, 'qgm':25, 'mae':26, 'mrae':27}
 
-    def __init__(self, svmperf_base, C=0.01, verbose=False, loss='01'):
+    def __init__(self, svmperf_base, C=0.01, verbose=False, loss='01', host_folder=None):
         assert exists(svmperf_base), f'path {svmperf_base} does not seem to point to a valid path'
         self.svmperf_base = svmperf_base
         self.C = C
         self.verbose = verbose
         self.loss = loss
+        self.host_folder = host_folder
 
-    def set_params(self, **parameters):
-        """
-        Set the hyper-parameters for svm-perf. Currently, only the `C` parameter is supported
-
-        :param parameters: a `**kwargs` dictionary `{'C': <float>}`
-        """
-        assert list(parameters.keys()) == ['C'], 'currently, only the C parameter is supported'
-        self.C = parameters['C']
-
-    def get_params(self, deep=True):
-        return {'C': self.C}
+    # def set_params(self, **parameters):
+    #     """
+    #     Set the hyper-parameters for svm-perf. Currently, only the `C` and `loss` parameters are supported
+    #
+    #     :param parameters: a `**kwargs` dictionary `{'C': <float>}`
+    #     """
+    #     assert sorted(list(parameters.keys())) == ['C', 'loss'], \
+    #         'currently, only the C and loss parameters are supported'
+    #     self.C = parameters.get('C', self.C)
+    #     self.loss = parameters.get('loss', self.loss)
+    #
+    # def get_params(self, deep=True):
+    #     return {'C': self.C, 'loss': self.loss}
 
     def fit(self, X, y):
         """
@@ -68,14 +75,14 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
         local_random = random.Random()
         # this would allow to run parallel instances of predict
-        random_code = '-'.join(str(local_random.randint(0,1000000)) for _ in range(5))
-        # self.tmpdir = tempfile.TemporaryDirectory(suffix=random_code)
-        # tmp dir are removed after the fit terminates in multiprocessing... moving to regular directories + __del__
-        self.tmpdir = '.svmperf-' + random_code
+        random_code = 'svmperfprocess'+'-'.join(str(local_random.randint(0, 1000000)) for _ in range(5))
+        if self.host_folder is None:
+            # tmp dir are removed after the fit terminates in multiprocessing...
+            self.tmpdir = tempfile.TemporaryDirectory(suffix=random_code).name
+        else:
+            self.tmpdir = join(self.host_folder, '.' + random_code)
         makedirs(self.tmpdir, exist_ok=True)
 
-        # self.model = join(self.tmpdir.name, 'model-'+random_code)
-        # traindat = join(self.tmpdir.name, f'train-{random_code}.dat')
         self.model = join(self.tmpdir, 'model-'+random_code)
         traindat = join(self.tmpdir, f'train-{random_code}.dat')
 
@@ -123,8 +130,6 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         # in order to allow for parallel runs of predict, a random code is assigned
         local_random = random.Random()
         random_code = '-'.join(str(local_random.randint(0, 1000000)) for _ in range(5))
-        # predictions_path = join(self.tmpdir.name, 'predictions'+random_code+'.dat')
-        # testdat = join(self.tmpdir.name, 'test'+random_code+'.dat')
         predictions_path = join(self.tmpdir, 'predictions' + random_code + '.dat')
         testdat = join(self.tmpdir, 'test' + random_code + '.dat')
         dump_svmlight_file(X, y, testdat, zero_based=False)
@@ -145,5 +150,5 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
     def __del__(self):
         if hasattr(self, 'tmpdir'):
-            pass # shutil.rmtree(self.tmpdir, ignore_errors=True)
+            shutil.rmtree(self.tmpdir, ignore_errors=True)
 
