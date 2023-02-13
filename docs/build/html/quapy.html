@@ -550,13 +550,13 @@ in the grid multiplied by <cite>repeat</cite></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.APP.sample">
 <span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.APP.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract one sample determined by the given parameters</p>
+<dd><p>Realizes the sample given the index of the instances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>params</strong> – all the necessary parameters to generate a sample</p>
+<dd class="field-odd"><p><strong>index</strong> – indexes of the instances to select</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>one sample (the same sample has to be generated for the same parameters)</p>
+<dd class="field-even"><p>an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -564,10 +564,10 @@ in the grid multiplied by <cite>repeat</cite></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.APP.samples_parameters">
 <span class="sig-name descname"><span class="pre">samples_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.APP.samples_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function has to return all the necessary parameters to replicate the samples</p>
+<dd><p>Return all the necessary parameters to replicate the samples as according to the APP protocol.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>a list of parameters, each of which serves to deterministically generate a sample</p>
+<dd class="field-odd"><p>a list of indexes that realize the APP sampling</p>
 </dd>
 </dl>
 </dd></dl>
@@ -575,10 +575,10 @@ in the grid multiplied by <cite>repeat</cite></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.APP.total">
 <span class="sig-name descname"><span class="pre">total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.APP.total" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indicates the total number of samples that the protocol generates.</p>
+<dd><p>Returns the number of samples that will be generated</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The number of samples to generate if known, or <cite>None</cite> otherwise.</p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -666,10 +666,11 @@ the sequence will be consistent every time the protocol is called.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>domainA</strong> – </p></li>
-<li><p><strong>domainB</strong> – </p></li>
-<li><p><strong>sample_size</strong> – </p></li>
-<li><p><strong>repeats</strong> – </p></li>
+<li><p><strong>domainA</strong> – one domain, an object of <code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code></p></li>
+<li><p><strong>domainB</strong> – another domain, an object of <code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code></p></li>
+<li><p><strong>sample_size</strong> – integer, the number of instances in each sample; if None (default) then it is taken from
+qp.environ[“SAMPLE_SIZE”]. If this is not set, a ValueError exception is raised.</p></li>
+<li><p><strong>repeats</strong> – int, number of samples to draw for every mixture rate</p></li>
 <li><p><strong>prevalence</strong> – the prevalence to preserv along the mixtures. If specified, should be an array containing
 one prevalence value (positive float) for each class and summing up to one. If not specified, the prevalence
 will be taken from the domain A (default).</p></li>
@@ -684,13 +685,13 @@ will be the same every time the protocol is called)</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.DomainMixer.sample">
 <span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.DomainMixer.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract one sample determined by the given parameters</p>
+<dd><p>Realizes the sample given a pair of indexes of the instances from A and B.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>params</strong> – all the necessary parameters to generate a sample</p>
+<dd class="field-odd"><p><strong>indexes</strong> – indexes of the instances to select from A and B</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>one sample (the same sample has to be generated for the same parameters)</p>
+<dd class="field-even"><p>an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -698,10 +699,10 @@ will be the same every time the protocol is called)</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.DomainMixer.samples_parameters">
 <span class="sig-name descname"><span class="pre">samples_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.DomainMixer.samples_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function has to return all the necessary parameters to replicate the samples</p>
+<dd><p>Return all the necessary parameters to replicate the samples as according to the this protocol.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>a list of parameters, each of which serves to deterministically generate a sample</p>
+<dd class="field-odd"><p>a list of zipped indexes (from A and B) that realize the sampling</p>
 </dd>
 </dl>
 </dd></dl>
@@ -709,10 +710,10 @@ will be the same every time the protocol is called)</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.DomainMixer.total">
 <span class="sig-name descname"><span class="pre">total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.DomainMixer.total" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indicates the total number of samples that the protocol generates.</p>
+<dd><p>Returns the number of samples that will be generated (equals to “repeats * mixture_points”)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The number of samples to generate if known, or <cite>None</cite> otherwise.</p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -742,13 +743,13 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.NPP.sample">
 <span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.NPP.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract one sample determined by the given parameters</p>
+<dd><p>Realizes the sample given the index of the instances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>params</strong> – all the necessary parameters to generate a sample</p>
+<dd class="field-odd"><p><strong>index</strong> – indexes of the instances to select</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>one sample (the same sample has to be generated for the same parameters)</p>
+<dd class="field-even"><p>an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -756,10 +757,10 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.NPP.samples_parameters">
 <span class="sig-name descname"><span class="pre">samples_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.NPP.samples_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function has to return all the necessary parameters to replicate the samples</p>
+<dd><p>Return all the necessary parameters to replicate the samples as according to the NPP protocol.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>a list of parameters, each of which serves to deterministically generate a sample</p>
+<dd class="field-odd"><p>a list of indexes that realize the NPP sampling</p>
 </dd>
 </dl>
 </dd></dl>
@@ -767,10 +768,10 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.NPP.total">
 <span class="sig-name descname"><span class="pre">total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.NPP.total" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indicates the total number of samples that the protocol generates.</p>
+<dd><p>Returns the number of samples that will be generated (equals to “repeats”)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The number of samples to generate if known, or <cite>None</cite> otherwise.</p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>
@@ -781,6 +782,7 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 <dt class="sig sig-object py" id="quapy.protocol.OnLabelledCollectionProtocol">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.protocol.</span></span><span class="sig-name descname"><span class="pre">OnLabelledCollectionProtocol</span></span><a class="headerlink" href="#quapy.protocol.OnLabelledCollectionProtocol" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Protocols that generate samples from a <code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code> object.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="quapy.protocol.OnLabelledCollectionProtocol.RETURN_TYPES">
 <span class="sig-name descname"><span class="pre">RETURN_TYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['sample_prev',</span> <span class="pre">'labelled_collection']</span></em><a class="headerlink" href="#quapy.protocol.OnLabelledCollectionProtocol.RETURN_TYPES" title="Permalink to this definition">¶</a></dt>
@@ -789,17 +791,52 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.OnLabelledCollectionProtocol.get_collator">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_collator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sample_prev'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.OnLabelledCollectionProtocol.get_collator" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a collator function, i.e., a function that prepares the yielded data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>return_type</strong> – either ‘sample_prev’ (default) if the collator is requested to yield tuples of
+<cite>(sample, prevalence)</cite>, or ‘labelled_collection’ when it is requested to yield instances of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the collator function (a callable function that takes as input an instance of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code>)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.OnLabelledCollectionProtocol.get_labelled_collection">
 <span class="sig-name descname"><span class="pre">get_labelled_collection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.OnLabelledCollectionProtocol.get_labelled_collection" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns the labelled collection on which this protocol acts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>an object of type <code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code></p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.OnLabelledCollectionProtocol.on_preclassified_instances">
 <span class="sig-name descname"><span class="pre">on_preclassified_instances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pre_classifications</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_place</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.OnLabelledCollectionProtocol.on_preclassified_instances" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Returns a copy of this protocol that acts on a modified version of the original
+<code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code> in which the original instances have been replaced
+with the outputs of a classifier for each instance. (This is convenient for speeding-up
+the evaluation procedures for many samples, by pre-classifying the instances in advance.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pre_classifications</strong> – the predictions issued by a classifier, typically an array-like
+with shape <cite>(n_instances,)</cite> when the classifier is a hard one, or with shape
+<cite>(n_instances, n_classes)</cite> when the classifier is a probabilistic one.</p></li>
+<li><p><strong>in_place</strong> – whether or not to apply the modification in-place or in a new copy (default).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a copy of this protocol</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 
@@ -830,13 +867,13 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.USimplexPP.sample">
 <span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.USimplexPP.sample" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract one sample determined by the given parameters</p>
+<dd><p>Realizes the sample given the index of the instances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>params</strong> – all the necessary parameters to generate a sample</p>
+<dd class="field-odd"><p><strong>index</strong> – indexes of the instances to select</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>one sample (the same sample has to be generated for the same parameters)</p>
+<dd class="field-even"><p>an instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -844,10 +881,10 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.USimplexPP.samples_parameters">
 <span class="sig-name descname"><span class="pre">samples_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.USimplexPP.samples_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function has to return all the necessary parameters to replicate the samples</p>
+<dd><p>Return all the necessary parameters to replicate the samples as according to the USimplexPP protocol.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>a list of parameters, each of which serves to deterministically generate a sample</p>
+<dd class="field-odd"><p>a list of indexes that realize the USimplexPP sampling</p>
 </dd>
 </dl>
 </dd></dl>
@@ -855,10 +892,10 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.USimplexPP.total">
 <span class="sig-name descname"><span class="pre">total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.USimplexPP.total" title="Permalink to this definition">¶</a></dt>
-<dd><p>Indicates the total number of samples that the protocol generates.</p>
+<dd><p>Returns the number of samples that will be generated (equals to “repeats”)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The number of samples to generate if known, or <cite>None</cite> otherwise.</p>
+<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
 </dd></dl>

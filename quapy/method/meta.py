@@ -7,6 +7,7 @@ from sklearn.model_selection import GridSearchCV, cross_val_predict
 from tqdm import tqdm
 
 import quapy as qp
+from evaluation import evaluate_on_samples
 from quapy import functional as F
 from quapy.data import LabelledCollection
 from quapy.model_selection import GridSearchQ
@@ -182,7 +183,7 @@ class Ensemble(BaseQuantifier):
         tests = [m[3] for m in self.ensemble]
         scores = []
         for i, model in enumerate(self.ensemble):
-            scores.append(evaluate(model[0], tests[:i] + tests[i + 1:], error, self.n_jobs))
+            scores.append(evaluate_on_samples(model[0], tests[:i] + tests[i + 1:], error))
         order = np.argsort(scores)
 
         self.ensemble = _select_k(self.ensemble, order, k=self.red_size)

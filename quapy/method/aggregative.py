@@ -338,7 +338,7 @@ class ACC(AggregativeQuantifier):
         )
 
         self.cc = CC(self.classifier)
-        self.Pte_cond_estim_ = self.getPteCondEstim(data.classes_, y, y_)
+        self.Pte_cond_estim_ = self.getPteCondEstim(self.classifier.classes_, y, y_)
 
         return self
 
@@ -996,7 +996,7 @@ def newSVMAE(svmperf_base=None, C=1):
     """
     return newELM(svmperf_base, loss='mae', C=C)
 
-def newSVMAE(svmperf_base=None, C=1):
+def newSVMRAE(svmperf_base=None, C=1):
     """
     SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Relative Absolute Error as first
     used by `Moreo and Sebastiani, 2021 <https://arxiv.org/abs/2011.02552>`_.

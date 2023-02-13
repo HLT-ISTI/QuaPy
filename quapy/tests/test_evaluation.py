@@ -39,10 +39,6 @@ class EvalTestCase(unittest.TestCase):
                 self.emq.fit(data)
                 return self
 
-            def set_params(self, **parameters): pass
-            def get_params(self, deep=True): pass
-
-
         emq = NonAggregativeEMQ(SlowLR()).fit(train)
 
         tinit = time()

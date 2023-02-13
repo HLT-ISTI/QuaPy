@@ -6,6 +6,7 @@ import torch
 from torch.nn import MSELoss
 from torch.nn.functional import relu
 
+from protocol import USimplexPP
 from quapy.method.aggregative import *
 from quapy.util import EarlyStop
 
@@ -41,7 +42,8 @@ class QuaNetTrainer(BaseQuantifier):
     :param classifier: an object implementing `fit` (i.e., that can be trained on labelled data),
         `predict_proba` (i.e., that can generate posterior probabilities of unlabelled examples) and
         `transform` (i.e., that can generate embedded representations of the unlabelled instances).
-    :param sample_size: integer, the sample size
+    :param sample_size: integer, the sample size; default is None, meaning that the sample size should be
+        taken from qp.environ["SAMPLE_SIZE"]
     :param n_epochs: integer, maximum number of training epochs
     :param tr_iter_per_poch: integer, number of training iterations before considering an epoch complete
     :param va_iter_per_poch: integer, number of validation iterations to perform after each epoch
@@ -61,7 +63,7 @@ class QuaNetTrainer(BaseQuantifier):
 
     def __init__(self,
                  classifier,
-                 sample_size,
+                 sample_size=None,
                  n_epochs=100,
                  tr_iter_per_poch=500,
                  va_iter_per_poch=100,
@@ -83,7 +85,7 @@ class QuaNetTrainer(BaseQuantifier):
             f'the classifier {classifier.__class__.__name__} does not seem to be able to produce posterior probabilities ' \
                 f'since it does not implement the method "predict_proba"'
         self.classifier = classifier
-        self.sample_size = sample_size
+        self.sample_size = qp._get_sample_size(sample_size)
         self.n_epochs = n_epochs
         self.tr_iter = tr_iter_per_poch
         self.va_iter = va_iter_per_poch
@@ -216,16 +218,13 @@ class QuaNetTrainer(BaseQuantifier):
         self.quanet.train(mode=train)
         losses = []
         mae_errors = []
-        if train==False:
-            prevpoints = F.get_nprevpoints_approximation(iterations, self.quanet.n_classes)
-            iterations = F.num_prevalence_combinations(prevpoints, self.quanet.n_classes)
-            with qp.util.temp_seed(0):
-                sampling_index_gen = data.artificial_sampling_index_generator(self.sample_size, prevpoints)
-        else:
-            sampling_index_gen = [data.sampling_index(self.sample_size, *prev) for prev in
-                                  F.uniform_simplex_sampling(data.n_classes, iterations)]
-        pbar = tqdm(sampling_index_gen, total=iterations) if train else sampling_index_gen
-
+        sampler = USimplexPP(
+            data,
+            sample_size=self.sample_size,
+            repeats=iterations,
+            random_state=None if train else 0  # different samples during train, same samples during validation
+        )
+        pbar = tqdm(sampler.samples_parameters(), total=sampler.total())
         for it, index in enumerate(pbar):
             sample_data = data.sampling_from_index(index)
             sample_posteriors = posteriors[index]

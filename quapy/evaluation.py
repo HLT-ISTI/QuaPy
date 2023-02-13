@@ -2,7 +2,7 @@ from typing import Union, Callable, Iterable
 import numpy as np
 from tqdm import tqdm
 import quapy as qp
-from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
+from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol, IterateProtocol
 from quapy.method.base import BaseQuantifier
 import pandas as pd
 
@@ -92,6 +92,16 @@ def evaluate(
         error_metric = qp.error.from_name(error_metric)
     true_prevs, estim_prevs = prediction(model, protocol, aggr_speedup=aggr_speedup, verbose=verbose)
     return error_metric(true_prevs, estim_prevs)
+
+
+def evaluate_on_samples(
+        model: BaseQuantifier,
+        samples: [qp.data.LabelledCollection],
+        error_metric:Union[str, Callable],
+        verbose=False):
+
+    return evaluate(model, IterateProtocol(samples), error_metric, aggr_speedup=False, verbose=verbose)
+
 
 
 

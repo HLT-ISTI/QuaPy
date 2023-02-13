@@ -801,7 +801,7 @@ applied, meaning that if the longest document in the batch is shorter than
 <span id="quapy-classification-svmperf"></span><h2>quapy.classification.svmperf<a class="headerlink" href="#module-quapy.classification.svmperf" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.svmperf.SVMperf">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.svmperf.</span></span><span class="sig-name descname"><span class="pre">SVMperf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'01'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.classification.svmperf.SVMperf" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.svmperf.</span></span><span class="sig-name descname"><span class="pre">SVMperf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.classification.svmperf.SVMperf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ClassifierMixin</span></code></p>
 <p>A wrapper for the <a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">SVM-perf package</a> by Thorsten Joachims.
 When using losses for quantification, the source code has to be patched. See
@@ -821,6 +821,8 @@ for further details.</p>
 <li><p><strong>C</strong> – trade-off between training error and margin (default 0.01)</p></li>
 <li><p><strong>verbose</strong> – set to True to print svm-perf std outputs</p></li>
 <li><p><strong>loss</strong> – the loss to optimize for. Available losses are “01”, “f1”, “kld”, “nkld”, “q”, “qacc”, “qf1”, “qgm”, “mae”, “mrae”.</p></li>
+<li><p><strong>host_folder</strong> – directory where to store the trained model; set to None (default) for using a tmp directory
+(temporal directories are automatically deleted)</p></li>
 </ul>
 </dd>
 </dl>
@@ -869,17 +871,6 @@ for further details.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>a <cite>numpy</cite> array of length <cite>n</cite> containing the label predictions, where <cite>n</cite> is the number of
 instances in <cite>X</cite></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.classification.svmperf.SVMperf.set_params">
-<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.classification.svmperf.SVMperf.set_params" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the hyper-parameters for svm-perf. Currently, only the <cite>C</cite> parameter is supported</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>parameters</strong> – a <cite>**kwargs</cite> dictionary <cite>{‘C’: &lt;float&gt;}</cite></p>
 </dd>
 </dl>
 </dd></dl>

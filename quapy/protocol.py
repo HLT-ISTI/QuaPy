@@ -34,6 +34,34 @@ class AbstractProtocol(metaclass=ABCMeta):
         return None
 
 
+class IterateProtocol(AbstractProtocol):
+    """
+    A very simple protocol which simply iterates over a list of previously generated samples
+
+    :param samples: a list of :class:`quapy.data.base.LabelledCollection`
+    """
+    def __init__(self, samples: [LabelledCollection]):
+        self.samples = samples
+
+    def __call__(self):
+        """
+        Yields one sample from the initial list at a time
+
+        :return: yields a tuple `(sample, prev) at a time, where `sample` is a set of instances
+            and in which `prev` is an `nd.array` with the class prevalence values
+        """
+        for sample in self.samples:
+            yield sample.Xp
+
+    def total(self):
+        """
+        Returns the number of samples in this protocol
+
+        :return: int
+        """
+        return len(self.samples)
+
+
 class AbstractStochasticSeededProtocol(AbstractProtocol):
     """
     An `AbstractStochasticSeededProtocol` is a protocol that generates, via any random procedure (e.g.,
@@ -107,7 +135,7 @@ class OnLabelledCollectionProtocol:
     Protocols that generate samples from a :class:`qp.data.LabelledCollection` object.
     """
 
-    RETURN_TYPES = ['sample_prev', 'labelled_collection']
+    RETURN_TYPES = ['sample_prev', 'labelled_collection', 'index']
 
     def get_labelled_collection(self):
         """

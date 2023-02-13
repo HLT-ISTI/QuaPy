@@ -27,6 +27,5 @@ class HierarchyTestCase(unittest.TestCase):
             self.assertEqual(isinstance(m, AggregativeProbabilisticQuantifier), True)
 
 
-
 if __name__ == '__main__':
     unittest.main()

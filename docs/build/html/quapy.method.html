@@ -459,76 +459,6 @@ learner has been trained outside the quantifier.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="quapy.method.aggregative.ELM">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">ELM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'01'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ELM" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier" title="quapy.method.aggregative.AggregativeQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregativeQuantifier</span></code></a>, <a class="reference internal" href="#quapy.method.base.BinaryQuantifier" title="quapy.method.base.BinaryQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">BinaryQuantifier</span></code></a></p>
-<p>Class of Explicit Loss Minimization (ELM) quantifiers.
-Quantifiers based on ELM represent a family of methods based on structured output learning;
-these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
-measure. This implementation relies on
-<a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">Joachims’ SVM perf</a> structured output
-learning algorithm, which has to be installed and patched for the purpose (see this
-<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh">script</a>).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
-<li><p><strong>loss</strong> – the loss to optimize (see <a class="reference internal" href="quapy.classification.html#quapy.classification.svmperf.SVMperf.valid_losses" title="quapy.classification.svmperf.SVMperf.valid_losses"><code class="xref py py-attr docutils literal notranslate"><span class="pre">quapy.classification.svmperf.SVMperf.valid_losses</span></code></a>)</p></li>
-<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.ELM.aggregate">
-<span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classif_predictions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ELM.aggregate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Implements the aggregation of label predictions.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>classif_predictions</strong> – <cite>np.ndarray</cite> of label predictions</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><cite>np.ndarray</cite> of shape <cite>(n_classes,)</cite> with class prevalence estimates.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.ELM.classify">
-<span class="sig-name descname"><span class="pre">classify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ELM.classify" title="Permalink to this definition">¶</a></dt>
-<dd><p>Provides the label predictions for the given instances. The predictions should respect the format expected by
-<a class="reference internal" href="#quapy.method.aggregative.ELM.aggregate" title="quapy.method.aggregative.ELM.aggregate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">aggregate()</span></code></a>, i.e., posterior probabilities for probabilistic quantifiers, or crisp predictions for
-non-probabilistic quantifiers</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>instances</strong> – array-like</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>np.ndarray of shape <cite>(n_instances,)</cite> with label predictions</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.method.aggregative.ELM.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_classifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.ELM.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Trains the aggregative quantifier</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> – a <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> consisting of the training data</p></li>
-<li><p><strong>fit_classifier</strong> – whether or not to train the learner (default is True). Set to False if the
-learner has been trained outside the quantifier.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>self</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.EMQ">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">EMQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exact_train_prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recalib</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.EMQ" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.AggregativeProbabilisticQuantifier" title="quapy.method.aggregative.AggregativeProbabilisticQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregativeProbabilisticQuantifier</span></code></a></p>
@@ -625,12 +555,6 @@ learner has been trained outside the quantifier.</p></li>
 <dt class="sig sig-object py" id="quapy.method.aggregative.ExpectationMaximizationQuantifier">
 <span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">ExpectationMaximizationQuantifier</span></span><a class="headerlink" href="#quapy.method.aggregative.ExpectationMaximizationQuantifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <a class="reference internal" href="#quapy.method.aggregative.EMQ" title="quapy.method.aggregative.EMQ"><code class="xref py py-class docutils literal notranslate"><span class="pre">EMQ</span></code></a></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="quapy.method.aggregative.ExplicitLossMinimisation">
-<span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">ExplicitLossMinimisation</span></span><a class="headerlink" href="#quapy.method.aggregative.ExplicitLossMinimisation" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">ELM</span></code></a></p>
 </dd></dl>
 
 <dl class="py class">
@@ -782,7 +706,7 @@ validation data, or as an integer, indicating that the misclassification rates s
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.OneVsAllAggregative">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">OneVsAllAggregative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'loky'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAllAggregative" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">OneVsAllAggregative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'multiprocessing'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.OneVsAllAggregative" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.base.OneVsAllGeneric" title="quapy.method.base.OneVsAllGeneric"><code class="xref py py-class docutils literal notranslate"><span class="pre">OneVsAllGeneric</span></code></a>, <a class="reference internal" href="#quapy.method.aggregative.AggregativeQuantifier" title="quapy.method.aggregative.AggregativeQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregativeQuantifier</span></code></a></p>
 <p>Allows any binary quantifier to perform quantification on single-label datasets.
 The method maintains one binary quantifier for each class, and then l1-normalizes the outputs so that the
@@ -1030,108 +954,6 @@ learner has been trained outside the quantifier.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="quapy.method.aggregative.SVMAE">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SVMAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.SVMAE" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">ELM</span></code></a></p>
-<p>SVM(AE), which attempts to minimize Absolute Error as first used by
-<a class="reference external" href="https://arxiv.org/abs/2011.02552">Moreo and Sebastiani, 2021</a>.
-Equivalent to:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
-<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="quapy.method.aggregative.SVMKLD">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SVMKLD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.SVMKLD" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">ELM</span></code></a></p>
-<p>SVM(KLD), which attempts to minimize the Kullback-Leibler Divergence as proposed by
-<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/2700406">Esuli et al. 2015</a>.
-Equivalent to:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;kld&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
-<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="quapy.method.aggregative.SVMNKLD">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SVMNKLD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.SVMNKLD" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">ELM</span></code></a></p>
-<p>SVM(NKLD), which attempts to minimize a version of the the Kullback-Leibler Divergence normalized
-via the logistic function, as proposed by
-<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/2700406">Esuli et al. 2015</a>.
-Equivalent to:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;nkld&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
-<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="quapy.method.aggregative.SVMQ">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SVMQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.SVMQ" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">ELM</span></code></a></p>
-<p>SVM(Q), which attempts to minimize the <cite>Q</cite> loss combining a classification-oriented loss and a
-quantification-oriented loss, as proposed by
-<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S003132031400291X">Barranquero et al. 2015</a>.
-Equivalent to:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
-<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="quapy.method.aggregative.SVMRAE">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">SVMRAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.SVMRAE" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ELM" title="quapy.method.aggregative.ELM"><code class="xref py py-class docutils literal notranslate"><span class="pre">ELM</span></code></a></p>
-<p>SVM(RAE), which attempts to minimize Relative Absolute Error as first used by
-<a class="reference external" href="https://arxiv.org/abs/2011.02552">Moreo and Sebastiani, 2021</a>.
-Equivalent to:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mrae&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite></p></li>
-<li><p><strong>kwargs</strong> – rest of SVM perf’s parameters</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.aggregative.T50">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">T50</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseEstimator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.T50" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.aggregative.ThresholdOptimization" title="quapy.method.aggregative.ThresholdOptimization"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThresholdOptimization</span></code></a></p>
@@ -1247,6 +1069,162 @@ validation data, or as an integer, indicating that the misclassification rates s
 <span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">cross_generate_predictions_depr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probabilistic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.cross_generate_predictions_depr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.method.aggregative.newELM">
+<span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">newELM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.newELM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicit Loss Minimization (ELM) quantifiers.
+Quantifiers based on ELM represent a family of methods based on structured output learning;
+these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+measure. This implementation relies on
+<a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">Joachims’ SVM perf</a> structured output
+learning algorithm, which has to be installed and patched for the purpose (see this
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh">script</a>).
+This function equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span> <span class="n">C</span><span class="p">))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite>; if set to None (default)
+this path will be obtained from qp.environ[‘SVMPERF_HOME’]</p></li>
+<li><p><strong>loss</strong> – the loss to optimize (see <a class="reference internal" href="quapy.classification.html#quapy.classification.svmperf.SVMperf.valid_losses" title="quapy.classification.svmperf.SVMperf.valid_losses"><code class="xref py py-attr docutils literal notranslate"><span class="pre">quapy.classification.svmperf.SVMperf.valid_losses</span></code></a>)</p></li>
+<li><p><strong>C</strong> – trade-off between training error and margin (default 0.01)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+underlying classifier</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.method.aggregative.newSVMAE">
+<span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">newSVMAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.newSVMAE" title="Permalink to this definition">¶</a></dt>
+<dd><p>SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Absolute Error as first used by
+<a class="reference external" href="https://arxiv.org/abs/2011.02552">Moreo and Sebastiani, 2021</a>.
+Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Quantifiers based on ELM represent a family of methods based on structured output learning;
+these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+measure. This implementation relies on
+<a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">Joachims’ SVM perf</a> structured output
+learning algorithm, which has to be installed and patched for the purpose (see this
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh">script</a>).
+This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite>; if set to None (default)
+this path will be obtained from qp.environ[‘SVMPERF_HOME’]</p></li>
+<li><p><strong>C</strong> – trade-off between training error and margin (default 0.01)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+underlying classifier</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.method.aggregative.newSVMKLD">
+<span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">newSVMKLD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.newSVMKLD" title="Permalink to this definition">¶</a></dt>
+<dd><p>SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
+normalized via the logistic function, as proposed by
+<a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/2700406">Esuli et al. 2015</a>.
+Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;nkld&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Quantifiers based on ELM represent a family of methods based on structured output learning;
+these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+measure. This implementation relies on
+<a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">Joachims’ SVM perf</a> structured output
+learning algorithm, which has to be installed and patched for the purpose (see this
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh">script</a>).
+This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite>; if set to None (default)
+this path will be obtained from qp.environ[‘SVMPERF_HOME’]</p></li>
+<li><p><strong>C</strong> – trade-off between training error and margin (default 0.01)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+underlying classifier</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.method.aggregative.newSVMQ">
+<span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">newSVMQ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.newSVMQ" title="Permalink to this definition">¶</a></dt>
+<dd><p>SVM(Q) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the <cite>Q</cite> loss combining a
+classification-oriented loss and a quantification-oriented loss, as proposed by
+<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S003132031400291X">Barranquero et al. 2015</a>.
+Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Quantifiers based on ELM represent a family of methods based on structured output learning;
+these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+measure. This implementation relies on
+<a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">Joachims’ SVM perf</a> structured output
+learning algorithm, which has to be installed and patched for the purpose (see this
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh">script</a>).
+This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite>; if set to None (default)
+this path will be obtained from qp.environ[‘SVMPERF_HOME’]</p></li>
+<li><p><strong>C</strong> – trade-off between training error and margin (default 0.01)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+underlying classifier</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.method.aggregative.newSVMRAE">
+<span class="sig-prename descclassname"><span class="pre">quapy.method.aggregative.</span></span><span class="sig-name descname"><span class="pre">newSVMRAE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.aggregative.newSVMRAE" title="Permalink to this definition">¶</a></dt>
+<dd><p>SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Relative Absolute Error as first
+used by <a class="reference external" href="https://arxiv.org/abs/2011.02552">Moreo and Sebastiani, 2021</a>.
+Equivalent to:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mrae&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Quantifiers based on ELM represent a family of methods based on structured output learning;
+these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+measure. This implementation relies on
+<a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">Joachims’ SVM perf</a> structured output
+learning algorithm, which has to be installed and patched for the purpose (see this
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh">script</a>).
+This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>svmperf_base</strong> – path to the folder containing the binary files of <cite>SVM perf</cite>; if set to None (default)
+this path will be obtained from qp.environ[‘SVMPERF_HOME’]</p></li>
+<li><p><strong>C</strong> – trade-off between training error and margin (default 0.01)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+underlying classifier</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-quapy.method.base">
 <span id="quapy-method-base"></span><h2>quapy.method.base<a class="headerlink" href="#module-quapy.method.base" title="Permalink to this heading">¶</a></h2>
@@ -1303,7 +1281,7 @@ validation data, or as an integer, indicating that the misclassification rates s
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.method.base.OneVsAllGeneric">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">OneVsAllGeneric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'loky'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">OneVsAllGeneric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.OneVsAllGeneric" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.base.OneVsAll" title="quapy.method.base.OneVsAll"><code class="xref py py-class docutils literal notranslate"><span class="pre">OneVsAll</span></code></a>, <a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuantifier</span></code></a></p>
 <p>Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary
 quantifier for each class, and then l1-normalizes the outputs so that the class prevelence values sum up to 1.</p>
@@ -1343,8 +1321,8 @@ quantifier for each class, and then l1-normalizes the outputs so that the class 
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="quapy.method.base.getOneVsAll">
-<span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">getOneVsAll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'loky'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.getOneVsAll" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="quapy.method.base.newOneVsAll">
+<span class="sig-prename descclassname"><span class="pre">quapy.method.base.</span></span><span class="sig-name descname"><span class="pre">newOneVsAll</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary_quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.method.base.newOneVsAll" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>

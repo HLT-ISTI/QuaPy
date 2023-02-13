@@ -121,6 +121,9 @@ def index(dataset: Dataset, min_df=5, inplace=False, **kwargs):
     training_index = indexer.fit_transform(dataset.training.instances)
     test_index = indexer.transform(dataset.test.instances)
 
+    training_index = np.asarray(training_index, dtype=object)
+    test_index = np.asarray(test_index, dtype=object)
+
     if inplace:
         dataset.training = LabelledCollection(training_index, dataset.training.labels, dataset.classes_)
         dataset.test = LabelledCollection(test_index, dataset.test.labels, dataset.classes_)
@@ -181,12 +184,12 @@ class IndexTransformer:
         # given the number of tasks and the number of jobs, generates the slices for the parallel processes
         assert self.unk != -1, 'transform called before fit'
         n_jobs = qp._get_njobs(n_jobs)
-        indexed = map_parallel(func=self._index, args=X, n_jobs=n_jobs)
-        return np.asarray(indexed)
+        return map_parallel(func=self._index, args=X, n_jobs=n_jobs)
+
 
     def _index(self, documents):
         vocab = self.vocabulary_.copy()
-        return [[vocab.prevalence(word, self.unk) for word in self.analyzer(doc)] for doc in tqdm(documents, 'indexing')]
+        return [[vocab.get(word, self.unk) for word in self.analyzer(doc)] for doc in tqdm(documents, 'indexing')]
 
     def fit_transform(self, X, n_jobs=None):
         """
