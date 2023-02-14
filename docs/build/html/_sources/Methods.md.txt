@@ -16,12 +16,6 @@ and implement some abstract methods:
 
     @abstractmethod
     def quantify(self, instances): ...
-
-    @abstractmethod
-    def set_params(self, **parameters): ...
-
-    @abstractmethod
-    def get_params(self, deep=True): ...
 ```
 The meaning of those functions should be familiar to those
 used to work with scikit-learn since the class structure of QuaPy
@@ -32,10 +26,10 @@ scikit-learn' structure has not been adopted _as is_ in QuaPy responds to
 the fact that scikit-learn's _predict_ function is expected to return
 one output for each input element --e.g., a predicted label for each
 instance in a sample-- while in quantification the output for a sample
-is one single array of class prevalences), while functions _set_params_
-and _get_params_ allow a 
-[model selector](https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection) 
-to automate the process of hyperparameter search.
+is one single array of class prevalences).
+Quantifiers also extend from scikit-learn's `BaseEstimator`, in order
+to simplify the use of _set_params_ and _get_params_ used in 
+[model selector](https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection).
 
 ## Aggregative Methods
 
@@ -58,11 +52,11 @@ of _BaseQuantifier.quantify_ is already provided, which looks like:
 
 ```python
     def quantify(self, instances):
-    classif_predictions = self.preclassify(instances)
+    classif_predictions = self.classify(instances)
     return self.aggregate(classif_predictions)
 ```
 Aggregative quantifiers are expected to maintain a classifier (which is
-accessed through the _@property_ _learner_). This classifier is
+accessed through the _@property_ _classifier_). This classifier is
 given as input to the quantifier, and can be already fit
 on external data (in which case, the _fit_learner_ argument should
 be set to False), or be fit by the quantifier's fit (default).
@@ -73,13 +67,8 @@ _AggregativeProbabilisticQuantifier(AggregativeQuantifier)_.
 The particularity of _probabilistic_ aggregative methods (w.r.t. 
 non-probabilistic ones), is that the default quantifier is defined
 in terms of the posterior probabilities returned by a probabilistic
-classifier, and not by the crisp decisions of a hard classifier; i.e.:
-
-```python
-    def quantify(self, instances):
-        classif_posteriors = self.posterior_probabilities(instances)
-        return self.aggregate(classif_posteriors)
-```
+classifier, and not by the crisp decisions of a hard classifier.
+In any case, the interface _classify(instances)_ remains unchanged. 
 
 One advantage of _aggregative_ methods (either probabilistic or not)
 is that the evaluation according to any sampling procedure (e.g., 
@@ -110,9 +99,7 @@ import quapy as qp
 import quapy.functional as F
 from sklearn.svm import LinearSVC
 
-dataset = qp.datasets.fetch_twitter('hcr', pickle=True)
-training = dataset.training
-test = dataset.test
+training, test = qp.datasets.fetch_twitter('hcr', pickle=True).train_test
 
 # instantiate a classifier learner, in this case a SVM
 svm = LinearSVC()
@@ -156,11 +143,12 @@ model.fit(training, val_split=5)
 ```
 
 The following code illustrates the case in which PCC is used:
+
 ```python
 model = qp.method.aggregative.PCC(svm)
 model.fit(training)
 estim_prevalence = model.quantify(test.instances)
-print('classifier:', model.learner)
+print('classifier:', model.classifier)
 ```
 In this case, QuaPy will print:
 ```
@@ -211,14 +199,22 @@ model.fit(dataset.training)
 estim_prevalence = model.quantify(dataset.test.instances)
 ```
 
+_New in v0.1.7_: EMQ now accepts two new parameters in the construction method, namely
+_exact_train_prev_ which allows to use the true training prevalence as the departing
+prevalence estimation (default behaviour), or instead an approximation of it as 
+suggested by [Alexandari et al. (2020)](http://proceedings.mlr.press/v119/alexandari20a.html) 
+(by setting _exact_train_prev=False_).
+The other parameter is _recalib_ which allows to indicate a calibration method, among those
+proposed by [Alexandari et al. (2020)](http://proceedings.mlr.press/v119/alexandari20a.html),
+including the Bias-Corrected Temperature Scaling, Vector Scaling, etc.
+See the API documentation for further details. 
+
 
 ### Hellinger Distance y (HDy)
 
-The method HDy is described in:
-
-_Implementation of the method based on the Hellinger Distance y (HDy) proposed by
-González-Castro, V., Alaiz-Rodrı́guez, R., and Alegre, E. (2013). Class distribution
-estimation based on the Hellinger distance. Information Sciences, 218:146–164._
+Implementation of the method based on the Hellinger Distance y (HDy) proposed by
+[González-Castro, V., Alaiz-Rodrı́guez, R., and Alegre, E. (2013). Class distribution
+estimation based on the Hellinger distance. Information Sciences, 218:146–164.](https://www.sciencedirect.com/science/article/pii/S0020025512004069)
 
 It is implemented in _qp.method.aggregative.HDy_ (also accessible
 through the allias _qp.method.aggregative.HellingerDistanceY_).
@@ -249,30 +245,51 @@ model.fit(dataset.training)
 estim_prevalence = model.quantify(dataset.test.instances)
 ```
 
+_New in v0.1.7:_ QuaPy now provides an implementation of the generalized
+"Distribution Matching" approaches for multiclass, inspired by the framework
+of [Firat (2016)](https://arxiv.org/abs/1606.00868). One can instantiate
+a variant of HDy for multiclass quantification as follows:
+
+```python
+mutliclassHDy = qp.method.aggregative.DistributionMatching(classifier=LogisticRegression(), divergence='HD', cdf=False)
+``` 
+
+_New in v0.1.7:_ QuaPy now provides an implementation of the "DyS"
+framework proposed by [Maletzke et al (2020)](https://ojs.aaai.org/index.php/AAAI/article/view/4376)
+and the "SMM" method proposed by [Hassan et al (2019)](https://ieeexplore.ieee.org/document/9260028)
+(thanks to _Pablo González_ for the contributions!)
+
+### Threshold Optimization methods
+
+_New in v0.1.7:_ QuaPy now implements Forman's threshold optimization methods;
+see, e.g., [(Forman 2006)](https://dl.acm.org/doi/abs/10.1145/1150402.1150423) 
+and [(Forman 2008)](https://link.springer.com/article/10.1007/s10618-008-0097-y).
+These include: T50, MAX, X, Median Sweep (MS), and its variant MS2.
+
 ### Explicit Loss Minimization
 
 The Explicit Loss Minimization (ELM) represent a family of methods
 based on structured output learning, i.e., quantifiers relying on 
 classifiers that have been optimized targeting a 
 quantification-oriented evaluation measure.
+The original methods are implemented in QuaPy as classify & count (CC) 
+quantifiers that use Joachim's [SVMperf](https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html) 
+as the underlying classifier, properly set to optimize for the desired loss.
  
-In QuaPy, the following methods, all relying on Joachim's 
-[SVMperf](https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html)
-implementation, are available in _qp.method.aggregative_:
+In QuaPy, this can be more achieved by calling the functions:
 
-* SVMQ (SVM-Q) is a quantification method optimizing the metric _Q_ defined 
-in _Barranquero, J., Díez, J., and del Coz, J. J. (2015). Quantification-oriented learning based
-on reliable classifiers. Pattern Recognition, 48(2):591–604._
-* SVMKLD (SVM for Kullback-Leibler Divergence) proposed in _Esuli, A. and Sebastiani, F. (2015). 
+* _newSVMQ_: returns the quantification method called SVM(Q) that optimizes for the metric _Q_ defined 
+in [_Barranquero, J., Díez, J., and del Coz, J. J. (2015). Quantification-oriented learning based
+on reliable classifiers. Pattern Recognition, 48(2):591–604._](https://www.sciencedirect.com/science/article/pii/S003132031400291X) 
+* _newSVMKLD_ and _newSVMNKLD_: returns the quantification method called SVM(KLD) and SVM(nKLD), standing for 
+    Kullback-Leibler Divergence and Normalized Kullback-Leibler Divergence, as proposed in [_Esuli, A. and Sebastiani, F. (2015). 
     Optimizing text quantifiers for multivariate loss functions. 
-    ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27._
-* SVMNKLD (SVM for Normalized Kullback-Leibler Divergence) proposed in _Esuli, A. and Sebastiani, F. (2015). 
-    Optimizing text quantifiers for multivariate loss functions. 
-    ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27._
-* SVMAE (SVM for Mean Absolute Error) 
-* SVMRAE (SVM for Mean Relative Absolute Error)
+    ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27._](https://dl.acm.org/doi/abs/10.1145/2700406)
+* _newSVMAE_ and _newSVMRAE_: returns a quantification method called SVM(AE) and SVM(RAE) that optimizes for the (Mean) Absolute Error and for the
+  (Mean) Relative Absolute Error, as first used by 
+    [_Moreo, A. and Sebastiani, F. (2021). Tweet sentiment quantification: An experimental re-evaluation. PLOS ONE 17 (9), 1-23._](https://arxiv.org/abs/2011.02552)
 
-the last two methods (SVMAE and SVMRAE) have been implemented in 
+the last two methods (SVM(AE) and SVM(RAE)) have been implemented in 
 QuaPy in order to make available ELM variants for what nowadays
 are considered the most well-behaved evaluation metrics in quantification.
 
@@ -306,13 +323,18 @@ currently supports only binary classification.
 ELM variants (any binary quantifier in general) can be extended
 to operate in single-label scenarios trivially by adopting a 
 "one-vs-all" strategy (as, e.g., in 
-_Gao, W. and Sebastiani, F. (2016). From classification to quantification in tweet sentiment
-analysis. Social Network Analysis and Mining, 6(19):1–22_).
-In QuaPy this is possible by using the _OneVsAll_ class:
+[_Gao, W. and Sebastiani, F. (2016). From classification to quantification in tweet sentiment
+analysis. Social Network Analysis and Mining, 6(19):1–22_](https://link.springer.com/article/10.1007/s13278-016-0327-z)).
+In QuaPy this is possible by using the _OneVsAll_ class.
+
+There are two ways for instantiating this class, _OneVsAllGeneric_ that works for
+any quantifier, and _OneVsAllAggregative_ that is optimized for aggregative quantifiers.
+In general, you can simply use the _getOneVsAll_ function and QuaPy will choose
+the more convenient of the two.
 
 ```python
 import quapy as qp
-from quapy.method.aggregative import SVMQ, OneVsAll
+from quapy.method.aggregative import SVMQ
 
 # load a single-label dataset (this one contains 3 classes)
 dataset = qp.datasets.fetch_twitter('hcr', pickle=True)
@@ -320,10 +342,13 @@ dataset = qp.datasets.fetch_twitter('hcr', pickle=True)
 # let qp know where svmperf is
 qp.environ['SVMPERF_HOME'] = '../svm_perf_quantification'
 
-model = OneVsAll(SVMQ(), n_jobs=-1)  # run them on parallel
+model = getOneVsAll(SVMQ(), n_jobs=-1)  # run them on parallel
 model.fit(dataset.training)
 estim_prevalence = model.quantify(dataset.test.instances)
 ```
+
+Check the examples _[explicit_loss_minimization.py](..%2Fexamples%2Fexplicit_loss_minimization.py)_
+and [one_vs_all.py](..%2Fexamples%2Fone_vs_all.py) for more details.
 
 ## Meta Models
 
@@ -337,12 +362,12 @@ _Meta_ models are implemented in the _qp.method.meta_ module.
 
 QuaPy implements (some of) the variants proposed in:
 
-* _Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
+* [_Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
 Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
-Information Fusion, 34, 87-100._
-* _Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019). 
+Information Fusion, 34, 87-100._](https://www.sciencedirect.com/science/article/pii/S1566253516300628)
+* [_Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019). 
     Dynamic ensemble selection for quantification tasks. 
-    Information Fusion, 45, 1-15._
+    Information Fusion, 45, 1-15._](https://www.sciencedirect.com/science/article/pii/S1566253517303652)
 
 The following code shows how to instantiate an Ensemble of 30 _Adjusted Classify & Count_ (ACC) 
 quantifiers operating with a _Logistic Regressor_ (LR) as the base classifier, and using the
@@ -378,10 +403,10 @@ wiki if you want to optimize the hyperparameters of ensemble for classification 
 
 QuaPy offers an implementation of QuaNet, a deep learning model presented in:
 
-_Esuli, A., Moreo, A., & Sebastiani, F. (2018, October). 
+[_Esuli, A., Moreo, A., & Sebastiani, F. (2018, October). 
 A recurrent neural network for sentiment quantification. 
 In Proceedings of the 27th ACM International Conference on 
-Information and Knowledge Management (pp. 1775-1778)._
+Information and Knowledge Management (pp. 1775-1778)._](https://dl.acm.org/doi/abs/10.1145/3269206.3269287)
 
 This model requires _torch_ to be installed. 
 QuaNet also requires a classifier that can provide embedded representations
@@ -406,7 +431,8 @@ cnn = CNNnet(dataset.vocabulary_size, dataset.n_classes)
 learner = NeuralClassifierTrainer(cnn, device='cuda')
 
 # train QuaNet
-model = QuaNet(learner, qp.environ['SAMPLE_SIZE'], device='cuda')
+model = QuaNet(learner, device='cuda')
 model.fit(dataset.training)
 estim_prevalence = model.quantify(dataset.test.instances)
 ```
+

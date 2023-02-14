@@ -23,9 +23,9 @@ class GridSearchQ(BaseQuantifier):
     :param model: the quantifier to optimize
     :type model: BaseQuantifier
     :param param_grid: a dictionary with keys the parameter names and values the list of values to explore
-    :param protocol:
+    :param protocol: a sample generation protocol, an instance of :class:`quapy.protocol.AbstractProtocol`
     :param error: an error function (callable) or a string indicating the name of an error function (valid ones
-        are those in qp.error.QUANTIFICATION_ERROR
+        are those in :class:`quapy.error.QUANTIFICATION_ERROR`
     :param refit: whether or not to refit the model on the whole labelled collection (training+validation) with
         the best chosen hyperparameter combination. Ignored if protocol='gen'
     :param timeout: establishes a timer (in seconds) for each of the hyperparameters configurations being tested.

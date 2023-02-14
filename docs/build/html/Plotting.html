@@ -94,7 +94,7 @@ quantification methods across different scenarios showcasing
 the accuracy of the quantifier in predicting class prevalences
 for a wide range of prior distributions. This can easily be
 achieved by means of the
-<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation">artificial sampling protocol</a>
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/wiki/Protocols">artificial sampling protocol</a>
 that is implemented in QuaPy.</p>
 <p>The following code shows how to perform one simple experiment
 in which the 4 <em>CC-variants</em>, all equipped with a linear SVM, are
@@ -103,6 +103,7 @@ tested across the entire spectrum of class priors (taking 21 splits
 of the interval [0,1], i.e., using prevalence steps of 0.05, and
 generating 100 random samples at each prevalence).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">APP</span>
 <span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">CC</span><span class="p">,</span> <span class="n">ACC</span><span class="p">,</span> <span class="n">PCC</span><span class="p">,</span> <span class="n">PACC</span>
 <span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
 
@@ -111,28 +112,26 @@ generating 100 random samples at each prevalence).</p>
 <span class="k">def</span> <span class="nf">gen_data</span><span class="p">():</span>
 
     <span class="k">def</span> <span class="nf">base_classifier</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">LinearSVC</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">LinearSVC</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="s1">&#39;balanced&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">models</span><span class="p">():</span>
-        <span class="k">yield</span> <span class="n">CC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
-        <span class="k">yield</span> <span class="n">ACC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
-        <span class="k">yield</span> <span class="n">PCC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
-        <span class="k">yield</span> <span class="n">PACC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">&#39;CC&#39;</span><span class="p">,</span> <span class="n">CC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">&#39;ACC&#39;</span><span class="p">,</span> <span class="n">ACC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">&#39;PCC&#39;</span><span class="p">,</span> <span class="n">PCC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">&#39;PACC&#39;</span><span class="p">,</span> <span class="n">PACC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
 
-    <span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
     <span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
 
-    <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">():</span>
-        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
-        <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">artificial_sampling_prediction</span><span class="p">(</span>
-            <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">test</span><span class="p">,</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">],</span> <span class="n">n_repetitions</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">n_prevpoints</span><span class="o">=</span><span class="mi">21</span>
-        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">():</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+        <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">prediction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
 
-        <span class="n">method_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="n">method_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
         <span class="n">true_prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">true_prev</span><span class="p">)</span>
         <span class="n">estim_prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estim_prev</span><span class="p">)</span>
-        <span class="n">tr_prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">prevalence</span><span class="p">())</span>
+        <span class="n">tr_prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train</span><span class="o">.</span><span class="n">prevalence</span><span class="p">())</span>
 
     <span class="k">return</span> <span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span>
 
@@ -199,21 +198,19 @@ IMDb dataset, and generate the bias plot again.
 This example can be run by rewritting the <em>gen_data()</em> function
 like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">gen_data</span><span class="p">():</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;imdb&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;imdb&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">LinearSVC</span><span class="p">())</span>
 
     <span class="n">method_data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">training_prevalence</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span>
         <span class="n">training_size</span> <span class="o">=</span> <span class="mi">5000</span>
-        <span class="c1"># since the problem is binary, it suffices to specify the negative prevalence (the positive is constrained)</span>
-        <span class="n">training</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">training_size</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">training_prevalence</span><span class="p">)</span>
-        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
-        <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">artificial_sampling_prediction</span><span class="p">(</span>
-            <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">sample</span><span class="p">,</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">],</span> <span class="n">n_repetitions</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">n_prevpoints</span><span class="o">=</span><span class="mi">21</span>
-        <span class="p">)</span>
-        <span class="c1"># method names can contain Latex syntax</span>
-        <span class="n">method_name</span> <span class="o">=</span> <span class="s1">&#39;CC$_{&#39;</span> <span class="o">+</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">training_prevalence</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;\%}$&#39;</span>
-        <span class="n">method_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">method_name</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">,</span> <span class="n">training</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()))</span>
+        <span class="c1"># since the problem is binary, it suffices to specify the negative prevalence, since the positive is constrained</span>
+        <span class="n">train_sample</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">training_size</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="n">training_prevalence</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_sample</span><span class="p">)</span>
+        <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">prediction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">method_name</span> <span class="o">=</span> <span class="s1">&#39;CC$_{&#39;</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">training_prevalence</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;\%}$&#39;</span>
+        <span class="n">method_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">method_name</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">,</span> <span class="n">train_sample</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()))</span>
 
     <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">method_data</span><span class="p">)</span>
 </pre></div>

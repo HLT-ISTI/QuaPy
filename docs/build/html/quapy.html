@@ -481,18 +481,117 @@ will be taken from the environment variable <cite>SAMPLE_SIZE</cite> (which has 
 <span id="quapy-evaluation"></span><h2>quapy.evaluation<a class="headerlink" href="#module-quapy.evaluation" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.evaluate">
-<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><span class="pre">AbstractProtocol</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggr_speedup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.evaluate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><span class="pre">AbstractProtocol</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggr_speedup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates a quantification model according to a specific sample generation protocol and in terms of one
+evaluation metric (error).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – a quantifier, instance of <a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BaseQuantifier</span></code></a></p></li>
+<li><p><strong>protocol</strong> – <a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.protocol.AbstractProtocol</span></code></a>; if this object is also instance of
+<a class="reference internal" href="#quapy.protocol.OnLabelledCollectionProtocol" title="quapy.protocol.OnLabelledCollectionProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.protocol.OnLabelledCollectionProtocol</span></code></a>, then the aggregation speed-up can be run. This is the
+protocol in charge of generating the samples in which the model is evaluated.</p></li>
+<li><p><strong>error_metric</strong> – a string representing the name(s) of an error function in <cite>qp.error</cite>
+(e.g., ‘mae’), or a callable function implementing the error function itself.</p></li>
+<li><p><strong>aggr_speedup</strong> – whether or not to apply the speed-up. Set to “force” for applying it even if the number of
+instances in the original collection on which the protocol acts is larger than the number of instances
+in the samples to be generated. Set to True or “auto” (default) for letting QuaPy decide whether it is
+convenient or not. Set to False to deactivate.</p></li>
+<li><p><strong>verbose</strong> – boolean, show or not information in stdout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>if the error metric is not averaged (e.g., ‘ae’, ‘rae’), returns an array of shape <cite>(n_samples,)</cite> with
+the error scores for each sample; if the error metric is averaged (e.g., ‘mae’, ‘mrae’) then returns
+a single float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="quapy.evaluation.evaluate_on_samples">
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">evaluate_on_samples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metric</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.evaluate_on_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates a quantification model on a given set of samples and in terms of one evaluation metric (error).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – a quantifier, instance of <a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BaseQuantifier</span></code></a></p></li>
+<li><p><strong>samples</strong> – a list of samples on which the quantifier is to be evaluated</p></li>
+<li><p><strong>error_metric</strong> – a string representing the name(s) of an error function in <cite>qp.error</cite>
+(e.g., ‘mae’), or a callable function implementing the error function itself.</p></li>
+<li><p><strong>verbose</strong> – boolean, show or not information in stdout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>if the error metric is not averaged (e.g., ‘ae’, ‘rae’), returns an array of shape <cite>(n_samples,)</cite> with
+the error scores for each sample; if the error metric is averaged (e.g., ‘mae’, ‘mrae’) then returns
+a single float</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.evaluation_report">
-<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">evaluation_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><span class="pre">AbstractProtocol</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggr_speedup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.evaluation_report" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">evaluation_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><span class="pre">AbstractProtocol</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mae'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggr_speedup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.evaluation_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a report (a pandas’ DataFrame) containing information of the evaluation of the model as according
+to a specific protocol and in terms of one or more evaluation metrics (errors).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – a quantifier, instance of <a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BaseQuantifier</span></code></a></p></li>
+<li><p><strong>protocol</strong> – <a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.protocol.AbstractProtocol</span></code></a>; if this object is also instance of
+<a class="reference internal" href="#quapy.protocol.OnLabelledCollectionProtocol" title="quapy.protocol.OnLabelledCollectionProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.protocol.OnLabelledCollectionProtocol</span></code></a>, then the aggregation speed-up can be run. This is the protocol
+in charge of generating the samples in which the model is evaluated.</p></li>
+<li><p><strong>error_metrics</strong> – a string, or list of strings, representing the name(s) of an error function in <cite>qp.error</cite>
+(e.g., ‘mae’, the default value), or a callable function, or a list of callable functions, implementing
+the error function itself.</p></li>
+<li><p><strong>aggr_speedup</strong> – whether or not to apply the speed-up. Set to “force” for applying it even if the number of
+instances in the original collection on which the protocol acts is larger than the number of instances
+in the samples to be generated. Set to True or “auto” (default) for letting QuaPy decide whether it is
+convenient or not. Set to False to deactivate.</p></li>
+<li><p><strong>verbose</strong> – boolean, show or not information in stdout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a pandas’ DataFrame containing the columns ‘true-prev’ (the true prevalence of each sample),
+‘estim-prev’ (the prevalence estimated by the model for each sample), and as many columns as error metrics
+have been indicated, each displaying the score in terms of that metric for every sample.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.evaluation.prediction">
-<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><span class="pre">AbstractProtocol</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggr_speedup</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.prediction" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<span class="sig-prename descclassname"><span class="pre">quapy.evaluation.</span></span><span class="sig-name descname"><span class="pre">prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><span class="pre">BaseQuantifier</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><span class="pre">AbstractProtocol</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggr_speedup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.evaluation.prediction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses a quantification model to generate predictions for the samples generated via a specific protocol.
+This function is central to all evaluation processes, and is endowed with an optimization to speed-up the
+prediction of protocols that generate samples from a large collection. The optimization applies to aggregative
+quantifiers only, and to OnLabelledCollectionProtocol protocols, and comes down to generating the classification
+predictions once and for all, and then generating samples over the classification predictions (instead of over
+the raw instances), so that the classifier prediction is never called again. This behaviour is obtained by
+setting <cite>aggr_speedup</cite> to ‘auto’ or True, and is only carried out if the overall process is convenient in terms
+of computations (e.g., if the number of classification predictions needed for the original collection exceed the
+number of classification predictions needed for all samples, then the optimization is not undertaken).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> – a quantifier, instance of <a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.base.BaseQuantifier</span></code></a></p></li>
+<li><p><strong>protocol</strong> – <a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.protocol.AbstractProtocol</span></code></a>; if this object is also instance of
+<a class="reference internal" href="#quapy.protocol.OnLabelledCollectionProtocol" title="quapy.protocol.OnLabelledCollectionProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.protocol.OnLabelledCollectionProtocol</span></code></a>, then the aggregation speed-up can be run. This is the protocol
+in charge of generating the samples for which the model has to issue class prevalence predictions.</p></li>
+<li><p><strong>aggr_speedup</strong> – whether or not to apply the speed-up. Set to “force” for applying it even if the number of
+instances in the original collection on which the protocol acts is larger than the number of instances
+in the samples to be generated. Set to True or “auto” (default) for letting QuaPy decide whether it is
+convenient or not. Set to False to deactivate.</p></li>
+<li><p><strong>verbose</strong> – boolean, show or not information in stdout</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a tuple <cite>(true_prevs, estim_prevs)</cite> in which each element in the tuple is an array of shape
+<cite>(n_samples, n_classes)</cite> containing the true, or predicted, prevalence values for each sample</p>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="quapy-protocol">
@@ -624,7 +723,21 @@ the sequence will be consistent every time the protocol is called.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.protocol.AbstractStochasticSeededProtocol.collator">
 <span class="sig-name descname"><span class="pre">collator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.AbstractStochasticSeededProtocol.collator" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>The collator prepares the sample to accommodate the desired output format before returning the output.
+This collator simply returns the sample as it is. Classes inheriting from this abstract class can
+implement their custom collators.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sample</strong> – the sample to be returned</p></li>
+<li><p><strong>args</strong> – additional arguments</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the sample adhering to a desired output format (in this case, the sample is returned as it is)</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.protocol.AbstractStochasticSeededProtocol.random_state">
@@ -656,6 +769,12 @@ the sequence will be consistent every time the protocol is called.</p>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quapy.protocol.ArtificialPrevalenceProtocol">
+<span class="sig-prename descclassname"><span class="pre">quapy.protocol.</span></span><span class="sig-name descname"><span class="pre">ArtificialPrevalenceProtocol</span></span><a class="headerlink" href="#quapy.protocol.ArtificialPrevalenceProtocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#quapy.protocol.APP" title="quapy.protocol.APP"><code class="xref py py-class docutils literal notranslate"><span class="pre">APP</span></code></a></p>
 </dd></dl>
 
 <dl class="py class">
@@ -711,6 +830,29 @@ will be the same every time the protocol is called)</p></li>
 <dt class="sig sig-object py" id="quapy.protocol.DomainMixer.total">
 <span class="sig-name descname"><span class="pre">total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.DomainMixer.total" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of samples that will be generated (equals to “repeats * mixture_points”)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="quapy.protocol.IterateProtocol">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.protocol.</span></span><span class="sig-name descname"><span class="pre">IterateProtocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">samples:</span> <span class="pre">[&lt;class</span> <span class="pre">'quapy.data.base.LabelledCollection'&gt;]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.IterateProtocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractProtocol</span></code></a></p>
+<p>A very simple protocol which simply iterates over a list of previously generated samples</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>samples</strong> – a list of <a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.protocol.IterateProtocol.total">
+<span class="sig-name descname"><span class="pre">total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.IterateProtocol.total" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of samples in this protocol</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>int</p>
@@ -778,6 +920,12 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quapy.protocol.NaturalPrevalenceProtocol">
+<span class="sig-prename descclassname"><span class="pre">quapy.protocol.</span></span><span class="sig-name descname"><span class="pre">NaturalPrevalenceProtocol</span></span><a class="headerlink" href="#quapy.protocol.NaturalPrevalenceProtocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#quapy.protocol.NPP" title="quapy.protocol.NPP"><code class="xref py py-class docutils literal notranslate"><span class="pre">NPP</span></code></a></p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.protocol.OnLabelledCollectionProtocol">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.protocol.</span></span><span class="sig-name descname"><span class="pre">OnLabelledCollectionProtocol</span></span><a class="headerlink" href="#quapy.protocol.OnLabelledCollectionProtocol" title="Permalink to this definition">¶</a></dt>
@@ -785,7 +933,7 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 <p>Protocols that generate samples from a <code class="xref py py-class docutils literal notranslate"><span class="pre">qp.data.LabelledCollection</span></code> object.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="quapy.protocol.OnLabelledCollectionProtocol.RETURN_TYPES">
-<span class="sig-name descname"><span class="pre">RETURN_TYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['sample_prev',</span> <span class="pre">'labelled_collection']</span></em><a class="headerlink" href="#quapy.protocol.OnLabelledCollectionProtocol.RETURN_TYPES" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">RETURN_TYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['sample_prev',</span> <span class="pre">'labelled_collection',</span> <span class="pre">'index']</span></em><a class="headerlink" href="#quapy.protocol.OnLabelledCollectionProtocol.RETURN_TYPES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -841,8 +989,8 @@ with shape <cite>(n_instances,)</cite> when the classifier is a hard one, or wit
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="quapy.protocol.USimplexPP">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.protocol.</span></span><span class="sig-name descname"><span class="pre">USimplexPP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sample_prev'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.USimplexPP" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="quapy.protocol.UPP">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.protocol.</span></span><span class="sig-name descname"><span class="pre">UPP</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="quapy.data.html#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sample_prev'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.UPP" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.protocol.AbstractStochasticSeededProtocol" title="quapy.protocol.AbstractStochasticSeededProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractStochasticSeededProtocol</span></code></a>, <a class="reference internal" href="#quapy.protocol.OnLabelledCollectionProtocol" title="quapy.protocol.OnLabelledCollectionProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">OnLabelledCollectionProtocol</span></code></a></p>
 <p>A variant of <a class="reference internal" href="#quapy.protocol.APP" title="quapy.protocol.APP"><code class="xref py py-class docutils literal notranslate"><span class="pre">APP</span></code></a> that, instead of using a grid of equidistant prevalence values,
 relies on the Kraemer algorithm for sampling unit (k-1)-simplex uniformly at random, with
@@ -865,8 +1013,8 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.protocol.USimplexPP.sample">
-<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.USimplexPP.sample" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="quapy.protocol.UPP.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.UPP.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Realizes the sample given the index of the instances.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -879,19 +1027,19 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.protocol.USimplexPP.samples_parameters">
-<span class="sig-name descname"><span class="pre">samples_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.USimplexPP.samples_parameters" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return all the necessary parameters to replicate the samples as according to the USimplexPP protocol.</p>
+<dt class="sig sig-object py" id="quapy.protocol.UPP.samples_parameters">
+<span class="sig-name descname"><span class="pre">samples_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.UPP.samples_parameters" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all the necessary parameters to replicate the samples as according to the UPP protocol.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>a list of indexes that realize the USimplexPP sampling</p>
+<dd class="field-odd"><p>a list of indexes that realize the UPP sampling</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.protocol.USimplexPP.total">
-<span class="sig-name descname"><span class="pre">total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.USimplexPP.total" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="quapy.protocol.UPP.total">
+<span class="sig-name descname"><span class="pre">total</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#quapy.protocol.UPP.total" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the number of samples that will be generated (equals to “repeats”)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -900,6 +1048,12 @@ to “labelled_collection” to get instead instances of LabelledCollection</p><
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quapy.protocol.UniformPrevalenceProtocol">
+<span class="sig-prename descclassname"><span class="pre">quapy.protocol.</span></span><span class="sig-name descname"><span class="pre">UniformPrevalenceProtocol</span></span><a class="headerlink" href="#quapy.protocol.UniformPrevalenceProtocol" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#quapy.protocol.UPP" title="quapy.protocol.UPP"><code class="xref py py-class docutils literal notranslate"><span class="pre">UPP</span></code></a></p>
 </dd></dl>
 
 </section>
@@ -1175,9 +1329,9 @@ protocol for quantification.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model</strong> (<a class="reference internal" href="quapy.method.html#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><em>BaseQuantifier</em></a>) – the quantifier to optimize</p></li>
 <li><p><strong>param_grid</strong> – a dictionary with keys the parameter names and values the list of values to explore</p></li>
-<li><p><strong>protocol</strong> – </p></li>
+<li><p><strong>protocol</strong> – a sample generation protocol, an instance of <a class="reference internal" href="#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.protocol.AbstractProtocol</span></code></a></p></li>
 <li><p><strong>error</strong> – an error function (callable) or a string indicating the name of an error function (valid ones
-are those in qp.error.QUANTIFICATION_ERROR</p></li>
+are those in <code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.error.QUANTIFICATION_ERROR</span></code></p></li>
 <li><p><strong>refit</strong> – whether or not to refit the model on the whole labelled collection (training+validation) with
 the best chosen hyperparameter combination. Ignored if protocol=’gen’</p></li>
 <li><p><strong>timeout</strong> – establishes a timer (in seconds) for each of the hyperparameters configurations being tested.

@@ -31,13 +31,14 @@ Output the class prevalences (showing 2 digit precision):
 ```
 
 One can easily produce new samples at desired class prevalences:
+
 ```python
 sample_size = 10
 prev = [0.4, 0.1, 0.5]
 sample = data.sampling(sample_size, *prev)
 
 print('instances:', sample.instances)
-print('labels:', sample.labels)
+print('labels:', sample.classes)
 print('prevalence:', F.strprev(sample.prevalence(), prec=2))
 ```
 

@@ -16,7 +16,7 @@ def prediction(
     Uses a quantification model to generate predictions for the samples generated via a specific protocol.
     This function is central to all evaluation processes, and is endowed with an optimization to speed-up the
     prediction of protocols that generate samples from a large collection. The optimization applies to aggregative
-    quantifiers only, and to OnLabelledCollection protocols, and comes down to generating the classification
+    quantifiers only, and to OnLabelledCollectionProtocol protocols, and comes down to generating the classification
     predictions once and for all, and then generating samples over the classification predictions (instead of over
     the raw instances), so that the classifier prediction is never called again. This behaviour is obtained by
     setting `aggr_speedup` to 'auto' or True, and is only carried out if the overall process is convenient in terms
@@ -25,7 +25,7 @@ def prediction(
 
     :param model: a quantifier, instance of :class:`quapy.method.base.BaseQuantifier`
     :param protocol: :class:`quapy.protocol.AbstractProtocol`; if this object is also instance of
-        :class:`quapy.protocol.OnLabelledCollection`, then the aggregation speed-up can be run. This is the protocol
+        :class:`quapy.protocol.OnLabelledCollectionProtocol`, then the aggregation speed-up can be run. This is the protocol
         in charge of generating the samples for which the model has to issue class prevalence predictions.
     :param aggr_speedup: whether or not to apply the speed-up. Set to "force" for applying it even if the number of
         instances in the original collection on which the protocol acts is larger than the number of instances
@@ -90,7 +90,7 @@ def evaluation_report(model: BaseQuantifier,
 
     :param model: a quantifier, instance of :class:`quapy.method.base.BaseQuantifier`
     :param protocol: :class:`quapy.protocol.AbstractProtocol`; if this object is also instance of
-        :class:`quapy.protocol.OnLabelledCollection`, then the aggregation speed-up can be run. This is the protocol
+        :class:`quapy.protocol.OnLabelledCollectionProtocol`, then the aggregation speed-up can be run. This is the protocol
         in charge of generating the samples in which the model is evaluated.
     :param error_metrics: a string, or list of strings, representing the name(s) of an error function in `qp.error`
         (e.g., 'mae', the default value), or a callable function, or a list of callable functions, implementing
@@ -141,8 +141,8 @@ def evaluate(
 
     :param model: a quantifier, instance of :class:`quapy.method.base.BaseQuantifier`
     :param protocol: :class:`quapy.protocol.AbstractProtocol`; if this object is also instance of
-        :class:`quapy.protocol.OnLabelledCollection`, then the aggregation speed-up can be run. This is the protocol
-        in charge of generating the samples in which the model is evaluated.
+        :class:`quapy.protocol.OnLabelledCollectionProtocol`, then the aggregation speed-up can be run. This is the
+        protocol in charge of generating the samples in which the model is evaluated.
     :param error_metric: a string representing the name(s) of an error function in `qp.error`
         (e.g., 'mae'), or a callable function implementing the error function itself.
     :param aggr_speedup: whether or not to apply the speed-up. Set to "force" for applying it even if the number of

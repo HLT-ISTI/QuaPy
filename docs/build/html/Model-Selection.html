@@ -74,81 +74,91 @@ specifically designed for the task of quantification.</p>
 classification, and thus the model selection strategies
 customarily adopted in classification have simply been
 applied to quantification (see the next section).
-It has been argued in <em>Moreo, Alejandro, and Fabrizio Sebastiani.
-“Re-Assessing the” Classify and Count” Quantification Method.”
-arXiv preprint arXiv:2011.02552 (2020).</em>
+It has been argued in <a class="reference external" href="https://link.springer.com/chapter/10.1007/978-3-030-72240-1_6">Moreo, Alejandro, and Fabrizio Sebastiani.
+Re-Assessing the “Classify and Count” Quantification Method.
+ECIR 2021: Advances in Information Retrieval pp 75–91.</a>
 that specific model selection strategies should
 be adopted for quantification. That is, model selection
 strategies for quantification should target
 quantification-oriented losses and be tested in a variety
 of scenarios exhibiting different degrees of prior
 probability shift.</p>
-<p>The class
-<em>qp.model_selection.GridSearchQ</em>
-implements a grid-search exploration over the space of
-hyper-parameter combinations that evaluates each<br />
-combination of hyper-parameters
-by means of a given quantification-oriented
+<p>The class <em>qp.model_selection.GridSearchQ</em> implements a grid-search exploration over the space of
+hyper-parameter combinations that <a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation">evaluates</a>
+each combination of hyper-parameters by means of a given quantification-oriented
 error metric (e.g., any of the error functions implemented
-in <em>qp.error</em>) and according to the
-<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation"><em>artificial sampling protocol</em></a>.</p>
-<p>The following is an example of model selection for quantification:</p>
+in <em>qp.error</em>) and according to a
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/wiki/Protocols">sampling generation protocol</a>.</p>
+<p>The following is an example (also included in the examples folder) of model selection for quantification:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
-<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">PCC</span>
+<span class="kn">from</span> <span class="nn">quapy.protocol</span> <span class="kn">import</span> <span class="n">APP</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">DistributionMatching</span>
 <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="c1"># set a seed to replicate runs</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">In this example, we show how to perform model selection on a DistributionMatching quantifier.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;hp&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">DistributionMatching</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
+
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;N_JOBS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># explore hyper-parameters in parallel</span>
+
+<span class="n">training</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;imdb&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="c1"># The model will be returned by the fit method of GridSearchQ.</span>
-<span class="c1"># Model selection will be performed with a fixed budget of 1000 evaluations</span>
-<span class="c1"># for each hyper-parameter combination. The error to optimize is the MAE for</span>
-<span class="c1"># quantification, as evaluated on artificially drawn samples at prevalences </span>
-<span class="c1"># covering the entire spectrum on a held-out portion (40%) of the training set.</span>
+<span class="c1"># Every combination of hyper-parameters will be evaluated by confronting the</span>
+<span class="c1"># quantifier thus configured against a series of samples generated by means</span>
+<span class="c1"># of a sample generation protocol. For this example, we will use the</span>
+<span class="c1"># artificial-prevalence protocol (APP), that generates samples with prevalence</span>
+<span class="c1"># values in the entire range of values from a grid (e.g., [0, 0.1, 0.2, ..., 1]).</span>
+<span class="c1"># We devote 30% of the dataset for this exploration.</span>
+<span class="n">training</span><span class="p">,</span> <span class="n">validation</span> <span class="o">=</span> <span class="n">training</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">train_prop</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">protocol</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">validation</span><span class="p">)</span>
+
+<span class="c1"># We will explore a classification-dependent hyper-parameter (e.g., the &#39;C&#39;</span>
+<span class="c1"># hyper-parameter of LogisticRegression) and a quantification-dependent hyper-parameter</span>
+<span class="c1"># (e.g., the number of bins in a DistributionMatching quantifier.</span>
+<span class="c1"># Classifier-dependent hyper-parameters have to be marked with a prefix &quot;classifier__&quot;</span>
+<span class="c1"># in order to let the quantifier know this hyper-parameter belongs to its underlying</span>
+<span class="c1"># classifier.</span>
+<span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span>
+    <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>
+<span class="p">}</span>
+
 <span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">GridSearchQ</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="n">PCC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">()),</span>
-    <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span> <span class="s1">&#39;class_weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;balanced&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]},</span>
-    <span class="n">sample_size</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">],</span>
-    <span class="n">eval_budget</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-    <span class="n">error</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span>
-    <span class="n">refit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># retrain on the whole labelled set</span>
-    <span class="n">val_split</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span><span class="p">,</span>
+    <span class="n">protocol</span><span class="o">=</span><span class="n">protocol</span><span class="p">,</span>
+    <span class="n">error</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span>  <span class="c1"># the error to optimize is the MAE (a quantification-oriented loss)</span>
+    <span class="n">refit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>   <span class="c1"># retrain on the whole labelled set once done</span>
     <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># show information as the process goes on</span>
-<span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;model selection ended: best hyper-parameters=</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">best_params_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_model_</span>
 
 <span class="c1"># evaluation in terms of MAE</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">artificial_sampling_eval</span><span class="p">(</span>
-    <span class="n">model</span><span class="p">,</span>
-    <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="p">,</span>
-    <span class="n">sample_size</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">],</span>
-    <span class="n">n_prevpoints</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span>
-    <span class="n">n_repetitions</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-    <span class="n">error_metric</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span>
-<span class="p">)</span>
+<span class="c1"># we use the same evaluation protocol (APP) on the test set</span>
+<span class="n">mae_score</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">),</span> <span class="n">error_metric</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;MAE=</span><span class="si">{</span><span class="n">results</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;MAE=</span><span class="si">{</span><span class="n">mae_score</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In this example, the system outputs:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[GridSearchQ]: starting optimization with n_jobs=1
-[GridSearchQ]: checking hyperparams={&#39;C&#39;: 0.0001, &#39;class_weight&#39;: &#39;balanced&#39;} got mae score 0.24987
-[GridSearchQ]: checking hyperparams={&#39;C&#39;: 0.0001, &#39;class_weight&#39;: None} got mae score 0.48135
-[GridSearchQ]: checking hyperparams={&#39;C&#39;: 0.001, &#39;class_weight&#39;: &#39;balanced&#39;} got mae score 0.24866
-[...]
-[GridSearchQ]: checking hyperparams={&#39;C&#39;: 100000.0, &#39;class_weight&#39;: None} got mae score 0.43676
-[GridSearchQ]: optimization finished: best params {&#39;C&#39;: 0.1, &#39;class_weight&#39;: &#39;balanced&#39;} (score=0.19982)
-[GridSearchQ]: refitting on the whole development set
-model selection ended: best hyper-parameters={&#39;C&#39;: 0.1, &#39;class_weight&#39;: &#39;balanced&#39;}
-1010 evaluations will be performed for each combination of hyper-parameters
-[artificial sampling protocol] generating predictions: 100%|██████████| 1010/1010 [00:00&lt;00:00, 5005.54it/s]
-MAE=0.20342
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">starting</span> <span class="n">model</span> <span class="n">selection</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=-</span><span class="mi">1</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">64</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.04021</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.1356</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.04286</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.2139</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.04888</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.2491</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.05163</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.5372</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="o">...</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.02445</span> <span class="p">[</span><span class="n">took</span> <span class="mf">2.9056</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">optimization</span> <span class="n">finished</span><span class="p">:</span> <span class="n">best</span> <span class="n">params</span> <span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span> <span class="p">(</span><span class="n">score</span><span class="o">=</span><span class="mf">0.02234</span><span class="p">)</span> <span class="p">[</span><span class="n">took</span> <span class="mf">7.3114</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">refitting</span> <span class="n">on</span> <span class="n">the</span> <span class="n">whole</span> <span class="n">development</span> <span class="nb">set</span>
+<span class="n">model</span> <span class="n">selection</span> <span class="n">ended</span><span class="p">:</span> <span class="n">best</span> <span class="n">hyper</span><span class="o">-</span><span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span>
+<span class="n">MAE</span><span class="o">=</span><span class="mf">0.03102</span>
 </pre></div>
 </div>
 <p>The parameter <em>val_split</em> can alternatively be used to indicate
@@ -172,30 +182,13 @@ The following code illustrates how to do that:</p>
     <span class="n">LogisticRegression</span><span class="p">(),</span>
     <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="s1">&#39;class_weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;balanced&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]},</span>
     <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">PCC</span><span class="p">(</span><span class="n">learner</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;model selection ended: best hyper-parameters=</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">learner</span><span class="o">.</span><span class="n">best_params_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">DistributionMatching</span><span class="p">(</span><span class="n">learner</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In this example, the system outputs:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>model selection ended: best hyper-parameters={&#39;C&#39;: 10000.0, &#39;class_weight&#39;: None}
-1010 evaluations will be performed for each combination of hyper-parameters
-[artificial sampling protocol] generating predictions: 100%|██████████| 1010/1010 [00:00&lt;00:00, 5379.55it/s]
-MAE=0.41734
-</pre></div>
-</div>
-<p>Note that the MAE is worse than the one we obtained when optimizing
-for quantification and, indeed, the hyper-parameters found optimal
-largely differ between the two selection modalities. The
-hyper-parameters C=10000 and class_weight=None have been found
-to work well for the specific training prevalence of the HP dataset,
-but these hyper-parameters turned out to be suboptimal when the
-class prevalences of the test set differs (as is indeed tested
-in scenarios of quantification).</p>
-<p>This is, however, not always the case, and one could, in practice,
-find examples
-in which optimizing for classification ends up resulting in a better
-quantifier than when optimizing for quantification.
-Nonetheless, this is theoretically unlikely to happen.</p>
+<p>However, this is conceptually flawed, since the model should be
+optimized for the task at hand (quantification), and not for a surrogate task (classification),
+i.e., the model should be requested to deliver low quantification errors, rather
+than low classification errors.</p>
 </section>
 </section>
 

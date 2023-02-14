@@ -51,9 +51,10 @@ def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=No
         table = {method_name:[true_prev, estim_prev] for method_name, true_prev, estim_prev in order}
         order  = [(method_name, *table[method_name]) for method_name in method_order]
 
-    cm = plt.get_cmap('tab20')
     NUM_COLORS = len(method_names)
-    ax.set_prop_cycle(color=[cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
+    if NUM_COLORS>10:
+        cm = plt.get_cmap('tab20')
+        ax.set_prop_cycle(color=[cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
     for method, true_prev, estim_prev in order:
         true_prev = true_prev[:,pos_class]
         estim_prev = estim_prev[:,pos_class]
@@ -76,13 +77,12 @@ def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=No
     ax.set_xlim(0, 1)
 
     if legend:
+        ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
         # box = ax.get_position()
         # ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-        # ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-        # ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-        ax.legend(loc='lower center',
-                  bbox_to_anchor=(1, -0.5),
-                  ncol=(len(method_names)+1)//2)
+        # ax.legend(loc='lower center',
+        #           bbox_to_anchor=(1, -0.5),
+        #           ncol=(len(method_names)+1)//2)
 
     _save_or_show(savepath)
 

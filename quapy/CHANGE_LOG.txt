@@ -1,21 +1,15 @@
 Change Log 0.1.7
----------------------
+----------------
 
 - Protocols are now abstracted as instances of AbstractProtocol. There is a new class extending AbstractProtocol called
     AbstractStochasticSeededProtocol, which implements a seeding policy to allow replicate the series of samplings.
     There are some examples of protocols, APP, NPP, UPP, DomainMixer (experimental).
-    The idea is to start the sampling by simply calling the __call__ method.
+    The idea is to start the sample generation by simply calling the __call__ method.
     This change has a great impact in the framework, since many functions in qp.evaluation, qp.model_selection,
     and sampling functions in LabelledCollection relied of the old functions. E.g., the functionality of
     qp.evaluation.artificial_prevalence_report or qp.evaluation.natural_prevalence_report is now obtained by means of
     qp.evaluation.report which takes a protocol as an argument. I have not maintained compatibility with the old
     interfaces because I did not really like them. Check the wiki guide and the examples for more details.
-
-    check guides
-
-    check examples
-
-- ACC, PACC, Forman's threshold variants have been parallelized.
 
 - Exploration of hyperparameters in Model selection can now be run in parallel (there was a n_jobs argument in
     QuaPy 0.1.6 but only the evaluation part for one specific hyperparameter was run in parallel).
@@ -26,16 +20,18 @@ Change Log 0.1.7
     procedure. The user can now specify "force", "auto", True of False, in order to actively decide for applying it
     or not.
 
-- n_jobs is now taken from the environment if set to None
-
 - examples directory created!
-
-- cross_val_predict (for quantification) added to model_selection: would be nice to allow the user specifies a
-    test protocol maybe, or None for bypassing it?
 
 - DyS, Topsoe distance and binary search (thanks to Pablo González)
 
 - Multi-thread reproducibility via seeding (thanks to Pablo González)
+
+- n_jobs is now taken from the environment if set to None
+
+- ACC, PACC, Forman's threshold variants have been parallelized.
+
+- cross_val_predict (for quantification) added to model_selection: would be nice to allow the user specifies a
+    test protocol maybe, or None for bypassing it?
 
 - Bugfix: adding two labelled collections (with +) now checks for consistency in the classes
 

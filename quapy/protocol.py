@@ -127,6 +127,15 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
                 yield self.collator(self.sample(params))
 
     def collator(self, sample, *args):
+        """
+        The collator prepares the sample to accommodate the desired output format before returning the output.
+        This collator simply returns the sample as it is. Classes inheriting from this abstract class can
+        implement their custom collators.
+
+        :param sample: the sample to be returned
+        :param args: additional arguments
+        :return: the sample adhering to a desired output format (in this case, the sample is returned as it is)
+        """
         return sample
 
 

@@ -171,6 +171,23 @@ See <a class="reference internal" href="#quapy.data.base.LabelledCollection.load
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.Dataset.reduce">
+<span class="sig-name descname"><span class="pre">reduce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_train</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.Dataset.reduce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduce the number of instances in place for quick experiments. Preserves the prevalence of each set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_train</strong> – number of training documents to keep (default 100)</p></li>
+<li><p><strong>n_test</strong> – number of test documents to keep (default 100)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.Dataset.stats">
 <span class="sig-name descname"><span class="pre">stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.Dataset.stats" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns (and eventually prints) a dictionary with some stats of this dataset. E.g.,:</p>
@@ -298,6 +315,20 @@ as listed by <cite>self.classes_</cite></p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.join">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> as the union of the collections given in input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> – instances of <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> representing the union of both collections</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.kFCV">
 <span class="sig-name descname"><span class="pre">kFCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nfolds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrepeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.kFCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generator of stratified folds to be used in k-fold cross validation.</p>
@@ -334,23 +365,6 @@ these arguments are used to call <cite>loader_func(path, **loader_kwargs)</cite>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.mix">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.mix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a new <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> as the union of this collection with another collection.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>a</strong> – instance of <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a></p></li>
-<li><p><strong>b</strong> – instance of <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> representing the union of both collections</p>
 </dd>
 </dl>
 </dd></dl>

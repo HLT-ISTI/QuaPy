@@ -1,4 +1,6 @@
+import itertools
 from functools import cached_property
+from typing import Iterable
 
 import numpy as np
 from scipy.sparse import issparse
@@ -129,11 +131,23 @@ class LabelledCollection:
         # <= size * prevs[i]) examples are drawn from class i, there could be a remainder number of instances to take
         # to satisfy the size constrain. The remainder is distributed along the classes with probability = prevs.
         # (This aims at avoiding the remainder to be placed in a class for which the prevalence requested is 0.)
-        n_requests = {class_: int(size * prevs[i]) for i, class_ in enumerate(self.classes_)}
+        n_requests = {class_: round(size * prevs[i]) for i, class_ in enumerate(self.classes_)}
         remainder = size - sum(n_requests.values())
         with temp_seed(random_state):
-            for rand_class in np.random.choice(self.classes_, size=remainder, p=prevs):
-                n_requests[rand_class] += 1
+            # due to rounding, the remainder can be 0, >0, or <0
+            if remainder > 0:
+                # when the remainder is >0 we randomly add 1 to the requests for each class;
+                # more prevalent classes are more likely to be taken in order to minimize the impact in the final prevalence
+                for rand_class in np.random.choice(self.classes_, size=remainder, p=prevs):
+                    n_requests[rand_class] += 1
+            elif remainder < 0:
+                # when the remainder is <0 we randomly remove 1 from the requests, unless the request is 0 for a chosen
+                # class; we repeat until remainder==0
+                while remainder!=0:
+                    rand_class = np.random.choice(self.classes_, p=prevs)
+                    if n_requests[rand_class] > 0:
+                        n_requests[rand_class] -= 1
+                        remainder += 1
 
             indexes_sample = []
             for class_, n_requested in n_requests.items():
@@ -266,31 +280,47 @@ class LabelledCollection:
         if not all(np.sort(self.classes_)==np.sort(other.classes_)):
             raise NotImplementedError(f'unsupported operation for collections on different classes; '
                                       f'expected {self.classes_}, found {other.classes_}')
-        return LabelledCollection.mix(self, other)
+        return LabelledCollection.join(self, other)
 
     @classmethod
-    def mix(cls, a:'LabelledCollection', b:'LabelledCollection'):
+    def join(cls, *args: Iterable['LabelledCollection']):
         """
-        Returns a new :class:`LabelledCollection` as the union of this collection with another collection.
+        Returns a new :class:`LabelledCollection` as the union of the collections given in input.
 
-        :param a: instance of :class:`LabelledCollection`
-        :param b: instance of :class:`LabelledCollection`
+        :param args: instances of :class:`LabelledCollection`
         :return: a :class:`LabelledCollection` representing the union of both collections
         """
-        if a is None: return b
-        if b is None: return a
-        elif issparse(a.instances) and issparse(b.instances):
-            join_instances = vstack([a.instances, b.instances])
-        elif isinstance(a.instances, list) and isinstance(b.instances, list):
-            join_instances = a.instances + b.instances
-        elif isinstance(a.instances, np.ndarray) and isinstance(b.instances, np.ndarray):
-            join_instances = np.concatenate([a.instances, b.instances])
+
+        args = [lc for lc in args if lc is not None]
+        assert len(args) > 0, 'empty list is not allowed for mix'
+
+        assert all([isinstance(lc, LabelledCollection) for lc in args]), \
+            'only instances of LabelledCollection allowed'
+
+        first_instances = args[0].instances
+        first_type = type(first_instances)
+        assert all([type(lc.instances)==first_type for lc in args[1:]]), \
+            'not all the collections are of instances of the same type'
+
+        if issparse(first_instances) or isinstance(first_instances, np.ndarray):
+            first_ndim = first_instances.ndim
+            assert all([lc.instances.ndim == first_ndim for lc in args[1:]]), \
+                'not all the ndarrays are of the same dimension'
+            if first_ndim > 1:
+                first_shape = first_instances.shape[1:]
+                assert all([lc.instances.shape[1:] == first_shape for lc in args[1:]]), \
+                    'not all the ndarrays are of the same shape'
+            if issparse(first_instances):
+                instances = vstack([lc.instances for lc in args])
+            else:
+                instances = np.concatenate([lc.instances for lc in args])
+        elif isinstance(first_instances, list):
+            instances = list(itertools.chain(lc.instances for lc in args))
         else:
             raise NotImplementedError('unsupported operation for collection types')
-        labels = np.concatenate([a.labels, b.labels])
-        classes = np.unique(np.concatenate([a.classes_, b.classes_])).sort()
-        return LabelledCollection(join_instances, labels, classes=classes)
-
+        labels = np.concatenate([lc.labels for lc in args])
+        classes = np.unique(labels).sort()
+        return LabelledCollection(instances, labels, classes=classes)
 
     @property
     def Xy(self):
