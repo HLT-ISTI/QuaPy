@@ -60,9 +60,6 @@ class LabelCollectionTestCase(unittest.TestCase):
         combined = qp.data.LabelledCollection.join(data4, data5)
         self.assertEqual(len(combined), len(data4) + len(data5))
 
-        # data2.instances = csr_matrix()
-
-
 
 if __name__ == '__main__':
     unittest.main()

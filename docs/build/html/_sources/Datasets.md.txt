@@ -30,7 +30,7 @@ Output the class prevalences (showing 2 digit precision):
 [0.17, 0.50, 0.33]
 ```
 
-One can easily produce new samples at desired class prevalences:
+One can easily produce new samples at desired class prevalence values:
 
 ```python
 sample_size = 10
@@ -38,7 +38,7 @@ prev = [0.4, 0.1, 0.5]
 sample = data.sampling(sample_size, *prev)
 
 print('instances:', sample.instances)
-print('labels:', sample.classes)
+print('labels:', sample.labels)
 print('prevalence:', F.strprev(sample.prevalence(), prec=2))
 ```
 
@@ -64,32 +64,10 @@ for method in methods:
     ...
 ```
 
-QuaPy also implements the artificial sampling protocol that produces (via a
-Python's generator) a series of _LabelledCollection_ objects with equidistant 
-prevalences ranging across the entire prevalence spectrum in the simplex space, e.g.:
-
-```python
-for sample in data.artificial_sampling_generator(sample_size=100, n_prevalences=5):
-    print(F.strprev(sample.prevalence(), prec=2))
-```
-
-produces one sampling for each (valid) combination of prevalences originating from
-splitting the range [0,1] into n_prevalences=5 points (i.e., [0, 0.25, 0.5, 0.75, 1]), 
-that is:
-```
-[0.00, 0.00, 1.00]
-[0.00, 0.25, 0.75]
-[0.00, 0.50, 0.50]
-[0.00, 0.75, 0.25]
-[0.00, 1.00, 0.00]
-[0.25, 0.00, 0.75]
-...
-[1.00, 0.00, 0.00]
-```
-
-See the [Evaluation wiki](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation) for 
-further details on how to use the artificial sampling protocol to properly
-evaluate a quantification method.
+However, generating samples for evaluation purposes is tackled in QuaPy
+by means of the evaluation protocols (see the dedicated entries in the Wiki
+for [evaluation](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation) and 
+[protocols](https://github.com/HLT-ISTI/QuaPy/wiki/Protocols)).
 
 
 ## Reviews Datasets
@@ -178,6 +156,8 @@ Some details can be found below:
 | sst | 3 | 2971 | 1271 | 376132 | [0.261, 0.452, 0.288] | [0.207, 0.481, 0.312] | sparse |
 | wa | 3 | 2184 | 936 | 248563 | [0.305, 0.414, 0.281] | [0.282, 0.446, 0.272] | sparse |
 | wb | 3 | 4259 | 1823 | 404333 | [0.270, 0.392, 0.337] | [0.274, 0.392, 0.335] | sparse |
+
+
 ## UCI Machine Learning
 
 A set of 32 datasets from the [UCI Machine Learning repository](https://archive.ics.uci.edu/ml/datasets.php) 
@@ -273,6 +253,46 @@ standard Pythons packages like gzip or zip. This file would need to be uncompres
 OS-dependent software manually. Information on how to do it will be printed the first
 time the dataset is invoked. 
 
+## LeQua Datasets
+
+QuaPy also provides the datasets used for the LeQua competition.
+In brief, there are 4 tasks (T1A, T1B, T2A, T2B) having to do with text quantification
+problems. Tasks T1A and T1B provide documents in vector form, while T2A and T2B provide 
+raw documents instead.
+Tasks T1A and T2A are binary sentiment quantification problems, while T2A and T2B 
+are multiclass quantification problems consisting of estimating the class prevalence 
+values of 28 different merchandise products.
+
+Every task consists of a training set, a set of validation samples (for model selection)
+and a set of test samples (for evaluation). QuaPy returns this data as a LabelledCollection
+(training) and two generation protocols (for validation and test samples), as follows:
+
+```python
+training, val_generator, test_generator = fetch_lequa2022(task=task)
+```
+
+See the `lequa2022_experiments.py` in the examples folder for further details on how to
+carry out experiments using these datasets.  
+
+The datasets are downloaded only once, and stored for fast reuse.
+
+Some statistics are summarized below:
+
+| Dataset | classes | train size | validation samples | test samples |  docs by sample  |   type   |
+|---------|:-------:|:----------:|:------------------:|:------------:|:----------------:|:--------:| 
+| T1A     |   2     |    5000    |        1000        |     5000     |       250        |  vector  | 
+| T1B     |   28    |   20000    |        1000        |     5000     |       1000       |  vector  |
+| T2A     |    2    |    5000    |        1000        |     5000     |       250        |   text   |
+| T2B     |   28    |   20000    |        1000        |     5000     |       1000       |   text   |
+
+For further details on the datasets, we refer to the original 
+[paper](https://ceur-ws.org/Vol-3180/paper-146.pdf):
+
+```
+Esuli, A., Moreo, A., Sebastiani, F., & Sperduti, G. (2022).
+A Detailed Overview of LeQua@ CLEF 2022: Learning to Quantify.
+```
+
 ## Adding Custom Datasets
 
 QuaPy provides data loaders for simple formats dealing with 
@@ -313,12 +333,15 @@ e.g.:
 
 ```python
 import quapy as qp
+
 train_path = '../my_data/train.dat'
 test_path = '../my_data/test.dat'
+
 def my_custom_loader(path):
     with open(path, 'rb') as fin:
         ...
     return instances, labels
+
 data = qp.data.Dataset.load(train_path, test_path, my_custom_loader)
 ```
 
