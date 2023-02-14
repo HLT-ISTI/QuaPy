@@ -2,7 +2,7 @@ import quapy as qp
 from quapy.method.aggregative import newELM
 from quapy.method.base import newOneVsAll
 from quapy.model_selection import GridSearchQ
-from quapy.protocol import USimplexPP
+from quapy.protocol import UPP
 
 """
 In this example, we will show hoy to define a quantifier based on explicit loss minimization (ELM).
@@ -57,7 +57,7 @@ param_grid = {
     'binary_quantifier__classifier__C': [0.01, 1, 100],  # classifier-dependent hyperparameter
 }
 print('starting model selection')
-model_selection = GridSearchQ(quantifier, param_grid, protocol=USimplexPP(val), verbose=True, refit=False)
+model_selection = GridSearchQ(quantifier, param_grid, protocol=UPP(val), verbose=True, refit=False)
 quantifier = model_selection.fit(train_modsel).best_model()
 
 print('training on the whole training set')
@@ -65,7 +65,7 @@ train, test = qp.datasets.fetch_twitter('hcr', for_model_selection=False, pickle
 quantifier.fit(train)
 
 # evaluation
-mae = qp.evaluation.evaluate(quantifier, protocol=USimplexPP(test), error_metric='mae')
+mae = qp.evaluation.evaluate(quantifier, protocol=UPP(test), error_metric='mae')
 
 print(f'MAE = {mae:.4f}')
 

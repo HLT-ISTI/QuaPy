@@ -3,7 +3,7 @@ Change Log 0.1.7
 
 - Protocols are now abstracted as instances of AbstractProtocol. There is a new class extending AbstractProtocol called
     AbstractStochasticSeededProtocol, which implements a seeding policy to allow replicate the series of samplings.
-    There are some examples of protocols, APP, NPP, USimplexPP, DomainMixer (experimental).
+    There are some examples of protocols, APP, NPP, UPP, DomainMixer (experimental).
     The idea is to start the sampling by simply calling the __call__ method.
     This change has a great impact in the framework, since many functions in qp.evaluation, qp.model_selection,
     and sampling functions in LabelledCollection relied of the old functions. E.g., the functionality of

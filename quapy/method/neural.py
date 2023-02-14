@@ -6,7 +6,7 @@ import torch
 from torch.nn import MSELoss
 from torch.nn.functional import relu
 
-from protocol import USimplexPP
+from protocol import UPP
 from quapy.method.aggregative import *
 from quapy.util import EarlyStop
 
@@ -218,7 +218,7 @@ class QuaNetTrainer(BaseQuantifier):
         self.quanet.train(mode=train)
         losses = []
         mae_errors = []
-        sampler = USimplexPP(
+        sampler = UPP(
             data,
             sample_size=self.sample_size,
             repeats=iterations,

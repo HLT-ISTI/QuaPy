@@ -1,8 +1,14 @@
 import unittest
+
+import numpy as np
+
 import quapy as qp
 from sklearn.linear_model import LogisticRegression
 from time import time
-from quapy.method.aggregative import EMQ
+
+from error import QUANTIFICATION_ERROR_SINGLE, QUANTIFICATION_ERROR, QUANTIFICATION_ERROR_NAMES, \
+    QUANTIFICATION_ERROR_SINGLE_NAMES
+from quapy.method.aggregative import EMQ, PCC
 from quapy.method.base import BaseQuantifier
 
 
@@ -47,6 +53,31 @@ class EvalTestCase(unittest.TestCase):
         print(f'evaluation (w/o optimization) took {tend_no_optim}s [MAE={score:.4f}]')
 
         self.assertEqual(tend_no_optim>(tend_optim/2), True)
+
+    def test_evaluation_output(self):
+
+        data = qp.datasets.fetch_reviews('hp', tfidf=True, min_df=10, pickle=True)
+        train, test = data.training, data.test
+
+        qp.environ['SAMPLE_SIZE']=100
+
+        protocol = qp.protocol.APP(test, random_state=0)
+
+        q = PCC(LogisticRegression()).fit(train)
+
+        single_errors = list(QUANTIFICATION_ERROR_SINGLE_NAMES)
+        averaged_errors = ['m'+e for e in single_errors]
+        single_errors = single_errors + [qp.error.from_name(e) for e in single_errors]
+        averaged_errors = averaged_errors + [qp.error.from_name(e) for e in averaged_errors]
+        for error_metric, averaged_error_metric in zip(single_errors, averaged_errors):
+            score = qp.evaluation.evaluate(q, protocol, error_metric=averaged_error_metric)
+            self.assertTrue(isinstance(score, float))
+
+            scores = qp.evaluation.evaluate(q, protocol, error_metric=error_metric)
+            self.assertTrue(isinstance(scores, np.ndarray))
+
+            self.assertEqual(scores.mean(), score)
+
 
 
 if __name__ == '__main__':

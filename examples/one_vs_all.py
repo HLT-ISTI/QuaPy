@@ -2,7 +2,7 @@ import quapy as qp
 from quapy.method.aggregative import MS2
 from quapy.method.base import newOneVsAll
 from quapy.model_selection import GridSearchQ
-from quapy.protocol import USimplexPP
+from quapy.protocol import UPP
 from sklearn.linear_model import LogisticRegression
 import numpy as np
 
@@ -29,7 +29,7 @@ print(f'the quantifier is an instance of {quantifier.__class__.__name__}')
 train_modsel, val = qp.datasets.fetch_twitter('hcr', for_model_selection=True, pickle=True).train_test
 
 """
-model selection: for this example, we are relying on the USimplexPP protocol, i.e., a variant of the 
+model selection: for this example, we are relying on the UPP protocol, i.e., a variant of the 
 artificial-prevalence protocol that generates random samples (100 in this case) for randomly picked priors 
 from the unit simplex. The priors are sampled using the Kraemer algorithm. Note this is in contrast to the 
 standard APP protocol, that instead explores a prefixed grid of prevalence values.
@@ -39,7 +39,7 @@ param_grid = {
     'binary_quantifier__classifier__class_weight': ['balanced', None]  # classifier-dependent hyperparameter
 }
 print('starting model selection')
-model_selection = GridSearchQ(quantifier, param_grid, protocol=USimplexPP(val), verbose=True, refit=False)
+model_selection = GridSearchQ(quantifier, param_grid, protocol=UPP(val), verbose=True, refit=False)
 quantifier = model_selection.fit(train_modsel).best_model()
 
 print('training on the whole training set')
@@ -47,7 +47,7 @@ train, test = qp.datasets.fetch_twitter('hcr', for_model_selection=False, pickle
 quantifier.fit(train)
 
 # evaluation
-mae = qp.evaluation.evaluate(quantifier, protocol=USimplexPP(test), error_metric='mae')
+mae = qp.evaluation.evaluate(quantifier, protocol=UPP(test), error_metric='mae')
 
 print(f'MAE = {mae:.4f}')
 

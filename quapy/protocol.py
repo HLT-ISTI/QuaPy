@@ -327,7 +327,7 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         return self.repeats
 
 
-class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
+class UPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
     """
     A variant of :class:`APP` that, instead of using a grid of equidistant prevalence values,
     relies on the Kraemer algorithm for sampling unit (k-1)-simplex uniformly at random, with
@@ -348,7 +348,7 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
 
     def __init__(self, data: LabelledCollection, sample_size=None, repeats=100, random_state=0,
                  return_type='sample_prev'):
-        super(USimplexPP, self).__init__(random_state)
+        super(UPP, self).__init__(random_state)
         self.data = data
         self.sample_size = qp._get_sample_size(sample_size)
         self.repeats = repeats
@@ -357,9 +357,9 @@ class USimplexPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol)
 
     def samples_parameters(self):
         """
-        Return all the necessary parameters to replicate the samples as according to the USimplexPP protocol.
+        Return all the necessary parameters to replicate the samples as according to the UPP protocol.
 
-        :return: a list of indexes that realize the USimplexPP sampling
+        :return: a list of indexes that realize the UPP sampling
         """
         indexes = []
         for prevs in F.uniform_simplex_sampling(n_classes=self.data.n_classes, size=self.repeats):
@@ -474,3 +474,8 @@ class DomainMixer(AbstractStochasticSeededProtocol):
         return self.repeats * len(self.mixture_points)
 
 
+# aliases
+
+ArtificialPrevalenceProtocol = APP
+NaturalPrevalenceProtocol = NPP
+UniformPrevalenceProtocol = UPP

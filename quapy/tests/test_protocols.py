@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from quapy.data import LabelledCollection
-from quapy.protocol import APP, NPP, USimplexPP, DomainMixer, AbstractStochasticSeededProtocol
+from quapy.protocol import APP, NPP, UPP, DomainMixer, AbstractStochasticSeededProtocol
 
 
 def mock_labelled_collection(prefix=''):
@@ -102,14 +102,14 @@ class TestProtocols(unittest.TestCase):
 
     def test_kraemer_replicate(self):
         data = mock_labelled_collection()
-        p = USimplexPP(data, sample_size=5, repeats=10, random_state=42)
+        p = UPP(data, sample_size=5, repeats=10, random_state=42)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)
 
         self.assertEqual(samples1, samples2)
 
-        p = USimplexPP(data, sample_size=5, repeats=10)  # <- random_state is by default set to 0
+        p = UPP(data, sample_size=5, repeats=10)  # <- random_state is by default set to 0
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)
@@ -118,7 +118,7 @@ class TestProtocols(unittest.TestCase):
 
     def test_kraemer_not_replicate(self):
         data = mock_labelled_collection()
-        p = USimplexPP(data, sample_size=5, repeats=10, random_state=None)
+        p = UPP(data, sample_size=5, repeats=10, random_state=None)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)
