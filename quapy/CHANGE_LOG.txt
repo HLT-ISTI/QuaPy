@@ -77,9 +77,3 @@ Change Log 0.1.7
     classify / aggregate interface. Both are instances of OneVsAll. There is a method getOneVsAll that returns the
     best instance based on the type of quantifier.
 
-Things to fix:
---------------
-- update unit tests
-- improve plots
-- svmperf clean temp dirs; check also ELM when instantiated using SVMperf directly
-
