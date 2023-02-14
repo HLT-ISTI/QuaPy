@@ -2,16 +2,14 @@ from abc import abstractmethod
 from copy import deepcopy
 from typing import Callable, Union
 import numpy as np
-from joblib import Parallel, delayed
 from scipy import optimize
-from sklearn.base import BaseEstimator, clone
+from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import StratifiedKFold, cross_val_predict
-from tqdm import tqdm
+from sklearn.model_selection import cross_val_predict
 import quapy as qp
 import quapy.functional as F
-from classification.calibration import NBVSCalibration, BCTSCalibration, TSCalibration, VSCalibration
+from quapy.classification.calibration import NBVSCalibration, BCTSCalibration, TSCalibration, VSCalibration
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric

@@ -1,12 +1,11 @@
 import numpy as np
-from sklearn.calibration import CalibratedClassifierCV
 from sklearn.linear_model import LogisticRegression
 import quapy as qp
 import quapy.functional as F
-from data.datasets import LEQUA2022_SAMPLE_SIZE, fetch_lequa2022
-from evaluation import evaluation_report
-from method.aggregative import EMQ
-from model_selection import GridSearchQ
+from quapy.data.datasets import LEQUA2022_SAMPLE_SIZE, fetch_lequa2022
+from quapy.evaluation import evaluation_report
+from quapy.method.aggregative import EMQ
+from quapy.model_selection import GridSearchQ
 import pandas as pd
 
 """

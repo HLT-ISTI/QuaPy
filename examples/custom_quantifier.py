@@ -1,8 +1,8 @@
 import quapy as qp
-from data import LabelledCollection
-from method.base import BaseQuantifier, BinaryQuantifier
-from model_selection import GridSearchQ
-from quapy.method.aggregative import PACC, AggregativeProbabilisticQuantifier
+from quapy.data import LabelledCollection
+from quapy.method.base import BinaryQuantifier
+from quapy.model_selection import GridSearchQ
+from quapy.method.aggregative import AggregativeProbabilisticQuantifier
 from quapy.protocol import APP
 import numpy as np
 from sklearn.linear_model import LogisticRegression

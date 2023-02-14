@@ -6,7 +6,7 @@ import torch
 from torch.nn import MSELoss
 from torch.nn.functional import relu
 
-from protocol import UPP
+from quapy.protocol import UPP
 from quapy.method.aggregative import *
 from quapy.util import EarlyStop
 
