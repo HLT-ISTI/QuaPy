@@ -2,19 +2,21 @@
 
 <!doctype html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Welcome to QuaPy’s documentation! &#8212; QuaPy 0.1.6 documentation</title>
+    <title>Welcome to QuaPy’s documentation! &#8212; QuaPy 0.1.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -36,7 +38,7 @@
         <li class="right" >
           <a href="Installation.html" title="Installation"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="#">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Welcome to QuaPy’s documentation!</a></li> 
       </ul>
     </div>  
@@ -47,11 +49,11 @@
           <div class="body" role="main">
             
   <section id="welcome-to-quapy-s-documentation">
-<h1>Welcome to QuaPy’s documentation!<a class="headerlink" href="#welcome-to-quapy-s-documentation" title="Permalink to this headline">¶</a></h1>
+<h1>Welcome to QuaPy’s documentation!<a class="headerlink" href="#welcome-to-quapy-s-documentation" title="Permalink to this heading">¶</a></h1>
 <p>QuaPy is an open source framework for Quantification (a.k.a. Supervised Prevalence Estimation)
 written in Python.</p>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
 <p>QuaPy roots on the concept of data sample, and provides implementations of most important concepts
 in quantification literature, such as the most important quantification baselines, many advanced
 quantification methods, quantification-oriented model selection, many evaluation measures and protocols
@@ -59,7 +61,7 @@ used for evaluating quantification methods.
 QuaPy also integrates commonly used datasets and offers visualization tools for facilitating the analysis and
 interpretation of results.</p>
 <section id="a-quick-example">
-<h3>A quick example:<a class="headerlink" href="#a-quick-example" title="Permalink to this headline">¶</a></h3>
+<h3>A quick example:<a class="headerlink" href="#a-quick-example" title="Permalink to this heading">¶</a></h3>
 <p>The following script fetchs a Twitter dataset, trains and evaluates an
 <cite>Adjusted Classify &amp; Count</cite> model in terms of the <cite>Mean Absolute Error</cite> (MAE)
 between the class prevalences estimated for the test set and the true prevalences
@@ -90,7 +92,7 @@ QuaPy implements sampling procedures and evaluation protocols that automates thi
 See the <a class="reference internal" href="Evaluation.html"><span class="doc">Evaluation</span></a> for detailed examples.</p>
 </section>
 <section id="features">
-<h3>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h3>
+<h3>Features<a class="headerlink" href="#features" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Implementation of most popular quantification methods (Classify-&amp;-Count variants, Expectation-Maximization, SVM-based variants for quantification, HDy, QuaNet, and Ensembles).</p></li>
 <li><p>Versatile functionality for performing evaluation based on artificial sampling protocols.</p></li>
@@ -100,6 +102,7 @@ See the <a class="reference internal" href="Evaluation.html"><span class="doc">E
 <li><p>32 UCI Machine Learning datasets.</p></li>
 <li><p>11 Twitter Sentiment datasets.</p></li>
 <li><p>3 Reviews Sentiment datasets.</p></li>
+<li><p>4 tasks from LeQua competition (_new in v0.1.7!_)</p></li>
 </ul>
 </dd>
 </dl>
@@ -120,6 +123,7 @@ See the <a class="reference internal" href="Evaluation.html"><span class="doc">E
 <li class="toctree-l2"><a class="reference internal" href="Datasets.html#reviews-datasets">Reviews Datasets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Datasets.html#twitter-sentiment-datasets">Twitter Sentiment Datasets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Datasets.html#uci-machine-learning">UCI Machine Learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Datasets.html#lequa-datasets">LeQua Datasets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Datasets.html#adding-custom-datasets">Adding Custom Datasets</a></li>
 </ul>
 </li>
@@ -128,9 +132,21 @@ See the <a class="reference internal" href="Evaluation.html"><span class="doc">E
 <li class="toctree-l2"><a class="reference internal" href="Evaluation.html#evaluation-protocols">Evaluation Protocols</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="Protocols.html">Protocols</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Protocols.html#artificial-prevalence-protocol">Artificial-Prevalence Protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Protocols.html#sampling-from-the-unit-simplex-the-uniform-prevalence-protocol-upp">Sampling from the unit-simplex, the Uniform-Prevalence Protocol (UPP)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Protocols.html#natural-prevalence-protocol">Natural-Prevalence Protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Protocols.html#other-protocols">Other protocols</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="Methods.html">Quantification Methods</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="Methods.html#aggregative-methods">Aggregative Methods</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Methods.html#meta-models">Meta Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Model-Selection.html">Model Selection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Model-Selection.html#targeting-a-quantification-oriented-loss">Targeting a Quantification-oriented loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Model-Selection.html#targeting-a-classification-oriented-loss">Targeting a Classification-oriented loss</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Plotting.html">Plotting</a><ul>
@@ -149,7 +165,7 @@ See the <a class="reference internal" href="Evaluation.html"><span class="doc">E
 </section>
 </section>
 <section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading">¶</a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -164,8 +180,9 @@ See the <a class="reference internal" href="Evaluation.html"><span class="doc">E
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="#">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Welcome to QuaPy’s documentation!</a><ul>
 <li><a class="reference internal" href="#introduction">Introduction</a><ul>
 <li><a class="reference internal" href="#a-quick-example">A quick example:</a></li>
@@ -177,9 +194,12 @@ See the <a class="reference internal" href="Evaluation.html"><span class="doc">E
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
-  <h4>Next topic</h4>
-  <p class="topless"><a href="Installation.html"
-                        title="next chapter">Installation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Installation.html"
+                          title="next chapter">Installation</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -196,7 +216,7 @@ See the <a class="reference internal" href="Evaluation.html"><span class="doc">E
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -213,13 +233,13 @@ See the <a class="reference internal" href="Evaluation.html"><span class="doc">E
         <li class="right" >
           <a href="Installation.html" title="Installation"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="#">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Welcome to QuaPy’s documentation!</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Alejandro Moreo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

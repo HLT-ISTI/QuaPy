@@ -50,7 +50,7 @@ indicating the value for the smoothing parameter epsilon.
 Traditionally, this value is set to 1/(2T) in past literature,
 with T the sampling size. One could either pass this value
 to the function each time, or to set a QuaPy's environment 
-variable _SAMPLE_SIZE_ once, and ommit this argument 
+variable _SAMPLE_SIZE_ once, and omit this argument 
 thereafter (recommended);
 e.g.:
 
@@ -58,7 +58,7 @@ e.g.:
 qp.environ['SAMPLE_SIZE'] = 100  # once for all
 true_prev = np.asarray([0.5, 0.3, 0.2])  # let's assume 3 classes
 estim_prev = np.asarray([0.1, 0.3, 0.6])
-error = qp.ae_.mrae(true_prev, estim_prev)
+error = qp.error.mrae(true_prev, estim_prev)
 print(f'mrae({true_prev}, {estim_prev}) = {error:.3f}')
 ```
 
@@ -71,162 +71,99 @@ Finally, it is possible to instantiate QuaPy's quantification
 error functions from strings using, e.g.:
 
 ```python
-error_function = qp.ae_.from_name('mse')
+error_function = qp.error.from_name('mse')
 error = error_function(true_prev, estim_prev)
 ```
 
 ## Evaluation Protocols
 
-QuaPy implements the so-called "artificial sampling protocol", 
-according to which a test set is used to generate samplings at
-desired prevalences of fixed size and covering the full spectrum
-of prevalences. This protocol is called "artificial" in contrast 
-to the "natural prevalence sampling" protocol that,
-despite introducing some variability during sampling, approximately 
-preserves the training class prevalence.
-
-In the artificial sampling procol, the user specifies the number
-of (equally distant) points to be generated from the interval [0,1].
-
-For example, if n_prevpoints=11 then, for each class, the prevalences
-[0., 0.1, 0.2, ..., 1.] will be used. This means that, for two classes,
-the number of different prevalences will be 11 (since, once the prevalence
-of one class is determined, the other one is constrained). For 3 classes,
-the number of valid combinations can be obtained as 11 + 10 + ... + 1 = 66.
-In general, the number of valid combinations that will be produced for a given
-value of n_prevpoints can be consulted by invoking 
-quapy.functional.num_prevalence_combinations, e.g.:
+An _evaluation protocol_ is an evaluation procedure that uses
+one specific _sample generation procotol_ to genereate many
+samples, typically characterized by widely varying amounts of 
+_shift_ with respect to the original distribution, that are then
+used to evaluate the performance of a (trained) quantifier. 
+These protocols are explained in more detail in a dedicated [entry 
+in the wiki](Protocols.md). For the moment being, let us assume we already have
+chosen and instantiated one specific such protocol, that we here
+simply call _prot_. Let also assume our model is called
+_quantifier_ and that our evaluatio measure of choice is 
+_mae_. The evaluation comes down to:
 
 ```python
-import quapy.functional as F
-n_prevpoints = 21
-n_classes = 4
-n = F.num_prevalence_combinations(n_prevpoints, n_classes, n_repeats=1)
+mae = qp.evaluation.evaluate(quantifier, protocol=prot, error_metric='mae')
+print(f'MAE = {mae:.4f}')
 ```
 
-in this example, n=1771. Note the last argument, n_repeats, that
-informs of the number of examples that will be generated for any 
-valid combination (typical values are, e.g., 1 for a single sample,
-or 10 or higher for computing standard deviations of performing statistical
-significance tests).
-
-One can instead work the other way around, i.e., one could set a 
-maximum budged of evaluations and get the number of prevalence points that
-will generate a number of evaluations close, but not higher, than
-the fixed budget. This can be achieved with the function
-quapy.functional.get_nprevpoints_approximation, e.g.:
+It is often desirable to evaluate our system using more than one
+single evaluatio measure. In this case, it is convenient to generate
+a _report_. A report in QuaPy is a dataframe accounting for all the
+true prevalence values with their corresponding prevalence values
+as estimated by the quantifier, along with the error each has given
+rise. 
 
 ```python
-budget = 5000
-n_prevpoints = F.get_nprevpoints_approximation(budget, n_classes, n_repeats=1)
-n = F.num_prevalence_combinations(n_prevpoints, n_classes, n_repeats=1)
-print(f'by setting n_prevpoints={n_prevpoints} the number of evaluations for {n_classes} classes will be {n}')
-```
-that will print:
-```
-by setting n_prevpoints=30 the number of evaluations for 4 classes will be 4960
+report = qp.evaluation.evaluation_report(quantifier, protocol=prot, error_metrics=['mae', 'mrae', 'mkld'])
 ```
 
-The cost of evaluation will depend on the values of _n_prevpoints_, _n_classes_, 
-and _n_repeats_. Since it might sometimes be cumbersome to control the overall
-cost of an experiment having to do with the number of combinations that
-will be generated for a particular setting of these arguments (particularly
-when _n_classes>2_), evaluation functions
-typically allow the user to rather specify an _evaluation budget_, i.e., a maximum
-number of samplings to generate. By specifying this argument, one could avoid
-specifying _n_prevpoints_, and the value for it that would lead to a closer 
-number of evaluation budget, without surpassing it, will be automatically set.  
-
-The following script shows a full example in which a PACC model relying 
-on a Logistic Regressor classifier is
-tested on the _kindle_ dataset by means of the artificial prevalence
-sampling protocol on samples of size 500, in terms of various
-evaluation metrics.
-
-````python
-import quapy as qp
-import quapy.functional as F
-from sklearn.linear_model import LogisticRegression
-
-qp.environ['SAMPLE_SIZE'] = 500
-
-dataset = qp.datasets.fetch_reviews('kindle')
-qp.data.preprocessing.text2tfidf(dataset, min_df=5, inplace=True)
-
-training = dataset.training
-test = dataset.test
-
-lr = LogisticRegression()
-pacc = qp.method.aggregative.PACC(lr)
-
-pacc.fit(training)
-
-df = qp.evaluation.artificial_sampling_report(
-    pacc,  # the quantification method
-    test,  # the test set on which the method will be evaluated
-    sample_size=qp.environ['SAMPLE_SIZE'],  #indicates the size of samples to be drawn
-    n_prevpoints=11,  # how many prevalence points will be extracted from the interval [0, 1] for each category
-    n_repetitions=1,  # number of times each prevalence will be used to generate a test sample
-    n_jobs=-1,  # indicates the number of parallel workers (-1 indicates, as in sklearn, all CPUs)
-    random_seed=42,  # setting a random seed allows to replicate the test samples across runs
-    error_metrics=['mae', 'mrae', 'mkld'],  # specify the evaluation metrics
-    verbose=True  # set to True to show some standard-line outputs
-)
-````
-
-The resulting report is a pandas' dataframe that can be directly printed.
-Here, we set some display options from pandas just to make the output clearer; 
-note also that the estimated prevalences are shown as strings using the
-function strprev function that simply converts a prevalence into a 
-string representing it, with a fixed decimal precision (default 3):
+From a pandas' dataframe, it is straightforward to visualize all the results, 
+and compute the averaged values, e.g.: 
 
 ```python
-import pandas as pd
 pd.set_option('display.expand_frame_repr', False)
-pd.set_option("precision", 3)
-df['estim-prev'] = df['estim-prev'].map(F.strprev)
-print(df)
+report['estim-prev'] = report['estim-prev'].map(F.strprev)
+print(report)
+
+print('Averaged values:')
+print(report.mean())
 ```
 
-The output should look like:
+This will produce an output like:
 
 ```
-     true-prev      estim-prev    mae    mrae       mkld
-0   [0.0, 1.0]  [0.000, 1.000]  0.000   0.000  0.000e+00
-1   [0.1, 0.9]  [0.091, 0.909]  0.009   0.048  4.426e-04
-2   [0.2, 0.8]  [0.163, 0.837]  0.037   0.114  4.633e-03
-3   [0.3, 0.7]  [0.283, 0.717]  0.017   0.041  7.383e-04
-4   [0.4, 0.6]  [0.366, 0.634]  0.034   0.070  2.412e-03
-5   [0.5, 0.5]  [0.459, 0.541]  0.041   0.082  3.387e-03
-6   [0.6, 0.4]  [0.565, 0.435]  0.035   0.073  2.535e-03
-7   [0.7, 0.3]  [0.654, 0.346]  0.046   0.108  4.701e-03
-8   [0.8, 0.2]  [0.725, 0.275]  0.075   0.235  1.515e-02
-9   [0.9, 0.1]  [0.858, 0.142]  0.042   0.229  7.740e-03
-10  [1.0, 0.0]  [0.945, 0.055]  0.055  27.357  5.219e-02
+           true-prev      estim-prev       mae      mrae      mkld
+0     [0.308, 0.692]  [0.314, 0.686]  0.005649  0.013182  0.000074
+1     [0.896, 0.104]  [0.909, 0.091]  0.013145  0.069323  0.000985
+2     [0.848, 0.152]  [0.809, 0.191]  0.039063  0.149806  0.005175
+3     [0.016, 0.984]  [0.033, 0.967]  0.017236  0.487529  0.005298
+4     [0.728, 0.272]  [0.751, 0.249]  0.022769  0.057146  0.001350
+...              ...             ...       ...       ...       ...
+4995    [0.72, 0.28]  [0.698, 0.302]  0.021752  0.053631  0.001133
+4996  [0.868, 0.132]  [0.888, 0.112]  0.020490  0.088230  0.001985
+4997  [0.292, 0.708]  [0.298, 0.702]  0.006149  0.014788  0.000090
+4998    [0.24, 0.76]  [0.220, 0.780]  0.019950  0.054309  0.001127
+4999  [0.948, 0.052]  [0.965, 0.035]  0.016941  0.165776  0.003538
+
+[5000 rows x 5 columns]
+Averaged values:
+mae     0.023588
+mrae    0.108779
+mkld    0.003631
+dtype: float64
+
+Process finished with exit code 0
 ```
 
-One can get the averaged scores using standard pandas' 
-functions, i.e.:
+Alternatively, we can simply generate all the predictions by:
 
 ```python
-print(df.mean())
+true_prevs, estim_prevs = qp.evaluation.prediction(quantifier, protocol=prot)
 ```
 
-will produce the following output:
-
-```
-true-prev    0.500
-mae          0.035
-mrae         2.578
-mkld         0.009
-dtype: float64
-```
-
-Other evaluation functions include:
-
-* _artificial_sampling_eval_: that computes the evaluation for a 
-given evaluation metric, returning the average instead of a dataframe.
-* _artificial_sampling_prediction_: that returns two np.arrays containing the
-true prevalences and the estimated prevalences. 
-
-See the documentation for further details.
+All the evaluation functions implement specific optimizations for speeding-up 
+the evaluation of aggregative quantifiers (i.e., of instances of _AggregativeQuantifier_).
+The optimization comes down to generating classification predictions (either crisp or soft) 
+only once for the entire test set, and then applying the sampling procedure to the
+predictions, instead of generating samples of instances and then computing the 
+classification predictions every time. This is only possible when the protocol
+is an instance of _OnLabelledCollectionProtocol_. The optimization is only 
+carried out when the number of classification predictions thus generated would be
+smaller than the number of predictions required for the entire protocol; e.g., 
+if the original dataset contains 1M instances, but the protocol is such that it would
+at most generate 20 samples of 100 instances, then it would be preferable to postpone the
+classification for each sample. This behaviour is indicated by setting 
+_aggr_speedup="auto"_. Conversely, when indicating _aggr_speedup="force"_ QuaPy will
+precompute all the predictions irrespectively of the number of instances and number of samples.
+Finally, this can be deactivated by setting _aggr_speedup=False_. Note that this optimization
+is not only applied for the final evaluation, but also for the internal evaluations carried
+out during _model selection_. Since these are typically many, the heuristic can help reduce the
+execution time a lot.

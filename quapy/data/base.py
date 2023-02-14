@@ -1,24 +1,29 @@
+import itertools
+from functools import cached_property
+from typing import Iterable
+
 import numpy as np
 from scipy.sparse import issparse
 from scipy.sparse import vstack
 from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
-
-from quapy.functional import artificial_prevalence_sampling, strprev
+from numpy.random import RandomState
+from quapy.functional import strprev
+from quapy.util import temp_seed
 
 
 class LabelledCollection:
     """
-    A LabelledCollection is a set of objects each with a label associated to it. This class implements many sampling
-    routines.
-
+    A LabelledCollection is a set of objects each with a label attached to each of them. 
+    This class implements several sampling routines and other utilities.
+    
     :param instances: array-like (np.ndarray, list, or csr_matrix are supported)
     :param labels: array-like with the same length of instances
-    :param classes_: optional, list of classes from which labels are taken. If not specified, the classes are inferred
+    :param classes: optional, list of classes from which labels are taken. If not specified, the classes are inferred
         from the labels. The classes must be indicated in cases in which some of the labels might have no examples
         (i.e., a prevalence of 0)
     """
 
-    def __init__(self, instances, labels, classes_=None):
+    def __init__(self, instances, labels, classes=None):
         if issparse(instances):
             self.instances = instances
         elif isinstance(instances, list) and len(instances) > 0 and isinstance(instances[0], str):
@@ -28,14 +33,14 @@ class LabelledCollection:
             self.instances = np.asarray(instances)
         self.labels = np.asarray(labels)
         n_docs = len(self)
-        if classes_ is None:
+        if classes is None:
             self.classes_ = np.unique(self.labels)
             self.classes_.sort()
         else:
-            self.classes_ = np.unique(np.asarray(classes_))
+            self.classes_ = np.unique(np.asarray(classes))
             self.classes_.sort()
-            if len(set(self.labels).difference(set(classes_))) > 0:
-                raise ValueError(f'labels ({set(self.labels)}) contain values not included in classes_ ({set(classes_)})')
+            if len(set(self.labels).difference(set(classes))) > 0:
+                raise ValueError(f'labels ({set(self.labels)}) contain values not included in classes_ ({set(classes)})')
         self.index = {class_: np.arange(n_docs)[self.labels == class_] for class_ in self.classes_}
 
     @classmethod
@@ -65,7 +70,7 @@ class LabelledCollection:
 
     def prevalence(self):
         """
-        Returns the prevalence, or relative frequency, of the classes of interest.
+        Returns the prevalence, or relative frequency, of the classes in the codeframe.
 
         :return: a np.ndarray of shape `(n_classes)` with the relative frequencies of each class, in the same order
             as listed by `self.classes_`
@@ -74,7 +79,7 @@ class LabelledCollection:
 
     def counts(self):
         """
-        Returns the number of instances for each of the classes of interest.
+        Returns the number of instances for each of the classes in the codeframe.
 
         :return: a np.ndarray of shape `(n_classes)` with the number of instances of each class, in the same order
             as listed by `self.classes_`
@@ -99,7 +104,7 @@ class LabelledCollection:
         """
         return self.n_classes == 2
 
-    def sampling_index(self, size, *prevs, shuffle=True):
+    def sampling_index(self, size, *prevs, shuffle=True, random_state=None):
         """
         Returns an index to be used to extract a random sample of desired size and desired prevalence values. If the
         prevalence values are not specified, then returns the index of a uniform sampling.
@@ -111,50 +116,72 @@ class LabelledCollection:
             it is constrained. E.g., for binary collections, only the prevalence `p` for the first class (as listed in
             `self.classes_` can be specified, while the other class takes prevalence value `1-p`
         :param shuffle: if set to True (default), shuffles the index before returning it
+        :param random_state: seed for reproducing sampling
         :return: a np.ndarray of shape `(size)` with the indexes
         """
         if len(prevs) == 0:  # no prevalence was indicated; returns an index for uniform sampling
-            return self.uniform_sampling_index(size)
+            return self.uniform_sampling_index(size, random_state=random_state)
         if len(prevs) == self.n_classes - 1:
             prevs = prevs + (1 - sum(prevs),)
         assert len(prevs) == self.n_classes, 'unexpected number of prevalences'
         assert sum(prevs) == 1, f'prevalences ({prevs}) wrong range (sum={sum(prevs)})'
 
-        taken = 0
-        indexes_sample = []
-        for i, class_ in enumerate(self.classes_):
-            if i == self.n_classes - 1:
-                n_requested = size - taken
-            else:
-                n_requested = int(size * prevs[i])
+        # Decide how many instances should be taken for each class in order to satisfy the requested prevalence
+        # accurately, and the number of instances in the sample (exactly). If int(size * prevs[i]) (which is
+        # <= size * prevs[i]) examples are drawn from class i, there could be a remainder number of instances to take
+        # to satisfy the size constrain. The remainder is distributed along the classes with probability = prevs.
+        # (This aims at avoiding the remainder to be placed in a class for which the prevalence requested is 0.)
+        n_requests = {class_: round(size * prevs[i]) for i, class_ in enumerate(self.classes_)}
+        remainder = size - sum(n_requests.values())
+        with temp_seed(random_state):
+            # due to rounding, the remainder can be 0, >0, or <0
+            if remainder > 0:
+                # when the remainder is >0 we randomly add 1 to the requests for each class;
+                # more prevalent classes are more likely to be taken in order to minimize the impact in the final prevalence
+                for rand_class in np.random.choice(self.classes_, size=remainder, p=prevs):
+                    n_requests[rand_class] += 1
+            elif remainder < 0:
+                # when the remainder is <0 we randomly remove 1 from the requests, unless the request is 0 for a chosen
+                # class; we repeat until remainder==0
+                while remainder!=0:
+                    rand_class = np.random.choice(self.classes_, p=prevs)
+                    if n_requests[rand_class] > 0:
+                        n_requests[rand_class] -= 1
+                        remainder += 1
 
-            n_candidates = len(self.index[class_])
-            index_sample = self.index[class_][
-                np.random.choice(n_candidates, size=n_requested, replace=(n_requested > n_candidates))
-            ] if n_requested > 0 else []
+            indexes_sample = []
+            for class_, n_requested in n_requests.items():
+                n_candidates = len(self.index[class_])
+                index_sample = self.index[class_][
+                    np.random.choice(n_candidates, size=n_requested, replace=(n_requested > n_candidates))
+                ] if n_requested > 0 else []
 
-            indexes_sample.append(index_sample)
-            taken += n_requested
+                indexes_sample.append(index_sample)
 
-        indexes_sample = np.concatenate(indexes_sample).astype(int)
+            indexes_sample = np.concatenate(indexes_sample).astype(int)
 
-        if shuffle:
-            indexes_sample = np.random.permutation(indexes_sample)
+            if shuffle:
+                indexes_sample = np.random.permutation(indexes_sample)
 
         return indexes_sample
 
-    def uniform_sampling_index(self, size):
+    def uniform_sampling_index(self, size, random_state=None):
         """
         Returns an index to be used to extract a uniform sample of desired size. The sampling is drawn
         with replacement if the requested size is greater than the number of instances, or without replacement
         otherwise.
 
         :param size: integer, the size of the uniform sample
+        :param random_state: if specified, guarantees reproducibility of the split.
         :return: a np.ndarray of shape `(size)` with the indexes
         """
-        return np.random.choice(len(self), size, replace=False)
+        if random_state is not None:
+            ng = RandomState(seed=random_state)
+        else:
+            ng = np.random
+        return ng.choice(len(self), size, replace=size > len(self))
 
-    def sampling(self, size, *prevs, shuffle=True):
+    def sampling(self, size, *prevs, shuffle=True, random_state=None):
         """
         Return a random sample (an instance of :class:`LabelledCollection`) of desired size and desired prevalence
         values. For each class, the sampling is drawn without replacement if the requested prevalence is larger than
@@ -165,22 +192,24 @@ class LabelledCollection:
             it is constrained. E.g., for binary collections, only the prevalence `p` for the first class (as listed in
             `self.classes_` can be specified, while the other class takes prevalence value `1-p`
         :param shuffle: if set to True (default), shuffles the index before returning it
+        :param random_state: seed for reproducing sampling
         :return: an instance of :class:`LabelledCollection` with length == `size` and prevalence close to `prevs` (or
             prevalence == `prevs` if the exact prevalence values can be met as proportions of instances)
         """
-        prev_index = self.sampling_index(size, *prevs, shuffle=shuffle)
+        prev_index = self.sampling_index(size, *prevs, shuffle=shuffle, random_state=random_state)
         return self.sampling_from_index(prev_index)
 
-    def uniform_sampling(self, size):
+    def uniform_sampling(self, size, random_state=None):
         """
         Returns a uniform sample (an instance of :class:`LabelledCollection`) of desired size. The sampling is drawn
         with replacement if the requested size is greater than the number of instances, or without replacement
         otherwise.
 
         :param size: integer, the requested size
+        :param random_state: if specified, guarantees reproducibility of the split.
         :return: an instance of :class:`LabelledCollection` with length == `size`
         """
-        unif_index = self.uniform_sampling_index(size)
+        unif_index = self.uniform_sampling_index(size, random_state=random_state)
         return self.sampling_from_index(unif_index)
 
     def sampling_from_index(self, index):
@@ -193,7 +222,7 @@ class LabelledCollection:
         """
         documents = self.instances[index]
         labels = self.labels[index]
-        return LabelledCollection(documents, labels, classes_=self.classes_)
+        return LabelledCollection(documents, labels, classes=self.classes_)
 
     def split_stratified(self, train_prop=0.6, random_state=None):
         """
@@ -207,92 +236,91 @@ class LabelledCollection:
         :return: two instances of :class:`LabelledCollection`, the first one with `train_prop` elements, and the
             second one with `1-train_prop` elements
         """
-        tr_docs, te_docs, tr_labels, te_labels = \
-            train_test_split(self.instances, self.labels, train_size=train_prop, stratify=self.labels,
-                             random_state=random_state)
-        return LabelledCollection(tr_docs, tr_labels), LabelledCollection(te_docs, te_labels)
+        tr_docs, te_docs, tr_labels, te_labels = train_test_split(
+            self.instances, self.labels, train_size=train_prop, stratify=self.labels, random_state=random_state
+        )
+        training = LabelledCollection(tr_docs, tr_labels, classes=self.classes_)
+        test = LabelledCollection(te_docs, te_labels, classes=self.classes_)
+        return training, test
 
-    def artificial_sampling_generator(self, sample_size, n_prevalences=101, repeats=1):
+    def split_random(self, train_prop=0.6, random_state=None):
         """
-        A generator of samples that implements the artificial prevalence protocol (APP).
-        The APP consists of exploring a grid of prevalence values containing `n_prevalences` points (e.g.,
-        [0, 0.05, 0.1, 0.15, ..., 1], if `n_prevalences=21`), and generating all valid combinations of
-        prevalence values for all classes (e.g., for 3 classes, samples with [0, 0, 1], [0, 0.05, 0.95], ...,
-        [1, 0, 0] prevalence values of size `sample_size` will be yielded). The number of samples for each valid
-        combination of prevalence values is indicated by `repeats`.
+        Returns two instances of :class:`LabelledCollection` split randomly from this collection, at desired
+        proportion.
 
-        :param sample_size: the number of instances in each sample
-        :param n_prevalences: the number of prevalence points to be taken from the [0,1] interval (including the
-            limits {0,1}). E.g., if `n_prevalences=11`, then the prevalence points to take are [0, 0.1, 0.2, ..., 1]
-        :param repeats: the number of samples to generate for each valid combination of prevalence values (default 1)
-        :return: yield samples generated at artificially controlled prevalence values
+        :param train_prop: the proportion of elements to include in the left-most returned collection (typically used
+            as the training collection). The rest of elements are included in the right-most returned collection
+            (typically used as a test collection).
+        :param random_state: if specified, guarantees reproducibility of the split.
+        :return: two instances of :class:`LabelledCollection`, the first one with `train_prop` elements, and the
+            second one with `1-train_prop` elements
         """
-        dimensions = self.n_classes
-        for prevs in artificial_prevalence_sampling(dimensions, n_prevalences, repeats):
-            yield self.sampling(sample_size, *prevs)
-
-    def artificial_sampling_index_generator(self, sample_size, n_prevalences=101, repeats=1):
-        """
-        A generator of sample indexes implementing the artificial prevalence protocol (APP).
-        The APP consists of exploring
-        a grid of prevalence values (e.g., [0, 0.05, 0.1, 0.15, ..., 1]), and generating all valid combinations of
-        prevalence values for all classes (e.g., for 3 classes, samples with [0, 0, 1], [0, 0.05, 0.95], ...,
-        [1, 0, 0] prevalence values of size `sample_size` will be yielded). The number of sample indexes for each valid
-        combination of prevalence values is indicated by `repeats`
-
-        :param sample_size: the number of instances in each sample (i.e., length of each index)
-        :param n_prevalences: the number of prevalence points to be taken from the [0,1] interval (including the
-            limits {0,1}). E.g., if `n_prevalences=11`, then the prevalence points to take are [0, 0.1, 0.2, ..., 1]
-        :param repeats: the number of samples to generate for each valid combination of prevalence values (default 1)
-        :return: yield the indexes that generate the samples according to APP
-        """
-        dimensions = self.n_classes
-        for prevs in artificial_prevalence_sampling(dimensions, n_prevalences, repeats):
-            yield self.sampling_index(sample_size, *prevs)
-
-    def natural_sampling_generator(self, sample_size, repeats=100):
-        """
-        A generator of samples that implements the natural prevalence protocol (NPP). The NPP consists of drawing
-        samples uniformly at random, therefore approximately preserving the natural prevalence of the collection.
-
-        :param sample_size: integer, the number of instances in each sample
-        :param repeats: the number of samples to generate
-        :return: yield instances of :class:`LabelledCollection`
-        """
-        for _ in range(repeats):
-            yield self.uniform_sampling(sample_size)
-
-    def natural_sampling_index_generator(self, sample_size, repeats=100):
-        """
-        A generator of sample indexes according to the natural prevalence protocol (NPP). The NPP consists of drawing
-        samples uniformly at random, therefore approximately preserving the natural prevalence of the collection.
-
-        :param sample_size: integer, the number of instances in each sample (i.e., the length of each index)
-        :param repeats: the number of indexes to generate
-        :return: yield `repeats` instances of np.ndarray with shape `(sample_size,)`
-        """
-        for _ in range(repeats):
-            yield self.uniform_sampling_index(sample_size)
+        indexes = np.random.RandomState(seed=random_state).permutation(len(self))
+        if isinstance(train_prop, int):
+            assert train_prop < len(self), \
+                'argument train_prop cannot be greater than the number of elements in the collection'
+            splitpoint = train_prop
+        elif isinstance(train_prop, float):
+            assert 0 < train_prop < 1, \
+                'argument train_prop out of range (0,1)'
+            splitpoint = int(np.round(len(self)*train_prop))
+        left, right = indexes[:splitpoint], indexes[splitpoint:]
+        training = self.sampling_from_index(left)
+        test = self.sampling_from_index(right)
+        return training, test
 
     def __add__(self, other):
         """
-        Returns a new :class:`LabelledCollection` as the union of this collection with another collection
+        Returns a new :class:`LabelledCollection` as the union of this collection with another collection.
+        Both labelled collections must have the same classes.
 
         :param other: another :class:`LabelledCollection`
         :return: a :class:`LabelledCollection` representing the union of both collections
         """
-        if other is None:
-            return self
-        elif issparse(self.instances) and issparse(other.instances):
-            join_instances = vstack([self.instances, other.instances])
-        elif isinstance(self.instances, list) and isinstance(other.instances, list):
-            join_instances = self.instances + other.instances
-        elif isinstance(self.instances, np.ndarray) and isinstance(other.instances, np.ndarray):
-            join_instances = np.concatenate([self.instances, other.instances])
+        if not all(np.sort(self.classes_)==np.sort(other.classes_)):
+            raise NotImplementedError(f'unsupported operation for collections on different classes; '
+                                      f'expected {self.classes_}, found {other.classes_}')
+        return LabelledCollection.join(self, other)
+
+    @classmethod
+    def join(cls, *args: Iterable['LabelledCollection']):
+        """
+        Returns a new :class:`LabelledCollection` as the union of the collections given in input.
+
+        :param args: instances of :class:`LabelledCollection`
+        :return: a :class:`LabelledCollection` representing the union of both collections
+        """
+
+        args = [lc for lc in args if lc is not None]
+        assert len(args) > 0, 'empty list is not allowed for mix'
+
+        assert all([isinstance(lc, LabelledCollection) for lc in args]), \
+            'only instances of LabelledCollection allowed'
+
+        first_instances = args[0].instances
+        first_type = type(first_instances)
+        assert all([type(lc.instances)==first_type for lc in args[1:]]), \
+            'not all the collections are of instances of the same type'
+
+        if issparse(first_instances) or isinstance(first_instances, np.ndarray):
+            first_ndim = first_instances.ndim
+            assert all([lc.instances.ndim == first_ndim for lc in args[1:]]), \
+                'not all the ndarrays are of the same dimension'
+            if first_ndim > 1:
+                first_shape = first_instances.shape[1:]
+                assert all([lc.instances.shape[1:] == first_shape for lc in args[1:]]), \
+                    'not all the ndarrays are of the same shape'
+            if issparse(first_instances):
+                instances = vstack([lc.instances for lc in args])
+            else:
+                instances = np.concatenate([lc.instances for lc in args])
+        elif isinstance(first_instances, list):
+            instances = list(itertools.chain(lc.instances for lc in args))
         else:
             raise NotImplementedError('unsupported operation for collection types')
-        labels = np.concatenate([self.labels, other.labels])
-        return LabelledCollection(join_instances, labels)
+        labels = np.concatenate([lc.labels for lc in args])
+        classes = np.unique(labels).sort()
+        return LabelledCollection(instances, labels, classes=classes)
 
     @property
     def Xy(self):
@@ -304,6 +332,44 @@ class LabelledCollection:
         :return: a tuple `(instances, labels)` from this collection
         """
         return self.instances, self.labels
+
+    @property
+    def Xp(self):
+        """
+        Gets the instances and the true prevalence. This is useful when implementing evaluation protocols from
+        a :class:`LabelledCollection` object.
+
+        :return: a tuple `(instances, prevalence)` from this collection
+        """
+        return self.instances, self.prevalence()
+
+    @property
+    def X(self):
+        """
+        An alias to self.instances
+
+        :return: self.instances
+        """
+        return self.instances
+
+    @property
+    def y(self):
+        """
+        An alias to self.labels
+
+        :return: self.labels
+        """
+        return self.labels
+
+    @property
+    def p(self):
+        """
+        An alias to self.prevalence()
+
+        :return: self.prevalence()
+        """
+        return self.prevalence()
+
 
     def stats(self, show=True):
         """
@@ -337,7 +403,7 @@ class LabelledCollection:
                   f'#classes={stats_["classes"]}, prevs={stats_["prevs"]}')
         return stats_
 
-    def kFCV(self, nfolds=5, nrepeats=1, random_state=0):
+    def kFCV(self, nfolds=5, nrepeats=1, random_state=None):
         """
         Generator of stratified folds to be used in k-fold cross validation.
 
@@ -439,7 +505,17 @@ class Dataset:
         """
         return len(self.vocabulary)
 
-    def stats(self, show):
+    @property
+    def train_test(self):
+        """
+        Alias to `self.training` and `self.test`
+
+        :return: the training and test collections
+        :return: the training and test collections
+        """
+        return self.training, self.test
+
+    def stats(self, show=True):
         """
         Returns (and eventually prints) a dictionary with some stats of this dataset. E.g.,:
 
@@ -477,13 +553,14 @@ class Dataset:
             yield Dataset(train, test, name=f'fold {(i % nfolds) + 1}/{nfolds} (round={(i // nfolds) + 1})')
 
 
-def isbinary(data):
-    """
-    Returns True if `data` is either a binary :class:`Dataset` or a binary :class:`LabelledCollection`
+    def reduce(self, n_train=100, n_test=100):
+        """
+        Reduce the number of instances in place for quick experiments. Preserves the prevalence of each set.
 
-    :param data: a :class:`Dataset` or a :class:`LabelledCollection` object
-    :return: True if labelled according to two classes
-    """
-    if isinstance(data, Dataset) or isinstance(data, LabelledCollection):
-        return data.binary
-    return False
+        :param n_train: number of training documents to keep (default 100)
+        :param n_test: number of test documents to keep (default 100)
+        :return: self
+        """
+        self.training = self.training.sampling(n_train, *self.training.prevalence())
+        self.test = self.test.sampling(n_test, *self.test.prevalence())
+        return self

@@ -1,20 +1,20 @@
 from abc import abstractmethod
 from copy import deepcopy
-from typing import Union
-
+from typing import Callable, Union
 import numpy as np
 from joblib import Parallel, delayed
-from sklearn.base import BaseEstimator
+from scipy import optimize
+from sklearn.base import BaseEstimator, clone
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from tqdm import tqdm
-
 import quapy as qp
 import quapy.functional as F
+from classification.calibration import NBVSCalibration, BCTSCalibration, TSCalibration, VSCalibration
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
-from quapy.method.base import BaseQuantifier, BinaryQuantifier
+from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric
 
 
 # Abstract classes
@@ -23,50 +23,52 @@ from quapy.method.base import BaseQuantifier, BinaryQuantifier
 class AggregativeQuantifier(BaseQuantifier):
     """
     Abstract class for quantification methods that base their estimations on the aggregation of classification
-    results. Aggregative Quantifiers thus implement a :meth:`classify` method and maintain a :attr:`learner` attribute.
-    Subclasses of this abstract class must implement the method :meth:`aggregate` which computes the aggregation
-    of label predictions. The method :meth:`quantify` comes with a default implementation based on
-     :meth:`classify` and :meth:`aggregate`.
+    results. Aggregative Quantifiers thus implement a :meth:`classify` method and maintain a :attr:`classifier`
+    attribute. Subclasses of this abstract class must implement the method :meth:`aggregate` which computes the
+    aggregation of label predictions. The method :meth:`quantify` comes with a default implementation based on
+    :meth:`classify` and :meth:`aggregate`.
     """
 
     @abstractmethod
-    def fit(self, data: LabelledCollection, fit_learner=True):
+    def fit(self, data: LabelledCollection, fit_classifier=True):
         """
         Trains the aggregative quantifier
 
         :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
-        :param fit_learner: whether or not to train the learner (default is True). Set to False if the
+        :param fit_classifier: whether or not to train the learner (default is True). Set to False if the
             learner has been trained outside the quantifier.
         :return: self
         """
         ...
 
     @property
-    def learner(self):
+    def classifier(self):
         """
         Gives access to the classifier
 
         :return: the classifier (typically an sklearn's Estimator)
         """
-        return self.learner_
+        return self.classifier_
 
-    @learner.setter
-    def learner(self, classifier):
+    @classifier.setter
+    def classifier(self, classifier):
         """
         Setter for the classifier
 
         :param classifier: the classifier
         """
-        self.learner_ = classifier
+        self.classifier_ = classifier
 
     def classify(self, instances):
         """
-        Provides the label predictions for the given instances.
+        Provides the label predictions for the given instances. The predictions should respect the format expected by
+        :meth:`aggregate`, i.e., posterior probabilities for probabilistic quantifiers, or crisp predictions for
+        non-probabilistic quantifiers
 
         :param instances: array-like
         :return: np.ndarray of shape `(n_instances,)` with label predictions
         """
-        return self.learner.predict(instances)
+        return self.classifier.predict(instances)
 
     def quantify(self, instances):
         """
@@ -74,7 +76,7 @@ class AggregativeQuantifier(BaseQuantifier):
         by the classifier.
 
         :param instances: array-like
-        :return: `np.ndarray` of shape `(self.n_classes_,)` with class prevalence estimates.
+        :return: `np.ndarray` of shape `(n_classes)` with class prevalence estimates.
         """
         classif_predictions = self.classify(instances)
         return self.aggregate(classif_predictions)
@@ -85,28 +87,9 @@ class AggregativeQuantifier(BaseQuantifier):
         Implements the aggregation of label predictions.
 
         :param classif_predictions: `np.ndarray` of label predictions
-        :return: `np.ndarray` of shape `(self.n_classes_,)` with class prevalence estimates.
+        :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.
         """
         ...
-
-    def get_params(self, deep=True):
-        """
-        Return the current parameters of the quantifier.
-
-        :param deep: for compatibility with sklearn
-        :return: a dictionary of param-value pairs
-        """
-
-        return self.learner.get_params()
-
-    def set_params(self, **parameters):
-        """
-        Set the parameters of the quantifier.
-
-        :param parameters: dictionary of param-value pairs
-        """
-
-        self.learner.set_params(**parameters)
 
     @property
     def classes_(self):
@@ -116,17 +99,7 @@ class AggregativeQuantifier(BaseQuantifier):
 
         :return: array-like
         """
-        return self.learner.classes_
-
-    @property
-    def aggregative(self):
-        """
-        Returns True, indicating the quantifier is of type aggregative.
-
-        :return: True
-        """
-
-        return True
+        return self.classifier.classes_
 
 
 class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
@@ -137,39 +110,31 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier):
     probabilities.
     """
 
-    def posterior_probabilities(self, instances):
-        return self.learner.predict_proba(instances)
-
-    def predict_proba(self, instances):
-        return self.posterior_probabilities(instances)
-
-    def quantify(self, instances):
-        classif_posteriors = self.posterior_probabilities(instances)
-        return self.aggregate(classif_posteriors)
-
-    def set_params(self, **parameters):
-        if isinstance(self.learner, CalibratedClassifierCV):
-            parameters = {'base_estimator__' + k: v for k, v in parameters.items()}
-        self.learner.set_params(**parameters)
-
-    @property
-    def probabilistic(self):
-        return True
+    def classify(self, instances):
+        return self.classifier.predict_proba(instances)
 
 
 # Helper
 # ------------------------------------
-def _training_helper(learner,
+def _ensure_probabilistic(classifier):
+    if not hasattr(classifier, 'predict_proba'):
+        print(f'The learner {classifier.__class__.__name__} does not seem to be probabilistic. '
+              f'The learner will be calibrated.')
+        classifier = CalibratedClassifierCV(classifier, cv=5)
+    return classifier
+
+
+def _training_helper(classifier,
                      data: LabelledCollection,
-                     fit_learner: bool = True,
+                     fit_classifier: bool = True,
                      ensure_probabilistic=False,
                      val_split: Union[LabelledCollection, float] = None):
     """
     Training procedure common to all Aggregative Quantifiers.
 
-    :param learner: the learner to be fit
+    :param classifier: the learner to be fit
     :param data: the data on which to fit the learner. If requested, the data will be split before fitting the learner.
-    :param fit_learner: whether or not to fit the learner (if False, then bypasses any action)
+    :param fit_classifier: whether or not to fit the learner (if False, then bypasses any action)
     :param ensure_probabilistic: if True, guarantees that the resulting classifier implements predict_proba (if the
         learner is not probabilistic, then a CalibratedCV instance of it is trained)
     :param val_split: if specified as a float, indicates the proportion of training instances that will define the
@@ -178,12 +143,9 @@ def _training_helper(learner,
     :return: the learner trained on the training set, and the unused data (a _LabelledCollection_ if train_val_split>0
         or None otherwise) to be used as a validation set for any subsequent parameter fitting
     """
-    if fit_learner:
+    if fit_classifier:
         if ensure_probabilistic:
-            if not hasattr(learner, 'predict_proba'):
-                print(f'The learner {learner.__class__.__name__} does not seem to be probabilistic. '
-                      f'The learner will be calibrated.')
-                learner = CalibratedClassifierCV(learner, cv=5)
+            classifier = _ensure_probabilistic(classifier)
         if val_split is not None:
             if isinstance(val_split, float):
                 if not (0 < val_split < 1):
@@ -199,19 +161,58 @@ def _training_helper(learner,
         else:
             train, unused = data, None
 
-        if isinstance(learner, BaseQuantifier):
-            learner.fit(train)
+        if isinstance(classifier, BaseQuantifier):
+            classifier.fit(train)
         else:
-            learner.fit(*train.Xy)
+            classifier.fit(*train.Xy)
     else:
         if ensure_probabilistic:
-            if not hasattr(learner, 'predict_proba'):
-                raise AssertionError('error: the learner cannot be calibrated since fit_learner is set to False')
+            if not hasattr(classifier, 'predict_proba'):
+                raise AssertionError('error: the learner cannot be calibrated since fit_classifier is set to False')
         unused = None
         if isinstance(val_split, LabelledCollection):
             unused = val_split
 
-    return learner, unused
+    return classifier, unused
+
+
+def cross_generate_predictions(
+        data,
+        classifier,
+        val_split,
+        probabilistic,
+        fit_classifier,
+        n_jobs
+):
+
+    n_jobs = qp._get_njobs(n_jobs)
+
+    if isinstance(val_split, int):
+        assert fit_classifier == True, \
+            'the parameters for the adjustment cannot be estimated with kFCV with fit_classifier=False'
+
+        if probabilistic:
+            classifier = _ensure_probabilistic(classifier)
+            predict = 'predict_proba'
+        else:
+            predict = 'predict'
+        y_pred = cross_val_predict(classifier, *data.Xy, cv=val_split, n_jobs=n_jobs, method=predict)
+        class_count = data.counts()
+
+        # fit the learner on all data
+        classifier.fit(*data.Xy)
+        y = data.y
+        classes = data.classes_
+    else:
+        classifier, val_data = _training_helper(
+            classifier, data, fit_classifier, ensure_probabilistic=probabilistic, val_split=val_split
+        )
+        y_pred = classifier.predict_proba(val_data.instances) if probabilistic else classifier.predict(val_data.instances)
+        y = val_data.labels
+        classes = val_data.classes_
+        class_count = val_data.counts()
+
+    return classifier, y, y_pred, classes, class_count
 
 
 # Methods
@@ -221,22 +222,22 @@ class CC(AggregativeQuantifier):
     The most basic Quantification method. One that simply classifies all instances and counts how many have been
     attributed to each of the classes in order to compute class prevalence estimates.
 
-    :param learner: a sklearn's Estimator that generates a classifier
+    :param classifier: a sklearn's Estimator that generates a classifier
     """
 
-    def __init__(self, learner: BaseEstimator):
-        self.learner = learner
+    def __init__(self, classifier: BaseEstimator):
+        self.classifier = classifier
 
-    def fit(self, data: LabelledCollection, fit_learner=True):
+    def fit(self, data: LabelledCollection, fit_classifier=True):
         """
-        Trains the Classify & Count method unless `fit_learner` is False, in which case, the classifier is assumed to
+        Trains the Classify & Count method unless `fit_classifier` is False, in which case, the classifier is assumed to
         be already fit and there is nothing else to do.
 
         :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
-        :param fit_learner: if False, the classifier is assumed to be fit
+        :param fit_classifier: if False, the classifier is assumed to be fit
         :return: self
         """
-        self.learner, _ = _training_helper(self.learner, data, fit_learner)
+        self.classifier, _ = _training_helper(self.classifier, data, fit_classifier)
         return self
 
     def aggregate(self, classif_predictions: np.ndarray):
@@ -244,7 +245,7 @@ class CC(AggregativeQuantifier):
         Computes class prevalence estimates by counting the prevalence of each of the predicted labels.
 
         :param classif_predictions: array-like with label predictions
-        :return: `np.ndarray` of shape `(self.n_classes_,)` with class prevalence estimates.
+        :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.
         """
         return F.prevalence_from_labels(classif_predictions, self.classes_)
 
@@ -255,7 +256,7 @@ class ACC(AggregativeQuantifier):
     the "adjusted" variant of :class:`CC`, that corrects the predictions of CC
     according to the `misclassification rates`.
 
-    :param learner: a sklearn's Estimator that generates a classifier
+    :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
         This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
@@ -264,57 +265,33 @@ class ACC(AggregativeQuantifier):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
-        self.learner = learner
+    def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None):
+        self.classifier = classifier
         self.val_split = val_split
+        self.n_jobs = qp._get_njobs(n_jobs)
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, int, LabelledCollection] = None):
         """
         Trains a ACC quantifier.
 
         :param data: the training set
-        :param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
+        :param fit_classifier: set to False to bypass the training (the learner is assumed to be already fit)
         :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
             validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
             indicating the validation set itself, or an int indicating the number `k` of folds to be used in `k`-fold
             cross validation to estimate the parameters
         :return: self
         """
+
         if val_split is None:
             val_split = self.val_split
-            classes = data.classes_
-        if isinstance(val_split, int):
-            assert fit_learner == True, \
-                'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
-            # kFCV estimation of parameters
-            y, y_ = [], []
-            kfcv = StratifiedKFold(n_splits=val_split)
-            pbar = tqdm(kfcv.split(*data.Xy), total=val_split)
-            for k, (training_idx, validation_idx) in enumerate(pbar):
-                pbar.set_description(f'{self.__class__.__name__} fitting fold {k}')
-                training = data.sampling_from_index(training_idx)
-                validation = data.sampling_from_index(validation_idx)
-                learner, val_data = _training_helper(self.learner, training, fit_learner, val_split=validation)
-                y_.append(learner.predict(val_data.instances))
-                y.append(val_data.labels)
 
-            y = np.concatenate(y)
-            y_ = np.concatenate(y_)
-            class_count = data.counts()
-            classes = data.classes_
+        self.classifier, y, y_, classes, class_count = cross_generate_predictions(
+            data, self.classifier, val_split, probabilistic=False, fit_classifier=fit_classifier, n_jobs=self.n_jobs
+        )
 
-            # fit the learner on all data
-            self.learner, _ = _training_helper(self.learner, data, fit_learner, val_split=None)
-
-        else:
-            self.learner, val_data = _training_helper(self.learner, data, fit_learner, val_split=val_split)
-            y_ = self.learner.predict(val_data.instances)
-            y = val_data.labels
-            classes = val_data.classes_
-
-        self.cc = CC(self.learner)
-
-        self.Pte_cond_estim_ = self.getPteCondEstim(classes, y, y_)
+        self.cc = CC(self.classifier)
+        self.Pte_cond_estim_ = self.getPteCondEstim(self.classifier.classes_, y, y_)
 
         return self
 
@@ -323,7 +300,7 @@ class ACC(AggregativeQuantifier):
         # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
         conf = confusion_matrix(y, y_, labels=classes).T
-        conf = conf.astype(np.float)
+        conf = conf.astype(float)
         class_counts = conf.sum(axis=0)
         for i, _ in enumerate(classes):
             if class_counts[i] == 0:
@@ -366,14 +343,14 @@ class PCC(AggregativeProbabilisticQuantifier):
     `Probabilistic Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
     the probabilistic variant of CC that relies on the posterior probabilities returned by a probabilistic classifier.
 
-    :param learner: a sklearn's Estimator that generates a classifier
+    :param classifier: a sklearn's Estimator that generates a classifier
     """
 
-    def __init__(self, learner: BaseEstimator):
-        self.learner = learner
+    def __init__(self, classifier: BaseEstimator):
+        self.classifier = classifier
 
-    def fit(self, data: LabelledCollection, fit_learner=True):
-        self.learner, _ = _training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
+    def fit(self, data: LabelledCollection, fit_classifier=True):
+        self.classifier, _ = _training_helper(self.classifier, data, fit_classifier, ensure_probabilistic=True)
         return self
 
     def aggregate(self, classif_posteriors):
@@ -385,66 +362,42 @@ class PACC(AggregativeProbabilisticQuantifier):
     `Probabilistic Adjusted Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
     the probabilistic variant of ACC that relies on the posterior probabilities returned by a probabilistic classifier.
 
-    :param learner: a sklearn's Estimator that generates a classifier
+    :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
         This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
         validation data, or as an integer, indicating that the misclassification rates should be estimated via
         `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param n_jobs: number of parallel workers
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
-        self.learner = learner
+    def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None):
+        self.classifier = classifier
         self.val_split = val_split
+        self.n_jobs = qp._get_njobs(n_jobs)
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, int, LabelledCollection] = None):
         """
         Trains a PACC quantifier.
 
         :param data: the training set
-        :param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
+        :param fit_classifier: set to False to bypass the training (the learner is assumed to be already fit)
         :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
          validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
          indicating the validation set itself, or an int indicating the number k of folds to be used in kFCV
          to estimate the parameters
         :return: self
         """
+
         if val_split is None:
             val_split = self.val_split
 
-        if isinstance(val_split, int):
-            assert fit_learner == True, \
-                'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
-            # kFCV estimation of parameters
-            y, y_ = [], []
-            kfcv = StratifiedKFold(n_splits=val_split)
-            pbar = tqdm(kfcv.split(*data.Xy), total=val_split)
-            for k, (training_idx, validation_idx) in enumerate(pbar):
-                pbar.set_description(f'{self.__class__.__name__} fitting fold {k}')
-                training = data.sampling_from_index(training_idx)
-                validation = data.sampling_from_index(validation_idx)
-                learner, val_data = _training_helper(
-                    self.learner, training, fit_learner, ensure_probabilistic=True, val_split=validation)
-                y_.append(learner.predict_proba(val_data.instances))
-                y.append(val_data.labels)
+        self.classifier, y, y_, classes, class_count = cross_generate_predictions(
+            data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
+        )
 
-            y = np.concatenate(y)
-            y_ = np.vstack(y_)
-
-            # fit the learner on all data
-            self.learner, _ = _training_helper(self.learner, data, fit_learner, ensure_probabilistic=True,
-                                               val_split=None)
-            classes = data.classes_
-
-        else:
-            self.learner, val_data = _training_helper(
-                self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
-            y_ = self.learner.predict_proba(val_data.instances)
-            y = val_data.labels
-            classes = val_data.classes_
-
-        self.pcc = PCC(self.learner)
+        self.pcc = PCC(self.classifier)
         self.Pte_cond_estim_ = self.getPteCondEstim(classes, y, y_)
 
         return self
@@ -477,54 +430,74 @@ class EMQ(AggregativeProbabilisticQuantifier):
     EMQ consists of using the well-known `Expectation Maximization algorithm` to iteratively update the posterior
     probabilities generated by a probabilistic classifier and the class prevalence estimates obtained via
     maximum-likelihood estimation, in a mutually recursive way, until convergence.
-    The `transform_prior` callback allows you to introduce ad-hoc regularizations which are not part of the
-    original EMQ algorithm. This callback can, for instance, enhance or diminish small class prevalences if
-    sparse or dense solutions should be promoted.
 
-    The original method is described in:
-    Saerens, M., Latinne, P., and Decaestecker, C. (2002).
-    Adjusting the outputs of a classifier to new a priori probabilities: A simple procedure.
-    Neural Computation, 14(1): 21–41.
-
-    :param learner: a sklearn's Estimator that generates a classifier
-    :param transform_prior: an optional function :math:`R^c -> R^c` that transforms each intermediate estimate
+    :param classifier: a sklearn's Estimator that generates a classifier
+    :param exact_train_prev: set to True (default) for using, as the initial observation, the true training prevalence;
+        or set to False for computing the training prevalence as an estimate, akin to PCC, i.e., as the expected
+        value of the posterior probabilities of the training instances as suggested in
+        `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
+    :param recalib: a string indicating the method of recalibration. Available choices include "nbvs" (No-Bias Vector
+        Scaling), "bcts" (Bias-Corrected Temperature Scaling), "ts" (Temperature Scaling), and "vs" (Vector Scaling).
+        The default value is None, indicating no recalibration.
     """
 
     MAX_ITER = 1000
     EPSILON = 1e-4
 
-    def __init__(self, learner: BaseEstimator, transform_prior=None):
-        self.learner = learner
-        self.transform_prior = transform_prior
+    def __init__(self, classifier: BaseEstimator, exact_train_prev=True, recalib=None):
+        self.classifier = classifier
+        self.exact_train_prev = exact_train_prev
+        self.recalib = recalib
 
-    def fit(self, data: LabelledCollection, fit_learner=True):
-        self.learner, _ = _training_helper(self.learner, data, fit_learner, ensure_probabilistic=True)
-        self.train_prevalence = F.prevalence_from_labels(data.labels, self.classes_)
+    def fit(self, data: LabelledCollection, fit_classifier=True):
+        if self.recalib is not None:
+            if self.recalib == 'nbvs':
+                self.classifier = NBVSCalibration(self.classifier)
+            elif self.recalib == 'bcts':
+                self.classifier = BCTSCalibration(self.classifier)
+            elif self.recalib == 'ts':
+                self.classifier = TSCalibration(self.classifier)
+            elif self.recalib == 'vs':
+                self.classifier = VSCalibration(self.classifier)
+            elif self.recalib == 'platt':
+                self.classifier = CalibratedClassifierCV(self.classifier, ensemble=False)
+            else:
+                raise ValueError('invalid param argument for recalibration method; available ones are '
+                                 '"nbvs", "bcts", "ts", and "vs".')
+        self.classifier, _ = _training_helper(self.classifier, data, fit_classifier, ensure_probabilistic=True)
+        if self.exact_train_prev:
+            self.train_prevalence = F.prevalence_from_labels(data.labels, self.classes_)
+        else:
+            self.train_prevalence = qp.model_selection.cross_val_predict(
+                quantifier=PCC(deepcopy(self.classifier)),
+                data=data,
+                nfolds=3,
+                random_state=0
+            )
         return self
 
     def aggregate(self, classif_posteriors, epsilon=EPSILON):
-        priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon, self.transform_prior)
+        priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon)
         return priors
 
     def predict_proba(self, instances, epsilon=EPSILON):
-        classif_posteriors = self.learner.predict_proba(instances)
-        priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon, self.transform_prior)
+        classif_posteriors = self.classifier.predict_proba(instances)
+        priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon)
         return posteriors
 
     @classmethod
-    def EM(cls, tr_prev, posterior_probabilities, epsilon=EPSILON, transform_prior=None):
+    def EM(cls, tr_prev, posterior_probabilities, epsilon=EPSILON):
         """
         Computes the `Expectation Maximization` routine.
+
         :param tr_prev: array-like, the training prevalence
         :param posterior_probabilities: `np.ndarray` of shape `(n_instances, n_classes,)` with the
             posterior probabilities
         :param epsilon: float, the threshold different between two consecutive iterations
             to reach before stopping the loop
-        :param transform_prior: an optional function :math:`R^c -> R^c` that transforms each intermediate estimate
         :return: a tuple with the estimated prevalence values (shape `(n_classes,)`) and
             the corrected posterior probabilities (shape `(n_instances, n_classes,)`)
         """
-
         Px = posterior_probabilities
         Ptr = np.copy(tr_prev)
         qs = np.copy(Ptr)  # qs (the running estimate) is initialized as the training prevalence
@@ -545,15 +518,10 @@ class EMQ(AggregativeProbabilisticQuantifier):
             qs_prev_ = qs
             s += 1
 
-            # transformation of intermediate estimates
-            if transform_prior is not None and not converged:
-                qs = transform_prior(qs)
-
         if not converged:
             print('[warning] the method has reached the maximum number of iterations; it might have not converged')
 
         return qs, ps
-
 
 
 class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
@@ -566,21 +534,21 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
     class-conditional distributions of the posterior probabilities returned for the positive and negative validation
     examples, respectively. The parameters of the mixture thus represent the estimates of the class prevalence values.
 
-    :param learner: a sklearn's Estimator that generates a binary classifier
+    :param classifier: a sklearn's Estimator that generates a binary classifier
     :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
         validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
-        self.learner = learner
+    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+        self.classifier = classifier
         self.val_split = val_split
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, LabelledCollection] = None):
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
         """
         Trains a HDy quantifier.
 
         :param data: the training set
-        :param fit_learner: set to False to bypass the training (the learner is assumed to be already fit)
+        :param fit_classifier: set to False to bypass the training (the learner is assumed to be already fit)
         :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
          validation (e.g., 0.3 for using 30% of the training set as validation data), or a
          :class:`quapy.data.base.LabelledCollection` indicating the validation set itself
@@ -590,11 +558,11 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
             val_split = self.val_split
 
         self._check_binary(data, self.__class__.__name__)
-        self.learner, validation = _training_helper(
-            self.learner, data, fit_learner, ensure_probabilistic=True, val_split=val_split)
-        Px = self.posterior_probabilities(validation.instances)[:, 1]  # takes only the P(y=+1|x)
-        self.Pxy1 = Px[validation.labels == self.learner.classes_[1]]
-        self.Pxy0 = Px[validation.labels == self.learner.classes_[0]]
+        self.classifier, validation = _training_helper(
+            self.classifier, data, fit_classifier, ensure_probabilistic=True, val_split=val_split)
+        Px = self.classify(validation.instances)[:, 1]  # takes only the P(y=+1|x)
+        self.Pxy1 = Px[validation.labels == self.classifier.classes_[1]]
+        self.Pxy0 = Px[validation.labels == self.classifier.classes_[0]]
         # pre-compute the histogram for positive and negative examples
         self.bins = np.linspace(10, 110, 11, dtype=int)  # [10, 20, 30, ..., 100, 110]
         self.Pxy1_density = {bins: np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)[0] for bins in
@@ -632,120 +600,378 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         return np.asarray([1 - class1_prev, class1_prev])
 
 
-class ELM(AggregativeQuantifier, BinaryQuantifier):
+def _get_divergence(divergence: Union[str, Callable]):
+    if isinstance(divergence, str):
+        if divergence=='HD':
+            return F.HellingerDistance
+        elif divergence=='topsoe':
+            return F.TopsoeDistance
+        else:
+            raise ValueError(f'unknown divergence {divergence}')
+    elif callable(divergence):
+        return divergence
+    else:
+        raise ValueError(f'argument "divergence" not understood; use a str or a callable function')
+
+
+class DyS(AggregativeProbabilisticQuantifier, BinaryQuantifier):
     """
-    Class of Explicit Loss Minimization (ELM) quantifiers.
+    `DyS framework <https://ojs.aaai.org/index.php/AAAI/article/view/4376>`_ (DyS).
+    DyS is a generalization of HDy method, using a Ternary Search in order to find the prevalence that
+    minimizes the distance between distributions.
+    Details for the ternary search have been got from <https://dl.acm.org/doi/pdf/10.1145/3219819.3220059>
+
+    :param classifier: a sklearn's Estimator that generates a binary classifier
+    :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
+        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param n_bins: an int with the number of bins to use to compute the histograms.
+    :param divergence: a str indicating the name of divergence (currently supported ones are "HD" or "topsoe"), or a
+        callable function computes the divergence between two distributions (two equally sized arrays).
+    :param tol: a float with the tolerance for the ternary search algorithm.
+    """
+
+    def __init__(self, classifier: BaseEstimator, val_split=0.4, n_bins=8, divergence: Union[str, Callable]= 'HD', tol=1e-05):
+        self.classifier = classifier
+        self.val_split = val_split
+        self.tol = tol
+        self.divergence = divergence
+        self.n_bins = n_bins
+
+    def _ternary_search(self, f, left, right, tol):
+        """
+        Find maximum of unimodal function f() within [left, right]
+        """
+        while abs(right - left) >= tol:
+            left_third = left + (right - left) / 3
+            right_third = right - (right - left) / 3
+
+            if f(left_third) > f(right_third):
+                left = left_third
+            else:
+                right = right_third
+
+        # Left and right are the current bounds; the maximum is between them
+        return (left + right) / 2
+
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
+        if val_split is None:
+            val_split = self.val_split
+
+        self._check_binary(data, self.__class__.__name__)
+        self.classifier, validation = _training_helper(
+            self.classifier, data, fit_classifier, ensure_probabilistic=True, val_split=val_split)
+        Px = self.classify(validation.instances)[:, 1]  # takes only the P(y=+1|x)
+        self.Pxy1 = Px[validation.labels == self.classifier.classes_[1]]
+        self.Pxy0 = Px[validation.labels == self.classifier.classes_[0]]
+        self.Pxy1_density = np.histogram(self.Pxy1, bins=self.n_bins, range=(0, 1), density=True)[0]
+        self.Pxy0_density = np.histogram(self.Pxy0, bins=self.n_bins, range=(0, 1), density=True)[0]
+        return self
+
+    def aggregate(self, classif_posteriors):
+        Px = classif_posteriors[:, 1]  # takes only the P(y=+1|x)
+
+        Px_test = np.histogram(Px, bins=self.n_bins, range=(0, 1), density=True)[0]
+        divergence = _get_divergence(self.divergence)
+
+        def distribution_distance(prev):
+            Px_train = prev * self.Pxy1_density + (1 - prev) * self.Pxy0_density
+            return divergence(Px_train, Px_test)
+            
+        class1_prev = self._ternary_search(f=distribution_distance, left=0, right=1, tol=self.tol)
+        return np.asarray([1 - class1_prev, class1_prev])
+
+
+class SMM(AggregativeProbabilisticQuantifier, BinaryQuantifier):
+    """
+    `SMM method <https://ieeexplore.ieee.org/document/9260028>`_ (SMM).
+    SMM is a simplification of matching distribution methods where the representation of the examples
+    is created using the mean instead of a histogram.
+
+    :param classifier: a sklearn's Estimator that generates a binary classifier.
+    :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
+        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself).
+    """
+
+    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+        self.classifier = classifier
+        self.val_split = val_split
+      
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
+        if val_split is None:
+            val_split = self.val_split
+
+        self._check_binary(data, self.__class__.__name__)
+        self.classifier, validation = _training_helper(
+            self.classifier, data, fit_classifier, ensure_probabilistic=True, val_split=val_split)
+        Px = self.classify(validation.instances)[:, 1]  # takes only the P(y=+1|x)
+        self.Pxy1 = Px[validation.labels == self.classifier.classes_[1]]
+        self.Pxy0 = Px[validation.labels == self.classifier.classes_[0]]
+        self.Pxy1_mean = np.mean(self.Pxy1)
+        self.Pxy0_mean = np.mean(self.Pxy0)
+        return self
+
+    def aggregate(self, classif_posteriors):
+        Px = classif_posteriors[:, 1]  # takes only the P(y=+1|x)
+        Px_mean = np.mean(Px)
+     
+        class1_prev = (Px_mean - self.Pxy0_mean)/(self.Pxy1_mean - self.Pxy0_mean)
+        class1_prev = np.clip(class1_prev, 0, 1)
+
+        return np.asarray([1 - class1_prev, class1_prev])
+
+
+class DistributionMatching(AggregativeProbabilisticQuantifier):
+    """
+    Generic Distribution Matching quantifier for binary or multiclass quantification.
+    This implementation takes the number of bins, the divergence, and the possibility to work on CDF as hyperparameters.
+
+    :param classifier: a `sklearn`'s Estimator that generates a probabilistic classifier
+    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set to model the
+        validation distribution.
+        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+        validation data, or as an integer, indicating that the validation distribution should be estimated via
+        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
+        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param nbins: number of bins used to discretize the distributions (default 8)
+    :param divergence: a string representing a divergence measure (currently, "HD" and "topsoe" are implemented)
+        or a callable function taking two ndarrays of the same dimension as input (default "HD", meaning Hellinger
+        Distance)
+    :param cdf: whether or not to use CDF instead of PDF (default False)
+    :param n_jobs: number of parallel workers (default None)
+    """
+
+    def __init__(self, classifier, val_split=0.4, nbins=8, divergence: Union[str, Callable]='HD', cdf=False, n_jobs=None):
+        self.classifier = classifier
+        self.val_split = val_split
+        self.nbins = nbins
+        self.divergence = divergence
+        self.cdf = cdf
+        self.n_jobs = n_jobs
+
+    def __get_distributions(self, posteriors):
+        histograms = []
+        post_dims = posteriors.shape[1]
+        if post_dims == 2:
+            # in binary quantification we can use only one class, since the other one is its complement
+            post_dims = 1
+        for dim in range(post_dims):
+            hist = np.histogram(posteriors[:, dim], bins=self.nbins, range=(0, 1))[0]
+            histograms.append(hist)
+
+        counts = np.vstack(histograms)
+        distributions = counts/counts.sum(axis=1)[:,np.newaxis]
+        if self.cdf:
+            distributions = np.cumsum(distributions, axis=1)
+        return distributions
+
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
+        """
+        Trains the classifier (if requested) and generates the validation distributions out of the training data.
+        The validation distributions have shape `(n, ch, nbins)`, with `n` the number of classes, `ch` the number of
+        channels, and `nbins` the number of bins. In particular, let `V` be the validation distributions; `di=V[i]`
+        are the distributions obtained from training data labelled with class `i`; `dij = di[j]` is the discrete
+        distribution of posterior probabilities `P(Y=j|X=x)` for training data labelled with class `i`, and `dij[k]`
+        is the fraction of instances with a value in the `k`-th bin.
+
+        :param data: the training set
+        :param fit_classifier: set to False to bypass the training (the learner is assumed to be already fit)
+        :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
+         validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
+         indicating the validation set itself, or an int indicating the number k of folds to be used in kFCV
+         to estimate the parameters
+        """
+        if val_split is None:
+            val_split = self.val_split
+
+        self.classifier, y, posteriors, classes, class_count = cross_generate_predictions(
+            data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
+        )
+
+        self.validation_distribution = np.asarray(
+            [self.__get_distributions(posteriors[y==cat]) for cat in range(data.n_classes)]
+        )
+
+        return self
+
+    def aggregate(self, posteriors: np.ndarray):
+        """
+        Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution
+        (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.
+        In the multiclass case, with `n` the number of classes, the test and mixture distributions contain
+        `n` channels (proper distributions of binned posterior probabilities), on which the divergence is computed
+        independently. The matching is computed as an average of the divergence across all channels.
+
+        :param instances: instances in the sample
+        :return: a vector of class prevalence estimates
+        """
+        test_distribution = self.__get_distributions(posteriors)
+        divergence = _get_divergence(self.divergence)
+        n_classes, n_channels, nbins = self.validation_distribution.shape
+        def match(prev):
+            prev = np.expand_dims(prev, axis=0)
+            mixture_distribution = (prev @ self.validation_distribution.reshape(n_classes,-1)).reshape(n_channels, -1)
+            divs = [divergence(test_distribution[ch], mixture_distribution[ch]) for ch in range(n_channels)]
+            return np.mean(divs)
+
+        # the initial point is set as the uniform distribution
+        uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
+
+        # solutions are bounded to those contained in the unit-simplex
+        bounds = tuple((0, 1) for x in range(n_classes))  # values in [0,1]
+        constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
+        r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
+        return r.x
+
+
+def newELM(svmperf_base=None, loss='01', C=1):
+    """
+    Explicit Loss Minimization (ELM) quantifiers.
     Quantifiers based on ELM represent a family of methods based on structured output learning;
     these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
     measure. This implementation relies on
     `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
     learning algorithm, which has to be installed and patched for the purpose (see this
     `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function equivalent to:
 
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
+    >>> CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
     :param loss: the loss to optimize (see :attr:`quapy.classification.svmperf.SVMperf.valid_losses`)
-    :param kwargs: rest of SVM perf's parameters
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
     """
-
-    def __init__(self, svmperf_base=None, loss='01', **kwargs):
-        self.svmperf_base = svmperf_base if svmperf_base is not None else qp.environ['SVMPERF_HOME']
-        self.loss = loss
-        self.kwargs = kwargs
-        self.learner = SVMperf(self.svmperf_base, loss=self.loss, **self.kwargs)
-
-    def fit(self, data: LabelledCollection, fit_learner=True):
-        self._check_binary(data, self.__class__.__name__)
-        assert fit_learner, 'the method requires that fit_learner=True'
-        self.learner.fit(data.instances, data.labels)
-        return self
-
-    def aggregate(self, classif_predictions: np.ndarray):
-        return F.prevalence_from_labels(classif_predictions, self.classes_)
-
-    def classify(self, X, y=None):
-        return self.learner.predict(X)
+    if svmperf_base is None:
+        svmperf_base = qp.environ['SVMPERF_HOME']
+    assert svmperf_base is not None, \
+        'param svmperf_base was not specified, and the variable SVMPERF_HOME has not been set in the environment'
+    return CC(SVMperf(svmperf_base, loss=loss, C=C))
 
 
-class SVMQ(ELM):
+def newSVMQ(svmperf_base=None, C=1):
     """
-    SVM(Q), which attempts to minimize the `Q` loss combining a classification-oriented loss and a
-    quantification-oriented loss, as proposed by
+    SVM(Q) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the `Q` loss combining a
+    classification-oriented loss and a quantification-oriented loss, as proposed by
     `Barranquero et al. 2015 <https://www.sciencedirect.com/science/article/pii/S003132031400291X>`_.
     Equivalent to:
 
-    >>> ELM(svmperf_base, loss='q', **kwargs)
+    >>> CC(SVMperf(svmperf_base, loss='q', C=C))
 
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
-    :param kwargs: rest of SVM perf's parameters
+    Quantifiers based on ELM represent a family of methods based on structured output learning;
+    these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+    measure. This implementation relies on
+    `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
+    learning algorithm, which has to be installed and patched for the purpose (see this
+    `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
     """
+    return newELM(svmperf_base, loss='q', C=C)
 
-    def __init__(self, svmperf_base=None, **kwargs):
-        super(SVMQ, self).__init__(svmperf_base, loss='q', **kwargs)
-
-
-class SVMKLD(ELM):
+def newSVMKLD(svmperf_base=None, C=1):
     """
-    SVM(KLD), which attempts to minimize the Kullback-Leibler Divergence as proposed by
+    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
+    as proposed by `Esuli et al. 2015 <https://dl.acm.org/doi/abs/10.1145/2700406>`_.
+    Equivalent to:
+
+    >>> CC(SVMperf(svmperf_base, loss='kld', C=C))
+
+    Quantifiers based on ELM represent a family of methods based on structured output learning;
+    these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+    measure. This implementation relies on
+    `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
+    learning algorithm, which has to be installed and patched for the purpose (see this
+    `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
+    """
+    return newELM(svmperf_base, loss='kld', C=C)
+
+
+def newSVMKLD(svmperf_base=None, C=1):
+    """
+    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
+    normalized via the logistic function, as proposed by
     `Esuli et al. 2015 <https://dl.acm.org/doi/abs/10.1145/2700406>`_.
     Equivalent to:
 
-    >>> ELM(svmperf_base, loss='kld', **kwargs)
+    >>> CC(SVMperf(svmperf_base, loss='nkld', C=C))
 
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
-    :param kwargs: rest of SVM perf's parameters
+    Quantifiers based on ELM represent a family of methods based on structured output learning;
+    these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+    measure. This implementation relies on
+    `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
+    learning algorithm, which has to be installed and patched for the purpose (see this
+    `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
     """
+    return newELM(svmperf_base, loss='nkld', C=C)
 
-    def __init__(self, svmperf_base=None, **kwargs):
-        super(SVMKLD, self).__init__(svmperf_base, loss='kld', **kwargs)
-
-
-class SVMNKLD(ELM):
+def newSVMAE(svmperf_base=None, C=1):
     """
-    SVM(NKLD), which attempts to minimize a version of the the Kullback-Leibler Divergence normalized
-    via the logistic function, as proposed by
-    `Esuli et al. 2015 <https://dl.acm.org/doi/abs/10.1145/2700406>`_.
-    Equivalent to:
-
-    >>> ELM(svmperf_base, loss='nkld', **kwargs)
-
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
-    :param kwargs: rest of SVM perf's parameters
-    """
-
-    def __init__(self, svmperf_base=None, **kwargs):
-        super(SVMNKLD, self).__init__(svmperf_base, loss='nkld', **kwargs)
-
-
-class SVMAE(ELM):
-    """
-    SVM(AE), which attempts to minimize Absolute Error as first used by
+    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Absolute Error as first used by
     `Moreo and Sebastiani, 2021 <https://arxiv.org/abs/2011.02552>`_.
     Equivalent to:
 
-    >>> ELM(svmperf_base, loss='mae', **kwargs)
+    >>> CC(SVMperf(svmperf_base, loss='mae', C=C))
 
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
-    :param kwargs: rest of SVM perf's parameters
+    Quantifiers based on ELM represent a family of methods based on structured output learning;
+    these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+    measure. This implementation relies on
+    `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
+    learning algorithm, which has to be installed and patched for the purpose (see this
+    `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
     """
+    return newELM(svmperf_base, loss='mae', C=C)
 
-    def __init__(self, svmperf_base=None, **kwargs):
-        super(SVMAE, self).__init__(svmperf_base, loss='mae', **kwargs)
-
-
-class SVMRAE(ELM):
+def newSVMRAE(svmperf_base=None, C=1):
     """
-    SVM(RAE), which attempts to minimize Relative Absolute Error as first used by
-    `Moreo and Sebastiani, 2021 <https://arxiv.org/abs/2011.02552>`_.
+    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Relative Absolute Error as first
+    used by `Moreo and Sebastiani, 2021 <https://arxiv.org/abs/2011.02552>`_.
     Equivalent to:
 
-    >>> ELM(svmperf_base, loss='mrae', **kwargs)
+    >>> CC(SVMperf(svmperf_base, loss='mrae', C=C))
 
-    :param svmperf_base: path to the folder containing the binary files of `SVM perf`
-    :param kwargs: rest of SVM perf's parameters
+    Quantifiers based on ELM represent a family of methods based on structured output learning;
+    these quantifiers rely on classifiers that have been optimized using a quantification-oriented loss
+    measure. This implementation relies on
+    `Joachims’ SVM perf <https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html>`_ structured output
+    learning algorithm, which has to be installed and patched for the purpose (see this
+    `script <https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh>`_).
+    This function is a wrapper around CC(SVMperf(svmperf_base, loss, C))
+
+    :param svmperf_base: path to the folder containing the binary files of `SVM perf`; if set to None (default)
+        this path will be obtained from qp.environ['SVMPERF_HOME']
+    :param C: trade-off between training error and margin (default 0.01)
+    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the
+        underlying classifier
     """
-
-    def __init__(self, svmperf_base=None, **kwargs):
-        super(SVMRAE, self).__init__(svmperf_base, loss='mrae', **kwargs)
+    return newELM(svmperf_base, loss='mrae', C=C)
 
 
 class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
@@ -758,7 +984,7 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
     that would allow for more true positives and many more false positives, on the grounds this
     would deliver larger denominators.
 
-    :param learner: a sklearn's Estimator that generates a classifier
+    :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
         This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
@@ -767,44 +993,24 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
-        self.learner = learner
+    def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None):
+        self.classifier = classifier
         self.val_split = val_split
+        self.n_jobs = qp._get_njobs(n_jobs)
 
-    def fit(self, data: LabelledCollection, fit_learner=True, val_split: Union[float, int, LabelledCollection] = None):
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, int, LabelledCollection] = None):
         self._check_binary(data, "Threshold Optimization")
 
         if val_split is None:
             val_split = self.val_split
-        if isinstance(val_split, int):
-            assert fit_learner == True, \
-                'the parameters for the adjustment cannot be estimated with kFCV with fit_learner=False'
-            # kFCV estimation of parameters
-            y, probabilities = [], []
-            kfcv = StratifiedKFold(n_splits=val_split)
-            pbar = tqdm(kfcv.split(*data.Xy), total=val_split)
-            for k, (training_idx, validation_idx) in enumerate(pbar):
-                pbar.set_description(f'{self.__class__.__name__} fitting fold {k}')
-                training = data.sampling_from_index(training_idx)
-                validation = data.sampling_from_index(validation_idx)
-                learner, val_data = _training_helper(self.learner, training, fit_learner, val_split=validation)
-                probabilities.append(learner.predict_proba(val_data.instances))
-                y.append(val_data.labels)
 
-            y = np.concatenate(y)
-            probabilities = np.concatenate(probabilities)
+        self.classifier, y, y_, classes, class_count = cross_generate_predictions(
+            data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
+        )
 
-            # fit the learner on all data
-            self.learner, _ = _training_helper(self.learner, data, fit_learner, val_split=None)
+        self.cc = CC(self.classifier)
 
-        else:
-            self.learner, val_data = _training_helper(self.learner, data, fit_learner, val_split=val_split)
-            probabilities = self.learner.predict_proba(val_data.instances)
-            y = val_data.labels
-
-        self.cc = CC(self.learner)
-
-        self.tpr, self.fpr = self._optimize_threshold(y, probabilities)
+        self.tpr, self.fpr = self._optimize_threshold(y, y_)
 
         return self
 
@@ -863,7 +1069,7 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
 
     def _compute_tpr(self, TP, FP):
         if TP + FP == 0:
-            return 0
+            return 1
         return TP / (TP + FP)
 
     def _compute_fpr(self, FP, TN):
@@ -880,7 +1086,7 @@ class T50(ThresholdOptimization):
     for the threshold that makes `tpr` cosest to 0.5.
     The goal is to bring improved stability to the denominator of the adjustment.
 
-    :param learner: a sklearn's Estimator that generates a classifier
+    :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
         This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
@@ -889,8 +1095,8 @@ class T50(ThresholdOptimization):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
-        super().__init__(learner, val_split)
+    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+        super().__init__(classifier, val_split)
 
     def _condition(self, tpr, fpr) -> float:
         return abs(tpr - 0.5)
@@ -904,7 +1110,7 @@ class MAX(ThresholdOptimization):
     for the threshold that maximizes `tpr-fpr`.
     The goal is to bring improved stability to the denominator of the adjustment.
 
-    :param learner: a sklearn's Estimator that generates a classifier
+    :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
         This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
@@ -913,8 +1119,8 @@ class MAX(ThresholdOptimization):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
-        super().__init__(learner, val_split)
+    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+        super().__init__(classifier, val_split)
 
     def _condition(self, tpr, fpr) -> float:
         # MAX strives to maximize (tpr - fpr), which is equivalent to minimize (fpr - tpr)
@@ -929,7 +1135,7 @@ class X(ThresholdOptimization):
     for the threshold that yields `tpr=1-fpr`.
     The goal is to bring improved stability to the denominator of the adjustment.
 
-    :param learner: a sklearn's Estimator that generates a classifier
+    :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
         This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
@@ -938,8 +1144,8 @@ class X(ThresholdOptimization):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
-        super().__init__(learner, val_split)
+    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+        super().__init__(classifier, val_split)
 
     def _condition(self, tpr, fpr) -> float:
         return abs(1 - (tpr + fpr))
@@ -953,7 +1159,7 @@ class MS(ThresholdOptimization):
     class prevalence estimates for all decision thresholds and returns the median of them all.
     The goal is to bring improved stability to the denominator of the adjustment.
 
-    :param learner: a sklearn's Estimator that generates a classifier
+    :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
         This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
@@ -961,8 +1167,8 @@ class MS(ThresholdOptimization):
         `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
-        super().__init__(learner, val_split)
+    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+        super().__init__(classifier, val_split)
 
     def _condition(self, tpr, fpr) -> float:
         pass
@@ -990,7 +1196,7 @@ class MS2(MS):
     which `tpr-fpr>0.25`
     The goal is to bring improved stability to the denominator of the adjustment.
 
-    :param learner: a sklearn's Estimator that generates a classifier
+    :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
         This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
@@ -998,8 +1204,8 @@ class MS2(MS):
         `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
-    def __init__(self, learner: BaseEstimator, val_split=0.4):
-        super().__init__(learner, val_split)
+    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+        super().__init__(classifier, val_split)
 
     def _optimize_threshold(self, y, probabilities):
         tprs = [0, 1]
@@ -1023,12 +1229,11 @@ ProbabilisticAdjustedClassifyAndCount = PACC
 ExpectationMaximizationQuantifier = EMQ
 SLD = EMQ
 HellingerDistanceY = HDy
-ExplicitLossMinimisation = ELM
 MedianSweep = MS
 MedianSweep2 = MS2
 
 
-class OneVsAll(AggregativeQuantifier):
+class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
     """
     Allows any binary quantifier to perform quantification on single-label datasets.
     The method maintains one binary quantifier for each class, and then l1-normalizes the outputs so that the
@@ -1036,124 +1241,52 @@ class OneVsAll(AggregativeQuantifier):
     This variant was used, along with the :class:`EMQ` quantifier, in
     `Gao and Sebastiani, 2016 <https://link.springer.com/content/pdf/10.1007/s13278-016-0327-z.pdf>`_.
 
-    :param learner: a sklearn's Estimator that generates a binary classifier
+    :param binary_quantifier: a quantifier (binary) that will be employed to work on multiclass model in a
+        one-vs-all manner
     :param n_jobs: number of parallel workers
+    :param parallel_backend: the parallel backend for joblib (default "loky"); this is helpful for some quantifiers
+        (e.g., ELM-based ones) that cannot be run with multiprocessing, since the temp dir they create during fit will
+        is removed and no longer available at predict time.
     """
 
-    def __init__(self, binary_quantifier, n_jobs=-1):
-        self.binary_quantifier = binary_quantifier
-        self.n_jobs = n_jobs
-
-    def fit(self, data: LabelledCollection, fit_learner=True):
-        assert not data.binary, \
-            f'{self.__class__.__name__} expect non-binary data'
-        assert isinstance(self.binary_quantifier, BaseQuantifier), \
+    def __init__(self, binary_quantifier, n_jobs=None, parallel_backend='multiprocessing'):
+        assert isinstance(binary_quantifier, BaseQuantifier), \
             f'{self.binary_quantifier} does not seem to be a Quantifier'
-        assert fit_learner == True, 'fit_learner must be True'
-
-        self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in data.classes_}
-        self.__parallel(self._delayed_binary_fit, data)
-        return self
+        assert isinstance(binary_quantifier, AggregativeQuantifier), \
+            f'{self.binary_quantifier} does not seem to be of type Aggregative'
+        self.binary_quantifier = binary_quantifier
+        self.n_jobs = qp._get_njobs(n_jobs)
+        self.parallel_backend = parallel_backend
 
     def classify(self, instances):
         """
-        Returns a matrix of shape `(n,m,)` with `n` the number of instances and `m` the number of classes. The entry
-        `(i,j)` is a binary value indicating whether instance `i `belongs to class `j`. The binary classifications are
-        independent of each other, meaning that an instance can end up be attributed to 0, 1, or more classes.
+        If the base quantifier is not probabilistic, returns a matrix of shape `(n,m,)` with `n` the number of
+        instances and `m` the number of classes. The entry `(i,j)` is a binary value indicating whether instance
+        `i `belongs to class `j`. The binary classifications are independent of each other, meaning that an instance
+        can end up be attributed to 0, 1, or more classes.
+        If the base quantifier is probabilistic, returns a matrix of shape `(n,m,2)` with `n` the number of instances
+        and `m` the number of classes. The entry `(i,j,1)` (resp. `(i,j,0)`) is a value in [0,1] indicating the
+        posterior probability that instance `i` belongs (resp. does not belong) to class `j`. The posterior
+        probabilities are independent of each other, meaning that, in general, they do not sum up to one.
 
         :param instances: array-like
         :return: `np.ndarray`
         """
 
-        classif_predictions_bin = self.__parallel(self._delayed_binary_classification, instances)
-        return classif_predictions_bin.T
-
-    def posterior_probabilities(self, instances):
-        """
-        Returns a matrix of shape `(n,m,2)` with `n` the number of instances and `m` the number of classes. The entry
-        `(i,j,1)` (resp. `(i,j,0)`) is a value in [0,1] indicating the posterior probability that instance `i` belongs
-        (resp. does not belong) to class `j`.
-        The posterior probabilities are independent of each other, meaning that, in general, they do not sum
-        up to one.
-
-        :param instances: array-like
-        :return: `np.ndarray`
-        """
-
-        if not self.binary_quantifier.probabilistic:
-            raise NotImplementedError(f'{self.__class__.__name__} does not implement posterior_probabilities because '
-                                      f'the base quantifier {self.binary_quantifier.__class__.__name__} is not '
-                                      f'probabilistic')
-        posterior_predictions_bin = self.__parallel(self._delayed_binary_posteriors, instances)
-        return np.swapaxes(posterior_predictions_bin, 0, 1)
-
-    def aggregate(self, classif_predictions_bin):
-        if self.probabilistic:
-            assert classif_predictions_bin.shape[1] == self.n_classes and classif_predictions_bin.shape[2] == 2, \
-                'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of posterior ' \
-                'probabilities (2 dimensions) for each document (row) and class (columns)'
+        classif_predictions = self._parallel(self._delayed_binary_classification, instances)
+        if isinstance(self.binary_quantifier, AggregativeProbabilisticQuantifier):
+            return np.swapaxes(classif_predictions, 0, 1)
         else:
-            assert set(np.unique(classif_predictions_bin)).issubset({0, 1}), \
-                'param classif_predictions_bin does not seem to be a valid matrix (ndarray) of binary ' \
-                'predictions for each document (row) and class (columns)'
-        prevalences = self.__parallel(self._delayed_binary_aggregate, classif_predictions_bin)
+            return classif_predictions.T
+
+    def aggregate(self, classif_predictions):
+        prevalences = self._parallel(self._delayed_binary_aggregate, classif_predictions)
         return F.normalize_prevalence(prevalences)
-
-    def quantify(self, X):
-        if self.probabilistic:
-            predictions = self.posterior_probabilities(X)
-        else:
-            predictions = self.classify(X)
-        return self.aggregate(predictions)
-
-    def __parallel(self, func, *args, **kwargs):
-        return np.asarray(
-            # some quantifiers (in particular, ELM-based ones) cannot be run with multiprocess, since the temp dir they
-            # create during the fit will be removed and be no longer available for the predict...
-            Parallel(n_jobs=self.n_jobs, backend='threading')(
-                delayed(func)(c, *args, **kwargs) for c in self.classes_
-            )
-        )
-
-    @property
-    def classes_(self):
-        return sorted(self.dict_binary_quantifiers.keys())
-
-    def set_params(self, **parameters):
-        self.binary_quantifier.set_params(**parameters)
-
-    def get_params(self, deep=True):
-        return self.binary_quantifier.get_params()
 
     def _delayed_binary_classification(self, c, X):
         return self.dict_binary_quantifiers[c].classify(X)
-
-    def _delayed_binary_posteriors(self, c, X):
-        return self.dict_binary_quantifiers[c].posterior_probabilities(X)
 
     def _delayed_binary_aggregate(self, c, classif_predictions):
         # the estimation for the positive class prevalence
         return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:, c])[1]
 
-    def _delayed_binary_fit(self, c, data):
-        bindata = LabelledCollection(data.instances, data.labels == c, classes_=[False, True])
-        self.dict_binary_quantifiers[c].fit(bindata)
-
-    @property
-    def binary(self):
-        """
-        Informs that the classifier is not binary
-
-        :return: False
-        """
-        return False
-
-    @property
-    def probabilistic(self):
-        """
-        Indicates if the classifier is probabilistic or not (depending on the nature of the base classifier).
-
-        :return: boolean
-        """
-
-        return self.binary_quantifier.probabilistic

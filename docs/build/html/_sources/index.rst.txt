@@ -64,6 +64,7 @@ Features
     * 32 UCI Machine Learning datasets.
     * 11 Twitter Sentiment datasets.
     * 3 Reviews Sentiment datasets.
+    * 4 tasks from LeQua competition (_new in v0.1.7!_)
 * Native supports for binary and single-label scenarios of quantification.
 * Model selection functionality targeting quantification-oriented losses.
 * Visualization tools for analysing results.
@@ -75,8 +76,9 @@ Features
    Installation
    Datasets
    Evaluation
+   Protocols
    Methods
-   Model Selection
+   Model-Selection
    Plotting
    API Developers documentation<modules>
 

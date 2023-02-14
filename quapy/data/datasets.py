@@ -6,11 +6,13 @@ import os
 import zipfile
 from os.path import join
 import pandas as pd
+import scipy
 
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
 from quapy.data.reader import *
 from quapy.util import download_file_if_not_exists, download_file, get_quapy_home, pickled_resource
+
 
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
 TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',
@@ -42,6 +44,22 @@ UCI_DATASETS = ['acute.a', 'acute.b',
                 'wine.1', 'wine.2', 'wine.3',
                 'wine-q-red', 'wine-q-white',
                 'yeast']
+
+LEQUA2022_TASKS = ['T1A', 'T1B', 'T2A', 'T2B']
+
+_TXA_SAMPLE_SIZE = 250
+_TXB_SAMPLE_SIZE = 1000
+
+LEQUA2022_SAMPLE_SIZE = {
+    'TXA': _TXA_SAMPLE_SIZE,
+    'TXB': _TXB_SAMPLE_SIZE,
+    'T1A': _TXA_SAMPLE_SIZE,
+    'T1B': _TXB_SAMPLE_SIZE,
+    'T2A': _TXA_SAMPLE_SIZE,
+    'T2B': _TXB_SAMPLE_SIZE,
+    'binary': _TXA_SAMPLE_SIZE,
+    'multiclass': _TXB_SAMPLE_SIZE
+}
 
 
 def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False) -> Dataset:
@@ -533,3 +551,76 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
 
 def _df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
     df[col] = df[col].apply(lambda x:repl[x]).astype(astype, copy=False)
+
+
+def fetch_lequa2022(task, data_home=None):
+    """
+    Loads the official datasets provided for the `LeQua <https://lequa2022.github.io/index>`_ competition.
+    In brief, there are 4 tasks (T1A, T1B, T2A, T2B) having to do with text quantification
+    problems. Tasks T1A and T1B provide documents in vector form, while T2A and T2B provide raw documents instead.
+    Tasks T1A and T2A are binary sentiment quantification problems, while T2A and T2B are multiclass quantification
+    problems consisting of estimating the class prevalence values of 28 different merchandise products.
+    We refer to the `Esuli, A., Moreo, A., Sebastiani, F., & Sperduti, G. (2022).
+    A Detailed Overview of LeQua@ CLEF 2022: Learning to Quantify.
+    <https://ceur-ws.org/Vol-3180/paper-146.pdf>`_ for a detailed description
+    on the tasks and datasets.
+
+    The datasets are downloaded only once, and stored for fast reuse.
+
+    See `lequa2022_experiments.py` provided in the example folder, that can serve as a guide on how to use these
+    datasets.
+
+
+    :param task: a string representing the task name; valid ones are T1A, T1B, T2A, and T2B
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: a tuple `(train, val_gen, test_gen)` where `train` is an instance of
+        :class:`quapy.data.base.LabelledCollection`, `val_gen` and `test_gen` are instances of
+        :class:`quapy.protocol.SamplesFromDir`, i.e., are sampling protocols that return a series of samples
+        labelled by prevalence.
+    """
+
+    from quapy.data._lequa2022 import load_raw_documents, load_vector_documents, SamplesFromDir
+
+    assert task in LEQUA2022_TASKS, \
+        f'Unknown task {task}. Valid ones are {LEQUA2022_TASKS}'
+    if data_home is None:
+        data_home = get_quapy_home()
+
+    URL_TRAINDEV=f'https://zenodo.org/record/6546188/files/{task}.train_dev.zip'
+    URL_TEST=f'https://zenodo.org/record/6546188/files/{task}.test.zip'
+    URL_TEST_PREV=f'https://zenodo.org/record/6546188/files/{task}.test_prevalences.zip'
+
+    lequa_dir = join(data_home, 'lequa2022')
+    os.makedirs(lequa_dir, exist_ok=True)
+
+    def download_unzip_and_remove(unzipped_path, url):
+        tmp_path = join(lequa_dir, task + '_tmp.zip')
+        download_file_if_not_exists(url, tmp_path)
+        with zipfile.ZipFile(tmp_path) as file:
+            file.extractall(unzipped_path)
+        os.remove(tmp_path)
+
+    if not os.path.exists(join(lequa_dir, task)):
+        download_unzip_and_remove(lequa_dir, URL_TRAINDEV)
+        download_unzip_and_remove(lequa_dir, URL_TEST)
+        download_unzip_and_remove(lequa_dir, URL_TEST_PREV)
+
+    if task in ['T1A', 'T1B']:
+        load_fn = load_vector_documents
+    elif task in ['T2A', 'T2B']:
+        load_fn = load_raw_documents
+
+    tr_path = join(lequa_dir, task, 'public', 'training_data.txt')
+    train = LabelledCollection.load(tr_path, loader_func=load_fn)
+
+    val_samples_path = join(lequa_dir, task, 'public', 'dev_samples')
+    val_true_prev_path = join(lequa_dir, task, 'public', 'dev_prevalences.txt')
+    val_gen = SamplesFromDir(val_samples_path, val_true_prev_path, load_fn=load_fn)
+
+    test_samples_path = join(lequa_dir, task, 'public', 'test_samples')
+    test_true_prev_path = join(lequa_dir, task, 'public', 'test_prevalences.txt')
+    test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
+
+    return train, val_gen, test_gen
+

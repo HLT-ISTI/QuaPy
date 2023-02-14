@@ -43,7 +43,7 @@ quantification methods across different scenarios showcasing
 the accuracy of the quantifier in predicting class prevalences
 for a wide range of prior distributions. This can easily be
 achieved by means of the 
-[artificial sampling protocol](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation)
+[artificial sampling protocol](https://github.com/HLT-ISTI/QuaPy/wiki/Protocols)
 that is implemented in QuaPy.
 
 The following code shows how to perform one simple experiment
@@ -55,6 +55,7 @@ generating 100 random samples at each prevalence).
 
 ```python
 import quapy as qp
+from protocol import APP
 from quapy.method.aggregative import CC, ACC, PCC, PACC
 from sklearn.svm import LinearSVC
 
@@ -63,28 +64,26 @@ qp.environ['SAMPLE_SIZE'] = 500
 def gen_data():
 
     def base_classifier():
-        return LinearSVC()
+        return LinearSVC(class_weight='balanced')
 
     def models():
-        yield CC(base_classifier())
-        yield ACC(base_classifier())
-        yield PCC(base_classifier())
-        yield PACC(base_classifier())
+        yield 'CC', CC(base_classifier())
+        yield 'ACC', ACC(base_classifier())
+        yield 'PCC', PCC(base_classifier())
+        yield 'PACC', PACC(base_classifier())
 
-    data = qp.datasets.fetch_reviews('kindle', tfidf=True, min_df=5)
+    train, test = qp.datasets.fetch_reviews('kindle', tfidf=True, min_df=5).train_test
 
     method_names, true_prevs, estim_prevs, tr_prevs = [], [], [], []
 
-    for model in models():
-        model.fit(data.training)
-        true_prev, estim_prev = qp.evaluation.artificial_sampling_prediction(
-            model, data.test, qp.environ['SAMPLE_SIZE'], n_repetitions=100, n_prevpoints=21
-        )
+    for method_name, model in models():
+        model.fit(train)
+        true_prev, estim_prev = qp.evaluation.prediction(model, APP(test, repeats=100, random_state=0))
 
-        method_names.append(model.__class__.__name__)
+        method_names.append(method_name)
         true_prevs.append(true_prev)
         estim_prevs.append(estim_prev)
-        tr_prevs.append(data.training.prevalence())
+        tr_prevs.append(train.prevalence())
 
     return method_names, true_prevs, estim_prevs, tr_prevs
 
@@ -163,21 +162,19 @@ like this:
 
 ```python
 def gen_data():
-    data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=5)
+
+    train, test = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=5).train_test
     model = CC(LinearSVC())
 
     method_data = []
     for training_prevalence in np.linspace(0.1, 0.9, 9):
         training_size = 5000
-        # since the problem is binary, it suffices to specify the negative prevalence (the positive is constrained)
-        training = data.training.sampling(training_size, 1 - training_prevalence)
-        model.fit(training)
-        true_prev, estim_prev = qp.evaluation.artificial_sampling_prediction(
-            model, data.sample, qp.environ['SAMPLE_SIZE'], n_repetitions=100, n_prevpoints=21
-        )
-        # method names can contain Latex syntax
-        method_name = 'CC$_{' + f'{int(100 * training_prevalence)}' + '\%}$'
-        method_data.append((method_name, true_prev, estim_prev, training.prevalence()))
+        # since the problem is binary, it suffices to specify the negative prevalence, since the positive is constrained
+        train_sample = train.sampling(training_size, 1-training_prevalence)
+        model.fit(train_sample)
+        true_prev, estim_prev = qp.evaluation.prediction(model, APP(test, repeats=100, random_state=0))
+        method_name = 'CC$_{'+f'{int(100*training_prevalence)}' + '\%}$'
+        method_data.append((method_name, true_prev, estim_prev, train_sample.prevalence()))
 
     return zip(*method_data)
 ```

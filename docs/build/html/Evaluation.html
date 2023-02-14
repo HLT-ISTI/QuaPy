@@ -2,22 +2,25 @@
 
 <!doctype html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Evaluation &#8212; QuaPy 0.1.6 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Evaluation &#8212; QuaPy 0.1.7 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bizstyle.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/bizstyle.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Quantification Methods" href="Methods.html" />
+    <link rel="next" title="Protocols" href="Protocols.html" />
     <link rel="prev" title="Datasets" href="Datasets.html" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <!--[if lt IE 9]>
@@ -34,12 +37,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Methods.html" title="Quantification Methods"
+          <a href="Protocols.html" title="Protocols"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="Datasets.html" title="Datasets"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Evaluation</a></li> 
       </ul>
     </div>  
@@ -49,8 +52,8 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="tex2jax_ignore mathjax_ignore section" id="evaluation">
-<h1>Evaluation<a class="headerlink" href="#evaluation" title="Permalink to this headline">¶</a></h1>
+  <section id="evaluation">
+<h1>Evaluation<a class="headerlink" href="#evaluation" title="Permalink to this heading">¶</a></h1>
 <p>Quantification is an appealing tool in scenarios of dataset shift,
 and particularly in scenarios of prior-probability shift.
 That is, the interest in estimating the class prevalences arises
@@ -62,8 +65,8 @@ to be unlikely (as is the case in general scenarios of
 machine learning governed by the iid assumption).
 In brief, quantification requires dedicated evaluation protocols,
 which are implemented in QuaPy and explained here.</p>
-<div class="section" id="error-measures">
-<h2>Error Measures<a class="headerlink" href="#error-measures" title="Permalink to this headline">¶</a></h2>
+<section id="error-measures">
+<h2>Error Measures<a class="headerlink" href="#error-measures" title="Permalink to this heading">¶</a></h2>
 <p>The module quapy.error implements the following error measures for quantification:</p>
 <ul class="simple">
 <li><p><em>mae</em>: mean absolute error</p></li>
@@ -96,13 +99,13 @@ third argument, e.g.:</p>
 Traditionally, this value is set to 1/(2T) in past literature,
 with T the sampling size. One could either pass this value
 to the function each time, or to set a QuaPy’s environment
-variable <em>SAMPLE_SIZE</em> once, and ommit this argument
+variable <em>SAMPLE_SIZE</em> once, and omit this argument
 thereafter (recommended);
 e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># once for all</span>
 <span class="n">true_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>  <span class="c1"># let&#39;s assume 3 classes</span>
 <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">])</span>
-<span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">ae_</span><span class="o">.</span><span class="n">mrae</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">)</span>
+<span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mrae</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mrae(</span><span class="si">{</span><span class="n">true_prev</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">estim_prev</span><span class="si">}</span><span class="s1">) = </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -112,150 +115,95 @@ e.g.:</p>
 </div>
 <p>Finally, it is possible to instantiate QuaPy’s quantification
 error functions from strings using, e.g.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">error_function</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">ae_</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="s1">&#39;mse&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">error_function</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="s1">&#39;mse&#39;</span><span class="p">)</span>
 <span class="n">error</span> <span class="o">=</span> <span class="n">error_function</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="evaluation-protocols">
-<h2>Evaluation Protocols<a class="headerlink" href="#evaluation-protocols" title="Permalink to this headline">¶</a></h2>
-<p>QuaPy implements the so-called “artificial sampling protocol”,
-according to which a test set is used to generate samplings at
-desired prevalences of fixed size and covering the full spectrum
-of prevalences. This protocol is called “artificial” in contrast
-to the “natural prevalence sampling” protocol that,
-despite introducing some variability during sampling, approximately
-preserves the training class prevalence.</p>
-<p>In the artificial sampling procol, the user specifies the number
-of (equally distant) points to be generated from the interval [0,1].</p>
-<p>For example, if n_prevpoints=11 then, for each class, the prevalences
-[0., 0.1, 0.2, …, 1.] will be used. This means that, for two classes,
-the number of different prevalences will be 11 (since, once the prevalence
-of one class is determined, the other one is constrained). For 3 classes,
-the number of valid combinations can be obtained as 11 + 10 + … + 1 = 66.
-In general, the number of valid combinations that will be produced for a given
-value of n_prevpoints can be consulted by invoking
-quapy.functional.num_prevalence_combinations, e.g.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
-<span class="n">n_prevpoints</span> <span class="o">=</span> <span class="mi">21</span>
-<span class="n">n_classes</span> <span class="o">=</span> <span class="mi">4</span>
-<span class="n">n</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</section>
+<section id="evaluation-protocols">
+<h2>Evaluation Protocols<a class="headerlink" href="#evaluation-protocols" title="Permalink to this heading">¶</a></h2>
+<p>An <em>evaluation protocol</em> is an evaluation procedure that uses
+one specific <em>sample generation procotol</em> to genereate many
+samples, typically characterized by widely varying amounts of
+<em>shift</em> with respect to the original distribution, that are then
+used to evaluate the performance of a (trained) quantifier.
+These protocols are explained in more detail in a dedicated <a class="reference internal" href="Protocols.html"><span class="doc std std-doc">entry
+in the wiki</span></a>. For the moment being, let us assume we already have
+chosen and instantiated one specific such protocol, that we here
+simply call <em>prot</em>. Let also assume our model is called
+<em>quantifier</em> and that our evaluatio measure of choice is
+<em>mae</em>. The evaluation comes down to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mae</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">prot</span><span class="p">,</span> <span class="n">error_metric</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;MAE = </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>in this example, n=1771. Note the last argument, n_repeats, that
-informs of the number of examples that will be generated for any
-valid combination (typical values are, e.g., 1 for a single sample,
-or 10 or higher for computing standard deviations of performing statistical
-significance tests).</p>
-<p>One can instead work the other way around, i.e., one could set a
-maximum budged of evaluations and get the number of prevalence points that
-will generate a number of evaluations close, but not higher, than
-the fixed budget. This can be achieved with the function
-quapy.functional.get_nprevpoints_approximation, e.g.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">budget</span> <span class="o">=</span> <span class="mi">5000</span>
-<span class="n">n_prevpoints</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">get_nprevpoints_approximation</span><span class="p">(</span><span class="n">budget</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">n</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;by setting n_prevpoints=</span><span class="si">{</span><span class="n">n_prevpoints</span><span class="si">}</span><span class="s1"> the number of evaluations for </span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s1"> classes will be </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<p>It is often desirable to evaluate our system using more than one
+single evaluatio measure. In this case, it is convenient to generate
+a <em>report</em>. A report in QuaPy is a dataframe accounting for all the
+true prevalence values with their corresponding prevalence values
+as estimated by the quantifier, along with the error each has given
+rise.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluation_report</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">prot</span><span class="p">,</span> <span class="n">error_metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="s1">&#39;mrae&#39;</span><span class="p">,</span> <span class="s1">&#39;mkld&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
-<p>that will print:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">by</span> <span class="n">setting</span> <span class="n">n_prevpoints</span><span class="o">=</span><span class="mi">30</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="n">evaluations</span> <span class="k">for</span> <span class="mi">4</span> <span class="n">classes</span> <span class="n">will</span> <span class="n">be</span> <span class="mi">4960</span>
-</pre></div>
-</div>
-<p>The cost of evaluation will depend on the values of <em>n_prevpoints</em>, <em>n_classes</em>,
-and <em>n_repeats</em>. Since it might sometimes be cumbersome to control the overall
-cost of an experiment having to do with the number of combinations that
-will be generated for a particular setting of these arguments (particularly
-when <em>n_classes&gt;2</em>), evaluation functions
-typically allow the user to rather specify an <em>evaluation budget</em>, i.e., a maximum
-number of samplings to generate. By specifying this argument, one could avoid
-specifying <em>n_prevpoints</em>, and the value for it that would lead to a closer
-number of evaluation budget, without surpassing it, will be automatically set.</p>
-<p>The following script shows a full example in which a PACC model relying
-on a Logistic Regressor classifier is
-tested on the <em>kindle</em> dataset by means of the artificial prevalence
-sampling protocol on samples of size 500, in terms of various
-evaluation metrics.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
-<span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
-<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<p>From a pandas’ dataframe, it is straightforward to visualize all the results,
+and compute the averaged values, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.expand_frame_repr&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">report</span><span class="p">[</span><span class="s1">&#39;estim-prev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s1">&#39;estim-prev&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 
-<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
-
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">)</span>
-<span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">text2tfidf</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="n">training</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">training</span>
-<span class="n">test</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span>
-
-<span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
-<span class="n">pacc</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">PACC</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
-
-<span class="n">pacc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">artificial_sampling_report</span><span class="p">(</span>
-    <span class="n">pacc</span><span class="p">,</span>  <span class="c1"># the quantification method</span>
-    <span class="n">test</span><span class="p">,</span>  <span class="c1"># the test set on which the method will be evaluated</span>
-    <span class="n">sample_size</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">],</span>  <span class="c1">#indicates the size of samples to be drawn</span>
-    <span class="n">n_prevpoints</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>  <span class="c1"># how many prevalence points will be extracted from the interval [0, 1] for each category</span>
-    <span class="n">n_repetitions</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># number of times each prevalence will be used to generate a test sample</span>
-    <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># indicates the number of parallel workers (-1 indicates, as in sklearn, all CPUs)</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>  <span class="c1"># setting a random seed allows to replicate the test samples across runs</span>
-    <span class="n">error_metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="s1">&#39;mrae&#39;</span><span class="p">,</span> <span class="s1">&#39;mkld&#39;</span><span class="p">],</span>  <span class="c1"># specify the evaluation metrics</span>
-    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># set to True to show some standard-line outputs</span>
-<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Averaged values:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>The resulting report is a pandas’ dataframe that can be directly printed.
-Here, we set some display options from pandas just to make the output clearer;
-note also that the estimated prevalences are shown as strings using the
-function strprev function that simply converts a prevalence into a
-string representing it, with a fixed decimal precision (default 3):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.expand_frame_repr&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;precision&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s1">&#39;estim-prev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;estim-prev&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>The output should look like:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     <span class="n">true</span><span class="o">-</span><span class="n">prev</span>      <span class="n">estim</span><span class="o">-</span><span class="n">prev</span>    <span class="n">mae</span>    <span class="n">mrae</span>       <span class="n">mkld</span>
-<span class="mi">0</span>   <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.000</span><span class="p">,</span> <span class="mf">1.000</span><span class="p">]</span>  <span class="mf">0.000</span>   <span class="mf">0.000</span>  <span class="mf">0.000e+00</span>
-<span class="mi">1</span>   <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.091</span><span class="p">,</span> <span class="mf">0.909</span><span class="p">]</span>  <span class="mf">0.009</span>   <span class="mf">0.048</span>  <span class="mf">4.426e-04</span>
-<span class="mi">2</span>   <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.163</span><span class="p">,</span> <span class="mf">0.837</span><span class="p">]</span>  <span class="mf">0.037</span>   <span class="mf">0.114</span>  <span class="mf">4.633e-03</span>
-<span class="mi">3</span>   <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.283</span><span class="p">,</span> <span class="mf">0.717</span><span class="p">]</span>  <span class="mf">0.017</span>   <span class="mf">0.041</span>  <span class="mf">7.383e-04</span>
-<span class="mi">4</span>   <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.366</span><span class="p">,</span> <span class="mf">0.634</span><span class="p">]</span>  <span class="mf">0.034</span>   <span class="mf">0.070</span>  <span class="mf">2.412e-03</span>
-<span class="mi">5</span>   <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.459</span><span class="p">,</span> <span class="mf">0.541</span><span class="p">]</span>  <span class="mf">0.041</span>   <span class="mf">0.082</span>  <span class="mf">3.387e-03</span>
-<span class="mi">6</span>   <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.565</span><span class="p">,</span> <span class="mf">0.435</span><span class="p">]</span>  <span class="mf">0.035</span>   <span class="mf">0.073</span>  <span class="mf">2.535e-03</span>
-<span class="mi">7</span>   <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.654</span><span class="p">,</span> <span class="mf">0.346</span><span class="p">]</span>  <span class="mf">0.046</span>   <span class="mf">0.108</span>  <span class="mf">4.701e-03</span>
-<span class="mi">8</span>   <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.725</span><span class="p">,</span> <span class="mf">0.275</span><span class="p">]</span>  <span class="mf">0.075</span>   <span class="mf">0.235</span>  <span class="mf">1.515e-02</span>
-<span class="mi">9</span>   <span class="p">[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.858</span><span class="p">,</span> <span class="mf">0.142</span><span class="p">]</span>  <span class="mf">0.042</span>   <span class="mf">0.229</span>  <span class="mf">7.740e-03</span>
-<span class="mi">10</span>  <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.945</span><span class="p">,</span> <span class="mf">0.055</span><span class="p">]</span>  <span class="mf">0.055</span>  <span class="mf">27.357</span>  <span class="mf">5.219e-02</span>
-</pre></div>
-</div>
-<p>One can get the averaged scores using standard pandas’
-functions, i.e.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
-</pre></div>
-</div>
-<p>will produce the following output:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">true</span><span class="o">-</span><span class="n">prev</span>    <span class="mf">0.500</span>
-<span class="n">mae</span>          <span class="mf">0.035</span>
-<span class="n">mrae</span>         <span class="mf">2.578</span>
-<span class="n">mkld</span>         <span class="mf">0.009</span>
+<p>This will produce an output like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>           <span class="n">true</span><span class="o">-</span><span class="n">prev</span>      <span class="n">estim</span><span class="o">-</span><span class="n">prev</span>       <span class="n">mae</span>      <span class="n">mrae</span>      <span class="n">mkld</span>
+<span class="mi">0</span>     <span class="p">[</span><span class="mf">0.308</span><span class="p">,</span> <span class="mf">0.692</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.314</span><span class="p">,</span> <span class="mf">0.686</span><span class="p">]</span>  <span class="mf">0.005649</span>  <span class="mf">0.013182</span>  <span class="mf">0.000074</span>
+<span class="mi">1</span>     <span class="p">[</span><span class="mf">0.896</span><span class="p">,</span> <span class="mf">0.104</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.909</span><span class="p">,</span> <span class="mf">0.091</span><span class="p">]</span>  <span class="mf">0.013145</span>  <span class="mf">0.069323</span>  <span class="mf">0.000985</span>
+<span class="mi">2</span>     <span class="p">[</span><span class="mf">0.848</span><span class="p">,</span> <span class="mf">0.152</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.809</span><span class="p">,</span> <span class="mf">0.191</span><span class="p">]</span>  <span class="mf">0.039063</span>  <span class="mf">0.149806</span>  <span class="mf">0.005175</span>
+<span class="mi">3</span>     <span class="p">[</span><span class="mf">0.016</span><span class="p">,</span> <span class="mf">0.984</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.033</span><span class="p">,</span> <span class="mf">0.967</span><span class="p">]</span>  <span class="mf">0.017236</span>  <span class="mf">0.487529</span>  <span class="mf">0.005298</span>
+<span class="mi">4</span>     <span class="p">[</span><span class="mf">0.728</span><span class="p">,</span> <span class="mf">0.272</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.751</span><span class="p">,</span> <span class="mf">0.249</span><span class="p">]</span>  <span class="mf">0.022769</span>  <span class="mf">0.057146</span>  <span class="mf">0.001350</span>
+<span class="o">...</span>              <span class="o">...</span>             <span class="o">...</span>       <span class="o">...</span>       <span class="o">...</span>       <span class="o">...</span>
+<span class="mi">4995</span>    <span class="p">[</span><span class="mf">0.72</span><span class="p">,</span> <span class="mf">0.28</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.698</span><span class="p">,</span> <span class="mf">0.302</span><span class="p">]</span>  <span class="mf">0.021752</span>  <span class="mf">0.053631</span>  <span class="mf">0.001133</span>
+<span class="mi">4996</span>  <span class="p">[</span><span class="mf">0.868</span><span class="p">,</span> <span class="mf">0.132</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.888</span><span class="p">,</span> <span class="mf">0.112</span><span class="p">]</span>  <span class="mf">0.020490</span>  <span class="mf">0.088230</span>  <span class="mf">0.001985</span>
+<span class="mi">4997</span>  <span class="p">[</span><span class="mf">0.292</span><span class="p">,</span> <span class="mf">0.708</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.298</span><span class="p">,</span> <span class="mf">0.702</span><span class="p">]</span>  <span class="mf">0.006149</span>  <span class="mf">0.014788</span>  <span class="mf">0.000090</span>
+<span class="mi">4998</span>    <span class="p">[</span><span class="mf">0.24</span><span class="p">,</span> <span class="mf">0.76</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.220</span><span class="p">,</span> <span class="mf">0.780</span><span class="p">]</span>  <span class="mf">0.019950</span>  <span class="mf">0.054309</span>  <span class="mf">0.001127</span>
+<span class="mi">4999</span>  <span class="p">[</span><span class="mf">0.948</span><span class="p">,</span> <span class="mf">0.052</span><span class="p">]</span>  <span class="p">[</span><span class="mf">0.965</span><span class="p">,</span> <span class="mf">0.035</span><span class="p">]</span>  <span class="mf">0.016941</span>  <span class="mf">0.165776</span>  <span class="mf">0.003538</span>
+
+<span class="p">[</span><span class="mi">5000</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+<span class="n">Averaged</span> <span class="n">values</span><span class="p">:</span>
+<span class="n">mae</span>     <span class="mf">0.023588</span>
+<span class="n">mrae</span>    <span class="mf">0.108779</span>
+<span class="n">mkld</span>    <span class="mf">0.003631</span>
 <span class="n">dtype</span><span class="p">:</span> <span class="n">float64</span>
+
+<span class="n">Process</span> <span class="n">finished</span> <span class="k">with</span> <span class="n">exit</span> <span class="n">code</span> <span class="mi">0</span>
 </pre></div>
 </div>
-<p>Other evaluation functions include:</p>
-<ul class="simple">
-<li><p><em>artificial_sampling_eval</em>: that computes the evaluation for a
-given evaluation metric, returning the average instead of a dataframe.</p></li>
-<li><p><em>artificial_sampling_prediction</em>: that returns two np.arrays containing the
-true prevalences and the estimated prevalences.</p></li>
-</ul>
-<p>See the documentation for further details.</p>
+<p>Alternatively, we can simply generate all the predictions by:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">prediction</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">prot</span><span class="p">)</span>
+</pre></div>
 </div>
-</div>
+<p>All the evaluation functions implement specific optimizations for speeding-up
+the evaluation of aggregative quantifiers (i.e., of instances of <em>AggregativeQuantifier</em>).
+The optimization comes down to generating classification predictions (either crisp or soft)
+only once for the entire test set, and then applying the sampling procedure to the
+predictions, instead of generating samples of instances and then computing the
+classification predictions every time. This is only possible when the protocol
+is an instance of <em>OnLabelledCollectionProtocol</em>. The optimization is only
+carried out when the number of classification predictions thus generated would be
+smaller than the number of predictions required for the entire protocol; e.g.,
+if the original dataset contains 1M instances, but the protocol is such that it would
+at most generate 20 samples of 100 instances, then it would be preferable to postpone the
+classification for each sample. This behaviour is indicated by setting
+<em>aggr_speedup=”auto”</em>. Conversely, when indicating <em>aggr_speedup=”force”</em> QuaPy will
+precompute all the predictions irrespectively of the number of instances and number of samples.
+Finally, this can be deactivated by setting <em>aggr_speedup=False</em>. Note that this optimization
+is not only applied for the final evaluation, but also for the internal evaluations carried
+out during <em>model selection</em>. Since these are typically many, the heuristic can help reduce the
+execution time a lot.</p>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -264,8 +212,9 @@ true prevalences and the estimated prevalences.</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">Evaluation</a><ul>
 <li><a class="reference internal" href="#error-measures">Error Measures</a></li>
 <li><a class="reference internal" href="#evaluation-protocols">Evaluation Protocols</a></li>
@@ -273,12 +222,17 @@ true prevalences and the estimated prevalences.</p></li>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="Datasets.html"
-                        title="previous chapter">Datasets</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="Methods.html"
-                        title="next chapter">Quantification Methods</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="Datasets.html"
+                          title="previous chapter">Datasets</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="Protocols.html"
+                          title="next chapter">Protocols</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -295,7 +249,7 @@ true prevalences and the estimated prevalences.</p></li>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -310,18 +264,18 @@ true prevalences and the estimated prevalences.</p></li>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="Methods.html" title="Quantification Methods"
+          <a href="Protocols.html" title="Protocols"
              >next</a> |</li>
         <li class="right" >
           <a href="Datasets.html" title="Datasets"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.6 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">QuaPy 0.1.7 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Evaluation</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2021, Alejandro Moreo.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.2.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
     </div>
   </body>
 </html>

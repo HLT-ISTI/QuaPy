@@ -229,11 +229,11 @@ class NeuralClassifierTrainer:
         self.net.eval()
         opt = self.trainer_hyperparams
         with torch.no_grad():
-            positive_probs = []
+            posteriors = []
             for xi in TorchDataset(instances).asDataloader(
                     opt['batch_size_test'], shuffle=False, pad_length=opt['padding_length'], device=opt['device']):
-                positive_probs.append(self.net.predict_proba(xi))
-        return np.concatenate(positive_probs)
+                posteriors.append(self.net.predict_proba(xi))
+        return np.concatenate(posteriors)
 
     def transform(self, instances):
         """

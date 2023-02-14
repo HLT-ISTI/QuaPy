@@ -5,13 +5,14 @@ import os
 import pickle
 import urllib
 from pathlib import Path
+from contextlib import ExitStack
 import quapy as qp
 
 import numpy as np
 from joblib import Parallel, delayed
 
 
-def _get_parallel_slices(n_tasks, n_jobs=-1):
+def _get_parallel_slices(n_tasks, n_jobs):
     if n_jobs == -1:
         n_jobs = multiprocessing.cpu_count()
     batch = int(n_tasks / n_jobs)
@@ -21,8 +22,9 @@ def _get_parallel_slices(n_tasks, n_jobs=-1):
 
 def map_parallel(func, args, n_jobs):
     """
-    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and n_jobs=2, then
-    func is applied in two parallel processes to args[0:50] and to args[50:99]
+    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and `n_jobs`=2, then
+    func is applied in two parallel processes to args[0:50] and to args[50:99]. func is a function
+    that already works with a list of arguments.
 
     :param func: function to be parallelized
     :param args: array-like of arguments to be passed to the function in different parallel calls
@@ -36,7 +38,7 @@ def map_parallel(func, args, n_jobs):
     return list(itertools.chain.from_iterable(results))
 
 
-def parallel(func, args, n_jobs):
+def parallel(func, args, n_jobs, seed=None):
     """
     A wrapper of multiprocessing:
 
@@ -44,32 +46,43 @@ def parallel(func, args, n_jobs):
     >>>      delayed(func)(args_i) for args_i in args
     >>> )
 
-    that takes the `quapy.environ` variable as input silently
+    that takes the `quapy.environ` variable as input silently.
+    Seeds the child processes to ensure reproducibility when n_jobs>1
     """
-    def func_dec(environ, *args):
-        qp.environ = environ
-        return func(*args)
+    def func_dec(environ, seed, *args):
+        qp.environ = environ.copy()
+        qp.environ['N_JOBS'] = 1
+        #set a context with a temporal seed to ensure results are reproducibles in parallel
+        with ExitStack() as stack:
+            if seed is not None:
+                stack.enter_context(qp.util.temp_seed(seed))
+            return func(*args)
+    
     return Parallel(n_jobs=n_jobs)(
-        delayed(func_dec)(qp.environ, args_i) for args_i in args
+        delayed(func_dec)(qp.environ, None if seed is None else seed+i, args_i) for i, args_i in enumerate(args)
     )
 
 
 @contextlib.contextmanager
-def temp_seed(seed):
+def temp_seed(random_state):
     """
     Can be used in a "with" context to set a temporal seed without modifying the outer numpy's current state. E.g.:
 
     >>> with temp_seed(random_seed):
     >>>  pass # do any computation depending on np.random functionality
 
-    :param seed: the seed to set within the "with" context
+    :param random_state: the seed to set within the "with" context
     """
-    state = np.random.get_state()
-    np.random.seed(seed)
+    if random_state is not None:
+        state = np.random.get_state()
+        #save the seed just in case is needed (for instance for setting the seed to child processes)
+        qp.environ['_R_SEED'] = random_state
+        np.random.seed(random_state)
     try:
         yield
     finally:
-        np.random.set_state(state)
+        if random_state is not None:
+            np.random.set_state(state)
 
 
 def download_file(url, archive_filename):
@@ -117,6 +130,7 @@ def create_if_not_exist(path):
 def get_quapy_home():
     """
     Gets the home directory of QuaPy, i.e., the directory where QuaPy saves permanent data, such as dowloaded datasets.
+    This directory is `~/quapy_data`
 
     :return: a string representing the path
     """
@@ -151,7 +165,7 @@ def save_text_file(path, text):
 
 def pickled_resource(pickle_path:str, generation_func:callable, *args):
     """
-    Allows for fast reuse of resources that are generated only once by calling generation_func(*args). The next times
+    Allows for fast reuse of resources that are generated only once by calling generation_func(\\*args). The next times
     this function is invoked, it loads the pickled resource. Example:
 
     >>> def some_array(n):  # a mock resource created with one parameter (`n`)
@@ -190,10 +204,6 @@ class EarlyStop:
     """
     A class implementing the early-stopping condition typically used for training neural networks.
 
-    :param patience: the number of (consecutive) times that a monitored evaluation metric (typically obtaind in a
-    held-out validation split) can be found to be worse than the best one obtained so far, before flagging the
-    stopping condition. An instance of this class is `callable`, and is to be used as follows:
-
     >>> earlystop = EarlyStop(patience=2, lower_is_better=True)
     >>> earlystop(0.9, epoch=0)
     >>> earlystop(0.7, epoch=1)
@@ -205,14 +215,14 @@ class EarlyStop:
     >>> earlystop.best_epoch  # is 1
     >>> earlystop.best_score  # is 0.7
 
-
+    :param patience: the number of (consecutive) times that a monitored evaluation metric (typically obtaind in a
+        held-out validation split) can be found to be worse than the best one obtained so far, before flagging the
+        stopping condition. An instance of this class is `callable`, and is to be used as follows:
     :param lower_is_better: if True (default) the metric is to be minimized.
-
     :ivar best_score: keeps track of the best value seen so far
     :ivar best_epoch: keeps track of the epoch in which the best score was set
     :ivar STOP: flag (boolean) indicating the stopping condition
     :ivar IMPROVED: flag (boolean) indicating whether there was an improvement in the last call
-
     """
 
     def __init__(self, patience, lower_is_better=True):
@@ -243,3 +253,4 @@ class EarlyStop:
             self.patience -= 1
             if self.patience <= 0:
                 self.STOP = True
+
