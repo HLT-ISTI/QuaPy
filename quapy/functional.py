@@ -4,37 +4,6 @@ import scipy
 import numpy as np
 
 
-def artificial_prevalence_sampling(dimensions, n_prevalences=21, repeat=1, return_constrained_dim=False):
-    """
-    Generates vectors of prevalence values artificially drawn from an exhaustive grid of prevalence values. The
-    number of prevalence values explored for each dimension depends on `n_prevalences`, so that, if, for example,
-    `n_prevalences=11` then the prevalence values of the grid are taken from [0, 0.1, 0.2, ..., 0.9, 1]. Only
-    valid prevalence distributions are returned, i.e., vectors of prevalence values that sum up to 1. For each
-    valid vector of prevalence values, `repeat` copies are returned. The vector of prevalence values can be
-    implicit (by setting `return_constrained_dim=False`), meaning that the last dimension (which is constrained
-    to 1 - sum of the rest) is not returned (note that, quite obviously, in this case the vector does not sum up to 1).
-
-    :param dimensions: the number of classes
-    :param n_prevalences: the number of equidistant prevalence points to extract from the [0,1] interval for the grid
-        (default is 21)
-    :param repeat: number of copies for each valid prevalence vector (default is 1)
-    :param return_constrained_dim: set to True to return all dimensions, or to False (default) for ommitting the
-        constrained dimension
-    :return: a `np.ndarray` of shape `(n, dimensions)` if `return_constrained_dim=True` or of shape `(n, dimensions-1)`
-        if `return_constrained_dim=False`, where `n` is the number of valid combinations found in the grid multiplied
-        by `repeat`
-    """
-    s = np.linspace(0., 1., n_prevalences, endpoint=True)
-    s = [s] * (dimensions - 1)
-    prevs = [p for p in itertools.product(*s, repeat=1) if sum(p)<=1]
-    if return_constrained_dim:
-        prevs = [p+(1-sum(p),) for p in prevs]
-    prevs = np.asarray(prevs).reshape(len(prevs), -1)
-    if repeat>1:
-        prevs = np.repeat(prevs, repeat, axis=0)
-    return prevs
-
-
 def prevalence_linspace(n_prevalences=21, repeats=1, smooth_limits_epsilon=0.01):
     """
     Produces an array of uniformly separated values of prevalence.
@@ -70,7 +39,7 @@ def prevalence_from_labels(labels, classes):
         raise ValueError(f'param labels does not seem to be a ndarray of label predictions')
     unique, counts = np.unique(labels, return_counts=True)
     by_class = defaultdict(lambda:0, dict(zip(unique, counts)))
-    prevalences = np.asarray([by_class[class_] for class_ in classes], dtype=np.float)
+    prevalences = np.asarray([by_class[class_] for class_ in classes], dtype=float)
     prevalences /= prevalences.sum()
     return prevalences
 
@@ -101,7 +70,7 @@ def HellingerDistance(P, Q):
     The HD for two discrete distributions of `k` bins is defined as:
 
     .. math::
-        HD(P,Q) = \\frac{ 1 }{ \\sqrt{ 2 } } \\sqrt{ \sum_{i=1}^k ( \\sqrt{p_i} - \\sqrt{q_i} )^2 }
+        HD(P,Q) = \\frac{ 1 }{ \\sqrt{ 2 } } \\sqrt{ \\sum_{i=1}^k ( \\sqrt{p_i} - \\sqrt{q_i} )^2 }
 
     :param P: real-valued array-like of shape `(k,)` representing a discrete distribution
     :param Q: real-valued array-like of shape `(k,)` representing a discrete distribution
@@ -109,6 +78,22 @@ def HellingerDistance(P, Q):
     """
     return np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q))**2))
 
+
+def TopsoeDistance(P, Q, epsilon=1e-20):
+    """
+    Topsoe distance between two (discretized) distributions `P` and `Q`.
+    The Topsoe distance for two discrete distributions of `k` bins is defined as:
+
+    .. math::
+        Topsoe(P,Q) = \\sum_{i=1}^k \\left( p_i \\log\\left(\\frac{ 2 p_i + \\epsilon }{ p_i+q_i+\\epsilon }\\right) +
+            q_i \\log\\left(\\frac{ 2 q_i + \\epsilon }{ p_i+q_i+\\epsilon }\\right) \\right)
+
+    :param P: real-valued array-like of shape `(k,)` representing a discrete distribution
+    :param Q: real-valued array-like of shape `(k,)` representing a discrete distribution
+    :return: float
+    """
+    return np.sum(P*np.log((2*P+epsilon)/(P+Q+epsilon)) + Q*np.log((2*Q+epsilon)/(P+Q+epsilon)))
+                  
 
 def uniform_prevalence_sampling(n_classes, size=1):
     """
@@ -161,7 +146,6 @@ def adjusted_quantification(prevalence_estim, tpr, fpr, clip=True):
     .. math::
         ACC(p) = \\frac{ p - fpr }{ tpr - fpr }
 
-
     :param prevalence_estim: float, the estimated value for the positive class
     :param tpr: float, the true positive rate of the classifier
     :param fpr: float, the false positive rate of the classifier
@@ -209,7 +193,7 @@ def __num_prevalence_combinations_depr(n_prevpoints:int, n_classes:int, n_repeat
     :param n_prevpoints: integer, number of prevalence points.
     :param n_repeats: integer, number of repetitions for each prevalence combination
     :return: The number of possible combinations. For example, if n_classes=2, n_prevpoints=5, n_repeats=1, then the
-    number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
+        number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
     """
     __cache={}
     def __f(nc,np):
@@ -241,7 +225,7 @@ def num_prevalence_combinations(n_prevpoints:int, n_classes:int, n_repeats:int=1
     :param n_prevpoints: integer, number of prevalence points.
     :param n_repeats: integer, number of repetitions for each prevalence combination
     :return: The number of possible combinations. For example, if n_classes=2, n_prevpoints=5, n_repeats=1, then the
-    number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
+        number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25], and [1.0,0.0]
     """
     N = n_prevpoints-1
     C = n_classes
@@ -255,7 +239,7 @@ def get_nprevpoints_approximation(combinations_budget:int, n_classes:int, n_repe
     that the number of valid prevalence values generated as combinations of prevalence points (points in a
     `n_classes`-dimensional simplex) do not exceed combinations_budget.
 
-    :param combinations_budget: integer, maximum number of combinatios allowed
+    :param combinations_budget: integer, maximum number of combinations allowed
     :param n_classes: integer, number of classes
     :param n_repeats: integer, number of repetitions for each prevalence combination
     :return: the largest number of prevalence points that generate less than combinations_budget valid prevalences
@@ -268,4 +252,27 @@ def get_nprevpoints_approximation(combinations_budget:int, n_classes:int, n_repe
             return n_prevpoints-1
         else:
             n_prevpoints += 1
+
+
+def check_prevalence_vector(p, raise_exception=False, toleranze=1e-08):
+    """
+    Checks that p is a valid prevalence vector, i.e., that it contains values in [0,1] and that the values sum up to 1.
+
+    :param p: the prevalence vector to check
+    :return: True if `p` is valid, False otherwise
+    """
+    p = np.asarray(p)
+    if not all(p>=0):
+        if raise_exception:
+            raise ValueError('the prevalence vector contains negative numbers')
+        return False
+    if not all(p<=1):
+        if raise_exception:
+            raise ValueError('the prevalence vector contains values >1')
+        return False
+    if not np.isclose(p.sum(), 1, atol=toleranze):
+        if raise_exception:
+            raise ValueError('the prevalence vector does not sum up to 1')
+        return False
+    return True
 

@@ -4,14 +4,14 @@ from copy import deepcopy
 from typing import Union, Callable
 
 import numpy as np
+from sklearn import clone
 
 import quapy as qp
+from quapy import evaluation
+from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
 from quapy.data.base import LabelledCollection
-from quapy.evaluation import artificial_prevalence_prediction, natural_prevalence_prediction, gen_prevalence_prediction
 from quapy.method.aggregative import BaseQuantifier
-import inspect
-
-from util import _check_sample_size
+from time import time
 
 
 class GridSearchQ(BaseQuantifier):
@@ -23,33 +23,11 @@ class GridSearchQ(BaseQuantifier):
     :param model: the quantifier to optimize
     :type model: BaseQuantifier
     :param param_grid: a dictionary with keys the parameter names and values the list of values to explore
-    :param sample_size: the size of the samples to extract from the validation set (ignored if protocl='gen')
-    :param protocol: either 'app' for the artificial prevalence protocol, 'npp' for the natural prevalence
-        protocol, or 'gen' for using a custom sampling generator function
-    :param n_prevpoints: if specified, indicates the number of equally distant points to extract from the interval
-        [0,1] in order to define the prevalences of the samples; e.g., if n_prevpoints=5, then the prevalences for
-        each class will be explored in [0.00, 0.25, 0.50, 0.75, 1.00]. If not specified, then eval_budget is requested.
-        Ignored if protocol!='app'.
-    :param n_repetitions: the number of repetitions for each combination of prevalences. This parameter is ignored
-        for the protocol='app' if eval_budget is set and is lower than the number of combinations that would be
-        generated using the value assigned to n_prevpoints (for the current number of classes and n_repetitions).
-        Ignored for protocol='npp' and protocol='gen' (use eval_budget for setting a maximum number of samples in
-        those cases).
-    :param eval_budget: if specified, sets a ceil on the number of evaluations to perform for each hyper-parameter
-        combination. For example, if protocol='app', there are 3 classes, n_repetitions=1 and eval_budget=20, then
-        n_prevpoints will be set to 5, since this will generate 15 different prevalences, i.e., [0, 0, 1],
-        [0, 0.25, 0.75], [0, 0.5, 0.5] ... [1, 0, 0], and since setting it to 6 would generate more than
-        20. When protocol='gen', indicates the maximum number of samples to generate, but less samples will be
-        generated if the generator yields less samples.
+    :param protocol: a sample generation protocol, an instance of :class:`quapy.protocol.AbstractProtocol`
     :param error: an error function (callable) or a string indicating the name of an error function (valid ones
-        are those in qp.error.QUANTIFICATION_ERROR
+        are those in :class:`quapy.error.QUANTIFICATION_ERROR`
     :param refit: whether or not to refit the model on the whole labelled collection (training+validation) with
         the best chosen hyperparameter combination. Ignored if protocol='gen'
-    :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
-        a float in [0,1] indicating the proportion of labelled data to extract from the training set, or a callable
-        returning a generator function each time it is invoked (only for protocol='gen').
-    :param n_jobs: number of parallel jobs
-    :param random_seed: set the seed of the random generator to replicate experiments. Ignored if protocol='gen'.
     :param timeout: establishes a timer (in seconds) for each of the hyperparameters configurations being tested.
         Whenever a run takes longer than this timer, that configuration will be ignored. If all configurations end up
         being ignored, a TimeoutError exception is raised. If -1 (default) then no time bound is set.
@@ -59,64 +37,26 @@ class GridSearchQ(BaseQuantifier):
     def __init__(self,
                  model: BaseQuantifier,
                  param_grid: dict,
-                 sample_size: Union[int, None] = None,
-                 protocol='app',
-                 n_prevpoints: int = None,
-                 n_repetitions: int = 1,
-                 eval_budget: int = None,
+                 protocol: AbstractProtocol,
                  error: Union[Callable, str] = qp.error.mae,
                  refit=True,
-                 val_split=0.4,
-                 n_jobs=1,
-                 random_seed=42,
                  timeout=-1,
+                 n_jobs=None,
                  verbose=False):
 
         self.model = model
         self.param_grid = param_grid
-        self.sample_size = sample_size
-        self.protocol = protocol.lower()
-        self.n_prevpoints = n_prevpoints
-        self.n_repetitions = n_repetitions
-        self.eval_budget = eval_budget
+        self.protocol = protocol
         self.refit = refit
-        self.val_split = val_split
-        self.n_jobs = n_jobs
-        self.random_seed = random_seed
         self.timeout = timeout
+        self.n_jobs = qp._get_njobs(n_jobs)
         self.verbose = verbose
         self.__check_error(error)
-        assert self.protocol in {'app', 'npp', 'gen'}, \
-            'unknown protocol: valid ones are "app" or "npp" for the "artificial" or the "natural" prevalence ' \
-            'protocols. Use protocol="gen" when passing a generator function thorough val_split that yields a ' \
-            'sample (instances) and their prevalence (ndarray) at each iteration.'
-        assert self.eval_budget is None or isinstance(self.eval_budget, int)
-        if self.protocol in ['npp', 'gen']:
-            if self.protocol=='npp' and (self.eval_budget is None or self.eval_budget <= 0):
-                raise ValueError(f'when protocol="npp" the parameter eval_budget should be '
-                                 f'indicated (and should be >0).')
-            if self.n_repetitions != 1:
-                print('[warning] n_repetitions has been set and will be ignored for the selected protocol')
+        assert isinstance(protocol, AbstractProtocol), 'unknown protocol'
 
     def _sout(self, msg):
         if self.verbose:
             print(f'[{self.__class__.__name__}]: {msg}')
-
-    def __check_training_validation(self, training, validation):
-        if isinstance(validation, LabelledCollection):
-            return training, validation
-        elif isinstance(validation, float):
-            assert 0. < validation < 1., 'validation proportion should be in (0,1)'
-            training, validation = training.split_stratified(train_prop=1 - validation, random_state=self.random_seed)
-            return training, validation
-        elif self.protocol=='gen' and inspect.isgenerator(validation()):
-            return training, validation
-        else:
-            raise ValueError(f'"validation" must either be a LabelledCollection or a float in (0,1) indicating the'
-                             f'proportion of training documents to extract (type found: {type(validation)}). '
-                             f'Optionally, "validation" can be a callable function returning a generator that yields '
-                             f'the sample instances along with their true prevalence at each iteration by '
-                             f'setting protocol="gen".')
 
     def __check_error(self, error):
         if error in qp.error.QUANTIFICATION_ERROR:
@@ -129,95 +69,103 @@ class GridSearchQ(BaseQuantifier):
             raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
                              f'the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}')
 
-    def __generate_predictions(self, model, val_split):
-        commons = {
-            'n_repetitions': self.n_repetitions,
-            'n_jobs': self.n_jobs,
-            'random_seed': self.random_seed,
-            'verbose': False
-        }
-        if self.protocol == 'app':
-            return artificial_prevalence_prediction(
-                model, val_split, self.sample_size,
-                n_prevpoints=self.n_prevpoints,
-                eval_budget=self.eval_budget,
-                **commons
-            )
-        elif self.protocol == 'npp':
-            return natural_prevalence_prediction(
-                model, val_split, self.sample_size,
-                **commons)
-        elif self.protocol == 'gen':
-            return gen_prevalence_prediction(model, gen_fn=val_split, eval_budget=self.eval_budget)
-        else:
-            raise ValueError('unknown protocol')
-
-    def fit(self, training: LabelledCollection, val_split: Union[LabelledCollection, float, Callable] = None):
+    def fit(self, training: LabelledCollection):
         """ Learning routine. Fits methods with all combinations of hyperparameters and selects the one minimizing
             the error metric.
 
         :param training: the training set on which to optimize the hyperparameters
-        :param val_split: either a LabelledCollection on which to test the performance of the different settings, or
-            a float in [0,1] indicating the proportion of labelled data to extract from the training set
         :return: self
         """
-        if val_split is None:
-            val_split = self.val_split
-        training, val_split = self.__check_training_validation(training, val_split)
-        if self.protocol != 'gen':
-            self.sample_size = _check_sample_size(self.sample_size)
-
         params_keys = list(self.param_grid.keys())
         params_values = list(self.param_grid.values())
 
-        model = self.model
+        protocol = self.protocol
+
+        self.param_scores_ = {}
+        self.best_score_ = None
+
+        tinit = time()
+
+        hyper = [dict({k: val[i] for i, k in enumerate(params_keys)}) for val in itertools.product(*params_values)]
+        self._sout(f'starting model selection with {self.n_jobs =}')
+        #pass a seed to parallel so it is set in clild processes
+        scores = qp.util.parallel(
+            self._delayed_eval,
+            ((params, training) for params in hyper),
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=self.n_jobs
+        )
+
+        for params, score, model in scores:
+            if score is not None:
+                if self.best_score_ is None or score < self.best_score_:
+                    self.best_score_ = score
+                    self.best_params_ = params
+                    self.best_model_ = model
+                self.param_scores_[str(params)] = score
+            else:
+                self.param_scores_[str(params)] = 'timeout'
+
+        tend = time()-tinit
+
+        if self.best_score_ is None:
+            raise TimeoutError('no combination of hyperparameters seem to work')
+
+        self._sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f}) '
+                   f'[took {tend:.4f}s]')
+
+        if self.refit:
+            if isinstance(protocol, OnLabelledCollectionProtocol):
+                self._sout(f'refitting on the whole development set')
+                self.best_model_.fit(training + protocol.get_labelled_collection())
+            else:
+                raise RuntimeWarning(f'"refit" was requested, but the protocol does not '
+                                     f'implement the {OnLabelledCollectionProtocol.__name__} interface')
+
+        return self
+
+    def _delayed_eval(self, args):
+        params, training = args
+
+        protocol = self.protocol
+        error = self.error
 
         if self.timeout > 0:
             def handler(signum, frame):
-                self._sout('timeout reached')
                 raise TimeoutError()
 
             signal.signal(signal.SIGALRM, handler)
 
-        self.param_scores_ = {}
-        self.best_score_ = None
-        some_timeouts = False
-        for values in itertools.product(*params_values):
-            params = dict({k: values[i] for i, k in enumerate(params_keys)})
+        tinit = time()
+
+        if self.timeout > 0:
+            signal.alarm(self.timeout)
+
+        try:
+            model = deepcopy(self.model)
+            # overrides default parameters with the parameters being explored at this iteration
+            model.set_params(**params)
+            model.fit(training)
+            score = evaluation.evaluate(model, protocol=protocol, error_metric=error)
+
+            ttime = time()-tinit
+            self._sout(f'hyperparams={params}\t got {error.__name__} score {score:.5f} [took {ttime:.4f}s]')
 
             if self.timeout > 0:
-                signal.alarm(self.timeout)
+                signal.alarm(0)
+        except TimeoutError:
+            self._sout(f'timeout ({self.timeout}s) reached for config {params}')
+            score = None
+        except ValueError as e:
+            self._sout(f'the combination of hyperparameters {params} is invalid')
+            raise e
+        except Exception as e:
+            self._sout(f'something went wrong for config {params}; skipping:')
+            self._sout(f'\tException: {e}')
+            score = None
 
-            try:
-                # overrides default parameters with the parameters being explored at this iteration
-                model.set_params(**params)
-                model.fit(training)
-                true_prevalences, estim_prevalences = self.__generate_predictions(model, val_split)
-                score = self.error(true_prevalences, estim_prevalences)
+        return params, score, model
 
-                self._sout(f'checking hyperparams={params} got {self.error.__name__} score {score:.5f}')
-                if self.best_score_ is None or score < self.best_score_:
-                    self.best_score_ = score
-                    self.best_params_ = params
-                    self.best_model_ = deepcopy(model)
-                self.param_scores_[str(params)] = score
-
-                if self.timeout > 0:
-                    signal.alarm(0)
-            except TimeoutError:
-                print(f'timeout reached for config {params}')
-                some_timeouts = True
-
-        if self.best_score_ is None and some_timeouts:
-            raise TimeoutError('all jobs took more than the timeout time to end')
-
-        self._sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f})')
-
-        if self.refit:
-            self._sout(f'refitting on the whole development set')
-            self.best_model_.fit(training + val_split)
-
-        return self
 
     def quantify(self, instances):
         """Estimate class prevalence values using the best model found after calling the :meth:`fit` method.
@@ -228,14 +176,6 @@ class GridSearchQ(BaseQuantifier):
         """
         assert hasattr(self, 'best_model_'), 'quantify called before fit'
         return self.best_model().quantify(instances)
-
-    @property
-    def classes_(self):
-        """
-        Classes on which the quantifier has been trained on.
-        :return: a ndarray of shape `(n_classes)` with the class identifiers
-        """
-        return self.best_model().classes_
 
     def set_params(self, **parameters):
         """Sets the hyper-parameters to explore.
@@ -262,3 +202,30 @@ class GridSearchQ(BaseQuantifier):
         if hasattr(self, 'best_model_'):
             return self.best_model_
         raise ValueError('best_model called before fit')
+
+
+
+
+def cross_val_predict(quantifier: BaseQuantifier, data: LabelledCollection, nfolds=3, random_state=0):
+    """
+    Akin to `scikit-learn's cross_val_predict <https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_predict.html>`_
+    but for quantification.
+
+    :param quantifier: a quantifier issuing class prevalence values
+    :param data: a labelled collection
+    :param nfolds: number of folds for k-fold cross validation generation
+    :param random_state: random seed for reproducibility
+    :return: a vector of class prevalence values
+    """
+
+    total_prev = np.zeros(shape=data.n_classes)
+
+    for train, test in data.kFCV(nfolds=nfolds, random_state=random_state):
+        quantifier.fit(train)
+        fold_prev = quantifier.quantify(test.X)
+        rel_size = len(test.X)/len(data)
+        total_prev += fold_prev*rel_size
+
+    return total_prev
+
+

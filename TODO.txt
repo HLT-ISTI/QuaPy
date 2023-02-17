@@ -1,7 +1,20 @@
+sample_size should not be mandatory when qp.environ['SAMPLE_SIZE'] has been specified
+clean all the cumbersome methods that have to be implemented for new quantifiers (e.g., n_classes_ prop, etc.)
+make truly parallel the GridSearchQ
+make more examples in the "examples" directory
+merge with master, because I had to fix some problems with QuaNet due to an issue notified via GitHub!
+added cross_val_predict in qp.model_selection (i.e., a cross_val_predict for quantification) --would be nice to have
+    it parallelized
+
+check the OneVsAll module(s)
+
+check the set_params de neural.py, because the separation of estimator__<param> is not implemented; see also
+    __check_params_colision
+
+HDy can be customized so that the number of bins is specified, instead of explored within the fit method
 
 Packaging:
 ==========================================
-Documentation with sphinx
 Document methods with paper references
 unit-tests
 clean wiki_examples!

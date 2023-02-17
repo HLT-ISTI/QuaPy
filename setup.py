@@ -14,6 +14,7 @@ def get_version(rel_path):
             return line.split(delim)[1]
     else:
         raise RuntimeError("Unable to find version string.")
+
 # Arguments marked as "Required" below must be included for upload to PyPI.
 # Fields marked as "Optional" may be commented out.
 
@@ -114,7 +115,7 @@ setup(
 
     python_requires='>=3.6, <4',
 
-    install_requires=['scikit-learn', 'pandas', 'tqdm', 'matplotlib'],
+    install_requires=['scikit-learn', 'pandas', 'tqdm', 'matplotlib', 'joblib', 'xlrd', 'abstention'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -158,7 +159,8 @@ setup(
     project_urls={  # Optional
         'Contributors': 'https://github.com/HLT-ISTI/QuaPy/graphs/contributors',
         'Bug Reports': 'https://github.com/HLT-ISTI/QuaPy/issues',
-        'Documentation': 'https://github.com/HLT-ISTI/QuaPy/wiki',
+        'Wiki': 'https://github.com/HLT-ISTI/QuaPy/wiki',
+        'Documentation': 'https://hlt-isti.github.io/QuaPy/build/html/index.html',
         'Source': 'https://github.com/HLT-ISTI/QuaPy/',
     },
 )

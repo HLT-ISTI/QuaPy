@@ -42,7 +42,7 @@ class NeuralClassifierTrainer:
                  batch_size=64,
                  batch_size_test=512,
                  padding_length=300,
-                 device='cpu',
+                 device='cuda',
                  checkpointpath='../checkpoint/classifier_net.dat'):
 
         super().__init__()
@@ -62,7 +62,6 @@ class NeuralClassifierTrainer:
         }
         self.learner_hyperparams = self.net.get_params()
         self.checkpointpath = checkpointpath
-        self.classes_ = np.asarray([0, 1])
 
         print(f'[NeuralNetwork running on {device}]')
         os.makedirs(Path(checkpointpath).parent, exist_ok=True)
@@ -174,6 +173,7 @@ class NeuralClassifierTrainer:
         :return:
         """
         train, val = LabelledCollection(instances, labels).split_stratified(1-val_split)
+        self.classes_ = train.classes_
         opt = self.trainer_hyperparams
         checkpoint = self.checkpointpath
         self.reset_net_params(self.vocab_size, train.n_classes)
@@ -229,11 +229,11 @@ class NeuralClassifierTrainer:
         self.net.eval()
         opt = self.trainer_hyperparams
         with torch.no_grad():
-            positive_probs = []
+            posteriors = []
             for xi in TorchDataset(instances).asDataloader(
                     opt['batch_size_test'], shuffle=False, pad_length=opt['padding_length'], device=opt['device']):
-                positive_probs.append(self.net.predict_proba(xi))
-        return np.concatenate(positive_probs)
+                posteriors.append(self.net.predict_proba(xi))
+        return np.concatenate(posteriors)
 
     def transform(self, instances):
         """

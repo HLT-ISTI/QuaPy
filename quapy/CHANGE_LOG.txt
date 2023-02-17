@@ -1,0 +1,79 @@
+Change Log 0.1.7
+----------------
+
+- Protocols are now abstracted as instances of AbstractProtocol. There is a new class extending AbstractProtocol called
+    AbstractStochasticSeededProtocol, which implements a seeding policy to allow replicate the series of samplings.
+    There are some examples of protocols, APP, NPP, UPP, DomainMixer (experimental).
+    The idea is to start the sample generation by simply calling the __call__ method.
+    This change has a great impact in the framework, since many functions in qp.evaluation, qp.model_selection,
+    and sampling functions in LabelledCollection relied of the old functions. E.g., the functionality of
+    qp.evaluation.artificial_prevalence_report or qp.evaluation.natural_prevalence_report is now obtained by means of
+    qp.evaluation.report which takes a protocol as an argument. I have not maintained compatibility with the old
+    interfaces because I did not really like them. Check the wiki guide and the examples for more details.
+
+- Exploration of hyperparameters in Model selection can now be run in parallel (there was a n_jobs argument in
+    QuaPy 0.1.6 but only the evaluation part for one specific hyperparameter was run in parallel).
+
+- The prediction function has been refactored, so it applies the optimization for aggregative quantifiers (that
+    consists in pre-classifying all instances, and then only invoking aggregate on the samples) only in cases in
+    which the total number of classifications would be smaller than the number of classifications with the standard
+    procedure. The user can now specify "force", "auto", True of False, in order to actively decide for applying it
+    or not.
+
+- examples directory created!
+
+- DyS, Topsoe distance and binary search (thanks to Pablo González)
+
+- Multi-thread reproducibility via seeding (thanks to Pablo González)
+
+- n_jobs is now taken from the environment if set to None
+
+- ACC, PACC, Forman's threshold variants have been parallelized.
+
+- cross_val_predict (for quantification) added to model_selection: would be nice to allow the user specifies a
+    test protocol maybe, or None for bypassing it?
+
+- Bugfix: adding two labelled collections (with +) now checks for consistency in the classes
+
+- newer versions of numpy raise a warning when accessing types (e.g., np.float). I have replaced all such instances
+    with the plain python type (e.g., float).
+
+- new dependency "abstention" (to add to the project requirements and setup). Calibration methods from
+    https://github.com/kundajelab/abstention added.
+
+- the internal classifier of aggregative methods is now called "classifier" instead of "learner"
+
+- when optimizing the hyperparameters of an aggregative quantifier, the classifier's specific hyperparameters
+    should be marked with a "classifier__" prefix (just like in scikit-learn with estimators), while the quantifier's
+    specific hyperparameters are named directly. For example, PCC(LogisticRegression()) quantifier has hyperparameters
+    "classifier__C", "classifier__class_weight", etc., instead of "C" and "class_weight" as in v0.1.6.
+
+- hyperparameters yielding to inconsistent runs raise a ValueError exception, while hyperparameter combinations
+    yielding to internal errors of surrogate functions are reported and skipped, without stopping the grid search.
+
+- DistributionMatching methods added. This is a general framework for distribution matching methods that catters for
+    multiclass quantification. That is to say, one could get a multiclass variant of the (originally binary) HDy
+    method aligned with the Firat's formulation.
+
+- internal method properties "binary", "aggregative", and "probabilistic" have been removed; these conditions are
+    checked via isinstance
+
+- quantifiers (i.e., classes that inherit from BaseQuantifier) are not forced to implement classes_ or n_classes;
+    these can be used anyway internally, but the framework will not suppose (nor impose) that a quantifier implements
+    them
+
+- qp.evaluation.prediction has been optimized so that, if a quantifier is of type aggregative, and if the evaluation
+    protocol is of type OnLabelledCollection, then the computation is faster. In this specific case, the predictions
+    are issued only once and for all, and not for each sample. An exception to this (which is implement also), is
+    when the number of instances across all samples is anyway smaller than the number of instances in the original
+    labelled collection; in this case the heuristic is of no help, and is therefore not applied.
+
+- the distinction between "classify" and "posterior_probabilities" has been removed in Aggregative quantifiers,
+    so that probabilistic classifiers return posterior probabilities, while non-probabilistic quantifiers
+    return crisp decisions.
+
+- OneVsAll fixed. There are now two classes: a generic one OneVsAllGeneric that works with any quantifier (e.g.,
+    any instance of BaseQuantifier), and a subclass of it called OneVsAllAggregative which implements the
+    classify / aggregate interface. Both are instances of OneVsAll. There is a method getOneVsAll that returns the
+    best instance based on the type of quantifier.
+

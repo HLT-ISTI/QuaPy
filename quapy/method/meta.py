@@ -9,7 +9,6 @@ from tqdm import tqdm
 import quapy as qp
 from quapy import functional as F
 from quapy.data import LabelledCollection
-from quapy.evaluation import evaluate
 from quapy.model_selection import GridSearchQ
 
 try:
@@ -73,7 +72,7 @@ class Ensemble(BaseQuantifier):
                  policy='ave',
                  max_sample_size=None,
                  val_split:Union[qp.data.LabelledCollection, float]=None,
-                 n_jobs=1,
+                 n_jobs=None,
                  verbose=False):
         assert policy in Ensemble.VALID_POLICIES, \
             f'unknown policy={policy}; valid are {Ensemble.VALID_POLICIES}'
@@ -85,7 +84,7 @@ class Ensemble(BaseQuantifier):
         self.red_size = red_size
         self.policy = policy
         self.val_split = val_split
-        self.n_jobs = n_jobs
+        self.n_jobs = qp._get_njobs(n_jobs)
         self.post_proba_fn = None
         self.verbose = verbose
         self.max_sample_size = max_sample_size
@@ -147,15 +146,15 @@ class Ensemble(BaseQuantifier):
         This function should not be used within :class:`quapy.model_selection.GridSearchQ` (is here for compatibility
         with the abstract class).
         Instead, use `Ensemble(GridSearchQ(q),...)`, with `q` a Quantifier (recommended), or
-        `Ensemble(Q(GridSearchCV(l)))` with `Q` a quantifier class that has a learner `l` optimized for
-         classification (not recommended).
+        `Ensemble(Q(GridSearchCV(l)))` with `Q` a quantifier class that has a classifier `l` optimized for
+        classification (not recommended).
 
         :param parameters: dictionary
         :return: raises an Exception
         """
         raise NotImplementedError(f'{self.__class__.__name__} should not be used within GridSearchQ; '
                                   f'instead, use Ensemble(GridSearchQ(q),...), with q a Quantifier (recommended), '
-                                  f'or Ensemble(Q(GridSearchCV(l))) with Q a quantifier class that has a learner '
+                                  f'or Ensemble(Q(GridSearchCV(l))) with Q a quantifier class that has a classifier '
                                   f'l optimized for classification (not recommended).')
 
     def get_params(self, deep=True):
@@ -163,11 +162,13 @@ class Ensemble(BaseQuantifier):
         This function should not be used within :class:`quapy.model_selection.GridSearchQ` (is here for compatibility
         with the abstract class).
         Instead, use `Ensemble(GridSearchQ(q),...)`, with `q` a Quantifier (recommended), or
-        `Ensemble(Q(GridSearchCV(l)))` with `Q` a quantifier class that has a learner `l` optimized for
-         classification (not recommended).
+        `Ensemble(Q(GridSearchCV(l)))` with `Q` a quantifier class that has a classifier `l` optimized for
+        classification (not recommended).
 
+        :param deep: for compatibility with scikit-learn
         :return: raises an Exception
         """
+
         raise NotImplementedError()
 
     def _accuracy_policy(self, error_name):
@@ -176,11 +177,12 @@ class Ensemble(BaseQuantifier):
         For each model in the ensemble, the performance is measured in terms of _error_name_ on the quantification of
         the samples used for training the rest of the models in the ensemble.
         """
+        from quapy.evaluation import evaluate_on_samples
         error = qp.error.from_name(error_name)
         tests = [m[3] for m in self.ensemble]
         scores = []
         for i, model in enumerate(self.ensemble):
-            scores.append(evaluate(model[0], tests[:i] + tests[i + 1:], error, self.n_jobs))
+            scores.append(evaluate_on_samples(model[0], tests[:i] + tests[i + 1:], error))
         order = np.argsort(scores)
 
         self.ensemble = _select_k(self.ensemble, order, k=self.red_size)
@@ -233,19 +235,6 @@ class Ensemble(BaseQuantifier):
         dist = [F.HellingerDistance(tr_dist_i, test_distribution) for tr_dist_i in tr_distributions]
         order = np.argsort(dist)
         return _select_k(predictions, order, k=self.red_size)
-
-    @property
-    def classes_(self):
-        return self.base_quantifier.classes_
-
-    @property
-    def binary(self):
-        """
-        Returns a boolean indicating whether the base quantifiers are binary or not
-
-        :return: boolean
-        """
-        return self.base_quantifier.binary
 
     @property
     def aggregative(self):
@@ -339,18 +328,18 @@ def _draw_simplex(ndim, min_val, max_trials=100):
                              f'>= {min_val} is unlikely (it failed after {max_trials} trials)')
 
 
-def _instantiate_ensemble(learner, base_quantifier_class, param_grid, optim, param_model_sel, **kwargs):
+def _instantiate_ensemble(classifier, base_quantifier_class, param_grid, optim, param_model_sel, **kwargs):
     if optim is None:
-        base_quantifier = base_quantifier_class(learner)
+        base_quantifier = base_quantifier_class(classifier)
     elif optim in qp.error.CLASSIFICATION_ERROR:
         if optim == qp.error.f1e:
             scoring = make_scorer(f1_score)
         elif optim == qp.error.acce:
             scoring = make_scorer(accuracy_score)
-        learner = GridSearchCV(learner, param_grid, scoring=scoring)
-        base_quantifier = base_quantifier_class(learner)
+        classifier = GridSearchCV(classifier, param_grid, scoring=scoring)
+        base_quantifier = base_quantifier_class(classifier)
     else:
-        base_quantifier = GridSearchQ(base_quantifier_class(learner),
+        base_quantifier = GridSearchQ(base_quantifier_class(classifier),
                                       param_grid=param_grid,
                                       **param_model_sel,
                                       error=optim)
@@ -370,7 +359,7 @@ def _check_error(error):
                          f'the name of an error function in {qp.error.ERROR_NAMES}')
 
 
-def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None, param_model_sel: dict = None,
+def ensembleFactory(classifier, base_quantifier_class, param_grid=None, optim=None, param_model_sel: dict = None,
                     **kwargs):
     """
     Ensemble factory. Provides a unified interface for instantiating ensembles that can be optimized (via model
@@ -403,7 +392,7 @@ def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None,
     >>>
     >>> ensembleFactory(LogisticRegression(), PACC, optim='mae', policy='mae', **common)
 
-    :param learner: sklearn's Estimator that generates a classifier
+    :param classifier: sklearn's Estimator that generates a classifier
     :param base_quantifier_class: a class of quantifiers
     :param param_grid: a dictionary with the grid of parameters to optimize for
     :param optim: a valid quantification or classification error, or a string name of it
@@ -418,21 +407,21 @@ def ensembleFactory(learner, base_quantifier_class, param_grid=None, optim=None,
         if param_model_sel is None:
             raise ValueError(f'param_model_sel is None but optim was requested.')
     error = _check_error(optim)
-    return _instantiate_ensemble(learner, base_quantifier_class, param_grid, error, param_model_sel, **kwargs)
+    return _instantiate_ensemble(classifier, base_quantifier_class, param_grid, error, param_model_sel, **kwargs)
 
 
-def ECC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+def ECC(classifier, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     """
     Implements an ensemble of :class:`quapy.method.aggregative.CC` quantifiers, as used by
     `Pérez-Gállego et al., 2019 <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
 
     Equivalent to:
 
-    >>> ensembleFactory(learner, CC, param_grid, optim, param_mod_sel, **kwargs)
+    >>> ensembleFactory(classifier, CC, param_grid, optim, param_mod_sel, **kwargs)
 
     See :meth:`ensembleFactory` for further details.
 
-    :param learner: sklearn's Estimator that generates a classifier
+    :param classifier: sklearn's Estimator that generates a classifier
     :param param_grid: a dictionary with the grid of parameters to optimize for
     :param optim: a valid quantification or classification error, or a string name of it
     :param param_model_sel: a dictionary containing any keyworded argument to pass to
@@ -441,21 +430,21 @@ def ECC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     :return: an instance of :class:`Ensemble`
     """
 
-    return ensembleFactory(learner, CC, param_grid, optim, param_mod_sel, **kwargs)
+    return ensembleFactory(classifier, CC, param_grid, optim, param_mod_sel, **kwargs)
 
 
-def EACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+def EACC(classifier, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     """
     Implements an ensemble of :class:`quapy.method.aggregative.ACC` quantifiers, as used by
     `Pérez-Gállego et al., 2019 <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
 
     Equivalent to:
 
-    >>> ensembleFactory(learner, ACC, param_grid, optim, param_mod_sel, **kwargs)
+    >>> ensembleFactory(classifier, ACC, param_grid, optim, param_mod_sel, **kwargs)
 
     See :meth:`ensembleFactory` for further details.
 
-    :param learner: sklearn's Estimator that generates a classifier
+    :param classifier: sklearn's Estimator that generates a classifier
     :param param_grid: a dictionary with the grid of parameters to optimize for
     :param optim: a valid quantification or classification error, or a string name of it
     :param param_model_sel: a dictionary containing any keyworded argument to pass to
@@ -464,20 +453,20 @@ def EACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     :return: an instance of :class:`Ensemble`
     """
 
-    return ensembleFactory(learner, ACC, param_grid, optim, param_mod_sel, **kwargs)
+    return ensembleFactory(classifier, ACC, param_grid, optim, param_mod_sel, **kwargs)
 
 
-def EPACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+def EPACC(classifier, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     """
     Implements an ensemble of :class:`quapy.method.aggregative.PACC` quantifiers.
 
     Equivalent to:
 
-    >>> ensembleFactory(learner, PACC, param_grid, optim, param_mod_sel, **kwargs)
+    >>> ensembleFactory(classifier, PACC, param_grid, optim, param_mod_sel, **kwargs)
 
     See :meth:`ensembleFactory` for further details.
 
-    :param learner: sklearn's Estimator that generates a classifier
+    :param classifier: sklearn's Estimator that generates a classifier
     :param param_grid: a dictionary with the grid of parameters to optimize for
     :param optim: a valid quantification or classification error, or a string name of it
     :param param_model_sel: a dictionary containing any keyworded argument to pass to
@@ -486,21 +475,21 @@ def EPACC(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     :return: an instance of :class:`Ensemble`
     """
 
-    return ensembleFactory(learner, PACC, param_grid, optim, param_mod_sel, **kwargs)
+    return ensembleFactory(classifier, PACC, param_grid, optim, param_mod_sel, **kwargs)
 
 
-def EHDy(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+def EHDy(classifier, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     """
     Implements an ensemble of :class:`quapy.method.aggregative.HDy` quantifiers, as used by
     `Pérez-Gállego et al., 2019 <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
 
     Equivalent to:
 
-    >>> ensembleFactory(learner, HDy, param_grid, optim, param_mod_sel, **kwargs)
+    >>> ensembleFactory(classifier, HDy, param_grid, optim, param_mod_sel, **kwargs)
 
     See :meth:`ensembleFactory` for further details.
 
-    :param learner: sklearn's Estimator that generates a classifier
+    :param classifier: sklearn's Estimator that generates a classifier
     :param param_grid: a dictionary with the grid of parameters to optimize for
     :param optim: a valid quantification or classification error, or a string name of it
     :param param_model_sel: a dictionary containing any keyworded argument to pass to
@@ -509,20 +498,20 @@ def EHDy(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     :return: an instance of :class:`Ensemble`
     """
 
-    return ensembleFactory(learner, HDy, param_grid, optim, param_mod_sel, **kwargs)
+    return ensembleFactory(classifier, HDy, param_grid, optim, param_mod_sel, **kwargs)
 
 
-def EEMQ(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
+def EEMQ(classifier, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     """
     Implements an ensemble of :class:`quapy.method.aggregative.EMQ` quantifiers.
 
     Equivalent to:
 
-    >>> ensembleFactory(learner, EMQ, param_grid, optim, param_mod_sel, **kwargs)
+    >>> ensembleFactory(classifier, EMQ, param_grid, optim, param_mod_sel, **kwargs)
 
     See :meth:`ensembleFactory` for further details.
 
-    :param learner: sklearn's Estimator that generates a classifier
+    :param classifier: sklearn's Estimator that generates a classifier
     :param param_grid: a dictionary with the grid of parameters to optimize for
     :param optim: a valid quantification or classification error, or a string name of it
     :param param_model_sel: a dictionary containing any keyworded argument to pass to
@@ -531,4 +520,4 @@ def EEMQ(learner, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     :return: an instance of :class:`Ensemble`
     """
 
-    return ensembleFactory(learner, EMQ, param_grid, optim, param_mod_sel, **kwargs)
+    return ensembleFactory(classifier, EMQ, param_grid, optim, param_mod_sel, **kwargs)

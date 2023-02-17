@@ -1,43 +1,45 @@
+:tocdepth: 2
+
 quapy.method package
 ====================
 
 Submodules
 ----------
 
-quapy.method.aggregative module
--------------------------------
+quapy.method.aggregative
+------------------------
 
 .. automodule:: quapy.method.aggregative
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.method.base module
-------------------------
+quapy.method.base
+-----------------
 
 .. automodule:: quapy.method.base
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.method.meta module
-------------------------
+quapy.method.meta
+-----------------
 
 .. automodule:: quapy.method.meta
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.method.neural module
---------------------------
+quapy.method.neural
+-------------------
 
 .. automodule:: quapy.method.neural
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.method.non\_aggregative module
-------------------------------------
+quapy.method.non\_aggregative
+-----------------------------
 
 .. automodule:: quapy.method.non_aggregative
    :members:

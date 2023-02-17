@@ -13,6 +13,7 @@ for facilitating the analysis and interpretation of the experimental results.
 
 ### Last updates:
 
+* Version 0.1.7 is released! major changes can be consulted [here](quapy/CHANGE_LOG.txt).
 * A detailed documentation is now available [here](https://hlt-isti.github.io/QuaPy/)
 * The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/modules.html)
 
@@ -20,6 +21,20 @@ for facilitating the analysis and interpretation of the experimental results.
 
 ```commandline
 pip install quapy
+```
+
+### Cite QuaPy
+
+If you find QuaPy useful (and we hope you will), plese consider citing the original paper in your research:
+
+```
+@inproceedings{moreo2021quapy,
+  title={QuaPy: a python-based framework for quantification},
+  author={Moreo, Alejandro and Esuli, Andrea and Sebastiani, Fabrizio},
+  booktitle={Proceedings of the 30th ACM International Conference on Information \& Knowledge Management},
+  pages={4534--4543},
+  year={2021}
+}
 ```
 
 ## A quick example:
@@ -59,13 +74,14 @@ See the [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) for detailed examples.
 ## Features
 
 * Implementation of many popular quantification methods (Classify-&-Count and its variants, Expectation Maximization,
-quantification methods based on structured output learning, HDy, QuaNet, and quantification ensembles).
-* Versatile functionality for performing evaluation based on artificial sampling protocols.
+quantification methods based on structured output learning, HDy, QuaNet, quantification ensembles, among others).
+* Versatile functionality for performing evaluation based on sampling generation protocols (e.g., APP, NPP, etc.).
 * Implementation of most commonly used evaluation metrics (e.g., AE, RAE, SE, KLD, NKLD, etc.).
 * Datasets frequently used in quantification (textual and numeric), including:
     * 32 UCI Machine Learning datasets.
     * 11 Twitter quantification-by-sentiment datasets.
     * 3 product reviews quantification-by-sentiment datasets. 
+    * 4 tasks from LeQua competition (_new in v0.1.7!_)
 * Native support for binary and single-label multiclass quantification scenarios.
 * Model selection functionality that minimizes quantification-oriented loss functions.
 * Visualization tools for analysing the experimental results.
@@ -80,29 +96,6 @@ quantification methods based on structured output learning, HDy, QuaNet, and qua
 * pandas, xlrd
 * matplotlib
 
-## SVM-perf with quantification-oriented losses
-In order to run experiments involving SVM(Q), SVM(KLD), SVM(NKLD),
-SVM(AE), or SVM(RAE), you have to first download the 
-[svmperf](http://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html) 
-package, apply the patch 
-[svm-perf-quantification-ext.patch](./svm-perf-quantification-ext.patch), and compile the sources.
-The script [prepare_svmperf.sh](prepare_svmperf.sh) does all the job. Simply run:
-
-```
-./prepare_svmperf.sh
-```
-
-The resulting directory [svm_perf_quantification](./svm_perf_quantification) contains the
-patched version of _svmperf_ with quantification-oriented losses. 
-
-The [svm-perf-quantification-ext.patch](./svm-perf-quantification-ext.patch) is an extension of the patch made available by
-[Esuli et al. 2015](https://dl.acm.org/doi/abs/10.1145/2700406?casa_token=8D2fHsGCVn0AAAAA:ZfThYOvrzWxMGfZYlQW_y8Cagg-o_l6X_PcF09mdETQ4Tu7jK98mxFbGSXp9ZSO14JkUIYuDGFG0) 
-that allows SVMperf to optimize for
-the _Q_ measure as proposed by [Barranquero et al. 2015](https://www.sciencedirect.com/science/article/abs/pii/S003132031400291X) 
-and for the _KLD_ and _NKLD_ measures as proposed by [Esuli et al. 2015](https://dl.acm.org/doi/abs/10.1145/2700406?casa_token=8D2fHsGCVn0AAAAA:ZfThYOvrzWxMGfZYlQW_y8Cagg-o_l6X_PcF09mdETQ4Tu7jK98mxFbGSXp9ZSO14JkUIYuDGFG0).
-This patch extends the above one by also allowing SVMperf to optimize for 
-_AE_ and _RAE_.
-  
   
 ## Documentation
 
@@ -113,6 +106,8 @@ are provided:
 
 * [Datasets](https://github.com/HLT-ISTI/QuaPy/wiki/Datasets)
 * [Evaluation](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation)
+* [Protocols](https://github.com/HLT-ISTI/QuaPy/wiki/Protocols)
 * [Methods](https://github.com/HLT-ISTI/QuaPy/wiki/Methods)
+* [SVMperf](https://github.com/HLT-ISTI/QuaPy/wiki/ExplicitLossMinimization)
 * [Model Selection](https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection)
 * [Plotting](https://github.com/HLT-ISTI/QuaPy/wiki/Plotting)
