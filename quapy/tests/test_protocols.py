@@ -1,5 +1,7 @@
 import unittest
 import numpy as np
+
+import quapy.functional
 from quapy.data import LabelledCollection
 from quapy.protocol import APP, NPP, UPP, DomainMixer, AbstractStochasticSeededProtocol
 
@@ -18,6 +20,17 @@ def samples_to_str(protocol):
 
 
 class TestProtocols(unittest.TestCase):
+
+    def test_app_sanity_check(self):
+        data = mock_labelled_collection()
+        n_prevpoints = 101
+        repeats = 10
+        with self.assertRaises(RuntimeError):
+            p = APP(data, sample_size=5, n_prevalences=n_prevpoints, repeats=repeats, random_state=42)
+        n_combinations = \
+            quapy.functional.num_prevalence_combinations(n_prevpoints, n_classes=data.n_classes, n_repeats=repeats)
+        p = APP(data, sample_size=5, n_prevalences=n_prevpoints, random_state=42, sanity_check=n_combinations)
+        p = APP(data, sample_size=5, n_prevalences=n_prevpoints, random_state=42, sanity_check=None)
 
     def test_app_replicate(self):
         data = mock_labelled_collection()

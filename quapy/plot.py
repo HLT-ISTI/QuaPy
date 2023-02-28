@@ -9,9 +9,9 @@ import math
 
 import quapy as qp
 
-plt.rcParams['figure.figsize'] = [12, 8]
+plt.rcParams['figure.figsize'] = [10, 6]
 plt.rcParams['figure.dpi'] = 200
-plt.rcParams['font.size'] = 16
+plt.rcParams['font.size'] = 18
 
 
 def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=None, show_std=True, legend=True,
