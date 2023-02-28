@@ -21,10 +21,11 @@ class LowRankLogisticRegression(BaseEstimator):
         self.n_components = n_components
         self.learner = LogisticRegression(**kwargs)
 
-    def get_params(self):
+    def get_params(self, deep=True):
         """
         Get hyper-parameters for this estimator.
 
+        :param deep: compatibility with sklearn
         :return: a dictionary with parameter names mapped to their values
         """
         params = {'n_components': self.n_components}
