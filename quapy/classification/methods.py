@@ -29,7 +29,7 @@ class LowRankLogisticRegression(BaseEstimator):
         :return: a dictionary with parameter names mapped to their values
         """
         params = {'n_components': self.n_components}
-        params.update(self.learner.get_params())
+        params.update(self.learner.get_params(deep))
         return params
 
     def set_params(self, **params):
