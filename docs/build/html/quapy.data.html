@@ -447,8 +447,8 @@ index.</p>
 <span class="sig-name descname"><span class="pre">sampling_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">prevs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.sampling_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an index to be used to extract a random sample of desired size and desired prevalence values. If the
 prevalence values are not specified, then returns the index of a uniform sampling.
-For each class, the sampling is drawn without replacement if the requested prevalence is larger than
-the actual prevalence of the class, or with replacement otherwise.</p>
+For each class, the sampling is drawn with replacement if the requested prevalence is larger than
+the actual prevalence of the class, or without replacement otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -534,7 +534,7 @@ values for each class)</p>
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.uniform_sampling">
 <span class="sig-name descname"><span class="pre">uniform_sampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.uniform_sampling" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a uniform sample (an instance of <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a>) of desired size. The sampling is drawn
-without replacement if the requested size is greater than the number of instances, or with replacement
+with replacement if the requested size is greater than the number of instances, or without replacement
 otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -553,7 +553,7 @@ otherwise.</p>
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.uniform_sampling_index">
 <span class="sig-name descname"><span class="pre">uniform_sampling_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#quapy.data.base.LabelledCollection.uniform_sampling_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns an index to be used to extract a uniform sample of desired size. The sampling is drawn
-without replacement if the requested size is greater than the number of instances, or with replacement
+with replacement if the requested size is greater than the number of instances, or without replacement
 otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
