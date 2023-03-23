@@ -141,7 +141,7 @@ if __name__ == '__main__':
     qp.environ['SVMPERF_HOME'] = args.svmperfpath
 
     optim_losses = ['mae']
-    datasets = qp.datasets.UCI_DATASETS[:4]
+    datasets = qp.datasets.UCI_DATASETS
 
     models = quantification_models()
     qp.util.parallel(run, itertools.product(optim_losses, datasets, models), n_jobs=N_JOBS)
