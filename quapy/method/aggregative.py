@@ -444,24 +444,28 @@ class EMQ(AggregativeProbabilisticQuantifier):
 
     def __init__(self, classifier: BaseEstimator, exact_train_prev=True, recalib=None):
         self.classifier = classifier
+        self.non_calibrated = classifier
         self.exact_train_prev = exact_train_prev
         self.recalib = recalib
 
     def fit(self, data: LabelledCollection, fit_classifier=True):
         if self.recalib is not None:
             if self.recalib == 'nbvs':
-                self.classifier = NBVSCalibration(self.classifier)
+                self.classifier = NBVSCalibration(self.non_calibrated)
             elif self.recalib == 'bcts':
-                self.classifier = BCTSCalibration(self.classifier)
+                self.classifier = BCTSCalibration(self.non_calibrated)
             elif self.recalib == 'ts':
-                self.classifier = TSCalibration(self.classifier)
+                self.classifier = TSCalibration(self.non_calibrated)
             elif self.recalib == 'vs':
-                self.classifier = VSCalibration(self.classifier)
+                self.classifier = VSCalibration(self.non_calibrated)
             elif self.recalib == 'platt':
                 self.classifier = CalibratedClassifierCV(self.classifier, ensemble=False)
             else:
                 raise ValueError('invalid param argument for recalibration method; available ones are '
                                  '"nbvs", "bcts", "ts", and "vs".')
+            self.recalib = None
+        else:
+            self.classifier = self.non_calibrated
         self.classifier, _ = _training_helper(self.classifier, data, fit_classifier, ensure_probabilistic=True)
         if self.exact_train_prev:
             self.train_prevalence = F.prevalence_from_labels(data.labels, self.classes_)

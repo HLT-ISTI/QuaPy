@@ -1,3 +1,6 @@
+ensembles seem to be broken; they have an internal model selection which takes the parameters, but since quapy now
+    works with protocols it would need to know the validation set in order to pass something like
+    "protocol: APP(val, etc.)"
 sample_size should not be mandatory when qp.environ['SAMPLE_SIZE'] has been specified
 clean all the cumbersome methods that have to be implemented for new quantifiers (e.g., n_classes_ prop, etc.)
 make truly parallel the GridSearchQ

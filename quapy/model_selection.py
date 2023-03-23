@@ -56,7 +56,7 @@ class GridSearchQ(BaseQuantifier):
 
     def _sout(self, msg):
         if self.verbose:
-            print(f'[{self.__class__.__name__}]: {msg}')
+            print(f'[{self.__class__.__name__}:{self.model.__class__.__name__}]: {msg}')
 
     def __check_error(self, error):
         if error in qp.error.QUANTIFICATION_ERROR:

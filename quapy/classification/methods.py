@@ -19,17 +19,16 @@ class LowRankLogisticRegression(BaseEstimator):
 
     def __init__(self, n_components=100, **kwargs):
         self.n_components = n_components
-        self.learner = LogisticRegression(**kwargs)
+        self.classifier = LogisticRegression(**kwargs)
 
-    def get_params(self, deep=True):
+    def get_params(self):
         """
         Get hyper-parameters for this estimator.
 
-        :param deep: compatibility with sklearn
         :return: a dictionary with parameter names mapped to their values
         """
         params = {'n_components': self.n_components}
-        params.update(self.learner.get_params(deep))
+        params.update(self.classifier.get_params())
         return params
 
     def set_params(self, **params):
@@ -44,7 +43,7 @@ class LowRankLogisticRegression(BaseEstimator):
         if 'n_components' in params_:
             self.n_components = params_['n_components']
             del params_['n_components']
-        self.learner.set_params(**params_)
+        self.classifier.set_params(**params_)
 
     def fit(self, X, y):
         """
@@ -60,8 +59,8 @@ class LowRankLogisticRegression(BaseEstimator):
         if nF > self.n_components:
             self.pca = TruncatedSVD(self.n_components).fit(X)
         X = self.transform(X)
-        self.learner.fit(X, y)
-        self.classes_ = self.learner.classes_
+        self.classifier.fit(X, y)
+        self.classes_ = self.classifier.classes_
         return self
 
     def predict(self, X):
@@ -73,7 +72,7 @@ class LowRankLogisticRegression(BaseEstimator):
             instances in `X`
         """
         X = self.transform(X)
-        return self.learner.predict(X)
+        return self.classifier.predict(X)
 
     def predict_proba(self, X):
         """
@@ -83,7 +82,7 @@ class LowRankLogisticRegression(BaseEstimator):
         :return: array-like of shape `(n_samples, n_classes)` with the posterior probabilities
         """
         X = self.transform(X)
-        return self.learner.predict_proba(X)
+        return self.classifier.predict_proba(X)
 
     def transform(self, X):
         """

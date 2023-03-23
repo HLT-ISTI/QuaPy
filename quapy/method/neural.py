@@ -9,6 +9,7 @@ from torch.nn.functional import relu
 from quapy.protocol import UPP
 from quapy.method.aggregative import *
 from quapy.util import EarlyStop
+from tqdm import tqdm
 
 
 class QuaNetTrainer(BaseQuantifier):
@@ -28,7 +29,7 @@ class QuaNetTrainer(BaseQuantifier):
     >>>
     >>> # load the kindle dataset as text, and convert words to numerical indexes
     >>> dataset = qp.datasets.fetch_reviews('kindle', pickle=True)
-    >>> qp.data.preprocessing.index(dataset, min_df=5, inplace=True)
+    >>> qp.domains.preprocessing.index(dataset, min_df=5, inplace=True)
     >>>
     >>> # the text classifier is a CNN trained by NeuralClassifierTrainer
     >>> cnn = CNNnet(dataset.vocabulary_size, dataset.n_classes)
@@ -263,15 +264,19 @@ class QuaNetTrainer(BaseQuantifier):
                                      f'patience={early_stop.patience}/{early_stop.PATIENCE_LIMIT}')
 
     def get_params(self, deep=True):
-        return {**self.classifier.get_params(), **self.quanet_params}
+        classifier_params = self.classifier.get_params()
+        classifier_params = {'classifier__'+k:v for k,v in classifier_params.items()}
+        return {**classifier_params, **self.quanet_params}
 
     def set_params(self, **parameters):
         learner_params = {}
         for key, val in parameters.items():
             if key in self.quanet_params:
                 self.quanet_params[key] = val
+            elif key.startswith('classifier__'):
+                learner_params[key.replace('classifier__', '')] = val
             else:
-                learner_params[key] = val
+                raise ValueError('unknown parameter ', key)
         self.classifier.set_params(**learner_params)
 
     def __check_params_colision(self, quanet_params, learner_params):

@@ -207,7 +207,7 @@ def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False
     return Dataset(*data.split_stratified(1 - test_split, random_state=0))
 
 
-def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> Dataset:
+def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
     """
     Loads a UCI collection as an instance of :class:`quapy.data.base.LabelledCollection`, as used in
     `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
@@ -223,7 +223,7 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
 
     >>> import quapy as qp
     >>> collection = qp.datasets.fetch_UCILabelledCollection("yeast")
-    >>> for data in qp.data.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
+    >>> for data in qp.domains.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
     >>>     ...
 
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
@@ -233,7 +233,7 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
         ~/quay_data/ directory)
     :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
     :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
-    :return: a :class:`quapy.data.base.Dataset` instance
+    :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
 
     assert dataset_name in UCI_DATASETS, \
