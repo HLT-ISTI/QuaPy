@@ -3,7 +3,7 @@ from copy import deepcopy
 import quapy as qp
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.linear_model import LogisticRegression
-from classification.methods import LowRankLogisticRegression
+from quapy.classification.methods import LowRankLogisticRegression
 from quapy.method.meta import QuaNet
 from quapy.protocol import APP
 from quapy.method.aggregative import CC, ACC, PCC, PACC, MAX, MS, MS2, EMQ, HDy, newSVMAE
