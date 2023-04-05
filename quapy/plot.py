@@ -383,6 +383,9 @@ def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs
     # x_error function) and 'y' is the estim-test shift (computed as according to y_error)
     data = _join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error, y_error, method_order)
 
+    if method_order is None:
+        method_order = method_names
+
     if binning == 'isomerous':
         # take bins containing the same amount of examples
         tr_test_drifts = np.concatenate([data[m]['x'] for m in method_order])
