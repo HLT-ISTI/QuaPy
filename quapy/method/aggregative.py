@@ -770,7 +770,9 @@ class DistributionMatching(AggregativeProbabilisticQuantifier):
         """
         Trains the classifier (if requested) and generates the validation distributions out of the training data.
         The validation distributions have shape `(n, ch, nbins)`, with `n` the number of classes, `ch` the number of
-        channels, and `nbins` the number of bins. In particular, let `V` be the validation distributions; `di=V[i]`
+        channels (a channel is a description, in form of a histogram, of a specific class -- there are as many channels
+        as classes, although in the binary case one can use only one channel, since the other one is constrained),
+        and `nbins` the number of bins. In particular, let `V` be the validation distributions; `di=V[i]`
         are the distributions obtained from training data labelled with class `i`; `dij = di[j]` is the discrete
         distribution of posterior probabilities `P(Y=j|X=x)` for training data labelled with class `i`, and `dij[k]`
         is the fraction of instances with a value in the `k`-th bin.
@@ -819,7 +821,7 @@ class DistributionMatching(AggregativeProbabilisticQuantifier):
         uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
 
         # solutions are bounded to those contained in the unit-simplex
-        bounds = tuple((0, 1) for x in range(n_classes))  # values in [0,1]
+        bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
         constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
         r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
         return r.x
