@@ -14,6 +14,11 @@ import scipy
 from scipy import optimize
 
 
+# TODO: optimize the bandwidth automatically
+# TODO: replace the l2 metric in the kernel with the EMD, try to visualize the difference between both criteria in a 3-simplex
+# TODO: think of a MMD-y variant, i.e., a MMD variant that uses the points in the simplex and possibly any non-linear kernel
+
+
 class KDEy(AggregativeProbabilisticQuantifier):
 
     BANDWIDTH_METHOD = ['auto', 'scott', 'silverman']
