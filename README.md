@@ -114,4 +114,4 @@ are provided:
 
 ## Acknowledgments:
 
-![SoBigData++](SoBigData.png)
+<img src="SoBigData.png" alt="SoBigData++" width="100"/>
