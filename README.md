@@ -111,3 +111,7 @@ are provided:
 * [SVMperf](https://github.com/HLT-ISTI/QuaPy/wiki/ExplicitLossMinimization)
 * [Model Selection](https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection)
 * [Plotting](https://github.com/HLT-ISTI/QuaPy/wiki/Plotting)
+
+## Acknowledgments:
+
+![SoBigData++](SoBigData.png)
