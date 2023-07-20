@@ -88,7 +88,7 @@ class GridSearchQ(BaseQuantifier):
 
         hyper = [dict({k: val[i] for i, k in enumerate(params_keys)}) for val in itertools.product(*params_values)]
         self._sout(f'starting model selection with {self.n_jobs =}')
-        #pass a seed to parallel so it is set in clild processes
+        # pass a seed to parallel so it is set in clild processes
         scores = qp.util.parallel(
             self._delayed_eval,
             ((params, training) for params in hyper),

@@ -1,0 +1,21 @@
+Cosa fundamental:
+KDE se puede usar para generar 2 distribuciones (una, es un mixture model de KDEs en train condicionados a cada clase,
+y el otro es un KDE en test), de las que luego se calculará la divergencia (objetivo a minimizar). Otra opción es
+generar solo una distribución (mixture model de train) y tomar la likelihood de los puntos de test como objetivo
+a maximizar.
+
+1) aclarar: only test?
+2) implementar el auto
+    - optimización interna para likelihood [ninguno parece funcionar bien]
+        - de todo (e.g., todo el training)?
+        - independiente para cada conjunto etiquetado? (e.g., positivos, negativos, neutros, y test)
+    - optimización como un parámetro GridSearchQ
+3) aclarar: topsoe?
+4) otro tipo de model selection?
+5) aumentar numero de bags
+6) optimizar parametro C? optimizar kernel? optimizar distancia?
+7) KDE de sklearn o multivariate KDE de statsmodel? ver también qué es esto (parece que da P(Y|X) o sea que podría
+    eliminar el clasificador?):
+    https://www.statsmodels.org/dev/_modules/statsmodels/nonparametric/kernel_density.html#KDEMultivariateConditional
+8) quitar la ultima dimension en sklearn también?
+9) optimizar para RAE en vez de AE?

@@ -1,8 +1,11 @@
+import os
+import sys
 from typing import Union, Callable
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 import pandas as pd
+from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KernelDensity
 
 import quapy as qp
@@ -12,56 +15,96 @@ from quapy.method.aggregative import AggregativeProbabilisticQuantifier, _traini
     DistributionMatching, _get_divergence
 import scipy
 from scipy import optimize
+from statsmodels.nonparametric.kernel_density import KDEMultivariateConditional
 
 
 # TODO: optimize the bandwidth automatically
-# TODO: replace the l2 metric in the kernel with the EMD, try to visualize the difference between both criteria in a 3-simplex
 # TODO: think of a MMD-y variant, i.e., a MMD variant that uses the points in the simplex and possibly any non-linear kernel
+
+
+class SklearnKDE:
+    def __init__(self):
+        pass
+
+    def fit(self):
+        pass
+
+    def likelihood(self):
+        pass
 
 
 class KDEy(AggregativeProbabilisticQuantifier):
 
     BANDWIDTH_METHOD = ['auto', 'scott', 'silverman']
-    ENGINE = ['scipy', 'sklearn']
+    ENGINE = ['scipy', 'sklearn', 'statsmodels']
+    TARGET = ['min_divergence', 'max_likelihood']
 
     def __init__(self, classifier: BaseEstimator, val_split=0.4, divergence: Union[str, Callable]='HD',
-                 bandwidth_method='scott', engine='sklearn', n_jobs=None):
+                 bandwidth='scott', engine='sklearn', target='min_divergence', n_jobs=None):
+        assert bandwidth in KDEy.BANDWIDTH_METHOD or isinstance(bandwidth, float), \
+            f'unknown bandwidth_method, valid ones are {KDEy.BANDWIDTH_METHOD}'
+        assert engine in KDEy.ENGINE, f'unknown engine, valid ones are {KDEy.ENGINE}'
+        assert target in KDEy.TARGET, f'unknown target, valid ones are {KDEy.TARGET}'
         self.classifier = classifier
         self.val_split = val_split
         self.divergence = divergence
-        self.bandwidth_method = bandwidth_method
+        self.bandwidth = bandwidth
         self.engine = engine
+        self.target = target
         self.n_jobs = n_jobs
-        assert bandwidth_method in KDEy.BANDWIDTH_METHOD, f'unknown bandwidth_method, valid ones are {KDEy.BANDWIDTH_METHOD}'
-        assert engine in KDEy.ENGINE, f'unknown engine, valid ones are {KDEy.ENGINE}'
+
+    def search_bandwidth_maxlikelihood(self, posteriors, labels):
+        grid = {'bandwidth': np.linspace(0.001, 0.2, 100)}
+        search = GridSearchCV(
+            KernelDensity(), param_grid=grid, n_jobs=-1, cv=50, verbose=1, refit=True
+        )
+        search.fit(posteriors, labels)
+        bandwidth = search.best_params_['bandwidth']
+        print(f'auto: bandwidth={bandwidth:.5f}')
+        return bandwidth
 
     def get_kde(self, posteriors):
+        # if self.bandwidth == 'auto':
+        #     print('adjusting bandwidth')
+        #
+        #     if self.engine == 'sklearn':
+        #         grid = {'bandwidth': np.linspace(0.001,0.2,41)}
+        #         search = GridSearchCV(
+        #             KernelDensity(), param_grid=grid, n_jobs=-1, cv=10, verbose=1, refit=True
+        #         )
+        #         search.fit(posteriors)
+        #         print(search.best_score_)
+        #         print(search.best_params_)
+        #
+        #         import pandas as pd
+        #         df = pd.DataFrame(search.cv_results_)
+        #         pd.set_option('display.max_columns', None)
+        #         pd.set_option('display.max_rows', None)
+        #         pd.set_option('expand_frame_repr', False)
+        #         print(df)
+        #         sys.exit(0)
+        #
+        #         kde = search
+
+        #else:
         if self.engine == 'scipy':
             # scipy treats columns as datapoints, and need the datapoints not to lie in a lower-dimensional subspace, which
             # requires removing the last dimension which is constrained
             posteriors = posteriors[:,:-1].T
             kde = scipy.stats.gaussian_kde(posteriors)
-            kde.set_bandwidth(self.bandwidth_method)
+            kde.set_bandwidth(self.bandwidth)
         elif self.engine == 'sklearn':
-            kde = KernelDensity(bandwidth=self.bandwidth_method).fit(posteriors)
+            kde = KernelDensity(bandwidth=self.bandwidth).fit(posteriors)
         return kde
 
     def pdf(self, kde, posteriors):
         if self.engine == 'scipy':
-            return kde(posteriors[:,:-1].T)
+            return kde(posteriors[:, :-1].T)
         elif self.engine == 'sklearn':
             return np.exp(kde.score_samples(posteriors))
 
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
         """
-        Trains the classifier (if requested) and generates the validation distributions out of the training data.
-        The validation distributions have shape `(n, ch, nbins)`, with `n` the number of classes, `ch` the number of
-        channels (a channel is a description, in form of a histogram, of a specific class -- there are as many channels
-        as classes, although in the binary case one can use only one channel, since the other one is constrained),
-        and `nbins` the number of bins. In particular, let `V` be the validation distributions; `di=V[i]`
-        are the distributions obtained from training data labelled with class `i`; `dij = di[j]` is the discrete
-        distribution of posterior probabilities `P(Y=j|X=x)` for training data labelled with class `i`, and `dij[k]`
-        is the fraction of instances with a value in the `k`-th bin.
 
         :param data: the training set
         :param fit_classifier: set to False to bypass the training (the learner is assumed to be already fit)
@@ -77,6 +120,9 @@ class KDEy(AggregativeProbabilisticQuantifier):
             data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
         )
 
+        if self.bandwidth == 'auto':
+            self.bandwidth = self.search_bandwidth_maxlikelihood(posteriors, y)
+
         self.val_densities = [self.get_kde(posteriors[y == cat]) for cat in range(data.n_classes)]
         self.val_posteriors = posteriors
 
@@ -90,14 +136,18 @@ class KDEy(AggregativeProbabilisticQuantifier):
         """
         return lambda posteriors: sum(prev_i * self.pdf(kde_i, posteriors) for kde_i, prev_i in zip(self.val_densities, prev))
 
-
     def aggregate(self, posteriors: np.ndarray):
+        if self.target == 'min_divergence':
+            return self._target_divergence(posteriors)
+        elif self.target == 'max_likelihood':
+            return self._target_likelihood(posteriors)
+        else:
+            raise ValueError('unknown target')
+
+    def _target_divergence(self, posteriors):
         """
         Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution
         (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.
-        In the multiclass case, with `n` the number of classes, the test and mixture distributions contain
-        `n` channels (proper distributions of binned posterior probabilities), on which the divergence is computed
-        independently. The matching is computed as an average of the divergence across all channels.
 
         :param instances: instances in the sample
         :return: a vector of class prevalence estimates
@@ -107,12 +157,14 @@ class KDEy(AggregativeProbabilisticQuantifier):
         test_likelihood = self.pdf(test_density, posteriors)
         divergence = _get_divergence(self.divergence)
 
-
         n_classes = len(self.val_densities)
 
         def match(prev):
             val_pdf = self.val_pdf(prev)
-            val_likelihood  = val_pdf(posteriors)
+            val_likelihood = val_pdf(posteriors)
+
+            #for i,prev_i in enumerate(prev):
+
             return divergence(val_likelihood, test_likelihood)
 
         # the initial point is set as the uniform distribution
@@ -124,50 +176,27 @@ class KDEy(AggregativeProbabilisticQuantifier):
         r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
         return r.x
 
+    def _target_likelihood(self, posteriors):
+        """
+        Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution
+        (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.
 
+        :param instances: instances in the sample
+        :return: a vector of class prevalence estimates
+        """
+        n_classes = len(self.val_densities)
 
-if __name__ == '__main__':
+        def neg_loglikelihood(prev):
+            val_pdf = self.val_pdf(prev)
+            test_likelihood = val_pdf(posteriors)
+            test_loglikelihood = np.log(test_likelihood)
+            return - np.sum(test_loglikelihood)
 
-    qp.environ['SAMPLE_SIZE'] = 100
-    qp.environ['N_JOBS'] = -1
-    div = 'HD'
+        # the initial point is set as the uniform distribution
+        uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
 
-    # generates tuples (dataset, method, method_name)
-    # (the dataset is needed for methods that process the dataset differently)
-    def gen_methods():
-
-        for dataset in qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST:
-
-            data = qp.datasets.fetch_twitter(dataset, min_df=3, pickle=True)
-
-            # kdey = KDEy(LogisticRegression(), divergence=div, bandwidth_method='scott')
-            # yield data, kdey, f'KDEy-{div}-scott'
-
-            kdey = KDEy(LogisticRegression(), divergence=div, bandwidth_method='silverman', engine='sklearn')
-            yield data, kdey, f'KDEy-{div}-silverman'
-
-            dm = DistributionMatching(LogisticRegression(), divergence=div, nbins=5)
-            yield data, dm, f'DM-5b-{div}'
-
-            # dm = DistributionMatching(LogisticRegression(), divergence=div, nbins=10)
-            # yield data, dm, f'DM-10b-{div}'
-
-
-    result_path = 'results_kdey.csv'
-    with open(result_path, 'wt') as csv:
-        csv.write(f'Method\tDataset\tMAE\tMRAE\n')
-        for data, quantifier, quant_name in gen_methods():
-            quantifier.fit(data.training)
-            protocol = UPP(data.test, repeats=100)
-            report = qp.evaluation.evaluation_report(quantifier, protocol, error_metrics=['mae','mrae'], verbose=True)
-            means = report.mean()
-            csv.write(f'{quant_name}\t{data.name}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\n')
-            csv.flush()
-
-    df = pd.read_csv(result_path, sep='\t')
-    # print(df)
-
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.max_rows', None)
-    pv = df.pivot_table(index='Dataset', columns="Method", values=["MAE", "MRAE"])
-    print(pv)
+        # solutions are bounded to those contained in the unit-simplex
+        bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
+        constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
+        r = optimize.minimize(neg_loglikelihood, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
+        return r.x
