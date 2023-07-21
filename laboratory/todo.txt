@@ -4,6 +4,11 @@ y el otro es un KDE en test), de las que luego se calculará la divergencia (obj
 generar solo una distribución (mixture model de train) y tomar la likelihood de los puntos de test como objetivo
 a maximizar.
 
+- quedarse con hyperparametros mejores por verlos
+- sacar los dataframes en resultados para hcer test estadisticos
+- hacer dibujitos
+
+
 1) aclarar: only test?
 2) implementar el auto
     - optimización interna para likelihood [ninguno parece funcionar bien]

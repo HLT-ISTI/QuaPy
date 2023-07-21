@@ -9,8 +9,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KernelDensity
 
 import quapy as qp
-from data import LabelledCollection
-from protocol import APP, UPP
+from quapy.data import LabelledCollection
+from quapy.protocol import APP, UPP
 from quapy.method.aggregative import AggregativeProbabilisticQuantifier, _training_helper, cross_generate_predictions, \
     DistributionMatching, _get_divergence
 import scipy
@@ -21,16 +21,6 @@ from statsmodels.nonparametric.kernel_density import KDEMultivariateConditional
 # TODO: optimize the bandwidth automatically
 # TODO: think of a MMD-y variant, i.e., a MMD variant that uses the points in the simplex and possibly any non-linear kernel
 
-
-class SklearnKDE:
-    def __init__(self):
-        pass
-
-    def fit(self):
-        pass
-
-    def likelihood(self):
-        pass
 
 
 class KDEy(AggregativeProbabilisticQuantifier):
@@ -163,8 +153,6 @@ class KDEy(AggregativeProbabilisticQuantifier):
             val_pdf = self.val_pdf(prev)
             val_likelihood = val_pdf(posteriors)
 
-            #for i,prev_i in enumerate(prev):
-
             return divergence(val_likelihood, test_likelihood)
 
         # the initial point is set as the uniform distribution
@@ -176,7 +164,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
         r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
         return r.x
 
-    def _target_likelihood(self, posteriors):
+    def _target_likelihood(self, posteriors, eps=0.000001):
         """
         Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution
         (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.
@@ -189,8 +177,9 @@ class KDEy(AggregativeProbabilisticQuantifier):
         def neg_loglikelihood(prev):
             val_pdf = self.val_pdf(prev)
             test_likelihood = val_pdf(posteriors)
-            test_loglikelihood = np.log(test_likelihood)
-            return - np.sum(test_loglikelihood)
+            test_loglikelihood = np.log(test_likelihood + eps)
+            return -np.sum(test_loglikelihood)
+            #return -np.prod(test_likelihood)
 
         # the initial point is set as the uniform distribution
         uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))

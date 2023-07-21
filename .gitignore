@@ -27,6 +27,40 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+.idea
+.vscode
+LeQua2022
+MultiLabel/results_generales
+MultiLabel/mlqtables
+NewMethods/plots*
+NewMethods/results*
+NewMethods/tables*
+NewMethods/latex*
+Ordinal/data*
+Ordinal/roberta*
+Ordinal/tables*
+Ordinal/results*
+eDiscovery/plots*
+eDiscovery/results*
+examples/results*
+poster-cikm*
+slides-cikm*
+slides-short-cikm*
+quick_experiment/figures*
+quick_experiment/figures*
+svm_perf_quantification/*
+TweetSentQuant/plots*
+TweetSentQuant/results*
+TweetSentQuant/tables*
+TweetSentQuant/Tweet Sentiment Quantification_NPP
+TweetSentQuant/checkpoint
+TweetSentQuant/*.tex
+checkpoint
+*.png
+*.zip
+*.pkl
+*.pickle
+*.pdf
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
