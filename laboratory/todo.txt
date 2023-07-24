@@ -4,23 +4,28 @@ y el otro es un KDE en test), de las que luego se calculará la divergencia (obj
 generar solo una distribución (mixture model de train) y tomar la likelihood de los puntos de test como objetivo
 a maximizar.
 
-- quedarse con hyperparametros mejores por verlos
-- sacar los dataframes en resultados para hcer test estadisticos
+- echar un ojo a los hyperparametros
 - hacer dibujitos
+- estudiar el caso en que el target es minimizar una divergencia. Posibilidades:
+    - evaluar los puntos de test solo
+    - evaluar un APP sobre el simplexo?
+    - evaluar un UPP sobre el simplexo? (=Montecarlo)
+    - qué divergencias? HD, topsoe, L1?
 
-
-1) aclarar: only test?
 2) implementar el auto
     - optimización interna para likelihood [ninguno parece funcionar bien]
         - de todo (e.g., todo el training)?
         - independiente para cada conjunto etiquetado? (e.g., positivos, negativos, neutros, y test)
     - optimización como un parámetro GridSearchQ
-3) aclarar: topsoe?
-4) otro tipo de model selection?
-5) aumentar numero de bags
-6) optimizar parametro C? optimizar kernel? optimizar distancia?
+6) optimizar kernel? optimizar distancia?
 7) KDE de sklearn o multivariate KDE de statsmodel? ver también qué es esto (parece que da P(Y|X) o sea que podría
     eliminar el clasificador?):
     https://www.statsmodels.org/dev/_modules/statsmodels/nonparametric/kernel_density.html#KDEMultivariateConditional
-8) quitar la ultima dimension en sklearn también?
-9) optimizar para RAE en vez de AE?
+8) quitar la ultima dimension en sklearn también? No veo porqué
+9) optimizar para RAE en vez de AE? No va bien...
+10) Definir un clasificador que devuelva, para cada clase, una posterior como la likelihood en la class-conditional KDE dividida
+    por la likelihood en en todas las clases (como propone Juanjo) y meterlo en EMD. Hacer al contario: re-calibrar con
+    EMD y meterlo en KDEy
+11) KDEx?
+12) Dirichlet (el método DIR) habría que arreglarlo y mostrar resultados...
+13) Test estadisticos.

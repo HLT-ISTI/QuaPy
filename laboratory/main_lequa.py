@@ -27,7 +27,7 @@ if __name__ == '__main__':
         'classifier__class_weight': ['balanced', None]
     } 
 
-    for method in ['PACC', 'SLD', 'DM', 'KDE', 'HDy', 'DIR']:
+    for method in ['KDE', 'PACC', 'SLD', 'DM', 'HDy-OvA', 'DIR']:
         
         #if os.path.exists(result_path):
         #    print('Result already exit. Nothing to do')
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
             dataset = 'T1B'
             train, val_gen, test_gen = qp.datasets.fetch_lequa2022(dataset)
-            print('init', dataset)
+            print(f'init {dataset} #instances: {len(train)}')
             if method == 'KDE':
                 param_grid = {
                     'bandwidth': np.linspace(0.001, 0.2, 21), 
@@ -51,6 +51,11 @@ if __name__ == '__main__':
                     'classifier__class_weight': ['balanced', None]
                 }
                 quantifier = KDEy(LogisticRegression(), target='max_likelihood')
+            elif method == 'KDE-debug':
+                param_grid = None
+                qp.environ['N_JOBS'] = 1
+                quantifier = KDEy(LogisticRegression(), target='max_likelihood', bandwidth=0.02)
+                #train = train.sampling(280, *[1./train.n_classes]*(train.n_classes-1))
             elif method == 'DIR':
                 param_grid = hyper_LR
                 quantifier = DIRy(LogisticRegression())
@@ -62,7 +67,7 @@ if __name__ == '__main__':
                 quantifier = PACC(LogisticRegression())
             elif method == 'HDy-OvA':
                 param_grid = {
-                    'binary_quantifier__classifier__C': np.logspace(-4,4,9),
+                    'binary_quantifier__classifier__C': np.logspace(-3,3,9),
                     'binary_quantifier__classifier__class_weight': ['balanced', None]
                 } 
                 quantifier = OneVsAllAggregative(HDy(LogisticRegression()))
@@ -76,13 +81,17 @@ if __name__ == '__main__':
             else:
                 raise NotImplementedError('unknown method', method)
 
-            modsel = GridSearchQ(quantifier, param_grid, protocol=val_gen, refit=False, n_jobs=-1, verbose=1, error=optim)
+            if param_grid is not None:
+                modsel = GridSearchQ(quantifier, param_grid, protocol=val_gen, refit=False, n_jobs=-1, verbose=1, error=optim)
 
-            modsel.fit(train)
-            print(f'best params {modsel.best_params_}')
-            pickle.dump(modsel.best_params_, open(f'{result_dir}/{method}_{dataset}.hyper.pkl', 'wb'), pickle.HIGHEST_PROTOCOL)
+                modsel.fit(train)
+                print(f'best params {modsel.best_params_}')
+                pickle.dump(modsel.best_params_, open(f'{result_dir}/{method}_{dataset}.hyper.pkl', 'wb'), pickle.HIGHEST_PROTOCOL)
 
-            quantifier = modsel.best_model()
+                quantifier = modsel.best_model()
+            else:
+                print('debug mode... skipping model selection')
+                quantifier.fit(train)
 
             report = qp.evaluation.evaluation_report(quantifier, protocol=test_gen, error_metrics=['mae', 'mrae', 'kld'], verbose=True)
             means = report.mean()

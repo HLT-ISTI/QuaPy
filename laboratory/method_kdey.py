@@ -30,7 +30,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
     TARGET = ['min_divergence', 'max_likelihood']
 
     def __init__(self, classifier: BaseEstimator, val_split=0.4, divergence: Union[str, Callable]='HD',
-                 bandwidth='scott', engine='sklearn', target='min_divergence', n_jobs=None):
+                 bandwidth='scott', engine='sklearn', target='min_divergence', n_jobs=None, random_state=0):
         assert bandwidth in KDEy.BANDWIDTH_METHOD or isinstance(bandwidth, float), \
             f'unknown bandwidth_method, valid ones are {KDEy.BANDWIDTH_METHOD}'
         assert engine in KDEy.ENGINE, f'unknown engine, valid ones are {KDEy.ENGINE}'
@@ -42,6 +42,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
         self.engine = engine
         self.target = target
         self.n_jobs = n_jobs
+        self.random_state=random_state
 
     def search_bandwidth_maxlikelihood(self, posteriors, labels):
         grid = {'bandwidth': np.linspace(0.001, 0.2, 100)}
@@ -84,14 +85,20 @@ class KDEy(AggregativeProbabilisticQuantifier):
             kde = scipy.stats.gaussian_kde(posteriors)
             kde.set_bandwidth(self.bandwidth)
         elif self.engine == 'sklearn':
+            #print('fitting kde')
             kde = KernelDensity(bandwidth=self.bandwidth).fit(posteriors)
+            #print('[fitting done]')
         return kde
 
     def pdf(self, kde, posteriors):
         if self.engine == 'scipy':
             return kde(posteriors[:, :-1].T)
         elif self.engine == 'sklearn':
-            return np.exp(kde.score_samples(posteriors))
+            #print('pdf...')
+            densities = np.exp(kde.score_samples(posteriors))
+            #print('[pdf done]')
+            return densities
+            #return np.exp(kde.score_samples(posteriors))
 
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
         """
@@ -118,13 +125,13 @@ class KDEy(AggregativeProbabilisticQuantifier):
 
         return self
 
-    def val_pdf(self, prev):
+    #def val_pdf(self, prev):
         """
         Returns a function that computes the mixture model with the given prev as mixture factor
         :param prev: a prevalence vector, ndarray
         :return: a function implementing the validation distribution with fixed mixture factor
         """
-        return lambda posteriors: sum(prev_i * self.pdf(kde_i, posteriors) for kde_i, prev_i in zip(self.val_densities, prev))
+    #    return lambda posteriors: sum(prev_i * self.pdf(kde_i, posteriors) for kde_i, prev_i in zip(self.val_densities, prev))
 
     def aggregate(self, posteriors: np.ndarray):
         if self.target == 'min_divergence':
@@ -134,14 +141,9 @@ class KDEy(AggregativeProbabilisticQuantifier):
         else:
             raise ValueError('unknown target')
 
-    def _target_divergence(self, posteriors):
-        """
-        Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution
-        (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.
-
-        :param instances: instances in the sample
-        :return: a vector of class prevalence estimates
-        """
+    def _target_divergence_depr(self, posteriors):
+        # this variant is, I think, ill-formed, since it evaluates the likelihood on the test points, which are
+        # overconfident in the KDE-test.        
         test_density = self.get_kde(posteriors)
         # val_test_posteriors = np.concatenate([self.val_posteriors, posteriors])
         test_likelihood = self.pdf(test_density, posteriors)
@@ -164,6 +166,31 @@ class KDEy(AggregativeProbabilisticQuantifier):
         r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
         return r.x
 
+    def _target_divergence(self, posteriors, montecarlo_samples=5000):
+        # in this variant we evaluate the divergence using a Montecarlo approach
+        n_classes = len(self.val_densities)
+        samples = qp.functional.uniform_prevalence_sampling(n_classes, size=montecarlo_samples)
+
+        test_kde = self.get_kde(posteriors)
+        test_likelihood = self.pdf(test_kde, samples)
+        
+        divergence = _get_divergence(self.divergence)
+  
+        sample_densities = [self.pdf(kde_i, samples) for kde_i in self.val_densities]
+
+        def match(prev):
+            val_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, sample_densities))
+            return divergence(val_likelihood, test_likelihood)
+            
+        # the initial point is set as the uniform distribution
+        uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
+
+        # solutions are bounded to those contained in the unit-simplex
+        bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
+        constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
+        r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
+        return r.x
+
     def _target_likelihood(self, posteriors, eps=0.000001):
         """
         Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution
@@ -172,13 +199,20 @@ class KDEy(AggregativeProbabilisticQuantifier):
         :param instances: instances in the sample
         :return: a vector of class prevalence estimates
         """
+        np.random.RandomState(self.random_state)
         n_classes = len(self.val_densities)
+        test_densities = [self.pdf(kde_i, posteriors) for kde_i in self.val_densities]
 
+        #return lambda posteriors: sum(prev_i * self.pdf(kde_i, posteriors) for kde_i, prev_i in zip(self.val_densities, prev))
         def neg_loglikelihood(prev):
-            val_pdf = self.val_pdf(prev)
-            test_likelihood = val_pdf(posteriors)
-            test_loglikelihood = np.log(test_likelihood + eps)
-            return -np.sum(test_loglikelihood)
+            #print('-neg_likelihood')
+            #val_pdf = self.val_pdf(prev)
+            #test_likelihood = val_pdf(posteriors)
+            test_mixture_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, test_densities))
+            test_loglikelihood = np.log(test_mixture_likelihood + eps)
+            neg_log_likelihood = -np.sum(test_loglikelihood)
+            #print('-neg_likelihood [done!]')
+            return neg_log_likelihood
             #return -np.prod(test_likelihood)
 
         # the initial point is set as the uniform distribution
@@ -187,5 +221,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
         # solutions are bounded to those contained in the unit-simplex
         bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
         constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
+        #print('searching for alpha')
         r = optimize.minimize(neg_loglikelihood, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
+        #print('[optimization ended]')
         return r.x

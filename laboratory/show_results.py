@@ -2,18 +2,18 @@ import sys
 from pathlib import Path
 import pandas as pd
 
-#result_dir = 'results_tweet_1000'
-result_dir = 'results_lequa'
+result_dir = 'results_tweet_1000'
+#result_dir = 'results_lequa'
 
 dfs = []
 
 pathlist = Path(result_dir).rglob('*.csv')
 for path in pathlist:
      path_in_str = str(path)
-     print(path_in_str)
 
      try:
           df = pd.read_csv(path_in_str, sep='\t')
+          df = df[df.iloc[:, 0] != df.columns[0]]
           if not df.empty:
                dfs.append(df)
      except Exception:
@@ -21,7 +21,7 @@ for path in pathlist:
 
 df = pd.concat(dfs)
 
-for err in ['MAE', 'MRAE']:
+for err in ['MAE', 'MRAE', 'KLD']:
      print('-'*100)
      print(err)
      print('-'*100)

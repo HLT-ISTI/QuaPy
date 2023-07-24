@@ -123,7 +123,7 @@ class LabelledCollection:
             return self.uniform_sampling_index(size, random_state=random_state)
         if len(prevs) == self.n_classes - 1:
             prevs = prevs + (1 - sum(prevs),)
-        assert len(prevs) == self.n_classes, 'unexpected number of prevalences'
+        assert len(prevs) == self.n_classes, f'unexpected number of prevalences (found {len(prevs)}, expected {self.n_classes})'
         assert sum(prevs) == 1, f'prevalences ({prevs}) wrong range (sum={sum(prevs)})'
 
         # Decide how many instances should be taken for each class in order to satisfy the requested prevalence
