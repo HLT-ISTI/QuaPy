@@ -608,6 +608,10 @@ def _get_divergence(divergence: Union[str, Callable]):
             return F.HellingerDistance
         elif divergence=='topsoe':
             return F.TopsoeDistance
+        elif divergence.lower()=='l2':
+            return lambda a,b: np.linalg.norm(a-b)
+        elif divergence.lower()=='l1':
+            return lambda a,b: np.linalg.norm(a-b, ord=1)
         else:
             raise ValueError(f'unknown divergence {divergence}')
     elif callable(divergence):

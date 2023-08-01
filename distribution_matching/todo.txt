@@ -11,7 +11,9 @@ a maximizar.
     - evaluar un APP sobre el simplexo?
     - evaluar un UPP sobre el simplexo? (=Montecarlo)
     - qué divergencias? HD, topsoe, L1?
+    - tampoco estoy evaluando en modo kfcv creo...
 
+1) sacar lequa-kfcv y todos los kfcv que puedan tener sentido en tweets
 2) implementar el auto
     - optimización interna para likelihood [ninguno parece funcionar bien]
         - de todo (e.g., todo el training)?
@@ -29,3 +31,19 @@ a maximizar.
 11) KDEx?
 12) Dirichlet (el método DIR) habría que arreglarlo y mostrar resultados...
 13) Test estadisticos.
+
+Notas:
+estoy probando a reemplazar el target max_likelihood con un min_divergence:
+- como la divergencia entre dos KDEs ahora es en el espacio continuo, no es facil como obtener. Estoy probando 
+    con una evaluación en test, pero el problema es que es overconfident con respecto a la que ha sido obtenida en test.
+    Otra opción es un MonteCarlo que es lo que estoy probando ahora. Para este experimento he quitado la model selection 
+    del clasificador, y estoy dejando solo la que hace con el bandwidth por agilizarlo. Los resultados KDE-nomonte son un
+    max_likelihood en igualdad de condiciones (solo bandwidth), KDE-monte1 es un montecarlo con HD a 1000 puntos, y KDE-monte2
+    es lo mismo pero con 5000 puntos; ambos funcionan mal. KDE-monte1 y KDE-monte2 los voy a borrar.
+    Ahora estoy probando con KDE-monte3, lo mismo pero con una L2 como
+    divergencia. Parece mucho más parecido a KDE-nomonte (pero sigue siendo algo peor)
+    - probar con más puntos (KDE-monte4 es a 5000 puntos)
+    - habría que probar con topsoe (KDE-monte5)
+    - probar con optimización del LR (KDE-monte6 y con kfcv)
+    - probar con L1 en vez de L2 (KDE-monte7 con 5000 puntos y sin LR)
+    - tal vez habría que probar con la L2, que funciona bien, en el min_divergence que evaluaba en test, o test+train 

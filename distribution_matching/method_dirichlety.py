@@ -21,6 +21,8 @@ import dirichlet
 
 class DIRy(AggregativeProbabilisticQuantifier):
 
+    MAXITER = 10000
+
     def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None, target='max_likelihood'):
         self.classifier = classifier
         self.val_split = val_split
@@ -36,7 +38,7 @@ class DIRy(AggregativeProbabilisticQuantifier):
             data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
         )
 
-        self.val_parameters = [dirichlet.mle(posteriors[y == cat]) for cat in range(data.n_classes)]
+        self.val_parameters = [dirichlet.mle(posteriors[y == cat], maxiter=DIRy.MAXITER) for cat in range(data.n_classes)]
 
         return self
 
@@ -68,9 +70,6 @@ class DIRy(AggregativeProbabilisticQuantifier):
         def match(prev):
             val_pdf = self.val_pdf(prev)
             val_likelihood = val_pdf(posteriors)
-
-            #for i,prev_i in enumerate(prev):
-
             return divergence(val_likelihood, test_likelihood)
 
         # the initial point is set as the uniform distribution

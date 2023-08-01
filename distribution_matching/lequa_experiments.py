@@ -6,7 +6,7 @@ import sys
 import pandas as pd
 
 import quapy as qp
-from quapy.method.aggregative import EMQ, DistributionMatching, PACC, HDy, OneVsAllAggregative
+from quapy.method.aggregative import EMQ, DistributionMatching, PACC, HDy, OneVsAllAggregative, ACC
 from method_kdey import KDEy
 from method_dirichlety import DIRy
 from quapy.model_selection import GridSearchQ
@@ -17,8 +17,8 @@ if __name__ == '__main__':
 
     qp.environ['SAMPLE_SIZE'] = qp.datasets.LEQUA2022_SAMPLE_SIZE['T1B']
     qp.environ['N_JOBS'] = -1
-    result_dir = f'results_lequa'
-    optim = 'mae'
+    optim = 'mrae'
+    result_dir = f'results_lequa_{optim}'
 
     os.makedirs(result_dir, exist_ok=True)
 
@@ -27,56 +27,52 @@ if __name__ == '__main__':
         'classifier__class_weight': ['balanced', None]
     } 
 
-    for method in ['KDE', 'PACC', 'SLD', 'DM', 'HDy-OvA', 'DIR']:
+    for method in ['DIR']:#'HDy-OvA', 'SLD', 'ACC-tv', 'PACC-tv']: #['DM', 'DIR']: #'KDEy-MLE', 'KDE-DM', 'DM', 'DIR']:
         
-        #if os.path.exists(result_path):
-        #    print('Result already exit. Nothing to do')
-        #    sys.exit(0)
+        print('Init method', method)
 
         result_path = f'{result_dir}/{method}'
-        if os.path.exists(result_path+'.dataframe'):
-            print(f'result file {result_path} already exist; skipping')
-            continue 
+        
+        if os.path.exists(result_path+'.csv'):
+            print(f'file {result_path}.csv already exist; skipping')
+            continue
 
-        with open(result_path+'.csv', 'at') as csv:
-            csv.write(f'Method\tDataset\tMAE\tMRAE\tKLD\n')
+        with open(result_path+'.csv', 'wt') as csv:
+            csv.write(f'Method\tDataset\tMAE\tMRAE\tKLD\n')    
 
             dataset = 'T1B'
             train, val_gen, test_gen = qp.datasets.fetch_lequa2022(dataset)
             print(f'init {dataset} #instances: {len(train)}')
-            if method == 'KDE':
-                param_grid = {
-                    'bandwidth': np.linspace(0.001, 0.2, 21), 
-                    'classifier__C': np.logspace(-4,4,9),
-                    'classifier__class_weight': ['balanced', None]
-                }
-                quantifier = KDEy(LogisticRegression(), target='max_likelihood')
-            elif method == 'KDE-debug':
-                param_grid = None
-                qp.environ['N_JOBS'] = 1
-                quantifier = KDEy(LogisticRegression(), target='max_likelihood', bandwidth=0.02)
-                #train = train.sampling(280, *[1./train.n_classes]*(train.n_classes-1))
+            if method == 'KDEy-MLE':
+                method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
+                param_grid = {**method_params, **hyper_LR}
+                quantifier = KDEy(LogisticRegression(), target='max_likelihood', val_split=10)
+            elif method in ['KDE-DM']:
+                method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
+                param_grid = {**method_params, **hyper_LR}
+                quantifier = KDEy(LogisticRegression(), target='min_divergence', divergence='l2', montecarlo_trials=5000, val_split=10)
             elif method == 'DIR':
                 param_grid = hyper_LR
                 quantifier = DIRy(LogisticRegression())
             elif method == 'SLD':
                 param_grid = hyper_LR
                 quantifier = EMQ(LogisticRegression())
-            elif method == 'PACC':
+            elif method == 'PACC-tv':
                 param_grid = hyper_LR
                 quantifier = PACC(LogisticRegression())
+            elif method == 'ACC-tv':
+                param_grid = hyper_LR
+                quantifier = ACC(LogisticRegression())
             elif method == 'HDy-OvA':
-                param_grid = {
-                    'binary_quantifier__classifier__C': np.logspace(-3,3,9),
-                    'binary_quantifier__classifier__class_weight': ['balanced', None]
-                } 
+                param_grid = {'binary_quantifier__' + key: val for key, val in hyper_LR.items()}
                 quantifier = OneVsAllAggregative(HDy(LogisticRegression()))
             elif method == 'DM':
-                param_grid = {
-                    'nbins': [5,10,15], 
-                    'classifier__C': np.logspace(-4,4,9),
-                    'classifier__class_weight': ['balanced', None]
+                method_params = {
+                    'nbins': [4,8,16,32],
+                    'val_split': [10, 0.4],
+                    'divergence': ['HD', 'topsoe', 'l2']
                 }
+                param_grid = {**method_params, **hyper_LR}
                 quantifier = DistributionMatching(LogisticRegression())
             else:
                 raise NotImplementedError('unknown method', method)
@@ -86,7 +82,10 @@ if __name__ == '__main__':
 
                 modsel.fit(train)
                 print(f'best params {modsel.best_params_}')
-                pickle.dump(modsel.best_params_, open(f'{result_dir}/{method}_{dataset}.hyper.pkl', 'wb'), pickle.HIGHEST_PROTOCOL)
+                print(f'best score {modsel.best_score_}')
+                pickle.dump(
+                    (modsel.best_params_, modsel.best_score_,), 
+                    open(f'{result_path}.hyper.pkl', 'wb'), pickle.HIGHEST_PROTOCOL)
 
                 quantifier = modsel.best_model()
             else:

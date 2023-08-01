@@ -22,15 +22,14 @@ from statsmodels.nonparametric.kernel_density import KDEMultivariateConditional
 # TODO: think of a MMD-y variant, i.e., a MMD variant that uses the points in the simplex and possibly any non-linear kernel
 
 
-
 class KDEy(AggregativeProbabilisticQuantifier):
 
     BANDWIDTH_METHOD = ['auto', 'scott', 'silverman']
     ENGINE = ['scipy', 'sklearn', 'statsmodels']
     TARGET = ['min_divergence', 'max_likelihood']
 
-    def __init__(self, classifier: BaseEstimator, val_split=0.4, divergence: Union[str, Callable]='HD',
-                 bandwidth='scott', engine='sklearn', target='min_divergence', n_jobs=None, random_state=0):
+    def __init__(self, classifier: BaseEstimator, val_split=0.4, divergence: Union[str, Callable]='L2',
+                 bandwidth='scott', engine='sklearn', target='min_divergence', n_jobs=None, random_state=0, montecarlo_trials=1000):
         assert bandwidth in KDEy.BANDWIDTH_METHOD or isinstance(bandwidth, float), \
             f'unknown bandwidth_method, valid ones are {KDEy.BANDWIDTH_METHOD}'
         assert engine in KDEy.ENGINE, f'unknown engine, valid ones are {KDEy.ENGINE}'
@@ -43,6 +42,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
         self.target = target
         self.n_jobs = n_jobs
         self.random_state=random_state
+        self.montecarlo_trials = montecarlo_trials
 
     def search_bandwidth_maxlikelihood(self, posteriors, labels):
         grid = {'bandwidth': np.linspace(0.001, 0.2, 100)}
@@ -123,6 +123,10 @@ class KDEy(AggregativeProbabilisticQuantifier):
         self.val_densities = [self.get_kde(posteriors[y == cat]) for cat in range(data.n_classes)]
         self.val_posteriors = posteriors
 
+        if self.target == 'min_divergence':
+            self.samples = qp.functional.uniform_prevalence_sampling(n_classes=data.n_classes, size=self.montecarlo_trials)
+            self.sample_densities = [self.pdf(kde_i, self.samples) for kde_i in self.val_densities]
+
         return self
 
     #def val_pdf(self, prev):
@@ -166,20 +170,17 @@ class KDEy(AggregativeProbabilisticQuantifier):
         r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
         return r.x
 
-    def _target_divergence(self, posteriors, montecarlo_samples=5000):
+    def _target_divergence(self, posteriors):
         # in this variant we evaluate the divergence using a Montecarlo approach
         n_classes = len(self.val_densities)
-        samples = qp.functional.uniform_prevalence_sampling(n_classes, size=montecarlo_samples)
 
         test_kde = self.get_kde(posteriors)
-        test_likelihood = self.pdf(test_kde, samples)
+        test_likelihood = self.pdf(test_kde, self.samples)
         
         divergence = _get_divergence(self.divergence)
   
-        sample_densities = [self.pdf(kde_i, samples) for kde_i in self.val_densities]
-
         def match(prev):
-            val_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, sample_densities))
+            val_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, self.sample_densities))
             return divergence(val_likelihood, test_likelihood)
             
         # the initial point is set as the uniform distribution

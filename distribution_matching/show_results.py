@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 import pandas as pd
 
-result_dir = 'results_tweet_1000'
-#result_dir = 'results_lequa'
+result_dir = 'results_tweet_1000_mrae'
+#result_dir = 'results_lequa_mrae'
 
 dfs = []
 
