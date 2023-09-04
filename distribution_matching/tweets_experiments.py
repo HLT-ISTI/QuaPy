@@ -20,13 +20,13 @@ if __name__ == '__main__':
     qp.environ['N_JOBS'] = -1
     n_bags_val = 250
     n_bags_test = 1000
-    optim = 'mrae'
-    result_dir = f'results_tweet_{optim}'
+    optim = 'mae'
+    result_dir = f'results_tweet_{optim}_redohyper'
 
     os.makedirs(result_dir, exist_ok=True)
 
     hyper_LR = {
-        'classifier__C': np.logspace(-4,4,9),
+        'classifier__C': np.logspace(-3,3,7),
         'classifier__class_weight': ['balanced', None]
     } 
 
