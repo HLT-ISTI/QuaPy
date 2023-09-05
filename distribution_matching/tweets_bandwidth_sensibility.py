@@ -33,11 +33,7 @@ if __name__ == '__main__':
             csv.write(f'Method\tDataset\tBandwidth\tMAE\tMRAE\tKLD\n')    
 
     with open(global_result_path+'.csv', 'at') as csv:
-        # four semeval dataset share the training, so it is useless to optimize hyperparameters four times;
-        # this variable controls that the mod sel has already been done, and skip this otherwise
-        semeval_trained = False
-
-        for bandwidth in np.linspace(0.01, 0.2, 20):                        
+        for bandwidth in np.linspace(0.01, 0.2, 20):
             for dataset in qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST:
                 print('init', dataset)
 
