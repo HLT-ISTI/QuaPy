@@ -18,7 +18,7 @@ if __name__ == '__main__':
     qp.environ['SAMPLE_SIZE'] = qp.datasets.LEQUA2022_SAMPLE_SIZE['T1B']
     qp.environ['N_JOBS'] = -1
     optim = 'mrae'
-    result_dir = f'results_lequa_{optim}'
+    result_dir = f'results/results_lequa_{optim}'
 
     os.makedirs(result_dir, exist_ok=True)
 

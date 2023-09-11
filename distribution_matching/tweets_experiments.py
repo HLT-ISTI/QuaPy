@@ -21,7 +21,7 @@ if __name__ == '__main__':
     n_bags_val = 250
     n_bags_test = 1000
     optim = 'mae'
-    result_dir = f'results_tweet_{optim}_redohyper'
+    result_dir = f'results/results_tweet_{optim}_redohyper'
 
     os.makedirs(result_dir, exist_ok=True)
 

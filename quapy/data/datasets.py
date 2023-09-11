@@ -204,7 +204,7 @@ def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False
     :return: a :class:`quapy.data.base.Dataset` instance
     """
     data = fetch_UCILabelledCollection(dataset_name, data_home, verbose)
-    return Dataset(*data.split_stratified(1 - test_split, random_state=0))
+    return Dataset(*data.split_stratified(1 - test_split, random_state=0), name=dataset_name)
 
 
 def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:

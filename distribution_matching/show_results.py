@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 import pandas as pd
 
-result_dir = 'results_tweet_mae_redohyper'
+result_dir = 'results/results_tweet_mae_redohyper'
 #result_dir = 'results_lequa_mrae'
 
 dfs = []

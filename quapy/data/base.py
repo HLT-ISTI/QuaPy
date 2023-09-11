@@ -319,7 +319,8 @@ class LabelledCollection:
         else:
             raise NotImplementedError('unsupported operation for collection types')
         labels = np.concatenate([lc.labels for lc in args])
-        classes = np.unique(labels).sort()
+        classes = np.unique(labels)
+        classes.sort()
         return LabelledCollection(instances, labels, classes=classes)
 
     @property
