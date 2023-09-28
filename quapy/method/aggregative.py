@@ -1091,7 +1091,7 @@ class T50(ThresholdOptimization):
     Threshold Optimization variant for :class:`ACC` as proposed by
     `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
     `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that looks
-    for the threshold that makes `tpr` cosest to 0.5.
+    for the threshold that makes `tpr` closest to 0.5.
     The goal is to bring improved stability to the denominator of the adjustment.
 
     :param classifier: a sklearn's Estimator that generates a classifier
@@ -1179,7 +1179,7 @@ class MS(ThresholdOptimization):
         super().__init__(classifier, val_split)
 
     def _condition(self, tpr, fpr) -> float:
-        pass
+        return True
 
     def _optimize_threshold(self, y, probabilities):
         tprs = []
@@ -1190,9 +1190,26 @@ class MS(ThresholdOptimization):
             TP, FP, FN, TN = self._compute_table(y, y_)
             tpr = self._compute_tpr(TP, FP)
             fpr = self._compute_fpr(FP, TN)
-            tprs.append(tpr)
-            fprs.append(fpr)
-        return np.median(tprs), np.median(fprs)
+            if self._condition(tpr, fpr):
+                tprs.append(tpr)
+                fprs.append(fpr)
+        return tprs, fprs
+
+    def aggregate(self, classif_predictions):
+        prevs_estim = self.cc.aggregate(classif_predictions)
+
+        positive_prevs = []
+        for tpr, fpr in zip(self.tpr, self.fpr):
+            if tpr - fpr > 0:
+                acc = np.clip((prevs_estim[1] - fpr) / (tpr - fpr), 0, 1)
+                positive_prevs.append(acc)
+
+        if len(positive_prevs) > 0:
+            adjusted_positive_prev = np.median(positive_prevs)
+            adjusted_prevs_estim = np.array((1 - adjusted_positive_prev, adjusted_positive_prev))
+            return adjusted_prevs_estim
+        else:
+            return prevs_estim
 
 
 class MS2(MS):
@@ -1215,19 +1232,9 @@ class MS2(MS):
     def __init__(self, classifier: BaseEstimator, val_split=0.4):
         super().__init__(classifier, val_split)
 
-    def _optimize_threshold(self, y, probabilities):
-        tprs = [0, 1]
-        fprs = [0, 1]
-        candidate_thresholds = np.unique(probabilities[:, 1])
-        for candidate_threshold in candidate_thresholds:
-            y_ = [self.classes_[1] if p > candidate_threshold else self.classes_[0] for p in probabilities[:, 1]]
-            TP, FP, FN, TN = self._compute_table(y, y_)
-            tpr = self._compute_tpr(TP, FP)
-            fpr = self._compute_fpr(FP, TN)
-            if (tpr - fpr) > 0.25:
-                tprs.append(tpr)
-                fprs.append(fpr)
-        return np.median(tprs), np.median(fprs)
+    def _condition(self, tpr, fpr) -> float:
+        return (tpr - fpr) > 0.25
+
 
 
 ClassifyAndCount = CC

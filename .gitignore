@@ -164,3 +164,4 @@ dmypy.json
 .pyre/
 
 *__pycache__*
+*.dataframe

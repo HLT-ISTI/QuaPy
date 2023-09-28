@@ -1,3 +1,4 @@
+from cgi import test
 import os
 import sys
 from typing import Union, Callable
@@ -34,6 +35,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
             f'unknown bandwidth_method, valid ones are {KDEy.BANDWIDTH_METHOD}'
         assert engine in KDEy.ENGINE, f'unknown engine, valid ones are {KDEy.ENGINE}'
         assert target in KDEy.TARGET, f'unknown target, valid ones are {KDEy.TARGET}'
+        assert divergence=='KLD', 'in this version I will only allow KLD as a divergence'
         self.classifier = classifier
         self.val_split = val_split
         self.divergence = divergence
@@ -54,7 +56,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
         print(f'auto: bandwidth={bandwidth:.5f}')
         return bandwidth
 
-    def get_kde(self, posteriors):
+    def get_kde_function(self, posteriors):
         # if self.bandwidth == 'auto':
         #     print('adjusting bandwidth')
         #
@@ -116,26 +118,25 @@ class KDEy(AggregativeProbabilisticQuantifier):
         self.classifier, y, posteriors, classes, class_count = cross_generate_predictions(
             data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
         )
+        print('classifier fit done')
 
         if self.bandwidth == 'auto':
             self.bandwidth = self.search_bandwidth_maxlikelihood(posteriors, y)
 
-        self.val_densities = [self.get_kde(posteriors[y == cat]) for cat in range(data.n_classes)]
+        self.val_densities = [self.get_kde_function(posteriors[y == cat]) for cat in range(data.n_classes)]
         self.val_posteriors = posteriors
 
-        if self.target == 'min_divergence':
+        if self.target == 'min_divergence_depr':
             self.samples = qp.functional.uniform_prevalence_sampling(n_classes=data.n_classes, size=self.montecarlo_trials)
             self.sample_densities = [self.pdf(kde_i, self.samples) for kde_i in self.val_densities]
+        if self.target == 'min_divergence':
+            self.class_samples = [kde_i.sample(self.montecarlo_trials, random_state=self.random_state) for kde_i in self.val_densities]
+            self.class_sample_densities = {}
+            for ci, samples_i in enumerate(self.class_samples):
+                self.class_sample_densities[ci] = np.asarray([self.pdf(kde_j, samples_i) for kde_j in self.val_densities]).T
 
+        print('kde fit done')
         return self
-
-    #def val_pdf(self, prev):
-        """
-        Returns a function that computes the mixture model with the given prev as mixture factor
-        :param prev: a prevalence vector, ndarray
-        :return: a function implementing the validation distribution with fixed mixture factor
-        """
-    #    return lambda posteriors: sum(prev_i * self.pdf(kde_i, posteriors) for kde_i, prev_i in zip(self.val_densities, prev))
 
     def aggregate(self, posteriors: np.ndarray):
         if self.target == 'min_divergence':
@@ -145,44 +146,64 @@ class KDEy(AggregativeProbabilisticQuantifier):
         else:
             raise ValueError('unknown target')
 
-    def _target_divergence_depr(self, posteriors):
-        # this variant is, I think, ill-formed, since it evaluates the likelihood on the test points, which are
-        # overconfident in the KDE-test.        
-        test_density = self.get_kde(posteriors)
-        # val_test_posteriors = np.concatenate([self.val_posteriors, posteriors])
-        test_likelihood = self.pdf(test_density, posteriors)
-        divergence = _get_divergence(self.divergence)
 
-        n_classes = len(self.val_densities)
-
-        def match(prev):
-            val_pdf = self.val_pdf(prev)
-            val_likelihood = val_pdf(posteriors)
-
-            return divergence(val_likelihood, test_likelihood)
-
-        # the initial point is set as the uniform distribution
-        uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
-
-        # solutions are bounded to those contained in the unit-simplex
-        bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
-        constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
-        r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
-        return r.x
+    # this is the variant I have in the current results, which I think is bugged
+    # def _target_divergence_depr(self, posteriors):
+    #     # in this variant we evaluate the divergence using a Montecarlo approach
+    #     n_classes = len(self.val_densities)
+    #
+    #     test_kde = self.get_kde_function(posteriors)
+    #     test_likelihood = self.pdf(test_kde, self.samples)
+    #
+    #     divergence = _get_divergence(self.divergence)
+    #
+    #     def match(prev):
+    #         val_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, self.sample_densities))
+    #         return divergence(val_likelihood, test_likelihood)
+    #
+    #     # the initial point is set as the uniform distribution
+    #     uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
+    #
+    #     # solutions are bounded to those contained in the unit-simplex
+    #     bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
+    #     constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
+    #     r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
+    #     return r.x
 
     def _target_divergence(self, posteriors):
         # in this variant we evaluate the divergence using a Montecarlo approach
         n_classes = len(self.val_densities)
 
-        test_kde = self.get_kde(posteriors)
-        test_likelihood = self.pdf(test_kde, self.samples)
-        
-        divergence = _get_divergence(self.divergence)
-  
+        test_kde = self.get_kde_function(posteriors)
+        test_densities_per_class = [self.pdf(test_kde, samples_i) for samples_i in self.class_samples]
+
+        # divergence = _get_divergence(self.divergence)
+        def kld_monte(pi, qi, eps=1e-8):
+            # there is no pi in front of the log because the samples are already drawn according to pi
+            smooth_pi = pi+eps
+            smooth_qi = qi+eps
+            return np.mean(np.log(smooth_pi / smooth_qi))
+
         def match(prev):
-            val_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, self.sample_densities))
-            return divergence(val_likelihood, test_likelihood)
-            
+            # choose the samples according to the prevalence vector
+            # e.g., prev = [0.5, 0.3, 0.2] will draw 50% from KDE_0, 30% from KDE_1, and 20% from KDE_2
+            #       the points are already pre-sampled and de densities are pre-computed, so that now all that remains
+            #       is to pick a proportional number of each from each class (same for test)
+            num_variates_per_class = np.round(prev * self.montecarlo_trials).astype(int)
+            sample_densities = np.vstack(
+                [self.class_sample_densities[ci][:num_i] for ci, num_i in enumerate(num_variates_per_class)]
+            )
+            #val_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip(prev, sample_densities.T))
+            val_likelihood = prev @ sample_densities.T
+            #test_likelihood = []
+            #for samples_i, num_i in zip(test_densities_per_class, num_variates_per_class):
+            #    test_likelihood.append(samples_i[:num_i])
+            #test_likelihood = np.concatenate[test]
+            test_likelihood = np.concatenate(
+                [samples_i[:num_i] for samples_i, num_i in zip(test_densities_per_class, num_variates_per_class)]
+            )
+            return kld_monte(val_likelihood, test_likelihood)
+
         # the initial point is set as the uniform distribution
         uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
 

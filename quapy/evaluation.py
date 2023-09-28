@@ -11,7 +11,8 @@ def prediction(
         model: BaseQuantifier,
         protocol: AbstractProtocol,
         aggr_speedup: Union[str, bool] = 'auto',
-        verbose=False):
+        verbose=False,
+        verbose_error=None):
     """
     Uses a quantification model to generate predictions for the samples generated via a specific protocol.
     This function is central to all evaluation processes, and is endowed with an optimization to speed-up the
@@ -32,6 +33,7 @@ def prediction(
         in the samples to be generated. Set to True or "auto" (default) for letting QuaPy decide whether it is
         convenient or not. Set to False to deactivate.
     :param verbose: boolean, show or not information in stdout
+    :param verbose_error: an evaluation function to be used to display intermediate results if verbose=True (default None)
     :return: a tuple `(true_prevs, estim_prevs)` in which each element in the tuple is an array of shape
         `(n_samples, n_classes)` containing the true, or predicted, prevalence values for each sample
     """
@@ -61,16 +63,21 @@ def prediction(
     if apply_optimization:
         pre_classified = model.classify(protocol.get_labelled_collection().instances)
         protocol_with_predictions = protocol.on_preclassified_instances(pre_classified)
-        return __prediction_helper(model.aggregate, protocol_with_predictions, verbose)
+        return __prediction_helper(model.aggregate, protocol_with_predictions, verbose, verbose_error)
     else:
-        return __prediction_helper(model.quantify, protocol, verbose)
+        return __prediction_helper(model.quantify, protocol, verbose, verbose_error)
 
 
-def __prediction_helper(quantification_fn, protocol: AbstractProtocol, verbose=False):
+def __prediction_helper(quantification_fn, protocol: AbstractProtocol, verbose=False, verbose_error=None):
     true_prevs, estim_prevs = [], []
-    for sample_instances, sample_prev in tqdm(protocol(), total=protocol.total(), desc='predicting') if verbose else protocol():
+    if verbose:
+        pbar =  tqdm(protocol(), total=protocol.total(), desc='predicting')
+    for sample_instances, sample_prev in pbar if verbose else protocol():
         estim_prevs.append(quantification_fn(sample_instances))
         true_prevs.append(sample_prev)
+        if verbose and verbose_error is not None:
+            err = verbose_error(true_prevs, estim_prevs)
+            pbar.set_description('predicting: ongoing error={err:.5f}')
 
     true_prevs = np.asarray(true_prevs)
     estim_prevs = np.asarray(estim_prevs)

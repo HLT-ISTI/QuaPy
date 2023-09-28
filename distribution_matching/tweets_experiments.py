@@ -1,14 +1,9 @@
 import pickle
-import numpy as np
-from sklearn.linear_model import LogisticRegression
 import os
-import sys
 import pandas as pd
+from distribution_matching.commons import METHODS, new_method, show_results
 
 import quapy as qp
-from quapy.method.aggregative import EMQ, DistributionMatching, PACC, ACC, CC, PCC, HDy, OneVsAllAggregative
-from method_kdey import KDEy
-from method_dirichlety import DIRy
 from quapy.model_selection import GridSearchQ
 from quapy.protocol import UPP
 
@@ -21,16 +16,11 @@ if __name__ == '__main__':
     n_bags_val = 250
     n_bags_test = 1000
     optim = 'mae'
-    result_dir = f'results/results_tweet_{optim}_redohyper'
+    result_dir = f'results/tweet/{optim}'
 
     os.makedirs(result_dir, exist_ok=True)
 
-    hyper_LR = {
-        'classifier__C': np.logspace(-3,3,7),
-        'classifier__class_weight': ['balanced', None]
-    } 
-
-    for method in  ['CC', 'SLD', 'PCC', 'PACC-tv', 'ACC-tv', 'DM', 'HDy-OvA', 'KDEy-MLE', 'KDE-DM', 'DIR']:
+    for method in  METHODS:
         
         print('Init method', method)
 
@@ -59,67 +49,7 @@ if __name__ == '__main__':
 
                     if not is_semeval or not semeval_trained:
 
-                        if method == 'KDE':  # not used
-                            method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
-                            param_grid = {**method_params, **hyper_LR}
-                            quantifier = KDEy(LogisticRegression(), target='max_likelihood')
-                        elif method == 'KDEy-MLE':
-                            method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
-                            param_grid = {**method_params, **hyper_LR}
-                            quantifier = KDEy(LogisticRegression(), target='max_likelihood', val_split=10)
-                        elif method in ['KDE-DM']:
-                            method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
-                            param_grid = {**method_params, **hyper_LR}
-                            quantifier = KDEy(LogisticRegression(), target='min_divergence', divergence='l2', montecarlo_trials=5000, val_split=10)
-                        elif method == 'DIR':
-                            param_grid = hyper_LR
-                            quantifier = DIRy(LogisticRegression())
-                        elif method == 'SLD':
-                            param_grid = hyper_LR
-                            quantifier = EMQ(LogisticRegression())
-                        elif method == 'PACC-tv':
-                           param_grid = hyper_LR
-                           quantifier = PACC(LogisticRegression())
-                        #elif method == 'PACC-kfcv':
-                        #   param_grid = hyper_LR
-                        #   quantifier = PACC(LogisticRegression(), val_split=10)
-                        elif method == 'PACC':
-                            method_params = {'val_split': [10, 0.4]}
-                            param_grid = {**method_params, **hyper_LR}
-                            quantifier = PACC(LogisticRegression())
-                        elif method == 'ACC':
-                            method_params = {'val_split': [10, 0.4]}
-                            param_grid = {**method_params, **hyper_LR}
-                            quantifier = ACC(LogisticRegression())
-                        elif method == 'PCC':
-                            param_grid = hyper_LR
-                            quantifier = PCC(LogisticRegression())
-                        elif method == 'ACC-tv':
-                            param_grid = hyper_LR
-                            quantifier = ACC(LogisticRegression())
-                        elif method == 'CC':
-                            param_grid = hyper_LR
-                            quantifier = CC(LogisticRegression())
-                        elif method == 'HDy-OvA':
-                            param_grid = {'binary_quantifier__'+key:val for key,val in hyper_LR.items()}
-                            quantifier = OneVsAllAggregative(HDy(LogisticRegression()))
-                        #elif method == 'DM':
-                        #    param_grid = {
-                        #        'nbins': [5,10,15], 
-                        #        'classifier__C': np.logspace(-4,4,9),
-                        #        'classifier__class_weight': ['balanced', None]
-                        #    }
-                        #    quantifier = DistributionMatching(LogisticRegression())
-                        elif method == 'DM':
-                            method_params = {
-                                'nbins': [4,8,16,32],
-                                'val_split': [10, 0.4],
-                                'divergence': ['HD', 'topsoe', 'l2']
-                            }
-                            param_grid = {**method_params, **hyper_LR}
-                            quantifier = DistributionMatching(LogisticRegression())
-                        else:
-                            raise NotImplementedError('unknown method', method)
+                        param_grid, quantifier = new_method(method)
 
                         # model selection
                         data = qp.datasets.fetch_twitter(dataset, min_df=3, pickle=True, for_model_selection=True)
@@ -151,9 +81,4 @@ if __name__ == '__main__':
                     csv.write(f'{method}\t{data.name}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\t{means["kld"]:.5f}\n')
                     csv.flush()
 
-    df = pd.read_csv(global_result_path+'.csv', sep='\t')
-
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.max_rows', None)
-    pv = df.pivot_table(index='Dataset', columns="Method", values=["MAE", "MRAE"])
-    print(pv)
+    show_results(global_result_path)
