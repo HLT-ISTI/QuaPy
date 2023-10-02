@@ -6,8 +6,8 @@ from distribution_matching.method_dirichlety import DIRy
 from sklearn.linear_model import LogisticRegression
 
 
-METHODS  = ['ACC', 'PACC', 'HDy-OvA', 'DIR', 'DM', 'KDEy-DM', 'EMQ', 'KDEy-ML']
-BIN_METHODS = ['ACC', 'PACC', 'HDy', 'DIR', 'DM', 'KDEy-DM', 'EMQ', 'KDEy-ML']  
+METHODS  = ['KDEy-DMjs', 'ACC', 'PACC', 'HDy-OvA', 'DIR', 'DM', 'KDEy-DM', 'EMQ', 'KDEy-ML'] #, 'KDEy-DMhd2'] #, 'KDEy-DMhd2', 'DM-HD']
+BIN_METHODS = [x.replace('-OvA', '') for x in METHODS]
 
 
 hyper_LR = {
@@ -57,10 +57,30 @@ def new_method(method, **lr_kwargs):
         param_grid = {**method_params, **hyper_LR}
         quantifier = DistributionMatching(lr)
 
-    elif method in ['KDE-DMkld']:
+    # experimental
+    elif method in ['KDEy-DMkld']:
         method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
         param_grid = {**method_params, **hyper_LR}
         quantifier = KDEy(lr, target='min_divergence', divergence='KLD', montecarlo_trials=5000, val_split=10)
+    elif method in ['KDEy-DMhd']:
+        method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
+        param_grid = {**method_params, **hyper_LR}
+        quantifier = KDEy(lr, target='min_divergence', divergence='HD', montecarlo_trials=5000, val_split=10)
+    elif method in ['KDEy-DMhd2']:
+        method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
+        param_grid = {**method_params, **hyper_LR}
+        quantifier = KDEy(lr, target='min_divergence_uniform', divergence='HD', montecarlo_trials=5000, val_split=10)
+    elif method in ['KDEy-DMjs']:
+        method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
+        param_grid = {**method_params, **hyper_LR}
+        quantifier = KDEy(lr, target='min_divergence_uniform', divergence='JS', montecarlo_trials=5000, val_split=10)
+    elif method == 'DM-HD':
+        method_params = {
+            'nbins': [4,8,16,32],
+            'val_split': [10, 0.4],
+        }
+        param_grid = {**method_params, **hyper_LR}
+        quantifier = DistributionMatching(lr, divergence='HD')
 
     else:
         raise NotImplementedError('unknown method', method)

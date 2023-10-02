@@ -27,7 +27,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
 
     BANDWIDTH_METHOD = ['auto', 'scott', 'silverman']
     ENGINE = ['scipy', 'sklearn', 'statsmodels']
-    TARGET = ['min_divergence', 'max_likelihood']
+    TARGET = ['min_divergence', 'min_divergence_uniform', 'max_likelihood']
 
     def __init__(self, classifier: BaseEstimator, val_split=0.4, divergence: Union[str, Callable]='L2',
                  bandwidth='scott', engine='sklearn', target='min_divergence', n_jobs=None, random_state=0, montecarlo_trials=1000):
@@ -35,7 +35,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
             f'unknown bandwidth_method, valid ones are {KDEy.BANDWIDTH_METHOD}'
         assert engine in KDEy.ENGINE, f'unknown engine, valid ones are {KDEy.ENGINE}'
         assert target in KDEy.TARGET, f'unknown target, valid ones are {KDEy.TARGET}'
-        assert divergence=='KLD', 'in this version I will only allow KLD as a divergence'
+        assert divergence in ['KLD', 'HD', 'JS'], 'in this version I will only allow KLD or squared HD as a divergence'
         self.classifier = classifier
         self.val_split = val_split
         self.divergence = divergence
@@ -118,7 +118,6 @@ class KDEy(AggregativeProbabilisticQuantifier):
         self.classifier, y, posteriors, classes, class_count = cross_generate_predictions(
             data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
         )
-        print('classifier fit done')
 
         if self.bandwidth == 'auto':
             self.bandwidth = self.search_bandwidth_maxlikelihood(posteriors, y)
@@ -126,21 +125,22 @@ class KDEy(AggregativeProbabilisticQuantifier):
         self.val_densities = [self.get_kde_function(posteriors[y == cat]) for cat in range(data.n_classes)]
         self.val_posteriors = posteriors
 
-        if self.target == 'min_divergence_depr':
+        if self.target == 'min_divergence_uniform':
             self.samples = qp.functional.uniform_prevalence_sampling(n_classes=data.n_classes, size=self.montecarlo_trials)
             self.sample_densities = [self.pdf(kde_i, self.samples) for kde_i in self.val_densities]
-        if self.target == 'min_divergence':
+        elif self.target == 'min_divergence':
             self.class_samples = [kde_i.sample(self.montecarlo_trials, random_state=self.random_state) for kde_i in self.val_densities]
             self.class_sample_densities = {}
             for ci, samples_i in enumerate(self.class_samples):
                 self.class_sample_densities[ci] = np.asarray([self.pdf(kde_j, samples_i) for kde_j in self.val_densities]).T
 
-        print('kde fit done')
         return self
 
     def aggregate(self, posteriors: np.ndarray):
         if self.target == 'min_divergence':
             return self._target_divergence(posteriors)
+        elif self.target == 'min_divergence_uniform':
+            return self._target_divergence_uniform(posteriors)
         elif self.target == 'max_likelihood':
             return self._target_likelihood(posteriors)
         else:
@@ -170,6 +170,42 @@ class KDEy(AggregativeProbabilisticQuantifier):
     #     r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
     #     return r.x
 
+    def _target_divergence_uniform(self, posteriors):
+        # in this variant we evaluate the divergence using a Montecarlo approach
+        n_classes = len(self.val_densities)
+
+        test_kde = self.get_kde_function(posteriors)
+        test_likelihood = self.pdf(test_kde, self.samples)
+
+        def f_squared_hellinger(t):
+            return (np.sqrt(t) - 1)**2
+
+        def f_jensen_shannon(t):
+            return -(t+1)*np.log((t+1)/2) + t*np.log(t)
+
+        def fdivergence(pi, qi, f, eps=1e-10):
+            spi = pi+eps
+            sqi = qi+eps
+            return np.mean(f(spi/sqi)*sqi)
+
+        if self.divergence.lower() == 'hd':
+            f = f_squared_hellinger
+        elif self.divergence.lower() == 'js':
+            f = f_jensen_shannon
+
+        def match(prev):
+            val_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, self.sample_densities))
+            return fdivergence(val_likelihood, test_likelihood, f)
+
+        # the initial point is set as the uniform distribution
+        uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
+
+        # solutions are bounded to those contained in the unit-simplex
+        bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
+        constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
+        r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
+        return r.x
+
     def _target_divergence(self, posteriors):
         # in this variant we evaluate the divergence using a Montecarlo approach
         n_classes = len(self.val_densities)
@@ -183,6 +219,18 @@ class KDEy(AggregativeProbabilisticQuantifier):
             smooth_pi = pi+eps
             smooth_qi = qi+eps
             return np.mean(np.log(smooth_pi / smooth_qi))
+
+        def squared_hellinger(pi, qi, eps=1e-8):
+            smooth_pi = pi + eps
+            smooth_qi = qi + eps
+            return np.mean((np.sqrt(smooth_pi/smooth_qi)-1)**2)
+
+        # todo: this will fail when self.divergence is a callable, and is not the right place to do it anyway
+        if self.divergence.lower() == 'kld':
+            fdivergence = kld_monte
+        elif self.divergence.lower() == 'hd':
+            fdivergence = squared_hellinger
+
 
         def match(prev):
             # choose the samples according to the prevalence vector
@@ -202,7 +250,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
             test_likelihood = np.concatenate(
                 [samples_i[:num_i] for samples_i, num_i in zip(test_densities_per_class, num_variates_per_class)]
             )
-            return kld_monte(val_likelihood, test_likelihood)
+            return fdivergence(val_likelihood, test_likelihood)
 
         # the initial point is set as the uniform distribution
         uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
@@ -247,3 +295,4 @@ class KDEy(AggregativeProbabilisticQuantifier):
         r = optimize.minimize(neg_loglikelihood, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
         #print('[optimization ended]')
         return r.x
+

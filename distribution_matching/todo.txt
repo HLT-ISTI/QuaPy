@@ -1,49 +1,21 @@
-Cosa fundamental:
-KDE se puede usar para generar 2 distribuciones (una, es un mixture model de KDEs en train condicionados a cada clase,
-y el otro es un KDE en test), de las que luego se calculará la divergencia (objetivo a minimizar). Otra opción es
-generar solo una distribución (mixture model de train) y tomar la likelihood de los puntos de test como objetivo
-a maximizar.
+1.- No se si sería más facil tomar r=uniforme, y no r=mixture model, simplifica mucho el sampling y tal vez incluso produzca menos error
+2.- Por ahora tengo KLD y HD:
+    - para KLD no he entendido si tengo que añadir el -x + y
+3.- Se puede poner la topsoe como una f-divergence?
+    La topsoe parece que es 2 veces la jensen-shannon divergence, o sea
+    topsoe(p,q) = kld(p|m) + kld(q|m), con m = (p+q)/2
+4.- Se puede poner la Wasserstein como una f-divergence?
+5.- En general, qué relación hay con las "distancias"?
 
-- echar un ojo a los hyperparametros
-- hacer dibujitos
-- estudiar el caso en que el target es minimizar una divergencia. Posibilidades:
-    - evaluar los puntos de test solo
-    - evaluar un APP sobre el simplexo?
-    - evaluar un UPP sobre el simplexo? (=Montecarlo)
-    - qué divergencias? HD, topsoe, L1?
-    - tampoco estoy evaluando en modo kfcv creo...
 
-1) sacar lequa-kfcv y todos los kfcv que puedan tener sentido en tweets
 2) implementar el auto
     - optimización interna para likelihood [ninguno parece funcionar bien]
         - de todo (e.g., todo el training)?
         - independiente para cada conjunto etiquetado? (e.g., positivos, negativos, neutros, y test)
     - optimización como un parámetro GridSearchQ
 6) optimizar kernel? optimizar distancia?
-7) KDE de sklearn o multivariate KDE de statsmodel? ver también qué es esto (parece que da P(Y|X) o sea que podría
-    eliminar el clasificador?):
-    https://www.statsmodels.org/dev/_modules/statsmodels/nonparametric/kernel_density.html#KDEMultivariateConditional
-8) quitar la ultima dimension en sklearn también? No veo porqué
-9) optimizar para RAE en vez de AE? No va bien...
 10) Definir un clasificador que devuelva, para cada clase, una posterior como la likelihood en la class-conditional KDE dividida
     por la likelihood en en todas las clases (como propone Juanjo) y meterlo en EMD. Hacer al contario: re-calibrar con
     EMD y meterlo en KDEy
 11) KDEx?
-12) Dirichlet (el método DIR) habría que arreglarlo y mostrar resultados...
-13) Test estadisticos.
 
-Notas:
-estoy probando a reemplazar el target max_likelihood con un min_divergence:
-- como la divergencia entre dos KDEs ahora es en el espacio continuo, no es facil como obtener. Estoy probando 
-    con una evaluación en test, pero el problema es que es overconfident con respecto a la que ha sido obtenida en test.
-    Otra opción es un MonteCarlo que es lo que estoy probando ahora. Para este experimento he quitado la model selection 
-    del clasificador, y estoy dejando solo la que hace con el bandwidth por agilizarlo. Los resultados KDE-nomonte son un
-    max_likelihood en igualdad de condiciones (solo bandwidth), KDE-monte1 es un montecarlo con HD a 1000 puntos, y KDE-monte2
-    es lo mismo pero con 5000 puntos; ambos funcionan mal. KDE-monte1 y KDE-monte2 los voy a borrar.
-    Ahora estoy probando con KDE-monte3, lo mismo pero con una L2 como
-    divergencia. Parece mucho más parecido a KDE-nomonte (pero sigue siendo algo peor)
-    - probar con más puntos (KDE-monte4 es a 5000 puntos)
-    - habría que probar con topsoe (KDE-monte5)
-    - probar con optimización del LR (KDE-monte6 y con kfcv)
-    - probar con L1 en vez de L2 (KDE-monte7 con 5000 puntos y sin LR)
-    - tal vez habría que probar con la L2, que funciona bien, en el min_divergence que evaluaba en test, o test+train 
