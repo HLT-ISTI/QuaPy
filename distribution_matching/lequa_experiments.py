@@ -52,10 +52,14 @@ if __name__ == '__main__':
                     print('debug mode... skipping model selection')
                     quantifier.fit(train)
 
-                report = qp.evaluation.evaluation_report(quantifier, protocol=test_gen, error_metrics=['mae', 'mrae', 'kld'], verbose=True)
+                report = qp.evaluation.evaluation_report(
+                    quantifier, protocol=test_gen, error_metrics=['mae', 'mrae', 'kld'],
+                    verbose=True, verbose_error=optim[1:], n_jobs=-1
+                )
                 means = report.mean()
                 report.to_csv(result_path+'.dataframe')
                 csv.write(f'{method}\tLeQua-T1B\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\t{means["kld"]:.5f}\n')
                 csv.flush()
+                print(means)
 
         show_results(result_path)

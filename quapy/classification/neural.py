@@ -176,7 +176,7 @@ class NeuralClassifierTrainer:
         self.classes_ = train.classes_
         opt = self.trainer_hyperparams
         checkpoint = self.checkpointpath
-        self.reset_net_params(self.vocab_size, train.n_classes)
+        self.reset_net_params(self.vocab_size, train.arange_classes)
 
         train_generator = TorchDataset(train.instances, train.labels).asDataloader(
             opt['batch_size'], shuffle=True, pad_length=opt['padding_length'], device=opt['device'])

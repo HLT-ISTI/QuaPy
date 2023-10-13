@@ -269,6 +269,7 @@ class LabelledCollection:
         test = self.sampling_from_index(right)
         return training, test
 
+
     def __add__(self, other):
         """
         Returns a new :class:`LabelledCollection` as the union of this collection with another collection.

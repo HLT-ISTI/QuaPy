@@ -36,7 +36,7 @@ if __name__ == '__main__':
                 # this variable controls that the mod sel has already been done, and skip this otherwise
                 semeval_trained = False
 
-                for dataset in qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST:
+                for dataset in qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST[::-1]:
                     print('init', dataset)
 
                     local_result_path = global_result_path + '_' + dataset

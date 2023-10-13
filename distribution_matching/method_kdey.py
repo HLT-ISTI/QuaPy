@@ -35,7 +35,8 @@ class KDEy(AggregativeProbabilisticQuantifier):
             f'unknown bandwidth_method, valid ones are {KDEy.BANDWIDTH_METHOD}'
         assert engine in KDEy.ENGINE, f'unknown engine, valid ones are {KDEy.ENGINE}'
         assert target in KDEy.TARGET, f'unknown target, valid ones are {KDEy.TARGET}'
-        assert divergence in ['KLD', 'HD', 'JS'], 'in this version I will only allow KLD or squared HD as a divergence'
+        assert target=='max_likelihood' or divergence in ['KLD', 'HD', 'JS'], \
+            'in this version I will only allow KLD or squared HD as a divergence'
         self.classifier = classifier
         self.val_split = val_split
         self.divergence = divergence
@@ -250,7 +251,9 @@ class KDEy(AggregativeProbabilisticQuantifier):
             test_likelihood = np.concatenate(
                 [samples_i[:num_i] for samples_i, num_i in zip(test_densities_per_class, num_variates_per_class)]
             )
-            return fdivergence(val_likelihood, test_likelihood)
+            # return fdivergence(val_likelihood, test_likelihood)  # this is wrong, If I sample from the val distribution
+            # then I am computing D(Test||Val), so it should be E_{x ~ Val}[f(Test(x)/Val(x))]
+            return fdivergence(test_likelihood, val_likelihood)
 
         # the initial point is set as the uniform distribution
         uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))

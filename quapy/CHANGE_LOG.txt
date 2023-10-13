@@ -1,3 +1,17 @@
+Change Log 0.1.8
+----------------
+
+- A conceptual error in MedianSweep and MedianSweep2 has been solved. The error consisted on computing all TPRs and
+    FPRs and report the median; then, the adjustment then operated on these single values. Instead, the original
+    method proposed by G.Forman comes down to generating all prevalence predictions, for all TPRs and FPRs, and then
+    computing the median of it.
+
+- qp.evaluation now runs in parallel <improve, remove or fix the ongoing error, put at the qp. level instead of
+    qp.evaluation because I don't like the qp.evaluation.evaluate thing>
+
+- <fix> remove dependencies with LabelledCollection in the library.
+
+
 Change Log 0.1.7
 ----------------
 

@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Union, Callable, Iterable
 import numpy as np
 from tqdm import tqdm
@@ -12,7 +13,8 @@ def prediction(
         protocol: AbstractProtocol,
         aggr_speedup: Union[str, bool] = 'auto',
         verbose=False,
-        verbose_error=None):
+        verbose_error=None,
+        n_jobs=1):
     """
     Uses a quantification model to generate predictions for the samples generated via a specific protocol.
     This function is central to all evaluation processes, and is endowed with an optimization to speed-up the
@@ -34,6 +36,10 @@ def prediction(
         convenient or not. Set to False to deactivate.
     :param verbose: boolean, show or not information in stdout
     :param verbose_error: an evaluation function to be used to display intermediate results if verbose=True (default None)
+    :param n_jobs: number of parallel workers. Default is 1 so that, if not explicitly requested, the evaluation phase
+        is to be carried out in a single core. That is to say, this parameter will not inspect the environment variable
+        N_JOBS by default. This might be convenient in many situations, since parallelizing the evaluation entails
+        adding an overhead for cloning the objects within different threads that is often not worth the effort.
     :return: a tuple `(true_prevs, estim_prevs)` in which each element in the tuple is an array of shape
         `(n_samples, n_classes)` containing the true, or predicted, prevalence values for each sample
     """
@@ -63,21 +69,44 @@ def prediction(
     if apply_optimization:
         pre_classified = model.classify(protocol.get_labelled_collection().instances)
         protocol_with_predictions = protocol.on_preclassified_instances(pre_classified)
-        return __prediction_helper(model.aggregate, protocol_with_predictions, verbose, verbose_error)
+        return __prediction_helper(model, protocol_with_predictions, True, verbose, verbose_error, n_jobs)
     else:
-        return __prediction_helper(model.quantify, protocol, verbose, verbose_error)
+        return __prediction_helper(model, protocol, False, verbose, verbose_error, n_jobs)
 
 
-def __prediction_helper(quantification_fn, protocol: AbstractProtocol, verbose=False, verbose_error=None):
+def __delayed_prediction(args):
+    quantifier, aggregate, sample_instances, sample_prev = args
+    quantifier = deepcopy(quantifier)
+    quant_fn = quantifier.aggregate if aggregate else quantifier.quantify
+    predicted = quant_fn(sample_instances)
+    return sample_prev, predicted
+
+
+def __prediction_helper(quantifier, protocol: AbstractProtocol, aggregate: bool, verbose=False, verbose_error=None, n_jobs=1):
     true_prevs, estim_prevs = [], []
+    ongoing_errors = []
     if verbose:
         pbar =  tqdm(protocol(), total=protocol.total(), desc='predicting')
-    for sample_instances, sample_prev in pbar if verbose else protocol():
-        estim_prevs.append(quantification_fn(sample_instances))
-        true_prevs.append(sample_prev)
-        if verbose and verbose_error is not None:
-            err = verbose_error(true_prevs, estim_prevs)
-            pbar.set_description('predicting: ongoing error={err:.5f}')
+    if n_jobs==1:
+        quant_fn = quantifier.aggregate if aggregate else quantifier.quantify
+        for sample_instances, sample_prev in pbar if verbose else protocol():
+            predicted = quant_fn(sample_instances)
+            estim_prevs.append(predicted)
+            true_prevs.append(sample_prev)
+            if verbose and verbose_error is not None:
+                err = verbose_error(sample_prev, predicted)
+                ongoing_errors.append(err)
+                pbar.set_description(f'predicting: ongoing error={np.mean(ongoing_errors):.5f}')
+    else:
+        if verbose:
+            print('parallelizing prediction')
+        outputs = qp.util.parallel(
+            __delayed_prediction,
+            ((quantifier, aggregate, sample_X, sample_p) for (sample_X, sample_p) in (pbar if verbose else protocol())),
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=n_jobs
+        )
+        true_prevs, estim_prevs = list(zip(*outputs))
 
     true_prevs = np.asarray(true_prevs)
     estim_prevs = np.asarray(estim_prevs)
@@ -89,7 +118,7 @@ def evaluation_report(model: BaseQuantifier,
                       protocol: AbstractProtocol,
                       error_metrics: Iterable[Union[str,Callable]] = 'mae',
                       aggr_speedup: Union[str, bool] = 'auto',
-                      verbose=False):
+                      verbose=False, verbose_error=None, n_jobs=1):
     """
     Generates a report (a pandas' DataFrame) containing information of the evaluation of the model as according
     to a specific protocol and in terms of one or more evaluation metrics (errors).
@@ -107,12 +136,19 @@ def evaluation_report(model: BaseQuantifier,
         in the samples to be generated. Set to True or "auto" (default) for letting QuaPy decide whether it is
         convenient or not. Set to False to deactivate.
     :param verbose: boolean, show or not information in stdout
+    :param verbose_error: an evaluation function to be used to display intermediate results if verbose=True (default None)
+    :param n_jobs: number of parallel workers. Default is 1 so that, if not explicitly requested, the evaluation phase
+        is to be carried out in a single core. That is to say, this parameter will not inspect the environment variable
+        N_JOBS by default. This might be convenient in many situations, since parallelizing the evaluation entails
+        adding an overhead for cloning the objects within different threads that is often not worth the effort.
     :return: a pandas' DataFrame containing the columns 'true-prev' (the true prevalence of each sample),
         'estim-prev' (the prevalence estimated by the model for each sample), and as many columns as error metrics
         have been indicated, each displaying the score in terms of that metric for every sample.
     """
 
-    true_prevs, estim_prevs = prediction(model, protocol, aggr_speedup=aggr_speedup, verbose=verbose)
+    true_prevs, estim_prevs = prediction(
+        model, protocol, aggr_speedup=aggr_speedup, verbose=verbose, verbose_error=verbose_error, n_jobs=n_jobs
+    )
     return _prevalence_report(true_prevs, estim_prevs, error_metrics)
 
 

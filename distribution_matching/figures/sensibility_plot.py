@@ -9,8 +9,8 @@ Plots results for MAE, MRAE, and KLD
 The rest of hyperparameters were set to their default values
 """
 
-df_tweet = pd.read_csv('../results_tweet_sensibility/KDEy-MLE.csv', sep='\t')
-df_lequa = pd.read_csv('../results_lequa_sensibility/KDEy-MLE.csv', sep='\t')
+df_tweet = pd.read_csv('../results/tweet/sensibility/KDEy-ML.csv', sep='\t')
+df_lequa = pd.read_csv('../results/lequa/sensibility/KDEy-ML.csv', sep='\t')
 df = pd.concat([df_tweet, df_lequa])
 
 for err in ['MAE', 'MRAE', 'KLD']:

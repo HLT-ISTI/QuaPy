@@ -54,6 +54,7 @@ class GridSearchQ(BaseQuantifier):
         self.__check_error(error)
         assert isinstance(protocol, AbstractProtocol), 'unknown protocol'
 
+
     def _sout(self, msg):
         if self.verbose:
             print(f'[{self.__class__.__name__}:{self.model.__class__.__name__}]: {msg}')

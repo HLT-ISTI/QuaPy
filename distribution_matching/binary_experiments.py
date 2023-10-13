@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
                         # model selection
                         train, test = data.train_test
-                        train, val = train.split_stratified()
+                        train, val = train.split_stratified(random_state=SEED)
 
                         protocol = UPP(val, repeats=n_bags_val)
                         modsel = GridSearchQ(
