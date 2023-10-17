@@ -568,7 +568,7 @@ def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, ver
     Information Fusion, 45, 1-15. <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
     The datasets do not come with a predefined train-test split (see :meth:`fetch_UCILabelledCollection` for further
     information on how to use these collections), and so a train-test split is generated at desired proportion.
-    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
+    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`
 
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
