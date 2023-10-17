@@ -566,7 +566,7 @@ def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, ver
     `Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019).
     Dynamic ensemble selection for quantification tasks.
     Information Fusion, 45, 1-15. <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
-    The datasets do not come with a predefined train-test split (see :meth:`fetch_UCILabelledCollection` for further
+    The datasets do not come with a predefined train-test split (see :meth:`fetch_UCIMulticlassLabelledCollection` for further
     information on how to use these collections), and so a train-test split is generated at desired proportion.
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`
 
