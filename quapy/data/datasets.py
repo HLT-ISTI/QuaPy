@@ -53,8 +53,6 @@ UCI_MULTICLASS_DATASETS = ['dry-bean',
                            'digits',
                            'letter']
 
-KAGGLE_MULTICLASS_DATASETS = ['human-activity']
-
 LEQUA2022_TASKS = ['T1A', 'T1B', 'T2A', 'T2B']
 
 _TXA_SAMPLE_SIZE = 250
@@ -597,7 +595,7 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
     This can be reproduced by using :meth:`quapy.data.base.Dataset.kFCV`, e.g.:
 
     >>> import quapy as qp
-    >>> collection = qp.datasets.fetch_UCILabelledCollection("dry-bean")
+    >>> collection = qp.datasets.fetch_UCIMulticlassLabelledCollection("dry-bean")
     >>> for data in qp.domains.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
     >>>     ...
 
