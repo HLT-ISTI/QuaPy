@@ -61,6 +61,8 @@ class KDEyclosed_efficient_corr(AggregativeProbabilisticQuantifier):
             data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
         )
 
+        print('training over')
+
         assert all(sorted(np.unique(y)) == np.arange(data.n_classes)), \
             'label name gaps not allowed in current implementation'
 
@@ -94,11 +96,14 @@ class KDEyclosed_efficient_corr(AggregativeProbabilisticQuantifier):
         self.tr_tr_sums = tr_tr_sums
         self.counts_inv = counts_inv
 
+        print('fit over')
+
         return self
 
 
     def aggregate(self, posteriors: np.ndarray):
 
+        # print('aggregating')
         Ptr = self.Ptr
         Pte = posteriors
 
@@ -120,6 +125,8 @@ class KDEyclosed_efficient_corr(AggregativeProbabilisticQuantifier):
             alpha_l = alpha * self.counts_inv
             partB = 0.5 * np.log((alpha_l[:,np.newaxis] * tr_tr_sums * alpha_l).sum())
             return partA + partB + partC
+
+        # print('starting search')
 
         # the initial point is set as the uniform distribution
         uniform_distribution = np.full(fill_value=1 / n, shape=(n,))
