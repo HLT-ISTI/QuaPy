@@ -7,9 +7,10 @@ import zipfile
 from os.path import join
 import pandas as pd
 import scipy
-import pickle
+
 from ucimlrepo import fetch_ucirepo 
 
+from quapy.util import pickled_resource
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
 from quapy.data.reader import *
@@ -558,23 +559,20 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
 
 def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
     """
-    Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`, as used in
-    `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
-    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
-    Information Fusion, 34, 87-100. <https://www.sciencedirect.com/science/article/pii/S1566253516300628>`_
-    and
-    `Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019).
-    Dynamic ensemble selection for quantification tasks.
-    Information Fusion, 45, 1-15. <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
-    The datasets do not come with a predefined train-test split (see :meth:`fetch_UCIMulticlassLabelledCollection` for further
-    information on how to use these collections), and so a train-test split is generated at desired proportion.
+    Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`. 
+
+    The list of available datasets is taken from https://archive.ics.uci.edu/, following these criteria:
+    - The dataset has more than 1000 instances
+    - The dataset is suited for classification
+    - the dataset has more than two classes
+
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`
 
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
         ~/quay_data/ directory)
     :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
-    :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
+    :param verbose: set to True (default is False) to get information (stats) about the dataset
     :return: a :class:`quapy.data.base.Dataset` instance
     """
     data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, verbose)
@@ -582,30 +580,23 @@ def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, ver
 
 def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
     """
-    Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`, as used in
-    `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
-    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
-    Information Fusion, 34, 87-100. <https://www.sciencedirect.com/science/article/pii/S1566253516300628>`_
-    and
-    `Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019).
-    Dynamic ensemble selection for quantification tasks.
-    Information Fusion, 45, 1-15. <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
-    The datasets do not come with a predefined train-test split, and so Pérez-Gállego et al. adopted a 5FCVx2 evaluation
-    protocol, meaning that each collection was used to generate two rounds (hence the x2) of 5 fold cross validation.
-    This can be reproduced by using :meth:`quapy.data.base.Dataset.kFCV`, e.g.:
+    Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`. 
+    
+    It needs the library `ucimlrepo` for downloading the datasets from https://archive.ics.uci.edu/. 
 
     >>> import quapy as qp
-    >>> collection = qp.datasets.fetch_UCIMulticlassLabelledCollection("dry-bean")
-    >>> for data in qp.domains.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
+    >>> dataset = qp.datasets.fetch_UCIMulticlassLabelledCollection("dry-bean")
     >>>     ...
 
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`
 
+    The datasets are downloaded only once and pickled into disk, saving time for consecutive calls.
+
     :param dataset_name: a dataset name
-    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+    :param data_home: specify the quapy home directory where the dataset will be dumped (leave empty to use the default
         ~/quay_data/ directory)
     :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
-    :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
+    :param verbose: set to True (default is False) to get information (stats) about the dataset
     :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
     assert dataset_name in UCI_MULTICLASS_DATASETS, \
@@ -634,19 +625,18 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
     print(f'Loading UCI Muticlass {dataset_name} ({fullname})')
 
     file = join(data_home,'uci_multiclass',dataset_name+'.pkl')
-    if os.path.exists(file):
-        with open(file, 'rb') as file:
-            data = pickle.load(file)
-    else:
-        data = fetch_ucirepo(id=identifier)
+    
+    def download(id):
+        data = fetch_ucirepo(id=id)
         X, y = data['data']['features'].to_numpy(), data['data']['targets'].to_numpy().squeeze()
-        data = LabelledCollection(X, y)
-        os.makedirs(os.path.dirname(file), exist_ok=True)
-        with open(file, 'wb') as file:
-            pickle.dump(data, file)
+        classes = np.sort(np.unique(y))
+        y = np.searchsorted(classes, y)
+        return LabelledCollection(X,y)
 
+    data = pickled_resource(file, download, identifier)
 
-    data.stats()
+    if verbose:
+        data.stats()
     return data
 
 
