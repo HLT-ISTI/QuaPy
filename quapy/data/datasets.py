@@ -7,7 +7,8 @@ import zipfile
 from os.path import join
 import pandas as pd
 import scipy
-
+import pickle
+from ucimlrepo import fetch_ucirepo
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
 from quapy.data.reader import *
@@ -44,6 +45,12 @@ UCI_DATASETS = ['acute.a', 'acute.b',
                 'wine.1', 'wine.2', 'wine.3',
                 'wine-q-red', 'wine-q-white',
                 'yeast']
+
+UCI_MULTICLASS_DATASETS = ['dry-bean',
+                           'wine-quality',
+                           'academic-success',
+                           'digits',
+                           'letter']
 
 LEQUA2022_TASKS = ['T1A', 'T1B', 'T2A', 'T2B']
 
@@ -548,9 +555,106 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     data.stats()
     return data
 
-
 def _df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
     df[col] = df[col].apply(lambda x:repl[x]).astype(astype, copy=False)
+
+
+def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
+    """
+    Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`, as used in
+    `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
+    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
+    Information Fusion, 34, 87-100. <https://www.sciencedirect.com/science/article/pii/S1566253516300628>`_
+    and
+    `Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019).
+    Dynamic ensemble selection for quantification tasks.
+    Information Fusion, 45, 1-15. <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
+    The datasets do not come with a predefined train-test split (see :meth:`fetch_UCILabelledCollection` for further
+    information on how to use these collections), and so a train-test split is generated at desired proportion.
+    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
+
+    :param dataset_name: a dataset name
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
+    :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
+    :return: a :class:`quapy.data.base.Dataset` instance
+    """
+    data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, verbose)
+    return Dataset(*data.split_stratified(1 - test_split, random_state=0))
+
+
+def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
+    """
+    Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`, as used in
+    `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
+    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
+    Information Fusion, 34, 87-100. <https://www.sciencedirect.com/science/article/pii/S1566253516300628>`_
+    and
+    `Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019).
+    Dynamic ensemble selection for quantification tasks.
+    Information Fusion, 45, 1-15. <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
+    The datasets do not come with a predefined train-test split, and so Pérez-Gállego et al. adopted a 5FCVx2 evaluation
+    protocol, meaning that each collection was used to generate two rounds (hence the x2) of 5 fold cross validation.
+    This can be reproduced by using :meth:`quapy.data.base.Dataset.kFCV`, e.g.:
+
+    >>> import quapy as qp
+    >>> collection = qp.datasets.fetch_UCILabelledCollection("dry-bean")
+    >>> for data in qp.domains.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
+    >>>     ...
+
+    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`
+
+    :param dataset_name: a dataset name
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
+    :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
+    :return: a :class:`quapy.data.base.LabelledCollection` instance
+    """
+    assert dataset_name in UCI_MULTICLASS_DATASETS, \
+        f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository (multiclass). ' \
+        f'Valid ones are {UCI_MULTICLASS_DATASETS}'
+
+    if data_home is None:
+        data_home = get_quapy_home()
+
+    identifiers = {"dry-bean": 602,
+                   "wine-quality": 186,
+                   "academic-success": 697,
+                   "digits": 80,
+                   "letter": 59}
+
+    full_names = {"dry-bean": "Dry Bean Dataset",
+                  "wine-quality": "Wine Quality",
+                  "academic-success": "Predict students' dropout and academic success",
+                  "digits": "Optical Recognition of Handwritten Digits",
+                  "letter": "Letter Recognition"
+                  }
+
+    identifier = identifiers[dataset_name]
+    fullname = full_names[dataset_name]
+
+    print(f'Loading UCI Muticlass {dataset_name} ({fullname})')
+
+    file = join(data_home, 'uci_multiclass', dataset_name + '.pkl')
+    if os.path.exists(file):
+        with open(file, 'rb') as file:
+            data = pickle.load(file)
+    else:
+        data = fetch_ucirepo(id=identifier)
+        X, y = data['data']['features'].to_numpy(), data['data']['targets'].to_numpy().squeeze()
+        data = LabelledCollection(X, y)
+        os.makedirs(os.path.dirname(file), exist_ok=True)
+        with open(file, 'wb') as file:
+            pickle.dump(data, file)
+
+    data.stats()
+    return data
+
+
+def _df_replace(df, col, repl={'yes': 1, 'no': 0}, astype=float):
+    df[col] = df[col].apply(lambda x: repl[x]).astype(astype, copy=False)
 
 
 def fetch_lequa2022(task, data_home=None):
