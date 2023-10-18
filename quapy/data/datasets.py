@@ -6,11 +6,9 @@ import os
 import zipfile
 from os.path import join
 import pandas as pd
-import scipy
 
 from ucimlrepo import fetch_ucirepo 
 
-from quapy.util import pickled_resource
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
 from quapy.data.reader import *
@@ -557,16 +555,25 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     data.stats()
     return data
 
+
 def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
     """
     Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`. 
 
     The list of available datasets is taken from https://archive.ics.uci.edu/, following these criteria:
-    - The dataset has more than 1000 instances
-    - The dataset is suited for classification
-    - the dataset has more than two classes
+    - It has more than 1000 instances
+    - It is suited for classification
+    - It has more than two classes
+    - It is available for Python import (requires ucimlrepo package)
+
+    >>> import quapy as qp
+    >>> dataset = qp.datasets.fetch_UCIMulticlassDataset("dry-bean")
+    >>> train, test = dataset.train_test
+    >>>     ...
 
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`
+
+    The datasets are downloaded only once and pickled into disk, saving time for consecutive calls.
 
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
@@ -578,14 +585,20 @@ def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, ver
     data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, verbose)
     return Dataset(*data.split_stratified(1 - test_split, random_state=0))
 
+
 def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
     """
-    Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`. 
-    
-    It needs the library `ucimlrepo` for downloading the datasets from https://archive.ics.uci.edu/. 
+    Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`.
 
+    The list of available datasets is taken from https://archive.ics.uci.edu/, following these criteria:
+    - It has more than 1000 instances
+    - It is suited for classification
+    - It has more than two classes
+    - It is available for Python import (requires ucimlrepo package)
+    
     >>> import quapy as qp
-    >>> dataset = qp.datasets.fetch_UCIMulticlassLabelledCollection("dry-bean")
+    >>> collection = qp.datasets.fetch_UCIMulticlassLabelledCollection("dry-bean")
+    >>> X, y = collection.Xy
     >>>     ...
 
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`
@@ -600,43 +613,49 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
     :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
     assert dataset_name in UCI_MULTICLASS_DATASETS, \
-        f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository (multiclass). ' \
+        f'Name {dataset_name} does not match any known dataset from the ' \
+        f'UCI Machine Learning datasets repository (multiclass). ' \
         f'Valid ones are {UCI_MULTICLASS_DATASETS}'
     
     if data_home is None:
         data_home = get_quapy_home()
     
-    identifiers = {"dry-bean": 602,
-                   "wine-quality":186,
-                   "academic-success":697,
-                   "digits":80,
-                   "letter":59}
+    identifiers = {
+        "dry-bean": 602,
+        "wine-quality": 186,
+        "academic-success": 697,
+        "digits": 80,
+        "letter": 59
+    }
     
-    full_names = {"dry-bean": "Dry Bean Dataset",
-                   "wine-quality":"Wine Quality",
-                   "academic-success":"Predict students' dropout and academic success",
-                   "digits":"Optical Recognition of Handwritten Digits",
-                   "letter":"Letter Recognition"
+    full_names = {
+        "dry-bean": "Dry Bean Dataset",
+        "wine-quality": "Wine Quality",
+        "academic-success": "Predict students' dropout and academic success",
+        "digits": "Optical Recognition of Handwritten Digits",
+        "letter": "Letter Recognition"
     }
     
     identifier = identifiers[dataset_name]
     fullname = full_names[dataset_name]
 
-    print(f'Loading UCI Muticlass {dataset_name} ({fullname})')
+    if verbose:
+        print(f'Loading UCI Muticlass {dataset_name} ({fullname})')
 
-    file = join(data_home,'uci_multiclass',dataset_name+'.pkl')
+    file = join(data_home, 'uci_multiclass', dataset_name+'.pkl')
     
     def download(id):
         data = fetch_ucirepo(id=id)
         X, y = data['data']['features'].to_numpy(), data['data']['targets'].to_numpy().squeeze()
         classes = np.sort(np.unique(y))
         y = np.searchsorted(classes, y)
-        return LabelledCollection(X,y)
+        return LabelledCollection(X, y)
 
     data = pickled_resource(file, download, identifier)
 
     if verbose:
         data.stats()
+        
     return data
 
 
