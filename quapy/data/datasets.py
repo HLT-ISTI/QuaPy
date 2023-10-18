@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def warn(*args, **kwargs):
     pass
 import warnings
@@ -644,6 +647,8 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
     else:
         data = fetch_ucirepo(id=identifier)
         X, y = data['data']['features'].to_numpy(), data['data']['targets'].to_numpy().squeeze()
+        classes = np.sort(np.unique(y))
+        y = np.searchsorted(classes, y)
         data = LabelledCollection(X, y)
         os.makedirs(os.path.dirname(file), exist_ok=True)
         with open(file, 'wb') as file:
