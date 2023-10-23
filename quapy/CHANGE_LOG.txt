@@ -1,6 +1,16 @@
 Change Log 0.1.7
 ----------------
 
+- New UCI multiclass datasets added (thanks to Pablo González). The 5 UCI multiclass datasets are those corresponding
+    to the following criteria:
+        - >1000 instances
+        - >2 classes
+        - classification datasets
+        - Python API available
+
+Change Log 0.1.7
+----------------
+
 - Protocols are now abstracted as instances of AbstractProtocol. There is a new class extending AbstractProtocol called
     AbstractStochasticSeededProtocol, which implements a seeding policy to allow replicate the series of samplings.
     There are some examples of protocols, APP, NPP, UPP, DomainMixer (experimental).
