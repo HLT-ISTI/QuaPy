@@ -24,6 +24,7 @@ if __name__ == '__main__':
         for method in METHODS:
 
             print('Init method', method)
+            if method == 'EMQ-C': continue
 
             global_result_path = f'{result_dir}/{method}'
 
@@ -36,7 +37,7 @@ if __name__ == '__main__':
                 # this variable controls that the mod sel has already been done, and skip this otherwise
                 semeval_trained = False
 
-                for dataset in qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST[::-1]:
+                for dataset in qp.datasets.TWITTER_SENTIMENT_DATASETS_TEST:
                     print('init', dataset)
 
                     local_result_path = global_result_path + '_' + dataset

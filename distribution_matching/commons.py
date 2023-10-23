@@ -8,7 +8,7 @@ from distribution_matching.method_dirichlety import DIRy
 from sklearn.linear_model import LogisticRegression
 from method_kdey_closed_efficient import KDEyclosed_efficient
 
-METHODS  = ['ACC', 'PACC', 'HDy-OvA', 'DIR', 'DM', 'KDEy-DMhd3', 'KDEy-closed++', 'EMQ', 'KDEy-ML'] #, 'KDEy-DMhd2'] #, 'KDEy-DMhd2', 'DM-HD'] 'KDEy-DMjs', 'KDEy-DM', 'KDEy-ML+', 'KDEy-DMhd3+',
+METHODS  = ['EMQ', 'EMQ-C', 'DM', 'DM-T', 'DM-HD', 'KDEy-DMhd3', 'DM-CS', 'KDEy-closed++', 'KDEy-ML'] #['ACC', 'PACC', 'HDy-OvA', 'DIR', 'DM', 'KDEy-DMhd3', 'KDEy-closed++', 'EMQ', 'KDEy-ML'] #, 'KDEy-DMhd2'] #, 'KDEy-DMhd2', 'DM-HD'] 'KDEy-DMjs', 'KDEy-DM', 'KDEy-ML+', 'KDEy-DMhd3+',
 BIN_METHODS = [x.replace('-OvA', '') for x in METHODS]
 
 
@@ -34,7 +34,7 @@ def new_method(method, **lr_kwargs):
         param_grid = hyper_LR
         quantifier = PACC(lr)
     elif method == 'KDEy-ML':
-        method_params = {'bandwidth': np.linspace(0.01, 0.3, 30)}
+        method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
         param_grid = {**method_params, **hyper_LR}
         quantifier = KDEy(lr, target='max_likelihood', val_split=10)
     elif method == 'KDEy-closed':
@@ -59,6 +59,10 @@ def new_method(method, **lr_kwargs):
     elif method == 'EMQ':
         param_grid = hyper_LR
         quantifier = EMQ(lr)
+    elif method == 'EMQ-C':
+        method_params = {'exact_train_prev': [False], 'recalib': ['bcts']}
+        param_grid = {**method_params, **hyper_LR}
+        quantifier = EMQ(lr)
     elif method == 'HDy-OvA':
         param_grid = {'binary_quantifier__' + key: val for key, val in hyper_LR.items()}
         quantifier = OneVsAllAggregative(HDy(lr))
@@ -67,6 +71,30 @@ def new_method(method, **lr_kwargs):
             'nbins': [4,8,16,32],
             'val_split': [10, 0.4],
             'divergence': ['HD', 'topsoe', 'l2']
+        }
+        param_grid = {**method_params, **hyper_LR}
+        quantifier = DistributionMatching(lr)
+    elif method == 'DM-T':
+        method_params = {
+            'nbins': [2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,64],
+            'val_split': [10],
+            'divergence': ['topsoe']
+        }
+        param_grid = {**method_params, **hyper_LR}
+        quantifier = DistributionMatching(lr)
+    elif method == 'DM-HD':
+        method_params = {
+            'nbins': [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 64],
+            'val_split': [10],
+            'divergence': ['HD']
+        }
+        param_grid = {**method_params, **hyper_LR}
+        quantifier = DistributionMatching(lr)
+    elif method == 'DM-CS':
+        method_params = {
+            'nbins': [2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,64],
+            'val_split': [10],
+            'divergence': ['CS']
         }
         param_grid = {**method_params, **hyper_LR}
         quantifier = DistributionMatching(lr)
@@ -95,7 +123,7 @@ def new_method(method, **lr_kwargs):
         # can be stored. This means that the reference distribution is V and not T. Then I have found that an
         # f-divergence is defined as D(p||q) \int_{R^n}q(x)f(p(x)/q(x))dx = E_{x~q}[f(p(x)/q(x))], so if I am sampling
         # V then I am computing D(T||V) (and not D(V||T) as I thought).
-        method_params = {'bandwidth': np.linspace(0.01, 0.3, 30)}
+        method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
         param_grid = {**method_params, **hyper_LR}
         quantifier = KDEy(lr, target='min_divergence', divergence='HD', montecarlo_trials=5000, val_split=10)
     elif method == 'DM-HD':

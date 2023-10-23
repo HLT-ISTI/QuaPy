@@ -21,7 +21,7 @@ import dirichlet
 
 class DIRy(AggregativeProbabilisticQuantifier):
 
-    MAXITER = 10000
+    MAXITER = 100000
 
     def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None, target='max_likelihood'):
         self.classifier = classifier
@@ -38,7 +38,12 @@ class DIRy(AggregativeProbabilisticQuantifier):
             data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
         )
 
-        self.val_parameters = [dirichlet.mle(posteriors[y == cat], maxiter=DIRy.MAXITER) for cat in range(data.n_classes)]
+        self.val_parameters = []
+        for cat in range(data.n_classes):
+            dir_i = dirichlet.mle(posteriors[y == cat], maxiter=DIRy.MAXITER)
+            self.val_parameters.append(dir_i)
+            # print(cat)
+        # self.val_parameters = [dirichlet.mle(posteriors[y == cat], maxiter=DIRy.MAXITER) for cat in range(data.n_classes)]
 
         return self
 

@@ -59,7 +59,7 @@ class RecalibratedProbabilisticClassifierBase(BaseEstimator, RecalibratedProbabi
         elif isinstance(k, float):
             if not (0 < k < 1):
                 raise ValueError('wrong value for val_split: the proportion of validation documents must be in (0,1)')
-            return self.fit_cv(X, y)
+            return self.fit_tr_val(X, y)
 
     def fit_cv(self, X, y):
         """

@@ -1,5 +1,8 @@
 import pickle
 import os
+
+from sklearn.linear_model import LogisticRegression
+
 from distribution_matching.commons import METHODS, new_method, show_results
 
 import quapy as qp
@@ -22,9 +25,9 @@ if __name__ == '__main__':
         os.makedirs(result_dir, exist_ok=True)
 
         for method in METHODS:
-            if method == 'HDy-OvA': continue
-            if method == 'DIR': continue
-            if method != 'KDEy-ML': continue
+            #if method == 'HDy-OvA': continue
+            #if method == 'DIR': continue
+            # if method != 'EMQ-C': continue
 
             print('Init method', method)
 
@@ -71,12 +74,14 @@ if __name__ == '__main__':
 
                             quantifier = modsel.best_model()
                         except:
-                            print('something went wrong... reporting CC')
-                            quantifier = qp.method.aggregative.CC(LR()).fit(train)
+                            print('something went wrong... trying to fit the default model')
+                            quantifier.fit(train)
+                            # quantifier = qp.method.aggregative.CC(LogisticRegression()).fit(train)
+
 
                         protocol = UPP(test, repeats=n_bags_test)
                         report = qp.evaluation.evaluation_report(quantifier, protocol, error_metrics=['mae', 'mrae', 'kld'],
-                                                                verbose=True)
+                                                                verbose=True, n_jobs=-1)
                         report.to_csv(f'{local_result_path}.dataframe')
                         means = report.mean()
                         csv.write(f'{method}\t{data.name}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\t{means["kld"]:.5f}\n')

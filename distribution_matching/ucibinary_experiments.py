@@ -69,8 +69,8 @@ if __name__ == '__main__':
 
                             quantifier = modsel.best_model()
                         except:
-                            print('something went wrong... reporting CC')
-                            quantifier = qp.method.aggregative.CC(LR()).fit(train)
+                            print('something went wrong... trying to fit the default model')
+                            quantifier.fit(train)
 
                         protocol = UPP(test, repeats=n_bags_test)
                         report = qp.evaluation.evaluation_report(quantifier, protocol, error_metrics=['mae', 'mrae', 'kld'],

@@ -90,10 +90,31 @@ def TopsoeDistance(P, Q, epsilon=1e-20):
 
     :param P: real-valued array-like of shape `(k,)` representing a discrete distribution
     :param Q: real-valued array-like of shape `(k,)` representing a discrete distribution
+    :param epsilon: small value to smooth the distributions for numerical stability
     :return: float
     """
     return np.sum(P*np.log((2*P+epsilon)/(P+Q+epsilon)) + Q*np.log((2*Q+epsilon)/(P+Q+epsilon)))
                   
+
+def CauchySchwarz(P, Q, epsilon=1e-20):
+    """
+    Cauchy-Schwarz divergence between two (discretized) distributions `P` and `Q`.
+    The Cauchy-Schwarz divergence for two discrete distributions of `k` bins is defined as:
+
+    .. math::
+        CS(P,Q) = \\frac{ \\sum_{i=1}^k  p_i q_i }{
+            \\left( \\sum_{i=1}^k  p^2_i \\right) \\left( \\sum_{i=1}^k  q^2_i \\right)
+        }
+
+    :param P: real-valued array-like of shape `(k,)` representing a discrete distribution
+    :param Q: real-valued array-like of shape `(k,)` representing a discrete distribution
+    :param epsilon: small value to smooth the distributions for numerical stability
+    :return: float
+    """
+    P += epsilon
+    Q += epsilon
+    return - np.log(sum(P * Q) / np.sqrt(sum(P ** 2) * sum(Q ** 2)))
+
 
 def uniform_prevalence_sampling(n_classes, size=1):
     """
@@ -275,4 +296,5 @@ def check_prevalence_vector(p, raise_exception=False, toleranze=1e-08):
             raise ValueError('the prevalence vector does not sum up to 1')
         return False
     return True
+
 

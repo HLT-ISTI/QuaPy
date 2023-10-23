@@ -9,8 +9,6 @@ Change Log 0.1.8
 - qp.evaluation now runs in parallel <improve, remove or fix the ongoing error, put at the qp. level instead of
     qp.evaluation because I don't like the qp.evaluation.evaluate thing>
 
-- <fix> remove dependencies with LabelledCollection in the library.
-
 
 Change Log 0.1.7
 ----------------

@@ -604,10 +604,13 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
 
 def _get_divergence(divergence: Union[str, Callable]):
     if isinstance(divergence, str):
-        if divergence=='HD':
+        divergence = divergence.lower()
+        if divergence=='hd':
             return F.HellingerDistance
         elif divergence=='topsoe':
             return F.TopsoeDistance
+        elif divergence.lower()=='cs':
+            return F.CauchySchwarz
         elif divergence.lower()=='l2':
             return lambda a,b: np.linalg.norm(a-b)
         elif divergence.lower()=='l1':
