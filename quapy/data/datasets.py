@@ -624,3 +624,26 @@ def fetch_lequa2022(task, data_home=None):
 
     return train, val_gen, test_gen
 
+def fetch_IFCB(data_home=None):
+
+    if data_home is None:
+        data_home = get_quapy_home()
+
+    URL_TRAINDEV=f'https://zenodo.org/records/10036244/files/IFCB.train.zip'
+    URL_TEST=f'https://zenodo.org/records/10036244/files/IFCB.test.zip'
+    URL_TEST_PREV=f'https://zenodo.org/records/10036244/files/IFCB.test_prevalences.zip'
+
+    ifcb_dir = join(data_home, 'ifcb')
+    os.makedirs(ifcb_dir, exist_ok=True)
+
+    def download_unzip_and_remove(unzipped_path, url):
+        tmp_path = join(ifcb_dir, 'tmp.zip')
+        download_file_if_not_exists(url, tmp_path)
+        with zipfile.ZipFile(tmp_path) as file:
+            file.extractall(unzipped_path)
+        os.remove(tmp_path)
+
+    if not os.path.exists(join(ifcb_dir, task)):
+        download_unzip_and_remove(ifcb_dir, URL_TRAINDEV)
+        download_unzip_and_remove(ifcb_dir, URL_TEST)
+        download_unzip_and_remove(ifcb_dir, URL_TEST_PREV)
