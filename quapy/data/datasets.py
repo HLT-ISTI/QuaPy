@@ -736,7 +736,7 @@ def fetch_lequa2022(task, data_home=None):
 
 def fetch_ifcb_dataset(single_sample_train=True, data_home=None):
 
-    from quapy.data._ifcb import IFCBSamplesFromDir
+    from quapy.data._ifcb import IFCBTrainSamplesFromDir, IFCBTestSamples
 
     if data_home is None:
         data_home = get_quapy_home()
@@ -770,7 +770,7 @@ def fetch_ifcb_dataset(single_sample_train=True, data_home=None):
 
     #Load train samples
     train_samples_path = join(ifcb_dir,'train')
-    train_gen = IFCBSamplesFromDir(path_dir=train_samples_path, classes=classes, train=True)
+    train_gen = IFCBTrainSamplesFromDir(path_dir=train_samples_path, classes=classes)
 
     # In the case the user wants it, join all the train samples in one LabelledCollection
     X = []
@@ -781,22 +781,14 @@ def fetch_ifcb_dataset(single_sample_train=True, data_home=None):
             y.append(y_)   
 
     X = np.vstack(X)
-    y = np.vsstack(y)
-    
+    y = np.concatenate(y)
+
+    train = LabelledCollection(X,y, classes = classes)
+
     test_samples_path = join(ifcb_dir,'test')
-    test_gen = IFCBSamplesFromDir(path_dir=test_samples_path, classes=classes, train=False)
+    test_gen = IFCBTestSamples(path_dir=test_samples_path, test_prevalences_path=test_true_prev_path)
 
-
-
-    # tr_path = join(lequa_dir, task, 'public', 'training_data.txt')
-    # train = LabelledCollection.load(tr_path, loader_func=load_fn)
-
-    # val_samples_path = join(lequa_dir, task, 'public', 'dev_samples')
-    # val_true_prev_path = join(lequa_dir, task, 'public', 'dev_prevalences.txt')
-    # val_gen = SamplesFromDir(val_samples_path, val_true_prev_path, load_fn=load_fn)
-
-    # test_samples_path = join(lequa_dir, task, 'public', 'test_samples')
-    # test_true_prev_path = join(lequa_dir, task, 'public', 'test_prevalences.txt')
-    # test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
-
-    return train, test_gen
+    if single_sample_train:
+        return train, test_gen
+    else:
+        return train_gen, test_gen
