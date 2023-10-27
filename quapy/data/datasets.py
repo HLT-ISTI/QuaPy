@@ -734,3 +734,69 @@ def fetch_lequa2022(task, data_home=None):
 
     return train, val_gen, test_gen
 
+def fetch_ifcb_dataset(single_sample_train=True, data_home=None):
+
+    from quapy.data._ifcb import IFCBSamplesFromDir
+
+    if data_home is None:
+        data_home = get_quapy_home()
+
+    
+    URL_TRAIN=f'https://zenodo.org/records/10036244/files/IFCB.train.zip'
+    URL_TEST=f'https://zenodo.org/records/10036244/files/IFCB.test.zip'
+    URL_TEST_PREV=f'https://zenodo.org/records/10036244/files/IFCB.test_prevalences.zip'
+
+    ifcb_dir = join(data_home, 'ifcb')
+    os.makedirs(ifcb_dir, exist_ok=True)
+
+    def download_unzip_and_remove(unzipped_path, url):
+        tmp_path = join(ifcb_dir, 'ifcb_tmp.zip')
+        download_file_if_not_exists(url, tmp_path)
+        with zipfile.ZipFile(tmp_path) as file:
+            file.extractall(unzipped_path)
+        os.remove(tmp_path)
+
+    if not os.path.exists(os.path.join(ifcb_dir,'train')):
+        download_unzip_and_remove(ifcb_dir, URL_TRAIN)
+    if not os.path.exists(os.path.join(ifcb_dir,'test')):
+        download_unzip_and_remove(ifcb_dir, URL_TEST)
+    if not os.path.exists(os.path.join(ifcb_dir,'test_prevalences.csv')):
+        download_unzip_and_remove(ifcb_dir, URL_TEST_PREV)
+
+    # Load test prevalences and classes
+    test_true_prev_path = join(ifcb_dir, 'test_prevalences.csv')
+    test_true_prev = pd.read_csv(test_true_prev_path)
+    classes = test_true_prev.columns[1:]
+
+    #Load train samples
+    train_samples_path = join(ifcb_dir,'train')
+    train_gen = IFCBSamplesFromDir(path_dir=train_samples_path, classes=classes, train=True)
+
+    # In the case the user wants it, join all the train samples in one LabelledCollection
+    X = []
+    y = []
+    if single_sample_train:
+        for X_, y_ in train_gen():
+            X.append(X_)
+            y.append(y_)   
+
+    X = np.vstack(X)
+    y = np.vsstack(y)
+    
+    test_samples_path = join(ifcb_dir,'test')
+    test_gen = IFCBSamplesFromDir(path_dir=test_samples_path, classes=classes, train=False)
+
+
+
+    # tr_path = join(lequa_dir, task, 'public', 'training_data.txt')
+    # train = LabelledCollection.load(tr_path, loader_func=load_fn)
+
+    # val_samples_path = join(lequa_dir, task, 'public', 'dev_samples')
+    # val_true_prev_path = join(lequa_dir, task, 'public', 'dev_prevalences.txt')
+    # val_gen = SamplesFromDir(val_samples_path, val_true_prev_path, load_fn=load_fn)
+
+    # test_samples_path = join(lequa_dir, task, 'public', 'test_samples')
+    # test_true_prev_path = join(lequa_dir, task, 'public', 'test_prevalences.txt')
+    # test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
+
+    return train, test_gen
