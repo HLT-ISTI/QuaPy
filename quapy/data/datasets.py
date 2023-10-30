@@ -735,12 +735,32 @@ def fetch_lequa2022(task, data_home=None):
     return train, val_gen, test_gen
 
 def fetch_ifcb_dataset(single_sample_train=True, data_home=None):
+    """
+    Loads the IFCB dataset for quantification <https://zenodo.org/records/10036244>`. For more
+    information on this dataset check the zenodo site.
+    This dataset is based on the data available publicly at <https://github.com/hsosik/WHOI-Plankton>.
+    The scripts for the processing are available at <https://github.com/pglez82/IFCB_Zenodo>
+
+    Basically, this is the IFCB dataset with precomputed features for testing quantification algorithms.
+
+    The datasets are downloaded only once, and stored for fast reuse.
+
+    :param single_sample_train: a boolean. If true, it will return the train dataset as a 
+        :class:`quapy.data.base.LabelledCollection` (all examples together).
+        If false, a generator of training samples will be returned. Each example in the training set has an individual label.
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: a tuple `(train, test_gen)` where `train` is an instance of
+        :class:`quapy.data.base.LabelledCollection`, if `single_sample_train` is true or
+        :class:`quapy.data._ifcb.IFCBTrainSamplesFromDir`, i.e. a sampling protocol that returns a series of samples
+        labelled example by example. test_gen will be a :class:`quapy.data._ifcb.IFCBTestSamples`, 
+        i.e., a sampling protocol that returns a series of samples labelled by prevalence.
+    """
 
     from quapy.data._ifcb import IFCBTrainSamplesFromDir, IFCBTestSamples
 
     if data_home is None:
         data_home = get_quapy_home()
-
     
     URL_TRAIN=f'https://zenodo.org/records/10036244/files/IFCB.train.zip'
     URL_TEST=f'https://zenodo.org/records/10036244/files/IFCB.test.zip'
@@ -772,23 +792,21 @@ def fetch_ifcb_dataset(single_sample_train=True, data_home=None):
     train_samples_path = join(ifcb_dir,'train')
     train_gen = IFCBTrainSamplesFromDir(path_dir=train_samples_path, classes=classes)
 
+    #Load test samples
+    test_samples_path = join(ifcb_dir,'test')
+    test_gen = IFCBTestSamples(path_dir=test_samples_path, test_prevalences_path=test_true_prev_path)
+
     # In the case the user wants it, join all the train samples in one LabelledCollection
-    X = []
-    y = []
     if single_sample_train:
+        X = []
+        y = []
         for X_, y_ in train_gen():
             X.append(X_)
             y.append(y_)   
 
-    X = np.vstack(X)
-    y = np.concatenate(y)
-
-    train = LabelledCollection(X,y, classes = classes)
-
-    test_samples_path = join(ifcb_dir,'test')
-    test_gen = IFCBTestSamples(path_dir=test_samples_path, test_prevalences_path=test_true_prev_path)
-
-    if single_sample_train:
+        X = np.vstack(X)
+        y = np.concatenate(y)
+        train = LabelledCollection(X,y, classes = classes)
         return train, test_gen
     else:
         return train_gen, test_gen
