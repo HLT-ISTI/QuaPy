@@ -7,7 +7,7 @@ import zipfile
 from os.path import join
 import pandas as pd
 import scipy
-
+import quapy
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
 from quapy.data.reader import *
@@ -576,8 +576,8 @@ def fetch_lequa2022(task, data_home=None):
         ~/quay_data/ directory)
     :return: a tuple `(train, val_gen, test_gen)` where `train` is an instance of
         :class:`quapy.data.base.LabelledCollection`, `val_gen` and `test_gen` are instances of
-        :class:`quapy.protocol.SamplesFromDir`, i.e., are sampling protocols that return a series of samples
-        labelled by prevalence.
+        :class:`quapy.data._lequa2022.SamplesFromDir`, a subclass of :class:`quapy.protocol.AbstractProtocol`,
+        that return a series of samples stored in a directory which are labelled by prevalence.
     """
 
     from quapy.data._lequa2022 import load_raw_documents, load_vector_documents, SamplesFromDir
