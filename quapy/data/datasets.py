@@ -624,7 +624,7 @@ def fetch_lequa2022(task, data_home=None):
 
     return train, val_gen, test_gen
 
-def fetch_ifcb_dataset(single_sample_train=True, data_home=None):
+def fetch_IFCB(single_sample_train=True, data_home=None):
     """
     Loads the IFCB dataset for quantification <https://zenodo.org/records/10036244>`. For more
     information on this dataset check the zenodo site.
