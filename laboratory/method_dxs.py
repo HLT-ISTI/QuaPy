@@ -79,7 +79,7 @@ if __name__ == '__main__':
     repeats = 10
     error = 'mae'
 
-    div = 'HD'
+    div = 'topsoe'
 
     # generates tuples (dataset, method, method_name)
     # (the dataset is needed for methods that process the dataset differently)

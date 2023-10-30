@@ -8,7 +8,7 @@ from distribution_matching.method_dirichlety import DIRy
 from sklearn.linear_model import LogisticRegression
 from method_kdey_closed_efficient import KDEyclosed_efficient
 
-METHODS  = ['EMQ', 'EMQ-C', 'DM', 'DM-T', 'DM-HD', 'KDEy-DMhd3', 'DM-CS', 'KDEy-closed++', 'KDEy-ML'] #['ACC', 'PACC', 'HDy-OvA', 'DIR', 'DM', 'KDEy-DMhd3', 'KDEy-closed++', 'EMQ', 'KDEy-ML'] #, 'KDEy-DMhd2'] #, 'KDEy-DMhd2', 'DM-HD'] 'KDEy-DMjs', 'KDEy-DM', 'KDEy-ML+', 'KDEy-DMhd3+',
+METHODS  = ['ACC', 'PACC', 'HDy-OvA', 'DIR', 'DM-T', 'DM-HD', 'KDEy-DMhd3', 'DM-CS', 'KDEy-closed++', 'EMQ', 'KDEy-ML'] #['ACC', 'PACC', 'HDy-OvA', 'DIR', 'DM', 'KDEy-DMhd3', 'KDEy-closed++', 'EMQ', 'KDEy-ML'] #, 'KDEy-DMhd2'] #, 'KDEy-DMhd2', 'DM-HD'] 'KDEy-DMjs', 'KDEy-DM', 'KDEy-ML+', 'KDEy-DMhd3+', 'EMQ-C',
 BIN_METHODS = [x.replace('-OvA', '') for x in METHODS]
 
 
@@ -63,6 +63,9 @@ def new_method(method, **lr_kwargs):
         method_params = {'exact_train_prev': [False], 'recalib': ['bcts']}
         param_grid = {**method_params, **hyper_LR}
         quantifier = EMQ(lr)
+    elif method == 'HDy':
+        param_grid = hyper_LR
+        quantifier = HDy(lr)
     elif method == 'HDy-OvA':
         param_grid = {'binary_quantifier__' + key: val for key, val in hyper_LR.items()}
         quantifier = OneVsAllAggregative(HDy(lr))
