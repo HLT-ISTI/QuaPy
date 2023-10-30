@@ -16,7 +16,7 @@ quantifiers = {'CC':qp.method.aggregative.CC(newLR()),
 for quant_name, quantifier in quantifiers.items():
     print("Experiment with "+quant_name)
 
-    train, test_gen = qp.datasets.fetch_ifcb_dataset()
+    train, test_gen = qp.datasets.fetch_IFCB()
 
     quantifier.fit(train)
 
