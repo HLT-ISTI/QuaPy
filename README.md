@@ -76,7 +76,7 @@ See the [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) for detailed examples.
 * Implementation of many popular quantification methods (Classify-&-Count and its variants, Expectation Maximization,
 quantification methods based on structured output learning, HDy, QuaNet, quantification ensembles, among others).
 * Versatile functionality for performing evaluation based on sampling generation protocols (e.g., APP, NPP, etc.).
-* Implementation of most commonly used evaluation metrics (e.g., AE, RAE, SE, KLD, NKLD, etc.).
+* Implementation of most commonly used evaluation metrics (e.g., AE, RAE, NAE, NRAE, SE, KLD, NKLD, etc.).
 * Datasets frequently used in quantification (textual and numeric), including:
     * 32 UCI Machine Learning datasets.
     * 11 Twitter quantification-by-sentiment datasets.

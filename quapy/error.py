@@ -70,6 +70,32 @@ def ae(prevs, prevs_hat):
     return abs(prevs_hat - prevs).mean(axis=-1)
 
 
+def nae(prevs, prevs_hat):
+    """Computes the normalized absolute error between the two prevalence vectors.
+     Normalized absolute error between two prevalence vectors :math:`p` and :math:`\\hat{p}`  is computed as
+     :math:`NAE(p,\\hat{p})=\\frac{AE(p,\\hat{p})}{z_{AE}}`,
+     where :math:`z_{AE}=\\frac{2(1-\\min_{y\\in \\mathcal{Y}} p(y))}{|\\mathcal{Y}|}`, and :math:`\\mathcal{Y}`
+     are the classes of interest.
+
+    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
+    :return: normalized absolute error
+    """
+    assert prevs.shape == prevs_hat.shape, f'wrong shape {prevs.shape} vs. {prevs_hat.shape}'
+    return abs(prevs_hat - prevs).sum(axis=-1)/(2*(1-prevs.min(axis=-1)))
+
+
+def mnae(prevs, prevs_hat):
+    """Computes the mean normalized absolute error (see :meth:`quapy.error.nae`) across the sample pairs.
+
+    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
+    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted
+        prevalence values
+    :return: mean normalized absolute error
+    """
+    return nae(prevs, prevs_hat).mean()
+
+
 def mse(prevs, prevs_hat):
     """Computes the mean squared error (see :meth:`quapy.error.se`) across the sample pairs.
 
@@ -216,6 +242,49 @@ def rae(prevs, prevs_hat, eps=None):
     return (abs(prevs - prevs_hat) / prevs).mean(axis=-1)
 
 
+def nrae(prevs, prevs_hat, eps=None):
+    """Computes the normalized absolute relative error between the two prevalence vectors.
+     Relative absolute error between two prevalence vectors :math:`p` and :math:`\\hat{p}`
+     is computed as
+     :math:`NRAE(p,\\hat{p})= \\frac{RAE(p,\\hat{p})}{z_{RAE}}`,
+     where
+     :math:`z_{RAE} = \\frac{|\\mathcal{Y}|-1+\\frac{1-\\min_{y\\in \\mathcal{Y}} p(y)}{\\min_{y\\in \\mathcal{Y}} p(y)}}{|\\mathcal{Y}|}`
+     and :math:`\\mathcal{Y}` are the classes of interest.
+     The distributions are smoothed using the `eps` factor (see :meth:`quapy.error.smooth`).
+
+    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
+    :param eps: smoothing factor. `nrae` is not defined in cases in which the true distribution
+        contains zeros; `eps` is typically set to be :math:`\\frac{1}{2T}`, with :math:`T` the
+        sample size. If `eps=None`, the sample size will be taken from the environment variable
+        `SAMPLE_SIZE` (which has thus to be set beforehand).
+    :return: normalized relative absolute error
+    """
+    eps = __check_eps(eps)
+    prevs = smooth(prevs, eps)
+    prevs_hat = smooth(prevs_hat, eps)
+    min_p = prevs.min(axis=-1)
+    return (abs(prevs - prevs_hat) / prevs).sum(axis=-1)/(prevs.shape[-1]-1+(1-min_p)/min_p)
+
+
+def mnrae(prevs, prevs_hat, eps=None):
+    """Computes the mean normalized relative absolute error (see :meth:`quapy.error.nrae`) across
+    the sample pairs. The distributions are smoothed using the `eps` factor (see
+    :meth:`quapy.error.smooth`).
+
+    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true
+        prevalence values
+    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted
+        prevalence values
+    :param eps: smoothing factor. `mnrae` is not defined in cases in which the true
+        distribution contains zeros; `eps` is typically set to be :math:`\\frac{1}{2T}`,
+        with :math:`T` the sample size. If `eps=None`, the sample size will be taken from
+        the environment variable `SAMPLE_SIZE` (which has thus to be set beforehand).
+    :return: mean normalized relative absolute error
+    """
+    return nrae(prevs, prevs_hat, eps).mean()
+
+
 def smooth(prevs, eps):
     """ Smooths a prevalence distribution with :math:`\\epsilon` (`eps`) as:
     :math:`\\underline{p}(y)=\\frac{\\epsilon+p(y)}{\\epsilon|\\mathcal{Y}|+
@@ -239,9 +308,9 @@ def __check_eps(eps=None):
 
 
 CLASSIFICATION_ERROR = {f1e, acce}
-QUANTIFICATION_ERROR = {mae, mrae, mse, mkld, mnkld}
-QUANTIFICATION_ERROR_SINGLE = {ae, rae, se, kld, nkld}
-QUANTIFICATION_ERROR_SMOOTH = {kld, nkld, rae, mkld, mnkld, mrae}
+QUANTIFICATION_ERROR = {mae, mnae, mrae, mnrae, mse, mkld, mnkld}
+QUANTIFICATION_ERROR_SINGLE = {ae, nae, rae, nrae, se, kld, nkld}
+QUANTIFICATION_ERROR_SMOOTH = {kld, nkld, rae, nrae, mkld, mnkld, mrae}
 CLASSIFICATION_ERROR_NAMES = {func.__name__ for func in CLASSIFICATION_ERROR}
 QUANTIFICATION_ERROR_NAMES = {func.__name__ for func in QUANTIFICATION_ERROR}
 QUANTIFICATION_ERROR_SINGLE_NAMES = {func.__name__ for func in QUANTIFICATION_ERROR_SINGLE}
@@ -255,3 +324,7 @@ mean_absolute_error = mae
 absolute_error = ae
 mean_relative_absolute_error = mrae
 relative_absolute_error = rae
+normalized_absolute_error = nae
+normalized_relative_absolute_error = nrae
+mean_normalized_absolute_error = mnae
+mean_normalized_relative_absolute_error = mnrae
