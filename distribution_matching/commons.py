@@ -8,7 +8,7 @@ from distribution_matching.method_dirichlety import DIRy
 from sklearn.linear_model import LogisticRegression
 from method_kdey_closed_efficient import KDEyclosed_efficient
 
-METHODS  = ['ACC', 'PACC', 'HDy-OvA', 'DIR', 'DM-T', 'DM-HD', 'KDEy-DMhd3', 'DM-CS', 'KDEy-closed++', 'EMQ', 'KDEy-ML'] #['ACC', 'PACC', 'HDy-OvA', 'DIR', 'DM', 'KDEy-DMhd3', 'KDEy-closed++', 'EMQ', 'KDEy-ML'] #, 'KDEy-DMhd2'] #, 'KDEy-DMhd2', 'DM-HD'] 'KDEy-DMjs', 'KDEy-DM', 'KDEy-ML+', 'KDEy-DMhd3+', 'EMQ-C',
+METHODS  = ['ACC', 'PACC', 'HDy-OvA', 'DM-T', 'DM-HD', 'KDEy-DMhd3', 'DM-CS', 'KDEy-closed++',  'DIR', 'EMQ', 'KDEy-ML'] #['ACC', 'PACC', 'HDy-OvA', 'DIR', 'DM', 'KDEy-DMhd3', 'KDEy-closed++', 'EMQ', 'KDEy-ML'] #, 'KDEy-DMhd2'] #, 'KDEy-DMhd2', 'DM-HD'] 'KDEy-DMjs', 'KDEy-DM', 'KDEy-ML+', 'KDEy-DMhd3+', 'EMQ-C',
 BIN_METHODS = [x.replace('-OvA', '') for x in METHODS]
 
 

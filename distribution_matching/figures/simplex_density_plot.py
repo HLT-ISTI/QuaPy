@@ -1,10 +1,8 @@
-import ternary
 import math
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KernelDensity
-import plotly.figure_factory as ff
 
 from data import LabelledCollection
 
@@ -15,6 +13,7 @@ scale = 200
 # con plotly salen los contornos bien, pero es un poco un jaleo porque utiliza el navegador...
 
 def plot_simplex_(ax, density, title='', fontsize=9, points=None):
+    import ternary
 
     tax = ternary.TernaryAxesSubplot(ax=ax, scale=scale)
     tax.heatmapf(density, boundary=True, style="triangular", colorbar=False, cmap='viridis') #cmap='magma')
@@ -34,6 +33,7 @@ def plot_simplex_(ax, density, title='', fontsize=9, points=None):
 
 
 def plot_simplex(ax, coord, kde_scores, title='', fontsize=11, points=None, savepath=None):
+    import plotly.figure_factory as ff
 
     tax = ff.create_ternary_contour(coord.T, kde_scores, pole_labels=['y=1', 'y=2', 'y=3'],
                                 interp_mode='cartesian',
@@ -49,6 +49,8 @@ def plot_simplex(ax, coord, kde_scores, title='', fontsize=11, points=None, save
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 def plot_3class_problem(post_c1, post_c2, post_c3, post_test, alpha, bandwidth):
+    import ternary
+
     post_c1 = np.flip(post_c1, axis=1)
     post_c2 = np.flip(post_c2, axis=1)
     post_c3 = np.flip(post_c3, axis=1)

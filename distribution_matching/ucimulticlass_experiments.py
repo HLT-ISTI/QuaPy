@@ -25,9 +25,6 @@ if __name__ == '__main__':
         os.makedirs(result_dir, exist_ok=True)
 
         for method in METHODS:
-            #if method == 'HDy-OvA': continue
-            #if method == 'DIR': continue
-            # if method != 'EMQ-C': continue
 
             print('Init method', method)
 
