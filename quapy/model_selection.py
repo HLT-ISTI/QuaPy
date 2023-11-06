@@ -1,17 +1,17 @@
 import itertools
 import signal
 from copy import deepcopy
-from time import time
-from typing import Callable, Union
+from typing import Union, Callable
 
 import numpy as np
 from sklearn import clone
 
 import quapy as qp
 from quapy import evaluation
+from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
 from quapy.data.base import LabelledCollection
 from quapy.method.aggregative import BaseQuantifier
-from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
+from time import time
 
 
 class GridSearchQ(BaseQuantifier):
