@@ -137,8 +137,9 @@ class DistributionMatchingX(BaseQuantifier):
     def __get_distributions(self, X):
         histograms = []
         for feat_idx in range(self.nfeats):
-            hist = np.histogram(X[:, feat_idx], bins=self.nbins, density=True, range=self.feat_ranges[feat_idx])[0]
-            histograms.append(hist)
+            hist = np.histogram(X[:, feat_idx], bins=self.nbins, range=self.feat_ranges[feat_idx])[0]
+            normhist = hist / hist.sum()
+            histograms.append(normhist)
 
         distributions = np.vstack(histograms)
         if self.cdf:
