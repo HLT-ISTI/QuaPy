@@ -6,7 +6,7 @@ import quapy as qp
 from sklearn.linear_model import LogisticRegression
 from time import time
 
-from error import QUANTIFICATION_ERROR_SINGLE, QUANTIFICATION_ERROR, QUANTIFICATION_ERROR_NAMES, \
+from quapy.error import QUANTIFICATION_ERROR_SINGLE, QUANTIFICATION_ERROR, QUANTIFICATION_ERROR_NAMES, \
     QUANTIFICATION_ERROR_SINGLE_NAMES
 from quapy.method.aggregative import EMQ, PCC
 from quapy.method.base import BaseQuantifier

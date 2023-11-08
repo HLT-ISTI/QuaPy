@@ -1,4 +1,4 @@
-Change Log 0.1.7
+Change Log 0.1.8
 ----------------
 
 - New UCI multiclass datasets added (thanks to Pablo González). The 5 UCI multiclass datasets are those corresponding
