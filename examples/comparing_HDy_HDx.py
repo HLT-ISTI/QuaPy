@@ -21,7 +21,7 @@ See <https://www.sciencedirect.com/science/article/pii/S0020025512004069>`_ for 
 qp.environ['SAMPLE_SIZE']=100
 
 
-df = pd.DataFrame(columns=('method', 'dataset', 'MAE', 'MRAE', 'tr-time', 'te-time'))
+df = pd.DataFrame(columns=['method', 'dataset', 'MAE', 'MRAE', 'tr-time', 'te-time'])
 
 
 for dataset_name in tqdm(qp.datasets.UCI_DATASETS, total=len(qp.datasets.UCI_DATASETS)):

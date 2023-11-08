@@ -9,6 +9,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_predict
 import quapy as qp
 import quapy.functional as F
+from functional import get_divergence
 from quapy.classification.calibration import NBVSCalibration, BCTSCalibration, TSCalibration, VSCalibration
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
@@ -605,20 +606,6 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         return np.asarray([1 - class1_prev, class1_prev])
 
 
-def _get_divergence(divergence: Union[str, Callable]):
-    if isinstance(divergence, str):
-        if divergence=='HD':
-            return F.HellingerDistance
-        elif divergence=='topsoe':
-            return F.TopsoeDistance
-        else:
-            raise ValueError(f'unknown divergence {divergence}')
-    elif callable(divergence):
-        return divergence
-    else:
-        raise ValueError(f'argument "divergence" not understood; use a str or a callable function')
-
-
 class DyS(AggregativeProbabilisticQuantifier, BinaryQuantifier):
     """
     `DyS framework <https://ojs.aaai.org/index.php/AAAI/article/view/4376>`_ (DyS).
@@ -676,7 +663,7 @@ class DyS(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         Px = classif_posteriors[:, 1]  # takes only the P(y=+1|x)
 
         Px_test = np.histogram(Px, bins=self.n_bins, range=(0, 1), density=True)[0]
-        divergence = _get_divergence(self.divergence)
+        divergence = get_divergence(self.divergence)
 
         def distribution_distance(prev):
             Px_train = prev * self.Pxy1_density + (1 - prev) * self.Pxy0_density
@@ -727,8 +714,9 @@ class SMM(AggregativeProbabilisticQuantifier, BinaryQuantifier):
 
 class DistributionMatching(AggregativeProbabilisticQuantifier):
     """
-    Generic Distribution Matching quantifier for binary or multiclass quantification.
-    This implementation takes the number of bins, the divergence, and the possibility to work on CDF as hyperparameters.
+    Generic Distribution Matching quantifier for binary or multiclass quantification based on the space of posterior
+    probabilities. This implementation takes the number of bins, the divergence, and the possibility to work on CDF
+    as hyperparameters.
 
     :param classifier: a `sklearn`'s Estimator that generates a probabilistic classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set to model the
@@ -741,7 +729,7 @@ class DistributionMatching(AggregativeProbabilisticQuantifier):
     :param divergence: a string representing a divergence measure (currently, "HD" and "topsoe" are implemented)
         or a callable function taking two ndarrays of the same dimension as input (default "HD", meaning Hellinger
         Distance)
-    :param cdf: whether or not to use CDF instead of PDF (default False)
+    :param cdf: whether to use CDF instead of PDF (default False)
     :param n_jobs: number of parallel workers (default None)
     """
 
@@ -773,8 +761,8 @@ class DistributionMatching(AggregativeProbabilisticQuantifier):
         """
         Trains the classifier (if requested) and generates the validation distributions out of the training data.
         The validation distributions have shape `(n, ch, nbins)`, with `n` the number of classes, `ch` the number of
-        channels, and `nbins` the number of bins. In particular, let `V` be the validation distributions; `di=V[i]`
-        are the distributions obtained from training data labelled with class `i`; `dij = di[j]` is the discrete
+        channels, and `nbins` the number of bins. In particular, let `V` be the validation distributions; then `di=V[i]`
+        are the distributions obtained from training data labelled with class `i`; while `dij = di[j]` is the discrete
         distribution of posterior probabilities `P(Y=j|X=x)` for training data labelled with class `i`, and `dij[k]`
         is the fraction of instances with a value in the `k`-th bin.
 
@@ -810,7 +798,7 @@ class DistributionMatching(AggregativeProbabilisticQuantifier):
         :return: a vector of class prevalence estimates
         """
         test_distribution = self.__get_distributions(posteriors)
-        divergence = _get_divergence(self.divergence)
+        divergence = get_divergence(self.divergence)
         n_classes, n_channels, nbins = self.validation_distribution.shape
         def match(prev):
             prev = np.expand_dims(prev, axis=0)

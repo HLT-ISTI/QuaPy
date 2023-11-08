@@ -1,5 +1,7 @@
 import itertools
 from collections import defaultdict
+from typing import Union, Callable
+
 import scipy
 import numpy as np
 
@@ -276,3 +278,16 @@ def check_prevalence_vector(p, raise_exception=False, toleranze=1e-08):
         return False
     return True
 
+
+def get_divergence(divergence: Union[str, Callable]):
+    if isinstance(divergence, str):
+        if divergence=='HD':
+            return HellingerDistance
+        elif divergence=='topsoe':
+            return TopsoeDistance
+        else:
+            raise ValueError(f'unknown divergence {divergence}')
+    elif callable(divergence):
+        return divergence
+    else:
+        raise ValueError(f'argument "divergence" not understood; use a str or a callable function')
