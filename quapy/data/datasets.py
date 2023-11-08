@@ -369,7 +369,8 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     elif verbose:
         print('no file description available')
 
-    print(f'Loading {dataset_name} ({fullname})')
+    if verbose:
+        print(f'Loading {dataset_name} ({fullname})')
     if identifier == 'acute':
         df = pd.read_csv(data_path, header=None, encoding='utf-16', sep='\t')
 
@@ -550,7 +551,8 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
         y = binarize(y, pos_class='NUC')
 
     data = LabelledCollection(X, y)
-    data.stats()
+    if verbose:
+        data.stats()
     return data
 
 

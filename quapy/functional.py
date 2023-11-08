@@ -64,7 +64,7 @@ def prevalence_from_probabilities(posteriors, binarize: bool = False):
         return prevalences
 
 
-def HellingerDistance(P, Q):
+def HellingerDistance(P, Q) -> float:
     """
     Computes the Hellingher Distance (HD) between (discretized) distributions `P` and `Q`.
     The HD for two discrete distributions of `k` bins is defined as:

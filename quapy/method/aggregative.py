@@ -530,7 +530,7 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
     """
     `Hellinger Distance y <https://www.sciencedirect.com/science/article/pii/S0020025512004069>`_ (HDy).
     HDy is a probabilistic method for training binary quantifiers, that models quantification as the problem of
-    minimizing the divergence (in terms of the Hellinger Distance) between two cumulative distributions of posterior
+    minimizing the divergence (in terms of the Hellinger Distance) between two distributions of posterior
     probabilities returned by the classifier. One of the distributions is generated from the unlabelled examples and
     the other is generated from a validation set. This latter distribution is defined as a mixture of the
     class-conditional distributions of the posterior probabilities returned for the positive and negative validation
@@ -590,6 +590,9 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
 
             Px_test, _ = np.histogram(Px, bins=bins, range=(0, 1), density=True)
 
+            # the authors proposed to search for the prevalence yielding the best matching as a linear search
+            # at small steps (modern implementations resort to an optimization procedure,
+            # see class DistributionMatching)
             prev_selected, min_dist = None, None
             for prev in F.prevalence_linspace(n_prevalences=100, repeats=1, smooth_limits_epsilon=0.0):
                 Px_train = prev * Pxy1_density + (1 - prev) * Pxy0_density
