@@ -10,7 +10,7 @@ from quapy.data import Dataset, LabelledCollection
 from quapy.method import AGGREGATIVE_METHODS, NON_AGGREGATIVE_METHODS
 from quapy.method.meta import Ensemble
 from quapy.protocol import APP
-from quapy.method.aggregative import DistributionMatching
+from quapy.method.aggregative import DMy
 from quapy.method.meta import MedianEstimator
 
 datasets = [pytest.param(qp.datasets.fetch_twitter('hcr', pickle=True), id='hcr'),
@@ -189,7 +189,7 @@ def test_median_meta():
     errors = []
     for nbins in nbins_grid:
         with qp.util.temp_seed(0):
-            q = DistributionMatching(LogisticRegression(), nbins=nbins)
+            q = DMy(LogisticRegression(), nbins=nbins)
             mae, estim_prevs = __fit_test(q, train, test)
             prevs.append(estim_prevs)
             errors.append(mae)
@@ -198,7 +198,7 @@ def test_median_meta():
     mae = np.mean(errors)
     print(f'\tMAE={mae:.4f}')
 
-    q = DistributionMatching(LogisticRegression())
+    q = DMy(LogisticRegression())
     q = MedianEstimator(q, param_grid={'nbins': nbins_grid}, random_state=0, n_jobs=-1)
     median_mae, prev = __fit_test(q, train, test)
     print(f'\tMAE={median_mae:.4f}')
@@ -220,12 +220,12 @@ def test_median_meta_modsel():
 
     nbins_grid = [2, 4, 5, 10, 15]
 
-    q = DistributionMatching(LogisticRegression())
+    q = DMy(LogisticRegression())
     q = MedianEstimator(q, param_grid={'nbins': nbins_grid}, random_state=0, n_jobs=-1)
     median_mae, _ = __fit_test(q, train, test)
     print(f'\tMAE={median_mae:.4f}')
 
-    q = DistributionMatching(LogisticRegression())
+    q = DMy(LogisticRegression())
     lr_params = {'classifier__C': np.logspace(-1, 1, 3)}
     q = MedianEstimator(q, param_grid={'nbins': nbins_grid}, random_state=0, n_jobs=-1)
     q = GridSearchQ(q, param_grid=lr_params, protocol=APP(val), n_jobs=-1)

@@ -1,6 +1,6 @@
 import quapy as qp
 from quapy.protocol import APP
-from quapy.method.aggregative import DistributionMatching
+from quapy.method.aggregative import DMy
 from sklearn.linear_model import LogisticRegression
 import numpy as np
 
@@ -8,7 +8,7 @@ import numpy as np
 In this example, we show how to perform model selection on a DistributionMatching quantifier.
 """
 
-model = DistributionMatching(LogisticRegression())
+model = DMy(LogisticRegression())
 
 qp.environ['SAMPLE_SIZE'] = 100
 qp.environ['N_JOBS'] = -1

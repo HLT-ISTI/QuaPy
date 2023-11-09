@@ -12,7 +12,7 @@ quantifiers = [
     ('ACC', qp.method.aggregative.ACC(newLR())),
     ('PCC', qp.method.aggregative.PCC(newLR())),
     ('PACC', qp.method.aggregative.PACC(newLR())),
-    ('HDy', qp.method.aggregative.DistributionMatching(newLR())),
+    ('HDy', qp.method.aggregative.DMy(newLR())),
     ('EMQ', qp.method.aggregative.EMQ(newLR()))
 ]
 

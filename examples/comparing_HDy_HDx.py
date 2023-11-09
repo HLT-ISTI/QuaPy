@@ -6,7 +6,7 @@ from tqdm import tqdm
 import quapy as qp
 from quapy.protocol import APP
 from quapy.method.aggregative import HDy
-from quapy.method.non_aggregative import HDx
+from quapy.method.non_aggregative import DMx
 
 
 """
@@ -42,7 +42,7 @@ for dataset_name in tqdm(qp.datasets.UCI_DATASETS, total=len(qp.datasets.UCI_DAT
 
     # HDx............................................
     tinit = time()
-    hdx = HDx().fit(train)
+    hdx = DMx.HDx(n_jobs=-1).fit(train)
     t_hdx_train = time() - tinit
 
     tinit = time()

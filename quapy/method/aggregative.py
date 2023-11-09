@@ -568,10 +568,11 @@ class HDy(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         self.Pxy0 = Px[validation.labels == self.classifier.classes_[0]]
         # pre-compute the histogram for positive and negative examples
         self.bins = np.linspace(10, 110, 11, dtype=int)  # [10, 20, 30, ..., 100, 110]
-        self.Pxy1_density = {bins: np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)[0] for bins in
-                             self.bins}
-        self.Pxy0_density = {bins: np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)[0] for bins in
-                             self.bins}
+        def hist(P, bins):
+            h = np.histogram(P, bins=bins, range=(0, 1), density=True)[0]
+            return h / h.sum()
+        self.Pxy1_density = {bins: hist(self.Pxy1, bins) for bins in self.bins}
+        self.Pxy0_density = {bins: hist(self.Pxy0, bins) for bins in self.bins}
         return self
 
     def aggregate(self, classif_posteriors):
@@ -712,7 +713,7 @@ class SMM(AggregativeProbabilisticQuantifier, BinaryQuantifier):
         return np.asarray([1 - class1_prev, class1_prev])
 
 
-class DistributionMatching(AggregativeProbabilisticQuantifier):
+class DMy(AggregativeProbabilisticQuantifier):
     """
     Generic Distribution Matching quantifier for binary or multiclass quantification based on the space of posterior
     probabilities. This implementation takes the number of bins, the divergence, and the possibility to work on CDF
@@ -733,13 +734,23 @@ class DistributionMatching(AggregativeProbabilisticQuantifier):
     :param n_jobs: number of parallel workers (default None)
     """
 
-    def __init__(self, classifier, val_split=0.4, nbins=8, divergence: Union[str, Callable]='HD', cdf=False, n_jobs=None):
+    def __init__(self, classifier, val_split=0.4, nbins=8, divergence: Union[str, Callable]='HD',
+                 cdf=False, search='optim_minimize', n_jobs=None):
         self.classifier = classifier
         self.val_split = val_split
         self.nbins = nbins
         self.divergence = divergence
         self.cdf = cdf
+        self.search = search
         self.n_jobs = n_jobs
+
+    @classmethod
+    def HDy(cls, classifier, val_split=0.4, n_jobs=None):
+        from quapy.method.meta import MedianEstimator
+
+        hdy = DMy(classifier=classifier, val_split=val_split, search='linear_search', divergence='HD')
+        hdy = MedianEstimator(hdy, param_grid={'nbins': np.linspace(10, 110, 11).astype(int)}, n_jobs=n_jobs)
+        return hdy
 
     def __get_distributions(self, posteriors):
         histograms = []
@@ -794,26 +805,20 @@ class DistributionMatching(AggregativeProbabilisticQuantifier):
         `n` channels (proper distributions of binned posterior probabilities), on which the divergence is computed
         independently. The matching is computed as an average of the divergence across all channels.
 
-        :param instances: instances in the sample
+        :param posteriors: posterior probabilities of the instances in the sample
         :return: a vector of class prevalence estimates
         """
         test_distribution = self.__get_distributions(posteriors)
         divergence = get_divergence(self.divergence)
         n_classes, n_channels, nbins = self.validation_distribution.shape
-        def match(prev):
+        def loss(prev):
             prev = np.expand_dims(prev, axis=0)
             mixture_distribution = (prev @ self.validation_distribution.reshape(n_classes,-1)).reshape(n_channels, -1)
             divs = [divergence(test_distribution[ch], mixture_distribution[ch]) for ch in range(n_channels)]
             return np.mean(divs)
 
-        # the initial point is set as the uniform distribution
-        uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
+        return F.argmin_prevalence(loss, n_classes, method=self.search)
 
-        # solutions are bounded to those contained in the unit-simplex
-        bounds = tuple((0, 1) for x in range(n_classes))  # values in [0,1]
-        constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
-        r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
-        return r.x
 
 
 def newELM(svmperf_base=None, loss='01', C=1):
@@ -1215,17 +1220,6 @@ class MS2(MS):
         return np.median(tprs), np.median(fprs)
 
 
-ClassifyAndCount = CC
-AdjustedClassifyAndCount = ACC
-ProbabilisticClassifyAndCount = PCC
-ProbabilisticAdjustedClassifyAndCount = PACC
-ExpectationMaximizationQuantifier = EMQ
-SLD = EMQ
-HellingerDistanceY = HDy
-MedianSweep = MS
-MedianSweep2 = MS2
-
-
 class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
     """
     Allows any binary quantifier to perform quantification on single-label datasets.
@@ -1283,3 +1277,18 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
         # the estimation for the positive class prevalence
         return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:, c])[1]
 
+
+#---------------------------------------------------------------
+# aliases
+#---------------------------------------------------------------
+
+ClassifyAndCount = CC
+AdjustedClassifyAndCount = ACC
+ProbabilisticClassifyAndCount = PCC
+ProbabilisticAdjustedClassifyAndCount = PACC
+ExpectationMaximizationQuantifier = EMQ
+DistributionMatchingY = DMy
+SLD = EMQ
+HellingerDistanceY = HDy
+MedianSweep = MS
+MedianSweep2 = MS2
