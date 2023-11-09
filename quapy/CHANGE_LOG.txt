@@ -1,13 +1,18 @@
 Change Log 0.1.8
 ----------------
 
+- Added HDx and DistributionMatchingX to non-aggregative quantifiers (see also the new example "comparing_HDy_HDx.py")
 - New UCI multiclass datasets added (thanks to Pablo González). The 5 UCI multiclass datasets are those corresponding
     to the following criteria:
         - >1000 instances
         - >2 classes
         - classification datasets
         - Python API available
-- Added NAE, NRAE
+- New IFCB (plankton) dataset added. See fetch_IFCB.
+- Added new evaluation measures NAE, NRAE
+- Added new meta method "MedianEstimator"; an ensemble of binary base quantifiers that receives as input a dictionary
+    of hyperparameters that will explore exhaustively, fitting and generating predictions for each combination of
+    hyperparameters, and that returns, as the prevalence estimates, the median across all predictions.
 
 Change Log 0.1.7
 ----------------

@@ -1,7 +1,7 @@
-from . import aggregative
 from . import base
-from . import meta
+from . import aggregative
 from . import non_aggregative
+from . import meta
 
 AGGREGATIVE_METHODS = {
     aggregative.CC,
