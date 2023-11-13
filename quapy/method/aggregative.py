@@ -65,7 +65,7 @@ class AggregativeQuantifier(ABC, BaseQuantifier):
         """
         assert isinstance(fit_classifier, bool), 'unexpected type for "fit_classifier", must be boolean'
 
-        self.__check_classifier()
+        self.__check_classifier(adapt_if_necessary=(self.__classifier_method=='predict_proba'))
 
         if predict_on is None:
             if fit_classifier:
