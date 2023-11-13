@@ -67,7 +67,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         assert isinstance(fit_classifier, bool), 'unexpected type for "fit_classifier", must be boolean'
 
         print(type(self))
-        self.__check_classifier(adapt_if_necessary=(self._classifier_method()=='predict_proba'))
+        self._check_classifier(adapt_if_necessary=(self._classifier_method() == 'predict_proba'))
 
         if predict_on is None:
             if fit_classifier:
@@ -155,7 +155,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         print('using predict')
         return 'predict'
 
-    def __check_classifier(self, adapt_if_necessary=False):
+    def _check_classifier(self, adapt_if_necessary=False):
         assert hasattr(self.classifier, self._classifier_method())
 
     def quantify(self, instances):
@@ -205,8 +205,8 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier, ABC):
         print('using predict_proba')
         return 'predict_proba'
 
-    def __check_classifier(self, adapt_if_necessary=False):
-        if not hasattr(self.classifier, self.__check_classifier()):
+    def _check_classifier(self, adapt_if_necessary=False):
+        if not hasattr(self.classifier, self._classifier_method()):
             if adapt_if_necessary:
                 print(f'warning: The learner {self.classifier.__class__.__name__} does not seem to be '
                       f'probabilistic. The learner will be calibrated (using CalibratedClassifierCV).')
@@ -274,7 +274,7 @@ class ACC(AggregativeQuantifier):
 
         :param classif_predictions: classifier predictions with true labels
         """
-        true_labels, pred_labels = classif_predictions
+        pred_labels, true_labels = classif_predictions.Xy
         self.cc = CC(self.classifier)
         self.Pte_cond_estim_ = self.getPteCondEstim(self.classifier.classes_, true_labels, pred_labels)
 
