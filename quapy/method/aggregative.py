@@ -7,11 +7,10 @@ from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_predict
-from typing_extensions import override
 
 import quapy as qp
 import quapy.functional as F
-from functional import get_divergence
+from quapy.functional import get_divergence
 from quapy.classification.calibration import NBVSCalibration, BCTSCalibration, TSCalibration, VSCalibration
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
@@ -68,7 +67,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         assert isinstance(fit_classifier, bool), 'unexpected type for "fit_classifier", must be boolean'
 
         print(type(self))
-        self.__check_classifier(adapt_if_necessary=(self.__classifier_method()=='predict_proba'))
+        self.__check_classifier(adapt_if_necessary=(self._classifier_method()=='predict_proba'))
 
         if predict_on is None:
             if fit_classifier:
@@ -98,7 +97,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
                     raise ValueError(f'invalid value {predict_on} in fit. '
                                      f'Specify a integer >1 for kFCV estimation.')
                     predictions = cross_val_predict(
-                        classifier, *data.Xy, cv=predict_on, n_jobs=self.n_jobs, method=self.__classifier_method())
+                        classifier, *data.Xy, cv=predict_on, n_jobs=self.n_jobs, method=self._classifier_method())
                     self.classifier.fit(*data.Xy)
             else:
                 raise ValueError(f'wrong type for predict_on: since fit_classifier=False, '
@@ -152,12 +151,12 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         """
         return self.classifier.predict(instances)
 
-    def __classifier_method(self):
+    def _classifier_method(self):
         print('using predict')
         return 'predict'
 
     def __check_classifier(self, adapt_if_necessary=False):
-        assert hasattr(self.classifier, self.__classifier_method())
+        assert hasattr(self.classifier, self._classifier_method())
 
     def quantify(self, instances):
         """
@@ -202,7 +201,7 @@ class AggregativeProbabilisticQuantifier(AggregativeQuantifier, ABC):
     def classify(self, instances):
         return self.classifier.predict_proba(instances)
 
-    def __classifier_method(self):
+    def _classifier_method(self):
         print('using predict_proba')
         return 'predict_proba'
 
