@@ -76,8 +76,6 @@ class GridSearchQ(BaseQuantifier):
         :param training: the training set on which to optimize the hyperparameters
         :return: self
         """
-        params_keys = list(self.param_grid.keys())
-        params_values = list(self.param_grid.values())
 
         protocol = self.protocol
 
@@ -86,12 +84,13 @@ class GridSearchQ(BaseQuantifier):
 
         tinit = time()
 
-        hyper = [dict({k: val[i] for i, k in enumerate(params_keys)}) for val in itertools.product(*params_values)]
+        configs = expand_grid(self.param_grid)
+
         self._sout(f'starting model selection with {self.n_jobs =}')
-        #pass a seed to parallel so it is set in clild processes
+        #pass a seed to parallel so it is set in child processes
         scores = qp.util.parallel(
             self._delayed_eval,
-            ((params, training) for params in hyper),
+            ((params, training) for params in configs),
             seed=qp.environ.get('_R_SEED', None),
             n_jobs=self.n_jobs
         )
@@ -204,8 +203,6 @@ class GridSearchQ(BaseQuantifier):
         raise ValueError('best_model called before fit')
 
 
-
-
 def cross_val_predict(quantifier: BaseQuantifier, data: LabelledCollection, nfolds=3, random_state=0):
     """
     Akin to `scikit-learn's cross_val_predict <https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_predict.html>`_
@@ -228,4 +225,44 @@ def cross_val_predict(quantifier: BaseQuantifier, data: LabelledCollection, nfol
 
     return total_prev
 
+
+def expand_grid(param_grid: dict):
+    """
+    Expands a param_grid dictionary as a list of configurations.
+    Example:
+
+    >>> combinations = expand_grid({'A': [1, 10, 100], 'B': [True, False]})
+    >>> print(combinations)
+    >>> [{'A': 1, 'B': True}, {'A': 1, 'B': False}, {'A': 10, 'B': True}, {'A': 10, 'B': False}, {'A': 100, 'B': True}, {'A': 100, 'B': False}]
+
+    :param param_grid: dictionary with keys representing hyper-parameter names, and values representing the range
+        to explore for that hyper-parameter
+    :return: a list of configurations, i.e., combinations of hyper-parameter assignments in the grid.
+    """
+    params_keys = list(param_grid.keys())
+    params_values = list(param_grid.values())
+    configs = [{k: combs[i] for i, k in enumerate(params_keys)} for combs in itertools.product(*params_values)]
+    return configs
+
+
+def group_params(param_grid: dict):
+    """
+    Partitions a param_grid dictionary as two lists of configurations, one for the classifier-specific
+    hyper-parameters, and another for que quantifier-specific hyper-parameters
+
+    :param param_grid: dictionary with keys representing hyper-parameter names, and values representing the range
+        to explore for that hyper-parameter
+    :return: two expanded grids of configurations, one for the classifier, another for the quantifier
+    """
+    classifier_params, quantifier_params = {}, {}
+    for key, values in param_grid.items():
+        if key.startswith('classifier__') or key == 'val_split':
+            classifier_params[key] = values
+        else:
+            quantifier_params[key] = values
+
+    classifier_configs = expand_grid(classifier_params)
+    quantifier_configs = expand_grid(quantifier_params)
+
+    return classifier_configs, quantifier_configs
 

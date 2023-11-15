@@ -24,7 +24,8 @@ class RecalibratedProbabilisticClassifier:
 class RecalibratedProbabilisticClassifierBase(BaseEstimator, RecalibratedProbabilisticClassifier):
     """
     Applies a (re)calibration method from `abstention.calibration`, as defined in
-    `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
+    `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_.
+
 
     :param classifier: a scikit-learn probabilistic classifier
     :param calibrator: the calibration object (an instance of abstention.calibration.CalibratorFactory)

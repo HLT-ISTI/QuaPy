@@ -38,7 +38,7 @@ def map_parallel(func, args, n_jobs):
     return list(itertools.chain.from_iterable(results))
 
 
-def parallel(func, args, n_jobs, seed=None):
+def parallel(func, args, n_jobs, seed=None, asarray=True):
     """
     A wrapper of multiprocessing:
 
@@ -58,9 +58,12 @@ def parallel(func, args, n_jobs, seed=None):
                 stack.enter_context(qp.util.temp_seed(seed))
             return func(*args)
     
-    return Parallel(n_jobs=n_jobs)(
+    out = Parallel(n_jobs=n_jobs)(
         delayed(func_dec)(qp.environ, None if seed is None else seed+i, args_i) for i, args_i in enumerate(args)
     )
+    if asarray:
+        out = np.asarray(out)
+    return out
 
 
 @contextlib.contextmanager
