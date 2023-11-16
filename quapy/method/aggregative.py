@@ -37,7 +37,20 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
     and :meth:`aggregate`.
     """
 
-    def fit(self, data: LabelledCollection, fit_classifier=True):
+    val_split_ = None
+
+    @property
+    def val_split(self):
+        return self.val_split_
+
+    @val_split.setter
+    def val_split(self, val_split):
+        if isinstance(val_split, LabelledCollection):
+            print('warning: setting val_split with a LabelledCollection will be inefficient in'
+                  'model selection. Rather pass the LabelledCollection at fit time')
+        self.val_split_ = val_split
+
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
         """
         Trains the aggregative quantifier. This comes down to training a classifier and an aggregation function.
 
@@ -46,7 +59,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
             learner has been trained outside the quantifier.
         :return: self
         """
-        classif_predictions = self.classifier_fit_predict(data, fit_classifier)
+        classif_predictions = self.classifier_fit_predict(data, fit_classifier, predict_on=val_split)
         self.aggregation_fit(classif_predictions, data)
         return self
 
@@ -68,6 +81,9 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         assert isinstance(fit_classifier, bool), 'unexpected type for "fit_classifier", must be boolean'
 
         self._check_classifier(adapt_if_necessary=(self._classifier_method() == 'predict_proba'))
+
+        if predict_on is None:
+            predict_on = self.val_split
 
         if predict_on is None:
             if fit_classifier:
@@ -228,7 +244,6 @@ class AggregativeCrispQuantifier(AggregativeQuantifier, ABC):
 
         :return: the string "predict", i.e., the standard method name for scikit-learn hard predictions
         """
-        print('using predict')
         return 'predict'
 
     def _check_classifier(self, adapt_if_necessary=False):
@@ -264,7 +279,6 @@ class AggregativeSoftQuantifier(AggregativeQuantifier, ABC):
 
         :return: the string "predict_proba", i.e., the standard method name for scikit-learn soft predictions
         """
-        print('using predict_proba')
         return 'predict_proba'
 
     def _check_classifier(self, adapt_if_necessary=False):
@@ -289,35 +303,35 @@ class AggregativeSoftQuantifier(AggregativeQuantifier, ABC):
 
 
 
-class CorrectionbasedAggregativeQuantifier(AggregativeQuantifier):
-    """
-    Abstract class for quantification methods that carry out an adjustment (or correction) that requires,
-    at training time, the predictions to be issued in validation mode, i.e., on a set of held-out data that
-    is not the training set. There are three ways in which this distinction can be made, depending on how
-    the internal parameter `val_split` is specified, namely, (i) a float in (0, 1) indicating the proportion
-    of training instances that should be devoted to validate, or (ii) an integer indicating the
-    number of folds to consider in a k-fold cross-validation mode, or (iii) the specific set of data to
-    use for validation.
-    """
-
-    @property
-    def val_split(self):
-        return self.val_split_
-
-    @val_split.setter
-    def val_split(self, val_split):
-        if isinstance(val_split, LabelledCollection):
-            print('warning: setting val_split with a LabelledCollection will be inefficient in'
-                  'model selection. Rather pass the LabelledCollection at fit time')
-        self.val_split_ = val_split
-
-    def fit(self, data: LabelledCollection, fit_classifier=True, predict_on=None):
-        print('method from CorrectionbasedAggregativeQuantifier')
-        if predict_on is None:
-            predict_on = self.val_split
-        classif_predictions = self.classifier_fit_predict(data, fit_classifier, predict_on)
-        self.aggregation_fit(classif_predictions, data)
-        return self
+# class CorrectionbasedAggregativeQuantifier(AggregativeQuantifier):
+#     """
+#     Abstract class for quantification methods that carry out an adjustment (or correction) that requires,
+#     at training time, the predictions to be issued in validation mode, i.e., on a set of held-out data that
+#     is not the training set. There are three ways in which this distinction can be made, depending on how
+#     the internal parameter `val_split` is specified, namely, (i) a float in (0, 1) indicating the proportion
+#     of training instances that should be devoted to validate, or (ii) an integer indicating the
+#     number of folds to consider in a k-fold cross-validation mode, or (iii) the specific set of data to
+#     use for validation.
+#     """
+#
+#     @property
+#     def val_split(self):
+#         return self.val_split_
+#
+#     @val_split.setter
+#     def val_split(self, val_split):
+#         if isinstance(val_split, LabelledCollection):
+#             print('warning: setting val_split with a LabelledCollection will be inefficient in'
+#                   'model selection. Rather pass the LabelledCollection at fit time')
+#         self.val_split_ = val_split
+#
+#     def fit(self, data: LabelledCollection, fit_classifier=True, predict_on=None):
+#         print('method from CorrectionbasedAggregativeQuantifier')
+#         if predict_on is None:
+#             predict_on = self.val_split
+#         classif_predictions = self.classifier_fit_predict(data, fit_classifier, predict_on)
+#         self.aggregation_fit(classif_predictions, data)
+#         return self
 
 
 
@@ -352,7 +366,7 @@ class CC(AggregativeCrispQuantifier):
         return F.prevalence_from_labels(classif_predictions, self.classes_)
 
 
-class ACC(AggregativeCrispQuantifier, CorrectionbasedAggregativeQuantifier):
+class ACC(AggregativeCrispQuantifier):
     """
     `Adjusted Classify & Count <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_,
     the "adjusted" variant of :class:`CC`, that corrects the predictions of CC
@@ -447,7 +461,7 @@ class PCC(AggregativeSoftQuantifier):
         return F.prevalence_from_probabilities(classif_posteriors, binarize=False)
 
 
-class PACC(AggregativeSoftQuantifier, CorrectionbasedAggregativeQuantifier):
+class PACC(AggregativeSoftQuantifier):
     """
     `Probabilistic Adjusted Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
     the probabilistic variant of ACC that relies on the posterior probabilities returned by a probabilistic classifier.
@@ -570,7 +584,7 @@ class EMQ(AggregativeSoftQuantifier):
         return qs, ps
 
 
-class EMQrecalib(AggregativeSoftQuantifier, CorrectionbasedAggregativeQuantifier):
+class EMQrecalib(AggregativeSoftQuantifier):
     """
     `Expectation Maximization for Quantification <https://ieeexplore.ieee.org/abstract/document/6789744>`_ (EMQ),
     aka `Saerens-Latinne-Decaestecker` (SLD) algorithm, with the heuristics proposed by
@@ -657,7 +671,7 @@ class EMQrecalib(AggregativeSoftQuantifier, CorrectionbasedAggregativeQuantifier
         return posteriors
 
 
-class HDy(AggregativeSoftQuantifier, BinaryQuantifier, CorrectionbasedAggregativeQuantifier):
+class HDy(AggregativeSoftQuantifier, BinaryQuantifier):
     """
     `Hellinger Distance y <https://www.sciencedirect.com/science/article/pii/S0020025512004069>`_ (HDy).
     HDy is a probabilistic method for training binary quantifiers, that models quantification as the problem of
@@ -844,7 +858,7 @@ class SMM(AggregativeSoftQuantifier, BinaryQuantifier):
         return np.asarray([1 - class1_prev, class1_prev])
 
 
-class DMy(AggregativeSoftQuantifier, CorrectionbasedAggregativeQuantifier):
+class DMy(AggregativeSoftQuantifier):
     """
     Generic Distribution Matching quantifier for binary or multiclass quantification based on the space of posterior
     probabilities. This implementation takes the number of bins, the divergence, and the possibility to work on CDF
@@ -865,7 +879,7 @@ class DMy(AggregativeSoftQuantifier, CorrectionbasedAggregativeQuantifier):
     :param n_jobs: number of parallel workers (default None)
     """
 
-    def __init__(self, classifier, val_split=0.4, nbins=8, divergence: Union[str, Callable]='HD',
+    def __init__(self, classifier, val_split=5, nbins=8, divergence: Union[str, Callable]='HD',
                  cdf=False, search='optim_minimize', n_jobs=None):
         self.classifier = classifier
         self.val_split = val_split
@@ -875,15 +889,15 @@ class DMy(AggregativeSoftQuantifier, CorrectionbasedAggregativeQuantifier):
         self.search = search
         self.n_jobs = n_jobs
 
-    @classmethod
-    def HDy(cls, classifier, val_split=0.4, n_jobs=None):
-        from quapy.method.meta import MedianEstimator
+    # @classmethod
+    # def HDy(cls, classifier, val_split=0.4, n_jobs=None):
+    #     from quapy.method.meta import MedianEstimator
+    #
+    #     hdy = DMy(classifier=classifier, val_split=val_split, search='linear_search', divergence='HD')
+    #     hdy = AggregativeMedianEstimator(hdy, param_grid={'nbins': np.linspace(10, 110, 11).astype(int)}, n_jobs=n_jobs)
+    #     return hdy
 
-        hdy = DMy(classifier=classifier, val_split=val_split, search='linear_search', divergence='HD')
-        hdy = AggregativeMedianEstimator(hdy, param_grid={'nbins': np.linspace(10, 110, 11).astype(int)}, n_jobs=n_jobs)
-        return hdy
-
-    def __get_distributions(self, posteriors):
+    def _get_distributions(self, posteriors):
         histograms = []
         post_dims = posteriors.shape[1]
         if post_dims == 2:
@@ -919,9 +933,10 @@ class DMy(AggregativeSoftQuantifier, CorrectionbasedAggregativeQuantifier):
         n_classes = len(self.classifier.classes_)
 
         self.validation_distribution = qp.util.parallel(
-            func=self.__get_distributions,
+            func=self._get_distributions,
             args=[posteriors[true_labels==cat] for cat in range(n_classes)],
-            n_jobs=self.n_jobs
+            n_jobs=self.n_jobs,
+            backend='threading'
         )
 
     def aggregate(self, posteriors: np.ndarray):
@@ -935,7 +950,7 @@ class DMy(AggregativeSoftQuantifier, CorrectionbasedAggregativeQuantifier):
         :param posteriors: posterior probabilities of the instances in the sample
         :return: a vector of class prevalence estimates
         """
-        test_distribution = self.__get_distributions(posteriors)
+        test_distribution = self._get_distributions(posteriors)
         divergence = get_divergence(self.divergence)
         n_classes, n_channels, nbins = self.validation_distribution.shape
         def loss(prev):
@@ -1449,13 +1464,10 @@ class AggregativeMedianEstimator(BinaryQuantifier):
 
     def _delayed_fit_aggregation(self, args):
         with qp.util.temp_seed(self.random_state):
-            print('\tenter job')
             ((model, predictions), q_params), training = args
             model = deepcopy(model)
-            print('fitaggr', model, predictions, len(predictions), print(self.training))
             model.set_params(**q_params)
             model.aggregation_fit(predictions, training)
-            print('\texit job')
             return model
 
 
@@ -1473,7 +1485,8 @@ class AggregativeMedianEstimator(BinaryQuantifier):
                     ((params, training, kwargs) for params in cls_configs),
                     seed=qp.environ.get('_R_SEED', None),
                     n_jobs=self.n_jobs,
-                    asarray=False
+                    asarray=False,
+                    backend='threading'
                 )
             else:
                 print('only 1')
@@ -1482,27 +1495,13 @@ class AggregativeMedianEstimator(BinaryQuantifier):
                 predictions = model.classifier_fit_predict(training, **kwargs)
                 models_preds = [(model, predictions)]
 
-            self.training = training
-
-            self.models = []
-            print('WITHOUT PARALLEL JOBS')
-            for ((model, predictions), q_params) in itertools.product(models_preds, q_configs):
-                print('\tenter job')
-                model = deepcopy(model)
-                print('fitaggr', model, predictions, len(predictions), print(self.training))
-                model.set_params(**q_params)
-                model.aggregation_fit(predictions, training)
-                self.models.append(model)
-                print('\texit job')
-
-
-            # self.models = qp.util.parallel(
-            #     self._delayed_fit_aggregation,
-            #     ((setup, training) for setup in itertools.product(models_preds, q_configs)),
-            #     seed=qp.environ.get('_R_SEED', None),
-            #     n_jobs=self.n_jobs,
-            #     asarray=False
-            # )
+            self.models = qp.util.parallel(
+                self._delayed_fit_aggregation,
+                ((setup, training) for setup in itertools.product(models_preds, q_configs)),
+                seed=qp.environ.get('_R_SEED', None),
+                n_jobs=self.n_jobs,
+                backend='threading'
+            )
         else:
             configs = qp.model_selection.expand_grid(self.param_grid)
             self.models = qp.util.parallel(
@@ -1510,7 +1509,7 @@ class AggregativeMedianEstimator(BinaryQuantifier):
                 ((params, training) for params in configs),
                 seed=qp.environ.get('_R_SEED', None),
                 n_jobs=self.n_jobs,
-                asarray=False
+                backend='threading'
             )
         return self
 
@@ -1524,9 +1523,8 @@ class AggregativeMedianEstimator(BinaryQuantifier):
             ((model, instances) for model in self.models),
             seed=qp.environ.get('_R_SEED', None),
             n_jobs=self.n_jobs,
-            asarray=False
+            backend='threading'
         )
-        prev_preds = np.asarray(prev_preds)
         return np.median(prev_preds, axis=0)
 
 #---------------------------------------------------------------

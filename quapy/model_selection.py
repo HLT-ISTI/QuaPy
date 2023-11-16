@@ -1,6 +1,7 @@
 import itertools
 import signal
 from copy import deepcopy
+from enum import Enum
 from typing import Union, Callable
 
 import numpy as np
@@ -10,9 +11,15 @@ import quapy as qp
 from quapy import evaluation
 from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
 from quapy.data.base import LabelledCollection
-from quapy.method.aggregative import BaseQuantifier
+from quapy.method.aggregative import BaseQuantifier, AggregativeQuantifier
 from time import time
 
+
+class Status(Enum):
+    SUCCESS = 1
+    TIMEOUT = 2
+    INVALID = 3
+    ERROR = 4
 
 class GridSearchQ(BaseQuantifier):
     """Grid Search optimization targeting a quantification-oriented metric.
@@ -69,21 +76,7 @@ class GridSearchQ(BaseQuantifier):
             raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
                              f'the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}')
 
-    def fit(self, training: LabelledCollection):
-        """ Learning routine. Fits methods with all combinations of hyperparameters and selects the one minimizing
-            the error metric.
-
-        :param training: the training set on which to optimize the hyperparameters
-        :return: self
-        """
-
-        protocol = self.protocol
-
-        self.param_scores_ = {}
-        self.best_score_ = None
-
-        tinit = time()
-
+    def _fit_nonaggregative(self, training):
         configs = expand_grid(self.param_grid)
 
         self._sout(f'starting model selection with {self.n_jobs =}')
@@ -94,34 +87,106 @@ class GridSearchQ(BaseQuantifier):
             seed=qp.environ.get('_R_SEED', None),
             n_jobs=self.n_jobs
         )
+        return scores
 
-        for params, score, model in scores:
-            if score is not None:
-                if self.best_score_ is None or score < self.best_score_:
-                    self.best_score_ = score
-                    self.best_params_ = params
-                    self.best_model_ = model
-                self.param_scores_[str(params)] = score
-            else:
-                self.param_scores_[str(params)] = 'timeout'
+    def _delayed_fit_classifier(self, args):
+        cls_params, training = args
+        model = deepcopy(self.model)
+        model.set_params(**cls_params)
+        predictions = model.classifier_fit_predict(training)
+        return (model, predictions, cls_params)
 
-        tend = time()-tinit
+    def _eval_aggregative(self, args):
+        ((model, predictions, cls_params), q_params), training = args
+        model = deepcopy(model)
+        # overrides default parameters with the parameters being explored at this iteration
+        model.set_params(**q_params)
+        model.aggregation_fit(predictions, training)
+        params = {**cls_params, **q_params}
+        return model, params
 
-        if self.best_score_ is None:
-            raise TimeoutError('no combination of hyperparameters seem to work')
+    def _delayed_evaluation__(self, args):
 
-        self._sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f}) '
-                   f'[took {tend:.4f}s]')
+        exit_status = Status.SUCCESS
 
-        if self.refit:
-            if isinstance(protocol, OnLabelledCollectionProtocol):
-                self._sout(f'refitting on the whole development set')
-                self.best_model_.fit(training + protocol.get_labelled_collection())
-            else:
-                raise RuntimeWarning(f'"refit" was requested, but the protocol does not '
-                                     f'implement the {OnLabelledCollectionProtocol.__name__} interface')
+        tinit = time()
+        if self.timeout > 0:
+            def handler(signum, frame):
+                raise TimeoutError()
 
-        return self
+            signal.signal(signal.SIGALRM, handler)
+            signal.alarm(self.timeout)
+
+        try:
+            model, params = self._eval_aggregative(args)
+
+            score = evaluation.evaluate(model, protocol=self.protocol, error_metric=self.error)
+
+            ttime = time() - tinit
+            self._sout(f'hyperparams=[{params}]\t got {self.error.__name__} score {score:.5f} [took {ttime:.4f}s]')
+
+            if self.timeout > 0:
+                signal.alarm(0)
+
+        except TimeoutError:
+            self._sout(f'timeout ({self.timeout}s) reached for config {params}')
+            score = None
+            exit_status = Status.TIMEOUT
+
+        except ValueError as e:
+            self._sout(f'the combination of hyperparameters {params} is invalid')
+            score = None
+            exit_status = Status.INVALID
+
+        except Exception as e:
+            self._sout(f'something went wrong for config {params}; skipping:')
+            self._sout(f'\tException: {e}')
+            score = None
+            exit_status = Status.ERROR
+
+
+        return params, score, model, exit_status
+
+    # def _delayed_fit_aggregation_and_eval(self, args):
+    #
+    #     ((model, predictions, cls_params), q_params), training = args
+    #     exit_status = Status.SUCCESS
+    #
+    #     tinit = time()
+    #     if self.timeout > 0:
+    #         def handler(signum, frame):
+    #             raise TimeoutError()
+    #         signal.signal(signal.SIGALRM, handler)
+    #         signal.alarm(self.timeout)
+    #
+    #     try:
+    #         model = deepcopy(model)
+    #         # overrides default parameters with the parameters being explored at this iteration
+    #         model.set_params(**q_params)
+    #         model.aggregation_fit(predictions, training)
+    #         score = evaluation.evaluate(model, protocol=self.protocol, error_metric=self.error)
+    #
+    #         ttime = time() - tinit
+    #         self._sout(f'hyperparams=[cls:{cls_params}, q:{q_params}]\t got {self.error.__name__} score {score:.5f} [took {ttime:.4f}s]')
+    #
+    #         if self.timeout > 0:
+    #             signal.alarm(0)
+    #     except TimeoutError:
+    #         self._sout(f'timeout ({self.timeout}s) reached for config {q_params}')
+    #         score = None
+    #         exit_status = Status.TIMEOUT
+    #     except ValueError as e:
+    #         self._sout(f'the combination of hyperparameters {q_params} is invalid')
+    #         score = None
+    #         exit_status = Status.INVALID
+    #     except Exception as e:
+    #         self._sout(f'something went wrong for config {q_params}; skipping:')
+    #         self._sout(f'\tException: {e}')
+    #         score = None
+    #         exit_status = Status.ERROR
+    #
+    #     params = {**cls_params, **q_params}
+    #     return params, score, model, exit_status
 
     def _delayed_eval(self, args):
         params, training = args
@@ -163,8 +228,83 @@ class GridSearchQ(BaseQuantifier):
             self._sout(f'\tException: {e}')
             score = None
 
-        return params, score, model
+        return params, score, model, status
 
+    def _fit_aggregative(self, training):
+
+        # break down the set of hyperparameters into two: classifier-specific, quantifier-specific
+        cls_configs, q_configs = group_params(self.param_grid)
+
+        # train all classifiers and get the predictions
+        models_preds_clsconfigs = qp.util.parallel(
+            self._delayed_fit_classifier,
+            ((params, training) for params in cls_configs),
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=self.n_jobs,
+            asarray=False,
+        )
+
+        # explore the quantifier-specific hyperparameters for each training configuration
+        scores = qp.util.parallel(
+            self._delayed_fit_aggregation_and_eval,
+            ((setup, training) for setup in itertools.product(models_preds_clsconfigs, q_configs)),
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=self.n_jobs
+        )
+
+        return scores
+
+
+    def fit(self, training: LabelledCollection):
+        """ Learning routine. Fits methods with all combinations of hyperparameters and selects the one minimizing
+            the error metric.
+
+        :param training: the training set on which to optimize the hyperparameters
+        :return: self
+        """
+
+        if self.refit and not isinstance(self.protocol, OnLabelledCollectionProtocol):
+                raise RuntimeWarning(f'"refit" was requested, but the protocol does not '
+                                     f'implement the {OnLabelledCollectionProtocol.__name__} interface')
+
+        tinit = time()
+
+        if isinstance(self.model, AggregativeQuantifier):
+            self.results = self._fit_aggregative(training)
+        else:
+            self.results = self._fit_nonaggregative(training)
+
+        self.param_scores_ = {}
+        self.best_score_ = None
+        for params, score, model in self.results:
+            if score is not None:
+                if self.best_score_ is None or score < self.best_score_:
+                    self.best_score_ = score
+                    self.best_params_ = params
+                    self.best_model_ = model
+                self.param_scores_[str(params)] = score
+            else:
+                self.param_scores_[str(params)] = 'timeout'
+
+        tend = time()-tinit
+
+        if self.best_score_ is None:
+            raise TimeoutError('no combination of hyperparameters seem to work')
+
+        self._sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f}) '
+                   f'[took {tend:.4f}s]')
+
+        if self.refit:
+            if isinstance(self.protocol, OnLabelledCollectionProtocol):
+                tinit = time()
+                self._sout(f'refitting on the whole development set')
+                self.best_model_.fit(training + self.protocol.get_labelled_collection())
+                tend = time() - tinit
+                self.refit_time_ = tend
+            else:
+                raise RuntimeWarning(f'the model cannot be refit on the whole dataset')
+
+        return self
 
     def quantify(self, instances):
         """Estimate class prevalence values using the best model found after calling the :meth:`fit` method.

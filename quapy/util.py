@@ -38,7 +38,7 @@ def map_parallel(func, args, n_jobs):
     return list(itertools.chain.from_iterable(results))
 
 
-def parallel(func, args, n_jobs, seed=None, asarray=True):
+def parallel(func, args, n_jobs, seed=None, asarray=True, backend='loky'):
     """
     A wrapper of multiprocessing:
 
@@ -58,7 +58,7 @@ def parallel(func, args, n_jobs, seed=None, asarray=True):
                 stack.enter_context(qp.util.temp_seed(seed))
             return func(*args)
     
-    out = Parallel(n_jobs=n_jobs)(
+    out = Parallel(n_jobs=n_jobs, backend=backend)(
         delayed(func_dec)(qp.environ, None if seed is None else seed+i, args_i) for i, args_i in enumerate(args)
     )
     if asarray:
