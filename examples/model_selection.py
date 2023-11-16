@@ -1,4 +1,5 @@
 import quapy as qp
+from quapy.method.non_aggregative import DMx
 from quapy.protocol import APP
 from quapy.method.aggregative import DMy
 from sklearn.linear_model import LogisticRegression
@@ -38,7 +39,7 @@ with qp.util.temp_seed(0):
     param_grid = {
         'classifier__C': np.logspace(-3,3,7),
         'classifier__class_weight': ['balanced', None],
-        'nbins': [8, 16, 32, 64],
+        'nbins': [8, 16, 32, 64, 'poooo'],
     }
 
     tinit = time()
