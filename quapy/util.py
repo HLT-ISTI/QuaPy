@@ -10,6 +10,8 @@ import quapy as qp
 
 import numpy as np
 from joblib import Parallel, delayed
+from time import time
+import signal
 
 
 def _get_parallel_slices(n_tasks, n_jobs):
@@ -256,4 +258,36 @@ class EarlyStop:
             self.patience -= 1
             if self.patience <= 0:
                 self.STOP = True
+
+
+@contextlib.contextmanager
+def timeout(seconds):
+    """
+    Opens a context that will launch an exception if not closed after a given number of seconds
+
+    >>> def func(start_msg, end_msg):
+    >>>     print(start_msg)
+    >>>     sleep(2)
+    >>>     print(end_msg)
+    >>>
+    >>> with timeout(1):
+    >>>     func('begin function', 'end function')
+    >>> Out[]
+    >>> begin function
+    >>> TimeoutError
+
+
+    :param seconds: number of seconds, set to <=0 to ignore the timer
+    """
+    if seconds > 0:
+        def handler(signum, frame):
+            raise TimeoutError()
+
+        signal.signal(signal.SIGALRM, handler)
+        signal.alarm(seconds)
+
+    yield
+
+    if seconds > 0:
+        signal.alarm(0)
 
