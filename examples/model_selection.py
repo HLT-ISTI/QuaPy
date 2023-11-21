@@ -3,7 +3,7 @@ from quapy.method.non_aggregative import DMx
 from quapy.protocol import APP
 from quapy.method.aggregative import DMy
 from sklearn.linear_model import LogisticRegression
-from examples.comparing_gridsearch import OLD_GridSearchQ
+#from examples.comparing_gridsearch import OLD_GridSearchQ
 import numpy as np
 from time import time
 
@@ -37,13 +37,12 @@ with qp.util.temp_seed(0):
     # in order to let the quantifier know this hyper-parameter belongs to its underlying
     # classifier.
     param_grid = {
-        'classifier__C': np.logspace(-3,3,7),
-        'classifier__class_weight': ['balanced', None],
-        'nbins': [8, 16, 32, 64, 'poooo'],
+        'classifier__C': np.logspace(-2, 2, 5),
+        'classifier__class_weight': ['balanced', None, 'ch'],
+        'nbins': [8, 16, 32, 64, 'po'],
     }
 
     tinit = time()
-
 
     # model = OLD_GridSearchQ(
     model = qp.model_selection.GridSearchQ(
@@ -52,6 +51,7 @@ with qp.util.temp_seed(0):
         protocol=protocol,
         error='mae',  # the error to optimize is the MAE (a quantification-oriented loss)
         refit=False,   # retrain on the whole labelled set once done
+        raise_errors=False,
         verbose=True  # show information as the process goes on
     ).fit(training)
 
@@ -65,5 +65,5 @@ model = model.best_model_
 mae_score = qp.evaluation.evaluate(model, protocol=APP(test), error_metric='mae')
 
 print(f'MAE={mae_score:.5f}')
-print(f'model selection took {tend-tinit}s')
+print(f'model selection took {tend-tinit:.1f}s')
 
