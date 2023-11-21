@@ -71,7 +71,7 @@ def montecarlo_classweight(p, q, f=hd2, trials=TRIALS, epsilon=EPS):
     qs = q.pdf(xs)+epsilon
     N = trials
     n = q.n
-    return (1/(N*n))*np.sum(weights*f(ps/qs))
+    return (1/(N))*np.sum(weights*f(ps/qs))
 
 
 class Q:
