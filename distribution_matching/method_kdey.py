@@ -14,9 +14,10 @@ from quapy.data import LabelledCollection
 from quapy.protocol import APP, UPP
 from quapy.method.aggregative import AggregativeProbabilisticQuantifier, _training_helper, cross_generate_predictions, \
     DistributionMatching, _get_divergence
+import quapy.functional as F
 import scipy
 from scipy import optimize
-from statsmodels.nonparametric.kernel_density import KDEMultivariateConditional
+#from statsmodels.nonparametric.kernel_density import KDEMultivariateConditional
 
 
 # TODO: optimize the bandwidth automatically
@@ -97,11 +98,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
         if self.engine == 'scipy':
             return kde(posteriors[:, :-1].T)
         elif self.engine == 'sklearn':
-            #print('pdf...')
-            densities = np.exp(kde.score_samples(posteriors))
-            #print('[pdf done]')
-            return densities
-            #return np.exp(kde.score_samples(posteriors))
+            return np.exp(kde.score_samples(posteriors))
 
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
         """
@@ -130,6 +127,12 @@ class KDEy(AggregativeProbabilisticQuantifier):
             self.samples = qp.functional.uniform_prevalence_sampling(n_classes=data.n_classes, size=self.montecarlo_trials)
             self.sample_densities = [self.pdf(kde_i, self.samples) for kde_i in self.val_densities]
         elif self.target == 'min_divergence':
+            N = self.montecarlo_trials
+            rs = self.random_state
+            self.reference_samples = np.vstack([kde_i.sample(N, random_state=rs) for kde_i in self.val_densities])
+            self.reference_classwise_densities = np.asarray([self.pdf(kde_j, samples_i) for kde_j in self.val_densities])
+            self.reference_density = np.mean(self.reference_classwise_densities, axis=0)  # equiv. to (uniform @ self.reference_classwise_densities)
+        elif self.target == 'min_divergence_deprecated':  # the version of the first draft, with n*N presampled, then alpha*N chosen for class
             self.class_samples = [kde_i.sample(self.montecarlo_trials, random_state=self.random_state) for kde_i in self.val_densities]
             self.class_sample_densities = {}
             for ci, samples_i in enumerate(self.class_samples):
@@ -148,66 +151,40 @@ class KDEy(AggregativeProbabilisticQuantifier):
             raise ValueError('unknown target')
 
 
-    # this is the variant I have in the current results, which I think is bugged
-    # def _target_divergence_depr(self, posteriors):
-    #     # in this variant we evaluate the divergence using a Montecarlo approach
-    #     n_classes = len(self.val_densities)
-    #
-    #     test_kde = self.get_kde_function(posteriors)
-    #     test_likelihood = self.pdf(test_kde, self.samples)
-    #
-    #     divergence = _get_divergence(self.divergence)
-    #
-    #     def match(prev):
-    #         val_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, self.sample_densities))
-    #         return divergence(val_likelihood, test_likelihood)
-    #
-    #     # the initial point is set as the uniform distribution
-    #     uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
-    #
-    #     # solutions are bounded to those contained in the unit-simplex
-    #     bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
-    #     constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
-    #     r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
-    #     return r.x
-
-    def _target_divergence_uniform(self, posteriors):
+    # new version in which we retain all n*N examples (sampled from a mixture with uniform parameter), and then
+    # apply importance sampling (IS). In this version we compute D(p_alpha||q) with IS, and not D(q||p_alpha) as
+    # in the first draft
+    def _target_divergence(self, posteriors):
         # in this variant we evaluate the divergence using a Montecarlo approach
         n_classes = len(self.val_densities)
 
         test_kde = self.get_kde_function(posteriors)
-        test_likelihood = self.pdf(test_kde, self.samples)
+        test_densities = self.pdf(test_kde, self.reference_samples)
 
-        def f_squared_hellinger(t):
-            return (np.sqrt(t) - 1)**2
+        def f_squared_hellinger(u):
+            return (np.sqrt(u)-1)**2
 
-        def f_jensen_shannon(t):
-            return -(t+1)*np.log((t+1)/2) + t*np.log(t)
-
-        def fdivergence(pi, qi, f, eps=1e-10):
-            spi = pi+eps
-            sqi = qi+eps
-            return np.mean(f(spi/sqi)*sqi)
-
+        # todo: this will fail when self.divergence is a callable, and is not the right place to do it anyway
         if self.divergence.lower() == 'hd':
             f = f_squared_hellinger
-        elif self.divergence.lower() == 'js':
-            f = f_jensen_shannon
+        else:
+            raise ValueError('only squared HD is currently implemented')
 
-        def match(prev):
-            val_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, self.sample_densities))
-            return fdivergence(val_likelihood, test_likelihood, f)
 
-        # the initial point is set as the uniform distribution
-        uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
+        epsilon = 1e-10
+        qs = test_densities + epsilon
+        rs = self.reference_density + epsilon
 
-        # solutions are bounded to those contained in the unit-simplex
-        bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
-        constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
-        r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
-        return r.x
 
-    def _target_divergence(self, posteriors):
+        def divergence(prev):
+            ps = prev @ self.reference_classwise_densities + epsilon
+            return np.mean( f(ps/qs) * (qs/rs) )
+
+        return F.optim_minimize(divergence, n_classes)
+
+
+    # the first version we explain in the draft, choosing alpha*N from a pool of N for each class and w/o importance sampling
+    def _target_divergence_deprecated(self, posteriors):
         # in this variant we evaluate the divergence using a Montecarlo approach
         n_classes = len(self.val_densities)
 
@@ -233,7 +210,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
             fdivergence = squared_hellinger
 
 
-        def match(prev):
+        def dissimilarity(prev):
             # choose the samples according to the prevalence vector
             # e.g., prev = [0.5, 0.3, 0.2] will draw 50% from KDE_0, 30% from KDE_1, and 20% from KDE_2
             #       the points are already pre-sampled and de densities are pre-computed, so that now all that remains
@@ -255,14 +232,38 @@ class KDEy(AggregativeProbabilisticQuantifier):
             # then I am computing D(Test||Val), so it should be E_{x ~ Val}[f(Test(x)/Val(x))]
             return fdivergence(test_likelihood, val_likelihood)
 
-        # the initial point is set as the uniform distribution
-        uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
+        return F.optim_minimize(dissimilarity, n_classes)
 
-        # solutions are bounded to those contained in the unit-simplex
-        bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
-        constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
-        r = optimize.minimize(match, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
-        return r.x
+    # this version explores the entire simplex, and then applies importance sampling. We have not really tested it in deep but
+    # seems not to be promising
+    def _target_divergence_uniform(self, posteriors):
+        # in this variant we evaluate the divergence using a Montecarlo approach
+        n_classes = len(self.val_densities)
+
+        test_kde = self.get_kde_function(posteriors)
+        test_likelihood = self.pdf(test_kde, self.samples)
+
+        def f_squared_hellinger(t):
+            return (np.sqrt(t) - 1)**2
+
+        def f_jensen_shannon(t):
+            return -(t+1)*np.log((t+1)/2) + t*np.log(t)
+
+        def fdivergence(pi, qi, f, eps=1e-10):
+            spi = pi+eps
+            sqi = qi+eps
+            return np.mean(f(spi/sqi)*sqi)
+
+        if self.divergence.lower() == 'hd':
+            f = f_squared_hellinger
+        elif self.divergence.lower() == 'js':
+            f = f_jensen_shannon
+
+        def dissimilarity(prev):
+            val_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, self.sample_densities))
+            return fdivergence(val_likelihood, test_likelihood, f)
+
+        return F.optim_minimize(dissimilarity, n_classes)
 
     def _target_likelihood(self, posteriors, eps=0.000001):
         """
@@ -278,24 +279,9 @@ class KDEy(AggregativeProbabilisticQuantifier):
 
         #return lambda posteriors: sum(prev_i * self.pdf(kde_i, posteriors) for kde_i, prev_i in zip(self.val_densities, prev))
         def neg_loglikelihood(prev):
-            #print('-neg_likelihood')
-            #val_pdf = self.val_pdf(prev)
-            #test_likelihood = val_pdf(posteriors)
             test_mixture_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, test_densities))
             test_loglikelihood = np.log(test_mixture_likelihood + eps)
-            neg_log_likelihood = -np.sum(test_loglikelihood)
-            #print('-neg_likelihood [done!]')
-            return neg_log_likelihood
-            #return -np.prod(test_likelihood)
+            return  -np.sum(test_loglikelihood)
 
-        # the initial point is set as the uniform distribution
-        uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
-
-        # solutions are bounded to those contained in the unit-simplex
-        bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
-        constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
-        #print('searching for alpha')
-        r = optimize.minimize(neg_loglikelihood, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
-        #print('[optimization ended]')
-        return r.x
+        return F.optim_minimize(neg_loglikelihood, n_classes)
 
