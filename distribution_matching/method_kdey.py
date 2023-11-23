@@ -130,7 +130,7 @@ class KDEy(AggregativeProbabilisticQuantifier):
             N = self.montecarlo_trials
             rs = self.random_state
             self.reference_samples = np.vstack([kde_i.sample(N, random_state=rs) for kde_i in self.val_densities])
-            self.reference_classwise_densities = np.asarray([self.pdf(kde_j, samples_i) for kde_j in self.val_densities])
+            self.reference_classwise_densities = np.asarray([self.pdf(kde_j, self.reference_samples) for kde_j in self.val_densities])
             self.reference_density = np.mean(self.reference_classwise_densities, axis=0)  # equiv. to (uniform @ self.reference_classwise_densities)
         elif self.target == 'min_divergence_deprecated':  # the version of the first draft, with n*N presampled, then alpha*N chosen for class
             self.class_samples = [kde_i.sample(self.montecarlo_trials, random_state=self.random_state) for kde_i in self.val_densities]
