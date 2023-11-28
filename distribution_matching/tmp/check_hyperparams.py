@@ -1,17 +1,19 @@
 import pickle
+import os
 
-dataset = 'lequa/T1A'
+dataset = 'lequa/T1B'
 for metric in ['mae', 'mrae']:
-    method1 = 'KDEy-closed++'
-    # method2 = 'KDEy-DMhd3+'
-    # method1 = 'KDEy-ML'
-    # method2 = 'KDEy-ML+'
+    print('metric', metric)
+    for method in ['KDEy-DMhd4', 'KDEy-DMhd4+', 'KDEy-DMhd4++']:
 
-    path = f'../results/{dataset}/{metric}/{method1}.hyper.pkl'
-    obj = pickle.load(open(path, 'rb'))
-    print(method1, obj)
+        path = f'/home/moreo/QuaPy/distribution_matching/results/{dataset}/{metric}/{method}.hyper.pkl'
+        if os.path.exists(path):
+            obj = pickle.load(open(path, 'rb'))
+            print(method, obj)
+        else:
+            print(f'path {path} does not exist')
 
-    # path = f'../results/{dataset}/{metric}/{method2}.hyper.pkl'
-    # obj = pickle.load(open(path, 'rb'))
-    # print(method2, obj)
+    print()
+
+
 

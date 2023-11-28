@@ -135,7 +135,7 @@ def new_method(method, **lr_kwargs):
         # where x ~iid r, with r = p_u, and u = (1/n, 1/n, ..., 1/n) the uniform vector
         method_params = {'bandwidth': np.linspace(0.01, 0.2, 20)}
         param_grid = {**method_params, **hyper_LR}
-        quantifier = KDEy(lr, target='min_divergence', divergence='HD', montecarlo_trials=5000, val_split=10)
+        quantifier = KDEy(lr, target='min_divergence', divergence='HD', montecarlo_trials=10000, val_split=10)
     elif method == 'DM-HD':
         method_params = {
             'nbins': [4,8,16,32],

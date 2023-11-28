@@ -129,7 +129,8 @@ class KDEy(AggregativeProbabilisticQuantifier):
         elif self.target == 'min_divergence':
             N = self.montecarlo_trials
             rs = self.random_state
-            self.reference_samples = np.vstack([kde_i.sample(N, random_state=rs) for kde_i in self.val_densities])
+            n = data.n_classes
+            self.reference_samples = np.vstack([kde_i.sample(N//n, random_state=rs) for kde_i in self.val_densities])
             self.reference_classwise_densities = np.asarray([self.pdf(kde_j, self.reference_samples) for kde_j in self.val_densities])
             self.reference_density = np.mean(self.reference_classwise_densities, axis=0)  # equiv. to (uniform @ self.reference_classwise_densities)
         elif self.target == 'min_divergence_deprecated':  # the version of the first draft, with n*N presampled, then alpha*N chosen for class
@@ -170,15 +171,48 @@ class KDEy(AggregativeProbabilisticQuantifier):
         else:
             raise ValueError('only squared HD is currently implemented')
 
+        epsilon = 1e-10
+        qs = test_densities + epsilon
+        rs = self.reference_density + epsilon
+        iw = qs/rs  #importance weights
+        p_class = self.reference_classwise_densities + epsilon
+        fracs = p_class/qs
+
+        def divergence(prev):
+            # ps / qs = (prev @ p_class) / qs = prev @ (p_class / qs) = prev @ fracs
+            ps_div_qs = prev @ fracs
+            return np.mean( f(ps_div_qs) * iw )
+
+        return F.optim_minimize(divergence, n_classes)
+
+    # new version in which we retain all n*N examples (sampled from a mixture with uniform parameter), and then
+    # apply importance sampling (IS). In this version we compute D(q||p_alpha) with IS, and not D(p_alpha||q) as
+    # in the reformulation proposed above
+    def _target_divergence_q__p(self, posteriors):
+        # in this variant we evaluate the divergence using a Montecarlo approach
+        n_classes = len(self.val_densities)
+
+        test_kde = self.get_kde_function(posteriors)
+        test_densities = self.pdf(test_kde, self.reference_samples)
+
+        def f_squared_hellinger(u):
+            return (np.sqrt(u)-1)**2
+
+        # todo: this will fail when self.divergence is a callable, and is not the right place to do it anyway
+        if self.divergence.lower() == 'hd':
+            f = f_squared_hellinger
+        else:
+            raise ValueError('only squared HD is currently implemented')
 
         epsilon = 1e-10
         qs = test_densities + epsilon
         rs = self.reference_density + epsilon
+        p_class = self.reference_classwise_densities + epsilon
 
-
+        # D(q||p_a) = 1/N sum f(q/p_a) * (p_a / p_u)
         def divergence(prev):
-            ps = prev @ self.reference_classwise_densities + epsilon
-            return np.mean( f(ps/qs) * (qs/rs) )
+            p_a = prev @ p_class
+            return np.mean( f(qs/p_a) * (p_a/rs) )
 
         return F.optim_minimize(divergence, n_classes)
 
