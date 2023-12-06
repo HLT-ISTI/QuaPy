@@ -1,0 +1,107 @@
+\documentclass{article}
+
+
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lipsum}
+\usepackage{fancyhdr}       % header
+\usepackage{graphicx}       % graphics
+\graphicspath{{media/}}     % organize your images and other figures under media/ folder
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{tabularx}
+\usepackage{color}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{lmodern}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\newif\ifdraft
+\drafttrue
+
+\newcommand{\juanjo}[1]{\ifdraft{\leavevmode\color{purple}{[JJ]:
+{#1}}}\else{\vspace{0ex}}\fi}
+
+\newcommand{\alex}[1]{\ifdraft{\leavevmode\color{violet}{[AM]:
+{#1}}}\else{\vspace{0ex}}\fi}
+
+\newcommand{\pablo}[1]{\ifdraft{\leavevmode\color{red}{[PG]:
+{#1}}}\else{\vspace{0ex}}\fi}
+
+
+\title{Tables} 
+
+
+\author{
+  Alejandro Moreo 
+}
+
+
+\begin{document}
+
+\maketitle
+
+
+
+\begin{table}[h]
+ \centering
+ \caption{Multiclass AE}
+\resizebox{\textwidth}{!}{%
+\input{multiclass_mae}
+}%
+\end{table}
+
+
+\begin{table}[h]
+ \centering
+ \caption{Multiclass RAE}
+\resizebox{\textwidth}{!}{%
+\input{multiclass_mae}
+}%
+\end{table}
+
+\begin{table}[h]
+ \centering
+ \caption{Binary MAE}
+\resizebox{\textwidth}{!}{%
+\input{binary_mae}
+}%
+\end{table}
+
+\begin{table}[h]
+  \centering
+  \caption{Binary MRAE}
+ \resizebox{\textwidth}{!}{%
+ \input{binary_mrae}
+ }%
+ \end{table}
+
+\begin{table}[h]
+ \centering
+ \caption{UCI binary full AE}
+\resizebox{\textwidth}{!}{%
+\input{ucibinary_mae}
+}%
+\end{table}
+
+\begin{table}[h]
+ \centering
+ \caption{UCI binary full RAE}
+\resizebox{\textwidth}{!}{%
+\input{ucibinary_mrae}
+}%
+\end{table}
+
+
+
+\end{document}
+

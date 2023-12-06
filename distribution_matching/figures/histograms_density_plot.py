@@ -53,7 +53,7 @@ for i, post_set in enumerate([post_c1, post_c2, post_c3, post_test]):
     ax = fig.add_subplot(141+i, projection='3d')
     for post, c, z in zip(post_set.T, colors, positions):
 
-        hist, bins = np.histogram(post, bins=nbins, density=True)
+        hist, bins = np.histogram(post, bins=nbins, density=True, range=[0,1])
         xs = (bins[:-1] + bins[1:])/2
 
         ax.bar(xs, hist, width=1/nbins, zs=z, zdir='y', color=c, ec=c, alpha=0.6)

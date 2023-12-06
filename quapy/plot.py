@@ -11,7 +11,7 @@ import quapy as qp
 
 plt.rcParams['figure.figsize'] = [10, 6]
 plt.rcParams['figure.dpi'] = 200
-plt.rcParams['font.size'] = 18
+plt.rcParams['font.size'] = 12
 
 
 def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=None, show_std=True, legend=True,
@@ -259,7 +259,7 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
     data = _join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error, y_error, method_order)
 
     if method_order is None:
-        method_order = method_names
+        method_order = np.unique(method_names)
 
     _set_colors(ax, n_methods=len(method_order))
 
@@ -330,8 +330,8 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
     
     if show_legend:
         fig.legend(loc='lower center',
-                  bbox_to_anchor=(1, 0.5),
-                  ncol=(len(method_names)+1)//2)
+                  bbox_to_anchor=(0.9, 0.2),
+                  ncol=1)
       
     _save_or_show(savepath)
 

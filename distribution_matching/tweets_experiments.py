@@ -24,7 +24,6 @@ if __name__ == '__main__':
         for method in METHODS:
 
             print('Init method', method)
-            if method == 'EMQ-C': continue
 
             global_result_path = f'{result_dir}/{method}'
 
