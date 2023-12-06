@@ -166,3 +166,29 @@ dmypy.json
 *__pycache__*
 *.dataframe
 *.svg
+
+cross_lingual.py
+
+# results
+*.csv
+
+# other projects
+*.tex
+*.md
+*.doctree
+*.rst
+MultiLabel/
+NewMethods/
+Ordinal/
+Retrieval/
+quick_experiment/
+Transduction/
+Transduction_office/
+TweetSentQuant/
+laboratory/
+docs/
+dataset_drifts.py
+notes.txt
+eDiscovery/
+examples/experiment_Dirichlet_calibration.py
+examples/experiments_dirichlet_cal.txt
