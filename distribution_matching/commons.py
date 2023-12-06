@@ -3,13 +3,14 @@ import pandas as pd
 from distribution_matching.method_kdey import KDEy
 from distribution_matching.method_kdey_closed import KDEyclosed
 from distribution_matching.method_kdey_closed_efficient_correct import KDEyclosed_efficient_corr
+from distribution_matching.methods_kdey import KDEyCS, KDEyHD, KDEyML
 from quapy.method.aggregative import EMQ, CC, PCC, DistributionMatching, PACC, HDy, OneVsAllAggregative, ACC
 from distribution_matching.method_dirichlety import DIRy
 from sklearn.linear_model import LogisticRegression
 from distribution_matching.method_kdey_closed_efficient import KDEyclosed_efficient
 
 # the full list of methods tested in the paper (reported in the appendix)
-METHODS  = ['ACC', 'PACC', 'HDy-OvA', 'DM-T', 'DM-HD', 'KDEy-HD', 'DM-CS', 'KDEy-CS',  'DIR', 'EMQ', 'EMQ-BCTS', 'KDEy-ML']
+METHODS  = ['ACC', 'PACC', 'HDy-OvA', 'DM-T', 'DM-HD', 'KDEy-HD', 'KDEy-HD2', 'DM-CS', 'KDEy-CS','KDEy-CS2',  'DIR', 'EMQ', 'EMQ-BCTS', 'KDEy-ML', 'KDEy-ML2']
 
 # uncomment this other list for the methods shown in the body of the paper (the other methods are not comparable in performance)
 #METHODS  = ['PACC',  'DM-T', 'DM-HD', 'KDEy-HD', 'DM-CS', 'KDEy-CS',  'EMQ', 'KDEy-ML']
@@ -47,12 +48,21 @@ def new_method(method, **lr_kwargs):
     elif method in ['KDEy-HD']:
         param_grid = {**hyper_kde, **hyper_LR}
         quantifier = KDEy(lr, target='min_divergence', divergence='HD', montecarlo_trials=10000, val_split=10)
+    elif method in ['KDEy-HD2']:
+        param_grid = {**hyper_kde, **hyper_LR}
+        quantifier = KDEyHD(lr)
     elif method == 'KDEy-CS':
         param_grid = {**hyper_kde, **hyper_LR}
         quantifier = KDEyclosed_efficient_corr(lr, val_split=10)
+    elif method == 'KDEy-CS2':
+        param_grid = {**hyper_kde, **hyper_LR}
+        quantifier = KDEyCS(lr)
     elif method == 'KDEy-ML':
         param_grid = {**hyper_kde, **hyper_LR}
         quantifier = KDEy(lr, target='max_likelihood', val_split=10)
+    elif method == 'KDEy-ML2':
+        param_grid = {**hyper_kde, **hyper_LR}
+        quantifier = KDEyML(lr)
     elif method == 'DIR':
         param_grid = hyper_LR
         quantifier = DIRy(lr)
