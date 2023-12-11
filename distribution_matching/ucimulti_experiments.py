@@ -1,5 +1,6 @@
 import pickle
 import os
+from data.base import LabelledCollection
 
 from sklearn.linear_model import LogisticRegression
 

@@ -1,23 +1,31 @@
 import numpy as np
 import pandas as pd
-from distribution_matching.method_kdey import KDEy
-from distribution_matching.method_kdey_closed import KDEyclosed
-from distribution_matching.method_kdey_closed_efficient_correct import KDEyclosed_efficient_corr
-from distribution_matching.methods_kdey import KDEyCS, KDEyHD, KDEyML
+from distribution_matching.method.kdex import KDExML
+from distribution_matching.method.method_kdey import KDEy
+from distribution_matching.method.method_kdey_closed_efficient_correct import KDEyclosed_efficient_corr
+from distribution_matching.method.kdey import KDEyCS, KDEyHD, KDEyML
 from quapy.method.aggregative import EMQ, CC, PCC, DistributionMatching, PACC, HDy, OneVsAllAggregative, ACC
-from distribution_matching.method_dirichlety import DIRy
+from distribution_matching.method.dirichlety import DIRy
 from sklearn.linear_model import LogisticRegression
-from distribution_matching.method_kdey_closed_efficient import KDEyclosed_efficient
 
-# the full list of methods tested in the paper (reported in the appendix)
-METHODS  = ['ACC', 'PACC', 'HDy-OvA', 'DM-T', 'DM-HD', 'KDEy-HD', 'KDEy-HD2', 'DM-CS', 'KDEy-CS','KDEy-CS2',  'DIR', 'EMQ', 'EMQ-BCTS', 'KDEy-ML', 'KDEy-ML2']
+# set to True to get the full list of methods tested in the paper (reported in the appendix)
+# set to False to get the reduced list (shown in the body of the paper)
+FULL_METHOD_LIST = True
 
-# uncomment this other list for the methods shown in the body of the paper (the other methods are not comparable in performance)
-#METHODS  = ['PACC',  'DM-T', 'DM-HD', 'KDEy-HD', 'DM-CS', 'KDEy-CS',  'EMQ', 'KDEy-ML']
+if FULL_METHOD_LIST:
+    ADJUSTMENT_METHODS = ['ACC', 'PACC']
+    DISTR_MATCH_METHODS = ['HDy-OvA', 'DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
+    MAX_LIKE_METHODS = ['DIR', 'EMQ', 'EMQ-BCTS', 'KDEy-ML', 'KDEx-ML']
+else:
+    ADJUSTMENT_METHODS = ['PACC']
+    DISTR_MATCH_METHODS = ['DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
+    MAX_LIKE_METHODS = ['EMQ', 'KDEy-ML', 'KDEx-ML']
 
+# list of methods to consider
+METHODS  = ADJUSTMENT_METHODS + DISTR_MATCH_METHODS + MAX_LIKE_METHODS
 BIN_METHODS = [x.replace('-OvA', '') for x in METHODS]
 
-
+# common hyperparameterss
 hyper_LR = {
     'classifier__C': np.logspace(-3,3,7),
     'classifier__class_weight': ['balanced', None]
@@ -29,8 +37,9 @@ hyper_kde = {
 
 nbins_range = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 64]
 
-def new_method(method, **lr_kwargs):
 
+# instances a new quantifier based on a string name
+def new_method(method, **lr_kwargs):
     lr = LogisticRegression(**lr_kwargs)
 
     if method == 'CC':
@@ -47,22 +56,18 @@ def new_method(method, **lr_kwargs):
         quantifier = PACC(lr)
     elif method in ['KDEy-HD']:
         param_grid = {**hyper_kde, **hyper_LR}
-        quantifier = KDEy(lr, target='min_divergence', divergence='HD', montecarlo_trials=10000, val_split=10)
-    elif method in ['KDEy-HD2']:
-        param_grid = {**hyper_kde, **hyper_LR}
         quantifier = KDEyHD(lr)
     elif method == 'KDEy-CS':
-        param_grid = {**hyper_kde, **hyper_LR}
-        quantifier = KDEyclosed_efficient_corr(lr, val_split=10)
-    elif method == 'KDEy-CS2':
         param_grid = {**hyper_kde, **hyper_LR}
         quantifier = KDEyCS(lr)
     elif method == 'KDEy-ML':
         param_grid = {**hyper_kde, **hyper_LR}
-        quantifier = KDEy(lr, target='max_likelihood', val_split=10)
-    elif method == 'KDEy-ML2':
-        param_grid = {**hyper_kde, **hyper_LR}
         quantifier = KDEyML(lr)
+    elif method == 'KDEx-ML':
+        param_grid = {
+            'bandwidth': np.linspace(0.001, 2, 501)
+        }
+        quantifier = KDExML()
     elif method == 'DIR':
         param_grid = hyper_LR
         quantifier = DIRy(lr)

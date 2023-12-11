@@ -3,7 +3,7 @@ from sklearn.linear_model import LogisticRegression
 import os
 import quapy as qp
 from distribution_matching.commons import show_results
-from method_kdey import KDEy
+from distribution_matching.method.method_kdey import KDEy
 from quapy.method.aggregative import DistributionMatching
 
 

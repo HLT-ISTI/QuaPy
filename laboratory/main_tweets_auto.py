@@ -5,7 +5,7 @@ import pandas as pd
 
 import quapy as qp
 from method.aggregative import DistributionMatching
-from distribution_matching.method_kdey import KDEy
+from distribution_matching.method.method_kdey import KDEy
 from protocol import UPP
 
 

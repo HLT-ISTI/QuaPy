@@ -5,36 +5,35 @@ from sklearn.neighbors import KernelDensity
 
 import quapy as qp
 from quapy.data import LabelledCollection
-from quapy.method.aggregative import AggregativeProbabilisticQuantifier, _training_helper, cross_generate_predictions
+from quapy.method.aggregative import AggregativeProbabilisticQuantifier, cross_generate_predictions
 import quapy.functional as F
 
-from scipy.stats import multivariate_normal
-from scipy import optimize
 from sklearn.metrics.pairwise import rbf_kernel
 
 
-class KDEyBase:
+class KDEBase:
 
     BANDWIDTH_METHOD = ['scott', 'silverman']
 
-    def _check_bandwidth(self, bandwidth):
-        assert bandwidth in KDEyBase.BANDWIDTH_METHOD or isinstance(bandwidth, float), \
-            f'invalid bandwidth, valid ones are {KDEyBase.BANDWIDTH_METHOD} or float values'
+    @classmethod
+    def _check_bandwidth(cls, bandwidth):
+        assert bandwidth in KDEBase.BANDWIDTH_METHOD or isinstance(bandwidth, float), \
+            f'invalid bandwidth, valid ones are {KDEBase.BANDWIDTH_METHOD} or float values'
         if isinstance(bandwidth, float):
             assert 0 < bandwidth < 1,  "the bandwith for KDEy should be in (0,1), since this method models the unit simplex"
 
-    def get_kde_function(self, posteriors, bandwidth):
-        return KernelDensity(bandwidth=bandwidth).fit(posteriors)
+    def get_kde_function(self, X, bandwidth):
+        return KernelDensity(bandwidth=bandwidth).fit(X)
 
-    def pdf(self, kde, posteriors):
-        return np.exp(kde.score_samples(posteriors))
+    def pdf(self, kde, X):
+        return np.exp(kde.score_samples(X))
 
-    def get_mixture_components(self, posteriors, y, n_classes, bandwidth):
-        return [self.get_kde_function(posteriors[y == cat], bandwidth) for cat in range(n_classes)]
+    def get_mixture_components(self, X, y, n_classes, bandwidth):
+        return [self.get_kde_function(X[y == cat], bandwidth) for cat in range(n_classes)]
 
 
 
-class KDEyML(AggregativeProbabilisticQuantifier, KDEyBase):
+class KDEyML(AggregativeProbabilisticQuantifier, KDEBase):
 
     def __init__(self, classifier: BaseEstimator, val_split=10, bandwidth=0.1, n_jobs=None, random_state=0):
         self._check_bandwidth(bandwidth)
@@ -77,7 +76,7 @@ class KDEyML(AggregativeProbabilisticQuantifier, KDEyBase):
         return F.optim_minimize(neg_loglikelihood, n_classes)
 
 
-class KDEyHD(AggregativeProbabilisticQuantifier, KDEyBase):
+class KDEyHD(AggregativeProbabilisticQuantifier, KDEBase):
 
     def __init__(self, classifier: BaseEstimator, val_split=10, divergence: str='HD',
                  bandwidth=0.1, n_jobs=None, random_state=0, montecarlo_trials=10000):
@@ -145,7 +144,7 @@ class KDEyHD(AggregativeProbabilisticQuantifier, KDEyBase):
 class KDEyCS(AggregativeProbabilisticQuantifier):
 
     def __init__(self, classifier: BaseEstimator, val_split=10, bandwidth=0.1, n_jobs=None, random_state=0):
-        self._check_bandwidth(bandwidth)
+        KDEBase._check_bandwidth(bandwidth)
         self.classifier = classifier
         self.val_split = val_split
         self.bandwidth = bandwidth
