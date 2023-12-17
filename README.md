@@ -1,3 +1,24 @@
+# KDEy
+
+This branch contains the code and scripts that allow to reproduce all the experiments reported in a paper under submission.
+
+All the files related to this project are contained in the folder [distribution_matching](distribution_matching), the 
+rest is part of the QuaPy 0.1.7 library (see below) 
+
+This folder contains several scripts [dataset-name]_experiments.py that execute all experiments 
+related to the corresponding dataset. 
+It also contains scripts [dataset-name]_sensibility_analysis.py
+for the experiments concerning the bandwidth parameter. 
+
+The folder [method](distribution_matching%2Fmethod) contains the implementation of 
+the proposed methods. The folder [figures](distribution_matching%2Ffigures) contains
+the scripts used to generate the plots in the paper, while the folder [tables](distribution_matching%2Ftables)
+contains the scripts used to generate the tables. 
+
+All datasets used in this research are automatically downloaded by quapy the first
+time they are employed, and saved for faster reuse.
+
+
 # QuaPy
 
 QuaPy is an open source framework for quantification (a.k.a. supervised prevalence estimation, or learning to quantify)

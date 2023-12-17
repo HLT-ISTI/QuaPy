@@ -1,8 +1,5 @@
 import numpy as np
 import pandas as pd
-from distribution_matching.method.kdex import KDExML
-from distribution_matching.method.method_kdey import KDEy
-from distribution_matching.method.method_kdey_closed_efficient_correct import KDEyclosed_efficient_corr
 from distribution_matching.method.kdey import KDEyCS, KDEyHD, KDEyML
 from quapy.method.aggregative import EMQ, CC, PCC, DistributionMatching, PACC, HDy, OneVsAllAggregative, ACC
 from distribution_matching.method.dirichlety import DIRy
@@ -63,11 +60,6 @@ def new_method(method, **lr_kwargs):
     elif method == 'KDEy-ML':
         param_grid = {**hyper_kde, **hyper_LR}
         quantifier = KDEyML(lr)
-    elif method == 'KDEx-ML':
-        param_grid = {
-            'bandwidth': np.linspace(0.001, 2, 501)
-        }
-        quantifier = KDExML()
     elif method == 'DIR':
         param_grid = hyper_LR
         quantifier = DIRy(lr)
