@@ -116,7 +116,7 @@ def run(experiment):
             model,
             protocol=APP(test, n_prevalences=21, repeats=100)
         )
-        test_true_prevalence = data.test.prevalence()
+        test_true_prevalence = data.mixture.prevalence()
 
         evaluate_experiment(true_prevalences, estim_prevalences)
         save_results(dataset_name, model_name, run, optim_loss,

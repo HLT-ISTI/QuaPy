@@ -10,16 +10,16 @@ from sklearn.linear_model import LogisticRegression
 
 # set to True to get the full list of methods tested in the paper (reported in the appendix)
 # set to False to get the reduced list (shown in the body of the paper)
-FULL_METHOD_LIST = True
+FULL_METHOD_LIST = False
 
 if FULL_METHOD_LIST:
     ADJUSTMENT_METHODS = ['ACC', 'PACC']
     DISTR_MATCH_METHODS = ['HDy-OvA', 'DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
-    MAX_LIKE_METHODS = ['DIR', 'EMQ', 'EMQ-BCTS', 'KDEy-ML', 'KDEx-ML']
+    MAX_LIKE_METHODS = ['DIR', 'EMQ', 'EMQ-BCTS', 'KDEy-ML']
 else:
     ADJUSTMENT_METHODS = ['PACC']
     DISTR_MATCH_METHODS = ['DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
-    MAX_LIKE_METHODS = ['EMQ', 'KDEy-ML', 'KDEx-ML']
+    MAX_LIKE_METHODS = ['EMQ', 'KDEy-ML']
 
 # list of methods to consider
 METHODS  = ADJUSTMENT_METHODS + DISTR_MATCH_METHODS + MAX_LIKE_METHODS

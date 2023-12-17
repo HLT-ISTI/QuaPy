@@ -38,7 +38,7 @@ class QuaNetTrainer(BaseQuantifier):
     >>> # train QuaNet (QuaNet is an alias to QuaNetTrainer)
     >>> model = QuaNet(classifier, qp.environ['SAMPLE_SIZE'], device='cuda')
     >>> model.fit(dataset.training)
-    >>> estim_prevalence = model.quantify(dataset.test.instances)
+    >>> estim_prevalence = model.quantify(dataset.mixture.instances)
 
     :param classifier: an object implementing `fit` (i.e., that can be trained on labelled data),
         `predict_proba` (i.e., that can generate posterior probabilities of unlabelled examples) and

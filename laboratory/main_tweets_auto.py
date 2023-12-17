@@ -48,7 +48,7 @@ if __name__ == '__main__':
         csv.write(f'Method\tDataset\tMAE\tMRAE\n')
         for data, quantifier, quant_name in gen_methods():
             quantifier.fit(data.training)
-            protocol = UPP(data.test, repeats=100)
+            protocol = UPP(data.mixture, repeats=100)
             report = qp.evaluation.evaluation_report(quantifier, protocol, error_metrics=['mae', 'mrae'], verbose=True)
             means = report.mean()
             csv.write(f'{quant_name}\t{data.name}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\n')

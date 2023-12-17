@@ -67,11 +67,11 @@ def make_table(tabs, eval, benchmark_groups, benchmark_names, compact=False):
     for i, (tab, group, name) in enumerate(zip(tabs, benchmark_groups, benchmark_names)):
         tablines = tab.latexTabular(benchmark_replace=nice_bench, endl='\\\\'+ cline, aslines=True)
         tablines[0] = tablines[0].replace('\multicolumn{1}{c|}{}', '\\textbf{'+name+'}')
-        if not compact:
-            tabular += '\n'.join(tablines)
-        else:
+        if compact or len(tab.benchmarks)==1:
             # if compact, keep the method names and the average; discard the rest
-            tabular += tablines[0] + '\n' + tablines[-1] + '\n'
+            tabular += tablines[0] + '\n' + tablines[1 if len(tab.benchmarks)==1 else -1] + '\n'
+        else:
+            tabular += '\n'.join(tablines)
 
         tabular += "\n" + "\\textit{Rank} & " + tab.getRankTable(prec_mean=0 if name.startswith('LeQua') else 1).latexAverage()
         if i < (len(tabs) - 1):
@@ -158,7 +158,7 @@ def gen_tables_tweet(eval):
 def gen_tables_lequa(Methods, task, eval):
     # generating table for LeQua-T1A or Lequa-T1B; only one table with two rows, one for MAE, another for MRAE
 
-    tab = new_table([f'Average'], Methods)
+    tab = new_table([task], Methods)
 
     print('Generating table for T1A@Lequa', eval, end='')
     dir_results = f'../results/lequa/{task}/{eval}'
@@ -168,7 +168,7 @@ def gen_tables_lequa(Methods, task, eval):
         if os.path.exists(result_path):
             df = pd.read_csv(result_path)
             print(f'{method}', end=' ')
-            tab.add('Average', method, df[eval].values)
+            tab.add(task, method, df[eval].values)
         else:
             print(f'MISSING-{method}', end=' ')
     print()
@@ -186,7 +186,7 @@ if __name__ == '__main__':
         tabs.append(gen_tables_uci_multiclass(eval))
         tabs.append(gen_tables_lequa(METHODS, 'T1B', eval))
 
-        names = ['Tweets', 'UCI-multi', 'LeQua-T1B']
+        names = ['Tweets', 'UCI-multi', 'LeQua']
         table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=names)
         save_table(f'./latex/multiclass_{eval}.tex', table)
 
@@ -200,7 +200,7 @@ if __name__ == '__main__':
         
         # print uci-bin compacted plus lequa-T1A for the main body
         tabs.append(gen_tables_lequa(BIN_METHODS, 'T1A', eval))
-        table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=['UCI-binary', 'LeQua-T1A'], compact=True)
+        table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=['UCI-binary', 'LeQua'], compact=True)
         save_table(f'./latex/binary_{eval}.tex', table)
 
     print("[Tables Done] runing latex")
