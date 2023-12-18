@@ -46,8 +46,8 @@ with qp.util.temp_seed(0):
 
     tinit = time()
 
-    model = OLD_GridSearchQ(
-    # model = qp.model_selection.GridSearchQ(
+    # model = OLD_GridSearchQ(
+    model = qp.model_selection.GridSearchQ(
         model=model,
         param_grid=param_grid,
         protocol=protocol,
