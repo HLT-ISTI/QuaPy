@@ -5,7 +5,7 @@ from sklearn.neighbors import KernelDensity
 
 import quapy as qp
 from quapy.data import LabelledCollection
-from quapy.method.aggregative import AggregativeProbabilisticQuantifier, cross_generate_predictions
+from quapy.method.aggregative import AggregativeSoftQuantifier
 import quapy.functional as F
 
 from sklearn.metrics.pairwise import rbf_kernel
@@ -33,7 +33,7 @@ class KDEBase:
 
 
 
-class KDEyML(AggregativeProbabilisticQuantifier, KDEBase):
+class KDEyML(AggregativeSoftQuantifier, KDEBase):
 
     def __init__(self, classifier: BaseEstimator, val_split=10, bandwidth=0.1, n_jobs=None, random_state=0):
         self._check_bandwidth(bandwidth)
@@ -43,16 +43,8 @@ class KDEyML(AggregativeProbabilisticQuantifier, KDEBase):
         self.n_jobs = n_jobs
         self.random_state=random_state
 
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
-        if val_split is None:
-            val_split = self.val_split
-
-        self.classifier, y, posteriors, _, _ = cross_generate_predictions(
-            data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
-        )
-
-        self.mix_densities = self.get_mixture_components(posteriors, y, data.n_classes, self.bandwidth)
-
+    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        self.mix_densities = self.get_mixture_components(*classif_predictions.Xy, data.n_classes, self.bandwidth)
         return self
 
     def aggregate(self, posteriors: np.ndarray):
@@ -76,7 +68,7 @@ class KDEyML(AggregativeProbabilisticQuantifier, KDEBase):
         return F.optim_minimize(neg_loglikelihood, n_classes)
 
 
-class KDEyHD(AggregativeProbabilisticQuantifier, KDEBase):
+class KDEyHD(AggregativeSoftQuantifier, KDEBase):
 
     def __init__(self, classifier: BaseEstimator, val_split=10, divergence: str='HD',
                  bandwidth=0.1, n_jobs=None, random_state=0, montecarlo_trials=10000):
@@ -90,15 +82,8 @@ class KDEyHD(AggregativeProbabilisticQuantifier, KDEBase):
         self.random_state=random_state
         self.montecarlo_trials = montecarlo_trials
 
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
-        if val_split is None:
-            val_split = self.val_split
-
-        self.classifier, y, posteriors, _, _ = cross_generate_predictions(
-            data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
-        )
-
-        self.mix_densities = self.get_mixture_components(posteriors, y, data.n_classes, self.bandwidth)
+    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        self.mix_densities = self.get_mixture_components(*classif_predictions.Xy, data.n_classes, self.bandwidth)
 
         N = self.montecarlo_trials
         rs = self.random_state
@@ -141,7 +126,7 @@ class KDEyHD(AggregativeProbabilisticQuantifier, KDEBase):
         return F.optim_minimize(divergence, n_classes)
 
 
-class KDEyCS(AggregativeProbabilisticQuantifier):
+class KDEyCS(AggregativeSoftQuantifier):
 
     def __init__(self, classifier: BaseEstimator, val_split=10, bandwidth=0.1, n_jobs=None, random_state=0):
         KDEBase._check_bandwidth(bandwidth)
@@ -163,19 +148,14 @@ class KDEyCS(AggregativeProbabilisticQuantifier):
         gram = norm_factor * rbf_kernel(X, Y, gamma=gamma)
         return gram.sum()
 
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
-        if val_split is None:
-            val_split = self.val_split
+    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
 
-        self.classifier, y, posteriors, _, _ = cross_generate_predictions(
-            data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
-        )
+        P, y = classif_predictions.Xy
+        n = data.n_classes
 
-        assert all(sorted(np.unique(y)) == np.arange(data.n_classes)), \
+        assert all(sorted(np.unique(y)) == np.arange(n)), \
             'label name gaps not allowed in current implementation'
 
-        n = data.n_classes
-        P = posteriors
 
         # counts_inv keeps track of the relative weight of each datapoint within its class
         # (i.e., the weight in its KDE model)
