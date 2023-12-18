@@ -1,7 +1,7 @@
 import quapy as qp
 from method.kdey import KDEyML
 from quapy.method.non_aggregative import DMx
-from quapy.protocol import APP
+from quapy.protocol import APP, UPP
 from quapy.method.aggregative import DMy
 from sklearn.linear_model import LogisticRegression
 from examples.comparing_gridsearch import OLD_GridSearchQ
@@ -18,7 +18,7 @@ qp.environ['SAMPLE_SIZE'] = 100
 qp.environ['N_JOBS'] = -1
 
 # training, test = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=5).train_test
-training, test = qp.datasets.fetch_UCIMulticlassDataset('dry-bean').train_test
+training, test = qp.datasets.fetch_UCIMulticlassDataset('letter').train_test
 
 with qp.util.temp_seed(0):
 
@@ -30,7 +30,7 @@ with qp.util.temp_seed(0):
     # values in the entire range of values from a grid (e.g., [0, 0.1, 0.2, ..., 1]).
     # We devote 30% of the dataset for this exploration.
     training, validation = training.split_stratified(train_prop=0.7)
-    protocol = APP(validation)
+    protocol = UPP(validation)
 
     # We will explore a classification-dependent hyper-parameter (e.g., the 'C'
     # hyper-parameter of LogisticRegression) and a quantification-dependent hyper-parameter
@@ -53,7 +53,7 @@ with qp.util.temp_seed(0):
         protocol=protocol,
         error='mae',  # the error to optimize is the MAE (a quantification-oriented loss)
         refit=False,   # retrain on the whole labelled set once done
-        raise_errors=False,
+        # raise_errors=False,
         verbose=True  # show information as the process goes on
     ).fit(training)
 
@@ -64,7 +64,7 @@ model = model.best_model_
 
 # evaluation in terms of MAE
 # we use the same evaluation protocol (APP) on the test set
-mae_score = qp.evaluation.evaluate(model, protocol=APP(test), error_metric='mae')
+mae_score = qp.evaluation.evaluate(model, protocol=UPP(test), error_metric='mae')
 
 print(f'MAE={mae_score:.5f}')
 print(f'model selection took {tend-tinit:.1f}s')
