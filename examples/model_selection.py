@@ -1,4 +1,5 @@
 import quapy as qp
+from method.kdey import KDEyML
 from quapy.method.non_aggregative import DMx
 from quapy.protocol import APP
 from quapy.method.aggregative import DMy
@@ -11,12 +12,13 @@ from time import time
 In this example, we show how to perform model selection on a DistributionMatching quantifier.
 """
 
-model = DMy(LogisticRegression())
+model = KDEyML(LogisticRegression())
 
 qp.environ['SAMPLE_SIZE'] = 100
 qp.environ['N_JOBS'] = -1
 
-training, test = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=5).train_test
+# training, test = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=5).train_test
+training, test = qp.datasets.fetch_UCIMulticlassDataset('dry-bean').train_test
 
 with qp.util.temp_seed(0):
 
@@ -39,14 +41,13 @@ with qp.util.temp_seed(0):
     param_grid = {
         'classifier__C': np.logspace(-3,3,7),
         'classifier__class_weight': ['balanced', None],
-        'nbins': [8, 16, 32, 64, 'poooo'],
+        'bandwidth': np.linspace(0.01, 0.2, 20),
     }
 
     tinit = time()
 
-
-    # model = OLD_GridSearchQ(
-    model = qp.model_selection.GridSearchQ(
+    model = OLD_GridSearchQ(
+    # model = qp.model_selection.GridSearchQ(
         model=model,
         param_grid=param_grid,
         protocol=protocol,
