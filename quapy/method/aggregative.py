@@ -302,36 +302,20 @@ class AggregativeSoftQuantifier(AggregativeQuantifier, ABC):
                                      f'fit_classifier is set to False')
 
 
+class BinaryAggregativeQuantifier(AggregativeQuantifier, BinaryQuantifier):
+    
+    @property
+    def pos_label(self):
+        return self.classifier.classes_[1]
 
-# class CorrectionbasedAggregativeQuantifier(AggregativeQuantifier):
-#     """
-#     Abstract class for quantification methods that carry out an adjustment (or correction) that requires,
-#     at training time, the predictions to be issued in validation mode, i.e., on a set of held-out data that
-#     is not the training set. There are three ways in which this distinction can be made, depending on how
-#     the internal parameter `val_split` is specified, namely, (i) a float in (0, 1) indicating the proportion
-#     of training instances that should be devoted to validate, or (ii) an integer indicating the
-#     number of folds to consider in a k-fold cross-validation mode, or (iii) the specific set of data to
-#     use for validation.
-#     """
-#
-#     @property
-#     def val_split(self):
-#         return self.val_split_
-#
-#     @val_split.setter
-#     def val_split(self, val_split):
-#         if isinstance(val_split, LabelledCollection):
-#             print('warning: setting val_split with a LabelledCollection will be inefficient in'
-#                   'model selection. Rather pass the LabelledCollection at fit time')
-#         self.val_split_ = val_split
-#
-#     def fit(self, data: LabelledCollection, fit_classifier=True, predict_on=None):
-#         print('method from CorrectionbasedAggregativeQuantifier')
-#         if predict_on is None:
-#             predict_on = self.val_split
-#         classif_predictions = self.classifier_fit_predict(data, fit_classifier, predict_on)
-#         self.aggregation_fit(classif_predictions, data)
-#         return self
+    @property
+    def neg_label(self):
+        return self.classifier.classes_[0]
+
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
+        self._check_binary(data, self.__class__.__name__)
+        return super().fit(data, fit_classifier, val_split)
+    
 
 
 
@@ -383,7 +367,7 @@ class ACC(AggregativeCrispQuantifier):
     :param n_jobs: number of parallel workers
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None):
+    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None):
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
@@ -476,7 +460,7 @@ class PACC(AggregativeSoftQuantifier):
     :param n_jobs: number of parallel workers
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None):
+    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None):
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
@@ -599,7 +583,7 @@ class EMQrecalib(AggregativeSoftQuantifier):
         can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
         be extracted from the training set (default 0.4); or as an integer, indicating that the predictions
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`); or as a collection defining the specific set of data to use for validation.
+        for `k`, default 5); or as a collection defining the specific set of data to use for validation.
         Alternatively, this set can be specified at fit time by indicating the exact set of data
         on which the predictions are to be generated.
     :param exact_train_prev: set to True (default) for using, as the initial observation, the true training prevalence;
@@ -671,7 +655,7 @@ class EMQrecalib(AggregativeSoftQuantifier):
         return posteriors
 
 
-class HDy(AggregativeSoftQuantifier, BinaryQuantifier):
+class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     """
     `Hellinger Distance y <https://www.sciencedirect.com/science/article/pii/S0020025512004069>`_ (HDy).
     HDy is a probabilistic method for training binary quantifiers, that models quantification as the problem of
@@ -683,10 +667,10 @@ class HDy(AggregativeSoftQuantifier, BinaryQuantifier):
 
     :param classifier: a sklearn's Estimator that generates a binary classifier
     :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
-        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself).
+        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself), or an integer indicating the number of folds (default 5)..
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+    def __init__(self, classifier: BaseEstimator, val_split=5):
         self.classifier = classifier
         self.val_split = val_split
 
@@ -701,12 +685,10 @@ class HDy(AggregativeSoftQuantifier, BinaryQuantifier):
          :class:`quapy.data.base.LabelledCollection` indicating the validation set itself
         :return: self
         """
-
-        self._check_binary(data, self.__class__.__name__)
         P, y = classif_predictions.Xy
-        Px = P[:, 1]  # takes only the P(y=+1|x)
-        self.Pxy1 = Px[y == self.classifier.classes_[1]]
-        self.Pxy0 = Px[y == self.classifier.classes_[0]]
+        Px = P[:, self.pos_label]  # takes only the P(y=+1|x)
+        self.Pxy1 = Px[y == self.pos_label]
+        self.Pxy0 = Px[y == self.neg_label]
 
         # pre-compute the histogram for positive and negative examples
         self.bins = np.linspace(10, 110, 11, dtype=int)  # [10, 20, 30, ..., 100, 110]
@@ -725,7 +707,7 @@ class HDy(AggregativeSoftQuantifier, BinaryQuantifier):
         # and the final estimated a priori probability was taken as the median of these 11 estimates."
         # (González-Castro, et al., 2013).
 
-        Px = classif_posteriors[:, 1]  # takes only the P(y=+1|x)
+        Px = classif_posteriors[:, self.pos_label]  # takes only the P(y=+1|x)
 
         prev_estimations = []
         # for bins in np.linspace(10, 110, 11, dtype=int):  #[10, 20, 30, ..., 100, 110]
@@ -752,7 +734,7 @@ class HDy(AggregativeSoftQuantifier, BinaryQuantifier):
         return np.asarray([1 - class1_prev, class1_prev])
 
 
-class DyS(AggregativeSoftQuantifier, BinaryQuantifier):
+class DyS(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     """
     `DyS framework <https://ojs.aaai.org/index.php/AAAI/article/view/4376>`_ (DyS).
     DyS is a generalization of HDy method, using a Ternary Search in order to find the prevalence that
@@ -761,14 +743,14 @@ class DyS(AggregativeSoftQuantifier, BinaryQuantifier):
 
     :param classifier: a sklearn's Estimator that generates a binary classifier
     :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
-        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself).
+        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself), or an integer indicating the number of folds (default 5)..
     :param n_bins: an int with the number of bins to use to compute the histograms.
     :param divergence: a str indicating the name of divergence (currently supported ones are "HD" or "topsoe"), or a
         callable function computes the divergence between two distributions (two equally sized arrays).
     :param tol: a float with the tolerance for the ternary search algorithm.
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=0.4, n_bins=8, divergence: Union[str, Callable]= 'HD', tol=1e-05):
+    def __init__(self, classifier: BaseEstimator, val_split=5, n_bins=8, divergence: Union[str, Callable]= 'HD', tol=1e-05):
         self.classifier = classifier
         self.val_split = val_split
         self.tol = tol
@@ -791,22 +773,17 @@ class DyS(AggregativeSoftQuantifier, BinaryQuantifier):
         # Left and right are the current bounds; the maximum is between them
         return (left + right) / 2
 
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
-        if val_split is None:
-            val_split = self.val_split
-
-        self._check_binary(data, self.__class__.__name__)
-        self.classifier, validation = _training_helper(
-            self.classifier, data, fit_classifier, ensure_probabilistic=True, val_split=val_split)
-        Px = self.classify(validation.instances)[:, 1]  # takes only the P(y=+1|x)
-        self.Pxy1 = Px[validation.labels == self.classifier.classes_[1]]
-        self.Pxy0 = Px[validation.labels == self.classifier.classes_[0]]
+    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        Px, y = classif_predictions.Xy
+        Px = Px[:, self.pos_label]  # takes only the P(y=+1|x)
+        self.Pxy1 = Px[y == self.pos_label]
+        self.Pxy0 = Px[y == self.neg_label]
         self.Pxy1_density = np.histogram(self.Pxy1, bins=self.n_bins, range=(0, 1), density=True)[0]
         self.Pxy0_density = np.histogram(self.Pxy0, bins=self.n_bins, range=(0, 1), density=True)[0]
         return self
 
     def aggregate(self, classif_posteriors):
-        Px = classif_posteriors[:, 1]  # takes only the P(y=+1|x)
+        Px = classif_posteriors[:, self.pos_label]  # takes only the P(y=+1|x)
 
         Px_test = np.histogram(Px, bins=self.n_bins, range=(0, 1), density=True)[0]
         divergence = get_divergence(self.divergence)
@@ -819,37 +796,32 @@ class DyS(AggregativeSoftQuantifier, BinaryQuantifier):
         return np.asarray([1 - class1_prev, class1_prev])
 
 
-class SMM(AggregativeSoftQuantifier, BinaryQuantifier):
+class SMM(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     """
     `SMM method <https://ieeexplore.ieee.org/document/9260028>`_ (SMM).
     SMM is a simplification of matching distribution methods where the representation of the examples
-    is created using the mean instead of a histogram.
+    is created using the mean instead of a histogram (conceptually equivalent to PACC).
 
     :param classifier: a sklearn's Estimator that generates a binary classifier.
     :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
-        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself).
+        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself), or an integer indicating the number of folds (default 5)..
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+    def __init__(self, classifier: BaseEstimator, val_split=5):
         self.classifier = classifier
         self.val_split = val_split
       
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
-        if val_split is None:
-            val_split = self.val_split
-
-        self._check_binary(data, self.__class__.__name__)
-        self.classifier, validation = _training_helper(
-            self.classifier, data, fit_classifier, ensure_probabilistic=True, val_split=val_split)
-        Px = self.classify(validation.instances)[:, 1]  # takes only the P(y=+1|x)
-        self.Pxy1 = Px[validation.labels == self.classifier.classes_[1]]
-        self.Pxy0 = Px[validation.labels == self.classifier.classes_[0]]
-        self.Pxy1_mean = np.mean(self.Pxy1)
-        self.Pxy0_mean = np.mean(self.Pxy0)
+    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        Px, y = classif_predictions.Xy
+        Px = Px[:, self.pos_label]  # takes only the P(y=+1|x)
+        self.Pxy1 = Px[y == self.pos_label]
+        self.Pxy0 = Px[y == self.neg_label]
+        self.Pxy1_mean = np.mean(self.Pxy1)  # equiv. TPR 
+        self.Pxy0_mean = np.mean(self.Pxy0)  # equiv. FPR
         return self
 
     def aggregate(self, classif_posteriors):
-        Px = classif_posteriors[:, 1]  # takes only the P(y=+1|x)
+        Px = classif_posteriors[:, self.pos_label]  # takes only the P(y=+1|x)
         Px_mean = np.mean(Px)
      
         class1_prev = (Px_mean - self.Pxy0_mean)/(self.Pxy1_mean - self.Pxy0_mean)
@@ -867,9 +839,9 @@ class DMy(AggregativeSoftQuantifier):
     :param classifier: a `sklearn`'s Estimator that generates a probabilistic classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set to model the
         validation distribution.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
         validation data, or as an integer, indicating that the validation distribution should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     :param nbins: number of bins used to discretize the distributions (default 8)
     :param divergence: a string representing a divergence measure (currently, "HD" and "topsoe" are implemented)
@@ -890,7 +862,7 @@ class DMy(AggregativeSoftQuantifier):
         self.n_jobs = n_jobs
 
     # @classmethod
-    # def HDy(cls, classifier, val_split=0.4, n_jobs=None):
+    # def HDy(cls, classifier, val_split=5, n_jobs=None):
     #     from quapy.method.meta import MedianEstimator
     #
     #     hdy = DMy(classifier=classifier, val_split=val_split, search='linear_search', divergence='HD')
@@ -1114,7 +1086,7 @@ def newSVMRAE(svmperf_base=None, C=1):
     return newELM(svmperf_base, loss='mrae', C=C)
 
 
-class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
+class ThresholdOptimization(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     """
     Abstract class of Threshold Optimization variants for :class:`ACC` as proposed by
     `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
@@ -1127,31 +1099,20 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
     :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
         validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None):
+    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None):
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
 
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, int, LabelledCollection] = None):
-        self._check_binary(data, "Threshold Optimization")
-
-        if val_split is None:
-            val_split = self.val_split
-
-        self.classifier, y, y_, classes, class_count = cross_generate_predictions(
-            data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
-        )
-
-        self.cc = CC(self.classifier)
-
-        self.tpr, self.fpr = self._optimize_threshold(y, y_)
-
+    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        P, y = classif_predictions.Xy 
+        self.tpr, self.fpr, self.threshold = self._optimize_threshold(y, P)
         return self
 
     @abstractmethod
@@ -1173,14 +1134,15 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
 
         :param y: predicted labels for the validation set (or for the training set via `k`-fold cross validation)
         :param probabilities: array-like with the posterior probabilities
-        :return: best `tpr` and `fpr` according to `_condition`
+        :return: best `tpr` and `fpr` and `threshold` according to `_condition`
         """
         best_candidate_threshold_score = None
         best_tpr = 0
         best_fpr = 0
-        candidate_thresholds = np.unique(probabilities[:, 1])
+        candidate_thresholds = np.unique(probabilities[:, self.pos_label])
         for candidate_threshold in candidate_thresholds:
-            y_ = [self.classes_[1] if p > candidate_threshold else self.classes_[0] for p in probabilities[:, 1]]
+            y_ = self.classes_[1*(probabilities[:,1]>candidate_threshold)]
+            #y_ = [self.pos_label if p > candidate_threshold else self.neg_label for p in probabilities[:, 1]]
             TP, FP, FN, TN = self._compute_table(y, y_)
             tpr = self._compute_tpr(TP, FP)
             fpr = self._compute_fpr(FP, TN)
@@ -1190,15 +1152,15 @@ class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
                 best_tpr = tpr
                 best_fpr = fpr
 
-        return best_tpr, best_fpr
+        return best_tpr, best_fpr, best_candidate_threshold_score
 
     def aggregate(self, classif_predictions):
-        prevs_estim = self.cc.aggregate(classif_predictions)
-        if self.tpr - self.fpr == 0:
-            return prevs_estim
-        adjusted_prevs_estim = np.clip((prevs_estim[1] - self.fpr) / (self.tpr - self.fpr), 0, 1)
-        adjusted_prevs_estim = np.array((1 - adjusted_prevs_estim, adjusted_prevs_estim))
-        return adjusted_prevs_estim
+        class_scores = classif_predictions[:, self.pos_label]
+        prev_estim = np.mean(class_scores > self.threshold)
+        if self.tpr - self.fpr != 0:
+            prevs_estim = np.clip((prev_estim - self.fpr) / (self.tpr - self.fpr), 0, 1)
+        prevs_estim = np.array((1 - prevs_estim, prevs_estim))
+        return prevs_estim
 
     def _compute_table(self, y, y_):
         TP = np.logical_and(y == y_, y == self.classes_[1]).sum()
@@ -1229,13 +1191,13 @@ class T50(ThresholdOptimization):
     :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
         validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+    def __init__(self, classifier: BaseEstimator, val_split=5):
         super().__init__(classifier, val_split)
 
     def _condition(self, tpr, fpr) -> float:
@@ -1253,13 +1215,13 @@ class MAX(ThresholdOptimization):
     :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
         validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+    def __init__(self, classifier: BaseEstimator, val_split=5):
         super().__init__(classifier, val_split)
 
     def _condition(self, tpr, fpr) -> float:
@@ -1278,13 +1240,13 @@ class X(ThresholdOptimization):
     :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
         validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+    def __init__(self, classifier: BaseEstimator, val_split=5):
         super().__init__(classifier, val_split)
 
     def _condition(self, tpr, fpr) -> float:
@@ -1302,12 +1264,12 @@ class MS(ThresholdOptimization):
     :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
         validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+    def __init__(self, classifier: BaseEstimator, val_split=5):
         super().__init__(classifier, val_split)
 
     def _condition(self, tpr, fpr) -> float:
@@ -1339,12 +1301,12 @@ class MS2(MS):
     :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
         misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
         validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
+    def __init__(self, classifier: BaseEstimator, val_split=5):
         super().__init__(classifier, val_split)
 
     def _optimize_threshold(self, y, probabilities):
