@@ -168,7 +168,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         :param instances: array-like of shape `(n_instances, n_features,)`
         :return: np.ndarray of shape `(n_instances,)` with label predictions
         """
-        return getattr(self, self._classifier_method())(instances)
+        return getattr(self.classifier, self._classifier_method())(instances)
 
     def _classifier_method(self):
         """
@@ -1142,8 +1142,8 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
     def aggregate_with_threshold(self, classif_predictions, tpr, fpr, threshold):
         prevs_estim = np.mean(classif_predictions > threshold)
         if tpr - fpr != 0:
-            prevs_estim = np.clip((prevs_estim - fpr) / (tpr - fpr), 0, 1)
-        prevs_estim = np.array((1 - prevs_estim, prevs_estim))
+            prevs_estim = (prevs_estim - fpr) / (tpr - fpr)
+        prevs_estim = F.as_binary_prevalence(prevs_estim, clip_if_necessary=True)
         return prevs_estim
 
     def _compute_table(self, y, y_):

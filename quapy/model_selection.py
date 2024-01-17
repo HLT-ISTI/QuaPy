@@ -112,7 +112,7 @@ class GridSearchQ(BaseQuantifier):
             return predictions
 
         predictions, status, took = self._error_handler(job, cls_params)
-        self._sout(f'[classifier fit] hyperparams={cls_params} status={status} [took {took:.3f}s]')
+        self._sout(f'[classifier fit] hyperparams={cls_params} [took {took:.3f}s]')
         return model, predictions, status, took
 
     def _prepare_aggregation(self, args):

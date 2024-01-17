@@ -13,13 +13,11 @@ import os
 import pickle
 import itertools
 import argparse
-import torch
-import shutil
+from glob import glob
+import pandas as pd
 
 
 N_JOBS = -1
-CUDA_N_JOBS = 2
-ENSEMBLE_N_JOBS = -1
 
 qp.environ['SAMPLE_SIZE'] = 100
 
@@ -40,30 +38,23 @@ svmperf_params = {'classifier__C': __C_range}
 def quantification_models():
     yield 'acc', ACC(newLR()), lr_params
     yield 'T50', T50(newLR()), lr_params
-    yield 'X', X(newLR()), lr_params
-    yield 'MAX', MAX(newLR()), lr_params
+    #yield 'X', X(newLR()), lr_params
+    #yield 'MAX', MAX(newLR()), lr_params
     yield 'MS', MS(newLR()), lr_params
     yield 'MS2', MS2(newLR()), lr_params
 
 
-def evaluate_experiment(true_prevalences, estim_prevalences):
-    print('\nEvaluation Metrics:\n' + '=' * 22)
-    for eval_measure in [qp.error.mae, qp.error.mrae]:
-        err = eval_measure(true_prevalences, estim_prevalences)
-        print(f'\t{eval_measure.__name__}={err:.4f}')
-    print()
+
+def result_path(path, dataset_name, model_name, optim_loss):
+    return os.path.join(path, f'{dataset_name}-{model_name}-{optim_loss}.pkl')
 
 
-def result_path(path, dataset_name, model_name, run, optim_loss):
-    return os.path.join(path, f'{dataset_name}-{model_name}-run{run}-{optim_loss}.pkl')
+def is_already_computed(dataset_name, model_name, optim_loss):
+    return os.path.exists(result_path(args.results, dataset_name, model_name, optim_loss))
 
 
-def is_already_computed(dataset_name, model_name, run, optim_loss):
-    return os.path.exists(result_path(args.results, dataset_name, model_name, run, optim_loss))
-
-
-def save_results(dataset_name, model_name, run, optim_loss, *results):
-    rpath = result_path(args.results, dataset_name, model_name, run, optim_loss)
+def save_results(dataset_name, model_name, optim_loss, *results):
+    rpath = result_path(args.results, dataset_name, model_name, optim_loss)
     qp.util.create_parent_dir(rpath)
     with open(rpath, 'wb') as foo:
         pickle.dump(tuple(results), foo, pickle.HIGHEST_PROTOCOL)
@@ -73,45 +64,39 @@ def run(experiment):
     optim_loss, dataset_name, (model_name, model, hyperparams) = experiment
     if dataset_name in ['acute.a', 'acute.b', 'iris.1']: return
 
-    collection = qp.datasets.fetch_UCILabelledCollection(dataset_name)
-    for run, data in enumerate(qp.data.Dataset.kFCV(collection, nfolds=5, nrepeats=1)):
-        if is_already_computed(dataset_name, model_name, run=run, optim_loss=optim_loss):
-            print(f'result for dataset={dataset_name} model={model_name} loss={optim_loss} run={run+1}/5 already computed.')
-            continue
+    if is_already_computed(dataset_name, model_name, optim_loss=optim_loss):
+        print(f'result for dataset={dataset_name} model={model_name} loss={optim_loss} already computed.')
+        return
 
-        print(f'running dataset={dataset_name} model={model_name} loss={optim_loss} run={run+1}/5')
-        # model selection (hyperparameter optimization for a quantification-oriented loss)
-        train, test = data.train_test
-        train, val = train.split_stratified()
-        if hyperparams is not None:
-            model_selection = qp.model_selection.GridSearchQ(
-                deepcopy(model),
-                param_grid=hyperparams,
-                protocol=APP(val, n_prevalences=21, repeats=25),
-                error=optim_loss,
-                refit=True,
-                timeout=60*60,
-                verbose=True
-            )
-            model_selection.fit(data.training)
-            model = model_selection.best_model()
-            best_params = model_selection.best_params_
-        else:
-            model.fit(data.training)
-            best_params = {}
+    dataset = qp.datasets.fetch_UCIDataset(dataset_name)
 
-        # model evaluation
-        true_prevalences, estim_prevalences = qp.evaluation.prediction(
-            model,
-            protocol=APP(test, n_prevalences=21, repeats=100)
+    print(f'running dataset={dataset_name} model={model_name} loss={optim_loss}')
+    # model selection (hyperparameter optimization for a quantification-oriented loss)
+    train, test = dataset.train_test
+    train, val = train.split_stratified()
+    if hyperparams is not None:
+        model_selection = qp.model_selection.GridSearchQ(
+            deepcopy(model),
+            param_grid=hyperparams,
+            protocol=APP(val, n_prevalences=21, repeats=25),
+            error=optim_loss,
+            refit=True,
+            timeout=60*60,
+            verbose=True
         )
-        test_true_prevalence = data.test.prevalence()
+        model_selection.fit(train)
+        model = model_selection.best_model()
+    else:
+        model.fit(dataset.training)
 
-        evaluate_experiment(true_prevalences, estim_prevalences)
-        save_results(dataset_name, model_name, run, optim_loss,
-                     true_prevalences, estim_prevalences,
-                     data.training.prevalence(), test_true_prevalence,
-                     best_params)
+    # model evaluation
+    true_prevalences, estim_prevalences = qp.evaluation.prediction(
+        model,
+        protocol=APP(test, n_prevalences=21, repeats=100)
+    )
+
+    mae = qp.error.mae(true_prevalences, estim_prevalences)
+    save_results(dataset_name, model_name, optim_loss, mae)
 
 
 if __name__ == '__main__':
@@ -133,4 +118,14 @@ if __name__ == '__main__':
     models = quantification_models()
     qp.util.parallel(run, itertools.product(optim_losses, datasets, models), n_jobs=N_JOBS)
 
-    shutil.rmtree(args.checkpointdir, ignore_errors=True)
+    # open all results and show
+    df = pd.DataFrame(columns=('method', 'dataset', 'mae'))
+    for i, file in enumerate(glob(f'{args.results}/*.pkl')):
+        mae = float(pickle.load(open(file, 'rb'))[0])
+        *dataset, method, _ = file.split('/')[-1].split('-')
+        dataset = '-'.join(dataset)
+        df.loc[i] = [method, dataset, mae]
+
+    print(df.pivot_table(index='dataset', columns='method', values='mae'))
+
+
