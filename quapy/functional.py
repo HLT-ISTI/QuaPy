@@ -66,6 +66,23 @@ def prevalence_from_probabilities(posteriors, binarize: bool = False):
         return prevalences
 
 
+def as_binary_prevalence(positive_prevalence: float, clip_if_necessary=False):
+    """
+    Helper that, given a float representing the prevalence for the positive class, returns a np.ndarray of two
+    values representing a binary distribution.
+
+    :param positive_prevalence: prevalence for the positive class
+    :param clip_if_necessary: if True, clips the value in [0,1] in order to guarantee the resulting distribution
+        is valid. If False, it then checks that the value is in the valid range, and raises an error if not.
+    :return: np.ndarray of shape `(2,)`
+    """
+    if clip_if_necessary:
+        positive_prevalence = np.clip(positive_prevalence, 0, 1)
+    else:
+        assert 0 <= positive_prevalence <= 1, 'the value provided is not a valid prevalence for the positive class'
+    return np.asarray([1-positive_prevalence, positive_prevalence])
+
+
 def HellingerDistance(P, Q) -> float:
     """
     Computes the Hellingher Distance (HD) between (discretized) distributions `P` and `Q`.
