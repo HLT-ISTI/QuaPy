@@ -1102,7 +1102,7 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
         :param fpr: float, false positive rate
         :return: true if the combination is to be discarded, false otherwise
         """
-        return (tpr + fpr) == 0
+        return (tpr - fpr) == 0
 
 
     def _eval_candidate_thresholds(self, decision_scores, y):
@@ -1119,9 +1119,9 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
         candidates = []
         scores = []
         for candidate_threshold in candidate_thresholds:
-            y_ = self.classes_[1 * (decision_scores > candidate_threshold)]
+            y_ = self.classes_[1 * (decision_scores >= candidate_threshold)]
             TP, FP, FN, TN = self._compute_table(y, y_)
-            tpr = self._compute_tpr(TP, FP)
+            tpr = self._compute_tpr(TP, FN)
             fpr = self._compute_fpr(FP, TN)
             if not self.discard(tpr, fpr):
                 candidate_score = self.condition(tpr, fpr)
@@ -1139,12 +1139,18 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
 
         return candidates
 
-    def aggregate_with_threshold(self, classif_predictions, tpr, fpr, threshold):
-        prevs_estim = np.mean(classif_predictions > threshold)
-        if tpr - fpr != 0:
-            prevs_estim = (prevs_estim - fpr) / (tpr - fpr)
-        prevs_estim = F.as_binary_prevalence(prevs_estim, clip_if_necessary=True)
-        return prevs_estim
+    # def aggregate_with_threshold(self, classif_predictions, tpr, fpr, threshold):
+    #     prevs_estim = np.mean(classif_predictions >= threshold)
+    #     if tpr - fpr != 0:
+    #         prevs_estim = (prevs_estim - fpr) / (tpr - fpr)
+    #     prevs_estim = F.as_binary_prevalence(prevs_estim, clip_if_necessary=True)
+    #     return prevs_estim
+
+    def aggregate_with_threshold(self, classif_predictions, tprs, fprs, thresholds):
+        prevs_estims = np.mean(classif_predictions[:, None] >= thresholds, axis=0)
+        prevs_estims = (prevs_estims - fprs) / (tprs - fprs)
+        prevs_estims = F.as_binary_prevalence(prevs_estims, clip_if_necessary=True)
+        return prevs_estims.squeeze()
 
     def _compute_table(self, y, y_):
         TP = np.logical_and(y == y_, y == self.pos_label).sum()

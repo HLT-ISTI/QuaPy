@@ -66,7 +66,7 @@ def prevalence_from_probabilities(posteriors, binarize: bool = False):
         return prevalences
 
 
-def as_binary_prevalence(positive_prevalence: float, clip_if_necessary=False):
+def as_binary_prevalence(positive_prevalence: Union[float, np.ndarray], clip_if_necessary=False):
     """
     Helper that, given a float representing the prevalence for the positive class, returns a np.ndarray of two
     values representing a binary distribution.
@@ -80,7 +80,8 @@ def as_binary_prevalence(positive_prevalence: float, clip_if_necessary=False):
         positive_prevalence = np.clip(positive_prevalence, 0, 1)
     else:
         assert 0 <= positive_prevalence <= 1, 'the value provided is not a valid prevalence for the positive class'
-    return np.asarray([1-positive_prevalence, positive_prevalence])
+    return np.asarray([1-positive_prevalence, positive_prevalence]).T
+
 
 
 def HellingerDistance(P, Q) -> float:

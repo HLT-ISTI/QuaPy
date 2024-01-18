@@ -15,7 +15,7 @@ import itertools
 import argparse
 from glob import glob
 import pandas as pd
-
+from time import time
 
 N_JOBS = -1
 
@@ -38,10 +38,11 @@ svmperf_params = {'classifier__C': __C_range}
 def quantification_models():
     yield 'acc', ACC(newLR()), lr_params
     yield 'T50', T50(newLR()), lr_params
-    #yield 'X', X(newLR()), lr_params
-    #yield 'MAX', MAX(newLR()), lr_params
+    yield 'X', X(newLR()), lr_params
+    yield 'MAX', MAX(newLR()), lr_params
     yield 'MS', MS(newLR()), lr_params
-    yield 'MS2', MS2(newLR()), lr_params
+    yield 'MS+', MS(newLR()), lr_params
+    # yield 'MS2', MS2(newLR()), lr_params
 
 
 
@@ -115,8 +116,10 @@ if __name__ == '__main__':
     optim_losses = ['mae']
     datasets = qp.datasets.UCI_DATASETS
 
+    tstart = time()
     models = quantification_models()
     qp.util.parallel(run, itertools.product(optim_losses, datasets, models), n_jobs=N_JOBS)
+    tend = time()
 
     # open all results and show
     df = pd.DataFrame(columns=('method', 'dataset', 'mae'))
@@ -126,6 +129,6 @@ if __name__ == '__main__':
         dataset = '-'.join(dataset)
         df.loc[i] = [method, dataset, mae]
 
-    print(df.pivot_table(index='dataset', columns='method', values='mae'))
+    print(df.pivot_table(index='dataset', columns='method', values='mae', margins=True))
 
-
+    print(f'took {(tend-tstart)}s')
