@@ -104,7 +104,7 @@ def run(experiment):
                 timeout=60*60,
                 verbose=True
             )
-            model_selection.fit(data.training)
+            model_selection.fit(train)
             model = model_selection.best_model()
             best_params = model_selection.best_params_
         else:

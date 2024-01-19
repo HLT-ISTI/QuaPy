@@ -1,7 +1,9 @@
 import itertools
 import signal
 from copy import deepcopy
+from enum import Enum
 from typing import Union, Callable
+from functools import wraps
 
 import numpy as np
 from sklearn import clone
@@ -10,8 +12,35 @@ import quapy as qp
 from quapy import evaluation
 from quapy.protocol import AbstractProtocol, OnLabelledCollectionProtocol
 from quapy.data.base import LabelledCollection
-from quapy.method.aggregative import BaseQuantifier
+from quapy.method.aggregative import BaseQuantifier, AggregativeQuantifier
+from quapy.util import timeout
 from time import time
+
+
+class Status(Enum):
+    SUCCESS = 1
+    TIMEOUT = 2
+    INVALID = 3
+    ERROR = 4
+
+
+class ConfigStatus:
+    def __init__(self, params, status, msg=''):
+        self.params = params
+        self.status = status
+        self.msg = msg
+
+    def __str__(self):
+        return f':params:{self.params} :status:{self.status} ' + self.msg
+
+    def __repr__(self):
+        return str(self)
+
+    def success(self):
+        return self.status == Status.SUCCESS
+
+    def failed(self):
+        return self.status != Status.SUCCESS
 
 
 class GridSearchQ(BaseQuantifier):
@@ -26,11 +55,14 @@ class GridSearchQ(BaseQuantifier):
     :param protocol: a sample generation protocol, an instance of :class:`quapy.protocol.AbstractProtocol`
     :param error: an error function (callable) or a string indicating the name of an error function (valid ones
         are those in :class:`quapy.error.QUANTIFICATION_ERROR`
-    :param refit: whether or not to refit the model on the whole labelled collection (training+validation) with
+    :param refit: whether to refit the model on the whole labelled collection (training+validation) with
         the best chosen hyperparameter combination. Ignored if protocol='gen'
     :param timeout: establishes a timer (in seconds) for each of the hyperparameters configurations being tested.
         Whenever a run takes longer than this timer, that configuration will be ignored. If all configurations end up
         being ignored, a TimeoutError exception is raised. If -1 (default) then no time bound is set.
+    :param raise_errors: boolean, if True then raises an exception when a param combination yields any error, if
+        otherwise is False (default), then the combination is marked with an error status, but the process goes on.
+        However, if no configuration yields a valid model, then a ValueError exception will be raised.
     :param verbose: set to True to get information through the stdout
     """
 
@@ -42,6 +74,7 @@ class GridSearchQ(BaseQuantifier):
                  refit=True,
                  timeout=-1,
                  n_jobs=None,
+                 raise_errors=False,
                  verbose=False):
 
         self.model = model
@@ -50,6 +83,7 @@ class GridSearchQ(BaseQuantifier):
         self.refit = refit
         self.timeout = timeout
         self.n_jobs = qp._get_njobs(n_jobs)
+        self.raise_errors = raise_errors
         self.verbose = verbose
         self.__check_error(error)
         assert isinstance(protocol, AbstractProtocol), 'unknown protocol'
@@ -69,6 +103,98 @@ class GridSearchQ(BaseQuantifier):
             raise ValueError(f'unexpected error type; must either be a callable function or a str representing\n'
                              f'the name of an error function in {qp.error.QUANTIFICATION_ERROR_NAMES}')
 
+    def _prepare_classifier(self, cls_params):
+        model = deepcopy(self.model)
+
+        def job(cls_params):
+            model.set_params(**cls_params)
+            predictions = model.classifier_fit_predict(self._training)
+            return predictions
+
+        predictions, status, took = self._error_handler(job, cls_params)
+        self._sout(f'[classifier fit] hyperparams={cls_params} [took {took:.3f}s]')
+        return model, predictions, status, took
+
+    def _prepare_aggregation(self, args):
+        model, predictions, cls_took, cls_params, q_params = args
+        model = deepcopy(model)
+        params = {**cls_params, **q_params}
+
+        def job(q_params):
+            model.set_params(**q_params)
+            model.aggregation_fit(predictions, self._training)
+            score = evaluation.evaluate(model, protocol=self.protocol, error_metric=self.error)
+            return score
+
+        score, status, aggr_took = self._error_handler(job, q_params)
+        self._print_status(params, score, status, aggr_took)
+        return model, params, score, status, (cls_took+aggr_took)
+
+    def _prepare_nonaggr_model(self, params):
+        model = deepcopy(self.model)
+
+        def job(params):
+            model.set_params(**params)
+            model.fit(self._training)
+            score = evaluation.evaluate(model, protocol=self.protocol, error_metric=self.error)
+            return score
+
+        score, status, took = self._error_handler(job, params)
+        self._print_status(params, score, status, took)
+        return model, params, score, status, took
+
+    def _compute_scores_aggregative(self, training):
+        # break down the set of hyperparameters into two: classifier-specific, quantifier-specific
+        cls_configs, q_configs = group_params(self.param_grid)
+
+        # train all classifiers and get the predictions
+        self._training = training
+        cls_outs = qp.util.parallel(
+            self._prepare_classifier,
+            cls_configs,
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=self.n_jobs
+        )
+
+        # filter out classifier configurations that yielded any error
+        success_outs = []
+        for (model, predictions, status, took), cls_config in zip(cls_outs, cls_configs):
+            if status.success():
+                success_outs.append((model, predictions, took, cls_config))
+            else:
+                self.error_collector.append(status)
+
+        if len(success_outs) == 0:
+            raise ValueError('No valid configuration found for the classifier!')
+
+        # explore the quantifier-specific hyperparameters for each valid training configuration
+        aggr_configs = [(*out, q_config) for out, q_config in itertools.product(success_outs, q_configs)]
+        aggr_outs = qp.util.parallel(
+            self._prepare_aggregation,
+            aggr_configs,
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=self.n_jobs
+        )
+
+        return aggr_outs
+
+    def _compute_scores_nonaggregative(self, training):
+        configs = expand_grid(self.param_grid)
+        self._training = training
+        scores = qp.util.parallel(
+            self._prepare_nonaggr_model,
+            configs,
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=self.n_jobs
+        )
+        return scores
+
+    def _print_status(self, params, score, status, took):
+        if status.success():
+            self._sout(f'hyperparams=[{params}]\t got {self.error.__name__} = {score:.5f} [took {took:.3f}s]')
+        else:
+            self._sout(f'error={status}')
+
     def fit(self, training: LabelledCollection):
         """ Learning routine. Fits methods with all combinations of hyperparameters and selects the one minimizing
             the error metric.
@@ -76,96 +202,62 @@ class GridSearchQ(BaseQuantifier):
         :param training: the training set on which to optimize the hyperparameters
         :return: self
         """
-        params_keys = list(self.param_grid.keys())
-        params_values = list(self.param_grid.values())
 
-        protocol = self.protocol
-
-        self.param_scores_ = {}
-        self.best_score_ = None
+        if self.refit and not isinstance(self.protocol, OnLabelledCollectionProtocol):
+            raise RuntimeWarning(
+                f'"refit" was requested, but the protocol does not implement '
+                f'the {OnLabelledCollectionProtocol.__name__} interface'
+            )
 
         tinit = time()
 
-        hyper = [dict({k: val[i] for i, k in enumerate(params_keys)}) for val in itertools.product(*params_values)]
-        self._sout(f'starting model selection with {self.n_jobs =}')
-        #pass a seed to parallel so it is set in clild processes
-        scores = qp.util.parallel(
-            self._delayed_eval,
-            ((params, training) for params in hyper),
-            seed=qp.environ.get('_R_SEED', None),
-            n_jobs=self.n_jobs
-        )
+        self.error_collector = []
 
-        for params, score, model in scores:
-            if score is not None:
+        self._sout(f'starting model selection with n_jobs={self.n_jobs}')
+        if isinstance(self.model, AggregativeQuantifier):
+            results = self._compute_scores_aggregative(training)
+        else:
+            results = self._compute_scores_nonaggregative(training)
+
+        self.param_scores_ = {}
+        self.best_score_ = None
+        for model, params, score, status, took in results:
+            if status.success():
                 if self.best_score_ is None or score < self.best_score_:
                     self.best_score_ = score
                     self.best_params_ = params
                     self.best_model_ = model
                 self.param_scores_[str(params)] = score
             else:
-                self.param_scores_[str(params)] = 'timeout'
+                self.param_scores_[str(params)] = status.status
+                self.error_collector.append(status)
 
         tend = time()-tinit
 
         if self.best_score_ is None:
-            raise TimeoutError('no combination of hyperparameters seem to work')
+            raise ValueError('no combination of hyperparameters seemed to work')
 
         self._sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f}) '
                    f'[took {tend:.4f}s]')
 
+        no_errors = len(self.error_collector)
+        if no_errors>0:
+            self._sout(f'warning: {no_errors} errors found')
+            for err in self.error_collector:
+                self._sout(f'\t{str(err)}')
+
         if self.refit:
-            if isinstance(protocol, OnLabelledCollectionProtocol):
+            if isinstance(self.protocol, OnLabelledCollectionProtocol):
+                tinit = time()
                 self._sout(f'refitting on the whole development set')
-                self.best_model_.fit(training + protocol.get_labelled_collection())
+                self.best_model_.fit(training + self.protocol.get_labelled_collection())
+                tend = time() - tinit
+                self.refit_time_ = tend
             else:
-                raise RuntimeWarning(f'"refit" was requested, but the protocol does not '
-                                     f'implement the {OnLabelledCollectionProtocol.__name__} interface')
+                # already checked
+                raise RuntimeWarning(f'the model cannot be refit on the whole dataset')
 
         return self
-
-    def _delayed_eval(self, args):
-        params, training = args
-
-        protocol = self.protocol
-        error = self.error
-
-        if self.timeout > 0:
-            def handler(signum, frame):
-                raise TimeoutError()
-
-            signal.signal(signal.SIGALRM, handler)
-
-        tinit = time()
-
-        if self.timeout > 0:
-            signal.alarm(self.timeout)
-
-        try:
-            model = deepcopy(self.model)
-            # overrides default parameters with the parameters being explored at this iteration
-            model.set_params(**params)
-            model.fit(training)
-            score = evaluation.evaluate(model, protocol=protocol, error_metric=error)
-
-            ttime = time()-tinit
-            self._sout(f'hyperparams={params}\t got {error.__name__} score {score:.5f} [took {ttime:.4f}s]')
-
-            if self.timeout > 0:
-                signal.alarm(0)
-        except TimeoutError:
-            self._sout(f'timeout ({self.timeout}s) reached for config {params}')
-            score = None
-        except ValueError as e:
-            self._sout(f'the combination of hyperparameters {params} is invalid')
-            raise e
-        except Exception as e:
-            self._sout(f'something went wrong for config {params}; skipping:')
-            self._sout(f'\tException: {e}')
-            score = None
-
-        return params, score, model
-
 
     def quantify(self, instances):
         """Estimate class prevalence values using the best model found after calling the :meth:`fit` method.
@@ -203,7 +295,42 @@ class GridSearchQ(BaseQuantifier):
             return self.best_model_
         raise ValueError('best_model called before fit')
 
+    def _error_handler(self, func, params):
+        """
+        Endorses one job with two returned values: the status, and the time of execution
 
+        :param func: the function to be called
+        :param params: parameters of the function
+        :return: `tuple(out, status, time)` where `out` is the function output,
+            `status` is an enum value from `Status`, and `time` is the time it
+            took to complete the call
+        """
+
+        output = None
+
+        def _handle(status, exception):
+            if self.raise_errors:
+                raise exception
+            else:
+                return ConfigStatus(params, status, str(e))
+
+        try:
+            with timeout(self.timeout):
+                tinit = time()
+                output = func(params)
+                status = ConfigStatus(params, Status.SUCCESS)
+
+        except TimeoutError as e:
+            status = _handle(Status.TIMEOUT, str(e))
+
+        except ValueError as e:
+            status = _handle(Status.INVALID, str(e))
+
+        except Exception as e:
+            status = _handle(Status.ERROR, str(e))
+
+        took = time() - tinit
+        return output, status, took
 
 
 def cross_val_predict(quantifier: BaseQuantifier, data: LabelledCollection, nfolds=3, random_state=0):
@@ -228,4 +355,44 @@ def cross_val_predict(quantifier: BaseQuantifier, data: LabelledCollection, nfol
 
     return total_prev
 
+
+def expand_grid(param_grid: dict):
+    """
+    Expands a param_grid dictionary as a list of configurations.
+    Example:
+
+    >>> combinations = expand_grid({'A': [1, 10, 100], 'B': [True, False]})
+    >>> print(combinations)
+    >>> [{'A': 1, 'B': True}, {'A': 1, 'B': False}, {'A': 10, 'B': True}, {'A': 10, 'B': False}, {'A': 100, 'B': True}, {'A': 100, 'B': False}]
+
+    :param param_grid: dictionary with keys representing hyper-parameter names, and values representing the range
+        to explore for that hyper-parameter
+    :return: a list of configurations, i.e., combinations of hyper-parameter assignments in the grid.
+    """
+    params_keys = list(param_grid.keys())
+    params_values = list(param_grid.values())
+    configs = [{k: combs[i] for i, k in enumerate(params_keys)} for combs in itertools.product(*params_values)]
+    return configs
+
+
+def group_params(param_grid: dict):
+    """
+    Partitions a param_grid dictionary as two lists of configurations, one for the classifier-specific
+    hyper-parameters, and another for que quantifier-specific hyper-parameters
+
+    :param param_grid: dictionary with keys representing hyper-parameter names, and values representing the range
+        to explore for that hyper-parameter
+    :return: two expanded grids of configurations, one for the classifier, another for the quantifier
+    """
+    classifier_params, quantifier_params = {}, {}
+    for key, values in param_grid.items():
+        if key.startswith('classifier__') or key == 'val_split':
+            classifier_params[key] = values
+        else:
+            quantifier_params[key] = values
+
+    classifier_configs = expand_grid(classifier_params)
+    quantifier_configs = expand_grid(quantifier_params)
+
+    return classifier_configs, quantifier_configs
 

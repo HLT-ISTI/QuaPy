@@ -1,7 +1,7 @@
 from typing import Union, Callable
 import numpy as np
 
-from functional import get_divergence
+from quapy.functional import get_divergence
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier
 import quapy.functional as F

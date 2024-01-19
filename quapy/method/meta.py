@@ -12,7 +12,7 @@ from quapy import functional as F
 from quapy.data import LabelledCollection
 from quapy.model_selection import GridSearchQ
 from quapy.method.base import BaseQuantifier, BinaryQuantifier
-from quapy.method.aggregative import CC, ACC, PACC, HDy, EMQ
+from quapy.method.aggregative import CC, ACC, PACC, HDy, EMQ, AggregativeQuantifier
 
 try:
     from . import neural
@@ -24,6 +24,65 @@ if neural:
     QuaNet = neural.QuaNetTrainer
 else:
     QuaNet = "QuaNet is not available due to missing torch package"
+
+
+class MedianEstimator2(BinaryQuantifier):
+    """
+    This method is a meta-quantifier that returns, as the estimated class prevalence values, the median of the
+    estimation returned by differently (hyper)parameterized base quantifiers.
+    The median of unit-vectors is only guaranteed to be a unit-vector for n=2 dimensions,
+    i.e., in cases of binary quantification.
+
+    :param base_quantifier: the base, binary quantifier
+    :param random_state: a seed to be set before fitting any base quantifier (default None)
+    :param param_grid: the grid or parameters towards which the median will be computed
+    :param n_jobs: number of parllel workes
+    """
+    def __init__(self, base_quantifier: BinaryQuantifier, param_grid: dict, random_state=None, n_jobs=None):
+        self.base_quantifier = base_quantifier
+        self.param_grid = param_grid
+        self.random_state = random_state
+        self.n_jobs = qp._get_njobs(n_jobs)
+
+    def get_params(self, deep=True):
+        return self.base_quantifier.get_params(deep)
+
+    def set_params(self, **params):
+        self.base_quantifier.set_params(**params)
+
+    def _delayed_fit(self, args):
+        with qp.util.temp_seed(self.random_state):
+            params, training = args
+            model = deepcopy(self.base_quantifier)
+            model.set_params(**params)
+            model.fit(training)
+            return model
+
+    def fit(self, training: LabelledCollection):
+        self._check_binary(training, self.__class__.__name__)
+
+        configs = qp.model_selection.expand_grid(self.param_grid)
+        self.models = qp.util.parallel(
+            self._delayed_fit,
+            ((params, training) for params in configs),
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=self.n_jobs
+        )
+        return self
+
+    def _delayed_predict(self, args):
+        model, instances = args
+        return model.quantify(instances)
+
+    def quantify(self, instances):
+        prev_preds = qp.util.parallel(
+            self._delayed_predict,
+            ((model, instances) for model in self.models),
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=self.n_jobs
+        )
+        prev_preds = np.asarray(prev_preds)
+        return np.median(prev_preds, axis=0)
 
 
 class MedianEstimator(BinaryQuantifier):
@@ -58,17 +117,64 @@ class MedianEstimator(BinaryQuantifier):
             model.fit(training)
             return model
 
+    def _delayed_fit_classifier(self, args):
+        with qp.util.temp_seed(self.random_state):
+            print('enter job')
+            cls_params, training = args
+            model = deepcopy(self.base_quantifier)
+            model.set_params(**cls_params)
+            predictions = model.classifier_fit_predict(training, predict_on=model.val_split)
+            print('exit job')
+            return (model, predictions)
+
+    def _delayed_fit_aggregation(self, args):
+        with qp.util.temp_seed(self.random_state):
+            print('\tenter job')
+            ((model, predictions), q_params), training = args
+            model = deepcopy(model)
+            model.set_params(**q_params)
+            model.aggregation_fit(predictions, training)
+            print('\texit job')
+            return model
+
+
     def fit(self, training: LabelledCollection):
         self._check_binary(training, self.__class__.__name__)
-        params_keys = list(self.param_grid.keys())
-        params_values = list(self.param_grid.values())
-        hyper = [dict({k: val[i] for i, k in enumerate(params_keys)}) for val in itertools.product(*params_values)]
-        self.models = qp.util.parallel(
-            self._delayed_fit,
-            ((params, training) for params in hyper),
-            seed=qp.environ.get('_R_SEED', None),
-            n_jobs=self.n_jobs
-        )
+
+        if isinstance(self.base_quantifier, AggregativeQuantifier):
+            cls_configs, q_configs = qp.model_selection.group_params(self.param_grid)
+
+            if len(cls_configs) > 1:
+                models_preds = qp.util.parallel(
+                    self._delayed_fit_classifier,
+                    ((params, training) for params in cls_configs),
+                    seed=qp.environ.get('_R_SEED', None),
+                    n_jobs=self.n_jobs,
+                    asarray=False
+                )
+            else:
+                print('only 1')
+                model = self.base_quantifier
+                model.set_params(**cls_configs[0])
+                predictions = model.classifier_fit_predict(training, predict_on=model.val_split)
+                models_preds = [(model, predictions)]
+
+            self.models = qp.util.parallel(
+                self._delayed_fit_aggregation,
+                ((setup, training) for setup in itertools.product(models_preds, q_configs)),
+                seed=qp.environ.get('_R_SEED', None),
+                n_jobs=self.n_jobs,
+                asarray=False
+            )
+        else:
+            configs = qp.model_selection.expand_grid(self.param_grid)
+            self.models = qp.util.parallel(
+                self._delayed_fit,
+                ((params, training) for params in configs),
+                seed=qp.environ.get('_R_SEED', None),
+                n_jobs=self.n_jobs,
+                asarray=False
+            )
         return self
 
     def _delayed_predict(self, args):
@@ -80,11 +186,11 @@ class MedianEstimator(BinaryQuantifier):
             self._delayed_predict,
             ((model, instances) for model in self.models),
             seed=qp.environ.get('_R_SEED', None),
-            n_jobs=self.n_jobs
+            n_jobs=self.n_jobs,
+            asarray=False
         )
         prev_preds = np.asarray(prev_preds)
         return np.median(prev_preds, axis=0)
-
 
 
 class Ensemble(BaseQuantifier):

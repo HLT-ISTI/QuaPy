@@ -22,9 +22,9 @@ class HierarchyTestCase(unittest.TestCase):
     def test_probabilistic(self):
         lr = LogisticRegression()
         for m in [CC(lr), ACC(lr)]:
-            self.assertEqual(isinstance(m, AggregativeProbabilisticQuantifier), False)
+            self.assertEqual(isinstance(m, AggregativeSoftQuantifier), False)
         for m in [PCC(lr), PACC(lr)]:
-            self.assertEqual(isinstance(m, AggregativeProbabilisticQuantifier), True)
+            self.assertEqual(isinstance(m, AggregativeSoftQuantifier), True)
 
 
 if __name__ == '__main__':

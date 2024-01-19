@@ -63,7 +63,7 @@ def newOneVsAll(binary_quantifier, n_jobs=None):
         return OneVsAllGeneric(binary_quantifier, n_jobs)
 
 
-class OneVsAllGeneric(OneVsAll,BaseQuantifier):
+class OneVsAllGeneric(OneVsAll, BaseQuantifier):
     """
     Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary
     quantifier for each class, and then l1-normalizes the outputs so that the class prevelence values sum up to 1.
