@@ -1131,20 +1131,14 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
         if len(candidates) == 0:
             # if no candidate gives rise to a valid combination of tpr and fpr, this method defaults to the standard
             # classify & count; this is akin to assign tpr=1, fpr=0, threshold=0
-            tpr, fpr, threshold, score = 1, 0, 0, 0
-            candidates.append([tpr, fpr, threshold, score])
+            tpr, fpr, threshold = 1, 0, 0
+            candidates.append([tpr, fpr, threshold])
+            scores.append(0)
 
         candidates = np.asarray(candidates)
         candidates = candidates[np.argsort(scores)]  # sort candidates by candidate_score
 
         return candidates
-
-    # def aggregate_with_threshold(self, classif_predictions, tpr, fpr, threshold):
-    #     prevs_estim = np.mean(classif_predictions >= threshold)
-    #     if tpr - fpr != 0:
-    #         prevs_estim = (prevs_estim - fpr) / (tpr - fpr)
-    #     prevs_estim = F.as_binary_prevalence(prevs_estim, clip_if_necessary=True)
-    #     return prevs_estim
 
     def aggregate_with_threshold(self, classif_predictions, tprs, fprs, thresholds):
         prevs_estims = np.mean(classif_predictions[:, None] >= thresholds, axis=0)
@@ -1286,13 +1280,9 @@ class MS(ThresholdOptimization):
 
     def aggregate(self, classif_predictions: np.ndarray):
         prevalences = self.aggregate_with_threshold(classif_predictions, self.tprs, self.fprs, self.thresholds)
-        return np.median(prevalences, axis=0)
-        # prevalences = []
-        # for tpr, fpr, threshold in self.tprs_fprs_thresholds:
-        #     pos_prev = self.aggregate_with_threshold(classif_predictions, tpr, fpr, threshold)[1]
-        #     prevalences.append(pos_prev)
-        # median = np.median(prevalences)
-        # return F.as_binary_prevalence(median)
+        if prevalences.ndim==2:
+            prevalences = np.median(prevalences, axis=0)
+        return prevalences
 
 
 class MS2(MS):
