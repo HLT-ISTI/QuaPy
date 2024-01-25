@@ -1,6 +1,13 @@
 Change Log 0.1.8
 ----------------
 
+- Added different solvers for ACC and PACC quantifiers. In quapy < 0.1.8 these quantifiers try to solve the system
+    of equations Ax=B exactly (by means of np.linalg.solve). As noted by Mirko Bunse (thanks!), such an exact solution
+    does sometimes not exist. In cases like this, quapy < 0.1.8 resorted to CC for providing a plausible solution.
+    ACC and PACC now resorts to an approximated solution in such cases (minimizing the L2-norm of the difference
+    between Ax-B) as proposed by Mirko Bunse. A quick experiment reveals this heuristic greatly improves the results
+    of ACC and PACC in T2A@LeQua.
+
 - Fixed ThresholdOptimization methods (X, T50, MAX, MS and MS2). Thanks to Tobias Schumacher and colleagues for pointing
     this out in Appendix A of "Schumacher, T., Strohmaier, M., & Lemmerich, F. (2021). A comparative evaluation of 
     quantification methods. arXiv:2103.03223v3 [cs.LG]"

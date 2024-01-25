@@ -349,22 +349,24 @@ class ACC(AggregativeCrispQuantifier):
         Alternatively, this set can be specified at fit time by indicating the exact set of data
         on which the predictions are to be generated.
     :param n_jobs: number of parallel workers
-    :param solver: indicates the method to be used for obtaining the final esimates. The default choice
-        is 'exact', which comes down to solving the system of linear equations `Ax=B` where `A` is a 
+    :param solver: indicates the method to be used for obtaining the final estimates. The choice
+        'exact' comes down to solving the system of linear equations `Ax=B` where `A` is a
         matrix containing the class-conditional probabilities of the predictions (e.g., the tpr and fpr in 
         binary) and `B` is the vector of prevalence values estimated via CC, as $x=A^{-1}B$. This solution 
         might not exist for degenerated classifiers, in which case the method defaults to classify and count 
         (i.e., does not attempt any adjustment).
         Another option is to search for the prevalence vector that minimizes the loss |Ax-B|. The latter is
-        achieved by indicating solver='minimize'.
+        achieved by indicating solver='minimize'. This one generally works better, and is the default parameter.
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None, solver='exact'):
+    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None, solver='minimize'):
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
-        assert solver in ['exact', 'minimize'], "unknown solver; valid ones are 'exact', 'minimize'"
         self.solver = solver
+
+    def _check_init_parameters(self):
+        assert self.solver in ['exact', 'minimize'], "unknown solver; valid ones are 'exact', 'minimize'"
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -408,20 +410,29 @@ class ACC(AggregativeCrispQuantifier):
              'optim_minimize' (minimizes a norm --always exists). 
         :return: an adjusted `np.ndarray` of shape `(n_classes,)` with the corrected class prevalence estimates
         """
+
         A = PteCondEstim
         B = prevs_estim
+
         if solver == 'exact':
+            # attempts an exact solution of the linear system (may fail)
+
             try:
                 adjusted_prevs = np.linalg.solve(A, B)
                 adjusted_prevs = np.clip(adjusted_prevs, 0, 1)
                 adjusted_prevs /= adjusted_prevs.sum()
             except np.linalg.LinAlgError:
                 adjusted_prevs = prevs_estim  # no way to adjust them!
+
+            return adjusted_prevs
+
         elif solver == 'minimize':
+            # poses the problem as an optimization one, and tries to minimize the norm of the differences
+
             def loss(prev):
-                return np.linalg.norm(A@prev - B)
+                return np.linalg.norm(A @ prev - B)
+
             return F.optim_minimize(loss, n_classes=A.shape[0])
-        return adjusted_prevs
 
 
 class PCC(AggregativeSoftQuantifier):
@@ -462,10 +473,14 @@ class PACC(AggregativeSoftQuantifier):
     :param n_jobs: number of parallel workers
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None):
+    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None, solver='minimize'):
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
+        self.solver = solver
+
+    def _check_init_parameters(self):
+        assert self.solver in ['exact', 'minimize'], "unknown solver; valid ones are 'exact', 'minimize'"
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -479,7 +494,7 @@ class PACC(AggregativeSoftQuantifier):
 
     def aggregate(self, classif_posteriors):
         prevs_estim = self.pcc.aggregate(classif_posteriors)
-        return ACC.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
+        return ACC.solve_adjustment(self.Pte_cond_estim_, prevs_estim, solver=self.solver)
 
     @classmethod
     def getPteCondEstim(cls, classes, y, y_):

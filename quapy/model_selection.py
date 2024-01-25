@@ -143,6 +143,21 @@ class GridSearchQ(BaseQuantifier):
         self._print_status(params, score, status, took)
         return model, params, score, status, took
 
+    def _break_down_fit(self):
+        """
+        Decides whether to break down the fit phase in two (classifier-fit followed by aggregation-fit).
+        In order to do so, some conditions should be met: a) the quantifier is of type aggregative,
+        b) the set of hyperparameters can be split into two disjoint non-empty groups.
+
+        :return: True if the conditions are met, False otherwise
+        """
+        if not isinstance(self.model, AggregativeQuantifier):
+            return False
+        cls_configs, q_configs = group_params(self.param_grid)
+        if (len(cls_configs) == 1) or (len(q_configs)==1):
+            return False
+        return True
+
     def _compute_scores_aggregative(self, training):
         # break down the set of hyperparameters into two: classifier-specific, quantifier-specific
         cls_configs, q_configs = group_params(self.param_grid)
@@ -214,7 +229,7 @@ class GridSearchQ(BaseQuantifier):
         self.error_collector = []
 
         self._sout(f'starting model selection with n_jobs={self.n_jobs}')
-        if isinstance(self.model, AggregativeQuantifier):
+        if self._break_down_fit():
             results = self._compute_scores_aggregative(training)
         else:
             results = self._compute_scores_nonaggregative(training)
