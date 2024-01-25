@@ -13,7 +13,7 @@ for facilitating the analysis and interpretation of the experimental results.
 
 ### Last updates:
 
-* Version 0.1.8 is released! major changes can be consulted [here](quapy/CHANGE_LOG.txt).
+* Version 0.1.8 is released! major changes can be consulted [here](CHANGE_LOG.txt).
 * A detailed documentation is now available [here](https://hlt-isti.github.io/QuaPy/)
 * The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/modules.html)
 
