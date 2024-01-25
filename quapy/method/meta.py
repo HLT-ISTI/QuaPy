@@ -15,13 +15,13 @@ from quapy.method.base import BaseQuantifier, BinaryQuantifier
 from quapy.method.aggregative import CC, ACC, PACC, HDy, EMQ, AggregativeQuantifier
 
 try:
-    from . import neural
+    from . import _neural
 except ModuleNotFoundError:
-    neural = None
+    _neural = None
 
 
-if neural:
-    QuaNet = neural.QuaNetTrainer
+if _neural:
+    QuaNet = _neural.QuaNetTrainer
 else:
     QuaNet = "QuaNet is not available due to missing torch package"
 

@@ -1,5 +1,5 @@
 import quapy as qp
-from method.kdey import KDEyML
+from method._kdey import KDEyML
 from quapy.method.non_aggregative import DMx
 from quapy.protocol import APP, UPP
 from quapy.method.aggregative import DMy

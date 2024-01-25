@@ -4,15 +4,20 @@ Change Log 0.1.8
 - Fixed ThresholdOptimization methods (X, T50, MAX, MS and MS2). Thanks to Tobias Schumacher and colleagues for pointing
     this out in Appendix A of "Schumacher, T., Strohmaier, M., & Lemmerich, F. (2021). A comparative evaluation of 
     quantification methods. arXiv:2103.03223v3 [cs.LG]"
+    
 - Added HDx and DistributionMatchingX to non-aggregative quantifiers (see also the new example "comparing_HDy_HDx.py")
+
 - New UCI multiclass datasets added (thanks to Pablo González). The 5 UCI multiclass datasets are those corresponding
     to the following criteria:
         - >1000 instances
         - >2 classes
         - classification datasets
         - Python API available
+
 - New IFCB (plankton) dataset added. See fetch_IFCB.
+
 - Added new evaluation measures NAE, NRAE
+
 - Added new meta method "MedianEstimator"; an ensemble of binary base quantifiers that receives as input a dictionary
     of hyperparameters that will explore exhaustively, fitting and generating predictions for each combination of
     hyperparameters, and that returns, as the prevalence estimates, the median across all predictions.

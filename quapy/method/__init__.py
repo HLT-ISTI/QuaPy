@@ -17,6 +17,9 @@ AGGREGATIVE_METHODS = {
     aggregative.MAX,
     aggregative.MS,
     aggregative.MS2,
+    aggregative.KDEyML,
+    aggregative.KDEyCS,
+    aggregative.KDEyHD,
 }
 
 

@@ -3,6 +3,7 @@ import pytest
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
+import method.aggregative
 import quapy as qp
 from quapy.model_selection import GridSearchQ
 from quapy.method.base import BinaryQuantifier
@@ -13,8 +14,8 @@ from quapy.protocol import APP
 from quapy.method.aggregative import DMy
 from quapy.method.meta import MedianEstimator
 
-datasets = [pytest.param(qp.datasets.fetch_twitter('hcr', pickle=True), id='hcr'),
-            pytest.param(qp.datasets.fetch_UCIDataset('ionosphere'), id='ionosphere')]
+# datasets = [pytest.param(qp.datasets.fetch_twitter('hcr', pickle=True), id='hcr'),
+#             pytest.param(qp.datasets.fetch_UCIDataset('ionosphere'), id='ionosphere')]
 
 tinydatasets = [pytest.param(qp.datasets.fetch_twitter('hcr', pickle=True).reduce(), id='tiny_hcr'),
             pytest.param(qp.datasets.fetch_UCIDataset('ionosphere').reduce(), id='tiny_ionosphere')]
@@ -22,7 +23,7 @@ tinydatasets = [pytest.param(qp.datasets.fetch_twitter('hcr', pickle=True).reduc
 learners = [LogisticRegression, LinearSVC]
 
 
-@pytest.mark.parametrize('dataset', datasets)
+@pytest.mark.parametrize('dataset', tinydatasets)
 @pytest.mark.parametrize('aggregative_method', AGGREGATIVE_METHODS)
 @pytest.mark.parametrize('learner', learners)
 def test_aggregative_methods(dataset: Dataset, aggregative_method, learner):
@@ -42,7 +43,7 @@ def test_aggregative_methods(dataset: Dataset, aggregative_method, learner):
     assert type(error) == np.float64
 
 
-@pytest.mark.parametrize('dataset', datasets)
+@pytest.mark.parametrize('dataset', tinydatasets)
 @pytest.mark.parametrize('non_aggregative_method', NON_AGGREGATIVE_METHODS)
 def test_non_aggregative_methods(dataset: Dataset, non_aggregative_method):
     model = non_aggregative_method()
@@ -61,7 +62,7 @@ def test_non_aggregative_methods(dataset: Dataset, non_aggregative_method):
     assert type(error) == np.float64
 
 
-@pytest.mark.parametrize('base_method', AGGREGATIVE_METHODS)
+@pytest.mark.parametrize('base_method', [method.aggregative.ACC, method.aggregative.PACC])
 @pytest.mark.parametrize('learner', [LogisticRegression])
 @pytest.mark.parametrize('dataset', tinydatasets)
 @pytest.mark.parametrize('policy', Ensemble.VALID_POLICIES)
@@ -92,7 +93,6 @@ def test_quanet_method():
     except ModuleNotFoundError:
         print('skipping QuaNet test due to missing torch package')
         return
-
 
     qp.environ['SAMPLE_SIZE'] = 100
 

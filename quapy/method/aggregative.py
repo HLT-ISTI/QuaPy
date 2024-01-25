@@ -50,6 +50,16 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
                   'model selection. Rather pass the LabelledCollection at fit time')
         self.val_split_ = val_split
 
+    def _check_init_parameters(self):
+        """
+        Implements any check to be performed in the parameters of the init method before undertaking
+        the training of the quantifier. This is made as to allow for a quick execution stop when the
+        parameters are not valid.
+
+        :return: Nothing. May raise an exception.
+        """
+        pass
+
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
         """
         Trains the aggregative quantifier. This comes down to training a classifier and an aggregation function.
@@ -59,6 +69,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
             learner has been trained outside the quantifier.
         :return: self
         """
+        self._check_init_parameters()
         classif_predictions = self.classifier_fit_predict(data, fit_classifier, predict_on=val_split)
         self.aggregation_fit(classif_predictions, data)
         return self
@@ -113,8 +124,9 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
                     raise ValueError(f'invalid value {predict_on} in fit. '
                                      f'Specify a integer >1 for kFCV estimation.')
                 else:
+                    n_jobs = self.n_jobs if hasattr(self, 'n_jobs') else qp._get_njobs(None)
                     predictions = cross_val_predict(
-                        self.classifier, *data.Xy, cv=predict_on, n_jobs=self.n_jobs, method=self._classifier_method())
+                        self.classifier, *data.Xy, cv=predict_on, n_jobs=n_jobs, method=self._classifier_method())
                     predictions = LabelledCollection(predictions, data.y, classes=data.classes_)
                     self.classifier.fit(*data.Xy)
             else:
@@ -289,8 +301,6 @@ class BinaryAggregativeQuantifier(AggregativeQuantifier, BinaryQuantifier):
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
         self._check_binary(data, self.__class__.__name__)
         return super().fit(data, fit_classifier, val_split)
-    
-
 
 
 # Methods
@@ -333,18 +343,28 @@ class ACC(AggregativeCrispQuantifier):
     :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: specifies the data used for generating classifier predictions. This specification
         can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
-        be extracted from the training set (default 0.4); or as an integer, indicating that the predictions
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
         for `k`); or as a collection defining the specific set of data to use for validation.
         Alternatively, this set can be specified at fit time by indicating the exact set of data
         on which the predictions are to be generated.
     :param n_jobs: number of parallel workers
+    :param solver: indicates the method to be used for obtaining the final esimates. The default choice
+        is 'exact', which comes down to solving the system of linear equations `Ax=B` where `A` is a 
+        matrix containing the class-conditional probabilities of the predictions (e.g., the tpr and fpr in 
+        binary) and `B` is the vector of prevalence values estimated via CC, as $x=A^{-1}B$. This solution 
+        might not exist for degenerated classifiers, in which case the method defaults to classify and count 
+        (i.e., does not attempt any adjustment).
+        Another option is to search for the prevalence vector that minimizes the loss |Ax-B|. The latter is
+        achieved by indicating solver='minimize'.
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None):
+    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None, solver='exact'):
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
+        assert solver in ['exact', 'minimize'], "unknown solver; valid ones are 'exact', 'minimize'"
+        self.solver = solver
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -358,7 +378,7 @@ class ACC(AggregativeCrispQuantifier):
 
     @classmethod
     def getPteCondEstim(cls, classes, y, y_):
-        # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
+        # estimate the matrix with entry (i,j) being the estimate of P(hat_yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
         conf = confusion_matrix(y, y_, labels=classes).T
         conf = conf.astype(float)
@@ -372,10 +392,10 @@ class ACC(AggregativeCrispQuantifier):
 
     def aggregate(self, classif_predictions):
         prevs_estim = self.cc.aggregate(classif_predictions)
-        return ACC.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
+        return ACC.solve_adjustment(self.Pte_cond_estim_, prevs_estim, solver=self.solver)
 
     @classmethod
-    def solve_adjustment(cls, PteCondEstim, prevs_estim):
+    def solve_adjustment(cls, PteCondEstim, prevs_estim, solver='exact'):
         """
         Solves the system linear system :math:`Ax = B` with :math:`A` = `PteCondEstim` and :math:`B` = `prevs_estim`
 
@@ -383,16 +403,24 @@ class ACC(AggregativeCrispQuantifier):
             of :math:`P(y_i|y_j)`, that is, the probability that an instance that belongs to :math:`y_j` ends up being
             classified as belonging to :math:`y_i`
         :param prevs_estim: a `np.ndarray` of shape `(n_classes,)` with the class prevalence estimates
+        :param solver: indicates the method to use for solving the system of linear equations. Valid options are
+             'exact' (tries to solve the system --may fail if the misclassificatin matrix has rank < n_classes) or
+             'optim_minimize' (minimizes a norm --always exists). 
         :return: an adjusted `np.ndarray` of shape `(n_classes,)` with the corrected class prevalence estimates
         """
         A = PteCondEstim
         B = prevs_estim
-        try:
-            adjusted_prevs = np.linalg.solve(A, B)
-            adjusted_prevs = np.clip(adjusted_prevs, 0, 1)
-            adjusted_prevs /= adjusted_prevs.sum()
-        except np.linalg.LinAlgError:
-            adjusted_prevs = prevs_estim  # no way to adjust them!
+        if solver == 'exact':
+            try:
+                adjusted_prevs = np.linalg.solve(A, B)
+                adjusted_prevs = np.clip(adjusted_prevs, 0, 1)
+                adjusted_prevs /= adjusted_prevs.sum()
+            except np.linalg.LinAlgError:
+                adjusted_prevs = prevs_estim  # no way to adjust them!
+        elif solver == 'minimize':
+            def loss(prev):
+                return np.linalg.norm(A@prev - B)
+            return F.optim_minimize(loss, n_classes=A.shape[0])
         return adjusted_prevs
 
 
@@ -427,7 +455,7 @@ class PACC(AggregativeSoftQuantifier):
     :param classifier: a sklearn's Estimator that generates a classifier
     :param val_split: specifies the data used for generating classifier predictions. This specification
         can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
-        be extracted from the training set (default 0.4); or as an integer, indicating that the predictions
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
         for `k`). Alternatively, this set can be specified at fit time by indicating the exact set of data
         on which the predictions are to be generated.
@@ -455,7 +483,7 @@ class PACC(AggregativeSoftQuantifier):
 
     @classmethod
     def getPteCondEstim(cls, classes, y, y_):
-        # estimate the matrix with entry (i,j) being the estimate of P(yi|yj), that is, the probability that a
+        # estimate the matrix with entry (i,j) being the estimate of P(hat_yi|yj), that is, the probability that a
         # document that belongs to yj ends up being classified as belonging to yi
         n_classes = len(classes)
         confusion = np.eye(n_classes)
@@ -475,17 +503,100 @@ class EMQ(AggregativeSoftQuantifier):
     probabilities generated by a probabilistic classifier and the class prevalence estimates obtained via
     maximum-likelihood estimation, in a mutually recursive way, until convergence.
 
+    This implementation also gives access to the heuristics proposed by `Alexandari et al. paper
+    <http://proceedings.mlr.press/v119/alexandari20a.html>`_. These heuristics consist of using, as the training
+    prevalence, an estimate of it obtained via k-fold cross validation (instead of the true training prevalence),
+    and to recalibrate the posterior probabilities of the classifier.
+
     :param classifier: a sklearn's Estimator that generates a classifier
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer, indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`, default 5); or as a collection defining the specific set of data to use for validation.
+        Alternatively, this set can be specified at fit time by indicating the exact set of data
+        on which the predictions are to be generated. This hyperparameter is only meant to be used when the
+        heuristics are to be applied, i.e., if a recalibration is required. The default value is None (meaning
+        the recalibration is not required). In case this hyperparameter is set to a value other than None, but
+        the recalibration is not required (recalib=None), a warning message will be raised.
+    :param exact_train_prev: set to True (default) for using the true training prevalence as the initial observation;
+        set to False for computing the training prevalence as an estimate of it, i.e., as the expected
+        value of the posterior probabilities of the training instances.
+    :param recalib: a string indicating the method of recalibration.
+        Available choices include "nbvs" (No-Bias Vector Scaling), "bcts" (Bias-Corrected Temperature Scaling,
+        default), "ts" (Temperature Scaling), and "vs" (Vector Scaling). Default is None (no recalibration).
+    :param n_jobs: number of parallel workers. Only used for recalibrating the classifier if `val_split` is set to
+        an integer `k` --the number of folds.
     """
 
     MAX_ITER = 1000
     EPSILON = 1e-4
 
-    def __init__(self, classifier: BaseEstimator):
+    def __init__(self, classifier: BaseEstimator, val_split=None, exact_train_prev=True, recalib=None, n_jobs=None):
         self.classifier = classifier
+        self.val_split = val_split
+        self.exact_train_prev = exact_train_prev
+        self.recalib = recalib
+        self.n_jobs = n_jobs
+
+    @classmethod
+    def EMQ_BCTS(cls, classifier: BaseEstimator, n_jobs=None):
+        """
+        Constructs an instance of EMQ using the best configuration found in the `Alexandari et al. paper
+        <http://proceedings.mlr.press/v119/alexandari20a.html>`_, i.e., one that relies on Bias-Corrected Temperature
+        Scaling (BCTS) as a recalibration function, and that uses an estimate of the training prevalence instead of
+        the true training prevalence.
+
+        :param classifier: a sklearn's Estimator that generates a classifier
+        :param n_jobs: number of parallel workers.
+        :return: An instance of EMQ with BCTS
+        """
+        return EMQ(classifier, val_split=5, exact_train_prev=False, recalib='bcts', n_jobs=n_jobs)
+
+    def _check_init_parameters(self):
+        if self.val_split is not None:
+            if self.exact_train_prev and self.recalib is None:
+                raise RuntimeWarning(f'The parameter {self.val_split=} was specified for EMQ, while the parameters '
+                      f'{self.exact_train_prev=} and {self.recalib=}. This has no effect and causes an unnecessary '
+                      f'overload.')
+
+    def classify(self, instances):
+        """
+        Provides the posterior probabilities for the given instances. If the classifier was required
+        to be recalibrated, then these posteriors are recalibrated accordingly.
+
+        :param instances: array-like of shape `(n_instances, n_dimensions,)`
+        :return: np.ndarray of shape `(n_instances, n_classes,)` with posterior probabilities
+        """
+        posteriors = self.classifier.predict_proba(instances)
+        if hasattr(self, 'calibration_function') and self.calibration_function is not None:
+            posteriors = self.calibration_function(posteriors)
+        return posteriors
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        self.train_prevalence = data.prevalence()
+        if self.recalib is not None:
+            P, y = classif_predictions.Xy
+            if self.recalib == 'nbvs':
+                calibrator = NoBiasVectorScaling()
+            elif self.recalib == 'bcts':
+                calibrator = TempScaling(bias_positions='all')
+            elif self.recalib == 'ts':
+                calibrator = TempScaling()
+            elif self.recalib == 'vs':
+                calibrator = VectorScaling()
+            else:
+                raise ValueError('invalid param argument for recalibration method; available ones are '
+                                 '"nbvs", "bcts", "ts", and "vs".')
+
+            self.calibration_function = calibrator(P, np.eye(data.n_classes)[y], posterior_supplied=True)
+
+        if self.exact_train_prev:
+            self.train_prevalence = data.prevalence()
+        else:
+            train_posteriors = classif_predictions.X
+            if self.recalib is not None:
+                train_posteriors = self.calibration_function(train_posteriors)
+            self.train_prevalence = F.prevalence_from_probabilities(train_posteriors)
 
     def aggregate(self, classif_posteriors, epsilon=EPSILON):
         priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon)
@@ -540,93 +651,6 @@ class EMQ(AggregativeSoftQuantifier):
             print('[warning] the method has reached the maximum number of iterations; it might have not converged')
 
         return qs, ps
-
-
-class EMQrecalib(AggregativeSoftQuantifier):
-    """
-    `Expectation Maximization for Quantification <https://ieeexplore.ieee.org/abstract/document/6789744>`_ (EMQ),
-    aka `Saerens-Latinne-Decaestecker` (SLD) algorithm, with the heuristics proposed by
-    `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_.
-
-    These heuristics consist of using, as the training prevalence, an estimate of it obtained via k-fold cross
-    validation (instead of the true training prevalence), and to recalibrate the posterior probabilities of
-    the classifier.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: specifies the data used for generating classifier predictions. This specification
-        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
-        be extracted from the training set (default 0.4); or as an integer, indicating that the predictions
-        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`, default 5); or as a collection defining the specific set of data to use for validation.
-        Alternatively, this set can be specified at fit time by indicating the exact set of data
-        on which the predictions are to be generated.
-    :param exact_train_prev: set to True (default) for using, as the initial observation, the true training prevalence;
-        or set to False for computing the training prevalence as an estimate of it, i.e., as the expected
-        value of the posterior probabilities of the training instances
-    :param recalib: a string indicating the method of recalibration.
-        Available choices include "nbvs" (No-Bias Vector Scaling), "bcts" (Bias-Corrected Temperature Scaling,
-        default), "ts" (Temperature Scaling), and "vs" (Vector Scaling).
-    :param n_jobs: number of parallel workers
-    """
-
-    MAX_ITER = 1000
-    EPSILON = 1e-4
-
-    def __init__(self, classifier: BaseEstimator, val_split=5, exact_train_prev=False, recalib='bcts', n_jobs=None):
-        self.classifier = classifier
-        self.val_split = val_split
-        self.exact_train_prev = exact_train_prev
-        self.recalib = recalib
-        self.n_jobs = n_jobs
-
-    def classify(self, instances):
-        """
-        Provides the posterior probabilities for the given instances. If the classifier is
-        recalibrated, then these posteriors will be recalibrated accordingly.
-
-        :param instances: array-like of shape `(n_instances, n_dimensions,)`
-        :return: np.ndarray of shape `(n_instances, n_classes,)` with posterior probabilities
-        """
-        posteriors = self.classifier.predict_proba(instances)
-        if hasattr(self, 'calibration_function') and self.calibration_function is not None:
-            posteriors = self.calibration_function(posteriors)
-        return posteriors
-
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        if self.recalib is not None:
-            P, y = classif_predictions.Xy
-            if self.recalib == 'nbvs':
-                calibrator = NoBiasVectorScaling()
-            elif self.recalib == 'bcts':
-                calibrator = TempScaling(bias_positions='all')
-            elif self.recalib == 'ts':
-                calibrator = TempScaling()
-            elif self.recalib == 'vs':
-                calibrator = VectorScaling()
-            else:
-                raise ValueError('invalid param argument for recalibration method; available ones are '
-                                 '"nbvs", "bcts", "ts", and "vs".')
-
-            self.calibration_function = calibrator(P, np.eye(data.n_classes)[y], posterior_supplied=True)
-
-        if self.exact_train_prev:
-            self.train_prevalence = F.prevalence_from_labels(data.labels, self.classes_)
-        else:
-            if self.recalib is not None:
-                train_posteriors = self.classify(data.X)
-            else:
-                train_posteriors = classif_predictions.X
-
-            self.train_prevalence = np.mean(train_posteriors, axis=0)
-
-    def aggregate(self, classif_posteriors, epsilon=EPSILON):
-        priors, posteriors = EMQ.EM(self.train_prevalence, classif_posteriors, epsilon)
-        return priors
-
-    def predict_proba(self, instances, epsilon=EPSILON):
-        classif_posteriors = self.classify(instances)
-        priors, posteriors = EMQ.EM(self.train_prevalence, classif_posteriors, epsilon)
-        return posteriors
 
 
 class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
@@ -722,14 +746,16 @@ class DyS(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     :param divergence: a str indicating the name of divergence (currently supported ones are "HD" or "topsoe"), or a
         callable function computes the divergence between two distributions (two equally sized arrays).
     :param tol: a float with the tolerance for the ternary search algorithm.
+    :param n_jobs: number of parallel workers.
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5, n_bins=8, divergence: Union[str, Callable]= 'HD', tol=1e-05):
+    def __init__(self, classifier: BaseEstimator, val_split=5, n_bins=8, divergence: Union[str, Callable]= 'HD', tol=1e-05, n_jobs=None):
         self.classifier = classifier
         self.val_split = val_split
         self.tol = tol
         self.divergence = divergence
         self.n_bins = n_bins
+        self.n_jobs = n_jobs
 
     def _ternary_search(self, f, left, right, tol):
         """
@@ -1058,259 +1084,6 @@ def newSVMRAE(svmperf_base=None, C=1):
     return newELM(svmperf_base, loss='mrae', C=C)
 
 
-class ThresholdOptimization(BinaryAggregativeQuantifier):
-    """
-    Abstract class of Threshold Optimization variants for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_.
-    The goal is to bring improved stability to the denominator of the adjustment.
-    The different variants are based on different heuristics for choosing a decision threshold
-    that would allow for more true positives and many more false positives, on the grounds this
-    would deliver larger denominators.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-
-    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None):
-        self.classifier = classifier
-        self.val_split = val_split
-        self.n_jobs = qp._get_njobs(n_jobs)
-
-    @abstractmethod
-    def condition(self, tpr, fpr) -> float:
-        """
-        Implements the criterion according to which the threshold should be selected.
-        This function should return the (float) score to be minimized.
-
-        :param tpr: float, true positive rate
-        :param fpr: float, false positive rate
-        :return: float, a score for the given `tpr` and `fpr`
-        """
-        ...
-
-    def discard(self, tpr, fpr) -> bool:
-        """
-        Indicates whether a combination of tpr and fpr should be discarded
-
-        :param tpr: float, true positive rate
-        :param fpr: float, false positive rate
-        :return: true if the combination is to be discarded, false otherwise
-        """
-        return (tpr - fpr) == 0
-
-
-    def _eval_candidate_thresholds(self, decision_scores, y):
-        """
-        Seeks for the best `tpr` and `fpr` according to the score obtained at different
-        decision thresholds. The scoring function is implemented in function `_condition`.
-
-        :param decision_scores: array-like with the classification scores
-        :param y: predicted labels for the validation set (or for the training set via `k`-fold cross validation)
-        :return: best `tpr` and `fpr` and `threshold` according to `_condition`
-        """
-        candidate_thresholds = np.unique(decision_scores)
-
-        candidates = []
-        scores = []
-        for candidate_threshold in candidate_thresholds:
-            y_ = self.classes_[1 * (decision_scores >= candidate_threshold)]
-            TP, FP, FN, TN = self._compute_table(y, y_)
-            tpr = self._compute_tpr(TP, FN)
-            fpr = self._compute_fpr(FP, TN)
-            if not self.discard(tpr, fpr):
-                candidate_score = self.condition(tpr, fpr)
-                candidates.append([tpr, fpr, candidate_threshold])
-                scores.append(candidate_score)
-
-        if len(candidates) == 0:
-            # if no candidate gives rise to a valid combination of tpr and fpr, this method defaults to the standard
-            # classify & count; this is akin to assign tpr=1, fpr=0, threshold=0
-            tpr, fpr, threshold = 1, 0, 0
-            candidates.append([tpr, fpr, threshold])
-            scores.append(0)
-
-        candidates = np.asarray(candidates)
-        candidates = candidates[np.argsort(scores)]  # sort candidates by candidate_score
-
-        return candidates
-
-    def aggregate_with_threshold(self, classif_predictions, tprs, fprs, thresholds):
-        # This function performs the adjusted count for given tpr, fpr, and threshold.
-        # Note that, due to broadcasting, tprs, fprs, and thresholds could be arrays of length > 1
-        prevs_estims = np.mean(classif_predictions[:, None] >= thresholds, axis=0)
-        prevs_estims = (prevs_estims - fprs) / (tprs - fprs)
-        prevs_estims = F.as_binary_prevalence(prevs_estims, clip_if_necessary=True)
-        return prevs_estims.squeeze()
-
-    def _compute_table(self, y, y_):
-        TP = np.logical_and(y == y_, y == self.pos_label).sum()
-        FP = np.logical_and(y != y_, y == self.neg_label).sum()
-        FN = np.logical_and(y != y_, y == self.pos_label).sum()
-        TN = np.logical_and(y == y_, y == self.neg_label).sum()
-        return TP, FP, FN, TN
-
-    def _compute_tpr(self, TP, FP):
-        if TP + FP == 0:
-            return 1
-        return TP / (TP + FP)
-
-    def _compute_fpr(self, FP, TN):
-        if FP + TN == 0:
-            return 0
-        return FP / (FP + TN)
-
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        decision_scores, y = classif_predictions.Xy
-        # the standard behavior is to keep the best threshold only
-        self.tpr, self.fpr, self.threshold = self._eval_candidate_thresholds(decision_scores, y)[0]
-        return self
-
-    def aggregate(self, classif_predictions: np.ndarray):
-        # the standard behavior is to compute the adjusted count using the best threshold found
-        return self.aggregate_with_threshold(classif_predictions, self.tpr, self.fpr, self.threshold)
-
-
-class T50(ThresholdOptimization):
-    """
-    Threshold Optimization variant for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that looks
-    for the threshold that makes `tpr` closest to 0.5.
-    The goal is to bring improved stability to the denominator of the adjustment.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-
-    def __init__(self, classifier: BaseEstimator, val_split=5):
-        super().__init__(classifier, val_split)
-
-    def condition(self, tpr, fpr) -> float:
-        return abs(tpr - 0.5)
-
-
-class MAX(ThresholdOptimization):
-    """
-    Threshold Optimization variant for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that looks
-    for the threshold that maximizes `tpr-fpr`.
-    The goal is to bring improved stability to the denominator of the adjustment.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-
-    def __init__(self, classifier: BaseEstimator, val_split=5):
-        super().__init__(classifier, val_split)
-
-    def condition(self, tpr, fpr) -> float:
-        # MAX strives to maximize (tpr - fpr), which is equivalent to minimize (fpr - tpr)
-        return (fpr - tpr)
-
-
-class X(ThresholdOptimization):
-    """
-    Threshold Optimization variant for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that looks
-    for the threshold that yields `tpr=1-fpr`.
-    The goal is to bring improved stability to the denominator of the adjustment.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-
-    def __init__(self, classifier: BaseEstimator, val_split=5):
-        super().__init__(classifier, val_split)
-
-    def condition(self, tpr, fpr) -> float:
-        return abs(1 - (tpr + fpr))
-
-
-class MS(ThresholdOptimization):
-    """
-    Median Sweep. Threshold Optimization variant for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that generates
-    class prevalence estimates for all decision thresholds and returns the median of them all.
-    The goal is to bring improved stability to the denominator of the adjustment.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-    def __init__(self, classifier: BaseEstimator, val_split=5):
-        super().__init__(classifier, val_split)
-
-    def condition(self, tpr, fpr) -> float:
-        return 1
-
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        decision_scores, y = classif_predictions.Xy
-        # keeps all candidates
-        tprs_fprs_thresholds = self._eval_candidate_thresholds(decision_scores, y)
-        self.tprs = tprs_fprs_thresholds[:, 0]
-        self.fprs = tprs_fprs_thresholds[:, 1]
-        self.thresholds = tprs_fprs_thresholds[:, 2]
-        return self
-
-    def aggregate(self, classif_predictions: np.ndarray):
-        prevalences = self.aggregate_with_threshold(classif_predictions, self.tprs, self.fprs, self.thresholds)
-        if prevalences.ndim==2:
-            prevalences = np.median(prevalences, axis=0)
-        return prevalences
-
-
-class MS2(MS):
-    """
-    Median Sweep 2. Threshold Optimization variant for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that generates
-    class prevalence estimates for all decision thresholds and returns the median of for cases in
-    which `tpr-fpr>0.25`
-    The goal is to bring improved stability to the denominator of the adjustment.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-    def __init__(self, classifier: BaseEstimator, val_split=5):
-        super().__init__(classifier, val_split)
-
-    def discard(self, tpr, fpr) -> bool:
-        return (tpr-fpr) <= 0.25
-
-
 class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
     """
     Allows any binary quantifier to perform quantification on single-label datasets.
@@ -1475,6 +1248,26 @@ class AggregativeMedianEstimator(BinaryQuantifier):
             backend='threading'
         )
         return np.median(prev_preds, axis=0)
+
+
+#---------------------------------------------------------------
+# imports
+#---------------------------------------------------------------
+
+from . import _threshold_optim
+
+T50 = _threshold_optim.T50
+MAX = _threshold_optim.MAX
+X   = _threshold_optim.X
+MS  = _threshold_optim.MS
+MS2 = _threshold_optim.MS2
+
+
+from . import _kdey
+
+KDEyML = _kdey.KDEyML
+KDEyHD = _kdey.KDEyHD
+KDEyCS = _kdey.KDEyCS
 
 #---------------------------------------------------------------
 # aliases

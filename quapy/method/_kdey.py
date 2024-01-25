@@ -12,6 +12,9 @@ from sklearn.metrics.pairwise import rbf_kernel
 
 
 class KDEBase:
+    """
+    Common ancestor for KDE-based methods. Implements some common routines.
+    """
 
     BANDWIDTH_METHOD = ['scott', 'silverman']
 
@@ -156,7 +159,6 @@ class KDEyCS(AggregativeSoftQuantifier):
         assert all(sorted(np.unique(y)) == np.arange(n)), \
             'label name gaps not allowed in current implementation'
 
-
         # counts_inv keeps track of the relative weight of each datapoint within its class
         # (i.e., the weight in its KDE model)
         counts_inv = 1 / (data.counts())
@@ -189,7 +191,6 @@ class KDEyCS(AggregativeSoftQuantifier):
         M, nD = Pte.shape
         Minv = (1/M) # t in the paper
         n = Ptr.shape[1]
-
 
         # becomes a constant that does not affect the optimization, no need to compute it
         # partC = 0.5*np.log(self.gram_matrix_mix_sum(Pte) * Kinv * Kinv)
