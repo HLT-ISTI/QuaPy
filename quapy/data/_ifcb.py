@@ -56,6 +56,14 @@ class IFCBTrainSamplesFromDir(AbstractProtocol):
             y = s.iloc[:, 0].to_numpy()
             yield X, y
 
+    def total(self):
+        """
+        Returns the total number of samples that the protocol generates.
+
+        :return: The number of training samples to generate.
+        """
+        return len(self.samples)
+
 class IFCBTestSamples(AbstractProtocol):
 
     def __init__(self, path_dir:str, test_prevalences: pd.DataFrame, samples: list = None, classes: list=None):
@@ -80,3 +88,11 @@ class IFCBTestSamples(AbstractProtocol):
                 # In this case we compute the sample prevalences from the labels
                 prevalences = y[y.isin(self.classes)].value_counts().reindex(self.classes, fill_value=0).to_numpy()/len(s)
             yield X, prevalences
+
+    def total(self):
+        """
+        Returns the total number of samples that the protocol generates.
+
+        :return: The number of training samples to generate.
+        """
+        return len(self.samples)
