@@ -67,15 +67,16 @@ def test_non_aggregative_methods(dataset: Dataset, non_aggregative_method):
 @pytest.mark.parametrize('dataset', tinydatasets)
 @pytest.mark.parametrize('policy', Ensemble.VALID_POLICIES)
 def test_ensemble_method(base_method, learner, dataset: Dataset, policy):
+
     qp.environ['SAMPLE_SIZE'] = 20
+
     base_quantifier=base_method(learner())
-    if isinstance(base_quantifier, BinaryQuantifier) and not dataset.binary:
-        print(f'skipping the test of binary model {base_quantifier} on non-binary dataset {dataset}')
-        return
+
     if not dataset.binary and policy=='ds':
         print(f'skipping the test of binary policy ds on non-binary dataset {dataset}')
         return
-    model = Ensemble(quantifier=base_quantifier, size=5, policy=policy, n_jobs=-1)
+
+    model = Ensemble(quantifier=base_quantifier, size=3, policy=policy, n_jobs=-1)
 
     model.fit(dataset.training)
 
@@ -97,9 +98,7 @@ def test_quanet_method():
     qp.environ['SAMPLE_SIZE'] = 100
 
     # load the kindle dataset as text, and convert words to numerical indexes
-    dataset = qp.datasets.fetch_reviews('kindle', pickle=True)
-    dataset = Dataset(dataset.training.sampling(200, *dataset.training.prevalence()),
-                      dataset.test.sampling(200, *dataset.test.prevalence()))
+    dataset = qp.datasets.fetch_reviews('kindle', pickle=True).reduce(200, 200)
     qp.data.preprocessing.index(dataset, min_df=5, inplace=True)
 
     from quapy.classification.neural import CNNnet

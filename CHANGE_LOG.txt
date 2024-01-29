@@ -1,6 +1,10 @@
 Change Log 0.1.8
 ----------------
 
+- Added Kernel Density Estimation methods (KDEyML, KDEyCS, KDEyHD) as proposed in the paper:
+    Moreo, A., González, P., & del Coz, J. J. Kernel Density Estimation for Multiclass Quantification.
+    arXiv preprint arXiv:2401.00490, 2024
+
 - Added different solvers for ACC and PACC quantifiers. In quapy < 0.1.8 these quantifiers try to solve the system
     of equations Ax=B exactly (by means of np.linalg.solve). As noted by Mirko Bunse (thanks!), such an exact solution
     does sometimes not exist. In cases like this, quapy < 0.1.8 resorted to CC for providing a plausible solution.
@@ -21,7 +25,7 @@ Change Log 0.1.8
         - classification datasets
         - Python API available
 
-- New IFCB (plankton) dataset added. See fetch_IFCB.
+- New IFCB (plankton) dataset added (thanks to Pablo González). See qp.datasets.fetch_IFCB.
 
 - Added new evaluation measures NAE, NRAE
 

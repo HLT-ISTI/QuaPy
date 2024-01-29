@@ -119,22 +119,18 @@ class MedianEstimator(BinaryQuantifier):
 
     def _delayed_fit_classifier(self, args):
         with qp.util.temp_seed(self.random_state):
-            print('enter job')
             cls_params, training = args
             model = deepcopy(self.base_quantifier)
             model.set_params(**cls_params)
             predictions = model.classifier_fit_predict(training, predict_on=model.val_split)
-            print('exit job')
             return (model, predictions)
 
     def _delayed_fit_aggregation(self, args):
         with qp.util.temp_seed(self.random_state):
-            print('\tenter job')
             ((model, predictions), q_params), training = args
             model = deepcopy(model)
             model.set_params(**q_params)
             model.aggregation_fit(predictions, training)
-            print('\texit job')
             return model
 
 
@@ -153,7 +149,6 @@ class MedianEstimator(BinaryQuantifier):
                     asarray=False
                 )
             else:
-                print('only 1')
                 model = self.base_quantifier
                 model.set_params(**cls_configs[0])
                 predictions = model.classifier_fit_predict(training, predict_on=model.val_split)
@@ -263,9 +258,10 @@ class Ensemble(BaseQuantifier):
             print('[Ensemble]' + msg)
 
     def fit(self, data: qp.data.LabelledCollection, val_split: Union[qp.data.LabelledCollection, float] = None):
-        self._sout('Fit')
+
         if self.policy == 'ds' and not data.binary:
             raise ValueError(f'ds policy is only defined for binary quantification, but this dataset is not binary')
+
         if val_split is None:
             val_split = self.val_split
 
@@ -288,6 +284,7 @@ class Ensemble(BaseQuantifier):
         self.ensemble = qp.util.parallel(
             _delayed_new_instance,
             tqdm(args, desc='fitting ensamble', total=self.size) if self.verbose else args,
+            asarray=False,
             n_jobs=self.n_jobs)
 
         # static selection policy (the name of a quantification-oriented error function to minimize)
@@ -369,30 +366,31 @@ class Ensemble(BaseQuantifier):
 
     def _ds_policy_get_posteriors(self, data: LabelledCollection):
         """
-        In the original article, this procedure is not described in a sufficient level of detail. The paper only says
+        In the original article, there are some aspects regarding this method that are not mentioned. The paper says
         that the distribution of posterior probabilities from training and test examples is compared by means of the
         Hellinger Distance. However, how these posterior probabilities are generated is not specified. In the article,
         a Logistic Regressor (LR) is used as the classifier device and that could be used for this purpose. However, in
         general, a Quantifier is not necessarily an instance of Aggreggative Probabilistic Quantifiers, and so, that the
         quantifier builds on top of a probabilistic classifier cannot be given for granted. Additionally, it would not
-        be correct to generate the posterior probabilities for training documents that have concurred in training the
+        be correct to generate the posterior probabilities for training instances that have concurred in training the
         classifier that generates them.
+
         This function thus generates the posterior probabilities for all training documents in a cross-validation way,
-        using a LR with hyperparameters that have previously been optimized via grid search in 5FCV.
-        :return P,f, where P is a ndarray containing the posterior probabilities of the training data, generated via
-        cross-validation and using an optimized LR, and the function to be used in order to generate posterior
-        probabilities for test instances.
+        using LR with hyperparameters that have previously been optimized via grid search in 5FCV.
+
+        :param data: a LabelledCollection
+        :return: (P,f,) where P is an ndarray containing the posterior probabilities of the training data, generated via
+            cross-validation and using an optimized LR, and the function to be used in order to generate posterior
+            probabilities for test instances.
         """
+
         X, y = data.Xy
         lr_base = LogisticRegression(class_weight='balanced', max_iter=1000)
 
-        optim = GridSearchCV(
-            lr_base, param_grid={'C': np.logspace(-4, 4, 9)}, cv=5, n_jobs=self.n_jobs, refit=True
-        ).fit(X, y)
+        param_grid = {'C': np.logspace(-4, 4, 9)}
+        optim = GridSearchCV(lr_base, param_grid=param_grid, cv=5, n_jobs=self.n_jobs, refit=True).fit(X, y)
 
-        posteriors = cross_val_predict(
-            optim.best_estimator_, X, y, cv=5, n_jobs=self.n_jobs, method='predict_proba'
-        )
+        posteriors = cross_val_predict(optim.best_estimator_, X, y, cv=5, n_jobs=self.n_jobs, method='predict_proba')
         posteriors_generator = optim.best_estimator_.predict_proba
 
         return posteriors, posteriors_generator
@@ -463,8 +461,10 @@ def _delayed_new_instance(args):
 
     tr_prevalence = sample.prevalence()
     tr_distribution = get_probability_distribution(posteriors[sample_index]) if (posteriors is not None) else None
+
     if verbose:
         print(f'\t\--fit-ended for prev {F.strprev(prev)}')
+
     return (model, tr_prevalence, tr_distribution, sample if keep_samples else None)
 
 
@@ -475,8 +475,9 @@ def _delayed_quantify(args):
 
 def _draw_simplex(ndim, min_val, max_trials=100):
     """
-    returns a uniform sampling from the ndim-dimensional simplex but guarantees that all dimensions
+    Returns a uniform sampling from the ndim-dimensional simplex but guarantees that all dimensions
     are >= min_class_prev (for min_val>0, this makes the sampling not truly uniform)
+
     :param ndim: number of dimensions of the simplex
     :param min_val: minimum class prevalence allowed. If less than 1/ndim a ValueError will be throw since
     there is no possible solution.
