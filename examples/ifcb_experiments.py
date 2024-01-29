@@ -11,7 +11,8 @@ quantifiers = {'CC':qp.method.aggregative.CC(newLR()),
                'PCC':qp.method.aggregative.PCC(newLR()),
                'PACC':qp.method.aggregative.PACC(newLR()),
                'HDy':qp.method.aggregative.DistributionMatching(newLR()),
-               'EMQ':qp.method.aggregative.EMQ(newLR())}
+               'EMQ':qp.method.aggregative.EMQ(newLR())
+               }
 
 for quant_name, quantifier in quantifiers.items():
     print("Experiment with "+quant_name)
