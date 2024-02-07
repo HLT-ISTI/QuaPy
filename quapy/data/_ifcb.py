@@ -1,18 +1,5 @@
 import os
 import pandas as pd
-<<<<<<< HEAD
-from quapy.protocol import AbstractProtocol
-
-class IFCBTrainSamplesFromDir(AbstractProtocol):
-
-    def __init__(self, path_dir:str, classes: list):
-        self.path_dir = path_dir
-        self.classes = classes
-        self.samples = []
-        for filename in os.listdir(path_dir):
-            if filename.endswith('.csv'):
-                self.samples.append(filename)
-=======
 import math
 from quapy.protocol import AbstractProtocol
 from pathlib import Path
@@ -60,7 +47,6 @@ class IFCBTrainSamplesFromDir(AbstractProtocol):
             self.samples = samples
         else:
             self.samples = get_sample_list(path_dir)
->>>>>>> 5566e0c97ae1b49b30874b6610d7f5b062009271
 
     def __call__(self):
         for sample in self.samples:
@@ -78,20 +64,6 @@ class IFCBTrainSamplesFromDir(AbstractProtocol):
         """
         return len(self.samples)
 
-<<<<<<< HEAD
-
-class IFCBTestSamples(AbstractProtocol):
-
-    def __init__(self, path_dir:str, test_prevalences_path: str):
-        self.path_dir = path_dir
-        self.test_prevalences = pd.read_csv(os.path.join(path_dir, test_prevalences_path))
-
-    def __call__(self):
-        for _, test_sample in self.test_prevalences.iterrows():
-            #Load the sample from disk
-            X = pd.read_csv(os.path.join(self.path_dir,test_sample['sample']+'.csv')).to_numpy()
-            prevalences = test_sample.iloc[1:].to_numpy().astype(float)
-=======
 class IFCBTestSamples(AbstractProtocol):
 
     def __init__(self, path_dir:str, test_prevalences: pd.DataFrame, samples: list = None, classes: list=None):
@@ -115,19 +87,12 @@ class IFCBTestSamples(AbstractProtocol):
                 y = s.iloc[:,0]
                 # In this case we compute the sample prevalences from the labels
                 prevalences = y[y.isin(self.classes)].value_counts().reindex(self.classes, fill_value=0).to_numpy()/len(s)
->>>>>>> 5566e0c97ae1b49b30874b6610d7f5b062009271
             yield X, prevalences
 
     def total(self):
         """
         Returns the total number of samples that the protocol generates.
 
-<<<<<<< HEAD
-        :return: The number of test samples to generate.
-        """
-        return len(self.test_prevalences.index)
-=======
         :return: The number of training samples to generate.
         """
         return len(self.samples)
->>>>>>> 5566e0c97ae1b49b30874b6610d7f5b062009271
