@@ -6,6 +6,7 @@ from quapy.evaluation import evaluation_report
 def newLR():
     return LogisticRegression(n_jobs=-1)
 
+<<<<<<< HEAD
 
 quantifiers = [
     ('CC', qp.method.aggregative.CC(newLR())),
@@ -18,6 +19,17 @@ quantifiers = [
 
 
 for quant_name, quantifier in quantifiers:
+=======
+quantifiers = {'CC':qp.method.aggregative.CC(newLR()),
+               'ACC':qp.method.aggregative.ACC(newLR()),
+               'PCC':qp.method.aggregative.PCC(newLR()),
+               'PACC':qp.method.aggregative.PACC(newLR()),
+               'HDy':qp.method.aggregative.DistributionMatching(newLR()),
+               'EMQ':qp.method.aggregative.EMQ(newLR())
+               }
+
+for quant_name, quantifier in quantifiers.items():
+>>>>>>> 5566e0c97ae1b49b30874b6610d7f5b062009271
     print("Experiment with "+quant_name)
 
     train, test_gen = qp.datasets.fetch_IFCB()
