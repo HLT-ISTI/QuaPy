@@ -1,37 +1,36 @@
-:tocdepth: 2
-
 quapy.data package
 ==================
 
 Submodules
 ----------
 
-quapy.data.base
----------------
+quapy.data.base module
+----------------------
 
 .. automodule:: quapy.data.base
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.data.datasets
--------------------
+quapy.data.datasets module
+--------------------------
 
 .. automodule:: quapy.data.datasets
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.data.preprocessing
-------------------------
+
+quapy.data.preprocessing module
+-------------------------------
 
 .. automodule:: quapy.data.preprocessing
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.data.reader
------------------
+quapy.data.reader module
+------------------------
 
 .. automodule:: quapy.data.reader
    :members:

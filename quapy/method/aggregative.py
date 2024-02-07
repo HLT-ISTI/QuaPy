@@ -107,7 +107,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
                     raise ValueError(f'proportion {predict_on=} out of range, must be in (0,1)')
                 train, val = data.split_stratified(train_prop=(1 - predict_on))
                 self.classifier.fit(*train.Xy)
-                predictions = LabelledCollection(self.classify(val.X), val.y, classes=data.classes_)
+                predictions = LabelledCollection(self.classify(val.Xtr), val.ytr, classes=data.classes_)
             else:
                 raise ValueError(f'wrong type for predict_on: since fit_classifier=False, '
                                  f'the set on which predictions have to be issued must be '
@@ -350,13 +350,13 @@ class ACC(AggregativeCrispQuantifier):
         on which the predictions are to be generated.
     :param n_jobs: number of parallel workers
     :param solver: indicates the method to be used for obtaining the final estimates. The choice
-        'exact' comes down to solving the system of linear equations `Ax=B` where `A` is a
+        'exact' comes down to solving the system of linear equations :math:`Ax=B` where `A` is a
         matrix containing the class-conditional probabilities of the predictions (e.g., the tpr and fpr in 
-        binary) and `B` is the vector of prevalence values estimated via CC, as $x=A^{-1}B$. This solution 
+        binary) and `B` is the vector of prevalence values estimated via CC, as :math:`x=A^{-1}B`. This solution
         might not exist for degenerated classifiers, in which case the method defaults to classify and count 
         (i.e., does not attempt any adjustment).
-        Another option is to search for the prevalence vector that minimizes the L2 norm of |Ax-B|. The latter is
-        achieved by indicating solver='minimize'. This one generally works better, and is the default parameter.
+        Another option is to search for the prevalence vector that minimizes the L2 norm of :math:`|Ax-B|`. The latter
+        is achieved by indicating solver='minimize'. This one generally works better, and is the default parameter.
         More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and
         Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications
         (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
@@ -475,13 +475,13 @@ class PACC(AggregativeSoftQuantifier):
         on which the predictions are to be generated.
     :param n_jobs: number of parallel workers
     :param solver: indicates the method to be used for obtaining the final estimates. The choice
-        'exact' comes down to solving the system of linear equations `Ax=B` where `A` is a
+        'exact' comes down to solving the system of linear equations :math:`Ax=B` where `A` is a
         matrix containing the class-conditional probabilities of the predictions (e.g., the tpr and fpr in
-        binary) and `B` is the vector of prevalence values estimated via CC, as $x=A^{-1}B$. This solution
+        binary) and `B` is the vector of prevalence values estimated via CC, as :math:`x=A^{-1}B`. This solution
         might not exist for degenerated classifiers, in which case the method defaults to classify and count
         (i.e., does not attempt any adjustment).
-        Another option is to search for the prevalence vector that minimizes the L2 norm of |Ax-B|. The latter is
-        achieved by indicating solver='minimize'. This one generally works better, and is the default parameter.
+        Another option is to search for the prevalence vector that minimizes the L2 norm of :math:`|Ax-B|`. The latter
+        is achieved by indicating solver='minimize'. This one generally works better, and is the default parameter.
         More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and
         Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications
         (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.

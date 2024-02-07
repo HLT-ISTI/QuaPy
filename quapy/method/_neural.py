@@ -29,7 +29,7 @@ class QuaNetTrainer(BaseQuantifier):
     >>>
     >>> # load the kindle dataset as text, and convert words to numerical indexes
     >>> dataset = qp.datasets.fetch_reviews('kindle', pickle=True)
-    >>> qp.domains.preprocessing.index(dataset, min_df=5, inplace=True)
+    >>> qp.train.preprocessing.index(dataset, min_df=5, inplace=True)
     >>>
     >>> # the text classifier is a CNN trained by NeuralClassifierTrainer
     >>> cnn = CNNnet(dataset.vocabulary_size, dataset.n_classes)

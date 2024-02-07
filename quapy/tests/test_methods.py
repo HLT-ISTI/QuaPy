@@ -18,7 +18,7 @@ from quapy.method.meta import MedianEstimator
 #             pytest.param(qp.datasets.fetch_UCIDataset('ionosphere'), id='ionosphere')]
 
 tinydatasets = [pytest.param(qp.datasets.fetch_twitter('hcr', pickle=True).reduce(), id='tiny_hcr'),
-            pytest.param(qp.datasets.fetch_UCIDataset('ionosphere').reduce(), id='tiny_ionosphere')]
+                pytest.param(qp.datasets.fetch_UCIBinaryDataset('ionosphere').reduce(), id='tiny_ionosphere')]
 
 learners = [LogisticRegression, LinearSVC]
 

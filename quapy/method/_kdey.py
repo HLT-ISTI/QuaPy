@@ -20,25 +20,92 @@ class KDEBase:
 
     @classmethod
     def _check_bandwidth(cls, bandwidth):
+        """
+        Checks that the bandwidth parameter is correct
+
+        :param bandwidth: either a string (see BANDWIDTH_METHOD) or a float
+        :return: nothing, but raises an exception for invalid values
+        """
         assert bandwidth in KDEBase.BANDWIDTH_METHOD or isinstance(bandwidth, float), \
             f'invalid bandwidth, valid ones are {KDEBase.BANDWIDTH_METHOD} or float values'
         if isinstance(bandwidth, float):
             assert 0 < bandwidth < 1,  "the bandwith for KDEy should be in (0,1), since this method models the unit simplex"
 
     def get_kde_function(self, X, bandwidth):
+        """
+        Wraps the KDE function from scikit-learn.
+
+        :param X: data for which the density function is to be estimated
+        :param bandwidth: the bandwidth of the kernel
+        :return: a scikit-learn's KernelDensity object
+        """
         return KernelDensity(bandwidth=bandwidth).fit(X)
 
     def pdf(self, kde, X):
+        """
+        Wraps the density evalution of scikit-learn's KDE. Scikit-learn returns log-scores (s), so this
+        function returns :math:`e^{s}`
+
+        :param kde: a previously fit KDE function
+        :param X: the data for which the density is to be estimated
+        :return: np.ndarray with the densities
+        """
         return np.exp(kde.score_samples(X))
 
     def get_mixture_components(self, X, y, n_classes, bandwidth):
+        """
+        Returns an array containing the mixture components, i.e., the KDE functions for each class.
+
+        :param X: the data containing the covariates
+        :param y: the class labels
+        :param n_classes: integer, the number of classes
+        :param bandwidth: float, the bandwidth of the kernel
+        :return: a list of KernelDensity objects, each fitted with the corresponding class-specific covariates
+        """
         return [self.get_kde_function(X[y == cat], bandwidth) for cat in range(n_classes)]
 
 
 
 class KDEyML(AggregativeSoftQuantifier, KDEBase):
+    """
+    Kernel Density Estimation model for quantification (KDEy) relying on the Kullback-Leibler divergence (KLD) as
+    the divergence measure to be minimized. This method was first proposed in the paper
+    `Kernel Density Estimation for Multiclass Quantification <https://arxiv.org/abs/2401.00490>`_, in which
+    the authors show that minimizing the distribution mathing criterion for KLD is akin to performing
+    maximum likelihood (ML).
 
-    def __init__(self, classifier: BaseEstimator, val_split=10, bandwidth=0.1, n_jobs=None, random_state=0):
+    The distribution matching optimization problem comes down to solving:
+
+    :math:`\\hat{\\alpha} = \\arg\\min_{\\alpha\\in\\Delta^{n-1}} \\mathcal{D}(\\boldsymbol{p}_{\\alpha}||q_{\\widetilde{U}})`
+
+    where :math:`p_{\\alpha}` is the mixture of class-specific KDEs with mixture parameter (hence class prevalence)
+    :math:`\\alpha` defined by
+
+    :math:`\\boldsymbol{p}_{\\alpha}(\\widetilde{x}) = \\sum_{i=1}^n \\alpha_i p_{\\widetilde{L}_i}(\\widetilde{x})`
+
+    where :math:`p_X(\\boldsymbol{x}) = \\frac{1}{|X|} \\sum_{x_i\\in X} K\\left(\\frac{x-x_i}{h}\\right)` is the
+    KDE function that uses the datapoints in X as the kernel centers.
+
+    In KDEy-ML, the divergence is taken to be the Kullback-Leibler Divergence. This is equivalent to solving:
+    :math:`\\hat{\\alpha} = \\arg\\min_{\\alpha\\in\\Delta^{n-1}} -
+    \\mathbb{E}_{q_{\\widetilde{U}}} \\left[ \\log \\boldsymbol{p}_{\\alpha}(\\widetilde{x}) \\right]`
+
+    which corresponds to the maximum likelihood estimate.
+
+    :param classifier: a sklearn's Estimator that generates a binary classifier.
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a collection defining the specific set of data to use for validation.
+        Alternatively, this set can be specified at fit time by indicating the exact set of data
+        on which the predictions are to be generated.
+    :param bandwidth: float, the bandwidth of the Kernel
+    :param n_jobs: number of parallel workers
+    :param random_state: a seed to be set before fitting any base quantifier (default None)
+    """
+
+    def __init__(self, classifier: BaseEstimator, val_split=10, bandwidth=0.1, n_jobs=None, random_state=None):
         self._check_bandwidth(bandwidth)
         self.classifier = classifier
         self.val_split = val_split
@@ -72,9 +139,52 @@ class KDEyML(AggregativeSoftQuantifier, KDEBase):
 
 
 class KDEyHD(AggregativeSoftQuantifier, KDEBase):
+    """
+    Kernel Density Estimation model for quantification (KDEy) relying on the squared Hellinger Disntace (HD) as
+    the divergence measure to be minimized. This method was first proposed in the paper
+    `Kernel Density Estimation for Multiclass Quantification <https://arxiv.org/abs/2401.00490>`_, in which
+    the authors proposed a Monte Carlo approach for minimizing the divergence.
+
+    The distribution matching optimization problem comes down to solving:
+
+    :math:`\\hat{\\alpha} = \\arg\\min_{\\alpha\\in\\Delta^{n-1}} \\mathcal{D}(\\boldsymbol{p}_{\\alpha}||q_{\\widetilde{U}})`
+
+    where :math:`p_{\\alpha}` is the mixture of class-specific KDEs with mixture parameter (hence class prevalence)
+    :math:`\\alpha` defined by
+
+    :math:`\\boldsymbol{p}_{\\alpha}(\\widetilde{x}) = \\sum_{i=1}^n \\alpha_i p_{\\widetilde{L}_i}(\\widetilde{x})`
+
+    where :math:`p_X(\\boldsymbol{x}) = \\frac{1}{|X|} \\sum_{x_i\\in X} K\\left(\\frac{x-x_i}{h}\\right)` is the
+    KDE function that uses the datapoints in X as the kernel centers.
+
+    In KDEy-HD, the divergence is taken to be the squared Hellinger Distance, an f-divergence with corresponding
+    f-generator function given by:
+
+    :math:`f(u)=(\\sqrt{u}-1)^2`
+
+    The authors proposed a Monte Carlo solution that relies on importance sampling:
+
+    :math:`\\hat{D}_f(p||q)= \\frac{1}{t} \\sum_{i=1}^t f\\left(\\frac{p(x_i)}{q(x_i)}\\right) \\frac{q(x_i)}{r(x_i)}`
+
+    where the datapoints (trials) :math:`x_1,\\ldots,x_t\\sim_{\\mathrm{iid}} r` with :math:`r`  the
+    uniform distribution.
+
+    :param classifier: a sklearn's Estimator that generates a binary classifier.
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a collection defining the specific set of data to use for validation.
+        Alternatively, this set can be specified at fit time by indicating the exact set of data
+        on which the predictions are to be generated.
+    :param bandwidth: float, the bandwidth of the Kernel
+    :param n_jobs: number of parallel workers
+    :param random_state: a seed to be set before fitting any base quantifier (default None)
+    :param montecarlo_trials: number of Monte Carlo trials (default 10000)
+    """
 
     def __init__(self, classifier: BaseEstimator, val_split=10, divergence: str='HD',
-                 bandwidth=0.1, n_jobs=None, random_state=0, montecarlo_trials=10000):
+                 bandwidth=0.1, n_jobs=None, random_state=None, montecarlo_trials=10000):
         
         self._check_bandwidth(bandwidth)
         self.classifier = classifier
@@ -130,14 +240,48 @@ class KDEyHD(AggregativeSoftQuantifier, KDEBase):
 
 
 class KDEyCS(AggregativeSoftQuantifier):
+    """
+    Kernel Density Estimation model for quantification (KDEy) relying on the Cauchy-Schwarz divergence (CS) as
+    the divergence measure to be minimized. This method was first proposed in the paper
+    `Kernel Density Estimation for Multiclass Quantification <https://arxiv.org/abs/2401.00490>`_, in which
+    the authors proposed a Monte Carlo approach for minimizing the divergence.
 
-    def __init__(self, classifier: BaseEstimator, val_split=10, bandwidth=0.1, n_jobs=None, random_state=0):
+    The distribution matching optimization problem comes down to solving:
+
+    :math:`\\hat{\\alpha} = \\arg\\min_{\\alpha\\in\\Delta^{n-1}} \\mathcal{D}(\\boldsymbol{p}_{\\alpha}||q_{\\widetilde{U}})`
+
+    where :math:`p_{\\alpha}` is the mixture of class-specific KDEs with mixture parameter (hence class prevalence)
+    :math:`\\alpha` defined by
+
+    :math:`\\boldsymbol{p}_{\\alpha}(\\widetilde{x}) = \\sum_{i=1}^n \\alpha_i p_{\\widetilde{L}_i}(\\widetilde{x})`
+
+    where :math:`p_X(\\boldsymbol{x}) = \\frac{1}{|X|} \\sum_{x_i\\in X} K\\left(\\frac{x-x_i}{h}\\right)` is the
+    KDE function that uses the datapoints in X as the kernel centers.
+
+    In KDEy-CS, the divergence is taken to be the Cauchy-Schwarz divergence given by:
+
+    :math:`\\mathcal{D}_{\\mathrm{CS}}(p||q)=-\\log\\left(\\frac{\\int p(x)q(x)dx}{\\sqrt{\\int p(x)^2dx \\int q(x)^2dx}}\\right)`
+
+    The authors showed that this distribution matching admits a closed-form solution
+
+    :param classifier: a sklearn's Estimator that generates a binary classifier.
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a collection defining the specific set of data to use for validation.
+        Alternatively, this set can be specified at fit time by indicating the exact set of data
+        on which the predictions are to be generated.
+    :param bandwidth: float, the bandwidth of the Kernel
+    :param n_jobs: number of parallel workers
+    """
+
+    def __init__(self, classifier: BaseEstimator, val_split=10, bandwidth=0.1, n_jobs=None):
         KDEBase._check_bandwidth(bandwidth)
         self.classifier = classifier
         self.val_split = val_split
         self.bandwidth = bandwidth
         self.n_jobs = n_jobs
-        self.random_state=random_state
 
     def gram_matrix_mix_sum(self, X, Y=None):
         # this adapts the output of the rbf_kernel function (pairwise evaluations of Gaussian kernels k(x,y))

@@ -24,10 +24,10 @@ qp.environ['SAMPLE_SIZE']=100
 df = pd.DataFrame(columns=['method', 'dataset', 'MAE', 'MRAE', 'tr-time', 'te-time'])
 
 
-for dataset_name in tqdm(qp.datasets.UCI_DATASETS, total=len(qp.datasets.UCI_DATASETS)):
+for dataset_name in tqdm(qp.datasets.UCI_BINARY_DATASETS, total=len(qp.datasets.UCI_BINARY_DATASETS)):
     if dataset_name in ['acute.a', 'acute.b', 'balance.2', 'iris.1']: continue
 
-    collection = qp.datasets.fetch_UCILabelledCollection(dataset_name, verbose=False)
+    collection = qp.datasets.fetch_UCIBinaryLabelledCollection(dataset_name, verbose=False)
     train, test = collection.split_stratified()
 
     # HDy............................................

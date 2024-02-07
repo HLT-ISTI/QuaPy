@@ -84,7 +84,7 @@ def run(experiment):
     optim_loss, dataset_name, (model_name, model, hyperparams) = experiment
     if dataset_name in ['acute.a', 'acute.b', 'iris.1']: return
 
-    collection = qp.datasets.fetch_UCILabelledCollection(dataset_name)
+    collection = qp.datasets.fetch_UCIBinaryLabelledCollection(dataset_name)
     for run, data in enumerate(qp.data.Dataset.kFCV(collection, nfolds=5, nrepeats=1)):
         if is_already_computed(dataset_name, model_name, run=run, optim_loss=optim_loss):
             print(f'result for dataset={dataset_name} model={model_name} loss={optim_loss} run={run+1}/5 already computed.')
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     qp.environ['SVMPERF_HOME'] = args.svmperfpath
 
     optim_losses = ['mae']
-    datasets = qp.datasets.UCI_DATASETS
+    datasets = qp.datasets.UCI_BINARY_DATASETS
 
     models = quantification_models()
     qp.util.parallel(run, itertools.product(optim_losses, datasets, models), n_jobs=N_JOBS)

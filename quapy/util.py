@@ -24,7 +24,7 @@ def _get_parallel_slices(n_tasks, n_jobs):
 
 def map_parallel(func, args, n_jobs):
     """
-    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and `n_jobs`=2, then
+    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and n_jobs=2, then
     func is applied in two parallel processes to args[0:50] and to args[50:99]. func is a function
     that already works with a list of arguments.
 
@@ -49,7 +49,13 @@ def parallel(func, args, n_jobs, seed=None, asarray=True, backend='loky'):
     >>> )
 
     that takes the `quapy.environ` variable as input silently.
-    Seeds the child processes to ensure reproducibility when n_jobs>1
+    Seeds the child processes to ensure reproducibility when n_jobs>1.
+
+    :param func: callable
+    :param args: args of func
+    :param seed: the numeric seed
+    :param asarray: set to True to return a np.ndarray instead of a list
+    :param backend: indicates the backend used for handling parallel works
     """
     def func_dec(environ, seed, *args):
         qp.environ = environ.copy()

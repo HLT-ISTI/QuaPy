@@ -20,29 +20,29 @@ TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',
 TWITTER_SENTIMENT_DATASETS_TRAIN = ['gasp', 'hcr', 'omd', 'sanders',
                                  'semeval', 'semeval16',
                                  'sst', 'wa', 'wb']
-UCI_DATASETS = ['acute.a', 'acute.b',
+UCI_BINARY_DATASETS = ['acute.a', 'acute.b',
                 'balance.1', 'balance.2', 'balance.3',
                 'breast-cancer',
                 'cmc.1', 'cmc.2', 'cmc.3',
                 'ctg.1', 'ctg.2', 'ctg.3',
-                #'diabetes', # <-- I haven't found this one...
+                       #'diabetes', # <-- I haven't found this one...
                 'german',
                 'haberman',
                 'ionosphere',
                 'iris.1', 'iris.2', 'iris.3',
                 'mammographic',
-                'pageblocks.5',
-                #'phoneme', # <-- I haven't found this one...
-                'semeion',
-                'sonar',
-                'spambase',
-                'spectf',
-                'tictactoe',
-                'transfusion',
-                'wdbc',
-                'wine.1', 'wine.2', 'wine.3',
-                'wine-q-red', 'wine-q-white',
-                'yeast']
+                       'pageblocks.5',
+                       #'phoneme', # <-- I haven't found this one...
+                       'semeion',
+                       'sonar',
+                       'spambase',
+                       'spectf',
+                       'tictactoe',
+                       'transfusion',
+                       'wdbc',
+                       'wine.1', 'wine.2', 'wine.3',
+                       'wine-q-red', 'wine-q-white',
+                       'yeast']
 
 UCI_MULTICLASS_DATASETS = ['dry-bean',
                            'wine-quality',
@@ -187,7 +187,7 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
     return data
 
 
-def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
+def fetch_UCIBinaryDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
     """
     Loads a UCI dataset as an instance of :class:`quapy.data.base.Dataset`, as used in
     `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
@@ -208,11 +208,11 @@ def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False
     :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
     :return: a :class:`quapy.data.base.Dataset` instance
     """
-    data = fetch_UCILabelledCollection(dataset_name, data_home, verbose)
+    data = fetch_UCIBinaryLabelledCollection(dataset_name, data_home, verbose)
     return Dataset(*data.split_stratified(1 - test_split, random_state=0))
 
 
-def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
+def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
     """
     Loads a UCI collection as an instance of :class:`quapy.data.base.LabelledCollection`, as used in
     `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
@@ -227,8 +227,8 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     This can be reproduced by using :meth:`quapy.data.base.Dataset.kFCV`, e.g.:
 
     >>> import quapy as qp
-    >>> collection = qp.datasets.fetch_UCILabelledCollection("yeast")
-    >>> for data in qp.domains.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
+    >>> collection = qp.datasets.fetch_UCIBinaryLabelledCollection("yeast")
+    >>> for data in qp.train.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
     >>>     ...
 
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
@@ -241,9 +241,9 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
 
-    assert dataset_name in UCI_DATASETS, \
+    assert dataset_name in UCI_BINARY_DATASETS, \
         f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository. ' \
-        f'Valid ones are {UCI_DATASETS}'
+        f'Valid ones are {UCI_BINARY_DATASETS}'
     if data_home is None:
         data_home = get_quapy_home()
 
