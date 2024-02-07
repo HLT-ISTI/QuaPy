@@ -734,8 +734,7 @@ def fetch_lequa2022(task, data_home=None):
 
     return train, val_gen, test_gen
 
-
-def fetch_IFCB(single_sample_train=True, data_home=None):
+def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=None):
     """
     Loads the IFCB dataset for quantification <https://zenodo.org/records/10036244>`. For more
     information on this dataset check the zenodo site.
@@ -746,21 +745,21 @@ def fetch_IFCB(single_sample_train=True, data_home=None):
 
     The datasets are downloaded only once, and stored for fast reuse.
 
-    :param single_sample_train: boolean. If True (default), it returns the train dataset as an instance of
+    :param single_sample_train: a boolean. If true, it will return the train dataset as a
         :class:`quapy.data.base.LabelledCollection` (all examples together).
-        If False, a generator of training samples will be returned.
-        Each example in the training set has an individual class label.
+        If false, a generator of training samples will be returned. Each example in the training set has an individual label.
+    :param for_model_selection: if True, then returns a split 30% of the training set (86 out of 286 samples) to be used for model selection; 
+        if False, then returns the full training set as training set and the test set as the test set
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
         ~/quay_data/ directory)
     :return: a tuple `(train, test_gen)` where `train` is an instance of
-        :class:`quapy.data.base.LabelledCollection`, if `single_sample_train` is True or
-        :class:`quapy.data._ifcb.IFCBTrainSamplesFromDir` otherwise, i.e. a sampling protocol that
-        returns a series of samples labelled example by example.
-        test_gen is an instance of  :class:`quapy.data._ifcb.IFCBTestSamples`,
+        :class:`quapy.data.base.LabelledCollection`, if `single_sample_train` is true or
+        :class:`quapy.data._ifcb.IFCBTrainSamplesFromDir`, i.e. a sampling protocol that returns a series of samples
+        labelled example by example. test_gen will be a :class:`quapy.data._ifcb.IFCBTestSamples`, 
         i.e., a sampling protocol that returns a series of samples labelled by prevalence.
     """
 
-    from quapy.data._ifcb import IFCBTrainSamplesFromDir, IFCBTestSamples
+    from quapy.data._ifcb import IFCBTrainSamplesFromDir, IFCBTestSamples, get_sample_list, generate_modelselection_split
 
     if data_home is None:
         data_home = get_quapy_home()
@@ -791,25 +790,35 @@ def fetch_IFCB(single_sample_train=True, data_home=None):
     test_true_prev = pd.read_csv(test_true_prev_path)
     classes = test_true_prev.columns[1:]
 
-    #Load train samples
+    #Load train and test samples
     train_samples_path = join(ifcb_dir,'train')
-    train_gen = IFCBTrainSamplesFromDir(path_dir=train_samples_path, classes=classes)
-
-    #Load test samples
     test_samples_path = join(ifcb_dir,'test')
-    test_gen = IFCBTestSamples(path_dir=test_samples_path, test_prevalences_path=test_true_prev_path)
+
+    if for_model_selection:
+        # In this case, return 70% of training data as the training set and 30% as the test set
+        samples = get_sample_list(train_samples_path)
+        train, test = generate_modelselection_split(samples, split=0.3)
+        train_gen = IFCBTrainSamplesFromDir(path_dir=train_samples_path, classes=classes, samples=train)
+
+        # Test prevalence is computed from class labels
+        test_gen = IFCBTestSamples(path_dir=train_samples_path, test_prevalences=None, samples=test, classes=classes)
+    else:
+        # In this case, we use all training samples as the training set and the test samples as the test set
+        train_gen = IFCBTrainSamplesFromDir(path_dir=train_samples_path, classes=classes)
+        test_gen = IFCBTestSamples(path_dir=test_samples_path, test_prevalences=test_true_prev)
 
     # In the case the user wants it, join all the train samples in one LabelledCollection
     if single_sample_train:
-        X = []
-        y = []
+        X, y = [], []
         for X_, y_ in train_gen():
             X.append(X_)
             y.append(y_)   
 
         X = np.vstack(X)
         y = np.concatenate(y)
-        train = LabelledCollection(X,y, classes=classes)
+        train = LabelledCollection(X, y, classes = classes)
+        
         return train, test_gen
+
     else:
         return train_gen, test_gen
