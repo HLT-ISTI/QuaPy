@@ -5,6 +5,20 @@ Change Log 0.1.8
     Moreo, A., González, P., & del Coz, J. J. Kernel Density Estimation for Multiclass Quantification.
     arXiv preprint arXiv:2401.00490, 2024
 
+- Substantial internal refactor: aggregative methods now inherit a pattern by which the fit method consists of:
+    a) fitting the classifier and returning the representations of the training instances (typically the posterior
+        probabilities, the label predictions, or the classifier scores, and typically obtained through kFCV).
+    b) fitting an aggregation function
+    The function implemented in step a) is inherited from the super class. Each new aggregative method now has to
+    implement only the "aggregative_fit" of step b).
+    This pattern was already implemented for the prediction (thus allowing evaluation functions to be performed
+    very quicky), and is now available also for training. The main benefit is that model selection now can nestle
+    the training of quantifiers in two levels: one for the classifier, and another for the aggregation function.
+    As a result, a method with a param grid of 10 combinations for the classifier and 10 combinations for the
+    quantifier, now implies 10 trainings of the classifier + 10*10 trainings of the aggregation function (this is
+    typically much faster than the classifier training), whereas in versions <0.1.8 this amounted to training
+    10*10 classifiers+aggregations.       
+
 - Added different solvers for ACC and PACC quantifiers. In quapy < 0.1.8 these quantifiers try to solve the system
     of equations Ax=B exactly (by means of np.linalg.solve). As noted by Mirko Bunse (thanks!), such an exact solution
     does sometimes not exist. In cases like this, quapy < 0.1.8 resorted to CC for providing a plausible solution.
