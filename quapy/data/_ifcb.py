@@ -4,6 +4,7 @@ import math
 from quapy.protocol import AbstractProtocol
 from pathlib import Path
 
+
 def get_sample_list(path_dir):
     """Gets a sample list finding the csv files in a directory
 
@@ -18,6 +19,7 @@ def get_sample_list(path_dir):
         if filename.endswith('.csv'):
             samples.append(filename)
     return samples
+
 
 def generate_modelselection_split(samples, split=0.3):
     """This function generates a train/test split for model selection
@@ -36,6 +38,7 @@ def generate_modelselection_split(samples, split=0.3):
     test = [samples[i] for i in test_indices]
     train = [item for i, item in enumerate(samples) if i not in test_indices]
     return train, test
+
 
 class IFCBTrainSamplesFromDir(AbstractProtocol):
 
@@ -63,6 +66,7 @@ class IFCBTrainSamplesFromDir(AbstractProtocol):
         :return: The number of training samples to generate.
         """
         return len(self.samples)
+
 
 class IFCBTestSamples(AbstractProtocol):
 

@@ -734,13 +734,14 @@ def fetch_lequa2022(task, data_home=None):
 
     return train, val_gen, test_gen
 
+
 def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=None):
     """
-    Loads the IFCB dataset for quantification <https://zenodo.org/records/10036244>`. For more
-    information on this dataset check the zenodo site.
-    This dataset is based on the data available publicly at <https://github.com/hsosik/WHOI-Plankton>.
-    The scripts for the processing are available at <https://github.com/pglez82/IFCB_Zenodo>
-
+    Loads the IFCB dataset for quantification from `Zenodo <https://zenodo.org/records/10036244>`_ (for more
+    information on this dataset, please follow the zenodo link).
+    This dataset is based on the data available publicly at
+    `WHOI-Plankton repo <https://github.com/hsosik/WHOI-Plankton>`_.
+    The scripts for the processing are available at `P. González's repo <https://github.com/pglez82/IFCB_Zenodo>`_.
     Basically, this is the IFCB dataset with precomputed features for testing quantification algorithms.
 
     The datasets are downloaded only once, and stored for fast reuse.

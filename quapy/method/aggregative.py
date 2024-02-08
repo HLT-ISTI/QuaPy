@@ -60,6 +60,19 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         """
         pass
 
+    def _check_non_empty_classes(self, data: LabelledCollection):
+        """
+        Asserts all classes have positive instances.
+
+        :param data: LabelledCollection
+        :return: Nothing. May raise an exception.
+        """
+        sample_prevs = data.prevalence()
+        empty_classes = np.argwhere(sample_prevs==0).flatten()
+        if len(empty_classes)>0:
+            empty_class_names = data.classes_[empty_classes]
+            raise ValueError(f'classes {empty_class_names} have no training examples')
+
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
         """
         Trains the aggregative quantifier. This comes down to training a classifier and an aggregation function.
@@ -93,6 +106,9 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
 
         self._check_classifier(adapt_if_necessary=(self._classifier_method() == 'predict_proba'))
 
+        if fit_classifier:
+            self._check_non_empty_classes(data)
+
         if predict_on is None:
             predict_on = self.val_split
 
@@ -100,7 +116,6 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
             if fit_classifier:
                 self.classifier.fit(*data.Xy)
             predictions = None
-
         elif isinstance(predict_on, float):
             if fit_classifier:
                 if not (0. < predict_on < 1.):
