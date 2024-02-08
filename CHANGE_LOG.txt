@@ -27,11 +27,15 @@ Change Log 0.1.8
 
 - New IFCB (plankton) dataset added (thanks to Pablo González). See qp.datasets.fetch_IFCB.
 
-- Added new evaluation measures NAE, NRAE
+- Added new evaluation measures NAE, NRAE (thanks to Andrea Esuli)
 
 - Added new meta method "MedianEstimator"; an ensemble of binary base quantifiers that receives as input a dictionary
     of hyperparameters that will explore exhaustively, fitting and generating predictions for each combination of
     hyperparameters, and that returns, as the prevalence estimates, the median across all predictions.
+
+- Added "custom_protocol.py" example.
+
+- New API documentation template.
 
 Change Log 0.1.7
 ----------------
