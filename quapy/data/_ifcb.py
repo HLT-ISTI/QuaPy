@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 import math
+
+from quapy.data import LabelledCollection
 from quapy.protocol import AbstractProtocol
 from pathlib import Path
 
@@ -57,7 +59,7 @@ class IFCBTrainSamplesFromDir(AbstractProtocol):
             # all columns but the first where we get the class
             X = s.iloc[:, 1:].to_numpy()
             y = s.iloc[:, 0].to_numpy()
-            yield X, y
+            yield LabelledCollection(X, y, classes=self.classes)
 
     def total(self):
         """

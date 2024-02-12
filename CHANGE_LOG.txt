@@ -17,7 +17,7 @@ Change Log 0.1.8
     As a result, a method with a param grid of 10 combinations for the classifier and 10 combinations for the
     quantifier, now implies 10 trainings of the classifier + 10*10 trainings of the aggregation function (this is
     typically much faster than the classifier training), whereas in versions <0.1.8 this amounted to training
-    10*10 classifiers+aggregations.       
+    10*10 (classifiers+aggregations).
 
 - Added different solvers for ACC and PACC quantifiers. In quapy < 0.1.8 these quantifiers try to solve the system
     of equations Ax=B exactly (by means of np.linalg.solve). As noted by Mirko Bunse (thanks!), such an exact solution

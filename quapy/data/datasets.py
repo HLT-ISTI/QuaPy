@@ -810,16 +810,7 @@ def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=No
 
     # In the case the user wants it, join all the train samples in one LabelledCollection
     if single_sample_train:
-        X, y = [], []
-        for X_, y_ in train_gen():
-            X.append(X_)
-            y.append(y_)   
-
-        X = np.vstack(X)
-        y = np.concatenate(y)
-        train = LabelledCollection(X, y, classes = classes)
-        
+        train = LabelledCollection.join(*[lc for lc in train_gen()])
         return train, test_gen
-
     else:
         return train_gen, test_gen
