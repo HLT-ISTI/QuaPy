@@ -14,7 +14,7 @@ for facilitating the analysis and interpretation of the experimental results.
 ### Last updates:
 
 * Version 0.1.8 is released! major changes can be consulted [here](CHANGE_LOG.txt).
-* A detailed documentation is now available [here](https://hlt-isti.github.io/QuaPy/)
+* A detailed wiki is available [here](https://github.com/HLT-ISTI/QuaPy/wiki)
 * The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/modules.html)
 
 ### Installation
@@ -78,10 +78,12 @@ quantification methods based on structured output learning, HDy, QuaNet, quantif
 * Versatile functionality for performing evaluation based on sampling generation protocols (e.g., APP, NPP, etc.).
 * Implementation of most commonly used evaluation metrics (e.g., AE, RAE, NAE, NRAE, SE, KLD, NKLD, etc.).
 * Datasets frequently used in quantification (textual and numeric), including:
-    * 32 UCI Machine Learning datasets.
+    * 32 UCI Machine Learning binary datasets.
+    * 5 UCI Machine Learning multiclass datasets (_new in v0.1.8!_).
     * 11 Twitter quantification-by-sentiment datasets.
     * 3 product reviews quantification-by-sentiment datasets. 
     * 4 tasks from LeQua competition (_new in v0.1.7!_)
+    * IFCB dataset of plankton water samples (_new in v0.1.8!_).
 * Native support for binary and single-label multiclass quantification scenarios.
 * Model selection functionality that minimizes quantification-oriented loss functions.
 * Visualization tools for analysing the experimental results.
@@ -95,6 +97,7 @@ quantification methods based on structured output learning, HDy, QuaNet, quantif
 * tqdm
 * pandas, xlrd
 * matplotlib
+* ucimlrepo
 
 ## Contributing
 
@@ -102,7 +105,7 @@ In case you want to contribute improvements to quapy, please generate pull reque
   
 ## Documentation
 
-The [developer API documentation](https://hlt-isti.github.io/QuaPy/build/html/modules.html) is available [here](https://hlt-isti.github.io/QuaPy/build/html/index.html). 
+The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/index.html). 
 
 Check out our [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki), in which many examples
 are provided:
@@ -117,4 +120,10 @@ are provided:
 
 ## Acknowledgments:
 
-<img src="SoBigData.png" alt="SoBigData++" width="250"/>
+
+
+<img src="logo/SoBigData.png" alt="SoBigData++" width="250"/> 
+
+<img src="logo/LogoQuaDaSh.png" alt="QuaDaSh" width="250"/>
+
+<img src="logo/NextGenerationEU.jpg" alt="QuaDaSh" width="250"/>
