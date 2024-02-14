@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../">
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>quapy.data.datasets &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
 
   
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=22607128"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -70,11 +71,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for quapy.data.datasets</h1><div class="highlight"><pre>
-<div class="viewcode-block" id="warn">
-<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.warn">[docs]</a>
-<span></span><span class="k">def</span> <span class="nf">warn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="warn"><a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.warn">[docs]</a><span></span><span class="k">def</span> <span class="nf">warn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">pass</span></div>
-
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warn</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -142,9 +140,7 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="fetch_reviews">
-<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_reviews">[docs]</a>
-<span class="k">def</span> <span class="nf">fetch_reviews</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<div class="viewcode-block" id="fetch_reviews"><a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_reviews">[docs]</a><span class="k">def</span> <span class="nf">fetch_reviews</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads a Reviews dataset as a Dataset instance, as used in</span>
 <span class="sd">    `Esuli, A., Moreo, A., and Sebastiani, F. &quot;A recurrent neural network for sentiment quantification.&quot;</span>
@@ -190,10 +186,7 @@
     <span class="k">return</span> <span class="n">data</span></div>
 
 
-
-<div class="viewcode-block" id="fetch_twitter">
-<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_twitter">[docs]</a>
-<span class="k">def</span> <span class="nf">fetch_twitter</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">for_model_selection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<div class="viewcode-block" id="fetch_twitter"><a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_twitter">[docs]</a><span class="k">def</span> <span class="nf">fetch_twitter</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">for_model_selection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads a Twitter dataset as a :class:`quapy.data.base.Dataset` instance, as used in:</span>
 <span class="sd">    `Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.</span>
@@ -267,10 +260,7 @@
     <span class="k">return</span> <span class="n">data</span></div>
 
 
-
-<div class="viewcode-block" id="fetch_UCIBinaryDataset">
-<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIBinaryDataset">[docs]</a>
-<span class="k">def</span> <span class="nf">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_split</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<div class="viewcode-block" id="fetch_UCIBinaryDataset"><a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIBinaryDataset">[docs]</a><span class="k">def</span> <span class="nf">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_split</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads a UCI dataset as an instance of :class:`quapy.data.base.Dataset`, as used in</span>
 <span class="sd">    `Pérez-Gállego, P., Quevedo, J. R., &amp; del Coz, J. J. (2017).</span>
@@ -295,10 +285,7 @@
     <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">test_split</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span></div>
 
 
-
-<div class="viewcode-block" id="fetch_UCIBinaryLabelledCollection">
-<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIBinaryLabelledCollection">[docs]</a>
-<span class="k">def</span> <span class="nf">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabelledCollection</span><span class="p">:</span>
+<div class="viewcode-block" id="fetch_UCIBinaryLabelledCollection"><a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIBinaryLabelledCollection">[docs]</a><span class="k">def</span> <span class="nf">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabelledCollection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads a UCI collection as an instance of :class:`quapy.data.base.LabelledCollection`, as used in</span>
 <span class="sd">    `Pérez-Gállego, P., Quevedo, J. R., &amp; del Coz, J. J. (2017).</span>
@@ -642,10 +629,7 @@
     <span class="k">return</span> <span class="n">data</span></div>
 
 
-
-<div class="viewcode-block" id="fetch_UCIMulticlassDataset">
-<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIMulticlassDataset">[docs]</a>
-<span class="k">def</span> <span class="nf">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_split</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<div class="viewcode-block" id="fetch_UCIMulticlassDataset"><a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIMulticlassDataset">[docs]</a><span class="k">def</span> <span class="nf">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_split</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`. </span>
 
@@ -675,10 +659,7 @@
     <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">test_split</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span></div>
 
 
-
-<div class="viewcode-block" id="fetch_UCIMulticlassLabelledCollection">
-<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIMulticlassLabelledCollection">[docs]</a>
-<span class="k">def</span> <span class="nf">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabelledCollection</span><span class="p">:</span>
+<div class="viewcode-block" id="fetch_UCIMulticlassLabelledCollection"><a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIMulticlassLabelledCollection">[docs]</a><span class="k">def</span> <span class="nf">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabelledCollection</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`.</span>
 
@@ -751,14 +732,11 @@
     <span class="k">return</span> <span class="n">data</span></div>
 
 
-
 <span class="k">def</span> <span class="nf">_df_replace</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">repl</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;yes&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;no&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">},</span> <span class="n">astype</span><span class="o">=</span><span class="nb">float</span><span class="p">):</span>
     <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">repl</span><span class="p">[</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">astype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="fetch_lequa2022">
-<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_lequa2022">[docs]</a>
-<span class="k">def</span> <span class="nf">fetch_lequa2022</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="fetch_lequa2022"><a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_lequa2022">[docs]</a><span class="k">def</span> <span class="nf">fetch_lequa2022</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads the official datasets provided for the `LeQua &lt;https://lequa2022.github.io/index&gt;`_ competition.</span>
 <span class="sd">    In brief, there are 4 tasks (T1A, T1B, T2A, T2B) having to do with text quantification</span>
@@ -830,10 +808,7 @@
     <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">val_gen</span><span class="p">,</span> <span class="n">test_gen</span></div>
 
 
-
-<div class="viewcode-block" id="fetch_IFCB">
-<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_IFCB">[docs]</a>
-<span class="k">def</span> <span class="nf">fetch_IFCB</span><span class="p">(</span><span class="n">single_sample_train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">for_model_selection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="fetch_IFCB"><a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_IFCB">[docs]</a><span class="k">def</span> <span class="nf">fetch_IFCB</span><span class="p">(</span><span class="n">single_sample_train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">for_model_selection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loads the IFCB dataset for quantification from `Zenodo &lt;https://zenodo.org/records/10036244&gt;`_ (for more</span>
 <span class="sd">    information on this dataset, please follow the zenodo link).</span>
@@ -912,7 +887,6 @@
         <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test_gen</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">train_gen</span><span class="p">,</span> <span class="n">test_gen</span></div>
-
 </pre></div>
 
            </div>

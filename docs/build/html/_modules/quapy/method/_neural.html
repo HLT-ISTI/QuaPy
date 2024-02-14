@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../">
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>quapy.method._neural &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
 
   
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=22607128"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -84,9 +85,7 @@
 <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
 
 
-<div class="viewcode-block" id="QuaNetTrainer">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer">[docs]</a>
-<span class="k">class</span> <span class="nc">QuaNetTrainer</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="QuaNetTrainer"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer">[docs]</a><span class="k">class</span> <span class="nc">QuaNetTrainer</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implementation of `QuaNet &lt;https://dl.acm.org/doi/abs/10.1145/3269206.3269287&gt;`_, a neural network for</span>
 <span class="sd">    quantification. This implementation uses `PyTorch &lt;https://pytorch.org/&gt;`_ and can take advantage of GPU</span>
@@ -185,9 +184,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__check_params_colision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quanet_params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="QuaNetTrainer.fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="QuaNetTrainer.fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Trains QuaNet.</span>
 
@@ -266,7 +263,6 @@
 
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
     <span class="k">def</span> <span class="nf">_get_aggregative_estims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">):</span>
         <span class="n">label_predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">prevs_estim</span> <span class="o">=</span> <span class="p">[]</span>
@@ -278,9 +274,7 @@
 
         <span class="k">return</span> <span class="n">prevs_estim</span>
 
-<div class="viewcode-block" id="QuaNetTrainer.quantify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.quantify">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="QuaNetTrainer.quantify"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.quantify">[docs]</a>    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
         <span class="n">posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
         <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
         <span class="n">quant_estims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_aggregative_estims</span><span class="p">(</span><span class="n">posteriors</span><span class="p">)</span>
@@ -291,7 +285,6 @@
                 <span class="n">prevalence</span> <span class="o">=</span> <span class="n">prevalence</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
             <span class="n">prevalence</span> <span class="o">=</span> <span class="n">prevalence</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">prevalence</span></div>
-
 
     <span class="k">def</span> <span class="nf">_epoch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">,</span> <span class="n">iterations</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">early_stop</span><span class="p">,</span> <span class="n">train</span><span class="p">):</span>
         <span class="n">mse_loss</span> <span class="o">=</span> <span class="n">MSELoss</span><span class="p">()</span>
@@ -343,17 +336,12 @@
                                      <span class="sa">f</span><span class="s1">&#39;val-mseloss=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;va-loss&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1"> val-maeloss=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;va-mae&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1"> &#39;</span>
                                      <span class="sa">f</span><span class="s1">&#39;patience=</span><span class="si">{</span><span class="n">early_stop</span><span class="o">.</span><span class="n">patience</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">early_stop</span><span class="o">.</span><span class="n">PATIENCE_LIMIT</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="QuaNetTrainer.get_params">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.get_params">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="QuaNetTrainer.get_params"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">classifier_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span>
         <span class="n">classifier_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;classifier__&#39;</span><span class="o">+</span><span class="n">k</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">classifier_params</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="p">{</span><span class="o">**</span><span class="n">classifier_params</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">quanet_params</span><span class="p">}</span></div>
 
-
-<div class="viewcode-block" id="QuaNetTrainer.set_params">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.set_params">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">):</span>
+<div class="viewcode-block" id="QuaNetTrainer.set_params"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">):</span>
         <span class="n">learner_params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quanet_params</span><span class="p">:</span>
@@ -364,7 +352,6 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown parameter &#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">learner_params</span><span class="p">)</span></div>
 
-
     <span class="k">def</span> <span class="nf">__check_params_colision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quanet_params</span><span class="p">,</span> <span class="n">learner_params</span><span class="p">):</span>
         <span class="n">quanet_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">quanet_params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">learner_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">learner_params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -373,34 +360,25 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;the use of parameters </span><span class="si">{</span><span class="n">intersection</span><span class="si">}</span><span class="s1"> is ambiguous sine those can refer to &#39;</span>
                              <span class="sa">f</span><span class="s1">&#39;the parameters of QuaNet or the learner </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="QuaNetTrainer.clean_checkpoint">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.clean_checkpoint">[docs]</a>
-    <span class="k">def</span> <span class="nf">clean_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="QuaNetTrainer.clean_checkpoint"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.clean_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">clean_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes the checkpoint</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="QuaNetTrainer.clean_checkpoint_dir">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.clean_checkpoint_dir">[docs]</a>
-    <span class="k">def</span> <span class="nf">clean_checkpoint_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="QuaNetTrainer.clean_checkpoint_dir"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.clean_checkpoint_dir">[docs]</a>    <span class="k">def</span> <span class="nf">clean_checkpoint_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes anything contained in the checkpoint directory</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">shutil</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpointdir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">classes_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span></div>
 
 
-
-<div class="viewcode-block" id="mae_loss">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.mae_loss">[docs]</a>
-<span class="k">def</span> <span class="nf">mae_loss</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+<div class="viewcode-block" id="mae_loss"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.mae_loss">[docs]</a><span class="k">def</span> <span class="nf">mae_loss</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Torch-like wrapper for the Mean Absolute Error</span>
 
@@ -411,10 +389,7 @@
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">output</span> <span class="o">-</span> <span class="n">target</span><span class="p">))</span></div>
 
 
-
-<div class="viewcode-block" id="QuaNetModule">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetModule">[docs]</a>
-<span class="k">class</span> <span class="nc">QuaNetModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="QuaNetModule"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetModule">[docs]</a><span class="k">class</span> <span class="nc">QuaNetModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements the `QuaNet &lt;https://dl.acm.org/doi/abs/10.1145/3269206.3269287&gt;`_ forward pass.</span>
 <span class="sd">    See :class:`QuaNetTrainer` for training QuaNet.</span>
@@ -477,9 +452,7 @@
             <span class="n">var_hidden</span><span class="p">,</span> <span class="n">var_cell</span> <span class="o">=</span> <span class="n">var_hidden</span><span class="o">.</span><span class="n">cuda</span><span class="p">(),</span> <span class="n">var_cell</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">var_hidden</span><span class="p">,</span> <span class="n">var_cell</span>
 
-<div class="viewcode-block" id="QuaNetModule.forward">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetModule.forward">[docs]</a>
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc_embeddings</span><span class="p">,</span> <span class="n">doc_posteriors</span><span class="p">,</span> <span class="n">statistics</span><span class="p">):</span>
+<div class="viewcode-block" id="QuaNetModule.forward"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetModule.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc_embeddings</span><span class="p">,</span> <span class="n">doc_posteriors</span><span class="p">,</span> <span class="n">statistics</span><span class="p">):</span>
         <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span>
         <span class="n">doc_embeddings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">doc_embeddings</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
         <span class="n">doc_posteriors</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">doc_posteriors</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
@@ -509,9 +482,7 @@
         <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">abstracted</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">prevalence</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">prevalence</span></div>
-</div>
-
+        <span class="k">return</span> <span class="n">prevalence</span></div></div>
 
 
 

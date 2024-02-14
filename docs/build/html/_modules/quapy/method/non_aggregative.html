@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../">
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>quapy.method.non_aggregative &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
 
   
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=22607128"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -79,9 +80,7 @@
 <span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
 
 
-<div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation">[docs]</a>
-<span class="k">class</span> <span class="nc">MaximumLikelihoodPrevalenceEstimation</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation">[docs]</a><span class="k">class</span> <span class="nc">MaximumLikelihoodPrevalenceEstimation</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The `Maximum Likelihood Prevalence Estimation` (MLPE) method is a lazy method that assumes there is no prior</span>
 <span class="sd">    probability shift between training and test instances (put it other way, that the i.i.d. assumpion holds).</span>
@@ -93,9 +92,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation.fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation.fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the training prevalence and stores it.</span>
 
@@ -105,24 +102,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">estimated_prevalence</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
-<div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation.quantify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.quantify">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation.quantify"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.quantify">[docs]</a>    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Ignores the input instances and returns, as the class prevalence estimantes, the training prevalence.</span>
 
 <span class="sd">        :param instances: array-like (ignored)</span>
 <span class="sd">        :return: the class prevalence seen during training</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimated_prevalence</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimated_prevalence</span></div></div>
 
 
-
-<div class="viewcode-block" id="DMx">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx">[docs]</a>
-<span class="k">class</span> <span class="nc">DMx</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="DMx"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx">[docs]</a><span class="k">class</span> <span class="nc">DMx</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generic Distribution Matching quantifier for binary or multiclass quantification based on the space of covariates.</span>
 <span class="sd">    This implementation takes the number of bins, the divergence, and the possibility to work on CDF as hyperparameters.</span>
@@ -142,9 +132,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">search</span> <span class="o">=</span> <span class="n">search</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
 
-<div class="viewcode-block" id="DMx.HDx">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.HDx">[docs]</a>
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="DMx.HDx"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.HDx">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">HDx</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        `Hellinger Distance x &lt;https://www.sciencedirect.com/science/article/pii/S0020025512004069&gt;`_ (HDx).</span>
@@ -168,7 +156,6 @@
         <span class="n">hdx</span> <span class="o">=</span> <span class="n">MedianEstimator</span><span class="p">(</span><span class="n">base_quantifier</span><span class="o">=</span><span class="n">dmx</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">nbins</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">hdx</span></div>
 
-
     <span class="k">def</span> <span class="nf">__get_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 
         <span class="n">histograms</span> <span class="o">=</span> <span class="p">[]</span>
@@ -185,9 +172,7 @@
 
         <span class="k">return</span> <span class="n">distributions</span>
 
-<div class="viewcode-block" id="DMx.fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="DMx.fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates the validation distributions out of the training data (covariates).</span>
 <span class="sd">        The validation distributions have shape `(n, nfeats, nbins)`, with `n` the number of classes, `nfeats`</span>
@@ -209,10 +194,7 @@
 
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
-<div class="viewcode-block" id="DMx.quantify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.quantify">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="DMx.quantify"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.quantify">[docs]</a>    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution</span>
 <span class="sd">        (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.</span>
@@ -234,9 +216,7 @@
             <span class="n">divs</span> <span class="o">=</span> <span class="p">[</span><span class="n">divergence</span><span class="p">(</span><span class="n">test_distribution</span><span class="p">[</span><span class="n">feat</span><span class="p">],</span> <span class="n">mixture_distribution</span><span class="p">[</span><span class="n">feat</span><span class="p">])</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_feats</span><span class="p">)]</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">divs</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">argmin_prevalence</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">)</span></div>
-</div>
-
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">argmin_prevalence</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">)</span></div></div>
 
 
 

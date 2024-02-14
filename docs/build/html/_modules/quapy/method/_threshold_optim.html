@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../">
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>quapy.method._threshold_optim &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
 
   
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=22607128"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -80,9 +81,7 @@
 <span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">BinaryAggregativeQuantifier</span>
 
 
-<div class="viewcode-block" id="ThresholdOptimization">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization">[docs]</a>
-<span class="k">class</span> <span class="nc">ThresholdOptimization</span><span class="p">(</span><span class="n">BinaryAggregativeQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="ThresholdOptimization"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization">[docs]</a><span class="k">class</span> <span class="nc">ThresholdOptimization</span><span class="p">(</span><span class="n">BinaryAggregativeQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class of Threshold Optimization variants for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
@@ -106,9 +105,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="o">=</span> <span class="n">val_split</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ThresholdOptimization.condition">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.condition">[docs]</a>
-    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="ThresholdOptimization.condition"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.condition">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements the criterion according to which the threshold should be selected.</span>
@@ -120,10 +117,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
 
-
-<div class="viewcode-block" id="ThresholdOptimization.discard">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.discard">[docs]</a>
-    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<div class="viewcode-block" id="ThresholdOptimization.discard"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.discard">[docs]</a>    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Indicates whether a combination of tpr and fpr should be discarded</span>
 
@@ -132,7 +126,6 @@
 <span class="sd">        :return: true if the combination is to be discarded, false otherwise</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">tpr</span> <span class="o">-</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
-
 
 
     <span class="k">def</span> <span class="nf">_eval_candidate_thresholds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_scores</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
@@ -170,16 +163,13 @@
 
         <span class="k">return</span> <span class="n">candidates</span>
 
-<div class="viewcode-block" id="ThresholdOptimization.aggregate_with_threshold">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.aggregate_with_threshold">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate_with_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">tprs</span><span class="p">,</span> <span class="n">fprs</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">):</span>
+<div class="viewcode-block" id="ThresholdOptimization.aggregate_with_threshold"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.aggregate_with_threshold">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate_with_threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">tprs</span><span class="p">,</span> <span class="n">fprs</span><span class="p">,</span> <span class="n">thresholds</span><span class="p">):</span>
         <span class="c1"># This function performs the adjusted count for given tpr, fpr, and threshold.</span>
         <span class="c1"># Note that, due to broadcasting, tprs, fprs, and thresholds could be arrays of length &gt; 1</span>
         <span class="n">prevs_estims</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">thresholds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">prevs_estims</span> <span class="o">=</span> <span class="p">(</span><span class="n">prevs_estims</span> <span class="o">-</span> <span class="n">fprs</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">tprs</span> <span class="o">-</span> <span class="n">fprs</span><span class="p">)</span>
         <span class="n">prevs_estims</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">as_binary_prevalence</span><span class="p">(</span><span class="n">prevs_estims</span><span class="p">,</span> <span class="n">clip_if_necessary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">prevs_estims</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
-
 
     <span class="k">def</span> <span class="nf">_compute_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_</span><span class="p">):</span>
         <span class="n">TP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">y_</span><span class="p">,</span> <span class="n">y</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
@@ -198,27 +188,18 @@
             <span class="k">return</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">FP</span> <span class="o">/</span> <span class="p">(</span><span class="n">FP</span> <span class="o">+</span> <span class="n">TN</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ThresholdOptimization.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="ThresholdOptimization.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
         <span class="n">decision_scores</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="o">.</span><span class="n">Xy</span>
         <span class="c1"># the standard behavior is to keep the best threshold only</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tpr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_candidate_thresholds</span><span class="p">(</span><span class="n">decision_scores</span><span class="p">,</span> <span class="n">y</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
-<div class="viewcode-block" id="ThresholdOptimization.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<div class="viewcode-block" id="ThresholdOptimization.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="c1"># the standard behavior is to compute the adjusted count using the best threshold found</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate_with_threshold</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tpr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate_with_threshold</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tpr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">)</span></div></div>
 
 
-
-<div class="viewcode-block" id="T50">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.T50">[docs]</a>
-<span class="k">class</span> <span class="nc">T50</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
+<div class="viewcode-block" id="T50"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.T50">[docs]</a><span class="k">class</span> <span class="nc">T50</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Threshold Optimization variant for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
@@ -238,17 +219,11 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
 
-<div class="viewcode-block" id="T50.condition">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.T50.condition">[docs]</a>
-    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">tpr</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span></div>
-</div>
+<div class="viewcode-block" id="T50.condition"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.T50.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">tpr</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span></div></div>
 
 
-
-<div class="viewcode-block" id="MAX">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MAX">[docs]</a>
-<span class="k">class</span> <span class="nc">MAX</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
+<div class="viewcode-block" id="MAX"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MAX">[docs]</a><span class="k">class</span> <span class="nc">MAX</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Threshold Optimization variant for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
@@ -268,18 +243,12 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MAX.condition">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MAX.condition">[docs]</a>
-    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="MAX.condition"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MAX.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="c1"># MAX strives to maximize (tpr - fpr), which is equivalent to minimize (fpr - tpr)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">fpr</span> <span class="o">-</span> <span class="n">tpr</span><span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="p">(</span><span class="n">fpr</span> <span class="o">-</span> <span class="n">tpr</span><span class="p">)</span></div></div>
 
 
-
-<div class="viewcode-block" id="X">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.X">[docs]</a>
-<span class="k">class</span> <span class="nc">X</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
+<div class="viewcode-block" id="X"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.X">[docs]</a><span class="k">class</span> <span class="nc">X</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Threshold Optimization variant for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
@@ -299,17 +268,11 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
 
-<div class="viewcode-block" id="X.condition">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.X.condition">[docs]</a>
-    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">tpr</span> <span class="o">+</span> <span class="n">fpr</span><span class="p">))</span></div>
-</div>
+<div class="viewcode-block" id="X.condition"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.X.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">tpr</span> <span class="o">+</span> <span class="n">fpr</span><span class="p">))</span></div></div>
 
 
-
-<div class="viewcode-block" id="MS">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS">[docs]</a>
-<span class="k">class</span> <span class="nc">MS</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
+<div class="viewcode-block" id="MS"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS">[docs]</a><span class="k">class</span> <span class="nc">MS</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Median Sweep. Threshold Optimization variant for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
@@ -328,15 +291,10 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MS.condition">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS.condition">[docs]</a>
-    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="MS.condition"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS.condition">[docs]</a>    <span class="k">def</span> <span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">1</span></div>
 
-
-<div class="viewcode-block" id="MS.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="MS.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
         <span class="n">decision_scores</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="o">.</span><span class="n">Xy</span>
         <span class="c1"># keeps all candidates</span>
         <span class="n">tprs_fprs_thresholds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_candidate_thresholds</span><span class="p">(</span><span class="n">decision_scores</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
@@ -345,21 +303,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span> <span class="o">=</span> <span class="n">tprs_fprs_thresholds</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
-<div class="viewcode-block" id="MS.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<div class="viewcode-block" id="MS.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="n">prevalences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate_with_threshold</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tprs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fprs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">thresholds</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">prevalences</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">:</span>
             <span class="n">prevalences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">prevalences</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">prevalences</span></div>
-</div>
+        <span class="k">return</span> <span class="n">prevalences</span></div></div>
 
 
-
-<div class="viewcode-block" id="MS2">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS2">[docs]</a>
-<span class="k">class</span> <span class="nc">MS2</span><span class="p">(</span><span class="n">MS</span><span class="p">):</span>
+<div class="viewcode-block" id="MS2"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS2">[docs]</a><span class="k">class</span> <span class="nc">MS2</span><span class="p">(</span><span class="n">MS</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Median Sweep 2. Threshold Optimization variant for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
@@ -379,12 +330,8 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
 
-<div class="viewcode-block" id="MS2.discard">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS2.discard">[docs]</a>
-    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">tpr</span><span class="o">-</span><span class="n">fpr</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.25</span></div>
-</div>
-
+<div class="viewcode-block" id="MS2.discard"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS2.discard">[docs]</a>    <span class="k">def</span> <span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">tpr</span><span class="o">-</span><span class="n">fpr</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.25</span></div></div>
 </pre></div>
 
            </div>

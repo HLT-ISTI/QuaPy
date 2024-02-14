@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../">
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>quapy.method.aggregative &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
 
   
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../../_static/documentation_options.js?v=22607128"></script>
-        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
@@ -93,9 +94,7 @@
 <span class="c1"># Abstract classes</span>
 <span class="c1"># ------------------------------------</span>
 
-<div class="viewcode-block" id="AggregativeQuantifier">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier">[docs]</a>
-<span class="k">class</span> <span class="nc">AggregativeQuantifier</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeQuantifier"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier">[docs]</a><span class="k">class</span> <span class="nc">AggregativeQuantifier</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class for quantification methods that base their estimations on the aggregation of classification</span>
 <span class="sd">    results. Aggregative quantifiers implement a pipeline that consists of generating classification predictions</span>
@@ -147,9 +146,7 @@
             <span class="n">empty_class_names</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="n">empty_classes</span><span class="p">]</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;classes </span><span class="si">{</span><span class="n">empty_class_names</span><span class="si">}</span><span class="s1"> have no training examples&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AggregativeQuantifier.fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeQuantifier.fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Trains the aggregative quantifier. This comes down to training a classifier and an aggregation function.</span>
 
@@ -163,10 +160,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_fit</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
-<div class="viewcode-block" id="AggregativeQuantifier.classifier_fit_predict">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.classifier_fit_predict">[docs]</a>
-    <span class="k">def</span> <span class="nf">classifier_fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">predict_on</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeQuantifier.classifier_fit_predict"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.classifier_fit_predict">[docs]</a>    <span class="k">def</span> <span class="nf">classifier_fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">predict_on</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Trains the classifier if requested (`fit_classifier=True`) and generate the necessary predictions to</span>
 <span class="sd">        train the aggregation function.</span>
@@ -236,10 +230,7 @@
 
         <span class="k">return</span> <span class="n">predictions</span></div>
 
-
-<div class="viewcode-block" id="AggregativeQuantifier.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.aggregation_fit">[docs]</a>
-    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="AggregativeQuantifier.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.aggregation_fit">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Trains the aggregation function.</span>
@@ -249,7 +240,6 @@
 <span class="sd">        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
-
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -269,9 +259,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classifier_</span> <span class="o">=</span> <span class="n">classifier</span>
 
-<div class="viewcode-block" id="AggregativeQuantifier.classify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.classify">[docs]</a>
-    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeQuantifier.classify"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.classify">[docs]</a>    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the label predictions for the given instances. The predictions should respect the format expected by</span>
 <span class="sd">        :meth:`aggregate`, e.g., posterior probabilities for probabilistic quantifiers, or crisp predictions for</span>
@@ -281,7 +269,6 @@
 <span class="sd">        :return: np.ndarray of shape `(n_instances,)` with label predictions</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classifier_method</span><span class="p">())(</span><span class="n">instances</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_classifier_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -301,9 +288,7 @@
         <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classifier_method</span><span class="p">()),</span> \
             <span class="sa">f</span><span class="s2">&quot;the method does not implement the required </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_classifier_method</span><span class="p">()</span><span class="si">}</span><span class="s2"> method&quot;</span>
 
-<div class="viewcode-block" id="AggregativeQuantifier.quantify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.quantify">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeQuantifier.quantify"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.quantify">[docs]</a>    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate class prevalence estimates for the sample&#39;s instances by aggregating the label predictions generated</span>
 <span class="sd">        by the classifier.</span>
@@ -314,10 +299,7 @@
         <span class="n">classif_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="AggregativeQuantifier.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.aggregate">[docs]</a>
-    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="AggregativeQuantifier.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.aggregate">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Implements the aggregation of label predictions.</span>
@@ -326,7 +308,6 @@
 <span class="sd">        :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
-
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">classes_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -339,10 +320,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span></div>
 
 
-
-<div class="viewcode-block" id="AggregativeCrispQuantifier">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeCrispQuantifier">[docs]</a>
-<span class="k">class</span> <span class="nc">AggregativeCrispQuantifier</span><span class="p">(</span><span class="n">AggregativeQuantifier</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeCrispQuantifier"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeCrispQuantifier">[docs]</a><span class="k">class</span> <span class="nc">AggregativeCrispQuantifier</span><span class="p">(</span><span class="n">AggregativeQuantifier</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class for quantification methods that base their estimations on the aggregation of crips decisions</span>
 <span class="sd">    as returned by a hard classifier. Aggregative crisp quantifiers thus extend Aggregative</span>
@@ -359,10 +337,7 @@
         <span class="k">return</span> <span class="s1">&#39;predict&#39;</span></div>
 
 
-
-<div class="viewcode-block" id="AggregativeSoftQuantifier">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeSoftQuantifier">[docs]</a>
-<span class="k">class</span> <span class="nc">AggregativeSoftQuantifier</span><span class="p">(</span><span class="n">AggregativeQuantifier</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeSoftQuantifier"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeSoftQuantifier">[docs]</a><span class="k">class</span> <span class="nc">AggregativeSoftQuantifier</span><span class="p">(</span><span class="n">AggregativeQuantifier</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class for quantification methods that base their estimations on the aggregation of posterior</span>
 <span class="sd">    probabilities as returned by a probabilistic classifier.</span>
@@ -401,10 +376,7 @@
                                      <span class="sa">f</span><span class="s1">&#39;fit_classifier is set to False&#39;</span><span class="p">)</span></div>
 
 
-
-<div class="viewcode-block" id="BinaryAggregativeQuantifier">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.BinaryAggregativeQuantifier">[docs]</a>
-<span class="k">class</span> <span class="nc">BinaryAggregativeQuantifier</span><span class="p">(</span><span class="n">AggregativeQuantifier</span><span class="p">,</span> <span class="n">BinaryQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="BinaryAggregativeQuantifier"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.BinaryAggregativeQuantifier">[docs]</a><span class="k">class</span> <span class="nc">BinaryAggregativeQuantifier</span><span class="p">(</span><span class="n">AggregativeQuantifier</span><span class="p">,</span> <span class="n">BinaryQuantifier</span><span class="p">):</span>
     
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">pos_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -414,20 +386,14 @@
     <span class="k">def</span> <span class="nf">neg_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="BinaryAggregativeQuantifier.fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.BinaryAggregativeQuantifier.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="BinaryAggregativeQuantifier.fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.BinaryAggregativeQuantifier.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_binary</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span></div>
-</div>
-
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span></div></div>
 
 
 <span class="c1"># Methods</span>
 <span class="c1"># ------------------------------------</span>
-<div class="viewcode-block" id="CC">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.CC">[docs]</a>
-<span class="k">class</span> <span class="nc">CC</span><span class="p">(</span><span class="n">AggregativeCrispQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="CC"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.CC">[docs]</a><span class="k">class</span> <span class="nc">CC</span><span class="p">(</span><span class="n">AggregativeCrispQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The most basic Quantification method. One that simply classifies all instances and counts how many have been</span>
 <span class="sd">    attributed to each of the classes in order to compute class prevalence estimates.</span>
@@ -438,9 +404,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
 
-<div class="viewcode-block" id="CC.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.CC.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="CC.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.CC.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Nothing to do here!</span>
 
@@ -448,24 +412,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-
-<div class="viewcode-block" id="CC.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.CC.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<div class="viewcode-block" id="CC.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.CC.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes class prevalence estimates by counting the prevalence of each of the predicted labels.</span>
 
 <span class="sd">        :param classif_predictions: array-like with label predictions</span>
 <span class="sd">        :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">prevalence_from_labels</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">prevalence_from_labels</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span></div></div>
 
 
-
-<div class="viewcode-block" id="ACC">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC">[docs]</a>
-<span class="k">class</span> <span class="nc">ACC</span><span class="p">(</span><span class="n">AggregativeCrispQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="ACC"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC">[docs]</a><span class="k">class</span> <span class="nc">ACC</span><span class="p">(</span><span class="n">AggregativeCrispQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    `Adjusted Classify &amp; Count &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_,</span>
 <span class="sd">    the &quot;adjusted&quot; variant of :class:`CC`, that corrects the predictions of CC</span>
@@ -502,9 +459,7 @@
     <span class="k">def</span> <span class="nf">_check_init_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;exact&#39;</span><span class="p">,</span> <span class="s1">&#39;minimize&#39;</span><span class="p">],</span> <span class="s2">&quot;unknown solver; valid ones are &#39;exact&#39;, &#39;minimize&#39;&quot;</span>
 
-<div class="viewcode-block" id="ACC.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="ACC.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimates the misclassification rates.</span>
 
@@ -514,10 +469,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cc</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Pte_cond_estim_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPteCondEstim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="n">true_labels</span><span class="p">,</span> <span class="n">pred_labels</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="ACC.getPteCondEstim">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC.getPteCondEstim">[docs]</a>
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ACC.getPteCondEstim"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC.getPteCondEstim">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">getPteCondEstim</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_</span><span class="p">):</span>
         <span class="c1"># estimate the matrix with entry (i,j) being the estimate of P(hat_yi|yj), that is, the probability that a</span>
         <span class="c1"># document that belongs to yj ends up being classified as belonging to yi</span>
@@ -531,17 +483,11 @@
                 <span class="n">conf</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">/=</span> <span class="n">class_counts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">conf</span></div>
 
-
-<div class="viewcode-block" id="ACC.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">):</span>
+<div class="viewcode-block" id="ACC.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">):</span>
         <span class="n">prevs_estim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cc</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ACC</span><span class="o">.</span><span class="n">solve_adjustment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Pte_cond_estim_</span><span class="p">,</span> <span class="n">prevs_estim</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="ACC.solve_adjustment">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC.solve_adjustment">[docs]</a>
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ACC.solve_adjustment"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC.solve_adjustment">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">solve_adjustment</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">PteCondEstim</span><span class="p">,</span> <span class="n">prevs_estim</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s1">&#39;exact&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Solves the system linear system :math:`Ax = B` with :math:`A` = `PteCondEstim` and :math:`B` = `prevs_estim`</span>
@@ -577,14 +523,10 @@
             <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">prev</span> <span class="o">-</span> <span class="n">B</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
-</div>
+            <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div></div>
 
 
-
-<div class="viewcode-block" id="PCC">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PCC">[docs]</a>
-<span class="k">class</span> <span class="nc">PCC</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="PCC"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PCC">[docs]</a><span class="k">class</span> <span class="nc">PCC</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    `Probabilistic Classify &amp; Count &lt;https://ieeexplore.ieee.org/abstract/document/5694031&gt;`_,</span>
 <span class="sd">    the probabilistic variant of CC that relies on the posterior probabilities returned by a probabilistic classifier.</span>
@@ -595,9 +537,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
 
-<div class="viewcode-block" id="PCC.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PCC.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="PCC.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PCC.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Nothing to do here!</span>
 
@@ -605,18 +545,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
-
-<div class="viewcode-block" id="PCC.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PCC.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">prevalence_from_probabilities</span><span class="p">(</span><span class="n">classif_posteriors</span><span class="p">,</span> <span class="n">binarize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
-</div>
+<div class="viewcode-block" id="PCC.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PCC.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">prevalence_from_probabilities</span><span class="p">(</span><span class="n">classif_posteriors</span><span class="p">,</span> <span class="n">binarize</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
 
 
-
-<div class="viewcode-block" id="PACC">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PACC">[docs]</a>
-<span class="k">class</span> <span class="nc">PACC</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="PACC"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PACC">[docs]</a><span class="k">class</span> <span class="nc">PACC</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    `Probabilistic Adjusted Classify &amp; Count &lt;https://ieeexplore.ieee.org/abstract/document/5694031&gt;`_,</span>
 <span class="sd">    the probabilistic variant of ACC that relies on the posterior probabilities returned by a probabilistic classifier.</span>
@@ -652,9 +585,7 @@
     <span class="k">def</span> <span class="nf">_check_init_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;exact&#39;</span><span class="p">,</span> <span class="s1">&#39;minimize&#39;</span><span class="p">],</span> <span class="s2">&quot;unknown solver; valid ones are &#39;exact&#39;, &#39;minimize&#39;&quot;</span>
 
-<div class="viewcode-block" id="PACC.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PACC.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="PACC.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PACC.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Estimates the misclassification rates</span>
 
@@ -664,17 +595,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pcc</span> <span class="o">=</span> <span class="n">PCC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Pte_cond_estim_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPteCondEstim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="n">true_labels</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="PACC.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PACC.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
+<div class="viewcode-block" id="PACC.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PACC.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
         <span class="n">prevs_estim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pcc</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">classif_posteriors</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ACC</span><span class="o">.</span><span class="n">solve_adjustment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Pte_cond_estim_</span><span class="p">,</span> <span class="n">prevs_estim</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="PACC.getPteCondEstim">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PACC.getPteCondEstim">[docs]</a>
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PACC.getPteCondEstim"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PACC.getPteCondEstim">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">getPteCondEstim</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_</span><span class="p">):</span>
         <span class="c1"># estimate the matrix with entry (i,j) being the estimate of P(hat_yi|yj), that is, the probability that a</span>
         <span class="c1"># document that belongs to yj ends up being classified as belonging to yi</span>
@@ -685,14 +610,10 @@
             <span class="k">if</span> <span class="n">idx</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
                 <span class="n">confusion</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">confusion</span><span class="o">.</span><span class="n">T</span></div>
-</div>
+        <span class="k">return</span> <span class="n">confusion</span><span class="o">.</span><span class="n">T</span></div></div>
 
 
-
-<div class="viewcode-block" id="EMQ">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ">[docs]</a>
-<span class="k">class</span> <span class="nc">EMQ</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="EMQ"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ">[docs]</a><span class="k">class</span> <span class="nc">EMQ</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    `Expectation Maximization for Quantification &lt;https://ieeexplore.ieee.org/abstract/document/6789744&gt;`_ (EMQ),</span>
 <span class="sd">    aka `Saerens-Latinne-Decaestecker` (SLD) algorithm.</span>
@@ -736,9 +657,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">recalib</span> <span class="o">=</span> <span class="n">recalib</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
 
-<div class="viewcode-block" id="EMQ.EMQ_BCTS">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.EMQ_BCTS">[docs]</a>
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="EMQ.EMQ_BCTS"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.EMQ_BCTS">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">EMQ_BCTS</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructs an instance of EMQ using the best configuration found in the `Alexandari et al. paper</span>
@@ -751,7 +670,6 @@
 <span class="sd">        :return: An instance of EMQ with BCTS</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">EMQ</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">exact_train_prev</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">recalib</span><span class="o">=</span><span class="s1">&#39;bcts&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_check_init_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -767,9 +685,7 @@
                       <span class="sa">f</span><span class="s1">&#39;indicating the number of folds for kFCV.&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span><span class="o">=</span><span class="mi">5</span>
 
-<div class="viewcode-block" id="EMQ.classify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.classify">[docs]</a>
-    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="EMQ.classify"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.classify">[docs]</a>    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Provides the posterior probabilities for the given instances. If the classifier was required</span>
 <span class="sd">        to be recalibrated, then these posteriors are recalibrated accordingly.</span>
@@ -782,10 +698,7 @@
             <span class="n">posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_function</span><span class="p">(</span><span class="n">posteriors</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">posteriors</span></div>
 
-
-<div class="viewcode-block" id="EMQ.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="EMQ.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">recalib</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">P</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="o">.</span><span class="n">Xy</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">recalib</span> <span class="o">==</span> <span class="s1">&#39;nbvs&#39;</span><span class="p">:</span>
@@ -810,17 +723,11 @@
                 <span class="n">train_posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_function</span><span class="p">(</span><span class="n">train_posteriors</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">train_prevalence</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">prevalence_from_probabilities</span><span class="p">(</span><span class="n">train_posteriors</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="EMQ.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">):</span>
+<div class="viewcode-block" id="EMQ.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">):</span>
         <span class="n">priors</span><span class="p">,</span> <span class="n">posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">EM</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_prevalence</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">priors</span></div>
 
-
-<div class="viewcode-block" id="EMQ.predict_proba">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.predict_proba">[docs]</a>
-    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">):</span>
+<div class="viewcode-block" id="EMQ.predict_proba"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the posterior probabilities updated by the EM algorithm.</span>
 
@@ -832,10 +739,7 @@
         <span class="n">priors</span><span class="p">,</span> <span class="n">posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">EM</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_prevalence</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">posteriors</span></div>
 
-
-<div class="viewcode-block" id="EMQ.EM">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.EM">[docs]</a>
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="EMQ.EM"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.EM">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">EM</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">tr_prev</span><span class="p">,</span> <span class="n">posterior_probabilities</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="n">EPSILON</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the `Expectation Maximization` routine.</span>
@@ -871,14 +775,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">converged</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[warning] the method has reached the maximum number of iterations; it might have not converged&#39;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">qs</span><span class="p">,</span> <span class="n">ps</span></div>
-</div>
+        <span class="k">return</span> <span class="n">qs</span><span class="p">,</span> <span class="n">ps</span></div></div>
 
 
-
-<div class="viewcode-block" id="HDy">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.HDy">[docs]</a>
-<span class="k">class</span> <span class="nc">HDy</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">BinaryAggregativeQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="HDy"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.HDy">[docs]</a><span class="k">class</span> <span class="nc">HDy</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">BinaryAggregativeQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    `Hellinger Distance y &lt;https://www.sciencedirect.com/science/article/pii/S0020025512004069&gt;`_ (HDy).</span>
 <span class="sd">    HDy is a probabilistic method for training binary quantifiers, that models quantification as the problem of</span>
@@ -897,9 +797,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="o">=</span> <span class="n">val_split</span>
 
-<div class="viewcode-block" id="HDy.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.HDy.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="HDy.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.HDy.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Trains a HDy quantifier.</span>
 
@@ -927,10 +825,7 @@
 
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
-<div class="viewcode-block" id="HDy.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.HDy.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
+<div class="viewcode-block" id="HDy.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.HDy.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
         <span class="c1"># &quot;In this work, the number of bins b used in HDx and HDy was chosen from 10 to 110 in steps of 10,</span>
         <span class="c1"># and the final estimated a priori probability was taken as the median of these 11 estimates.&quot;</span>
         <span class="c1"># (González-Castro, et al., 2013).</span>
@@ -959,14 +854,10 @@
             <span class="n">prev_estimations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prev_selected</span><span class="p">)</span>
 
         <span class="n">class1_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">prev_estimations</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">as_binary_prevalence</span><span class="p">(</span><span class="n">class1_prev</span><span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">as_binary_prevalence</span><span class="p">(</span><span class="n">class1_prev</span><span class="p">)</span></div></div>
 
 
-
-<div class="viewcode-block" id="DyS">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DyS">[docs]</a>
-<span class="k">class</span> <span class="nc">DyS</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">BinaryAggregativeQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="DyS"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DyS">[docs]</a><span class="k">class</span> <span class="nc">DyS</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">BinaryAggregativeQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    `DyS framework &lt;https://ojs.aaai.org/index.php/AAAI/article/view/4376&gt;`_ (DyS).</span>
 <span class="sd">    DyS is a generalization of HDy method, using a Ternary Search in order to find the prevalence that</span>
@@ -1007,9 +898,7 @@
         <span class="c1"># Left and right are the current bounds; the maximum is between them</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">left</span> <span class="o">+</span> <span class="n">right</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
 
-<div class="viewcode-block" id="DyS.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DyS.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="DyS.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DyS.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
         <span class="n">Px</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="o">.</span><span class="n">Xy</span>
         <span class="n">Px</span> <span class="o">=</span> <span class="n">Px</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">]</span>  <span class="c1"># takes only the P(y=+1|x)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Pxy1</span> <span class="o">=</span> <span class="n">Px</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">]</span>
@@ -1018,10 +907,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Pxy0_density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Pxy0</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
-<div class="viewcode-block" id="DyS.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DyS.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
+<div class="viewcode-block" id="DyS.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DyS.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
         <span class="n">Px</span> <span class="o">=</span> <span class="n">classif_posteriors</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">]</span>  <span class="c1"># takes only the P(y=+1|x)</span>
 
         <span class="n">Px_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">Px</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
@@ -1032,14 +918,10 @@
             <span class="k">return</span> <span class="n">divergence</span><span class="p">(</span><span class="n">Px_train</span><span class="p">,</span> <span class="n">Px_test</span><span class="p">)</span>
             
         <span class="n">class1_prev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ternary_search</span><span class="p">(</span><span class="n">f</span><span class="o">=</span><span class="n">distribution_distance</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tol</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">as_binary_prevalence</span><span class="p">(</span><span class="n">class1_prev</span><span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">as_binary_prevalence</span><span class="p">(</span><span class="n">class1_prev</span><span class="p">)</span></div></div>
 
 
-
-<div class="viewcode-block" id="SMM">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.SMM">[docs]</a>
-<span class="k">class</span> <span class="nc">SMM</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">BinaryAggregativeQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="SMM"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.SMM">[docs]</a><span class="k">class</span> <span class="nc">SMM</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">BinaryAggregativeQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    `SMM method &lt;https://ieeexplore.ieee.org/document/9260028&gt;`_ (SMM).</span>
 <span class="sd">    SMM is a simplification of matching distribution methods where the representation of the examples</span>
@@ -1054,9 +936,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="o">=</span> <span class="n">val_split</span>
       
-<div class="viewcode-block" id="SMM.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.SMM.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="SMM.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.SMM.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
         <span class="n">Px</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="o">.</span><span class="n">Xy</span>
         <span class="n">Px</span> <span class="o">=</span> <span class="n">Px</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">]</span>  <span class="c1"># takes only the P(y=+1|x)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Pxy1</span> <span class="o">=</span> <span class="n">Px</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">]</span>
@@ -1065,22 +945,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">Pxy0_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Pxy0</span><span class="p">)</span>  <span class="c1"># equiv. FPR</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
-<div class="viewcode-block" id="SMM.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.SMM.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
+<div class="viewcode-block" id="SMM.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.SMM.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
         <span class="n">Px</span> <span class="o">=</span> <span class="n">classif_posteriors</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">]</span>  <span class="c1"># takes only the P(y=+1|x)</span>
         <span class="n">Px_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Px</span><span class="p">)</span>
      
         <span class="n">class1_prev</span> <span class="o">=</span> <span class="p">(</span><span class="n">Px_mean</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pxy0_mean</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Pxy1_mean</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pxy0_mean</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">as_binary_prevalence</span><span class="p">(</span><span class="n">class1_prev</span><span class="p">,</span> <span class="n">clip_if_necessary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">as_binary_prevalence</span><span class="p">(</span><span class="n">class1_prev</span><span class="p">,</span> <span class="n">clip_if_necessary</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
 
 
-
-<div class="viewcode-block" id="DMy">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DMy">[docs]</a>
-<span class="k">class</span> <span class="nc">DMy</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="DMy"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DMy">[docs]</a><span class="k">class</span> <span class="nc">DMy</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generic Distribution Matching quantifier for binary or multiclass quantification based on the space of posterior</span>
 <span class="sd">    probabilities. This implementation takes the number of bins, the divergence, and the possibility to work on CDF</span>
@@ -1135,9 +1008,7 @@
             <span class="n">distributions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">distributions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">distributions</span>
 
-<div class="viewcode-block" id="DMy.aggregation_fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DMy.aggregation_fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="DMy.aggregation_fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DMy.aggregation_fit">[docs]</a>    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Trains the classifier (if requested) and generates the validation distributions out of the training data.</span>
 <span class="sd">        The validation distributions have shape `(n, ch, nbins)`, with `n` the number of classes, `ch` the number of</span>
@@ -1163,10 +1034,7 @@
             <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;threading&#39;</span>
         <span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="DMy.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DMy.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<div class="viewcode-block" id="DMy.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DMy.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution</span>
 <span class="sd">        (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.</span>
@@ -1186,15 +1054,11 @@
             <span class="n">divs</span> <span class="o">=</span> <span class="p">[</span><span class="n">divergence</span><span class="p">(</span><span class="n">test_distribution</span><span class="p">[</span><span class="n">ch</span><span class="p">],</span> <span class="n">mixture_distribution</span><span class="p">[</span><span class="n">ch</span><span class="p">])</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_channels</span><span class="p">)]</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">divs</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">argmin_prevalence</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">argmin_prevalence</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">search</span><span class="p">)</span></div></div>
 
 
 
-
-<div class="viewcode-block" id="newELM">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newELM">[docs]</a>
-<span class="k">def</span> <span class="nf">newELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;01&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="newELM"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newELM">[docs]</a><span class="k">def</span> <span class="nf">newELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;01&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Explicit Loss Minimization (ELM) quantifiers.</span>
 <span class="sd">    Quantifiers based on ELM represent a family of methods based on structured output learning;</span>
@@ -1221,10 +1085,7 @@
     <span class="k">return</span> <span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span></div>
 
 
-
-<div class="viewcode-block" id="newSVMQ">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMQ">[docs]</a>
-<span class="k">def</span> <span class="nf">newSVMQ</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="newSVMQ"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMQ">[docs]</a><span class="k">def</span> <span class="nf">newSVMQ</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    SVM(Q) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the `Q` loss combining a</span>
 <span class="sd">    classification-oriented loss and a quantification-oriented loss, as proposed by</span>
@@ -1248,7 +1109,6 @@
 <span class="sd">        underlying classifier</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">newELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span></div>
-
 
 <span class="k">def</span> <span class="nf">newSVMKLD</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1275,9 +1135,7 @@
     <span class="k">return</span> <span class="n">newELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;kld&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="newSVMKLD">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMKLD">[docs]</a>
-<span class="k">def</span> <span class="nf">newSVMKLD</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="newSVMKLD"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMKLD">[docs]</a><span class="k">def</span> <span class="nf">newSVMKLD</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence</span>
 <span class="sd">    normalized via the logistic function, as proposed by</span>
@@ -1302,10 +1160,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">newELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;nkld&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="newSVMAE">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMAE">[docs]</a>
-<span class="k">def</span> <span class="nf">newSVMAE</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="newSVMAE"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMAE">[docs]</a><span class="k">def</span> <span class="nf">newSVMAE</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Absolute Error as first used by</span>
 <span class="sd">    `Moreo and Sebastiani, 2021 &lt;https://arxiv.org/abs/2011.02552&gt;`_.</span>
@@ -1329,10 +1184,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">newELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="newSVMRAE">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMRAE">[docs]</a>
-<span class="k">def</span> <span class="nf">newSVMRAE</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="newSVMRAE"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMRAE">[docs]</a><span class="k">def</span> <span class="nf">newSVMRAE</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Relative Absolute Error as first</span>
 <span class="sd">    used by `Moreo and Sebastiani, 2021 &lt;https://arxiv.org/abs/2011.02552&gt;`_.</span>
@@ -1357,10 +1209,7 @@
     <span class="k">return</span> <span class="n">newELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mrae&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span></div>
 
 
-
-<div class="viewcode-block" id="OneVsAllAggregative">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.OneVsAllAggregative">[docs]</a>
-<span class="k">class</span> <span class="nc">OneVsAllAggregative</span><span class="p">(</span><span class="n">OneVsAllGeneric</span><span class="p">,</span> <span class="n">AggregativeQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="OneVsAllAggregative"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.OneVsAllAggregative">[docs]</a><span class="k">class</span> <span class="nc">OneVsAllAggregative</span><span class="p">(</span><span class="n">OneVsAllGeneric</span><span class="p">,</span> <span class="n">AggregativeQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Allows any binary quantifier to perform quantification on single-label datasets.</span>
 <span class="sd">    The method maintains one binary quantifier for each class, and then l1-normalizes the outputs so that the</span>
@@ -1385,9 +1234,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parallel_backend</span> <span class="o">=</span> <span class="n">parallel_backend</span>
 
-<div class="viewcode-block" id="OneVsAllAggregative.classify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.OneVsAllAggregative.classify">[docs]</a>
-    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="OneVsAllAggregative.classify"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.OneVsAllAggregative.classify">[docs]</a>    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If the base quantifier is not probabilistic, returns a matrix of shape `(n,m,)` with `n` the number of</span>
 <span class="sd">        instances and `m` the number of classes. The entry `(i,j)` is a binary value indicating whether instance</span>
@@ -1408,13 +1255,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">classif_predictions</span><span class="o">.</span><span class="n">T</span></div>
 
-
-<div class="viewcode-block" id="OneVsAllAggregative.aggregate">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.OneVsAllAggregative.aggregate">[docs]</a>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">):</span>
+<div class="viewcode-block" id="OneVsAllAggregative.aggregate"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.OneVsAllAggregative.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">):</span>
         <span class="n">prevalences</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parallel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delayed_binary_aggregate</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">normalize_prevalence</span><span class="p">(</span><span class="n">prevalences</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_delayed_binary_classification</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_binary_quantifiers</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -1424,10 +1267,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_binary_quantifiers</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">[:,</span> <span class="n">c</span><span class="p">])[</span><span class="mi">1</span><span class="p">]</span></div>
 
 
-
-<div class="viewcode-block" id="AggregativeMedianEstimator">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeMedianEstimator">[docs]</a>
-<span class="k">class</span> <span class="nc">AggregativeMedianEstimator</span><span class="p">(</span><span class="n">BinaryQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeMedianEstimator"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeMedianEstimator">[docs]</a><span class="k">class</span> <span class="nc">AggregativeMedianEstimator</span><span class="p">(</span><span class="n">BinaryQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This method is a meta-quantifier that returns, as the estimated class prevalence values, the median of the</span>
 <span class="sd">    estimation returned by differently (hyper)parameterized base quantifiers.</span>
@@ -1445,17 +1285,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AggregativeMedianEstimator.get_params">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeMedianEstimator.get_params">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeMedianEstimator.get_params"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeMedianEstimator.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">deep</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="AggregativeMedianEstimator.set_params">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeMedianEstimator.set_params">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeMedianEstimator.set_params"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeMedianEstimator.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_delayed_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">):</span>
@@ -1484,9 +1318,7 @@
             <span class="k">return</span> <span class="n">model</span>
 
 
-<div class="viewcode-block" id="AggregativeMedianEstimator.fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeMedianEstimator.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeMedianEstimator.fit"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeMedianEstimator.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">itertools</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_binary</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -1528,14 +1360,11 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
     <span class="k">def</span> <span class="nf">_delayed_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
         <span class="n">model</span><span class="p">,</span> <span class="n">instances</span> <span class="o">=</span> <span class="n">args</span>
         <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AggregativeMedianEstimator.quantify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeMedianEstimator.quantify">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="AggregativeMedianEstimator.quantify"><a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.AggregativeMedianEstimator.quantify">[docs]</a>    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
         <span class="n">prev_preds</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_predict</span><span class="p">,</span>
             <span class="p">((</span><span class="n">model</span><span class="p">,</span> <span class="n">instances</span><span class="p">)</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">),</span>
@@ -1543,9 +1372,7 @@
             <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
             <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;threading&#39;</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">prev_preds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
-</div>
-
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">prev_preds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div></div>
 
 
 <span class="c1">#---------------------------------------------------------------</span>

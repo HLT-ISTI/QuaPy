@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../">
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>quapy.model_selection &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
 
   
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=22607128"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -89,19 +90,14 @@
 <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
 
 
-<div class="viewcode-block" id="Status">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.Status">[docs]</a>
-<span class="k">class</span> <span class="nc">Status</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="Status"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.Status">[docs]</a><span class="k">class</span> <span class="nc">Status</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">SUCCESS</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="mi">2</span>
     <span class="n">INVALID</span> <span class="o">=</span> <span class="mi">3</span>
     <span class="n">ERROR</span> <span class="o">=</span> <span class="mi">4</span></div>
 
 
-
-<div class="viewcode-block" id="ConfigStatus">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.ConfigStatus">[docs]</a>
-<span class="k">class</span> <span class="nc">ConfigStatus</span><span class="p">:</span>
+<div class="viewcode-block" id="ConfigStatus"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.ConfigStatus">[docs]</a><span class="k">class</span> <span class="nc">ConfigStatus</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
@@ -113,23 +109,14 @@
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ConfigStatus.success">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.ConfigStatus.success">[docs]</a>
-    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ConfigStatus.success"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.ConfigStatus.success">[docs]</a>    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">Status</span><span class="o">.</span><span class="n">SUCCESS</span></div>
 
-
-<div class="viewcode-block" id="ConfigStatus.failed">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.ConfigStatus.failed">[docs]</a>
-    <span class="k">def</span> <span class="nf">failed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">Status</span><span class="o">.</span><span class="n">SUCCESS</span></div>
-</div>
+<div class="viewcode-block" id="ConfigStatus.failed"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.ConfigStatus.failed">[docs]</a>    <span class="k">def</span> <span class="nf">failed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">Status</span><span class="o">.</span><span class="n">SUCCESS</span></div></div>
 
 
-
-<div class="viewcode-block" id="GridSearchQ">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ">[docs]</a>
-<span class="k">class</span> <span class="nc">GridSearchQ</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+<div class="viewcode-block" id="GridSearchQ"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ">[docs]</a><span class="k">class</span> <span class="nc">GridSearchQ</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Grid Search optimization targeting a quantification-oriented metric.</span>
 
 <span class="sd">    Optimizes the hyperparameters of a quantification method, based on an evaluation method and on an evaluation</span>
@@ -296,9 +283,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;error=</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="GridSearchQ.fit">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<div class="viewcode-block" id="GridSearchQ.fit"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Learning routine. Fits methods with all combinations of hyperparameters and selects the one minimizing</span>
 <span class="sd">            the error metric.</span>
 
@@ -362,10 +347,7 @@
 
         <span class="k">return</span> <span class="bp">self</span></div>
 
-
-<div class="viewcode-block" id="GridSearchQ.quantify">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.quantify">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="GridSearchQ.quantify"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.quantify">[docs]</a>    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Estimate class prevalence values using the best model found after calling the :meth:`fit` method.</span>
 
 <span class="sd">        :param instances: sample contanining the instances</span>
@@ -375,20 +357,14 @@
         <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;best_model_&#39;</span><span class="p">),</span> <span class="s1">&#39;quantify called before fit&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_model</span><span class="p">()</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span></div>
 
-
-<div class="viewcode-block" id="GridSearchQ.set_params">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.set_params">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">):</span>
+<div class="viewcode-block" id="GridSearchQ.set_params"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the hyper-parameters to explore.</span>
 
 <span class="sd">        :param parameters: a dictionary with keys the parameter names and values the list of values to explore</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span> <span class="o">=</span> <span class="n">parameters</span></div>
 
-
-<div class="viewcode-block" id="GridSearchQ.get_params">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.get_params">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="GridSearchQ.get_params"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.get_params">[docs]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the dictionary of hyper-parameters to explore (`param_grid`)</span>
 
 <span class="sd">        :param deep: Unused</span>
@@ -396,10 +372,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span></div>
 
-
-<div class="viewcode-block" id="GridSearchQ.best_model">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.best_model">[docs]</a>
-    <span class="k">def</span> <span class="nf">best_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GridSearchQ.best_model"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.best_model">[docs]</a>    <span class="k">def</span> <span class="nf">best_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the best model found after calling the :meth:`fit` method, i.e., the one trained on the combination</span>
 <span class="sd">        of hyper-parameters that minimized the error function.</span>
@@ -409,7 +382,6 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;best_model_&#39;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_model_</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;best_model called before fit&#39;</span><span class="p">)</span></div>
-
 
     <span class="k">def</span> <span class="nf">_error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -449,10 +421,7 @@
         <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">took</span></div>
 
 
-
-<div class="viewcode-block" id="cross_val_predict">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.cross_val_predict">[docs]</a>
-<span class="k">def</span> <span class="nf">cross_val_predict</span><span class="p">(</span><span class="n">quantifier</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">nfolds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="cross_val_predict"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.cross_val_predict">[docs]</a><span class="k">def</span> <span class="nf">cross_val_predict</span><span class="p">(</span><span class="n">quantifier</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">nfolds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Akin to `scikit-learn&#39;s cross_val_predict &lt;https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_predict.html&gt;`_</span>
 <span class="sd">    but for quantification.</span>
@@ -475,10 +444,7 @@
     <span class="k">return</span> <span class="n">total_prev</span></div>
 
 
-
-<div class="viewcode-block" id="expand_grid">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.expand_grid">[docs]</a>
-<span class="k">def</span> <span class="nf">expand_grid</span><span class="p">(</span><span class="n">param_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="expand_grid"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.expand_grid">[docs]</a><span class="k">def</span> <span class="nf">expand_grid</span><span class="p">(</span><span class="n">param_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Expands a param_grid dictionary as a list of configurations.</span>
 <span class="sd">    Example:</span>
@@ -497,10 +463,7 @@
     <span class="k">return</span> <span class="n">configs</span></div>
 
 
-
-<div class="viewcode-block" id="group_params">
-<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.group_params">[docs]</a>
-<span class="k">def</span> <span class="nf">group_params</span><span class="p">(</span><span class="n">param_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<div class="viewcode-block" id="group_params"><a class="viewcode-back" href="../../quapy.html#quapy.model_selection.group_params">[docs]</a><span class="k">def</span> <span class="nf">group_params</span><span class="p">(</span><span class="n">param_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Partitions a param_grid dictionary as two lists of configurations, one for the classifier-specific</span>
 <span class="sd">    hyper-parameters, and another for que quantifier-specific hyper-parameters</span>
@@ -520,7 +483,6 @@
     <span class="n">quantifier_configs</span> <span class="o">=</span> <span class="n">expand_grid</span><span class="p">(</span><span class="n">quantifier_params</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">classifier_configs</span><span class="p">,</span> <span class="n">quantifier_configs</span></div>
-
 
 </pre></div>
 

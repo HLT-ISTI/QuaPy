@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../">
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>quapy.functional &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
 
   
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="../../_static/jquery.js?v=5d32c60e"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="../../_static/documentation_options.js?v=22607128"></script>
-        <script src="../../_static/doctools.js?v=9a2dae69"></script>
-        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -78,9 +79,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<div class="viewcode-block" id="prevalence_linspace">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_linspace">[docs]</a>
-<span class="k">def</span> <span class="nf">prevalence_linspace</span><span class="p">(</span><span class="n">n_prevalences</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">smooth_limits_epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+<div class="viewcode-block" id="prevalence_linspace"><a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_linspace">[docs]</a><span class="k">def</span> <span class="nf">prevalence_linspace</span><span class="p">(</span><span class="n">n_prevalences</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">smooth_limits_epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Produces an array of uniformly separated values of prevalence.</span>
 <span class="sd">    By default, produces an array of 21 prevalence values, with</span>
@@ -102,10 +101,7 @@
     <span class="k">return</span> <span class="n">p</span></div>
 
 
-
-<div class="viewcode-block" id="prevalence_from_labels">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_from_labels">[docs]</a>
-<span class="k">def</span> <span class="nf">prevalence_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="p">):</span>
+<div class="viewcode-block" id="prevalence_from_labels"><a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_from_labels">[docs]</a><span class="k">def</span> <span class="nf">prevalence_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computed the prevalence values from a vector of labels.</span>
 
@@ -123,10 +119,7 @@
     <span class="k">return</span> <span class="n">prevalences</span></div>
 
 
-
-<div class="viewcode-block" id="prevalence_from_probabilities">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_from_probabilities">[docs]</a>
-<span class="k">def</span> <span class="nf">prevalence_from_probabilities</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="n">binarize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="prevalence_from_probabilities"><a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_from_probabilities">[docs]</a><span class="k">def</span> <span class="nf">prevalence_from_probabilities</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="n">binarize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a vector of prevalence values from a matrix of posterior probabilities.</span>
 
@@ -146,10 +139,7 @@
         <span class="k">return</span> <span class="n">prevalences</span></div>
 
 
-
-<div class="viewcode-block" id="as_binary_prevalence">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.as_binary_prevalence">[docs]</a>
-<span class="k">def</span> <span class="nf">as_binary_prevalence</span><span class="p">(</span><span class="n">positive_prevalence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">clip_if_necessary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="as_binary_prevalence"><a class="viewcode-back" href="../../quapy.html#quapy.functional.as_binary_prevalence">[docs]</a><span class="k">def</span> <span class="nf">as_binary_prevalence</span><span class="p">(</span><span class="n">positive_prevalence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">clip_if_necessary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper that, given a float representing the prevalence for the positive class, returns a np.ndarray of two</span>
 <span class="sd">    values representing a binary distribution.</span>
@@ -167,10 +157,7 @@
 
 
 
-
-<div class="viewcode-block" id="HellingerDistance">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.HellingerDistance">[docs]</a>
-<span class="k">def</span> <span class="nf">HellingerDistance</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="viewcode-block" id="HellingerDistance"><a class="viewcode-back" href="../../quapy.html#quapy.functional.HellingerDistance">[docs]</a><span class="k">def</span> <span class="nf">HellingerDistance</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Hellingher Distance (HD) between (discretized) distributions `P` and `Q`.</span>
 <span class="sd">    The HD for two discrete distributions of `k` bins is defined as:</span>
@@ -185,10 +172,7 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">P</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Q</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span></div>
 
 
-
-<div class="viewcode-block" id="TopsoeDistance">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.TopsoeDistance">[docs]</a>
-<span class="k">def</span> <span class="nf">TopsoeDistance</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">):</span>
+<div class="viewcode-block" id="TopsoeDistance"><a class="viewcode-back" href="../../quapy.html#quapy.functional.TopsoeDistance">[docs]</a><span class="k">def</span> <span class="nf">TopsoeDistance</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Topsoe distance between two (discretized) distributions `P` and `Q`.</span>
 <span class="sd">    The Topsoe distance for two discrete distributions of `k` bins is defined as:</span>
@@ -202,12 +186,9 @@
 <span class="sd">    :return: float</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">P</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">P</span><span class="o">+</span><span class="n">Q</span><span class="o">+</span><span class="n">epsilon</span><span class="p">))</span> <span class="o">+</span> <span class="n">Q</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">Q</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">P</span><span class="o">+</span><span class="n">Q</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)))</span></div>
-
                   
 
-<div class="viewcode-block" id="uniform_prevalence_sampling">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.uniform_prevalence_sampling">[docs]</a>
-<span class="k">def</span> <span class="nf">uniform_prevalence_sampling</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="uniform_prevalence_sampling"><a class="viewcode-back" href="../../quapy.html#quapy.functional.uniform_prevalence_sampling">[docs]</a><span class="k">def</span> <span class="nf">uniform_prevalence_sampling</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements the `Kraemer algorithm &lt;http://www.cs.cmu.edu/~nasmith/papers/smith+tromble.tr04.pdf&gt;`_</span>
 <span class="sd">    for sampling uniformly at random from the unit simplex. This implementation is adapted from this</span>
@@ -233,13 +214,10 @@
     <span class="k">return</span> <span class="n">u</span></div>
 
 
-
 <span class="n">uniform_simplex_sampling</span> <span class="o">=</span> <span class="n">uniform_prevalence_sampling</span>
 
 
-<div class="viewcode-block" id="strprev">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.strprev">[docs]</a>
-<span class="k">def</span> <span class="nf">strprev</span><span class="p">(</span><span class="n">prevalences</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<div class="viewcode-block" id="strprev"><a class="viewcode-back" href="../../quapy.html#quapy.functional.strprev">[docs]</a><span class="k">def</span> <span class="nf">strprev</span><span class="p">(</span><span class="n">prevalences</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a string representation for a prevalence vector. E.g.,</span>
 
@@ -253,10 +231,7 @@
     <span class="k">return</span> <span class="s1">&#39;[&#39;</span><span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s1">.</span><span class="si">{</span><span class="n">prec</span><span class="si">}</span><span class="s1">f</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prevalences</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;]&#39;</span></div>
 
 
-
-<div class="viewcode-block" id="adjusted_quantification">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.adjusted_quantification">[docs]</a>
-<span class="k">def</span> <span class="nf">adjusted_quantification</span><span class="p">(</span><span class="n">prevalence_estim</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="adjusted_quantification"><a class="viewcode-back" href="../../quapy.html#quapy.functional.adjusted_quantification">[docs]</a><span class="k">def</span> <span class="nf">adjusted_quantification</span><span class="p">(</span><span class="n">prevalence_estim</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">,</span> <span class="n">clip</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements the adjustment of ACC and PACC for the binary case. The adjustment for a prevalence estimate of the</span>
 <span class="sd">    positive class `p` comes down to computing:</span>
@@ -280,10 +255,7 @@
     <span class="k">return</span> <span class="n">adjusted</span></div>
 
 
-
-<div class="viewcode-block" id="normalize_prevalence">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.normalize_prevalence">[docs]</a>
-<span class="k">def</span> <span class="nf">normalize_prevalence</span><span class="p">(</span><span class="n">prevalences</span><span class="p">):</span>
+<div class="viewcode-block" id="normalize_prevalence"><a class="viewcode-back" href="../../quapy.html#quapy.functional.normalize_prevalence">[docs]</a><span class="k">def</span> <span class="nf">normalize_prevalence</span><span class="p">(</span><span class="n">prevalences</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalize a vector or matrix of prevalence values. The normalization consists of applying a L1 normalization in</span>
 <span class="sd">    cases in which the prevalence values are not all-zeros, and to convert the prevalence values into `1/n_classes` in</span>
@@ -303,7 +275,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">prevalences</span><span class="p">[</span><span class="n">accum</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">1.</span><span class="o">/</span><span class="n">n_classes</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">prevalences</span></div>
-
 
 
 <span class="k">def</span> <span class="nf">__num_prevalence_combinations_depr</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -330,9 +301,7 @@
     <span class="k">return</span> <span class="n">__f</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">n_prevpoints</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_repeats</span>
 
 
-<div class="viewcode-block" id="num_prevalence_combinations">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.num_prevalence_combinations">[docs]</a>
-<span class="k">def</span> <span class="nf">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="num_prevalence_combinations"><a class="viewcode-back" href="../../quapy.html#quapy.functional.num_prevalence_combinations">[docs]</a><span class="k">def</span> <span class="nf">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the number of valid prevalence combinations in the n_classes-dimensional simplex if `n_prevpoints` equally</span>
 <span class="sd">    distant prevalence values are generated and `n_repeats` repetitions are requested.</span>
@@ -357,10 +326,7 @@
     <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">binom</span><span class="p">(</span><span class="n">N</span> <span class="o">+</span> <span class="n">C</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">C</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span></div>
 
 
-
-<div class="viewcode-block" id="get_nprevpoints_approximation">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.get_nprevpoints_approximation">[docs]</a>
-<span class="k">def</span> <span class="nf">get_nprevpoints_approximation</span><span class="p">(</span><span class="n">combinations_budget</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="get_nprevpoints_approximation"><a class="viewcode-back" href="../../quapy.html#quapy.functional.get_nprevpoints_approximation">[docs]</a><span class="k">def</span> <span class="nf">get_nprevpoints_approximation</span><span class="p">(</span><span class="n">combinations_budget</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Searches for the largest number of (equidistant) prevalence points to define for each of the `n_classes` classes so</span>
 <span class="sd">    that the number of valid prevalence values generated as combinations of prevalence points (points in a</span>
@@ -381,10 +347,7 @@
             <span class="n">n_prevpoints</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 
-
-<div class="viewcode-block" id="check_prevalence_vector">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.check_prevalence_vector">[docs]</a>
-<span class="k">def</span> <span class="nf">check_prevalence_vector</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">toleranze</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">):</span>
+<div class="viewcode-block" id="check_prevalence_vector"><a class="viewcode-back" href="../../quapy.html#quapy.functional.check_prevalence_vector">[docs]</a><span class="k">def</span> <span class="nf">check_prevalence_vector</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">toleranze</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks that p is a valid prevalence vector, i.e., that it contains values in [0,1] and that the values sum up to 1.</span>
 
@@ -407,10 +370,7 @@
     <span class="k">return</span> <span class="kc">True</span></div>
 
 
-
-<div class="viewcode-block" id="get_divergence">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.get_divergence">[docs]</a>
-<span class="k">def</span> <span class="nf">get_divergence</span><span class="p">(</span><span class="n">divergence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]):</span>
+<div class="viewcode-block" id="get_divergence"><a class="viewcode-back" href="../../quapy.html#quapy.functional.get_divergence">[docs]</a><span class="k">def</span> <span class="nf">get_divergence</span><span class="p">(</span><span class="n">divergence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">divergence</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">divergence</span><span class="o">==</span><span class="s1">&#39;HD&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">HellingerDistance</span>
@@ -424,10 +384,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;argument &quot;divergence&quot; not understood; use a str or a callable function&#39;</span><span class="p">)</span></div>
 
 
-
-<div class="viewcode-block" id="argmin_prevalence">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.argmin_prevalence">[docs]</a>
-<span class="k">def</span> <span class="nf">argmin_prevalence</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;optim_minimize&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="argmin_prevalence"><a class="viewcode-back" href="../../quapy.html#quapy.functional.argmin_prevalence">[docs]</a><span class="k">def</span> <span class="nf">argmin_prevalence</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;optim_minimize&#39;</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;optim_minimize&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;linear_search&#39;</span><span class="p">:</span>
@@ -438,10 +395,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
 
-
-<div class="viewcode-block" id="optim_minimize">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.optim_minimize">[docs]</a>
-<span class="k">def</span> <span class="nf">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">):</span>
+<div class="viewcode-block" id="optim_minimize"><a class="viewcode-back" href="../../quapy.html#quapy.functional.optim_minimize">[docs]</a><span class="k">def</span> <span class="nf">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Searches for the optimal prevalence values, i.e., an `n_classes`-dimensional vector of the (`n_classes`-1)-simplex</span>
 <span class="sd">    that yields the smallest lost. This optimization is carried out by means of a constrained search using scipy&#39;s</span>
@@ -463,10 +417,7 @@
     <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">x</span></div>
 
 
-
-<div class="viewcode-block" id="linear_search">
-<a class="viewcode-back" href="../../quapy.html#quapy.functional.linear_search">[docs]</a>
-<span class="k">def</span> <span class="nf">linear_search</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">):</span>
+<div class="viewcode-block" id="linear_search"><a class="viewcode-back" href="../../quapy.html#quapy.functional.linear_search">[docs]</a><span class="k">def</span> <span class="nf">linear_search</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs a linear search for the best prevalence value in binary problems. The search is carried out by exploring</span>
 <span class="sd">    the range [0,1] stepping by 0.01. This search is inefficient, and is added only for completeness (some of the</span>
@@ -485,7 +436,6 @@
             <span class="n">prev_selected</span><span class="p">,</span> <span class="n">min_score</span> <span class="o">=</span> <span class="n">prev</span><span class="p">,</span> <span class="n">score</span>
 
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span> <span class="o">-</span> <span class="n">prev_selected</span><span class="p">,</span> <span class="n">prev_selected</span><span class="p">])</span></div>
-
 </pre></div>
 
            </div>
