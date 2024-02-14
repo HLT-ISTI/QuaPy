@@ -82,23 +82,8 @@ def main(args):
         else:
             quantifier.fit(train)
 
-
-        # valid_error = quantifier.best_score_
-
-        # test_err = qp.evaluation.evaluate(quantifier, protocol=gen_test, error_metric='mrae', verbose=True)
-        # print(f'method={q_name} got MRAE={test_err:.4f}')
-        #
-        # results.append((q_name, valid_error, test_err))
-
-
         print(f'saving model in {model_path}')
         pickle.dump(quantifier, open(model_path, 'wb'), protocol=pickle.HIGHEST_PROTOCOL)
-
-
-    # print('\nResults')
-    # print('Method\tValid-err\ttest-err')
-    # for q_name, valid_error, test_err in results:
-    #     print(f'{q_name}\t{valid_error:.4}\t{test_err:.4f}')
 
 
 if __name__ == '__main__':
@@ -109,13 +94,5 @@ if __name__ == '__main__':
     parser.add_argument('datadir', metavar='DATA-PATH', type=str,
                         help='Path of the directory containing LeQua 2024 data', default='./data')
     args = parser.parse_args()
-
-    # def assert_file(filename):
-    #     if not os.path.exists(os.path.join(args.datadir, filename)):
-    #         raise FileNotFoundError(f'path {args.datadir} does not contain "{filename}"')
-    #
-    # assert_file('dev_prevalences.txt')
-    # assert_file('training_data.txt')
-    # assert_file('dev_samples')
 
     main(args)

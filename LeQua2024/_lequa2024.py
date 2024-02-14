@@ -1,6 +1,4 @@
-from typing import Tuple, Union
 import pandas as pd
-import numpy as np
 import os
 from os.path import join
 
@@ -63,9 +61,10 @@ def fetch_lequa2024(task, data_home='./data', merge_T3=False):
     val_true_prev_path = join(lequa_dir, task, 'public', 'dev_prevalences.txt')
     val_gen = SamplesFromDir(val_samples_path, val_true_prev_path, load_fn=load_fn)
 
-    test_samples_path = join(lequa_dir, task, 'public', 'test_samples')
-    test_true_prev_path = join(lequa_dir, task, 'public', 'test_prevalences.txt')
-    test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
+    # test_samples_path = join(lequa_dir, task, 'public', 'test_samples')
+    # test_true_prev_path = join(lequa_dir, task, 'public', 'test_prevalences.txt')
+    # test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
+    test_gen = None
 
     if task != 'T3':
         tr_path = join(lequa_dir, task, 'public', 'training_data.txt')
