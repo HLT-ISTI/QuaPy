@@ -32,8 +32,8 @@ class MyTestCase(unittest.TestCase):
     def test_samping_replicability(self):
 
         def equal_collections(c1, c2, value=True):
-            self.assertEqual(np.all(c1.Xtr == c2.Xtr), value)
-            self.assertEqual(np.all(c1.ytr == c2.ytr), value)
+            self.assertEqual(np.all(c1.X == c2.X), value)
+            self.assertEqual(np.all(c1.y == c2.y), value)
             if value:
                 self.assertEqual(np.all(c1.classes_ == c2.classes_), value)
 

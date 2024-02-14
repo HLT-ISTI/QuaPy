@@ -327,7 +327,7 @@ class GridSearchQ(BaseQuantifier):
             if self.raise_errors:
                 raise exception
             else:
-                return ConfigStatus(params, status, str(e))
+                return ConfigStatus(params, status)
 
         try:
             with timeout(self.timeout):
@@ -336,13 +336,13 @@ class GridSearchQ(BaseQuantifier):
                 status = ConfigStatus(params, Status.SUCCESS)
 
         except TimeoutError as e:
-            status = _handle(Status.TIMEOUT, str(e))
+            status = _handle(Status.TIMEOUT, e)
 
         except ValueError as e:
-            status = _handle(Status.INVALID, str(e))
+            status = _handle(Status.INVALID, e)
 
         except Exception as e:
-            status = _handle(Status.ERROR, str(e))
+            status = _handle(Status.ERROR, e)
 
         took = time() - tinit
         return output, status, took
@@ -364,7 +364,7 @@ def cross_val_predict(quantifier: BaseQuantifier, data: LabelledCollection, nfol
 
     for train, test in data.kFCV(nfolds=nfolds, random_state=random_state):
         quantifier.fit(train)
-        fold_prev = quantifier.quantify(test.Xtr)
+        fold_prev = quantifier.quantify(test.X)
         rel_size = 1. * len(test) / len(data)
         total_prev += fold_prev*rel_size
 

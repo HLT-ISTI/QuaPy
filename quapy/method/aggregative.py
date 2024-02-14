@@ -122,7 +122,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
                     raise ValueError(f'proportion {predict_on=} out of range, must be in (0,1)')
                 train, val = data.split_stratified(train_prop=(1 - predict_on))
                 self.classifier.fit(*train.Xy)
-                predictions = LabelledCollection(self.classify(val.Xtr), val.ytr, classes=data.classes_)
+                predictions = LabelledCollection(self.classify(val.X), val.y, classes=data.classes_)
             else:
                 raise ValueError(f'wrong type for predict_on: since fit_classifier=False, '
                                  f'the set on which predictions have to be issued must be '
@@ -604,6 +604,13 @@ class EMQ(AggregativeSoftQuantifier):
                 raise RuntimeWarning(f'The parameter {self.val_split=} was specified for EMQ, while the parameters '
                       f'{self.exact_train_prev=} and {self.recalib=}. This has no effect and causes an unnecessary '
                       f'overload.')
+        else:
+            if self.recalib is not None:
+                print(f'[warning] The parameter {self.recalib=} requires the val_split be different from None. '
+                      f'This parameter will be set to 5. To avoid this warning, set this value to a float value '
+                      f'indicating the proportion of training data to be used as validation, or to an integer '
+                      f'indicating the number of folds for kFCV.')
+                self.val_split=5
 
     def classify(self, instances):
         """
