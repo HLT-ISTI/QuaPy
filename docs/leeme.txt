@@ -1,0 +1,10 @@
+Para meter los módulos dentro de doc hay que hacer un
+
+sphinx-apidoc -o docs/source/ quapy/ -P
+
+Eso importa todo lo que haya en quapy/ (incluidos los ficheros _ gracias a -P) en source y crea un rst para cada uno.
+
+Parece que lo del -P no funciona. Hay que meterlos a mano en quapy.method.rst
+
+Luego, simplemente
+make html
