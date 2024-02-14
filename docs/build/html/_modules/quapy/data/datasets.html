@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.data.datasets &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=22607128"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">quapy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.data.datasets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.data.datasets</h1><div class="highlight"><pre>
+<div class="viewcode-block" id="warn">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.warn">[docs]</a>
+<span></span><span class="k">def</span> <span class="nf">warn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warn</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">ucimlrepo</span> <span class="kn">import</span> <span class="n">fetch_ucirepo</span>
+<span class="kn">from</span> <span class="nn">quapy.data.base</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">LabelledCollection</span>
+<span class="kn">from</span> <span class="nn">quapy.data.preprocessing</span> <span class="kn">import</span> <span class="n">text2tfidf</span><span class="p">,</span> <span class="n">reduce_columns</span>
+<span class="kn">from</span> <span class="nn">quapy.data.reader</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">quapy.util</span> <span class="kn">import</span> <span class="n">download_file_if_not_exists</span><span class="p">,</span> <span class="n">download_file</span><span class="p">,</span> <span class="n">get_quapy_home</span><span class="p">,</span> <span class="n">pickled_resource</span>
+
+
+<span class="n">REVIEWS_SENTIMENT_DATASETS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hp&#39;</span><span class="p">,</span> <span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="s1">&#39;imdb&#39;</span><span class="p">]</span>
+<span class="n">TWITTER_SENTIMENT_DATASETS_TEST</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gasp&#39;</span><span class="p">,</span> <span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="s1">&#39;omd&#39;</span><span class="p">,</span> <span class="s1">&#39;sanders&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;semeval13&#39;</span><span class="p">,</span> <span class="s1">&#39;semeval14&#39;</span><span class="p">,</span> <span class="s1">&#39;semeval15&#39;</span><span class="p">,</span> <span class="s1">&#39;semeval16&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;sst&#39;</span><span class="p">,</span> <span class="s1">&#39;wa&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">]</span>
+<span class="n">TWITTER_SENTIMENT_DATASETS_TRAIN</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gasp&#39;</span><span class="p">,</span> <span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="s1">&#39;omd&#39;</span><span class="p">,</span> <span class="s1">&#39;sanders&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;semeval&#39;</span><span class="p">,</span> <span class="s1">&#39;semeval16&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;sst&#39;</span><span class="p">,</span> <span class="s1">&#39;wa&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">]</span>
+<span class="n">UCI_BINARY_DATASETS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;acute.a&#39;</span><span class="p">,</span> <span class="s1">&#39;acute.b&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;balance.1&#39;</span><span class="p">,</span> <span class="s1">&#39;balance.2&#39;</span><span class="p">,</span> <span class="s1">&#39;balance.3&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;breast-cancer&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;cmc.1&#39;</span><span class="p">,</span> <span class="s1">&#39;cmc.2&#39;</span><span class="p">,</span> <span class="s1">&#39;cmc.3&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;ctg.1&#39;</span><span class="p">,</span> <span class="s1">&#39;ctg.2&#39;</span><span class="p">,</span> <span class="s1">&#39;ctg.3&#39;</span><span class="p">,</span>
+                       <span class="c1">#&#39;diabetes&#39;, # &lt;-- I haven&#39;t found this one...</span>
+                <span class="s1">&#39;german&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;haberman&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;ionosphere&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;iris.1&#39;</span><span class="p">,</span> <span class="s1">&#39;iris.2&#39;</span><span class="p">,</span> <span class="s1">&#39;iris.3&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;mammographic&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;pageblocks.5&#39;</span><span class="p">,</span>
+                       <span class="c1">#&#39;phoneme&#39;, # &lt;-- I haven&#39;t found this one...</span>
+                       <span class="s1">&#39;semeion&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;sonar&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;spambase&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;spectf&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;tictactoe&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;transfusion&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;wdbc&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;wine.1&#39;</span><span class="p">,</span> <span class="s1">&#39;wine.2&#39;</span><span class="p">,</span> <span class="s1">&#39;wine.3&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;wine-q-red&#39;</span><span class="p">,</span> <span class="s1">&#39;wine-q-white&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;yeast&#39;</span><span class="p">]</span>
+
+<span class="n">UCI_MULTICLASS_DATASETS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;wine-quality&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;academic-success&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;digits&#39;</span><span class="p">,</span>
+                           <span class="s1">&#39;letter&#39;</span><span class="p">]</span>
+
+<span class="n">LEQUA2022_TASKS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;T1A&#39;</span><span class="p">,</span> <span class="s1">&#39;T1B&#39;</span><span class="p">,</span> <span class="s1">&#39;T2A&#39;</span><span class="p">,</span> <span class="s1">&#39;T2B&#39;</span><span class="p">]</span>
+
+<span class="n">_TXA_SAMPLE_SIZE</span> <span class="o">=</span> <span class="mi">250</span>
+<span class="n">_TXB_SAMPLE_SIZE</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="n">LEQUA2022_SAMPLE_SIZE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;TXA&#39;</span><span class="p">:</span> <span class="n">_TXA_SAMPLE_SIZE</span><span class="p">,</span>
+    <span class="s1">&#39;TXB&#39;</span><span class="p">:</span> <span class="n">_TXB_SAMPLE_SIZE</span><span class="p">,</span>
+    <span class="s1">&#39;T1A&#39;</span><span class="p">:</span> <span class="n">_TXA_SAMPLE_SIZE</span><span class="p">,</span>
+    <span class="s1">&#39;T1B&#39;</span><span class="p">:</span> <span class="n">_TXB_SAMPLE_SIZE</span><span class="p">,</span>
+    <span class="s1">&#39;T2A&#39;</span><span class="p">:</span> <span class="n">_TXA_SAMPLE_SIZE</span><span class="p">,</span>
+    <span class="s1">&#39;T2B&#39;</span><span class="p">:</span> <span class="n">_TXB_SAMPLE_SIZE</span><span class="p">,</span>
+    <span class="s1">&#39;binary&#39;</span><span class="p">:</span> <span class="n">_TXA_SAMPLE_SIZE</span><span class="p">,</span>
+    <span class="s1">&#39;multiclass&#39;</span><span class="p">:</span> <span class="n">_TXB_SAMPLE_SIZE</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="fetch_reviews">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_reviews">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_reviews</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a Reviews dataset as a Dataset instance, as used in</span>
+<span class="sd">    `Esuli, A., Moreo, A., and Sebastiani, F. &quot;A recurrent neural network for sentiment quantification.&quot;</span>
+<span class="sd">    Proceedings of the 27th ACM International Conference on Information and Knowledge Management. 2018. &lt;https://dl.acm.org/doi/abs/10.1145/3269206.3269287&gt;`_.</span>
+<span class="sd">    The list of valid dataset names can be accessed in `quapy.data.datasets.REVIEWS_SENTIMENT_DATASETS`</span>
+
+<span class="sd">    :param dataset_name: the name of the dataset: valid ones are &#39;hp&#39;, &#39;kindle&#39;, &#39;imdb&#39;</span>
+<span class="sd">    :param tfidf: set to True to transform the raw documents into tfidf weighted matrices</span>
+<span class="sd">    :param min_df: minimun number of documents that should contain a term in order for the term to be</span>
+<span class="sd">        kept (ignored if tfidf==False)</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :param pickle: set to True to pickle the Dataset object the first time it is generated, in order to allow for</span>
+<span class="sd">        faster subsequent invokations</span>
+<span class="sd">    :return: a :class:`quapy.data.base.Dataset` instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="n">REVIEWS_SENTIMENT_DATASETS</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s1">&#39;Name </span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1"> does not match any known dataset for sentiment reviews. &#39;</span> \
+        <span class="sa">f</span><span class="s1">&#39;Valid ones are </span><span class="si">{</span><span class="n">REVIEWS_SENTIMENT_DATASETS</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
+
+    <span class="n">URL_TRAIN</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://zenodo.org/record/4117827/files/</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1">_train.txt&#39;</span>
+    <span class="n">URL_TEST</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://zenodo.org/record/4117827/files/</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1">_test.txt&#39;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;reviews&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">train_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;reviews&#39;</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="s1">&#39;train.txt&#39;</span><span class="p">)</span>
+    <span class="n">test_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;reviews&#39;</span><span class="p">,</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">)</span>
+    <span class="n">download_file_if_not_exists</span><span class="p">(</span><span class="n">URL_TRAIN</span><span class="p">,</span> <span class="n">train_path</span><span class="p">)</span>
+    <span class="n">download_file_if_not_exists</span><span class="p">(</span><span class="n">URL_TEST</span><span class="p">,</span> <span class="n">test_path</span><span class="p">)</span>
+
+    <span class="n">pickle_path</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">pickle</span><span class="p">:</span>
+        <span class="n">pickle_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;reviews&#39;</span><span class="p">,</span> <span class="s1">&#39;pickle&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1">.pkl&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pickled_resource</span><span class="p">(</span><span class="n">pickle_path</span><span class="p">,</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">train_path</span><span class="p">,</span> <span class="n">test_path</span><span class="p">,</span> <span class="n">from_text</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">tfidf</span><span class="p">:</span>
+        <span class="n">text2tfidf</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">min_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reduce_columns</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="n">min_df</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">dataset_name</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="fetch_twitter">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_twitter">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_twitter</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">for_model_selection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a Twitter dataset as a :class:`quapy.data.base.Dataset` instance, as used in:</span>
+<span class="sd">    `Gao, W., Sebastiani, F.: From classification to quantification in tweet sentiment analysis.</span>
+<span class="sd">    Social Network Analysis and Mining6(19), 1–22 (2016) &lt;https://link.springer.com/content/pdf/10.1007/s13278-016-0327-z.pdf&gt;`_</span>
+<span class="sd">    Note that the datasets &#39;semeval13&#39;, &#39;semeval14&#39;, &#39;semeval15&#39; share the same training set.</span>
+<span class="sd">    The list of valid dataset names corresponding to training sets can be accessed in</span>
+<span class="sd">    `quapy.data.datasets.TWITTER_SENTIMENT_DATASETS_TRAIN`, while the test sets can be accessed in</span>
+<span class="sd">    `quapy.data.datasets.TWITTER_SENTIMENT_DATASETS_TEST`</span>
+
+<span class="sd">    :param dataset_name: the name of the dataset: valid ones are &#39;gasp&#39;, &#39;hcr&#39;, &#39;omd&#39;, &#39;sanders&#39;, &#39;semeval13&#39;,</span>
+<span class="sd">        &#39;semeval14&#39;, &#39;semeval15&#39;, &#39;semeval16&#39;, &#39;sst&#39;, &#39;wa&#39;, &#39;wb&#39;</span>
+<span class="sd">    :param for_model_selection: if True, then returns the train split as the training set and the devel split</span>
+<span class="sd">        as the test set; if False, then returns the train+devel split as the training set and the test set as the</span>
+<span class="sd">        test set</span>
+<span class="sd">    :param min_df: minimun number of documents that should contain a term in order for the term to be kept</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :param pickle: set to True to pickle the Dataset object the first time it is generated, in order to allow for</span>
+<span class="sd">        faster subsequent invokations</span>
+<span class="sd">    :return: a :class:`quapy.data.base.Dataset` instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="n">TWITTER_SENTIMENT_DATASETS_TRAIN</span> <span class="o">+</span> <span class="n">TWITTER_SENTIMENT_DATASETS_TEST</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s1">&#39;Name </span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1"> does not match any known dataset for sentiment twitter. &#39;</span> \
+        <span class="sa">f</span><span class="s1">&#39;Valid ones are </span><span class="si">{</span><span class="n">TWITTER_SENTIMENT_DATASETS_TRAIN</span><span class="si">}</span><span class="s1"> for model selection and &#39;</span> \
+        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">TWITTER_SENTIMENT_DATASETS_TEST</span><span class="si">}</span><span class="s1"> for test (datasets &quot;semeval14&quot;, &quot;semeval15&quot;, &quot;semeval16&quot; share &#39;</span> \
+        <span class="sa">f</span><span class="s1">&#39;a common training set &quot;semeval&quot;)&#39;</span>
+    <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
+
+    <span class="n">URL</span> <span class="o">=</span> <span class="s1">&#39;https://zenodo.org/record/4255764/files/tweet_sentiment_quantification_snam.zip&#39;</span>
+    <span class="n">unzipped_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;tweet_sentiment_quantification_snam&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">):</span>
+        <span class="n">downloaded_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;tweet_sentiment_quantification_snam.zip&#39;</span><span class="p">)</span>
+        <span class="n">download_file</span><span class="p">(</span><span class="n">URL</span><span class="p">,</span> <span class="n">downloaded_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">downloaded_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">data_home</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">downloaded_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;semeval13&#39;</span><span class="p">,</span> <span class="s1">&#39;semeval14&#39;</span><span class="p">,</span> <span class="s1">&#39;semeval15&#39;</span><span class="p">}:</span>
+        <span class="n">trainset_name</span> <span class="o">=</span> <span class="s1">&#39;semeval&#39;</span>
+        <span class="n">testset_name</span>  <span class="o">=</span> <span class="s1">&#39;semeval&#39;</span> <span class="k">if</span> <span class="n">for_model_selection</span> <span class="k">else</span> <span class="n">dataset_name</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;the training and development sets for datasets &#39;semeval13&#39;, &#39;semeval14&#39;, &#39;semeval15&#39; are common &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;(called &#39;semeval&#39;); returning trainin-set=&#39;</span><span class="si">{</span><span class="n">trainset_name</span><span class="si">}</span><span class="s2">&#39; and test-set=</span><span class="si">{</span><span class="n">testset_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;semeval&#39;</span> <span class="ow">and</span> <span class="n">for_model_selection</span><span class="o">==</span><span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;dataset &quot;semeval&quot; can only be used for model selection. &#39;</span>
+                             <span class="s1">&#39;Use &quot;semeval13&quot;, &quot;semeval14&quot;, or &quot;semeval15&quot; for model evaluation.&#39;</span><span class="p">)</span>
+        <span class="n">trainset_name</span> <span class="o">=</span> <span class="n">testset_name</span> <span class="o">=</span> <span class="n">dataset_name</span>
+
+    <span class="k">if</span> <span class="n">for_model_selection</span><span class="p">:</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">trainset_name</span><span class="si">}</span><span class="s1">.train.feature.txt&#39;</span><span class="p">)</span>
+        <span class="n">test</span>  <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">testset_name</span><span class="si">}</span><span class="s1">.dev.feature.txt&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">,</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">trainset_name</span><span class="si">}</span><span class="s1">.train+dev.feature.txt&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;semeval16&#39;</span><span class="p">:</span>  <span class="c1"># there is a different test name in the case of semeval16 only</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">testset_name</span><span class="si">}</span><span class="s1">.dev-test.feature.txt&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">testset_name</span><span class="si">}</span><span class="s1">.test.feature.txt&#39;</span><span class="p">)</span>
+
+    <span class="n">pickle_path</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">pickle</span><span class="p">:</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;train-dev&quot;</span> <span class="k">if</span> <span class="n">for_model_selection</span> <span class="k">else</span> <span class="s2">&quot;train+dev-test&quot;</span>
+        <span class="n">pickle_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">,</span> <span class="s1">&#39;pickle&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">testset_name</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1">.pkl&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pickled_resource</span><span class="p">(</span><span class="n">pickle_path</span><span class="p">,</span> <span class="n">Dataset</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">from_sparse</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">min_df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">reduce_columns</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="n">min_df</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">dataset_name</span>
+
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="fetch_UCIBinaryDataset">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIBinaryDataset">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_split</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a UCI dataset as an instance of :class:`quapy.data.base.Dataset`, as used in</span>
+<span class="sd">    `Pérez-Gállego, P., Quevedo, J. R., &amp; del Coz, J. J. (2017).</span>
+<span class="sd">    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.</span>
+<span class="sd">    Information Fusion, 34, 87-100. &lt;https://www.sciencedirect.com/science/article/pii/S1566253516300628&gt;`_</span>
+<span class="sd">    and</span>
+<span class="sd">    `Pérez-Gállego, P., Castano, A., Quevedo, J. R., &amp; del Coz, J. J. (2019).</span>
+<span class="sd">    Dynamic ensemble selection for quantification tasks.</span>
+<span class="sd">    Information Fusion, 45, 1-15. &lt;https://www.sciencedirect.com/science/article/pii/S1566253517303652&gt;`_.</span>
+<span class="sd">    The datasets do not come with a predefined train-test split (see :meth:`fetch_UCILabelledCollection` for further</span>
+<span class="sd">    information on how to use these collections), and so a train-test split is generated at desired proportion.</span>
+<span class="sd">    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`</span>
+
+<span class="sd">    :param dataset_name: a dataset name</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set</span>
+<span class="sd">    :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets</span>
+<span class="sd">    :return: a :class:`quapy.data.base.Dataset` instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">test_split</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="fetch_UCIBinaryLabelledCollection">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIBinaryLabelledCollection">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabelledCollection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a UCI collection as an instance of :class:`quapy.data.base.LabelledCollection`, as used in</span>
+<span class="sd">    `Pérez-Gállego, P., Quevedo, J. R., &amp; del Coz, J. J. (2017).</span>
+<span class="sd">    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.</span>
+<span class="sd">    Information Fusion, 34, 87-100. &lt;https://www.sciencedirect.com/science/article/pii/S1566253516300628&gt;`_</span>
+<span class="sd">    and</span>
+<span class="sd">    `Pérez-Gállego, P., Castano, A., Quevedo, J. R., &amp; del Coz, J. J. (2019).</span>
+<span class="sd">    Dynamic ensemble selection for quantification tasks.</span>
+<span class="sd">    Information Fusion, 45, 1-15. &lt;https://www.sciencedirect.com/science/article/pii/S1566253517303652&gt;`_.</span>
+<span class="sd">    The datasets do not come with a predefined train-test split, and so Pérez-Gállego et al. adopted a 5FCVx2 evaluation</span>
+<span class="sd">    protocol, meaning that each collection was used to generate two rounds (hence the x2) of 5 fold cross validation.</span>
+<span class="sd">    This can be reproduced by using :meth:`quapy.data.base.Dataset.kFCV`, e.g.:</span>
+
+<span class="sd">    &gt;&gt;&gt; import quapy as qp</span>
+<span class="sd">    &gt;&gt;&gt; collection = qp.datasets.fetch_UCIBinaryLabelledCollection(&quot;yeast&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; for data in qp.train.Dataset.kFCV(collection, nfolds=5, nrepeats=2):</span>
+<span class="sd">    &gt;&gt;&gt;     ...</span>
+
+<span class="sd">    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`</span>
+
+<span class="sd">    :param dataset_name: a dataset name</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set</span>
+<span class="sd">    :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets</span>
+<span class="sd">    :return: a :class:`quapy.data.base.LabelledCollection` instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="n">UCI_BINARY_DATASETS</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s1">&#39;Name </span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1"> does not match any known dataset from the UCI Machine Learning datasets repository. &#39;</span> \
+        <span class="sa">f</span><span class="s1">&#39;Valid ones are </span><span class="si">{</span><span class="n">UCI_BINARY_DATASETS</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
+
+    <span class="n">dataset_fullname</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;acute.a&#39;</span><span class="p">:</span> <span class="s1">&#39;Acute Inflammations (urinary bladder)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;acute.b&#39;</span><span class="p">:</span> <span class="s1">&#39;Acute Inflammations (renal pelvis)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;balance.1&#39;</span><span class="p">:</span> <span class="s1">&#39;Balance Scale Weight &amp; Distance Database (left)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;balance.2&#39;</span><span class="p">:</span> <span class="s1">&#39;Balance Scale Weight &amp; Distance Database (balanced)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;balance.3&#39;</span><span class="p">:</span> <span class="s1">&#39;Balance Scale Weight &amp; Distance Database (right)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;breast-cancer&#39;</span><span class="p">:</span>  <span class="s1">&#39;Breast Cancer Wisconsin (Original)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cmc.1&#39;</span><span class="p">:</span> <span class="s1">&#39;Contraceptive Method Choice (no use)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cmc.2&#39;</span><span class="p">:</span> <span class="s1">&#39;Contraceptive Method Choice (long term)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cmc.3&#39;</span><span class="p">:</span> <span class="s1">&#39;Contraceptive Method Choice (short term)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ctg.1&#39;</span><span class="p">:</span> <span class="s1">&#39;Cardiotocography Data Set (normal)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ctg.2&#39;</span><span class="p">:</span> <span class="s1">&#39;Cardiotocography Data Set (suspect)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ctg.3&#39;</span><span class="p">:</span> <span class="s1">&#39;Cardiotocography Data Set (pathologic)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;german&#39;</span><span class="p">:</span> <span class="s1">&#39;Statlog German Credit Data&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;haberman&#39;</span><span class="p">:</span> <span class="s2">&quot;Haberman&#39;s Survival Data&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;ionosphere&#39;</span><span class="p">:</span> <span class="s1">&#39;Johns Hopkins University Ionosphere DB&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;iris.1&#39;</span><span class="p">:</span> <span class="s1">&#39;Iris Plants Database(x)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;iris.2&#39;</span><span class="p">:</span> <span class="s1">&#39;Iris Plants Database(versicolour)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;iris.3&#39;</span><span class="p">:</span> <span class="s1">&#39;Iris Plants Database(virginica)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mammographic&#39;</span><span class="p">:</span> <span class="s1">&#39;Mammographic Mass&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;pageblocks.5&#39;</span><span class="p">:</span> <span class="s1">&#39;Page Blocks Classification (5)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;semeion&#39;</span><span class="p">:</span> <span class="s1">&#39;Semeion Handwritten Digit (8)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sonar&#39;</span><span class="p">:</span> <span class="s1">&#39;Sonar, Mines vs. Rocks&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;spambase&#39;</span><span class="p">:</span> <span class="s1">&#39;Spambase Data Set&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;spectf&#39;</span><span class="p">:</span> <span class="s1">&#39;SPECTF Heart Data&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tictactoe&#39;</span><span class="p">:</span> <span class="s1">&#39;Tic-Tac-Toe Endgame Database&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;transfusion&#39;</span><span class="p">:</span> <span class="s1">&#39;Blood Transfusion Service Center Data Set&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wdbc&#39;</span><span class="p">:</span> <span class="s1">&#39;Wisconsin Diagnostic Breast Cancer&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine.1&#39;</span><span class="p">:</span> <span class="s1">&#39;Wine Recognition Data (1)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine.2&#39;</span><span class="p">:</span> <span class="s1">&#39;Wine Recognition Data (2)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine.3&#39;</span><span class="p">:</span> <span class="s1">&#39;Wine Recognition Data (3)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine-q-red&#39;</span><span class="p">:</span> <span class="s1">&#39;Wine Quality Red (6-10)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine-q-white&#39;</span><span class="p">:</span> <span class="s1">&#39;Wine Quality White (6-10)&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;yeast&#39;</span><span class="p">:</span> <span class="s1">&#39;Yeast&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># the identifier is an alias for the dataset group, it&#39;s part of the url data-folder, and is the name we use</span>
+    <span class="c1"># to download the raw dataset</span>
+    <span class="n">identifier_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;acute.a&#39;</span><span class="p">:</span> <span class="s1">&#39;acute&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;acute.b&#39;</span><span class="p">:</span> <span class="s1">&#39;acute&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;balance.1&#39;</span><span class="p">:</span> <span class="s1">&#39;balance-scale&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;balance.2&#39;</span><span class="p">:</span> <span class="s1">&#39;balance-scale&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;balance.3&#39;</span><span class="p">:</span> <span class="s1">&#39;balance-scale&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;breast-cancer&#39;</span><span class="p">:</span> <span class="s1">&#39;breast-cancer-wisconsin&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cmc.1&#39;</span><span class="p">:</span> <span class="s1">&#39;cmc&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cmc.2&#39;</span><span class="p">:</span> <span class="s1">&#39;cmc&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cmc.3&#39;</span><span class="p">:</span> <span class="s1">&#39;cmc&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ctg.1&#39;</span><span class="p">:</span> <span class="s1">&#39;00193&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ctg.2&#39;</span><span class="p">:</span> <span class="s1">&#39;00193&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ctg.3&#39;</span><span class="p">:</span> <span class="s1">&#39;00193&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;german&#39;</span><span class="p">:</span> <span class="s1">&#39;statlog/german&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;haberman&#39;</span><span class="p">:</span> <span class="s1">&#39;haberman&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;ionosphere&#39;</span><span class="p">:</span> <span class="s1">&#39;ionosphere&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;iris.1&#39;</span><span class="p">:</span> <span class="s1">&#39;iris&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;iris.2&#39;</span><span class="p">:</span> <span class="s1">&#39;iris&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;iris.3&#39;</span><span class="p">:</span> <span class="s1">&#39;iris&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mammographic&#39;</span><span class="p">:</span> <span class="s1">&#39;mammographic-masses&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;pageblocks.5&#39;</span><span class="p">:</span> <span class="s1">&#39;page-blocks&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;semeion&#39;</span><span class="p">:</span> <span class="s1">&#39;semeion&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;sonar&#39;</span><span class="p">:</span> <span class="s1">&#39;undocumented/connectionist-bench/sonar&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;spambase&#39;</span><span class="p">:</span> <span class="s1">&#39;spambase&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;spectf&#39;</span><span class="p">:</span> <span class="s1">&#39;spect&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;tictactoe&#39;</span><span class="p">:</span> <span class="s1">&#39;tic-tac-toe&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;transfusion&#39;</span><span class="p">:</span> <span class="s1">&#39;blood-transfusion&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wdbc&#39;</span><span class="p">:</span> <span class="s1">&#39;breast-cancer-wisconsin&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine-q-red&#39;</span><span class="p">:</span> <span class="s1">&#39;wine-quality&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine-q-white&#39;</span><span class="p">:</span> <span class="s1">&#39;wine-quality&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine.1&#39;</span><span class="p">:</span> <span class="s1">&#39;wine&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine.2&#39;</span><span class="p">:</span> <span class="s1">&#39;wine&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine.3&#39;</span><span class="p">:</span> <span class="s1">&#39;wine&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;yeast&#39;</span><span class="p">:</span> <span class="s1">&#39;yeast&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># the filename is the name of the file within the data_folder indexed by the identifier</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;acute&#39;</span><span class="p">:</span> <span class="s1">&#39;diagnosis.data&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;00193&#39;</span><span class="p">:</span> <span class="s1">&#39;CTG.xls&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;statlog/german&#39;</span><span class="p">:</span> <span class="s1">&#39;german.data-numeric&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mammographic-masses&#39;</span><span class="p">:</span> <span class="s1">&#39;mammographic_masses.data&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;page-blocks&#39;</span><span class="p">:</span> <span class="s1">&#39;page-blocks.data.Z&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;undocumented/connectionist-bench/sonar&#39;</span><span class="p">:</span> <span class="s1">&#39;sonar.all-data&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;spect&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;SPECTF.train&#39;</span><span class="p">,</span> <span class="s1">&#39;SPECTF.test&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;blood-transfusion&#39;</span><span class="p">:</span> <span class="s1">&#39;transfusion.data&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine-quality&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;winequality-red.csv&#39;</span><span class="p">,</span> <span class="s1">&#39;winequality-white.csv&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;breast-cancer-wisconsin&#39;</span><span class="p">:</span> <span class="s1">&#39;breast-cancer-wisconsin.data&#39;</span> <span class="k">if</span> <span class="n">dataset_name</span><span class="o">==</span><span class="s1">&#39;breast-cancer&#39;</span> <span class="k">else</span> <span class="s1">&#39;wdbc.data&#39;</span>
+    <span class="p">}</span>
+
+    <span class="c1"># the filename containing the dataset description (if any)</span>
+    <span class="n">desc_name</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;acute&#39;</span><span class="p">:</span> <span class="s1">&#39;diagnosis.names&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;00193&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;statlog/german&#39;</span><span class="p">:</span> <span class="s1">&#39;german.doc&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mammographic-masses&#39;</span><span class="p">:</span> <span class="s1">&#39;mammographic_masses.names&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;undocumented/connectionist-bench/sonar&#39;</span><span class="p">:</span> <span class="s1">&#39;sonar.names&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;spect&#39;</span><span class="p">:</span> <span class="s1">&#39;SPECTF.names&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;blood-transfusion&#39;</span><span class="p">:</span> <span class="s1">&#39;transfusion.names&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;wine-quality&#39;</span><span class="p">:</span> <span class="s1">&#39;winequality.names&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;breast-cancer-wisconsin&#39;</span><span class="p">:</span> <span class="s1">&#39;breast-cancer-wisconsin.names&#39;</span> <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;breast-cancer&#39;</span> <span class="k">else</span> <span class="s1">&#39;wdbc.names&#39;</span>
+    <span class="p">}</span>
+
+    <span class="n">identifier</span> <span class="o">=</span> <span class="n">identifier_map</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">file_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">identifier</span><span class="si">}</span><span class="s1">.data&#39;</span><span class="p">)</span>
+    <span class="n">descfile</span> <span class="o">=</span> <span class="n">desc_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">identifier</span><span class="si">}</span><span class="s1">.names&#39;</span><span class="p">)</span>
+    <span class="n">fullname</span> <span class="o">=</span> <span class="n">dataset_fullname</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]</span>
+
+    <span class="n">URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;http://archive.ics.uci.edu/ml/machine-learning-databases/</span><span class="si">{</span><span class="n">identifier</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">data_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;uci_datasets&#39;</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>  <span class="c1"># filename could be a list of files, in which case it will be processed later</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">download_file_if_not_exists</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">data_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">descfile</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">download_file_if_not_exists</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">descfile</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">descfile</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">descfile</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;rt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;could not read the description file&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;no file description available&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loading </span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">fullname</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;acute&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-16&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="p">)))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">[</span><span class="n">_df_replace</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)]</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;acute.a&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;yes&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;acute.b&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;yes&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;balance-scale&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;balance.1&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;L&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;balance.2&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;balance.3&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;breast-cancer-wisconsin&#39;</span> <span class="ow">and</span> <span class="n">dataset_name</span><span class="o">==</span><span class="s1">&#39;breast-cancer&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">Xy</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>
+        <span class="n">Xy</span><span class="p">[</span><span class="n">Xy</span><span class="o">==</span><span class="s1">&#39;?&#39;</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">Xy</span> <span class="o">=</span> <span class="n">Xy</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">Xy</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">9</span><span class="p">]</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">Xy</span><span class="p">[</span><span class="mi">10</span><span class="p">],</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;breast-cancer-wisconsin&#39;</span> <span class="ow">and</span> <span class="n">dataset_name</span><span class="o">==</span><span class="s1">&#39;wdbc&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">32</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;M&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;cmc&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;cmc.1&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;cmc.2&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;cmc.3&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;00193&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">&#39;Data&#39;</span><span class="p">,</span> <span class="n">skipfooter</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">24</span><span class="p">))]</span> <span class="c1"># select columns numbered (number 23 is the target label)</span>
+        <span class="c1"># replaces the header with the first row</span>
+        <span class="n">new_header</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># grab the first row for the header</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># take the data less the header row</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">new_header</span>  <span class="c1"># set the header row as the df header</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">22</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;NSP&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;ctg.1&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 1==Normal</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;ctg.2&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># 2==Suspect</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;ctg.3&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>  <span class="c1"># 3==Pathologic</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;statlog/german&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">24</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;haberman&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;ionosphere&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">34</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">34</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;iris&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;iris.1&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;Iris-setosa&#39;</span><span class="p">)</span>  <span class="c1"># 1==Setosa</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;iris.2&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;Iris-versicolor&#39;</span><span class="p">)</span>  <span class="c1"># 2==Versicolor</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;iris.3&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;Iris-virginica&#39;</span><span class="p">)</span>  <span class="c1"># 3==Virginica</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;mammographic-masses&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">df</span> <span class="o">==</span> <span class="s1">&#39;?&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="n">Xy</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">Xy</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">Xy</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span><span class="mi">5</span><span class="p">],</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;page-blocks&#39;</span><span class="p">:</span>
+        <span class="n">data_path_</span> <span class="o">=</span> <span class="n">data_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.Z&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">data_path_</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: file </span><span class="si">{</span><span class="n">data_path_</span><span class="si">}</span><span class="s1"> does not exist. If this is the first time you &#39;</span>
+                                    <span class="sa">f</span><span class="s1">&#39;attempt to load this dataset, then you have to manually unzip the </span><span class="si">{</span><span class="n">data_path</span><span class="si">}</span><span class="s1"> &#39;</span>
+                                    <span class="sa">f</span><span class="s1">&#39;and name the extracted file </span><span class="si">{</span><span class="n">data_path_</span><span class="si">}</span><span class="s1"> (unfortunately, neither zipfile, nor &#39;</span>
+                                    <span class="sa">f</span><span class="s1">&#39;gzip can handle unix compressed files automatically -- there is a repo in GitHub &#39;</span>
+                                    <span class="sa">f</span><span class="s1">&#39;https://github.com/umeat/unlzw where the problem seems to be solved anyway).&#39;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path_</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># 5==block &quot;graphic&quot;</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;semeion&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span> <span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">256</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">263</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># 263 stands for digit 8 (labels are one-hot vectors from col 256-266)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;undocumented/connectionist-bench/sonar&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">60</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">60</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;spambase&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">57</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">57</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;spect&#39;</span><span class="p">:</span>
+        <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">data_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+            <span class="n">download_file_if_not_exists</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">data_path</span><span class="p">)</span>
+            <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">45</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;tic-tac-toe&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">9</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;negative&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;blood-transfusion&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;wine&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">14</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;wine.1&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;wine.2&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;wine.3&#39;</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;wine-quality&#39;</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">dataset_name</span><span class="o">==</span><span class="s1">&#39;wine-q-red&#39;</span> <span class="k">else</span> <span class="n">filename</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">data_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">download_file_if_not_exists</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">URL</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">data_path</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">11</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">11</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">5</span>
+
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s1">&#39;yeast&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data_path</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delim_whitespace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">9</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">9</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="s1">&#39;NUC&#39;</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">stats</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<div class="viewcode-block" id="fetch_UCIMulticlassDataset">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIMulticlassDataset">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_split</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`. </span>
+
+<span class="sd">    The list of available datasets is taken from https://archive.ics.uci.edu/, following these criteria:</span>
+<span class="sd">    - It has more than 1000 instances</span>
+<span class="sd">    - It is suited for classification</span>
+<span class="sd">    - It has more than two classes</span>
+<span class="sd">    - It is available for Python import (requires ucimlrepo package)</span>
+
+<span class="sd">    &gt;&gt;&gt; import quapy as qp</span>
+<span class="sd">    &gt;&gt;&gt; dataset = qp.datasets.fetch_UCIMulticlassDataset(&quot;dry-bean&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; train, test = dataset.train_test</span>
+<span class="sd">    &gt;&gt;&gt;     ...</span>
+
+<span class="sd">    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`</span>
+
+<span class="sd">    The datasets are downloaded only once and pickled into disk, saving time for consecutive calls.</span>
+
+<span class="sd">    :param dataset_name: a dataset name</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set</span>
+<span class="sd">    :param verbose: set to True (default is False) to get information (stats) about the dataset</span>
+<span class="sd">    :return: a :class:`quapy.data.base.Dataset` instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">test_split</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="fetch_UCIMulticlassLabelledCollection">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_UCIMulticlassLabelledCollection">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LabelledCollection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`.</span>
+
+<span class="sd">    The list of available datasets is taken from https://archive.ics.uci.edu/, following these criteria:</span>
+<span class="sd">    - It has more than 1000 instances</span>
+<span class="sd">    - It is suited for classification</span>
+<span class="sd">    - It has more than two classes</span>
+<span class="sd">    - It is available for Python import (requires ucimlrepo package)</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; import quapy as qp</span>
+<span class="sd">    &gt;&gt;&gt; collection = qp.datasets.fetch_UCIMulticlassLabelledCollection(&quot;dry-bean&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; X, y = collection.Xy</span>
+<span class="sd">    &gt;&gt;&gt;     ...</span>
+
+<span class="sd">    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`</span>
+
+<span class="sd">    The datasets are downloaded only once and pickled into disk, saving time for consecutive calls.</span>
+
+<span class="sd">    :param dataset_name: a dataset name</span>
+<span class="sd">    :param data_home: specify the quapy home directory where the dataset will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set</span>
+<span class="sd">    :param verbose: set to True (default is False) to get information (stats) about the dataset</span>
+<span class="sd">    :return: a :class:`quapy.data.base.LabelledCollection` instance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="n">UCI_MULTICLASS_DATASETS</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s1">&#39;Name </span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1"> does not match any known dataset from the &#39;</span> \
+        <span class="sa">f</span><span class="s1">&#39;UCI Machine Learning datasets repository (multiclass). &#39;</span> \
+        <span class="sa">f</span><span class="s1">&#39;Valid ones are </span><span class="si">{</span><span class="n">UCI_MULTICLASS_DATASETS</span><span class="si">}</span><span class="s1">&#39;</span>
+    
+    <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
+    
+    <span class="n">identifiers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;dry-bean&quot;</span><span class="p">:</span> <span class="mi">602</span><span class="p">,</span>
+        <span class="s2">&quot;wine-quality&quot;</span><span class="p">:</span> <span class="mi">186</span><span class="p">,</span>
+        <span class="s2">&quot;academic-success&quot;</span><span class="p">:</span> <span class="mi">697</span><span class="p">,</span>
+        <span class="s2">&quot;digits&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+        <span class="s2">&quot;letter&quot;</span><span class="p">:</span> <span class="mi">59</span>
+    <span class="p">}</span>
+    
+    <span class="n">full_names</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;dry-bean&quot;</span><span class="p">:</span> <span class="s2">&quot;Dry Bean Dataset&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;wine-quality&quot;</span><span class="p">:</span> <span class="s2">&quot;Wine Quality&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;academic-success&quot;</span><span class="p">:</span> <span class="s2">&quot;Predict students&#39; dropout and academic success&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;digits&quot;</span><span class="p">:</span> <span class="s2">&quot;Optical Recognition of Handwritten Digits&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;letter&quot;</span><span class="p">:</span> <span class="s2">&quot;Letter Recognition&quot;</span>
+    <span class="p">}</span>
+    
+    <span class="n">identifier</span> <span class="o">=</span> <span class="n">identifiers</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]</span>
+    <span class="n">fullname</span> <span class="o">=</span> <span class="n">full_names</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loading UCI Muticlass </span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">fullname</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+
+    <span class="n">file</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;uci_multiclass&#39;</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">+</span><span class="s1">&#39;.pkl&#39;</span><span class="p">)</span>
+    
+    <span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">fetch_ucirepo</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;features&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;targets&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pickled_resource</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">download</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">stats</span><span class="p">()</span>
+        
+    <span class="k">return</span> <span class="n">data</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_df_replace</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">repl</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;yes&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;no&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">},</span> <span class="n">astype</span><span class="o">=</span><span class="nb">float</span><span class="p">):</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span><span class="n">repl</span><span class="p">[</span><span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">astype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="fetch_lequa2022">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_lequa2022">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_lequa2022</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads the official datasets provided for the `LeQua &lt;https://lequa2022.github.io/index&gt;`_ competition.</span>
+<span class="sd">    In brief, there are 4 tasks (T1A, T1B, T2A, T2B) having to do with text quantification</span>
+<span class="sd">    problems. Tasks T1A and T1B provide documents in vector form, while T2A and T2B provide raw documents instead.</span>
+<span class="sd">    Tasks T1A and T2A are binary sentiment quantification problems, while T2A and T2B are multiclass quantification</span>
+<span class="sd">    problems consisting of estimating the class prevalence values of 28 different merchandise products.</span>
+<span class="sd">    We refer to the `Esuli, A., Moreo, A., Sebastiani, F., &amp; Sperduti, G. (2022).</span>
+<span class="sd">    A Detailed Overview of LeQua@ CLEF 2022: Learning to Quantify.</span>
+<span class="sd">    &lt;https://ceur-ws.org/Vol-3180/paper-146.pdf&gt;`_ for a detailed description</span>
+<span class="sd">    on the tasks and datasets.</span>
+
+<span class="sd">    The datasets are downloaded only once, and stored for fast reuse.</span>
+
+<span class="sd">    See `lequa2022_experiments.py` provided in the example folder, that can serve as a guide on how to use these</span>
+<span class="sd">    datasets.</span>
+
+
+<span class="sd">    :param task: a string representing the task name; valid ones are T1A, T1B, T2A, and T2B</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :return: a tuple `(train, val_gen, test_gen)` where `train` is an instance of</span>
+<span class="sd">        :class:`quapy.data.base.LabelledCollection`, `val_gen` and `test_gen` are instances of</span>
+<span class="sd">        :class:`quapy.data._lequa2022.SamplesFromDir`, a subclass of :class:`quapy.protocol.AbstractProtocol`,</span>
+<span class="sd">        that return a series of samples stored in a directory which are labelled by prevalence.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">quapy.data._lequa2022</span> <span class="kn">import</span> <span class="n">load_raw_documents</span><span class="p">,</span> <span class="n">load_vector_documents</span><span class="p">,</span> <span class="n">SamplesFromDir</span>
+
+    <span class="k">assert</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">LEQUA2022_TASKS</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s1">&#39;Unknown task </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s1">. Valid ones are </span><span class="si">{</span><span class="n">LEQUA2022_TASKS</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
+
+    <span class="n">URL_TRAINDEV</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;https://zenodo.org/record/6546188/files/</span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s1">.train_dev.zip&#39;</span>
+    <span class="n">URL_TEST</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;https://zenodo.org/record/6546188/files/</span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s1">.test.zip&#39;</span>
+    <span class="n">URL_TEST_PREV</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;https://zenodo.org/record/6546188/files/</span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s1">.test_prevalences.zip&#39;</span>
+
+    <span class="n">lequa_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;lequa2022&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">download_unzip_and_remove</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="n">tmp_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">task</span> <span class="o">+</span> <span class="s1">&#39;_tmp.zip&#39;</span><span class="p">)</span>
+        <span class="n">download_file_if_not_exists</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">task</span><span class="p">)):</span>
+        <span class="n">download_unzip_and_remove</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">URL_TRAINDEV</span><span class="p">)</span>
+        <span class="n">download_unzip_and_remove</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">URL_TEST</span><span class="p">)</span>
+        <span class="n">download_unzip_and_remove</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">URL_TEST_PREV</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">task</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;T1A&#39;</span><span class="p">,</span> <span class="s1">&#39;T1B&#39;</span><span class="p">]:</span>
+        <span class="n">load_fn</span> <span class="o">=</span> <span class="n">load_vector_documents</span>
+    <span class="k">elif</span> <span class="n">task</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;T2A&#39;</span><span class="p">,</span> <span class="s1">&#39;T2B&#39;</span><span class="p">]:</span>
+        <span class="n">load_fn</span> <span class="o">=</span> <span class="n">load_raw_documents</span>
+
+    <span class="n">tr_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="s1">&#39;public&#39;</span><span class="p">,</span> <span class="s1">&#39;training_data.txt&#39;</span><span class="p">)</span>
+    <span class="n">train</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">tr_path</span><span class="p">,</span> <span class="n">loader_func</span><span class="o">=</span><span class="n">load_fn</span><span class="p">)</span>
+
+    <span class="n">val_samples_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="s1">&#39;public&#39;</span><span class="p">,</span> <span class="s1">&#39;dev_samples&#39;</span><span class="p">)</span>
+    <span class="n">val_true_prev_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="s1">&#39;public&#39;</span><span class="p">,</span> <span class="s1">&#39;dev_prevalences.txt&#39;</span><span class="p">)</span>
+    <span class="n">val_gen</span> <span class="o">=</span> <span class="n">SamplesFromDir</span><span class="p">(</span><span class="n">val_samples_path</span><span class="p">,</span> <span class="n">val_true_prev_path</span><span class="p">,</span> <span class="n">load_fn</span><span class="o">=</span><span class="n">load_fn</span><span class="p">)</span>
+
+    <span class="n">test_samples_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="s1">&#39;public&#39;</span><span class="p">,</span> <span class="s1">&#39;test_samples&#39;</span><span class="p">)</span>
+    <span class="n">test_true_prev_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">lequa_dir</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="s1">&#39;public&#39;</span><span class="p">,</span> <span class="s1">&#39;test_prevalences.txt&#39;</span><span class="p">)</span>
+    <span class="n">test_gen</span> <span class="o">=</span> <span class="n">SamplesFromDir</span><span class="p">(</span><span class="n">test_samples_path</span><span class="p">,</span> <span class="n">test_true_prev_path</span><span class="p">,</span> <span class="n">load_fn</span><span class="o">=</span><span class="n">load_fn</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">val_gen</span><span class="p">,</span> <span class="n">test_gen</span></div>
+
+
+
+<div class="viewcode-block" id="fetch_IFCB">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_IFCB">[docs]</a>
+<span class="k">def</span> <span class="nf">fetch_IFCB</span><span class="p">(</span><span class="n">single_sample_train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">for_model_selection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads the IFCB dataset for quantification from `Zenodo &lt;https://zenodo.org/records/10036244&gt;`_ (for more</span>
+<span class="sd">    information on this dataset, please follow the zenodo link).</span>
+<span class="sd">    This dataset is based on the data available publicly at</span>
+<span class="sd">    `WHOI-Plankton repo &lt;https://github.com/hsosik/WHOI-Plankton&gt;`_.</span>
+<span class="sd">    The scripts for the processing are available at `P. González&#39;s repo &lt;https://github.com/pglez82/IFCB_Zenodo&gt;`_.</span>
+<span class="sd">    Basically, this is the IFCB dataset with precomputed features for testing quantification algorithms.</span>
+
+<span class="sd">    The datasets are downloaded only once, and stored for fast reuse.</span>
+
+<span class="sd">    :param single_sample_train: a boolean. If true, it will return the train dataset as a</span>
+<span class="sd">        :class:`quapy.data.base.LabelledCollection` (all examples together).</span>
+<span class="sd">        If false, a generator of training samples will be returned. Each example in the training set has an individual label.</span>
+<span class="sd">    :param for_model_selection: if True, then returns a split 30% of the training set (86 out of 286 samples) to be used for model selection; </span>
+<span class="sd">        if False, then returns the full training set as training set and the test set as the test set</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :return: a tuple `(train, test_gen)` where `train` is an instance of</span>
+<span class="sd">        :class:`quapy.data.base.LabelledCollection`, if `single_sample_train` is true or</span>
+<span class="sd">        :class:`quapy.data._ifcb.IFCBTrainSamplesFromDir`, i.e. a sampling protocol that returns a series of samples</span>
+<span class="sd">        labelled example by example. test_gen will be a :class:`quapy.data._ifcb.IFCBTestSamples`, </span>
+<span class="sd">        i.e., a sampling protocol that returns a series of samples labelled by prevalence.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">quapy.data._ifcb</span> <span class="kn">import</span> <span class="n">IFCBTrainSamplesFromDir</span><span class="p">,</span> <span class="n">IFCBTestSamples</span><span class="p">,</span> <span class="n">get_sample_list</span><span class="p">,</span> <span class="n">generate_modelselection_split</span>
+
+    <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
+    
+    <span class="n">URL_TRAIN</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;https://zenodo.org/records/10036244/files/IFCB.train.zip&#39;</span>
+    <span class="n">URL_TEST</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;https://zenodo.org/records/10036244/files/IFCB.test.zip&#39;</span>
+    <span class="n">URL_TEST_PREV</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;https://zenodo.org/records/10036244/files/IFCB.test_prevalences.zip&#39;</span>
+
+    <span class="n">ifcb_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;ifcb&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">download_unzip_and_remove</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
+        <span class="n">tmp_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span> <span class="s1">&#39;ifcb_tmp.zip&#39;</span><span class="p">)</span>
+        <span class="n">download_file_if_not_exists</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">unzipped_path</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span><span class="s1">&#39;train&#39;</span><span class="p">)):</span>
+        <span class="n">download_unzip_and_remove</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span> <span class="n">URL_TRAIN</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span><span class="s1">&#39;test&#39;</span><span class="p">)):</span>
+        <span class="n">download_unzip_and_remove</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span> <span class="n">URL_TEST</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span><span class="s1">&#39;test_prevalences.csv&#39;</span><span class="p">)):</span>
+        <span class="n">download_unzip_and_remove</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span> <span class="n">URL_TEST_PREV</span><span class="p">)</span>
+
+    <span class="c1"># Load test prevalences and classes</span>
+    <span class="n">test_true_prev_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span> <span class="s1">&#39;test_prevalences.csv&#39;</span><span class="p">)</span>
+    <span class="n">test_true_prev</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">test_true_prev_path</span><span class="p">)</span>
+    <span class="n">classes</span> <span class="o">=</span> <span class="n">test_true_prev</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="c1">#Load train and test samples</span>
+    <span class="n">train_samples_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span><span class="s1">&#39;train&#39;</span><span class="p">)</span>
+    <span class="n">test_samples_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">ifcb_dir</span><span class="p">,</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">for_model_selection</span><span class="p">:</span>
+        <span class="c1"># In this case, return 70% of training data as the training set and 30% as the test set</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">get_sample_list</span><span class="p">(</span><span class="n">train_samples_path</span><span class="p">)</span>
+        <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">generate_modelselection_split</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">train_gen</span> <span class="o">=</span> <span class="n">IFCBTrainSamplesFromDir</span><span class="p">(</span><span class="n">path_dir</span><span class="o">=</span><span class="n">train_samples_path</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="n">train</span><span class="p">)</span>
+
+        <span class="c1"># Test prevalence is computed from class labels</span>
+        <span class="n">test_gen</span> <span class="o">=</span> <span class="n">IFCBTestSamples</span><span class="p">(</span><span class="n">path_dir</span><span class="o">=</span><span class="n">train_samples_path</span><span class="p">,</span> <span class="n">test_prevalences</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="n">test</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># In this case, we use all training samples as the training set and the test samples as the test set</span>
+        <span class="n">train_gen</span> <span class="o">=</span> <span class="n">IFCBTrainSamplesFromDir</span><span class="p">(</span><span class="n">path_dir</span><span class="o">=</span><span class="n">train_samples_path</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">)</span>
+        <span class="n">test_gen</span> <span class="o">=</span> <span class="n">IFCBTestSamples</span><span class="p">(</span><span class="n">path_dir</span><span class="o">=</span><span class="n">test_samples_path</span><span class="p">,</span> <span class="n">test_prevalences</span><span class="o">=</span><span class="n">test_true_prev</span><span class="p">)</span>
+
+    <span class="c1"># In the case the user wants it, join all the train samples in one LabelledCollection</span>
+    <span class="k">if</span> <span class="n">single_sample_train</span><span class="p">:</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">lc</span> <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">train_gen</span><span class="p">()])</span>
+        <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">test_gen</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">train_gen</span><span class="p">,</span> <span class="n">test_gen</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

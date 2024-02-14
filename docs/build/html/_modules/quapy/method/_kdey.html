@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.method._kdey &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=22607128"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">quapy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.method._kdey</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.method._kdey</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">KernelDensity</span>
+
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.data</span> <span class="kn">import</span> <span class="n">LabelledCollection</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">AggregativeSoftQuantifier</span>
+<span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">rbf_kernel</span>
+
+
+<div class="viewcode-block" id="KDEBase">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase">[docs]</a>
+<span class="k">class</span> <span class="nc">KDEBase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Common ancestor for KDE-based methods. Implements some common routines.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">BANDWIDTH_METHOD</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;scott&#39;</span><span class="p">,</span> <span class="s1">&#39;silverman&#39;</span><span class="p">]</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_bandwidth</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">bandwidth</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks that the bandwidth parameter is correct</span>
+
+<span class="sd">        :param bandwidth: either a string (see BANDWIDTH_METHOD) or a float</span>
+<span class="sd">        :return: nothing, but raises an exception for invalid values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">bandwidth</span> <span class="ow">in</span> <span class="n">KDEBase</span><span class="o">.</span><span class="n">BANDWIDTH_METHOD</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span> \
+            <span class="sa">f</span><span class="s1">&#39;invalid bandwidth, valid ones are </span><span class="si">{</span><span class="n">KDEBase</span><span class="o">.</span><span class="n">BANDWIDTH_METHOD</span><span class="si">}</span><span class="s1"> or float values&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">bandwidth</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span>  <span class="s2">&quot;the bandwith for KDEy should be in (0,1), since this method models the unit simplex&quot;</span>
+
+<div class="viewcode-block" id="KDEBase.get_kde_function">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.get_kde_function">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_kde_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">bandwidth</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wraps the KDE function from scikit-learn.</span>
+
+<span class="sd">        :param X: data for which the density function is to be estimated</span>
+<span class="sd">        :param bandwidth: the bandwidth of the kernel</span>
+<span class="sd">        :return: a scikit-learn&#39;s KernelDensity object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">KernelDensity</span><span class="p">(</span><span class="n">bandwidth</span><span class="o">=</span><span class="n">bandwidth</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="KDEBase.pdf">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.pdf">[docs]</a>
+    <span class="k">def</span> <span class="nf">pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kde</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wraps the density evalution of scikit-learn&#39;s KDE. Scikit-learn returns log-scores (s), so this</span>
+<span class="sd">        function returns :math:`e^{s}`</span>
+
+<span class="sd">        :param kde: a previously fit KDE function</span>
+<span class="sd">        :param X: the data for which the density is to be estimated</span>
+<span class="sd">        :return: np.ndarray with the densities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kde</span><span class="o">.</span><span class="n">score_samples</span><span class="p">(</span><span class="n">X</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="KDEBase.get_mixture_components">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.get_mixture_components">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_mixture_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">bandwidth</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an array containing the mixture components, i.e., the KDE functions for each class.</span>
+
+<span class="sd">        :param X: the data containing the covariates</span>
+<span class="sd">        :param y: the class labels</span>
+<span class="sd">        :param n_classes: integer, the number of classes</span>
+<span class="sd">        :param bandwidth: float, the bandwidth of the kernel</span>
+<span class="sd">        :return: a list of KernelDensity objects, each fitted with the corresponding class-specific covariates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kde_function</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="n">cat</span><span class="p">],</span> <span class="n">bandwidth</span><span class="p">)</span> <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">)]</span></div>
+</div>
+
+
+
+
+<div class="viewcode-block" id="KDEyML">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyML">[docs]</a>
+<span class="k">class</span> <span class="nc">KDEyML</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">KDEBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Kernel Density Estimation model for quantification (KDEy) relying on the Kullback-Leibler divergence (KLD) as</span>
+<span class="sd">    the divergence measure to be minimized. This method was first proposed in the paper</span>
+<span class="sd">    `Kernel Density Estimation for Multiclass Quantification &lt;https://arxiv.org/abs/2401.00490&gt;`_, in which</span>
+<span class="sd">    the authors show that minimizing the distribution mathing criterion for KLD is akin to performing</span>
+<span class="sd">    maximum likelihood (ML).</span>
+
+<span class="sd">    The distribution matching optimization problem comes down to solving:</span>
+
+<span class="sd">    :math:`\\hat{\\alpha} = \\arg\\min_{\\alpha\\in\\Delta^{n-1}} \\mathcal{D}(\\boldsymbol{p}_{\\alpha}||q_{\\widetilde{U}})`</span>
+
+<span class="sd">    where :math:`p_{\\alpha}` is the mixture of class-specific KDEs with mixture parameter (hence class prevalence)</span>
+<span class="sd">    :math:`\\alpha` defined by</span>
+
+<span class="sd">    :math:`\\boldsymbol{p}_{\\alpha}(\\widetilde{x}) = \\sum_{i=1}^n \\alpha_i p_{\\widetilde{L}_i}(\\widetilde{x})`</span>
+
+<span class="sd">    where :math:`p_X(\\boldsymbol{x}) = \\frac{1}{|X|} \\sum_{x_i\\in X} K\\left(\\frac{x-x_i}{h}\\right)` is the</span>
+<span class="sd">    KDE function that uses the datapoints in X as the kernel centers.</span>
+
+<span class="sd">    In KDEy-ML, the divergence is taken to be the Kullback-Leibler Divergence. This is equivalent to solving:</span>
+<span class="sd">    :math:`\\hat{\\alpha} = \\arg\\min_{\\alpha\\in\\Delta^{n-1}} -</span>
+<span class="sd">    \\mathbb{E}_{q_{\\widetilde{U}}} \\left[ \\log \\boldsymbol{p}_{\\alpha}(\\widetilde{x}) \\right]`</span>
+
+<span class="sd">    which corresponds to the maximum likelihood estimate.</span>
+
+<span class="sd">    :param classifier: a sklearn&#39;s Estimator that generates a binary classifier.</span>
+<span class="sd">    :param val_split: specifies the data used for generating classifier predictions. This specification</span>
+<span class="sd">        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to</span>
+<span class="sd">        be extracted from the training set; or as an integer (default 5), indicating that the predictions</span>
+<span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
+<span class="sd">        for `k`); or as a collection defining the specific set of data to use for validation.</span>
+<span class="sd">        Alternatively, this set can be specified at fit time by indicating the exact set of data</span>
+<span class="sd">        on which the predictions are to be generated.</span>
+<span class="sd">    :param bandwidth: float, the bandwidth of the Kernel</span>
+<span class="sd">    :param n_jobs: number of parallel workers</span>
+<span class="sd">    :param random_state: a seed to be set before fitting any base quantifier (default None)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">bandwidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_bandwidth</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="o">=</span> <span class="n">val_split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="n">bandwidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span>
+
+<div class="viewcode-block" id="KDEyML.aggregation_fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyML.aggregation_fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mixture_components</span><span class="p">(</span><span class="o">*</span><span class="n">classif_predictions</span><span class="o">.</span><span class="n">Xy</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="KDEyML.aggregate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyML.aggregate">[docs]</a>
+    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Searches for the mixture model parameter (the sought prevalence values) that maximizes the likelihood</span>
+<span class="sd">        of the data (i.e., that minimizes the negative log-likelihood)</span>
+
+<span class="sd">        :param posteriors: instances in the sample converted into posterior probabilities</span>
+<span class="sd">        :return: a vector of class prevalence estimates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-10</span>
+        <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span><span class="p">)</span>
+        <span class="n">test_densities</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">kde_i</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">)</span> <span class="k">for</span> <span class="n">kde_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span><span class="p">]</span>
+
+        <span class="k">def</span> <span class="nf">neg_loglikelihood</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
+            <span class="n">test_mixture_likelihood</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">prev_i</span> <span class="o">*</span> <span class="n">dens_i</span> <span class="k">for</span> <span class="n">prev_i</span><span class="p">,</span> <span class="n">dens_i</span> <span class="ow">in</span> <span class="nb">zip</span> <span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">test_densities</span><span class="p">))</span>
+            <span class="n">test_loglikelihood</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">test_mixture_likelihood</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">)</span>
+            <span class="k">return</span>  <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">test_loglikelihood</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">optim_minimize</span><span class="p">(</span><span class="n">neg_loglikelihood</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="KDEyHD">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyHD">[docs]</a>
+<span class="k">class</span> <span class="nc">KDEyHD</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">KDEBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Kernel Density Estimation model for quantification (KDEy) relying on the squared Hellinger Disntace (HD) as</span>
+<span class="sd">    the divergence measure to be minimized. This method was first proposed in the paper</span>
+<span class="sd">    `Kernel Density Estimation for Multiclass Quantification &lt;https://arxiv.org/abs/2401.00490&gt;`_, in which</span>
+<span class="sd">    the authors proposed a Monte Carlo approach for minimizing the divergence.</span>
+
+<span class="sd">    The distribution matching optimization problem comes down to solving:</span>
+
+<span class="sd">    :math:`\\hat{\\alpha} = \\arg\\min_{\\alpha\\in\\Delta^{n-1}} \\mathcal{D}(\\boldsymbol{p}_{\\alpha}||q_{\\widetilde{U}})`</span>
+
+<span class="sd">    where :math:`p_{\\alpha}` is the mixture of class-specific KDEs with mixture parameter (hence class prevalence)</span>
+<span class="sd">    :math:`\\alpha` defined by</span>
+
+<span class="sd">    :math:`\\boldsymbol{p}_{\\alpha}(\\widetilde{x}) = \\sum_{i=1}^n \\alpha_i p_{\\widetilde{L}_i}(\\widetilde{x})`</span>
+
+<span class="sd">    where :math:`p_X(\\boldsymbol{x}) = \\frac{1}{|X|} \\sum_{x_i\\in X} K\\left(\\frac{x-x_i}{h}\\right)` is the</span>
+<span class="sd">    KDE function that uses the datapoints in X as the kernel centers.</span>
+
+<span class="sd">    In KDEy-HD, the divergence is taken to be the squared Hellinger Distance, an f-divergence with corresponding</span>
+<span class="sd">    f-generator function given by:</span>
+
+<span class="sd">    :math:`f(u)=(\\sqrt{u}-1)^2`</span>
+
+<span class="sd">    The authors proposed a Monte Carlo solution that relies on importance sampling:</span>
+
+<span class="sd">    :math:`\\hat{D}_f(p||q)= \\frac{1}{t} \\sum_{i=1}^t f\\left(\\frac{p(x_i)}{q(x_i)}\\right) \\frac{q(x_i)}{r(x_i)}`</span>
+
+<span class="sd">    where the datapoints (trials) :math:`x_1,\\ldots,x_t\\sim_{\\mathrm{iid}} r` with :math:`r`  the</span>
+<span class="sd">    uniform distribution.</span>
+
+<span class="sd">    :param classifier: a sklearn&#39;s Estimator that generates a binary classifier.</span>
+<span class="sd">    :param val_split: specifies the data used for generating classifier predictions. This specification</span>
+<span class="sd">        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to</span>
+<span class="sd">        be extracted from the training set; or as an integer (default 5), indicating that the predictions</span>
+<span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
+<span class="sd">        for `k`); or as a collection defining the specific set of data to use for validation.</span>
+<span class="sd">        Alternatively, this set can be specified at fit time by indicating the exact set of data</span>
+<span class="sd">        on which the predictions are to be generated.</span>
+<span class="sd">    :param bandwidth: float, the bandwidth of the Kernel</span>
+<span class="sd">    :param n_jobs: number of parallel workers</span>
+<span class="sd">    :param random_state: a seed to be set before fitting any base quantifier (default None)</span>
+<span class="sd">    :param montecarlo_trials: number of Monte Carlo trials (default 10000)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">divergence</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span>
+                 <span class="n">bandwidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">montecarlo_trials</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_bandwidth</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="o">=</span> <span class="n">val_split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">divergence</span> <span class="o">=</span> <span class="n">divergence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="n">bandwidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">montecarlo_trials</span> <span class="o">=</span> <span class="n">montecarlo_trials</span>
+
+<div class="viewcode-block" id="KDEyHD.aggregation_fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyHD.aggregation_fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mixture_components</span><span class="p">(</span><span class="o">*</span><span class="n">classif_predictions</span><span class="o">.</span><span class="n">Xy</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">)</span>
+
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">montecarlo_trials</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">n_classes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">kde_i</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">N</span><span class="o">//</span><span class="n">n</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">rs</span><span class="p">)</span> <span class="k">for</span> <span class="n">kde_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_classwise_densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">kde_j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_samples</span><span class="p">)</span> <span class="k">for</span> <span class="n">kde_j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_classwise_densities</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># equiv. to (uniform @ self.reference_classwise_densities)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="KDEyHD.aggregate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyHD.aggregate">[docs]</a>
+    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="c1"># we retain all n*N examples (sampled from a mixture with uniform parameter), and then</span>
+        <span class="c1"># apply importance sampling (IS). In this version we compute D(p_alpha||q) with IS</span>
+        <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span><span class="p">)</span>
+
+        <span class="n">test_kde</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kde_function</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">)</span>
+        <span class="n">test_densities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">test_kde</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_samples</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">f_squared_hellinger</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+        
+        <span class="c1"># todo: this will fail when self.divergence is a callable, and is not the right place to do it anyway</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">divergence</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;hd&#39;</span><span class="p">:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">f_squared_hellinger</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;only squared HD is currently implemented&#39;</span><span class="p">)</span>
+
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-10</span>
+        <span class="n">qs</span> <span class="o">=</span> <span class="n">test_densities</span> <span class="o">+</span> <span class="n">epsilon</span>
+        <span class="n">rs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_density</span> <span class="o">+</span> <span class="n">epsilon</span>
+        <span class="n">iw</span> <span class="o">=</span> <span class="n">qs</span><span class="o">/</span><span class="n">rs</span>  <span class="c1">#importance weights</span>
+        <span class="n">p_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_classwise_densities</span> <span class="o">+</span> <span class="n">epsilon</span>
+        <span class="n">fracs</span> <span class="o">=</span> <span class="n">p_class</span><span class="o">/</span><span class="n">qs</span>
+
+        <span class="k">def</span> <span class="nf">divergence</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
+            <span class="c1"># ps / qs = (prev @ p_class) / qs = prev @ (p_class / qs) = prev @ fracs</span>
+            <span class="n">ps_div_qs</span> <span class="o">=</span> <span class="n">prev</span> <span class="o">@</span> <span class="n">fracs</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span> <span class="n">f</span><span class="p">(</span><span class="n">ps_div_qs</span><span class="p">)</span> <span class="o">*</span> <span class="n">iw</span> <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">optim_minimize</span><span class="p">(</span><span class="n">divergence</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="KDEyCS">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyCS">[docs]</a>
+<span class="k">class</span> <span class="nc">KDEyCS</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Kernel Density Estimation model for quantification (KDEy) relying on the Cauchy-Schwarz divergence (CS) as</span>
+<span class="sd">    the divergence measure to be minimized. This method was first proposed in the paper</span>
+<span class="sd">    `Kernel Density Estimation for Multiclass Quantification &lt;https://arxiv.org/abs/2401.00490&gt;`_, in which</span>
+<span class="sd">    the authors proposed a Monte Carlo approach for minimizing the divergence.</span>
+
+<span class="sd">    The distribution matching optimization problem comes down to solving:</span>
+
+<span class="sd">    :math:`\\hat{\\alpha} = \\arg\\min_{\\alpha\\in\\Delta^{n-1}} \\mathcal{D}(\\boldsymbol{p}_{\\alpha}||q_{\\widetilde{U}})`</span>
+
+<span class="sd">    where :math:`p_{\\alpha}` is the mixture of class-specific KDEs with mixture parameter (hence class prevalence)</span>
+<span class="sd">    :math:`\\alpha` defined by</span>
+
+<span class="sd">    :math:`\\boldsymbol{p}_{\\alpha}(\\widetilde{x}) = \\sum_{i=1}^n \\alpha_i p_{\\widetilde{L}_i}(\\widetilde{x})`</span>
+
+<span class="sd">    where :math:`p_X(\\boldsymbol{x}) = \\frac{1}{|X|} \\sum_{x_i\\in X} K\\left(\\frac{x-x_i}{h}\\right)` is the</span>
+<span class="sd">    KDE function that uses the datapoints in X as the kernel centers.</span>
+
+<span class="sd">    In KDEy-CS, the divergence is taken to be the Cauchy-Schwarz divergence given by:</span>
+
+<span class="sd">    :math:`\\mathcal{D}_{\\mathrm{CS}}(p||q)=-\\log\\left(\\frac{\\int p(x)q(x)dx}{\\sqrt{\\int p(x)^2dx \\int q(x)^2dx}}\\right)`</span>
+
+<span class="sd">    The authors showed that this distribution matching admits a closed-form solution</span>
+
+<span class="sd">    :param classifier: a sklearn&#39;s Estimator that generates a binary classifier.</span>
+<span class="sd">    :param val_split: specifies the data used for generating classifier predictions. This specification</span>
+<span class="sd">        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to</span>
+<span class="sd">        be extracted from the training set; or as an integer (default 5), indicating that the predictions</span>
+<span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
+<span class="sd">        for `k`); or as a collection defining the specific set of data to use for validation.</span>
+<span class="sd">        Alternatively, this set can be specified at fit time by indicating the exact set of data</span>
+<span class="sd">        on which the predictions are to be generated.</span>
+<span class="sd">    :param bandwidth: float, the bandwidth of the Kernel</span>
+<span class="sd">    :param n_jobs: number of parallel workers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">bandwidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">KDEBase</span><span class="o">.</span><span class="n">_check_bandwidth</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="o">=</span> <span class="n">val_split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="n">bandwidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+
+<div class="viewcode-block" id="KDEyCS.gram_matrix_mix_sum">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyCS.gram_matrix_mix_sum">[docs]</a>
+    <span class="k">def</span> <span class="nf">gram_matrix_mix_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># this adapts the output of the rbf_kernel function (pairwise evaluations of Gaussian kernels k(x,y))</span>
+        <span class="c1"># to contain pairwise evaluations of N(x|mu,Sigma1+Sigma2) with mu=y and Sigma1 and Sigma2 are </span>
+        <span class="c1"># two &quot;scalar matrices&quot; (h^2)*I each, so Sigma1+Sigma2 has scalar 2(h^2) (h is the bandwidth)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span>
+        <span class="n">variance</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">h</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">nD</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">variance</span><span class="p">)</span>
+        <span class="n">norm_factor</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">**</span><span class="n">nD</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">variance</span><span class="o">**</span><span class="p">(</span><span class="n">nD</span><span class="p">)))</span>
+        <span class="n">gram</span> <span class="o">=</span> <span class="n">norm_factor</span> <span class="o">*</span> <span class="n">rbf_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="n">gamma</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gram</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="KDEyCS.aggregation_fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyCS.aggregation_fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+
+        <span class="n">P</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="o">.</span><span class="n">Xy</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">n_classes</span>
+
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">)),</span> \
+            <span class="s1">&#39;label name gaps not allowed in current implementation&#39;</span>
+
+        <span class="c1"># counts_inv keeps track of the relative weight of each datapoint within its class</span>
+        <span class="c1"># (i.e., the weight in its KDE model)</span>
+        <span class="n">counts_inv</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">counts</span><span class="p">())</span>
+
+        <span class="c1"># tr_tr_sums corresponds to symbol \overline{B} in the paper</span>
+        <span class="n">tr_tr_sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="n">j</span><span class="p">:</span>
+                    <span class="n">tr_tr_sums</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">tr_tr_sums</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gram_matrix_mix_sum</span><span class="p">(</span><span class="n">P</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="n">i</span><span class="p">],</span> <span class="n">P</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="n">j</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span><span class="o">!=</span><span class="n">j</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="n">tr_tr_sums</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">block</span>
+
+        <span class="c1"># keep track of these data structures for the test phase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ptr</span> <span class="o">=</span> <span class="n">P</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ytr</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tr_tr_sums</span> <span class="o">=</span> <span class="n">tr_tr_sums</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counts_inv</span> <span class="o">=</span> <span class="n">counts_inv</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+
+<div class="viewcode-block" id="KDEyCS.aggregate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyCS.aggregate">[docs]</a>
+    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">Ptr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ptr</span>
+        <span class="n">Pte</span> <span class="o">=</span> <span class="n">posteriors</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ytr</span>
+        <span class="n">tr_tr_sums</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tr_tr_sums</span>
+
+        <span class="n">M</span><span class="p">,</span> <span class="n">nD</span> <span class="o">=</span> <span class="n">Pte</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">Minv</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">M</span><span class="p">)</span> <span class="c1"># t in the paper</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">Ptr</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># becomes a constant that does not affect the optimization, no need to compute it</span>
+        <span class="c1"># partC = 0.5*np.log(self.gram_matrix_mix_sum(Pte) * Kinv * Kinv)</span>
+
+        <span class="c1"># tr_te_sums corresponds to \overline{a}*(1/Li)*(1/M) in the paper (note the constants</span>
+        <span class="c1"># are already aggregated to tr_te_sums, so these multiplications are not carried out</span>
+        <span class="c1"># at each iteration of the optimization phase)</span>
+        <span class="n">tr_te_sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">tr_te_sums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gram_matrix_mix_sum</span><span class="p">(</span><span class="n">Ptr</span><span class="p">[</span><span class="n">y</span><span class="o">==</span><span class="n">i</span><span class="p">],</span> <span class="n">Pte</span><span class="p">)</span> 
+
+        <span class="k">def</span> <span class="nf">divergence</span><span class="p">(</span><span class="n">alpha</span><span class="p">):</span>
+            <span class="c1"># called \overline{r} in the paper</span>
+            <span class="n">alpha_ratio</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts_inv</span>
+
+            <span class="c1"># recal that tr_te_sums already accounts for the constant terms (1/Li)*(1/M)</span>
+            <span class="n">partA</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">alpha_ratio</span> <span class="o">@</span> <span class="n">tr_te_sums</span><span class="p">)</span> <span class="o">*</span> <span class="n">Minv</span><span class="p">)</span>
+            <span class="n">partB</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">alpha_ratio</span> <span class="o">@</span> <span class="n">tr_tr_sums</span> <span class="o">@</span> <span class="n">alpha_ratio</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">partA</span> <span class="o">+</span> <span class="n">partB</span> <span class="c1">#+ partC</span>
+
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">optim_minimize</span><span class="p">(</span><span class="n">divergence</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div>
+</div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

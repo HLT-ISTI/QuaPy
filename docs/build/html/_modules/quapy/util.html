@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.util &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=22607128"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">quapy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.util</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.util</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+
+
+<span class="k">def</span> <span class="nf">_get_parallel_slices</span><span class="p">(</span><span class="n">n_tasks</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+    <span class="n">batch</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_tasks</span> <span class="o">/</span> <span class="n">n_jobs</span><span class="p">)</span>
+    <span class="n">remainder</span> <span class="o">=</span> <span class="n">n_tasks</span> <span class="o">%</span> <span class="n">n_jobs</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">job</span> <span class="o">*</span> <span class="n">batch</span><span class="p">,</span> <span class="p">(</span><span class="n">job</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">batch</span> <span class="o">+</span> <span class="p">(</span><span class="n">remainder</span> <span class="k">if</span> <span class="n">job</span> <span class="o">==</span> <span class="n">n_jobs</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span><span class="p">))</span> <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)]</span>
+
+
+<div class="viewcode-block" id="map_parallel">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.map_parallel">[docs]</a>
+<span class="k">def</span> <span class="nf">map_parallel</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and n_jobs=2, then</span>
+<span class="sd">    func is applied in two parallel processes to args[0:50] and to args[50:99]. func is a function</span>
+<span class="sd">    that already works with a list of arguments.</span>
+
+<span class="sd">    :param func: function to be parallelized</span>
+<span class="sd">    :param args: array-like of arguments to be passed to the function in different parallel calls</span>
+<span class="sd">    :param n_jobs: the number of workers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">slices</span> <span class="o">=</span> <span class="n">_get_parallel_slices</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="n">n_jobs</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)(</span>
+        <span class="n">delayed</span><span class="p">(</span><span class="n">func</span><span class="p">)(</span><span class="n">args</span><span class="p">[</span><span class="n">slice_i</span><span class="p">])</span> <span class="k">for</span> <span class="n">slice_i</span> <span class="ow">in</span> <span class="n">slices</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">results</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="parallel">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.parallel">[docs]</a>
+<span class="k">def</span> <span class="nf">parallel</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asarray</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;loky&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper of multiprocessing:</span>
+
+<span class="sd">    &gt;&gt;&gt; Parallel(n_jobs=n_jobs)(</span>
+<span class="sd">    &gt;&gt;&gt;      delayed(func)(args_i) for args_i in args</span>
+<span class="sd">    &gt;&gt;&gt; )</span>
+
+<span class="sd">    that takes the `quapy.environ` variable as input silently.</span>
+<span class="sd">    Seeds the child processes to ensure reproducibility when n_jobs&gt;1.</span>
+
+<span class="sd">    :param func: callable</span>
+<span class="sd">    :param args: args of func</span>
+<span class="sd">    :param seed: the numeric seed</span>
+<span class="sd">    :param asarray: set to True to return a np.ndarray instead of a list</span>
+<span class="sd">    :param backend: indicates the backend used for handling parallel works</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">func_dec</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">qp</span><span class="o">.</span><span class="n">environ</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;N_JOBS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1">#set a context with a temporal seed to ensure results are reproducibles in parallel</span>
+        <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    
+    <span class="n">out</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">)(</span>
+        <span class="n">delayed</span><span class="p">(</span><span class="n">func_dec</span><span class="p">)(</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">seed</span><span class="o">+</span><span class="n">i</span><span class="p">,</span> <span class="n">args_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">args_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">asarray</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="temp_seed">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.temp_seed">[docs]</a>
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span> <span class="nf">temp_seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Can be used in a &quot;with&quot; context to set a temporal seed without modifying the outer numpy&#39;s current state. E.g.:</span>
+
+<span class="sd">    &gt;&gt;&gt; with temp_seed(random_seed):</span>
+<span class="sd">    &gt;&gt;&gt;  pass # do any computation depending on np.random functionality</span>
+
+<span class="sd">    :param random_state: the seed to set within the &quot;with&quot; context</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+        <span class="c1">#save the seed just in case is needed (for instance for setting the seed to child processes)</span>
+        <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="download_file">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.download_file">[docs]</a>
+<span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">archive_filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Downloads a file from a url</span>
+
+<span class="sd">    :param url: the url</span>
+<span class="sd">    :param archive_filename: destination filename</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">progress</span><span class="p">(</span><span class="n">blocknum</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="n">total_sz_mb</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1"> MB&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">size</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
+        <span class="n">current_sz_mb</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1"> MB&#39;</span> <span class="o">%</span> <span class="p">((</span><span class="n">blocknum</span> <span class="o">*</span> <span class="n">bs</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">downloaded </span><span class="si">%s</span><span class="s1"> / </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">current_sz_mb</span><span class="p">,</span> <span class="n">total_sz_mb</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+    <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">archive_filename</span><span class="p">,</span> <span class="n">reporthook</span><span class="o">=</span><span class="n">progress</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="download_file_if_not_exists">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.download_file_if_not_exists">[docs]</a>
+<span class="k">def</span> <span class="nf">download_file_if_not_exists</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">archive_filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Dowloads a function (using :meth:`download_file`) if the file does not exist.</span>
+
+<span class="sd">    :param url: the url</span>
+<span class="sd">    :param archive_filename: destination filename</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">archive_filename</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">create_if_not_exist</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">archive_filename</span><span class="p">))</span>
+    <span class="n">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">archive_filename</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_if_not_exist">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.create_if_not_exist">[docs]</a>
+<span class="k">def</span> <span class="nf">create_if_not_exist</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An alias to `os.makedirs(path, exist_ok=True)` that also returns the path. This is useful in cases like, e.g.:</span>
+
+<span class="sd">    &gt;&gt;&gt; path = create_if_not_exist(os.path.join(dir, subdir, anotherdir))</span>
+
+<span class="sd">    :param path: path to create</span>
+<span class="sd">    :return: the path itself</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+
+
+<div class="viewcode-block" id="get_quapy_home">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.get_quapy_home">[docs]</a>
+<span class="k">def</span> <span class="nf">get_quapy_home</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets the home directory of QuaPy, i.e., the directory where QuaPy saves permanent data, such as dowloaded datasets.</span>
+<span class="sd">    This directory is `~/quapy_data`</span>
+
+<span class="sd">    :return: a string representing the path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()),</span> <span class="s1">&#39;quapy_data&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">home</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">home</span></div>
+
+
+
+<div class="viewcode-block" id="create_parent_dir">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.create_parent_dir">[docs]</a>
+<span class="k">def</span> <span class="nf">create_parent_dir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates the parent dir (if any) of a given path, if not exists. E.g., for `./path/to/file.txt`, the path `./path/to`</span>
+<span class="sd">    is created.</span>
+
+<span class="sd">    :param path: the path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parentdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span>
+    <span class="k">if</span> <span class="n">parentdir</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">parentdir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="save_text_file">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.save_text_file">[docs]</a>
+<span class="k">def</span> <span class="nf">save_text_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves a text file to disk, given its full path, and creates the parent directory if missing.</span>
+
+<span class="sd">    :param path: path where to save the path.</span>
+<span class="sd">    :param text: text to save.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">create_parent_dir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="pickled_resource">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.pickled_resource">[docs]</a>
+<span class="k">def</span> <span class="nf">pickled_resource</span><span class="p">(</span><span class="n">pickle_path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">generation_func</span><span class="p">:</span><span class="n">callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Allows for fast reuse of resources that are generated only once by calling generation_func(\\*args). The next times</span>
+<span class="sd">    this function is invoked, it loads the pickled resource. Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; def some_array(n):  # a mock resource created with one parameter (`n`)</span>
+<span class="sd">    &gt;&gt;&gt;     return np.random.rand(n)</span>
+<span class="sd">    &gt;&gt;&gt; pickled_resource(&#39;./my_array.pkl&#39;, some_array, 10)  # the resource does not exist: it is created by calling some_array(10)</span>
+<span class="sd">    &gt;&gt;&gt; pickled_resource(&#39;./my_array.pkl&#39;, some_array, 10)  # the resource exists; it is loaded from &#39;./my_array.pkl&#39;</span>
+
+<span class="sd">    :param pickle_path: the path where to save (first time) and load (next times) the resource</span>
+<span class="sd">    :param generation_func: the function that generates the resource, in case it does not exist in pickle_path</span>
+<span class="sd">    :param args: any arg that generation_func uses for generating the resources</span>
+<span class="sd">    :return: the resource</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">pickle_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">generation_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">pickle_path</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">pickle_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">instance</span> <span class="o">=</span> <span class="n">generation_func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">pickle_path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">pickle_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">),</span> <span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">instance</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_check_sample_size</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">sample_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+            <span class="s1">&#39;error: sample_size set to None, and cannot be resolved from the environment&#39;</span>
+        <span class="n">sample_size</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sample_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> \
+        <span class="s1">&#39;error: sample_size is not a positive integer&#39;</span>
+    <span class="k">return</span> <span class="n">sample_size</span>
+
+
+<div class="viewcode-block" id="EarlyStop">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.EarlyStop">[docs]</a>
+<span class="k">class</span> <span class="nc">EarlyStop</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class implementing the early-stopping condition typically used for training neural networks.</span>
+
+<span class="sd">    &gt;&gt;&gt; earlystop = EarlyStop(patience=2, lower_is_better=True)</span>
+<span class="sd">    &gt;&gt;&gt; earlystop(0.9, epoch=0)</span>
+<span class="sd">    &gt;&gt;&gt; earlystop(0.7, epoch=1)</span>
+<span class="sd">    &gt;&gt;&gt; earlystop.IMPROVED  # is True</span>
+<span class="sd">    &gt;&gt;&gt; earlystop(1.0, epoch=2)</span>
+<span class="sd">    &gt;&gt;&gt; earlystop.STOP  # is False (patience=1)</span>
+<span class="sd">    &gt;&gt;&gt; earlystop(1.0, epoch=3)</span>
+<span class="sd">    &gt;&gt;&gt; earlystop.STOP  # is True (patience=0)</span>
+<span class="sd">    &gt;&gt;&gt; earlystop.best_epoch  # is 1</span>
+<span class="sd">    &gt;&gt;&gt; earlystop.best_score  # is 0.7</span>
+
+<span class="sd">    :param patience: the number of (consecutive) times that a monitored evaluation metric (typically obtaind in a</span>
+<span class="sd">        held-out validation split) can be found to be worse than the best one obtained so far, before flagging the</span>
+<span class="sd">        stopping condition. An instance of this class is `callable`, and is to be used as follows:</span>
+<span class="sd">    :param lower_is_better: if True (default) the metric is to be minimized.</span>
+<span class="sd">    :ivar best_score: keeps track of the best value seen so far</span>
+<span class="sd">    :ivar best_epoch: keeps track of the epoch in which the best score was set</span>
+<span class="sd">    :ivar STOP: flag (boolean) indicating the stopping condition</span>
+<span class="sd">    :ivar IMPROVED: flag (boolean) indicating whether there was an improvement in the last call</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patience</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">PATIENCE_LIMIT</span> <span class="o">=</span> <span class="n">patience</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">better</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">:</span> <span class="n">a</span><span class="o">&lt;</span><span class="n">b</span> <span class="k">if</span> <span class="n">lower_is_better</span> <span class="k">else</span> <span class="n">a</span><span class="o">&gt;</span><span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patience</span> <span class="o">=</span> <span class="n">patience</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_score</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_epoch</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">STOP</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IMPROVED</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">watch_score</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Commits the new score found in epoch `epoch`. If the score improves over the best score found so far, then</span>
+<span class="sd">        the patiente counter gets reset. If otherwise, the patience counter is decreased, and in case it reachs 0,</span>
+<span class="sd">        the flag STOP becomes True.</span>
+
+<span class="sd">        :param watch_score: the new score</span>
+<span class="sd">        :param epoch: the current epoch</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IMPROVED</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">best_score</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">better</span><span class="p">(</span><span class="n">watch_score</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_score</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IMPROVED</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_score</span> <span class="o">=</span> <span class="n">watch_score</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_epoch</span> <span class="o">=</span> <span class="n">epoch</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">patience</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">PATIENCE_LIMIT</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">patience</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">patience</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">STOP</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+
+<div class="viewcode-block" id="timeout">
+<a class="viewcode-back" href="../../quapy.html#quapy.util.timeout">[docs]</a>
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="n">seconds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Opens a context that will launch an exception if not closed after a given number of seconds</span>
+
+<span class="sd">    &gt;&gt;&gt; def func(start_msg, end_msg):</span>
+<span class="sd">    &gt;&gt;&gt;     print(start_msg)</span>
+<span class="sd">    &gt;&gt;&gt;     sleep(2)</span>
+<span class="sd">    &gt;&gt;&gt;     print(end_msg)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; with timeout(1):</span>
+<span class="sd">    &gt;&gt;&gt;     func(&#39;begin function&#39;, &#39;end function&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; Out[]</span>
+<span class="sd">    &gt;&gt;&gt; begin function</span>
+<span class="sd">    &gt;&gt;&gt; TimeoutError</span>
+
+
+<span class="sd">    :param seconds: number of seconds, set to &lt;=0 to ignore the timer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">seconds</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">()</span>
+
+        <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGALRM</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+
+    <span class="k">yield</span>
+
+    <span class="k">if</span> <span class="n">seconds</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">signal</span><span class="o">.</span><span class="n">alarm</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

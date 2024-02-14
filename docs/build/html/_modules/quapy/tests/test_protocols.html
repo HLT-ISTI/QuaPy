@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.tests.test_protocols &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=22607128"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">quapy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.tests.test_protocols</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.tests.test_protocols</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">quapy.functional</span>
+<span class="kn">from</span> <span class="nn">quapy.data</span> <span class="kn">import</span> <span class="n">LabelledCollection</span>
+<span class="kn">from</span> <span class="nn">quapy.protocol</span> <span class="kn">import</span> <span class="n">APP</span><span class="p">,</span> <span class="n">NPP</span><span class="p">,</span> <span class="n">UPP</span><span class="p">,</span> <span class="n">DomainMixer</span><span class="p">,</span> <span class="n">AbstractStochasticSeededProtocol</span>
+
+
+<div class="viewcode-block" id="mock_labelled_collection">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.mock_labelled_collection">[docs]</a>
+<span class="k">def</span> <span class="nf">mock_labelled_collection</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">250</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">250</span> <span class="o">+</span> <span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="mi">250</span> <span class="o">+</span> <span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="mi">250</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">yi</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">yi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">y</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)))</span></div>
+
+
+
+<div class="viewcode-block" id="samples_to_str">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.samples_to_str">[docs]</a>
+<span class="k">def</span> <span class="nf">samples_to_str</span><span class="p">(</span><span class="n">protocol</span><span class="p">):</span>
+    <span class="n">samples_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">instances</span><span class="p">,</span> <span class="n">prev</span> <span class="ow">in</span> <span class="n">protocol</span><span class="p">():</span>
+        <span class="n">samples_str</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">instances</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">prev</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="n">samples_str</span></div>
+
+
+
+<div class="viewcode-block" id="TestProtocols">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols">[docs]</a>
+<span class="k">class</span> <span class="nc">TestProtocols</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="TestProtocols.test_app_sanity_check">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_app_sanity_check">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_app_sanity_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">()</span>
+        <span class="n">n_prevpoints</span> <span class="o">=</span> <span class="mi">101</span>
+        <span class="n">repeats</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_prevalences</span><span class="o">=</span><span class="n">n_prevpoints</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="n">repeats</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+        <span class="n">n_combinations</span> <span class="o">=</span> \
+            <span class="n">quapy</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="n">repeats</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_prevalences</span><span class="o">=</span><span class="n">n_prevpoints</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="n">n_combinations</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_prevalences</span><span class="o">=</span><span class="n">n_prevpoints</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestProtocols.test_app_replicate">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_app_replicate">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_app_replicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_prevalences</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_prevalences</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>  <span class="c1"># &lt;- random_state is by default set to 0</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestProtocols.test_app_not_replicate">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_app_not_replicate">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_app_not_replicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_prevalences</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_prevalences</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_prevalences</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestProtocols.test_app_number">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_app_number">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_app_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">n_prevalences</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># surprisingly enough, for some n_prevalences the test fails, notwithstanding</span>
+        <span class="c1"># everything is correct. The problem is that in function APP.prevalence_grid()</span>
+        <span class="c1"># there is sometimes one rounding error that gets cumulated and</span>
+        <span class="c1"># surpasses 1.0 (by a very small float value, 0.0000000000002 or sthe like)</span>
+        <span class="c1"># so these tuples are mistakenly removed... I have tried with np.close, and</span>
+        <span class="c1"># other workarounds, but eventually happens that there is some negative probability</span>
+        <span class="c1"># in the sampling function...</span>
+
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">p</span><span class="p">():</span>
+            <span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">total</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="TestProtocols.test_npp_replicate">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_npp_replicate">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_npp_replicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">NPP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">NPP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># &lt;- random_state is by default set to 0</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestProtocols.test_npp_not_replicate">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_npp_not_replicate">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_npp_not_replicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">NPP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">NPP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">NPP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestProtocols.test_kraemer_replicate">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_kraemer_replicate">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_kraemer_replicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">UPP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">UPP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># &lt;- random_state is by default set to 0</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestProtocols.test_kraemer_not_replicate">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_kraemer_not_replicate">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_kraemer_not_replicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">UPP</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestProtocols.test_covariate_shift_replicate">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_covariate_shift_replicate">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_covariate_shift_replicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dataA</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">(</span><span class="s1">&#39;domA&#39;</span><span class="p">)</span>
+        <span class="n">dataB</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">(</span><span class="s1">&#39;domB&#39;</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">DomainMixer</span><span class="p">(</span><span class="n">dataA</span><span class="p">,</span> <span class="n">dataB</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mixture_points</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">DomainMixer</span><span class="p">(</span><span class="n">dataA</span><span class="p">,</span> <span class="n">dataB</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mixture_points</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>  <span class="c1"># &lt;- random_state is by default set to 0</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestProtocols.test_covariate_shift_not_replicate">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_covariate_shift_not_replicate">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_covariate_shift_not_replicate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">dataA</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">(</span><span class="s1">&#39;domA&#39;</span><span class="p">)</span>
+        <span class="n">dataB</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">(</span><span class="s1">&#39;domB&#39;</span><span class="p">)</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">DomainMixer</span><span class="p">(</span><span class="n">dataA</span><span class="p">,</span> <span class="n">dataB</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">mixture_points</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">samples1</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">samples2</span> <span class="o">=</span> <span class="n">samples_to_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">samples1</span><span class="p">,</span> <span class="n">samples2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TestProtocols.test_no_seed_init">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_protocols.TestProtocols.test_no_seed_init">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_no_seed_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">class</span> <span class="nc">NoSeedInit</span><span class="p">(</span><span class="n">AbstractStochasticSeededProtocol</span><span class="p">):</span>
+            <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">mock_labelled_collection</span><span class="p">()</span>
+
+            <span class="k">def</span> <span class="nf">samples_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="c1"># return a matrix containing sampling indexes in the rows</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="mi">10</span><span class="o">*</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">NoSeedInit</span><span class="p">()</span>
+
+        <span class="c1"># this should raise a ValueError, since the class is said to be AbstractStochasticSeededProtocol but the</span>
+        <span class="c1"># random_seed has never been passed to super(NoSeedInit, self).__init__(random_seed)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">p</span><span class="p">():</span>
+                <span class="k">pass</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;done&#39;</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

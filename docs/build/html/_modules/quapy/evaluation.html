@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.evaluation &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=22607128"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">quapy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.evaluation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.evaluation</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.protocol</span> <span class="kn">import</span> <span class="n">AbstractProtocol</span><span class="p">,</span> <span class="n">OnLabelledCollectionProtocol</span><span class="p">,</span> <span class="n">IterateProtocol</span>
+<span class="kn">from</span> <span class="nn">quapy.method.base</span> <span class="kn">import</span> <span class="n">BaseQuantifier</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+
+<div class="viewcode-block" id="prediction">
+<a class="viewcode-back" href="../../quapy.html#quapy.evaluation.prediction">[docs]</a>
+<span class="k">def</span> <span class="nf">prediction</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span>
+        <span class="n">protocol</span><span class="p">:</span> <span class="n">AbstractProtocol</span><span class="p">,</span>
+        <span class="n">aggr_speedup</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Uses a quantification model to generate predictions for the samples generated via a specific protocol.</span>
+<span class="sd">    This function is central to all evaluation processes, and is endowed with an optimization to speed-up the</span>
+<span class="sd">    prediction of protocols that generate samples from a large collection. The optimization applies to aggregative</span>
+<span class="sd">    quantifiers only, and to OnLabelledCollectionProtocol protocols, and comes down to generating the classification</span>
+<span class="sd">    predictions once and for all, and then generating samples over the classification predictions (instead of over</span>
+<span class="sd">    the raw instances), so that the classifier prediction is never called again. This behaviour is obtained by</span>
+<span class="sd">    setting `aggr_speedup` to &#39;auto&#39; or True, and is only carried out if the overall process is convenient in terms</span>
+<span class="sd">    of computations (e.g., if the number of classification predictions needed for the original collection exceed the</span>
+<span class="sd">    number of classification predictions needed for all samples, then the optimization is not undertaken).</span>
+
+<span class="sd">    :param model: a quantifier, instance of :class:`quapy.method.base.BaseQuantifier`</span>
+<span class="sd">    :param protocol: :class:`quapy.protocol.AbstractProtocol`; if this object is also instance of</span>
+<span class="sd">        :class:`quapy.protocol.OnLabelledCollectionProtocol`, then the aggregation speed-up can be run. This is the protocol</span>
+<span class="sd">        in charge of generating the samples for which the model has to issue class prevalence predictions.</span>
+<span class="sd">    :param aggr_speedup: whether or not to apply the speed-up. Set to &quot;force&quot; for applying it even if the number of</span>
+<span class="sd">        instances in the original collection on which the protocol acts is larger than the number of instances</span>
+<span class="sd">        in the samples to be generated. Set to True or &quot;auto&quot; (default) for letting QuaPy decide whether it is</span>
+<span class="sd">        convenient or not. Set to False to deactivate.</span>
+<span class="sd">    :param verbose: boolean, show or not information in stdout</span>
+<span class="sd">    :return: a tuple `(true_prevs, estim_prevs)` in which each element in the tuple is an array of shape</span>
+<span class="sd">        `(n_samples, n_classes)` containing the true, or predicted, prevalence values for each sample</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">aggr_speedup</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">],</span> <span class="s1">&#39;invalid value for aggr_speedup&#39;</span>
+
+    <span class="n">sout</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="n">apply_optimization</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">if</span> <span class="n">aggr_speedup</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="s1">&#39;force&#39;</span><span class="p">]:</span>
+        <span class="c1"># checks whether the prediction can be made more efficiently; this check consists in verifying if the model is</span>
+        <span class="c1"># of type aggregative, if the protocol is based on LabelledCollection, and if the total number of documents to</span>
+        <span class="c1"># classify using the protocol would exceed the number of test documents in the original collection</span>
+        <span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">AggregativeQuantifier</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">AggregativeQuantifier</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">OnLabelledCollectionProtocol</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">aggr_speedup</span> <span class="o">==</span> <span class="s1">&#39;force&#39;</span><span class="p">:</span>
+                <span class="n">apply_optimization</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;forcing aggregative speedup&#39;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="s1">&#39;sample_size&#39;</span><span class="p">):</span>
+                <span class="n">nD</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">protocol</span><span class="o">.</span><span class="n">get_labelled_collection</span><span class="p">())</span>
+                <span class="n">samplesD</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">total</span><span class="p">()</span> <span class="o">*</span> <span class="n">protocol</span><span class="o">.</span><span class="n">sample_size</span>
+                <span class="k">if</span> <span class="n">nD</span> <span class="o">&lt;</span> <span class="n">samplesD</span><span class="p">:</span>
+                    <span class="n">apply_optimization</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;speeding up the prediction for the aggregative quantifier, &#39;</span>
+                         <span class="sa">f</span><span class="s1">&#39;total classifications </span><span class="si">{</span><span class="n">nD</span><span class="si">}</span><span class="s1"> instead of </span><span class="si">{</span><span class="n">samplesD</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">apply_optimization</span><span class="p">:</span>
+        <span class="n">pre_classified</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">protocol</span><span class="o">.</span><span class="n">get_labelled_collection</span><span class="p">()</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+        <span class="n">protocol_with_predictions</span> <span class="o">=</span> <span class="n">protocol</span><span class="o">.</span><span class="n">on_preclassified_instances</span><span class="p">(</span><span class="n">pre_classified</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">__prediction_helper</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">aggregate</span><span class="p">,</span> <span class="n">protocol_with_predictions</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">__prediction_helper</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">,</span> <span class="n">protocol</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">__prediction_helper</span><span class="p">(</span><span class="n">quantification_fn</span><span class="p">,</span> <span class="n">protocol</span><span class="p">:</span> <span class="n">AbstractProtocol</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sample_instances</span><span class="p">,</span> <span class="n">sample_prev</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">protocol</span><span class="p">(),</span> <span class="n">total</span><span class="o">=</span><span class="n">protocol</span><span class="o">.</span><span class="n">total</span><span class="p">(),</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;predicting&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="n">protocol</span><span class="p">():</span>
+        <span class="n">estim_prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantification_fn</span><span class="p">(</span><span class="n">sample_instances</span><span class="p">))</span>
+        <span class="n">true_prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sample_prev</span><span class="p">)</span>
+
+    <span class="n">true_prevs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">true_prevs</span><span class="p">)</span>
+    <span class="n">estim_prevs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">estim_prevs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span>
+
+
+<div class="viewcode-block" id="evaluation_report">
+<a class="viewcode-back" href="../../quapy.html#quapy.evaluation.evaluation_report">[docs]</a>
+<span class="k">def</span> <span class="nf">evaluation_report</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span>
+                      <span class="n">protocol</span><span class="p">:</span> <span class="n">AbstractProtocol</span><span class="p">,</span>
+                      <span class="n">error_metrics</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="n">Callable</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;mae&#39;</span><span class="p">,</span>
+                      <span class="n">aggr_speedup</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+                      <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a report (a pandas&#39; DataFrame) containing information of the evaluation of the model as according</span>
+<span class="sd">    to a specific protocol and in terms of one or more evaluation metrics (errors).</span>
+
+
+<span class="sd">    :param model: a quantifier, instance of :class:`quapy.method.base.BaseQuantifier`</span>
+<span class="sd">    :param protocol: :class:`quapy.protocol.AbstractProtocol`; if this object is also instance of</span>
+<span class="sd">        :class:`quapy.protocol.OnLabelledCollectionProtocol`, then the aggregation speed-up can be run. This is the protocol</span>
+<span class="sd">        in charge of generating the samples in which the model is evaluated.</span>
+<span class="sd">    :param error_metrics: a string, or list of strings, representing the name(s) of an error function in `qp.error`</span>
+<span class="sd">        (e.g., &#39;mae&#39;, the default value), or a callable function, or a list of callable functions, implementing</span>
+<span class="sd">        the error function itself.</span>
+<span class="sd">    :param aggr_speedup: whether or not to apply the speed-up. Set to &quot;force&quot; for applying it even if the number of</span>
+<span class="sd">        instances in the original collection on which the protocol acts is larger than the number of instances</span>
+<span class="sd">        in the samples to be generated. Set to True or &quot;auto&quot; (default) for letting QuaPy decide whether it is</span>
+<span class="sd">        convenient or not. Set to False to deactivate.</span>
+<span class="sd">    :param verbose: boolean, show or not information in stdout</span>
+<span class="sd">    :return: a pandas&#39; DataFrame containing the columns &#39;true-prev&#39; (the true prevalence of each sample),</span>
+<span class="sd">        &#39;estim-prev&#39; (the prevalence estimated by the model for each sample), and as many columns as error metrics</span>
+<span class="sd">        have been indicated, each displaying the score in terms of that metric for every sample.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">protocol</span><span class="p">,</span> <span class="n">aggr_speedup</span><span class="o">=</span><span class="n">aggr_speedup</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_prevalence_report</span><span class="p">(</span><span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">error_metrics</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_prevalence_report</span><span class="p">(</span><span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">error_metrics</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]]</span> <span class="o">=</span> <span class="s1">&#39;mae&#39;</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error_metrics</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">error_metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">error_metrics</span><span class="p">]</span>
+
+    <span class="n">error_funcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">error_metrics</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;__call__&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">error_funcs</span><span class="p">),</span> <span class="s1">&#39;invalid error functions&#39;</span>
+    <span class="n">error_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">error_funcs</span><span class="p">]</span>
+
+    <span class="n">row_entries</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">):</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;true-prev&#39;</span><span class="p">:</span> <span class="n">true_prev</span><span class="p">,</span> <span class="s1">&#39;estim-prev&#39;</span><span class="p">:</span> <span class="n">estim_prev</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">error_name</span><span class="p">,</span> <span class="n">error_metric</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">error_names</span><span class="p">,</span> <span class="n">error_funcs</span><span class="p">):</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">error_metric</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">)</span>
+            <span class="n">series</span><span class="p">[</span><span class="n">error_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+        <span class="n">row_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">series</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">row_entries</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<div class="viewcode-block" id="evaluate">
+<a class="viewcode-back" href="../../quapy.html#quapy.evaluation.evaluate">[docs]</a>
+<span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span>
+        <span class="n">protocol</span><span class="p">:</span> <span class="n">AbstractProtocol</span><span class="p">,</span>
+        <span class="n">error_metric</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
+        <span class="n">aggr_speedup</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluates a quantification model according to a specific sample generation protocol and in terms of one</span>
+<span class="sd">    evaluation metric (error).</span>
+
+<span class="sd">    :param model: a quantifier, instance of :class:`quapy.method.base.BaseQuantifier`</span>
+<span class="sd">    :param protocol: :class:`quapy.protocol.AbstractProtocol`; if this object is also instance of</span>
+<span class="sd">        :class:`quapy.protocol.OnLabelledCollectionProtocol`, then the aggregation speed-up can be run. This is the</span>
+<span class="sd">        protocol in charge of generating the samples in which the model is evaluated.</span>
+<span class="sd">    :param error_metric: a string representing the name(s) of an error function in `qp.error`</span>
+<span class="sd">        (e.g., &#39;mae&#39;), or a callable function implementing the error function itself.</span>
+<span class="sd">    :param aggr_speedup: whether or not to apply the speed-up. Set to &quot;force&quot; for applying it even if the number of</span>
+<span class="sd">        instances in the original collection on which the protocol acts is larger than the number of instances</span>
+<span class="sd">        in the samples to be generated. Set to True or &quot;auto&quot; (default) for letting QuaPy decide whether it is</span>
+<span class="sd">        convenient or not. Set to False to deactivate.</span>
+<span class="sd">    :param verbose: boolean, show or not information in stdout</span>
+<span class="sd">    :return: if the error metric is not averaged (e.g., &#39;ae&#39;, &#39;rae&#39;), returns an array of shape `(n_samples,)` with</span>
+<span class="sd">        the error scores for each sample; if the error metric is averaged (e.g., &#39;mae&#39;, &#39;mrae&#39;) then returns</span>
+<span class="sd">        a single float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error_metric</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">error_metric</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">error_metric</span><span class="p">)</span>
+    <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span> <span class="o">=</span> <span class="n">prediction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">protocol</span><span class="p">,</span> <span class="n">aggr_speedup</span><span class="o">=</span><span class="n">aggr_speedup</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">error_metric</span><span class="p">(</span><span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="evaluate_on_samples">
+<a class="viewcode-back" href="../../quapy.html#quapy.evaluation.evaluate_on_samples">[docs]</a>
+<span class="k">def</span> <span class="nf">evaluate_on_samples</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span>
+        <span class="n">samples</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">LabelledCollection</span><span class="p">],</span>
+        <span class="n">error_metric</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluates a quantification model on a given set of samples and in terms of one evaluation metric (error).</span>
+
+<span class="sd">    :param model: a quantifier, instance of :class:`quapy.method.base.BaseQuantifier`</span>
+<span class="sd">    :param samples: a list of samples on which the quantifier is to be evaluated</span>
+<span class="sd">    :param error_metric: a string representing the name(s) of an error function in `qp.error`</span>
+<span class="sd">        (e.g., &#39;mae&#39;), or a callable function implementing the error function itself.</span>
+<span class="sd">    :param verbose: boolean, show or not information in stdout</span>
+<span class="sd">    :return: if the error metric is not averaged (e.g., &#39;ae&#39;, &#39;rae&#39;), returns an array of shape `(n_samples,)` with</span>
+<span class="sd">        the error scores for each sample; if the error metric is averaged (e.g., &#39;mae&#39;, &#39;mrae&#39;) then returns</span>
+<span class="sd">        a single float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">IterateProtocol</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span> <span class="n">error_metric</span><span class="p">,</span> <span class="n">aggr_speedup</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+
+
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

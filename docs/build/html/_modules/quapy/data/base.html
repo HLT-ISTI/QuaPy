@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.data.base &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=22607128"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">quapy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.data.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.data.base</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">issparse</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">vstack</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span><span class="p">,</span> <span class="n">RepeatedStratifiedKFold</span>
+<span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">RandomState</span>
+<span class="kn">from</span> <span class="nn">quapy.functional</span> <span class="kn">import</span> <span class="n">strprev</span>
+<span class="kn">from</span> <span class="nn">quapy.util</span> <span class="kn">import</span> <span class="n">temp_seed</span>
+
+
+<div class="viewcode-block" id="LabelledCollection">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection">[docs]</a>
+<span class="k">class</span> <span class="nc">LabelledCollection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A LabelledCollection is a set of objects each with a label attached to each of them. </span>
+<span class="sd">    This class implements several sampling routines and other utilities.</span>
+<span class="sd">    </span>
+<span class="sd">    :param instances: array-like (np.ndarray, list, or csr_matrix are supported)</span>
+<span class="sd">    :param labels: array-like with the same length of instances</span>
+<span class="sd">    :param classes: optional, list of classes from which labels are taken. If not specified, the classes are inferred</span>
+<span class="sd">        from the labels. The classes must be indicated in cases in which some of the labels might have no examples</span>
+<span class="sd">        (i.e., a prevalence of 0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">instances</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">instances</span> <span class="o">=</span> <span class="n">instances</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instances</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># lists of strings occupy too much as ndarrays (although python-objects add a heavy overload)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">instances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">instances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">n_docs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">classes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">classes</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">classes</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;labels (</span><span class="si">{</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span><span class="si">}</span><span class="s1">) contain values not included in classes_ (</span><span class="si">{</span><span class="nb">set</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="p">{</span><span class="n">class_</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_docs</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">==</span> <span class="n">class_</span><span class="p">]</span> <span class="k">for</span> <span class="n">class_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">}</span>
+
+<div class="viewcode-block" id="LabelledCollection.load">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.load">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">loader_func</span><span class="p">:</span> <span class="n">callable</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">loader_kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads a labelled set of data and convert it into a :class:`LabelledCollection` instance. The function in charge</span>
+<span class="sd">        of reading the instances must be specified. This function can be a custom one, or any of the reading functions</span>
+<span class="sd">        defined in :mod:`quapy.data.reader` module.</span>
+
+<span class="sd">        :param path: string, the path to the file containing the labelled instances</span>
+<span class="sd">        :param loader_func: a custom function that implements the data loader and returns a tuple with instances and</span>
+<span class="sd">            labels</span>
+<span class="sd">        :param classes: array-like, the classes according to which the instances are labelled</span>
+<span class="sd">        :param loader_kwargs: any argument that the `loader_func` function needs in order to read the instances, i.e.,</span>
+<span class="sd">            these arguments are used to call `loader_func(path, **loader_kwargs)`</span>
+<span class="sd">        :return: a :class:`LabelledCollection` object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="o">*</span><span class="n">loader_func</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">loader_kwargs</span><span class="p">),</span> <span class="n">classes</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the length of this collection (number of labelled instances)</span>
+
+<span class="sd">        :return: integer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="LabelledCollection.prevalence">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.prevalence">[docs]</a>
+    <span class="k">def</span> <span class="nf">prevalence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the prevalence, or relative frequency, of the classes in the codeframe.</span>
+
+<span class="sd">        :return: a np.ndarray of shape `(n_classes)` with the relative frequencies of each class, in the same order</span>
+<span class="sd">            as listed by `self.classes_`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LabelledCollection.counts">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.counts">[docs]</a>
+    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of instances for each of the classes in the codeframe.</span>
+
+<span class="sd">        :return: a np.ndarray of shape `(n_classes)` with the number of instances of each class, in the same order</span>
+<span class="sd">            as listed by `self.classes_`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">class_</span><span class="p">])</span> <span class="k">for</span> <span class="n">class_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">])</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The number of classes</span>
+
+<span class="sd">        :return: integer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">binary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if the number of classes is 2</span>
+
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span> <span class="o">==</span> <span class="mi">2</span>
+
+<div class="viewcode-block" id="LabelledCollection.sampling_index">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.sampling_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">sampling_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="o">*</span><span class="n">prevs</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an index to be used to extract a random sample of desired size and desired prevalence values. If the</span>
+<span class="sd">        prevalence values are not specified, then returns the index of a uniform sampling.</span>
+<span class="sd">        For each class, the sampling is drawn with replacement if the requested prevalence is larger than</span>
+<span class="sd">        the actual prevalence of the class, or without replacement otherwise.</span>
+
+<span class="sd">        :param size: integer, the requested size</span>
+<span class="sd">        :param prevs: the prevalence for each class; the prevalence value for the last class can be lead empty since</span>
+<span class="sd">            it is constrained. E.g., for binary collections, only the prevalence `p` for the first class (as listed in</span>
+<span class="sd">            `self.classes_` can be specified, while the other class takes prevalence value `1-p`</span>
+<span class="sd">        :param shuffle: if set to True (default), shuffles the index before returning it</span>
+<span class="sd">        :param random_state: seed for reproducing sampling</span>
+<span class="sd">        :return: a np.ndarray of shape `(size)` with the indexes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">prevs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># no prevalence was indicated; returns an index for uniform sampling</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniform_sampling_index</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">prevs</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">prevs</span> <span class="o">=</span> <span class="n">prevs</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">prevs</span><span class="p">),)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">prevs</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="s1">&#39;unexpected number of prevalences&#39;</span>
+        <span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="n">prevs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;prevalences (</span><span class="si">{</span><span class="n">prevs</span><span class="si">}</span><span class="s1">) wrong range (sum=</span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">prevs</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span>
+
+        <span class="c1"># Decide how many instances should be taken for each class in order to satisfy the requested prevalence</span>
+        <span class="c1"># accurately, and the number of instances in the sample (exactly). If int(size * prevs[i]) (which is</span>
+        <span class="c1"># &lt;= size * prevs[i]) examples are drawn from class i, there could be a remainder number of instances to take</span>
+        <span class="c1"># to satisfy the size constrain. The remainder is distributed along the classes with probability = prevs.</span>
+        <span class="c1"># (This aims at avoiding the remainder to be placed in a class for which the prevalence requested is 0.)</span>
+        <span class="n">n_requests</span> <span class="o">=</span> <span class="p">{</span><span class="n">class_</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">size</span> <span class="o">*</span> <span class="n">prevs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">class_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)}</span>
+        <span class="n">remainder</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">n_requests</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="k">with</span> <span class="n">temp_seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">):</span>
+            <span class="c1"># due to rounding, the remainder can be 0, &gt;0, or &lt;0</span>
+            <span class="k">if</span> <span class="n">remainder</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># when the remainder is &gt;0 we randomly add 1 to the requests for each class;</span>
+                <span class="c1"># more prevalent classes are more likely to be taken in order to minimize the impact in the final prevalence</span>
+                <span class="k">for</span> <span class="n">rand_class</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">remainder</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">prevs</span><span class="p">):</span>
+                    <span class="n">n_requests</span><span class="p">[</span><span class="n">rand_class</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">remainder</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># when the remainder is &lt;0 we randomly remove 1 from the requests, unless the request is 0 for a chosen</span>
+                <span class="c1"># class; we repeat until remainder==0</span>
+                <span class="k">while</span> <span class="n">remainder</span><span class="o">!=</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="n">rand_class</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">prevs</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">n_requests</span><span class="p">[</span><span class="n">rand_class</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">n_requests</span><span class="p">[</span><span class="n">rand_class</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+                        <span class="n">remainder</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="n">indexes_sample</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">class_</span><span class="p">,</span> <span class="n">n_requested</span> <span class="ow">in</span> <span class="n">n_requests</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">n_candidates</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">class_</span><span class="p">])</span>
+                <span class="n">index_sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">class_</span><span class="p">][</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">n_candidates</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_requested</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="p">(</span><span class="n">n_requested</span> <span class="o">&gt;</span> <span class="n">n_candidates</span><span class="p">))</span>
+                <span class="p">]</span> <span class="k">if</span> <span class="n">n_requested</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">[]</span>
+
+                <span class="n">indexes_sample</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index_sample</span><span class="p">)</span>
+
+            <span class="n">indexes_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">indexes_sample</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">shuffle</span><span class="p">:</span>
+                <span class="n">indexes_sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">indexes_sample</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">indexes_sample</span></div>
+
+
+<div class="viewcode-block" id="LabelledCollection.uniform_sampling_index">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.uniform_sampling_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">uniform_sampling_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an index to be used to extract a uniform sample of desired size. The sampling is drawn</span>
+<span class="sd">        with replacement if the requested size is greater than the number of instances, or without replacement</span>
+<span class="sd">        otherwise.</span>
+
+<span class="sd">        :param size: integer, the size of the uniform sample</span>
+<span class="sd">        :param random_state: if specified, guarantees reproducibility of the split.</span>
+<span class="sd">        :return: a np.ndarray of shape `(size)` with the indexes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ng</span> <span class="o">=</span> <span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span>
+        <span class="k">return</span> <span class="n">ng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">size</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="n">size</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="LabelledCollection.sampling">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.sampling">[docs]</a>
+    <span class="k">def</span> <span class="nf">sampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="o">*</span><span class="n">prevs</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a random sample (an instance of :class:`LabelledCollection`) of desired size and desired prevalence</span>
+<span class="sd">        values. For each class, the sampling is drawn without replacement if the requested prevalence is larger than</span>
+<span class="sd">        the actual prevalence of the class, or with replacement otherwise.</span>
+
+<span class="sd">        :param size: integer, the requested size</span>
+<span class="sd">        :param prevs: the prevalence for each class; the prevalence value for the last class can be lead empty since</span>
+<span class="sd">            it is constrained. E.g., for binary collections, only the prevalence `p` for the first class (as listed in</span>
+<span class="sd">            `self.classes_` can be specified, while the other class takes prevalence value `1-p`</span>
+<span class="sd">        :param shuffle: if set to True (default), shuffles the index before returning it</span>
+<span class="sd">        :param random_state: seed for reproducing sampling</span>
+<span class="sd">        :return: an instance of :class:`LabelledCollection` with length == `size` and prevalence close to `prevs` (or</span>
+<span class="sd">            prevalence == `prevs` if the exact prevalence values can be met as proportions of instances)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prev_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_index</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="o">*</span><span class="n">prevs</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">prev_index</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LabelledCollection.uniform_sampling">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.uniform_sampling">[docs]</a>
+    <span class="k">def</span> <span class="nf">uniform_sampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a uniform sample (an instance of :class:`LabelledCollection`) of desired size. The sampling is drawn</span>
+<span class="sd">        with replacement if the requested size is greater than the number of instances, or without replacement</span>
+<span class="sd">        otherwise.</span>
+
+<span class="sd">        :param size: integer, the requested size</span>
+<span class="sd">        :param random_state: if specified, guarantees reproducibility of the split.</span>
+<span class="sd">        :return: an instance of :class:`LabelledCollection` with length == `size`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unif_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uniform_sampling_index</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">unif_index</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LabelledCollection.sampling_from_index">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.sampling_from_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">sampling_from_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an instance of :class:`LabelledCollection` whose elements are sampled from this collection using the</span>
+<span class="sd">        index.</span>
+
+<span class="sd">        :param index: np.ndarray</span>
+<span class="sd">        :return: an instance of :class:`LabelledCollection`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">documents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">documents</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LabelledCollection.split_stratified">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.split_stratified">[docs]</a>
+    <span class="k">def</span> <span class="nf">split_stratified</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_prop</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns two instances of :class:`LabelledCollection` split with stratification from this collection, at desired</span>
+<span class="sd">        proportion.</span>
+
+<span class="sd">        :param train_prop: the proportion of elements to include in the left-most returned collection (typically used</span>
+<span class="sd">            as the training collection). The rest of elements are included in the right-most returned collection</span>
+<span class="sd">            (typically used as a test collection).</span>
+<span class="sd">        :param random_state: if specified, guarantees reproducibility of the split.</span>
+<span class="sd">        :return: two instances of :class:`LabelledCollection`, the first one with `train_prop` elements, and the</span>
+<span class="sd">            second one with `1-train_prop` elements</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tr_docs</span><span class="p">,</span> <span class="n">te_docs</span><span class="p">,</span> <span class="n">tr_labels</span><span class="p">,</span> <span class="n">te_labels</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="n">train_prop</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span>
+        <span class="p">)</span>
+        <span class="n">training</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">tr_docs</span><span class="p">,</span> <span class="n">tr_labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">te_docs</span><span class="p">,</span> <span class="n">te_labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">training</span><span class="p">,</span> <span class="n">test</span></div>
+
+
+<div class="viewcode-block" id="LabelledCollection.split_random">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.split_random">[docs]</a>
+    <span class="k">def</span> <span class="nf">split_random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_prop</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns two instances of :class:`LabelledCollection` split randomly from this collection, at desired</span>
+<span class="sd">        proportion.</span>
+
+<span class="sd">        :param train_prop: the proportion of elements to include in the left-most returned collection (typically used</span>
+<span class="sd">            as the training collection). The rest of elements are included in the right-most returned collection</span>
+<span class="sd">            (typically used as a test collection).</span>
+<span class="sd">        :param random_state: if specified, guarantees reproducibility of the split.</span>
+<span class="sd">        :return: two instances of :class:`LabelledCollection`, the first one with `train_prop` elements, and the</span>
+<span class="sd">            second one with `1-train_prop` elements</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_prop</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">train_prop</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> \
+                <span class="s1">&#39;argument train_prop cannot be greater than the number of elements in the collection&#39;</span>
+            <span class="n">splitpoint</span> <span class="o">=</span> <span class="n">train_prop</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">train_prop</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">train_prop</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> \
+                <span class="s1">&#39;argument train_prop out of range (0,1)&#39;</span>
+            <span class="n">splitpoint</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">*</span><span class="n">train_prop</span><span class="p">))</span>
+        <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">indexes</span><span class="p">[:</span><span class="n">splitpoint</span><span class="p">],</span> <span class="n">indexes</span><span class="p">[</span><span class="n">splitpoint</span><span class="p">:]</span>
+        <span class="n">training</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">training</span><span class="p">,</span> <span class="n">test</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a new :class:`LabelledCollection` as the union of this collection with another collection.</span>
+<span class="sd">        Both labelled collections must have the same classes.</span>
+
+<span class="sd">        :param other: another :class:`LabelledCollection`</span>
+<span class="sd">        :return: a :class:`LabelledCollection` representing the union of both collections</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span><span class="o">==</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">classes_</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unsupported operation for collections on different classes; &#39;</span>
+                                      <span class="sa">f</span><span class="s1">&#39;expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="si">}</span><span class="s1">, found </span><span class="si">{</span><span class="n">other</span><span class="o">.</span><span class="n">classes_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LabelledCollection</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LabelledCollection.join">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.join">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="s1">&#39;LabelledCollection&#39;</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a new :class:`LabelledCollection` as the union of the collections given in input.</span>
+
+<span class="sd">        :param args: instances of :class:`LabelledCollection`</span>
+<span class="sd">        :return: a :class:`LabelledCollection` representing the union of both collections</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">lc</span> <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">lc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;empty list is not allowed for mix&#39;</span>
+
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">lc</span><span class="p">,</span> <span class="n">LabelledCollection</span><span class="p">)</span> <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]),</span> \
+            <span class="s1">&#39;only instances of LabelledCollection allowed&#39;</span>
+
+        <span class="n">first_instances</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">instances</span>
+        <span class="n">first_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">first_instances</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="nb">type</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span><span class="o">==</span><span class="n">first_type</span> <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]),</span> \
+            <span class="s1">&#39;not all the collections are of instances of the same type&#39;</span>
+
+        <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">first_instances</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first_instances</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">first_ndim</span> <span class="o">=</span> <span class="n">first_instances</span><span class="o">.</span><span class="n">ndim</span>
+            <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="n">lc</span><span class="o">.</span><span class="n">instances</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="n">first_ndim</span> <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]),</span> \
+                <span class="s1">&#39;not all the ndarrays are of the same dimension&#39;</span>
+            <span class="k">if</span> <span class="n">first_ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">first_shape</span> <span class="o">=</span> <span class="n">first_instances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                <span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="n">lc</span><span class="o">.</span><span class="n">instances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">==</span> <span class="n">first_shape</span> <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]),</span> \
+                    <span class="s1">&#39;not all the ndarrays are of the same shape&#39;</span>
+            <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">first_instances</span><span class="p">):</span>
+                <span class="n">instances</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">([</span><span class="n">lc</span><span class="o">.</span><span class="n">instances</span> <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">instances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">lc</span><span class="o">.</span><span class="n">instances</span> <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first_instances</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">instances</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">lc</span><span class="o">.</span><span class="n">instances</span> <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">args</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;unsupported operation for collection types&#39;</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">lc</span><span class="o">.</span><span class="n">labels</span> <span class="k">for</span> <span class="n">lc</span> <span class="ow">in</span> <span class="n">args</span><span class="p">])</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Xy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the instances and labels. This is useful when working with `sklearn` estimators, e.g.:</span>
+
+<span class="sd">        &gt;&gt;&gt; svm = LinearSVC().fit(*my_collection.Xy)</span>
+
+<span class="sd">        :return: a tuple `(instances, labels)` from this collection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">Xp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the instances and the true prevalence. This is useful when implementing evaluation protocols from</span>
+<span class="sd">        a :class:`LabelledCollection` object.</span>
+
+<span class="sd">        :return: a tuple `(instances, prevalence)` from this collection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">X</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An alias to self.instances</span>
+
+<span class="sd">        :return: self.instances</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">instances</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An alias to self.labels</span>
+
+<span class="sd">        :return: self.labels</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">labels</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An alias to self.prevalence()</span>
+
+<span class="sd">        :return: self.prevalence()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="LabelledCollection.stats">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.stats">[docs]</a>
+    <span class="k">def</span> <span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns (and eventually prints) a dictionary with some stats of this collection. E.g.,:</span>
+
+<span class="sd">        &gt;&gt;&gt; data = qp.datasets.fetch_reviews(&#39;kindle&#39;, tfidf=True, min_df=5)</span>
+<span class="sd">        &gt;&gt;&gt; data.training.stats()</span>
+<span class="sd">        &gt;&gt;&gt; #instances=3821, type=&lt;class &#39;scipy.sparse.csr.csr_matrix&#39;&gt;, #features=4403, #classes=[0 1], prevs=[0.081, 0.919]</span>
+
+<span class="sd">        :param show: if set to True (default), prints the stats in standard output</span>
+<span class="sd">        :return: a dictionary containing some stats of this collection. Keys include `#instances` (the number of</span>
+<span class="sd">            instances), `type` (the type representing the instances), `#features` (the number of features, if the</span>
+<span class="sd">            instances are in array-like format), `#classes` (the classes of the collection), `prevs` (the prevalence</span>
+<span class="sd">            values for each class)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ninstances</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">instance_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">instance_type</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">nfeats</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">instance_type</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="ow">or</span> <span class="n">issparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="p">):</span>
+            <span class="n">nfeats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">instances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nfeats</span> <span class="o">=</span> <span class="s1">&#39;?&#39;</span>
+        <span class="n">stats_</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;instances&#39;</span><span class="p">:</span> <span class="n">ninstances</span><span class="p">,</span>
+                  <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">instance_type</span><span class="p">,</span>
+                  <span class="s1">&#39;features&#39;</span><span class="p">:</span> <span class="n">nfeats</span><span class="p">,</span>
+                  <span class="s1">&#39;classes&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span>
+                  <span class="s1">&#39;prevs&#39;</span><span class="p">:</span> <span class="n">strprev</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prevalence</span><span class="p">())}</span>
+        <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;#instances=</span><span class="si">{</span><span class="n">stats_</span><span class="p">[</span><span class="s2">&quot;instances&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, type=</span><span class="si">{</span><span class="n">stats_</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, #features=</span><span class="si">{</span><span class="n">stats_</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, &#39;</span>
+                  <span class="sa">f</span><span class="s1">&#39;#classes=</span><span class="si">{</span><span class="n">stats_</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, prevs=</span><span class="si">{</span><span class="n">stats_</span><span class="p">[</span><span class="s2">&quot;prevs&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stats_</span></div>
+
+
+<div class="viewcode-block" id="LabelledCollection.kFCV">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.LabelledCollection.kFCV">[docs]</a>
+    <span class="k">def</span> <span class="nf">kFCV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nfolds</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">nrepeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generator of stratified folds to be used in k-fold cross validation.</span>
+
+<span class="sd">        :param nfolds: integer (default 5), the number of folds to generate</span>
+<span class="sd">        :param nrepeats: integer (default 1), the number of rounds of k-fold cross validation to run</span>
+<span class="sd">        :param random_state: integer (default 0), guarantees that the folds generated are reproducible</span>
+<span class="sd">        :return: yields `nfolds * nrepeats` folds for k-fold cross validation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kf</span> <span class="o">=</span> <span class="n">RepeatedStratifiedKFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="n">nfolds</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="n">nrepeats</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">train_index</span><span class="p">,</span> <span class="n">test_index</span> <span class="ow">in</span> <span class="n">kf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">Xy</span><span class="p">):</span>
+            <span class="n">train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">train_index</span><span class="p">)</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">test_index</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Dataset">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.Dataset">[docs]</a>
+<span class="k">class</span> <span class="nc">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstraction of training and test :class:`LabelledCollection` objects.</span>
+
+<span class="sd">    :param training: a :class:`LabelledCollection` instance</span>
+<span class="sd">    :param test: a :class:`LabelledCollection` instance</span>
+<span class="sd">    :param vocabulary: if indicated, is a dictionary of the terms used in this textual dataset</span>
+<span class="sd">    :param name: a string representing the name of the dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">test</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">vocabulary</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">training</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">classes_</span><span class="p">),</span> <span class="s1">&#39;incompatible labels in training and test collections&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training</span> <span class="o">=</span> <span class="n">training</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="n">test</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="n">vocabulary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+<div class="viewcode-block" id="Dataset.SplitStratified">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.Dataset.SplitStratified">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">SplitStratified</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mf">0.6</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a :class:`Dataset` from a stratified split of a :class:`LabelledCollection` instance.</span>
+<span class="sd">        See :meth:`LabelledCollection.split_stratified`</span>
+
+<span class="sd">        :param collection: :class:`LabelledCollection`</span>
+<span class="sd">        :param train_size: the proportion of training documents (the rest conforms the test split)</span>
+<span class="sd">        :return: an instance of :class:`Dataset`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="o">*</span><span class="n">collection</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">train_prop</span><span class="o">=</span><span class="n">train_size</span><span class="p">))</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">classes_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The classes according to which the training collection is labelled</span>
+
+<span class="sd">        :return: The classes according to which the training collection is labelled</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">classes_</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_classes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The number of classes according to which the training collection is labelled</span>
+
+<span class="sd">        :return: integer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">n_classes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">binary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns True if the training collection is labelled according to two classes</span>
+
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">binary</span>
+
+<div class="viewcode-block" id="Dataset.load">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.Dataset.load">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">train_path</span><span class="p">,</span> <span class="n">test_path</span><span class="p">,</span> <span class="n">loader_func</span><span class="p">:</span> <span class="n">callable</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">loader_kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads a training and a test labelled set of data and convert it into a :class:`Dataset` instance.</span>
+<span class="sd">        The function in charge of reading the instances must be specified. This function can be a custom one, or any of</span>
+<span class="sd">        the reading functions defined in :mod:`quapy.data.reader` module.</span>
+
+<span class="sd">        :param train_path: string, the path to the file containing the training instances</span>
+<span class="sd">        :param test_path: string, the path to the file containing the test instances</span>
+<span class="sd">        :param loader_func: a custom function that implements the data loader and returns a tuple with instances and</span>
+<span class="sd">            labels</span>
+<span class="sd">        :param classes: array-like, the classes according to which the instances are labelled</span>
+<span class="sd">        :param loader_kwargs: any argument that the `loader_func` function needs in order to read the instances.</span>
+<span class="sd">            See :meth:`LabelledCollection.load` for further details.</span>
+<span class="sd">        :return: a :class:`Dataset` object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">training</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">train_path</span><span class="p">,</span> <span class="n">loader_func</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="o">**</span><span class="n">loader_kwargs</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">test_path</span><span class="p">,</span> <span class="n">loader_func</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="o">**</span><span class="n">loader_kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vocabulary_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If the dataset is textual, and the vocabulary was indicated, returns the size of the vocabulary</span>
+
+<span class="sd">        :return: integer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">train_test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Alias to `self.training` and `self.test`</span>
+
+<span class="sd">        :return: the training and test collections</span>
+<span class="sd">        :return: the training and test collections</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span>
+
+<div class="viewcode-block" id="Dataset.stats">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.Dataset.stats">[docs]</a>
+    <span class="k">def</span> <span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns (and eventually prints) a dictionary with some stats of this dataset. E.g.,:</span>
+
+<span class="sd">        &gt;&gt;&gt; data = qp.datasets.fetch_reviews(&#39;kindle&#39;, tfidf=True, min_df=5)</span>
+<span class="sd">        &gt;&gt;&gt; data.stats()</span>
+<span class="sd">        &gt;&gt;&gt; Dataset=kindle #tr-instances=3821, #te-instances=21591, type=&lt;class &#39;scipy.sparse.csr.csr_matrix&#39;&gt;, #features=4403, #classes=[0 1], tr-prevs=[0.081, 0.919], te-prevs=[0.063, 0.937]</span>
+
+<span class="sd">        :param show: if set to True (default), prints the stats in standard output</span>
+<span class="sd">        :return: a dictionary containing some stats of this collection for the training and test collections. The keys</span>
+<span class="sd">            are `train` and `test`, and point to dedicated dictionaries of stats, for each collection, with keys</span>
+<span class="sd">            `#instances` (the number of instances), `type` (the type representing the instances),</span>
+<span class="sd">            `#features` (the number of features, if the instances are in array-like format), `#classes` (the classes of</span>
+<span class="sd">            the collection), `prevs` (the prevalence values for each class)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tr_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">stats</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">te_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">stats</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Dataset=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1"> #tr-instances=</span><span class="si">{</span><span class="n">tr_stats</span><span class="p">[</span><span class="s2">&quot;instances&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, #te-instances=</span><span class="si">{</span><span class="n">te_stats</span><span class="p">[</span><span class="s2">&quot;instances&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, &#39;</span>
+                  <span class="sa">f</span><span class="s1">&#39;type=</span><span class="si">{</span><span class="n">tr_stats</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, #features=</span><span class="si">{</span><span class="n">tr_stats</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, #classes=</span><span class="si">{</span><span class="n">tr_stats</span><span class="p">[</span><span class="s2">&quot;classes&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, &#39;</span>
+                  <span class="sa">f</span><span class="s1">&#39;tr-prevs=</span><span class="si">{</span><span class="n">tr_stats</span><span class="p">[</span><span class="s2">&quot;prevs&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">, te-prevs=</span><span class="si">{</span><span class="n">te_stats</span><span class="p">[</span><span class="s2">&quot;prevs&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">tr_stats</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">te_stats</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Dataset.kFCV">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.Dataset.kFCV">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">kFCV</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">nfolds</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">nrepeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generator of stratified folds to be used in k-fold cross validation. This function is only a wrapper around</span>
+<span class="sd">        :meth:`LabelledCollection.kFCV` that returns :class:`Dataset` instances made of training and test folds.</span>
+
+<span class="sd">        :param nfolds: integer (default 5), the number of folds to generate</span>
+<span class="sd">        :param nrepeats: integer (default 1), the number of rounds of k-fold cross validation to run</span>
+<span class="sd">        :param random_state: integer (default 0), guarantees that the folds generated are reproducible</span>
+<span class="sd">        :return: yields `nfolds * nrepeats` folds for k-fold cross validation as instances of :class:`Dataset`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">kFCV</span><span class="p">(</span><span class="n">nfolds</span><span class="o">=</span><span class="n">nfolds</span><span class="p">,</span> <span class="n">nrepeats</span><span class="o">=</span><span class="n">nrepeats</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;fold </span><span class="si">{</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">nfolds</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">nfolds</span><span class="si">}</span><span class="s1"> (round=</span><span class="si">{</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">//</span><span class="w"> </span><span class="n">nfolds</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Dataset.reduce">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.base.Dataset.reduce">[docs]</a>
+    <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_train</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">n_test</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reduce the number of instances in place for quick experiments. Preserves the prevalence of each set.</span>
+
+<span class="sd">        :param n_train: number of training documents to keep (default 100)</span>
+<span class="sd">        :param n_test: number of test documents to keep (default 100)</span>
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">n_train</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">prevalence</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">n_test</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">prevalence</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
