@@ -3,14 +3,16 @@ import quapy as qp
 from quapy.data import LabelledCollection
 from quapy.functional import strprev
 from sklearn.linear_model import LogisticRegression
-
+import numpy as np
 from quapy.method.aggregative import PACC
+import quapy.functional as F
 
 
 class MyTestCase(unittest.TestCase):
+
     def test_prediction_replicability(self):
 
-        dataset = qp.datasets.fetch_UCIDataset('yeast')
+        dataset = qp.datasets.fetch_UCIBinaryDataset('yeast')
 
         with qp.util.temp_seed(0):
             lr = LogisticRegression(random_state=0, max_iter=10000)
@@ -26,8 +28,8 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(str_prev1, str_prev2)  # add assertion here
 
+
     def test_samping_replicability(self):
-        import numpy as np
 
         def equal_collections(c1, c2, value=True):
             self.assertEqual(np.all(c1.X == c2.X), value)
@@ -72,6 +74,37 @@ class MyTestCase(unittest.TestCase):
             sample2_tr, sample2_te = data.split_stratified(train_prop=0.7)
         equal_collections(sample1_tr, sample2_tr, True)
         equal_collections(sample1_te, sample2_te, True)
+
+
+    def test_parallel_replicability(self):
+
+        train, test = qp.datasets.fetch_UCIMulticlassDataset('dry-bean').train_test
+
+        test = test.sampling(500, *[0.1, 0.0, 0.1, 0.1, 0.2, 0.5, 0.0])
+
+        with qp.util.temp_seed(10):
+            pacc = PACC(LogisticRegression(), val_split=2, n_jobs=2)
+            pacc.fit(train, val_split=0.5)
+            prev1 = F.strprev(pacc.quantify(test.instances))
+
+        with qp.util.temp_seed(0):
+            pacc = PACC(LogisticRegression(), val_split=2, n_jobs=2)
+            pacc.fit(train, val_split=0.5)
+            prev2 = F.strprev(pacc.quantify(test.instances))
+
+        with qp.util.temp_seed(0):
+            pacc = PACC(LogisticRegression(), val_split=2, n_jobs=2)
+            pacc.fit(train, val_split=0.5)
+            prev3 = F.strprev(pacc.quantify(test.instances))
+
+        print(prev1)
+        print(prev2)
+        print(prev3)
+
+        self.assertNotEqual(prev1, prev2)
+        self.assertEqual(prev2, prev3)
+
+
 
 
 if __name__ == '__main__':

@@ -29,7 +29,7 @@ class QuaNetTrainer(BaseQuantifier):
     >>>
     >>> # load the kindle dataset as text, and convert words to numerical indexes
     >>> dataset = qp.datasets.fetch_reviews('kindle', pickle=True)
-    >>> qp.domains.preprocessing.index(dataset, min_df=5, inplace=True)
+    >>> qp.train.preprocessing.index(dataset, min_df=5, inplace=True)
     >>>
     >>> # the text classifier is a CNN trained by NeuralClassifierTrainer
     >>> cnn = CNNnet(dataset.vocabulary_size, dataset.n_classes)
@@ -194,7 +194,7 @@ class QuaNetTrainer(BaseQuantifier):
         label_predictions = np.argmax(posteriors, axis=-1)
         prevs_estim = []
         for quantifier in self.quantifiers.values():
-            predictions = posteriors if isinstance(quantifier, AggregativeProbabilisticQuantifier) else label_predictions
+            predictions = posteriors if isinstance(quantifier, AggregativeSoftQuantifier) else label_predictions
             prevs_estim.extend(quantifier.aggregate(predictions))
 
         # there is no real need for adding static estims like the TPR or FPR from training since those are constant

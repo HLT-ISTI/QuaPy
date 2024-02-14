@@ -10,6 +10,8 @@ import quapy as qp
 
 import numpy as np
 from joblib import Parallel, delayed
+from time import time
+import signal
 
 
 def _get_parallel_slices(n_tasks, n_jobs):
@@ -22,7 +24,7 @@ def _get_parallel_slices(n_tasks, n_jobs):
 
 def map_parallel(func, args, n_jobs):
     """
-    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and `n_jobs`=2, then
+    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and n_jobs=2, then
     func is applied in two parallel processes to args[0:50] and to args[50:99]. func is a function
     that already works with a list of arguments.
 
@@ -38,7 +40,7 @@ def map_parallel(func, args, n_jobs):
     return list(itertools.chain.from_iterable(results))
 
 
-def parallel(func, args, n_jobs, seed=None):
+def parallel(func, args, n_jobs, seed=None, asarray=True, backend='loky'):
     """
     A wrapper of multiprocessing:
 
@@ -47,7 +49,13 @@ def parallel(func, args, n_jobs, seed=None):
     >>> )
 
     that takes the `quapy.environ` variable as input silently.
-    Seeds the child processes to ensure reproducibility when n_jobs>1
+    Seeds the child processes to ensure reproducibility when n_jobs>1.
+
+    :param func: callable
+    :param args: args of func
+    :param seed: the numeric seed
+    :param asarray: set to True to return a np.ndarray instead of a list
+    :param backend: indicates the backend used for handling parallel works
     """
     def func_dec(environ, seed, *args):
         qp.environ = environ.copy()
@@ -58,9 +66,12 @@ def parallel(func, args, n_jobs, seed=None):
                 stack.enter_context(qp.util.temp_seed(seed))
             return func(*args)
     
-    return Parallel(n_jobs=n_jobs)(
+    out = Parallel(n_jobs=n_jobs, backend=backend)(
         delayed(func_dec)(qp.environ, None if seed is None else seed+i, args_i) for i, args_i in enumerate(args)
     )
+    if asarray:
+        out = np.asarray(out)
+    return out
 
 
 @contextlib.contextmanager
@@ -253,4 +264,36 @@ class EarlyStop:
             self.patience -= 1
             if self.patience <= 0:
                 self.STOP = True
+
+
+@contextlib.contextmanager
+def timeout(seconds):
+    """
+    Opens a context that will launch an exception if not closed after a given number of seconds
+
+    >>> def func(start_msg, end_msg):
+    >>>     print(start_msg)
+    >>>     sleep(2)
+    >>>     print(end_msg)
+    >>>
+    >>> with timeout(1):
+    >>>     func('begin function', 'end function')
+    >>> Out[]
+    >>> begin function
+    >>> TimeoutError
+
+
+    :param seconds: number of seconds, set to <=0 to ignore the timer
+    """
+    if seconds > 0:
+        def handler(signum, frame):
+            raise TimeoutError()
+
+        signal.signal(signal.SIGALRM, handler)
+        signal.alarm(seconds)
+
+    yield
+
+    if seconds > 0:
+        signal.alarm(0)
 

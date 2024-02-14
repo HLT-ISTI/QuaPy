@@ -6,9 +6,7 @@ import os
 import zipfile
 from os.path import join
 import pandas as pd
-
-from ucimlrepo import fetch_ucirepo 
-
+from ucimlrepo import fetch_ucirepo
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
 from quapy.data.reader import *
@@ -22,29 +20,29 @@ TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',
 TWITTER_SENTIMENT_DATASETS_TRAIN = ['gasp', 'hcr', 'omd', 'sanders',
                                  'semeval', 'semeval16',
                                  'sst', 'wa', 'wb']
-UCI_DATASETS = ['acute.a', 'acute.b',
+UCI_BINARY_DATASETS = ['acute.a', 'acute.b',
                 'balance.1', 'balance.2', 'balance.3',
                 'breast-cancer',
                 'cmc.1', 'cmc.2', 'cmc.3',
                 'ctg.1', 'ctg.2', 'ctg.3',
-                #'diabetes', # <-- I haven't found this one...
+                       #'diabetes', # <-- I haven't found this one...
                 'german',
                 'haberman',
                 'ionosphere',
                 'iris.1', 'iris.2', 'iris.3',
                 'mammographic',
-                'pageblocks.5',
-                #'phoneme', # <-- I haven't found this one...
-                'semeion',
-                'sonar',
-                'spambase',
-                'spectf',
-                'tictactoe',
-                'transfusion',
-                'wdbc',
-                'wine.1', 'wine.2', 'wine.3',
-                'wine-q-red', 'wine-q-white',
-                'yeast']
+                       'pageblocks.5',
+                       #'phoneme', # <-- I haven't found this one...
+                       'semeion',
+                       'sonar',
+                       'spambase',
+                       'spectf',
+                       'tictactoe',
+                       'transfusion',
+                       'wdbc',
+                       'wine.1', 'wine.2', 'wine.3',
+                       'wine-q-red', 'wine-q-white',
+                       'yeast']
 
 UCI_MULTICLASS_DATASETS = ['dry-bean',
                            'wine-quality',
@@ -189,7 +187,7 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
     return data
 
 
-def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
+def fetch_UCIBinaryDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
     """
     Loads a UCI dataset as an instance of :class:`quapy.data.base.Dataset`, as used in
     `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
@@ -210,11 +208,11 @@ def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False
     :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
     :return: a :class:`quapy.data.base.Dataset` instance
     """
-    data = fetch_UCILabelledCollection(dataset_name, data_home, verbose)
+    data = fetch_UCIBinaryLabelledCollection(dataset_name, data_home, verbose)
     return Dataset(*data.split_stratified(1 - test_split, random_state=0))
 
 
-def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
+def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
     """
     Loads a UCI collection as an instance of :class:`quapy.data.base.LabelledCollection`, as used in
     `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
@@ -229,8 +227,8 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     This can be reproduced by using :meth:`quapy.data.base.Dataset.kFCV`, e.g.:
 
     >>> import quapy as qp
-    >>> collection = qp.datasets.fetch_UCILabelledCollection("yeast")
-    >>> for data in qp.domains.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
+    >>> collection = qp.datasets.fetch_UCIBinaryLabelledCollection("yeast")
+    >>> for data in qp.train.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
     >>>     ...
 
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
@@ -243,9 +241,9 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
 
-    assert dataset_name in UCI_DATASETS, \
+    assert dataset_name in UCI_BINARY_DATASETS, \
         f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository. ' \
-        f'Valid ones are {UCI_DATASETS}'
+        f'Valid ones are {UCI_BINARY_DATASETS}'
     if data_home is None:
         data_home = get_quapy_home()
 
@@ -371,7 +369,8 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     elif verbose:
         print('no file description available')
 
-    print(f'Loading {dataset_name} ({fullname})')
+    if verbose:
+        print(f'Loading {dataset_name} ({fullname})')
     if identifier == 'acute':
         df = pd.read_csv(data_path, header=None, encoding='utf-16', sep='\t')
 
@@ -552,7 +551,8 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
         y = binarize(y, pos_class='NUC')
 
     data = LabelledCollection(X, y)
-    data.stats()
+    if verbose:
+        data.stats()
     return data
 
 
@@ -686,8 +686,8 @@ def fetch_lequa2022(task, data_home=None):
         ~/quay_data/ directory)
     :return: a tuple `(train, val_gen, test_gen)` where `train` is an instance of
         :class:`quapy.data.base.LabelledCollection`, `val_gen` and `test_gen` are instances of
-        :class:`quapy.protocol.SamplesFromDir`, i.e., are sampling protocols that return a series of samples
-        labelled by prevalence.
+        :class:`quapy.data._lequa2022.SamplesFromDir`, a subclass of :class:`quapy.protocol.AbstractProtocol`,
+        that return a series of samples stored in a directory which are labelled by prevalence.
     """
 
     from quapy.data._lequa2022 import load_raw_documents, load_vector_documents, SamplesFromDir
@@ -734,3 +734,83 @@ def fetch_lequa2022(task, data_home=None):
 
     return train, val_gen, test_gen
 
+
+def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=None):
+    """
+    Loads the IFCB dataset for quantification from `Zenodo <https://zenodo.org/records/10036244>`_ (for more
+    information on this dataset, please follow the zenodo link).
+    This dataset is based on the data available publicly at
+    `WHOI-Plankton repo <https://github.com/hsosik/WHOI-Plankton>`_.
+    The scripts for the processing are available at `P. González's repo <https://github.com/pglez82/IFCB_Zenodo>`_.
+    Basically, this is the IFCB dataset with precomputed features for testing quantification algorithms.
+
+    The datasets are downloaded only once, and stored for fast reuse.
+
+    :param single_sample_train: a boolean. If true, it will return the train dataset as a
+        :class:`quapy.data.base.LabelledCollection` (all examples together).
+        If false, a generator of training samples will be returned. Each example in the training set has an individual label.
+    :param for_model_selection: if True, then returns a split 30% of the training set (86 out of 286 samples) to be used for model selection; 
+        if False, then returns the full training set as training set and the test set as the test set
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: a tuple `(train, test_gen)` where `train` is an instance of
+        :class:`quapy.data.base.LabelledCollection`, if `single_sample_train` is true or
+        :class:`quapy.data._ifcb.IFCBTrainSamplesFromDir`, i.e. a sampling protocol that returns a series of samples
+        labelled example by example. test_gen will be a :class:`quapy.data._ifcb.IFCBTestSamples`, 
+        i.e., a sampling protocol that returns a series of samples labelled by prevalence.
+    """
+
+    from quapy.data._ifcb import IFCBTrainSamplesFromDir, IFCBTestSamples, get_sample_list, generate_modelselection_split
+
+    if data_home is None:
+        data_home = get_quapy_home()
+    
+    URL_TRAIN=f'https://zenodo.org/records/10036244/files/IFCB.train.zip'
+    URL_TEST=f'https://zenodo.org/records/10036244/files/IFCB.test.zip'
+    URL_TEST_PREV=f'https://zenodo.org/records/10036244/files/IFCB.test_prevalences.zip'
+
+    ifcb_dir = join(data_home, 'ifcb')
+    os.makedirs(ifcb_dir, exist_ok=True)
+
+    def download_unzip_and_remove(unzipped_path, url):
+        tmp_path = join(ifcb_dir, 'ifcb_tmp.zip')
+        download_file_if_not_exists(url, tmp_path)
+        with zipfile.ZipFile(tmp_path) as file:
+            file.extractall(unzipped_path)
+        os.remove(tmp_path)
+
+    if not os.path.exists(os.path.join(ifcb_dir,'train')):
+        download_unzip_and_remove(ifcb_dir, URL_TRAIN)
+    if not os.path.exists(os.path.join(ifcb_dir,'test')):
+        download_unzip_and_remove(ifcb_dir, URL_TEST)
+    if not os.path.exists(os.path.join(ifcb_dir,'test_prevalences.csv')):
+        download_unzip_and_remove(ifcb_dir, URL_TEST_PREV)
+
+    # Load test prevalences and classes
+    test_true_prev_path = join(ifcb_dir, 'test_prevalences.csv')
+    test_true_prev = pd.read_csv(test_true_prev_path)
+    classes = test_true_prev.columns[1:]
+
+    #Load train and test samples
+    train_samples_path = join(ifcb_dir,'train')
+    test_samples_path = join(ifcb_dir,'test')
+
+    if for_model_selection:
+        # In this case, return 70% of training data as the training set and 30% as the test set
+        samples = get_sample_list(train_samples_path)
+        train, test = generate_modelselection_split(samples, split=0.3)
+        train_gen = IFCBTrainSamplesFromDir(path_dir=train_samples_path, classes=classes, samples=train)
+
+        # Test prevalence is computed from class labels
+        test_gen = IFCBTestSamples(path_dir=train_samples_path, test_prevalences=None, samples=test, classes=classes)
+    else:
+        # In this case, we use all training samples as the training set and the test samples as the test set
+        train_gen = IFCBTrainSamplesFromDir(path_dir=train_samples_path, classes=classes)
+        test_gen = IFCBTestSamples(path_dir=test_samples_path, test_prevalences=test_true_prev)
+
+    # In the case the user wants it, join all the train samples in one LabelledCollection
+    if single_sample_train:
+        train = LabelledCollection.join(*[lc for lc in train_gen()])
+        return train, test_gen
+    else:
+        return train_gen, test_gen

@@ -2,7 +2,7 @@ import quapy as qp
 from quapy.data import LabelledCollection
 from quapy.method.base import BinaryQuantifier
 from quapy.model_selection import GridSearchQ
-from quapy.method.aggregative import AggregativeProbabilisticQuantifier
+from quapy.method.aggregative import AggregativeSoftQuantifier
 from quapy.protocol import APP
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -15,7 +15,7 @@ from sklearn.linear_model import LogisticRegression
 # internal hyperparameter (let say, alpha) which is the decision threshold. Let's also assume the quantifier
 # is binary, for simplicity.
 
-class MyQuantifier(AggregativeProbabilisticQuantifier, BinaryQuantifier):
+class MyQuantifier(AggregativeSoftQuantifier, BinaryQuantifier):
     def __init__(self, classifier, alpha=0.5):
         self.alpha = alpha
         # aggregative quantifiers have an internal self.classifier attribute

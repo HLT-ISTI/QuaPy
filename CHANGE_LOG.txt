@@ -1,3 +1,56 @@
+Change Log 0.1.8
+----------------
+
+- Added Kernel Density Estimation methods (KDEyML, KDEyCS, KDEyHD) as proposed in the paper:
+    Moreo, A., González, P., & del Coz, J. J. Kernel Density Estimation for Multiclass Quantification.
+    arXiv preprint arXiv:2401.00490, 2024
+
+- Substantial internal refactor: aggregative methods now inherit a pattern by which the fit method consists of:
+    a) fitting the classifier and returning the representations of the training instances (typically the posterior
+        probabilities, the label predictions, or the classifier scores, and typically obtained through kFCV).
+    b) fitting an aggregation function
+    The function implemented in step a) is inherited from the super class. Each new aggregative method now has to
+    implement only the "aggregative_fit" of step b).
+    This pattern was already implemented for the prediction (thus allowing evaluation functions to be performed
+    very quicky), and is now available also for training. The main benefit is that model selection now can nestle
+    the training of quantifiers in two levels: one for the classifier, and another for the aggregation function.
+    As a result, a method with a param grid of 10 combinations for the classifier and 10 combinations for the
+    quantifier, now implies 10 trainings of the classifier + 10*10 trainings of the aggregation function (this is
+    typically much faster than the classifier training), whereas in versions <0.1.8 this amounted to training
+    10*10 (classifiers+aggregations).
+
+- Added different solvers for ACC and PACC quantifiers. In quapy < 0.1.8 these quantifiers try to solve the system
+    of equations Ax=B exactly (by means of np.linalg.solve). As noted by Mirko Bunse (thanks!), such an exact solution
+    does sometimes not exist. In cases like this, quapy < 0.1.8 resorted to CC for providing a plausible solution.
+    ACC and PACC now resorts to an approximated solution in such cases (minimizing the L2-norm of the difference
+    between Ax-B) as proposed by Mirko Bunse. A quick experiment reveals this heuristic greatly improves the results
+    of ACC and PACC in T2A@LeQua.
+
+- Fixed ThresholdOptimization methods (X, T50, MAX, MS and MS2). Thanks to Tobias Schumacher and colleagues for pointing
+    this out in Appendix A of "Schumacher, T., Strohmaier, M., & Lemmerich, F. (2021). A comparative evaluation of 
+    quantification methods. arXiv:2103.03223v3 [cs.LG]"
+    
+- Added HDx and DistributionMatchingX to non-aggregative quantifiers (see also the new example "comparing_HDy_HDx.py")
+
+- New UCI multiclass datasets added (thanks to Pablo González). The 5 UCI multiclass datasets are those corresponding
+    to the following criteria:
+        - >1000 instances
+        - >2 classes
+        - classification datasets
+        - Python API available
+
+- New IFCB (plankton) dataset added (thanks to Pablo González). See qp.datasets.fetch_IFCB.
+
+- Added new evaluation measures NAE, NRAE (thanks to Andrea Esuli)
+
+- Added new meta method "MedianEstimator"; an ensemble of binary base quantifiers that receives as input a dictionary
+    of hyperparameters that will explore exhaustively, fitting and generating predictions for each combination of
+    hyperparameters, and that returns, as the prevalence estimates, the median across all predictions.
+
+- Added "custom_protocol.py" example.
+
+- New API documentation template.
+
 Change Log 0.1.7
 ----------------
 

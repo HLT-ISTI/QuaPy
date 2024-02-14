@@ -24,7 +24,8 @@ class RecalibratedProbabilisticClassifier:
 class RecalibratedProbabilisticClassifierBase(BaseEstimator, RecalibratedProbabilisticClassifier):
     """
     Applies a (re)calibration method from `abstention.calibration`, as defined in
-    `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_:
+    `Alexandari et al. paper <http://proceedings.mlr.press/v119/alexandari20a.html>`_.
+
 
     :param classifier: a scikit-learn probabilistic classifier
     :param calibrator: the calibration object (an instance of abstention.calibration.CalibratorFactory)
@@ -59,7 +60,7 @@ class RecalibratedProbabilisticClassifierBase(BaseEstimator, RecalibratedProbabi
         elif isinstance(k, float):
             if not (0 < k < 1):
                 raise ValueError('wrong value for val_split: the proportion of validation documents must be in (0,1)')
-            return self.fit_cv(X, y)
+            return self.fit_tr_val(X, y)
 
     def fit_cv(self, X, y):
         """
@@ -94,7 +95,7 @@ class RecalibratedProbabilisticClassifierBase(BaseEstimator, RecalibratedProbabi
         self.classifier.fit(Xtr, ytr)
         posteriors = self.classifier.predict_proba(Xva)
         nclasses = len(np.unique(yva))
-        self.calibrator = self.calibrator(posteriors, np.eye(nclasses)[yva], posterior_supplied=True)
+        self.calibration_function = self.calibrator(posteriors, np.eye(nclasses)[yva], posterior_supplied=True)
         return self
 
     def predict(self, X):

@@ -33,7 +33,6 @@ Refactor protocols. APP and NPP related functionalities are duplicated in functi
 
 New features:
 ==========================================
-Add NAE, NRAE
 Add "measures for evaluating ordinal"?
 Add datasets for topic.
 Do we want to cover cross-lingual quantification natively in QuaPy, or does it make more sense as an application on top?

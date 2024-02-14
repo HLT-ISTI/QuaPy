@@ -1,5 +1,7 @@
 import itertools
 from collections import defaultdict
+from typing import Union, Callable
+
 import scipy
 import numpy as np
 
@@ -64,7 +66,25 @@ def prevalence_from_probabilities(posteriors, binarize: bool = False):
         return prevalences
 
 
-def HellingerDistance(P, Q):
+def as_binary_prevalence(positive_prevalence: Union[float, np.ndarray], clip_if_necessary=False):
+    """
+    Helper that, given a float representing the prevalence for the positive class, returns a np.ndarray of two
+    values representing a binary distribution.
+
+    :param positive_prevalence: prevalence for the positive class
+    :param clip_if_necessary: if True, clips the value in [0,1] in order to guarantee the resulting distribution
+        is valid. If False, it then checks that the value is in the valid range, and raises an error if not.
+    :return: np.ndarray of shape `(2,)`
+    """
+    if clip_if_necessary:
+        positive_prevalence = np.clip(positive_prevalence, 0, 1)
+    else:
+        assert 0 <= positive_prevalence <= 1, 'the value provided is not a valid prevalence for the positive class'
+    return np.asarray([1-positive_prevalence, positive_prevalence]).T
+
+
+
+def HellingerDistance(P, Q) -> float:
     """
     Computes the Hellingher Distance (HD) between (discretized) distributions `P` and `Q`.
     The HD for two discrete distributions of `k` bins is defined as:
@@ -276,3 +296,70 @@ def check_prevalence_vector(p, raise_exception=False, toleranze=1e-08):
         return False
     return True
 
+
+def get_divergence(divergence: Union[str, Callable]):
+    if isinstance(divergence, str):
+        if divergence=='HD':
+            return HellingerDistance
+        elif divergence=='topsoe':
+            return TopsoeDistance
+        else:
+            raise ValueError(f'unknown divergence {divergence}')
+    elif callable(divergence):
+        return divergence
+    else:
+        raise ValueError(f'argument "divergence" not understood; use a str or a callable function')
+
+
+def argmin_prevalence(loss, n_classes, method='optim_minimize'):
+    if method == 'optim_minimize':
+        return optim_minimize(loss, n_classes)
+    elif method == 'linear_search':
+        return linear_search(loss, n_classes)
+    elif method == 'ternary_search':
+        raise NotImplementedError()
+    else:
+        raise NotImplementedError()
+
+
+def optim_minimize(loss, n_classes):
+    """
+    Searches for the optimal prevalence values, i.e., an `n_classes`-dimensional vector of the (`n_classes`-1)-simplex
+    that yields the smallest lost. This optimization is carried out by means of a constrained search using scipy's
+    SLSQP routine.
+
+    :param loss: (callable) the function to minimize
+    :param n_classes: (int) the number of classes, i.e., the dimensionality of the prevalence vector
+    :return: (ndarray) the best prevalence vector found
+    """
+    from scipy import optimize
+
+    # the initial point is set as the uniform distribution
+    uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
+
+    # solutions are bounded to those contained in the unit-simplex
+    bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
+    constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
+    r = optimize.minimize(loss, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
+    return r.x
+
+
+def linear_search(loss, n_classes):
+    """
+    Performs a linear search for the best prevalence value in binary problems. The search is carried out by exploring
+    the range [0,1] stepping by 0.01. This search is inefficient, and is added only for completeness (some of the
+    early methods in quantification literature used it, e.g., HDy). A most powerful alternative is `optim_minimize`.
+
+    :param loss: (callable) the function to minimize
+    :param n_classes: (int) the number of classes, i.e., the dimensionality of the prevalence vector
+    :return: (ndarray) the best prevalence vector found
+    """
+    assert n_classes==2, 'linear search is only available for binary problems'
+
+    prev_selected, min_score = None, None
+    for prev in prevalence_linspace(n_prevalences=100, repeats=1, smooth_limits_epsilon=0.0):
+        score = loss(np.asarray([1 - prev, prev]))
+        if min_score is None or score < min_score:
+            prev_selected, min_score = prev, score
+
+    return np.asarray([1 - prev_selected, prev_selected])

@@ -13,7 +13,7 @@ for facilitating the analysis and interpretation of the experimental results.
 
 ### Last updates:
 
-* Version 0.1.7 is released! major changes can be consulted [here](quapy/CHANGE_LOG.txt).
+* Version 0.1.8 is released! major changes can be consulted [here](CHANGE_LOG.txt).
 * A detailed documentation is now available [here](https://hlt-isti.github.io/QuaPy/)
 * The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/modules.html)
 
@@ -76,7 +76,7 @@ See the [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) for detailed examples.
 * Implementation of many popular quantification methods (Classify-&-Count and its variants, Expectation Maximization,
 quantification methods based on structured output learning, HDy, QuaNet, quantification ensembles, among others).
 * Versatile functionality for performing evaluation based on sampling generation protocols (e.g., APP, NPP, etc.).
-* Implementation of most commonly used evaluation metrics (e.g., AE, RAE, SE, KLD, NKLD, etc.).
+* Implementation of most commonly used evaluation metrics (e.g., AE, RAE, NAE, NRAE, SE, KLD, NKLD, etc.).
 * Datasets frequently used in quantification (textual and numeric), including:
     * 32 UCI Machine Learning datasets.
     * 11 Twitter quantification-by-sentiment datasets.
@@ -96,6 +96,9 @@ quantification methods based on structured output learning, HDy, QuaNet, quantif
 * pandas, xlrd
 * matplotlib
 
+## Contributing
+
+In case you want to contribute improvements to quapy, please generate pull request to the "devel" branch.
   
 ## Documentation
 

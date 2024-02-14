@@ -118,14 +118,15 @@ def _prevalence_report(true_prevs, estim_prevs, error_metrics: Iterable[Union[st
     assert all(hasattr(e, '__call__') for e in error_funcs), 'invalid error functions'
     error_names = [e.__name__ for e in error_funcs]
 
-    df = pd.DataFrame(columns=['true-prev', 'estim-prev'] + error_names)
+    row_entries = []
     for true_prev, estim_prev in zip(true_prevs, estim_prevs):
         series = {'true-prev': true_prev, 'estim-prev': estim_prev}
         for error_name, error_metric in zip(error_names, error_funcs):
             score = error_metric(true_prev, estim_prev)
             series[error_name] = score
-        df = df.append(series, ignore_index=True)
+        row_entries.append(series)
 
+    df = pd.DataFrame.from_records(row_entries)
     return df
 
 

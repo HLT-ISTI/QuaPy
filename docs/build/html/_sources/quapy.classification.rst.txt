@@ -1,38 +1,35 @@
-:tocdepth: 2
-
 quapy.classification package
 ============================
 
 Submodules
 ----------
 
-quapy.classification.calibration
---------------------------------
+quapy.classification.calibration module
+---------------------------------------
 
-.. versionadded:: 0.1.7
 .. automodule:: quapy.classification.calibration
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.classification.methods
-----------------------------
+quapy.classification.methods module
+-----------------------------------
 
 .. automodule:: quapy.classification.methods
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.classification.neural
----------------------------
+quapy.classification.neural module
+----------------------------------
 
 .. automodule:: quapy.classification.neural
    :members:
    :undoc-members:
    :show-inheritance:
 
-quapy.classification.svmperf
-----------------------------
+quapy.classification.svmperf module
+-----------------------------------
 
 .. automodule:: quapy.classification.svmperf
    :members:
