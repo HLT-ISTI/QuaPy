@@ -640,6 +640,8 @@ class EMQ(AggregativeSoftQuantifier):
                 raise ValueError('invalid param argument for recalibration method; available ones are '
                                  '"nbvs", "bcts", "ts", and "vs".')
 
+            if not np.issubdtype(y.dtype, np.number):
+                y = np.searchsorted(data.classes_, y)
             self.calibration_function = calibrator(P, np.eye(data.n_classes)[y], posterior_supplied=True)
 
         if self.exact_train_prev:
@@ -681,6 +683,11 @@ class EMQ(AggregativeSoftQuantifier):
         """
         Px = posterior_probabilities
         Ptr = np.copy(tr_prev)
+
+        if np.product(Ptr) == 0:  # some entry is 0; we should smooth the values to avoid 0 division
+            Ptr += epsilon
+            Ptr /= Ptr.sum()
+
         qs = np.copy(Ptr)  # qs (the running estimate) is initialized as the training prevalence
 
         s, converged = 0, False
