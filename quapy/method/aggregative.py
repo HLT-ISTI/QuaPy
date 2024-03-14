@@ -249,7 +249,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
 
 class AggregativeCrispQuantifier(AggregativeQuantifier, ABC):
     """
-    Abstract class for quantification methods that base their estimations on the aggregation of crips decisions
+    Abstract class for quantification methods that base their estimations on the aggregation of crisp decisions
     as returned by a hard classifier. Aggregative crisp quantifiers thus extend Aggregative
     Quantifiers by implementing specifications about crisp predictions.
     """
