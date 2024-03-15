@@ -466,11 +466,12 @@ def solve_adjustment(
     if method == "inversion":
         pass  # We leave A and B unchanged
     elif method == "invariant-ratio":
-        # Change the last set of equations
-        raise NotImplementedError
+        # Change the last equation to replace
+        # it with the normalization condition
+        A[-1, :] = 1.0
+        B[-1] = 1.0
     else:
-        raise ValueError(f"Flavour {method} not known.")
-
+        raise ValueError(f"Method {method} not known.")
 
     if solver == "minimize":
         def loss(prev):

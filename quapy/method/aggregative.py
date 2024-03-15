@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Callable, Union
+from typing import Callable, Literal, Union
 import numpy as np
 from abstention.calibration import NoBiasVectorScaling, TempScaling, VectorScaling
 from scipy import optimize
@@ -367,28 +367,50 @@ class ACC(AggregativeCrispQuantifier):
         Alternatively, this set can be specified at fit time by indicating the exact set of data
         on which the predictions are to be generated.
     :param n_jobs: number of parallel workers
-    :param solver: indicates the method to be used for obtaining the final estimates. The choice
-        'exact' comes down to solving the system of linear equations :math:`Ax=B` where `A` is a
-        matrix containing the class-conditional probabilities of the predictions (e.g., the tpr and fpr in 
-        binary) and `B` is the vector of prevalence values estimated via CC, as :math:`x=A^{-1}B`. This solution
-        might not exist for degenerated classifiers, in which case the method defaults to classify and count 
-        (i.e., does not attempt any adjustment).
-        Another option is to search for the prevalence vector that minimizes the L2 norm of :math:`|Ax-B|`. The latter
-        is achieved by indicating solver='minimize'. This one generally works better, and is the default parameter.
-        More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and
-        Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications
-        (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
+    :param method: adjustment method to be used:
+        'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`,
+            which tries to invert `P(C|Y)` matrix.
+        'invariant-ratio': invariant ratio estimator of `Vaz et al. <https://jmlr.org/papers/v20/18-456.html>`_,
+            which replaces the last equation with the normalization condition.
+    :param solver: the method to use for solving the system of linear equations. Valid options are:
+        'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has
+            rank strictly less than `n_classes`.
+        'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds
+            to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
+        'exact': deprecated, defaults to 'exact-cc'
+        'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the default parameter.
+            More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and
+            Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications
+            (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
+    :param clipping: the method to use for normalization.
+        If `None` or `"none"`, no normalization is performed.
+        If `"clip"`, the values are clipped to the range [0,1] and normalized, so they sum up to 1.
+        If `"project"`, the values are projected onto the probability simplex.
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None, solver='minimize'):
+    def __init__(
+            self,
+            classifier: BaseEstimator,
+            val_split=5,
+            n_jobs=None,
+            solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
+            method: Literal['inversion', 'invariant-ratio'] = 'inversion',
+            clipping: Literal['clip', 'none', 'project'] = 'clip',
+        ) -> None:
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
         self.solver = solver
+        self.method = method
+        self.clipping = clipping
 
     def _check_init_parameters(self):
-        if self.solver not in ['exact', 'minimize']:
-            raise ValueError("unknown solver; valid ones are 'exact', 'minimize'")
+        if self.solver not in ['exact', 'minimize', 'exact-raise', 'exact-cc']:
+            raise ValueError("unknown solver; valid ones are 'exact', 'minimize', 'exact-raise', 'exact-cc'")
+        if self.method not in ['inversion', 'invariant-ratio']:
+            raise ValueError("unknown method; valid ones are 'inversion', 'invariant-ratio'")
+        if self.clipping not in ['clip', 'none', 'project', None]:
+            raise ValueError("unknown clipping; valid ones are 'clip', 'none', 'project' or None")
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -418,30 +440,13 @@ class ACC(AggregativeCrispQuantifier):
 
     def aggregate(self, classif_predictions):
         prevs_estim = self.cc.aggregate(classif_predictions)
-        return ACC.solve_adjustment(self.Pte_cond_estim_, prevs_estim, solver=self.solver)
-
-    @classmethod
-    def solve_adjustment(cls, PteCondEstim, prevs_estim, solver='exact'):
-        """
-        Solves the system linear system :math:`Ax = B` with :math:`A` = `PteCondEstim` and :math:`B` = `prevs_estim`
-
-        :param PteCondEstim: a `np.ndarray` of shape `(n_classes,n_classes,)` with entry `(i,j)` being the estimate
-            of :math:`P(y_i|y_j)`, that is, the probability that an instance that belongs to :math:`y_j` ends up being
-            classified as belonging to :math:`y_i`
-        :param prevs_estim: a `np.ndarray` of shape `(n_classes,)` with the class prevalence estimates
-        :param solver: indicates the method to use for solving the system of linear equations. Valid options are
-             'exact' (tries to solve the system --may fail if the misclassificatin matrix has rank < n_classes) or
-             'optim_minimize' (minimizes a norm --always exists). 
-        :return: an adjusted `np.ndarray` of shape `(n_classes,)` with the corrected class prevalence estimates
-        """
-
         estimate = F.solve_adjustment(
-            p_c_y=PteCondEstim,
+            p_c_y=self.Pte_cond_estim_,
             p_c=prevs_estim,
-            solver=solver,
-            method='inversion',
+            solver=self.solver,
+            method=self.method,
         )
-        return F.clip_prevalence(estimate, method="clip")
+        return F.clip_prevalence(estimate, method=self.clipping)
 
 
 class PCC(AggregativeSoftQuantifier):
@@ -481,28 +486,51 @@ class PACC(AggregativeSoftQuantifier):
         for `k`). Alternatively, this set can be specified at fit time by indicating the exact set of data
         on which the predictions are to be generated.
     :param n_jobs: number of parallel workers
-    :param solver: indicates the method to be used for obtaining the final estimates. The choice
-        'exact' comes down to solving the system of linear equations :math:`Ax=B` where `A` is a
-        matrix containing the class-conditional probabilities of the predictions (e.g., the tpr and fpr in
-        binary) and `B` is the vector of prevalence values estimated via CC, as :math:`x=A^{-1}B`. This solution
-        might not exist for degenerated classifiers, in which case the method defaults to classify and count
-        (i.e., does not attempt any adjustment).
-        Another option is to search for the prevalence vector that minimizes the L2 norm of :math:`|Ax-B|`. The latter
-        is achieved by indicating solver='minimize'. This one generally works better, and is the default parameter.
-        More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and
-        Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications
-        (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
-
+    :param method: adjustment method to be used:
+        'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`,
+            which tries to invert `P(C|Y)` matrix.
+        'invariant-ratio': invariant ratio estimator of `Vaz et al. <https://jmlr.org/papers/v20/18-456.html>`_,
+            which replaces the last equation with the normalization condition.
+    :param solver: the method to use for solving the system of linear equations. Valid options are:
+        'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has
+            rank strictly less than `n_classes`.
+        'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds
+            to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
+        'exact': deprecated, defaults to 'exact-cc'
+        'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the default parameter.
+            More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and
+            Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications
+            (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
+    :param clipping: the method to use for normalization.
+        If `None` or `"none"`, no normalization is performed.
+        If `"clip"`, the values are clipped to the range [0,1] and normalized, so they sum up to 1.
+        If `"project"`, the values are projected onto the probability simplex.
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None, solver='minimize'):
+    def __init__(
+            self,
+            classifier: BaseEstimator,
+            val_split=5,
+            n_jobs=None,
+            solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
+            method: Literal['inversion', 'invariant-ratio'] = 'inversion',
+            clipping: Literal['clip', 'none', 'project'] = 'clip',
+        ) -> None:
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
+
         self.solver = solver
+        self.method = method
+        self.clipping = clipping
 
     def _check_init_parameters(self):
-        assert self.solver in ['exact', 'minimize'], "unknown solver; valid ones are 'exact', 'minimize'"
+        if self.solver not in ['exact', 'minimize', 'exact-raise', 'exact-cc']:
+            raise ValueError("unknown solver; valid ones are 'exact', 'minimize', 'exact-raise', 'exact-cc'")
+        if self.method not in ['inversion', 'invariant-ratio']:
+            raise ValueError("unknown method; valid ones are 'inversion', 'invariant-ratio'")
+        if self.clipping not in ['clip', 'none', 'project', None]:
+            raise ValueError("unknown clipping; valid ones are 'clip', 'none', 'project' or None")
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -518,7 +546,15 @@ class PACC(AggregativeSoftQuantifier):
 
     def aggregate(self, classif_posteriors):
         prevs_estim = self.pcc.aggregate(classif_posteriors)
-        return ACC.solve_adjustment(self.Pte_cond_estim_, prevs_estim, solver=self.solver)
+
+        estimate = F.solve_adjustment(
+            p_c_y=self.Pte_cond_estim_,
+            p_c=prevs_estim,
+            solver=self.solver,
+            method=self.method,
+        )
+        return F.clip_prevalence(estimate, method=self.clipping)
+
 
     @classmethod
     def getPteCondEstim(cls, classes, y, y_):
