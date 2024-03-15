@@ -20,11 +20,13 @@ AGGREGATIVE_METHODS = {
     aggregative.KDEyML,
     aggregative.KDEyCS,
     aggregative.KDEyHD,
+    aggregative.BayesianCC
 }
 
 
 NON_AGGREGATIVE_METHODS = {
-    non_aggregative.MaximumLikelihoodPrevalenceEstimation
+    non_aggregative.MaximumLikelihoodPrevalenceEstimation,
+    non_aggregative.DMx
 }
 
 META_METHODS = {

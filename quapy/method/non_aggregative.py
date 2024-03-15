@@ -150,6 +150,7 @@ class DMx(BaseQuantifier):
 class ReadMe(BaseQuantifier):
 
     def __init__(self, bootstrap_trials=100, bootstrap_range=100, bagging_trials=100, bagging_range=25, **vectorizer_kwargs):
+        raise NotImplementedError('under development ...')
         self.bootstrap_trials = bootstrap_trials
         self.bootstrap_range = bootstrap_range
         self.bagging_trials = bagging_trials
