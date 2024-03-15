@@ -435,27 +435,13 @@ class ACC(AggregativeCrispQuantifier):
         :return: an adjusted `np.ndarray` of shape `(n_classes,)` with the corrected class prevalence estimates
         """
 
-        A = PteCondEstim
-        B = prevs_estim
-
-        if solver == 'exact':
-            # attempts an exact solution of the linear system (may fail)
-
-            try:
-                adjusted_prevs = np.linalg.solve(A, B)
-                adjusted_prevs = F.clip_prevalence(adjusted_prevs, method="clip")
-            except np.linalg.LinAlgError:
-                adjusted_prevs = prevs_estim  # no way to adjust them!
-
-            return adjusted_prevs
-
-        elif solver == 'minimize':
-            # poses the problem as an optimization one, and tries to minimize the norm of the differences
-
-            def loss(prev):
-                return np.linalg.norm(A @ prev - B)
-
-            return F.optim_minimize(loss, n_classes=A.shape[0])
+        estimate = F.solve_adjustment(
+            p_c_y=PteCondEstim,
+            p_c=prevs_estim,
+            solver=solver,
+            method='inversion',
+        )
+        return F.clip_prevalence(estimate, method="clip")
 
 
 class PCC(AggregativeSoftQuantifier):
