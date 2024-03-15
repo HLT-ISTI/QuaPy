@@ -443,8 +443,7 @@ class ACC(AggregativeCrispQuantifier):
 
             try:
                 adjusted_prevs = np.linalg.solve(A, B)
-                adjusted_prevs = np.clip(adjusted_prevs, 0, 1)
-                adjusted_prevs /= adjusted_prevs.sum()
+                adjusted_prevs = F.clip_prevalence(adjusted_prevs, method="clip")
             except np.linalg.LinAlgError:
                 adjusted_prevs = prevs_estim  # no way to adjust them!
 
