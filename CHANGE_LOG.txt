@@ -1,7 +1,9 @@
 Change Log 0.1.9
 ----------------
 
-<...>
+- Added Bayesian CC method (thanks to Pawel Czyz!). The method is described in detail in the paper
+    Ziegler, Albert, and Paweł Czyż. "Bayesian Quantification with Black-Box Estimators."
+    arXiv preprint arXiv:2302.09159 (2023).
 
 
 Change Log 0.1.8
