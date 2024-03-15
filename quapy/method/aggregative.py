@@ -11,12 +11,13 @@ from sklearn.model_selection import cross_val_predict
 
 import quapy as qp
 import quapy.functional as F
-import quapy._bayesian as _bayesian
 from quapy.functional import get_divergence
 from quapy.classification.calibration import NBVSCalibration, BCTSCalibration, TSCalibration, VSCalibration
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric
+from quapy.method import _bayesian
+
 
 
 # Abstract classes
@@ -163,8 +164,8 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         """
         Trains the aggregation function.
 
-        :param classif_predictions: a LabelledCollection containing the label predictions issued
-            by the classifier
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the predictions issued by the classifier and, as labels, the true labels
         :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
         """
         ...
@@ -336,7 +337,8 @@ class CC(AggregativeCrispQuantifier):
         """
         Nothing to do here!
 
-        :param classif_predictions: this is actually None
+        :param classif_predictions: not used
+        :param data: not used
         """
         pass
 
@@ -392,7 +394,9 @@ class ACC(AggregativeCrispQuantifier):
         """
         Estimates the misclassification rates.
 
-        :param classif_predictions: classifier predictions with true labels
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the label predictions issued by the classifier and, as labels, the true labels
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
         """
         pred_labels, true_labels = classif_predictions.Xy
         self.cc = CC(self.classifier)
@@ -455,91 +459,6 @@ class ACC(AggregativeCrispQuantifier):
             return F.optim_minimize(loss, n_classes=A.shape[0])
 
 
-class BayesianCC(AggregativeCrispQuantifier):
-    """
-    `Bayesian quantification <https://arxiv.org/abs/2302.09159>`_ methods,
-    which is a variant of :class`ACC` that calculates the posterior probability distribution
-    over the prevalence vectors, rather than providing a point estimate obtained
-    by matrix inversion.
-
-    Can be used to diagnose degeneracy in the predictions visible when the confusion
-    matrix has high condition number or to quantify uncertainty around the point estimate.
-
-    This method relies on extra dependencies, which have to be installed via:
-    `$ pip install quapy[bayes]`
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: specifies the data used for generating classifier predictions. This specification
-        should be a float in (0, 1) indicating the proportion of stratified held-out validation set to
-        be extracted from the training set
-    :num_warmup: number of warmup iterations for the MCMC sampler
-    :num_samples: number of samples to draw from the posterior
-    :mcmc_seed: random seed for the MCMC sampler
-    """
-    def __init__(self, classifier: BaseEstimator, val_split: float = 0.75, num_warmup: int = 500, num_samples: int = 1_000, mcmc_seed: int = 0) -> None:
-        if num_warmup <= 0:
-            raise ValueError(f'num_warmup must be a positive integer, got {num_warmup}')
-        if num_samples <= 0:
-            raise ValueError(f'num_samples must be a positive integer, got {num_samples}')
-
-        if (not isinstance(val_split, float)) or val_split <= 0 or val_split >= 1:
-            raise ValueError(f'val_split must be a float in (0, 1), got {val_split}')
-
-        if _bayesian.DEPENDENCIES_INSTALLED is False:
-            raise ImportError("Auxiliary dependencies are required. Run `$ pip install quapy[bayes]` to install them.")
-
-        self.classifier = classifier
-        self.val_split = val_split
-        self.num_warmup = num_warmup
-        self.num_samples = num_samples
-        self.mcmc_seed = mcmc_seed
-
-        # Array of shape (n_classes, n_predicted_classes) where entry (y, c) is the number of instances labeled as class y and predicted as class c
-        # By default it's None and it's set during the `aggregation_fit` phase
-        self._n_and_c_labeled = None
-
-        # Dictionary with posterior samples, set when `aggregate` is provided.
-        self._samples = None
-
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        """
-        Estimates the misclassification rates.
-
-        :param classif_predictions: classifier predictions with true labels
-        """
-        pred_labels, true_labels = classif_predictions.Xy
-        self._n_and_c_labeled = confusion_matrix(y_true=true_labels, y_pred=pred_labels, labels=self.classifier.classes_)
-
-    def sample_from_posterior(self, classif_predictions):
-        if self._n_and_c_labeled is None:
-            raise ValueError("aggregation_fit must be called before sample_from_posterior")
-
-        n_c_unlabeled = F.counts_from_labels(classif_predictions, self.classifier.classes_)
-
-        self._samples = _bayesian.sample_posterior(
-            n_c_unlabeled=n_c_unlabeled,
-            n_y_and_c_labeled=self._n_and_c_labeled,
-            num_warmup=self.num_warmup,
-            num_samples=self.num_samples,
-            seed=self.mcmc_seed,
-        )
-        return self._samples
-
-    def get_prevalence_samples(self):
-        if self._samples is None:
-            raise ValueError("sample_from_posterior must be called before get_prevalence_samples")
-        return self._samples[_bayesian.P_TEST_Y]
-
-    def get_conditional_probability_samples(self):
-        if self._samples is None:
-            raise ValueError("sample_from_posterior must be called before get_conditional_probability_samples")
-        return self._samples[_bayesian.P_C_COND_Y]
-
-    def aggregate(self, classif_predictions):
-        samples = self.sample_from_posterior(classif_predictions)[_bayesian.P_TEST_Y]
-        return np.asarray(samples.mean(axis=0), dtype=float)
-
-
 class PCC(AggregativeSoftQuantifier):
     """
     `Probabilistic Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
@@ -555,7 +474,8 @@ class PCC(AggregativeSoftQuantifier):
         """
         Nothing to do here!
 
-        :param classif_predictions: this is actually None
+        :param classif_predictions: not used
+        :param data: not used
         """
         pass
 
@@ -603,7 +523,9 @@ class PACC(AggregativeSoftQuantifier):
         """
         Estimates the misclassification rates
 
-        :param classif_predictions: classifier soft predictions with true labels
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
         """
         posteriors, true_labels = classif_predictions.Xy
         self.pcc = PCC(self.classifier)
@@ -713,6 +635,14 @@ class EMQ(AggregativeSoftQuantifier):
         return posteriors
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        """
+        Trains the aggregation function of EMQ. This comes down to recalibrating the posterior probabilities
+        ir requested.
+
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        """
         if self.recalib is not None:
             P, y = classif_predictions.Xy
             if self.recalib == 'nbvs':
@@ -799,6 +729,99 @@ class EMQ(AggregativeSoftQuantifier):
         return qs, ps
 
 
+class BayesianCC(AggregativeCrispQuantifier):
+    """
+    `Bayesian quantification <https://arxiv.org/abs/2302.09159>`_ method,
+    which is a variant of :class:`ACC` that calculates the posterior probability distribution
+    over the prevalence vectors, rather than providing a point estimate obtained
+    by matrix inversion.
+
+    Can be used to diagnose degeneracy in the predictions visible when the confusion
+    matrix has high condition number or to quantify uncertainty around the point estimate.
+
+    This method relies on extra dependencies, which have to be installed via:
+    `$ pip install quapy[bayes]`
+
+    :param classifier: a sklearn's Estimator that generates a classifier
+    :param val_split: a float in (0, 1) indicating the proportion of the training data to be used,
+        as a stratified held-out validation set, for generating classifier predictions.
+    :param num_warmup: number of warmup iterations for the MCMC sampler (default 500)
+    :param num_samples: number of samples to draw from the posterior (default 1000)
+    :param mcmc_seed: random seed for the MCMC sampler (default 0)
+    """
+    def __init__(self,
+                 classifier: BaseEstimator,
+                 val_split: float = 0.75,
+                 num_warmup: int = 500,
+                 num_samples: int = 1_000,
+                 mcmc_seed: int = 0):
+
+        if num_warmup <= 0:
+            raise ValueError(f'parameter {num_warmup=} must be a positive integer')
+        if num_samples <= 0:
+            raise ValueError(f'parameter {num_samples=} must be a positive integer')
+
+        if (not isinstance(val_split, float)) or val_split <= 0 or val_split >= 1:
+            raise ValueError(f'val_split must be a float in (0, 1), got {val_split}')
+
+        if _bayesian.DEPENDENCIES_INSTALLED is False:
+            raise ImportError("Auxiliary dependencies are required. Run `$ pip install quapy[bayes]` to install them.")
+
+        self.classifier = classifier
+        self.val_split = val_split
+        self.num_warmup = num_warmup
+        self.num_samples = num_samples
+        self.mcmc_seed = mcmc_seed
+
+        # Array of shape (n_classes, n_predicted_classes,) where entry (y, c) is the number of instances
+        # labeled as class y and predicted as class c.
+        # By default, this array is set to None and later defined as part of the `aggregation_fit` phase
+        self._n_and_c_labeled = None
+
+        # Dictionary with posterior samples, set when `aggregate` is provided.
+        self._samples = None
+
+    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        """
+        Estimates the misclassification rates.
+
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the label predictions issued by the classifier and, as labels, the true labels
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        """
+        pred_labels, true_labels = classif_predictions.Xy
+        self._n_and_c_labeled = confusion_matrix(y_true=true_labels, y_pred=pred_labels, labels=self.classifier.classes_)
+
+    def sample_from_posterior(self, classif_predictions):
+        if self._n_and_c_labeled is None:
+            raise ValueError("aggregation_fit must be called before sample_from_posterior")
+
+        n_c_unlabeled = F.counts_from_labels(classif_predictions, self.classifier.classes_)
+
+        self._samples = _bayesian.sample_posterior(
+            n_c_unlabeled=n_c_unlabeled,
+            n_y_and_c_labeled=self._n_and_c_labeled,
+            num_warmup=self.num_warmup,
+            num_samples=self.num_samples,
+            seed=self.mcmc_seed,
+        )
+        return self._samples
+
+    def get_prevalence_samples(self):
+        if self._samples is None:
+            raise ValueError("sample_from_posterior must be called before get_prevalence_samples")
+        return self._samples[_bayesian.P_TEST_Y]
+
+    def get_conditional_probability_samples(self):
+        if self._samples is None:
+            raise ValueError("sample_from_posterior must be called before get_conditional_probability_samples")
+        return self._samples[_bayesian.P_C_COND_Y]
+
+    def aggregate(self, classif_predictions):
+        samples = self.sample_from_posterior(classif_predictions)[_bayesian.P_TEST_Y]
+        return np.asarray(samples.mean(axis=0), dtype=float)
+
+
 class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     """
     `Hellinger Distance y <https://www.sciencedirect.com/science/article/pii/S0020025512004069>`_ (HDy).
@@ -820,14 +843,11 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
-        Trains a HDy quantifier.
+        Trains the aggregation function of HDy.
 
-        :param data: the training set
-        :param fit_classifier: set to False to bypass the training (the learner is assumed to be already fit)
-        :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
-         validation (e.g., 0.3 for using 30% of the training set as validation data), or a
-         :class:`quapy.data.base.LabelledCollection` indicating the validation set itself
-        :return: self
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
         """
         P, y = classif_predictions.Xy
         Px = P[:, self.pos_label]  # takes only the P(y=+1|x)
@@ -843,8 +863,6 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
 
         self.Pxy1_density = {bins: hist(self.Pxy1, bins) for bins in self.bins}
         self.Pxy0_density = {bins: hist(self.Pxy0, bins) for bins in self.bins}
-
-        return self
 
     def aggregate(self, classif_posteriors):
         # "In this work, the number of bins b used in HDx and HDy was chosen from 10 to 110 in steps of 10,
@@ -920,6 +938,13 @@ class DyS(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         return (left + right) / 2
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        """
+        Trains the aggregation function of DyS.
+
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        """
         Px, y = classif_predictions.Xy
         Px = Px[:, self.pos_label]  # takes only the P(y=+1|x)
         self.Pxy1 = Px[y == self.pos_label]
@@ -958,6 +983,13 @@ class SMM(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         self.val_split = val_split
       
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        """
+        Trains the aggregation function of SMM.
+
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        """
         Px, y = classif_predictions.Xy
         Px = Px[:, self.pos_label]  # takes only the P(y=+1|x)
         self.Pxy1 = Px[y == self.pos_label]
@@ -1031,19 +1063,17 @@ class DMy(AggregativeSoftQuantifier):
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
-        Trains the classifier (if requested) and generates the validation distributions out of the training data.
+        Trains the aggregation function of a distribution matching method. This comes down to generating the
+        validation distributions out of the training data.
         The validation distributions have shape `(n, ch, nbins)`, with `n` the number of classes, `ch` the number of
         channels, and `nbins` the number of bins. In particular, let `V` be the validation distributions; then `di=V[i]`
         are the distributions obtained from training data labelled with class `i`; while `dij = di[j]` is the discrete
         distribution of posterior probabilities `P(Y=j|X=x)` for training data labelled with class `i`, and `dij[k]`
         is the fraction of instances with a value in the `k`-th bin.
 
-        :param data: the training set
-        :param fit_classifier: set to False to bypass the training (the learner is assumed to be already fit)
-        :param val_split: either a float in (0,1) indicating the proportion of training instances to use for
-         validation (e.g., 0.3 for using 30% of the training set as validation data), or a LabelledCollection
-         indicating the validation set itself, or an int indicating the number k of folds to be used in kFCV
-         to estimate the parameters
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
         """
         posteriors, true_labels = classif_predictions.Xy
         n_classes = len(self.classifier.classes_)

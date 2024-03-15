@@ -72,6 +72,7 @@ def sample_posterior(
         numpyro.infer.NUTS(model),
         num_warmup=num_warmup,
         num_samples=num_samples,
+        progress_bar=False
     )
     rng_key = jax.random.PRNGKey(seed)
     mcmc.run(rng_key, n_c_unlabeled=n_c_unlabeled, n_y_and_c_labeled=n_y_and_c_labeled)
