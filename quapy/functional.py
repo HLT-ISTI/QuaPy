@@ -28,22 +28,34 @@ def prevalence_linspace(n_prevalences=21, repeats=1, smooth_limits_epsilon=0.01)
     return p
 
 
-def prevalence_from_labels(labels, classes):
+def counts_from_labels(labels, classes):
     """
-    Computed the prevalence values from a vector of labels.
+    Computes the count values from a vector of labels.
 
-    :param labels: array-like of shape `(n_instances)` with the label for each instance
+    :param labels: array-like of shape `(n_instances,)` with the label for each instance
     :param classes: the class labels. This is needed in order to correctly compute the prevalence vector even when
         some classes have no examples.
-    :return: an ndarray of shape `(len(classes))` with the class prevalence values
+    :return: an ndarray of shape `(len(classes),)` with the occurrence counts of each class
     """
     if labels.ndim != 1:
         raise ValueError(f'param labels does not seem to be a ndarray of label predictions')
     unique, counts = np.unique(labels, return_counts=True)
     by_class = defaultdict(lambda:0, dict(zip(unique, counts)))
-    prevalences = np.asarray([by_class[class_] for class_ in classes], dtype=float)
-    prevalences /= prevalences.sum()
-    return prevalences
+    counts = np.asarray([by_class[class_] for class_ in classes], dtype=int)
+    return counts
+
+
+def prevalence_from_labels(labels, classes):
+    """
+    Computes the prevalence values from a vector of labels.
+
+    :param labels: array-like of shape `(n_instances,)` with the label for each instance
+    :param classes: the class labels. This is needed in order to correctly compute the prevalence vector even when
+        some classes have no examples.
+    :return: an ndarray of shape `(len(classes))` with the class prevalence values
+    """
+    counts = np.array(counts_from_labels(labels, classes), dtype=float)
+    return counts / np.sum(counts)
 
 
 def prevalence_from_probabilities(posteriors, binarize: bool = False):

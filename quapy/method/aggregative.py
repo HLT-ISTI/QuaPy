@@ -11,6 +11,7 @@ from sklearn.model_selection import cross_val_predict
 
 import quapy as qp
 import quapy.functional as F
+import quapy._bayesian as _bayesian
 from quapy.functional import get_divergence
 from quapy.classification.calibration import NBVSCalibration, BCTSCalibration, TSCalibration, VSCalibration
 from quapy.classification.svmperf import SVMperf
@@ -384,7 +385,8 @@ class ACC(AggregativeCrispQuantifier):
         self.solver = solver
 
     def _check_init_parameters(self):
-        assert self.solver in ['exact', 'minimize'], "unknown solver; valid ones are 'exact', 'minimize'"
+        if self.solver not in ['exact', 'minimize']:
+            raise ValueError("unknown solver; valid ones are 'exact', 'minimize'")
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -451,6 +453,91 @@ class ACC(AggregativeCrispQuantifier):
                 return np.linalg.norm(A @ prev - B)
 
             return F.optim_minimize(loss, n_classes=A.shape[0])
+
+
+class BayesianCC(AggregativeCrispQuantifier):
+    """
+    `Bayesian quantification <https://arxiv.org/abs/2302.09159>`_ methods,
+    which is a variant of :class`ACC` that calculates the posterior probability distribution
+    over the prevalence vectors, rather than providing a point estimate obtained
+    by matrix inversion.
+
+    Can be used to diagnose degeneracy in the predictions visible when the confusion
+    matrix has high condition number or to quantify uncertainty around the point estimate.
+
+    This method relies on extra dependencies, which have to be installed via:
+    `$ pip install quapy[bayes]`
+
+    :param classifier: a sklearn's Estimator that generates a classifier
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        should be a float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set
+    :num_warmup: number of warmup iterations for the MCMC sampler
+    :num_samples: number of samples to draw from the posterior
+    :mcmc_seed: random seed for the MCMC sampler
+    """
+    def __init__(self, classifier: BaseEstimator, val_split: float = 0.75, num_warmup: int = 500, num_samples: int = 1_000, mcmc_seed: int = 0) -> None:
+        if num_warmup <= 0:
+            raise ValueError(f'num_warmup must be a positive integer, got {num_warmup}')
+        if num_samples <= 0:
+            raise ValueError(f'num_samples must be a positive integer, got {num_samples}')
+
+        if (not isinstance(val_split, float)) or val_split <= 0 or val_split >= 1:
+            raise ValueError(f'val_split must be a float in (0, 1), got {val_split}')
+
+        if _bayesian.DEPENDENCIES_INSTALLED is False:
+            raise ImportError("Auxiliary dependencies are required. Run `$ pip install quapy[bayes]` to install them.")
+
+        self.classifier = classifier
+        self.val_split = val_split
+        self.num_warmup = num_warmup
+        self.num_samples = num_samples
+        self.mcmc_seed = mcmc_seed
+
+        # Array of shape (n_classes, n_predicted_classes) where entry (y, c) is the number of instances labeled as class y and predicted as class c
+        # By default it's None and it's set during the `aggregation_fit` phase
+        self._n_and_c_labeled = None
+
+        # Dictionary with posterior samples, set when `aggregate` is provided.
+        self._samples = None
+
+    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        """
+        Estimates the misclassification rates.
+
+        :param classif_predictions: classifier predictions with true labels
+        """
+        pred_labels, true_labels = classif_predictions.Xy
+        self._n_and_c_labeled = confusion_matrix(y_true=true_labels, y_pred=pred_labels, labels=self.classifier.classes_)
+
+    def sample_from_posterior(self, classif_predictions):
+        if self._n_and_c_labeled is None:
+            raise ValueError("aggregation_fit must be called before sample_from_posterior")
+
+        n_c_unlabeled = F.counts_from_labels(classif_predictions, self.classifier.classes_)
+
+        self._samples = _bayesian.sample_posterior(
+            n_c_unlabeled=n_c_unlabeled,
+            n_y_and_c_labeled=self._n_and_c_labeled,
+            num_warmup=self.num_warmup,
+            num_samples=self.num_samples,
+            seed=self.mcmc_seed,
+        )
+        return self._samples
+
+    def get_prevalence_samples(self):
+        if self._samples is None:
+            raise ValueError("sample_from_posterior must be called before get_prevalence_samples")
+        return self._samples[_bayesian.P_TEST_Y]
+
+    def get_conditional_probability_samples(self):
+        if self._samples is None:
+            raise ValueError("sample_from_posterior must be called before get_conditional_probability_samples")
+        return self._samples[_bayesian.P_C_COND_Y]
+
+    def aggregate(self, classif_predictions):
+        samples = self.sample_from_posterior(classif_predictions)[_bayesian.P_TEST_Y]
+        return np.asarray(samples.mean(axis=0), dtype=float)
 
 
 class PCC(AggregativeSoftQuantifier):
