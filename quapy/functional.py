@@ -2,24 +2,25 @@ import itertools
 import warnings
 from collections import defaultdict
 from typing import Literal, Union, Callable
+from numpy.typing import ArrayLike
 
 import scipy
 import numpy as np
 
 
-def prevalence_linspace(n_prevalences=21, repeats=1, smooth_limits_epsilon=0.01):
+def prevalence_linspace(grid_points:int=21, repeats:int=1, smooth_limits_epsilon:float=0.01):
     """
     Produces an array of uniformly separated values of prevalence.
     By default, produces an array of 21 prevalence values, with
     step 0.05 and with the limits smoothed, i.e.:
     [0.01, 0.05, 0.10, 0.15, ..., 0.90, 0.95, 0.99]
 
-    :param n_prevalences: the number of prevalence values to sample from the [0,1] interval (default 21)
+    :param grid_points: the number of prevalence values to sample from the [0,1] interval (default 21)
     :param repeats: number of times each prevalence is to be repeated (defaults to 1)
     :param smooth_limits_epsilon: the quantity to add and subtract to the limits 0 and 1
     :return: an array of uniformly separated prevalence values
     """
-    p = np.linspace(0., 1., num=n_prevalences, endpoint=True)
+    p = np.linspace(0., 1., num=grid_points, endpoint=True)
     p[0] += smooth_limits_epsilon
     p[-1] -= smooth_limits_epsilon
     if p[0] > p[1]:
@@ -29,7 +30,7 @@ def prevalence_linspace(n_prevalences=21, repeats=1, smooth_limits_epsilon=0.01)
     return p
 
 
-def counts_from_labels(labels, classes):
+def counts_from_labels(labels: ArrayLike, classes: ArrayLike):
     """
     Computes the count values from a vector of labels.
 
@@ -38,7 +39,7 @@ def counts_from_labels(labels, classes):
         some classes have no examples.
     :return: an ndarray of shape `(len(classes),)` with the occurrence counts of each class
     """
-    if labels.ndim != 1:
+    if np.asarray(labels).ndim != 1:
         raise ValueError(f'param labels does not seem to be a ndarray of label predictions')
     unique, counts = np.unique(labels, return_counts=True)
     by_class = defaultdict(lambda:0, dict(zip(unique, counts)))
@@ -46,7 +47,7 @@ def counts_from_labels(labels, classes):
     return counts
 
 
-def prevalence_from_labels(labels, classes):
+def prevalence_from_labels(labels: ArrayLike, classes: ArrayLike):
     """
     Computes the prevalence values from a vector of labels.
 
@@ -59,7 +60,7 @@ def prevalence_from_labels(labels, classes):
     return counts / np.sum(counts)
 
 
-def prevalence_from_probabilities(posteriors, binarize: bool = False):
+def prevalence_from_probabilities(posteriors: ArrayLike, binarize: bool = False):
     """
     Returns a vector of prevalence values from a matrix of posterior probabilities.
 
@@ -68,6 +69,7 @@ def prevalence_from_probabilities(posteriors, binarize: bool = False):
         converting the vectors of posterior probabilities into class indices, by taking the argmax).
     :return: array of shape `(n_classes,)` containing the prevalence values
     """
+    posteriors = np.asarray(posteriors)
     if posteriors.ndim != 2:
         raise ValueError(f'param posteriors does not seem to be a ndarray of posteior probabilities')
     if binarize:
@@ -79,7 +81,7 @@ def prevalence_from_probabilities(posteriors, binarize: bool = False):
         return prevalences
 
 
-def as_binary_prevalence(positive_prevalence: Union[float, np.ndarray], clip_if_necessary=False):
+def as_binary_prevalence(positive_prevalence: Union[float, np.ndarray], clip_if_necessary: bool=False):
     """
     Helper that, given a float representing the prevalence for the positive class, returns a np.ndarray of two
     values representing a binary distribution.
@@ -97,7 +99,7 @@ def as_binary_prevalence(positive_prevalence: Union[float, np.ndarray], clip_if_
 
 
 
-def HellingerDistance(P, Q) -> float:
+def HellingerDistance(P: np.ndarray, Q: np.ndarray) -> float:
     """
     Computes the Hellingher Distance (HD) between (discretized) distributions `P` and `Q`.
     The HD for two discrete distributions of `k` bins is defined as:
@@ -112,7 +114,7 @@ def HellingerDistance(P, Q) -> float:
     return np.sqrt(np.sum((np.sqrt(P) - np.sqrt(Q))**2))
 
 
-def TopsoeDistance(P, Q, epsilon=1e-20):
+def TopsoeDistance(P: np.ndarray, Q: np.ndarray, epsilon: float=1e-20):
     """
     Topsoe distance between two (discretized) distributions `P` and `Q`.
     The Topsoe distance for two discrete distributions of `k` bins is defined as:
@@ -128,7 +130,7 @@ def TopsoeDistance(P, Q, epsilon=1e-20):
     return np.sum(P*np.log((2*P+epsilon)/(P+Q+epsilon)) + Q*np.log((2*Q+epsilon)/(P+Q+epsilon)))
                   
 
-def uniform_prevalence_sampling(n_classes, size=1):
+def uniform_prevalence_sampling(n_classes: int, size: int=1):
     """
     Implements the `Kraemer algorithm <http://www.cs.cmu.edu/~nasmith/papers/smith+tromble.tr04.pdf>`_
     for sampling uniformly at random from the unit simplex. This implementation is adapted from this
@@ -157,7 +159,7 @@ def uniform_prevalence_sampling(n_classes, size=1):
 uniform_simplex_sampling = uniform_prevalence_sampling
 
 
-def strprev(prevalences, prec=3):
+def strprev(prevalences: ArrayLike, prec: int=3):
     """
     Returns a string representation for a prevalence vector. E.g.,
 
@@ -171,7 +173,7 @@ def strprev(prevalences, prec=3):
     return '['+ ', '.join([f'{p:.{prec}f}' for p in prevalences]) + ']'
 
 
-def adjusted_quantification(prevalence_estim, tpr, fpr, clip=True):
+def adjusted_quantification(prevalence_estim: ArrayLike, tpr: float, fpr: float, clip: bool=True):
     """
     Implements the adjustment of ACC and PACC for the binary case. The adjustment for a prevalence estimate of the
     positive class `p` comes down to computing:
@@ -195,7 +197,7 @@ def adjusted_quantification(prevalence_estim, tpr, fpr, clip=True):
     return adjusted
 
 
-def normalize_prevalence(prevalences):
+def normalize_prevalence(prevalences: ArrayLike):
     """
     Normalize a vector or matrix of prevalence values. The normalization consists of applying a L1 normalization in
     cases in which the prevalence values are not all-zeros, and to convert the prevalence values into `1/n_classes` in
@@ -287,23 +289,23 @@ def get_nprevpoints_approximation(combinations_budget:int, n_classes:int, n_repe
             n_prevpoints += 1
 
 
-def check_prevalence_vector(p, raise_exception=False, toleranze=1e-08):
+def check_prevalence_vector(prevalences: ArrayLike, raise_exception: bool=False, toleranze: float=1e-08):
     """
     Checks that p is a valid prevalence vector, i.e., that it contains values in [0,1] and that the values sum up to 1.
 
-    :param p: the prevalence vector to check
+    :param prevalences: the prevalence vector to check
     :return: True if `p` is valid, False otherwise
     """
-    p = np.asarray(p)
-    if not all(p>=0):
+    prevalences = np.asarray(prevalences)
+    if not all(prevalences >= 0):
         if raise_exception:
             raise ValueError('the prevalence vector contains negative numbers')
         return False
-    if not all(p<=1):
+    if not all(prevalences <= 1):
         if raise_exception:
             raise ValueError('the prevalence vector contains values >1')
         return False
-    if not np.isclose(p.sum(), 1, atol=toleranze):
+    if not np.isclose(prevalences.sum(), 1, atol=toleranze):
         if raise_exception:
             raise ValueError('the prevalence vector does not sum up to 1')
         return False
@@ -311,6 +313,14 @@ def check_prevalence_vector(p, raise_exception=False, toleranze=1e-08):
 
 
 def get_divergence(divergence: Union[str, Callable]):
+    """
+    Guarantees that the divergence received as argument is a function. That is, if this argument is already
+    a callable, then it is returned, if it is instead a string, then tries to instantiate the corresponding
+    divergence from the string name.
+
+    :param divergence: callable or string indicating the name of the divergence function
+    :return: callable
+    """
     if isinstance(divergence, str):
         if divergence=='HD':
             return HellingerDistance
@@ -324,7 +334,20 @@ def get_divergence(divergence: Union[str, Callable]):
         raise ValueError(f'argument "divergence" not understood; use a str or a callable function')
 
 
-def argmin_prevalence(loss, n_classes, method='optim_minimize'):
+def argmin_prevalence(loss: Callable,
+                      n_classes: int,
+                      method: Literal["optim_minimize", "linear_search", "ternary_search"]='optim_minimize'):
+    """
+    Searches for the prevalence vector that minimizes a loss function.
+
+    :param loss: callable, the function to minimize
+    :param n_classes: int, number of classes
+    :param method: string indicating the search strategy. Possible values are::
+        'optim_minimize': uses scipy.optim
+        'linear_search': carries out a linear search for binary problems in the space [0, 0.01, 0.02, ..., 1]
+        'ternary_search': implements the ternary search (not yet implemented)
+    :return: np.ndarray, a prevalence vector
+    """
     if method == 'optim_minimize':
         return optim_minimize(loss, n_classes)
     elif method == 'linear_search':
@@ -335,7 +358,7 @@ def argmin_prevalence(loss, n_classes, method='optim_minimize'):
         raise NotImplementedError()
 
 
-def optim_minimize(loss, n_classes):
+def optim_minimize(loss: Callable, n_classes: int):
     """
     Searches for the optimal prevalence values, i.e., an `n_classes`-dimensional vector of the (`n_classes`-1)-simplex
     that yields the smallest lost. This optimization is carried out by means of a constrained search using scipy's
@@ -357,7 +380,7 @@ def optim_minimize(loss, n_classes):
     return r.x
 
 
-def linear_search(loss, n_classes):
+def linear_search(loss: Callable, n_classes: int):
     """
     Performs a linear search for the best prevalence value in binary problems. The search is carried out by exploring
     the range [0,1] stepping by 0.01. This search is inefficient, and is added only for completeness (some of the
@@ -370,7 +393,7 @@ def linear_search(loss, n_classes):
     assert n_classes==2, 'linear search is only available for binary problems'
 
     prev_selected, min_score = None, None
-    for prev in prevalence_linspace(n_prevalences=100, repeats=1, smooth_limits_epsilon=0.0):
+    for prev in prevalence_linspace(grid_points=100, repeats=1, smooth_limits_epsilon=0.0):
         score = loss(np.asarray([1 - prev, prev]))
         if min_score is None or score < min_score:
             prev_selected, min_score = prev, score
@@ -378,7 +401,7 @@ def linear_search(loss, n_classes):
     return np.asarray([1 - prev_selected, prev_selected])
 
 
-def _project_onto_probability_simplex(v: np.ndarray) -> np.ndarray:
+def map_onto_probability_simplex(unnormalized_arr: ArrayLike) -> np.ndarray:
     """Projects a point onto the probability simplex.
 
     The code is adapted from Mathieu Blondel's BSD-licensed
@@ -389,85 +412,88 @@ def _project_onto_probability_simplex(v: np.ndarray) -> np.ndarray:
     Large-scale Multiclass Support Vector Machine Training via Euclidean Projection onto the Simplex,
     ICPR 2014, `URL <http://www.mblondel.org/publications/mblondel-icpr2014.pdf>`_
 
-    :param v: point in n-dimensional space, shape `(n,)`
+    :param unnormalized_arr: point in n-dimensional space, shape `(n,)`
     :return: projection of `v` onto (n-1)-dimensional probability simplex, shape `(n,)`
     """
-    v = np.asarray(v)
-    n = len(v)
+    unnormalized_arr = np.asarray(unnormalized_arr)
+    n = len(unnormalized_arr)
 
     # Sort the values in the descending order
-    u = np.sort(v)[::-1]
+    u = np.sort(unnormalized_arr)[::-1]
 
     cssv = np.cumsum(u) - 1.0
     ind = np.arange(1, n + 1)
     cond = u - cssv / ind > 0
     rho = ind[cond][-1]
     theta = cssv[cond][-1] / float(rho)
-    return np.maximum(v - theta, 0)
+    return np.maximum(unnormalized_arr - theta, 0)
 
 
-
-def clip_prevalence(p: np.ndarray, method: Literal[None, "none", "clip", "project"]) -> np.ndarray:
+def clip_prevalence(prevalences: ArrayLike, method: Literal[None, "none", "clip", "project"]) -> np.ndarray:
     """
-    Clips the proportions vector `p` so that it is a valid probability distribution.
+    Clips the proportions vector `prevalences` so that it is a valid probability distribution, i.e., all values
+    are in [0,1] and sum up to 1.
 
-    :param p: the proportions vector to be clipped, shape `(n_classes,)`
-    :param method: the method to use for normalization.
+    :param prevalences: array-like, the proportions vector to be clipped, shape `(n_classes,)`
+    :param method: indicates the method to be used for normalization.
         If `None` or `"none"`, no normalization is performed.
         If `"clip"`, the values are clipped to the range [0,1] and normalized, so they sum up to 1.
         If `"project"`, the values are projected onto the probability simplex.
     :return: the normalized prevalence vector, shape `(n_classes,)`
     """
-    if method is None or method == "none":
-        return p
+    prevalences = np.asarray(prevalences)
+    if method in [None, "none"]:
+        return prevalences
     elif method == "clip":
-        adjusted = np.clip(p, 0, 1)
-        return adjusted / adjusted.sum()
+        clipped = np.clip(prevalences, 0, 1)
+        adjusted = clipped / clipped.sum()
+        return adjusted
     elif method == "project":
-        return _project_onto_probability_simplex(p)
+        return map_onto_probability_simplex(prevalences)
     else:
-        raise ValueError(f"Method {method} not known.")
+        raise ValueError(f'Unknown method {method}. Valid ones are "none", "clip", or "project"')
 
 
 def solve_adjustment(
-    p_c_y: np.ndarray,
+    p_c_cond_y: np.ndarray,
     p_c: np.ndarray,
     method: Literal["inversion", "invariant-ratio"],
-    solver: Literal["exact", "minimize", "exact-raise", "exact-cc"],
-) -> np.ndarray:
+    solver: Literal["exact", "minimize", "exact-raise", "exact-cc"]) -> np.ndarray:
     """
-    Function finding the prevalence vector by adjusting
-    the classifier predictions.
+    Function that tries to solve for the equation :math:`P(C)=P(C|Y)P(Y)`, where :math:`P(C)` is the vector of
+    prevalence values obtained by a classify and count, and  :math:`P(C|Y)` are the class-conditional misclassification
+    rates of the classifier.
 
-    :param p_c_y: array of shape `(n_classes, n_classes,)` with entry `(c,y)` being the estimate
-            of :math:`P(C=c|Y=y)`, that is, the probability that an instance that belongs to class :math:`y`
-            ends up being classified as belonging to class :math:`c`
-    :param p_c: classifier predictions, where the entry `c` is the estimate of :math:`P(C=c)`. Shape `(n_classes,)`
-    :param method: adjustment method to be used:
-        'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`,
-            which tries to invert `P(C|Y)` matrix.
-        'invariant-ratio': invariant ratio estimator of `Vaz et al. <https://jmlr.org/papers/v20/18-456.html>`_,
-            which replaces the last equation with the normalization condition.
-    :param solver: the method to use for solving the system of linear equations. Valid options are:
-        'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has
-            rank strictly less than `n_classes`.
-        'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds
-            to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
-        'exact': deprecated, defaults to 'exact-cc'
-        'minimize': minimizes a loss, so the solution always exists
+    :param p_c_cond_y: array of shape `(n_classes, n_classes,)` with entry `(c,y)` being the estimate
+        of :math:`P(C=c|Y=y)`, that is, the probability that an instance that belongs to class :math:`y`
+        ends up being classified as belonging to class :math:`c`
+
+    :param p_c: array of shape `(n_classes,)` containing the prevalence values as estimated by classify and count
+
+    :param str method: indicates the adjustment method to be used. Valid options are:
+
+        * 'inversion': tries to solve the equation :math:`P(C)=P(C|Y)P(Y)` as :math:`P(Y) = P(C|Y)^{-1} P(C)` where :math:`P(C|Y)^{-1}` is the matrix inversion of :math:`P(C|Y)`. This inversion may not exist in degenerated cases
+        * 'invariant-ratio': invariant ratio estimator of `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>`_, which replaces the last equation with the normalization condition.
+
+    :param str solver: the method to use for solving the system of linear equations. Valid options are:
+
+        * 'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has rank strictly less than `n_classes`.
+        * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
+        * 'exact': deprecated, defaults to 'exact-cc'
+        * 'minimize': minimizes a loss, so the solution always exists
     """
     if solver == "exact":
-        warnings.warn("The 'exact' solver is deprecated. Use 'exact-raise' or 'exact-cc'", DeprecationWarning, stacklevel=2)
+        warnings.warn(
+            "The 'exact' solver is deprecated. Use 'exact-raise' or 'exact-cc'", DeprecationWarning, stacklevel=2)
         solver = "exact-cc"
 
-    A = np.array(p_c_y, dtype=float)
-    B = np.array(p_c, dtype=float)
+    A = np.asarray(p_c_cond_y, dtype=float)
+    B = np.asarray(p_c, dtype=float)
 
     if method == "inversion":
         pass  # We leave A and B unchanged
     elif method == "invariant-ratio":
-        # Change the last equation to replace
-        # it with the normalization condition
+        # Change the last equation to replace it with the normalization condition
         A[-1, :] = 1.0
         B[-1] = 1.0
     else:

@@ -1,4 +1,6 @@
 """
+.. author:: Paweł Czyż
+
 This example shows how to use Bayesian quantification (https://arxiv.org/abs/2302.09159),
 which is suitable for low-data situations and when the uncertainty of the prevalence estimate is of interest.
 

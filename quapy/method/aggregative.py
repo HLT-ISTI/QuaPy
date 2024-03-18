@@ -352,103 +352,6 @@ class CC(AggregativeCrispQuantifier):
         return F.prevalence_from_labels(classif_predictions, self.classes_)
 
 
-class ACC(AggregativeCrispQuantifier):
-    """
-    `Adjusted Classify & Count <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_,
-    the "adjusted" variant of :class:`CC`, that corrects the predictions of CC
-    according to the `misclassification rates`.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: specifies the data used for generating classifier predictions. This specification
-        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
-        be extracted from the training set; or as an integer (default 5), indicating that the predictions
-        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`); or as a collection defining the specific set of data to use for validation.
-        Alternatively, this set can be specified at fit time by indicating the exact set of data
-        on which the predictions are to be generated.
-    :param n_jobs: number of parallel workers
-    :param method: adjustment method to be used:
-        'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`,
-            which tries to invert `P(C|Y)` matrix.
-        'invariant-ratio': invariant ratio estimator of `Vaz et al. <https://jmlr.org/papers/v20/18-456.html>`_,
-            which replaces the last equation with the normalization condition.
-    :param solver: the method to use for solving the system of linear equations. Valid options are:
-        'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has
-            rank strictly less than `n_classes`.
-        'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds
-            to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
-        'exact': deprecated, defaults to 'exact-cc'
-        'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the default parameter.
-            More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and
-            Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications
-            (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
-    :param clipping: the method to use for normalization.
-        If `None` or `"none"`, no normalization is performed.
-        If `"clip"`, the values are clipped to the range [0,1] and normalized, so they sum up to 1.
-        If `"project"`, the values are projected onto the probability simplex.
-    """
-
-    def __init__(
-            self,
-            classifier: BaseEstimator,
-            val_split=5,
-            n_jobs=None,
-            solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
-            method: Literal['inversion', 'invariant-ratio'] = 'inversion',
-            clipping: Literal['clip', 'none', 'project'] = 'clip',
-        ) -> None:
-        self.classifier = classifier
-        self.val_split = val_split
-        self.n_jobs = qp._get_njobs(n_jobs)
-        self.solver = solver
-        self.method = method
-        self.clipping = clipping
-
-    def _check_init_parameters(self):
-        if self.solver not in ['exact', 'minimize', 'exact-raise', 'exact-cc']:
-            raise ValueError("unknown solver; valid ones are 'exact', 'minimize', 'exact-raise', 'exact-cc'")
-        if self.method not in ['inversion', 'invariant-ratio']:
-            raise ValueError("unknown method; valid ones are 'inversion', 'invariant-ratio'")
-        if self.clipping not in ['clip', 'none', 'project', None]:
-            raise ValueError("unknown clipping; valid ones are 'clip', 'none', 'project' or None")
-
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        """
-        Estimates the misclassification rates.
-
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the label predictions issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
-        """
-        pred_labels, true_labels = classif_predictions.Xy
-        self.cc = CC(self.classifier)
-        self.Pte_cond_estim_ = self.getPteCondEstim(self.classifier.classes_, true_labels, pred_labels)
-
-    @classmethod
-    def getPteCondEstim(cls, classes, y, y_):
-        # estimate the matrix with entry (i,j) being the estimate of P(hat_yi|yj), that is, the probability that a
-        # document that belongs to yj ends up being classified as belonging to yi
-        conf = confusion_matrix(y, y_, labels=classes).T
-        conf = conf.astype(float)
-        class_counts = conf.sum(axis=0)
-        for i, _ in enumerate(classes):
-            if class_counts[i] == 0:
-                conf[i, i] = 1
-            else:
-                conf[:, i] /= class_counts[i]
-        return conf
-
-    def aggregate(self, classif_predictions):
-        prevs_estim = self.cc.aggregate(classif_predictions)
-        estimate = F.solve_adjustment(
-            p_c_y=self.Pte_cond_estim_,
-            p_c=prevs_estim,
-            solver=self.solver,
-            method=self.method,
-        )
-        return F.clip_prevalence(estimate, method=self.clipping)
-
-
 class PCC(AggregativeSoftQuantifier):
     """
     `Probabilistic Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
@@ -473,49 +376,178 @@ class PCC(AggregativeSoftQuantifier):
         return F.prevalence_from_probabilities(classif_posteriors, binarize=False)
 
 
+class ACC(AggregativeCrispQuantifier):
+    """
+    `Adjusted Classify & Count <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_,
+    the "adjusted" variant of :class:`CC`, that corrects the predictions of CC
+    according to the `misclassification rates`.
+
+    :param classifier: a sklearn's Estimator that generates a classifier
+
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a collection defining the specific set of data to use for validation.
+        Alternatively, this set can be specified at fit time by indicating the exact set of data
+        on which the predictions are to be generated.
+
+    :param str method: adjustment method to be used:
+
+        * 'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`, which tries to invert :math:`P(C|Y)` matrix.
+        * 'invariant-ratio': invariant ratio estimator of `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>`_, which replaces the last equation with the normalization condition.
+
+    :param str solver: indicates the method to use for solving the system of linear equations. Valid options are:
+
+        * 'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has rank strictly less than `n_classes`.
+        * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
+        * 'exact': deprecated, defaults to 'exact-cc'
+        * 'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the default parameter. More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
+
+    :param str clipping: the method to use for normalization.
+
+        * If `None` or `"none"`, no normalization is performed.
+        * If `"clip"`, the values are clipped to the range [0,1] and normalized, so they sum up to 1.
+        * If `"project"`, the values are projected onto the probability simplex.
+
+    :param n_jobs: number of parallel workers
+    """
+    def __init__(
+            self,
+            classifier: BaseEstimator,
+            val_split=5,
+            solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
+            method: Literal['inversion', 'invariant-ratio'] = 'inversion',
+            clipping: Literal['clip', 'none', 'project'] = 'clip',
+            n_jobs=None,
+        ):
+        self.classifier = classifier
+        self.val_split = val_split
+        self.n_jobs = qp._get_njobs(n_jobs)
+        self.solver = solver
+        self.method = method
+        self.clipping = clipping
+
+    SOLVERS = ['exact', 'minimize', 'exact-raise', 'exact-cc']
+    METHODS = ['inversion', 'invariant-ratio']
+    CLIPPING = ['clip', 'none', 'project', None]
+
+
+    @classmethod
+    def newInvariantRatioEstimation(cls, classifier: BaseEstimator, val_split=5, n_jobs=None):
+        """
+        Constructs a quantifier that implements the Invariant Ratio Estimator of
+        `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>_`. This amounts
+        to setting method to 'invariant-ratio' and clipping to 'project'.
+
+        :param classifier: a sklearn's Estimator that generates a classifier
+        :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a collection defining the specific set of data to use for validation.
+        Alternatively, this set can be specified at fit time by indicating the exact set of data
+        on which the predictions are to be generated.
+        :param n_jobs: number of parallel workers
+        :return: an instance of ACC configured so that it implements the Invariant Ratio Estimator
+        """
+        return ACC(classifier, val_split=val_split, method='invariant-ratio', clipping='project', n_jobs=n_jobs)
+
+    def _check_init_parameters(self):
+        if self.solver not in ACC.SOLVERS:
+            raise ValueError(f"unknown solver; valid ones are {ACC.SOLVERS}")
+        if self.method not in ACC.METHODS:
+            raise ValueError(f"unknown method; valid ones are {ACC.METHODS}")
+        if self.clipping not in ACC.CLIPPING:
+            raise ValueError(f"unknown clipping; valid ones are {ACC.CLIPPING}")
+
+    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        """
+        Estimates the misclassification rates.
+
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the label predictions issued by the classifier and, as labels, the true labels
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        """
+        pred_labels, true_labels = classif_predictions.Xy
+        self.cc = CC(self.classifier)
+        self.Pte_cond_estim_ = ACC.getPteCondEstim(self.classifier.classes_, true_labels, pred_labels)
+
+    @classmethod
+    def getPteCondEstim(cls, classes, y, y_):
+        """
+        Estimate the matrix with entry (i,j) being the estimate of P(hat_yi|yj), that is, the probability that a
+        document that belongs to yj ends up being classified as belonging to yi
+
+        :param classes: array-like with the class names
+        :param y: array-like with the true labels
+        :param y_: array-like with the estimated labels
+        :return: np.ndarray
+        """
+        conf = confusion_matrix(y, y_, labels=classes).T
+        conf = conf.astype(float)
+        class_counts = conf.sum(axis=0)
+        for i, _ in enumerate(classes):
+            if class_counts[i] == 0:
+                conf[i, i] = 1
+            else:
+                conf[:, i] /= class_counts[i]
+        return conf
+
+    def aggregate(self, classif_predictions):
+        prevs_estim = self.cc.aggregate(classif_predictions)
+        estimate = F.solve_adjustment(
+            p_c_cond_y=self.Pte_cond_estim_,
+            p_c=prevs_estim,
+            solver=self.solver,
+            method=self.method,
+        )
+        return F.clip_prevalence(estimate, method=self.clipping)
+
+
 class PACC(AggregativeSoftQuantifier):
     """
     `Probabilistic Adjusted Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
     the probabilistic variant of ACC that relies on the posterior probabilities returned by a probabilistic classifier.
 
     :param classifier: a sklearn's Estimator that generates a classifier
+
     :param val_split: specifies the data used for generating classifier predictions. This specification
         can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
         be extracted from the training set; or as an integer (default 5), indicating that the predictions
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
         for `k`). Alternatively, this set can be specified at fit time by indicating the exact set of data
         on which the predictions are to be generated.
-    :param n_jobs: number of parallel workers
-    :param method: adjustment method to be used:
-        'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`,
-            which tries to invert `P(C|Y)` matrix.
-        'invariant-ratio': invariant ratio estimator of `Vaz et al. <https://jmlr.org/papers/v20/18-456.html>`_,
-            which replaces the last equation with the normalization condition.
-    :param solver: the method to use for solving the system of linear equations. Valid options are:
-        'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has
-            rank strictly less than `n_classes`.
-        'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds
-            to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
-        'exact': deprecated, defaults to 'exact-cc'
-        'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the default parameter.
-            More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and
-            Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications
-            (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
-    :param clipping: the method to use for normalization.
-        If `None` or `"none"`, no normalization is performed.
-        If `"clip"`, the values are clipped to the range [0,1] and normalized, so they sum up to 1.
-        If `"project"`, the values are projected onto the probability simplex.
-    """
 
+    :param str method: adjustment method to be used:
+
+        * 'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`, which tries to invert `P(C|Y)` matrix.
+        * 'invariant-ratio': invariant ratio estimator of `Vaz et al. <https://jmlr.org/papers/v20/18-456.html>`_, which replaces the last equation with the normalization condition.
+
+    :param str solver: the method to use for solving the system of linear equations. Valid options are:
+
+        * 'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has rank strictly less than `n_classes`.
+        * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
+        * 'exact': deprecated, defaults to 'exact-cc'
+        * 'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the default parameter. More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
+
+    :param str clipping: the method to use for normalization.
+
+        * If `None` or `"none"`, no normalization is performed.
+        * If `"clip"`, the values are clipped to the range [0,1] and normalized, so they sum up to 1.
+        * If `"project"`, the values are projected onto the probability simplex.
+
+    :param n_jobs: number of parallel workers
+    """
     def __init__(
             self,
             classifier: BaseEstimator,
             val_split=5,
-            n_jobs=None,
             solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
             method: Literal['inversion', 'invariant-ratio'] = 'inversion',
             clipping: Literal['clip', 'none', 'project'] = 'clip',
-        ) -> None:
+            n_jobs=None,
+        ):
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
@@ -525,12 +557,12 @@ class PACC(AggregativeSoftQuantifier):
         self.clipping = clipping
 
     def _check_init_parameters(self):
-        if self.solver not in ['exact', 'minimize', 'exact-raise', 'exact-cc']:
-            raise ValueError("unknown solver; valid ones are 'exact', 'minimize', 'exact-raise', 'exact-cc'")
-        if self.method not in ['inversion', 'invariant-ratio']:
-            raise ValueError("unknown method; valid ones are 'inversion', 'invariant-ratio'")
-        if self.clipping not in ['clip', 'none', 'project', None]:
-            raise ValueError("unknown clipping; valid ones are 'clip', 'none', 'project' or None")
+        if self.solver not in ACC.SOLVERS:
+            raise ValueError(f"unknown solver; valid ones are {ACC.SOLVERS}")
+        if self.method not in ACC.METHODS:
+            raise ValueError(f"unknown method; valid ones are {ACC.METHODS}")
+        if self.clipping not in ACC.CLIPPING:
+            raise ValueError(f"unknown clipping; valid ones are {ACC.CLIPPING}")
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -542,19 +574,18 @@ class PACC(AggregativeSoftQuantifier):
         """
         posteriors, true_labels = classif_predictions.Xy
         self.pcc = PCC(self.classifier)
-        self.Pte_cond_estim_ = self.getPteCondEstim(self.classifier.classes_, true_labels, posteriors)
+        self.Pte_cond_estim_ = PACC.getPteCondEstim(self.classifier.classes_, true_labels, posteriors)
 
     def aggregate(self, classif_posteriors):
         prevs_estim = self.pcc.aggregate(classif_posteriors)
 
         estimate = F.solve_adjustment(
-            p_c_y=self.Pte_cond_estim_,
+            p_c_cond_y=self.Pte_cond_estim_,
             p_c=prevs_estim,
             solver=self.solver,
             method=self.method,
         )
         return F.clip_prevalence(estimate, method=self.clipping)
-
 
     @classmethod
     def getPteCondEstim(cls, classes, y, y_):
@@ -906,7 +937,7 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
             # at small steps (modern implementations resort to an optimization procedure,
             # see class DistributionMatching)
             prev_selected, min_dist = None, None
-            for prev in F.prevalence_linspace(n_prevalences=101, repeats=1, smooth_limits_epsilon=0.0):
+            for prev in F.prevalence_linspace(grid_points=101, repeats=1, smooth_limits_epsilon=0.0):
                 Px_train = prev * Pxy1_density + (1 - prev) * Pxy0_density
                 hdy = F.HellingerDistance(Px_train, Px_test)
                 if prev_selected is None or hdy < min_dist:

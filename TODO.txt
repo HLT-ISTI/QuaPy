@@ -1,3 +1,5 @@
+check sphinks doc for enumerations (for example, the doc for ACC)
+
 ensembles seem to be broken; they have an internal model selection which takes the parameters, but since quapy now
     works with protocols it would need to know the validation set in order to pass something like
     "protocol: APP(val, etc.)"
