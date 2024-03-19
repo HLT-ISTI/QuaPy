@@ -1,22 +1,23 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>Index &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
 
   
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=22607128"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
@@ -116,8 +117,6 @@
 </li>
       <li><a href="quapy.data.html#quapy.data.preprocessing.IndexTransformer.add_word">add_word() (quapy.data.preprocessing.IndexTransformer method)</a>
 </li>
-      <li><a href="quapy.html#quapy.functional.adjusted_quantification">adjusted_quantification() (in module quapy.functional)</a>
-</li>
       <li><a href="quapy.method.html#quapy.method.aggregative.AdjustedClassifyAndCount">AdjustedClassifyAndCount (in module quapy.method.aggregative)</a>
 </li>
       <li><a href="quapy.html#quapy.error.ae">ae() (in module quapy.error)</a>
@@ -136,6 +135,8 @@
         <li><a href="quapy.method.html#quapy.method.aggregative.ACC.aggregate">(quapy.method.aggregative.ACC method)</a>
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.aggregate">(quapy.method.aggregative.AggregativeQuantifier method)</a>
+</li>
+        <li><a href="quapy.method.html#quapy.method.aggregative.BayesianCC.aggregate">(quapy.method.aggregative.BayesianCC method)</a>
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.CC.aggregate">(quapy.method.aggregative.CC method)</a>
 </li>
@@ -174,6 +175,8 @@
         <li><a href="quapy.method.html#quapy.method.aggregative.ACC.aggregation_fit">(quapy.method.aggregative.ACC method)</a>
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.AggregativeQuantifier.aggregation_fit">(quapy.method.aggregative.AggregativeQuantifier method)</a>
+</li>
+        <li><a href="quapy.method.html#quapy.method.aggregative.BayesianCC.aggregation_fit">(quapy.method.aggregative.BayesianCC method)</a>
 </li>
         <li><a href="quapy.method.html#quapy.method.aggregative.CC.aggregation_fit">(quapy.method.aggregative.CC method)</a>
 </li>
@@ -221,6 +224,8 @@
       <li><a href="quapy.method.html#quapy.method._kdey.KDEBase.BANDWIDTH_METHOD">BANDWIDTH_METHOD (quapy.method._kdey.KDEBase attribute)</a>
 </li>
       <li><a href="quapy.method.html#quapy.method.base.BaseQuantifier">BaseQuantifier (class in quapy.method.base)</a>
+</li>
+      <li><a href="quapy.method.html#quapy.method.aggregative.BayesianCC">BayesianCC (class in quapy.method.aggregative)</a>
 </li>
       <li><a href="quapy.classification.html#quapy.classification.calibration.BCTSCalibration">BCTSCalibration (class in quapy.classification.calibration)</a>
 </li>
@@ -284,11 +289,13 @@
       </ul></li>
       <li><a href="quapy.method.html#quapy.method.aggregative.ClassifyAndCount">ClassifyAndCount (in module quapy.method.aggregative)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="quapy.method.html#quapy.method._neural.QuaNetTrainer.clean_checkpoint">clean_checkpoint() (quapy.method._neural.QuaNetTrainer method)</a>
 </li>
       <li><a href="quapy.method.html#quapy.method._neural.QuaNetTrainer.clean_checkpoint_dir">clean_checkpoint_dir() (quapy.method._neural.QuaNetTrainer method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="quapy.html#quapy.functional.clip">clip() (in module quapy.functional)</a>
 </li>
       <li><a href="quapy.classification.html#quapy.classification.neural.CNNnet">CNNnet (class in quapy.classification.neural)</a>
 </li>
@@ -306,9 +313,13 @@
         <li><a href="quapy.method.html#quapy.method._threshold_optim.X.condition">(quapy.method._threshold_optim.X method)</a>
 </li>
       </ul></li>
+      <li><a href="quapy.html#quapy.functional.condsoftmax">condsoftmax() (in module quapy.functional)</a>
+</li>
       <li><a href="quapy.html#quapy.model_selection.ConfigStatus">ConfigStatus (class in quapy.model_selection)</a>
 </li>
       <li><a href="quapy.data.html#quapy.data.base.LabelledCollection.counts">counts() (quapy.data.base.LabelledCollection method)</a>
+</li>
+      <li><a href="quapy.html#quapy.functional.counts_from_labels">counts_from_labels() (in module quapy.functional)</a>
 </li>
       <li><a href="quapy.html#quapy.util.create_if_not_exist">create_if_not_exist() (in module quapy.util)</a>
 </li>
@@ -473,6 +484,8 @@
 </li>
         <li><a href="quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.fit">(quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation method)</a>
 </li>
+        <li><a href="quapy.method.html#quapy.method.non_aggregative.ReadMe.fit">(quapy.method.non_aggregative.ReadMe method)</a>
+</li>
         <li><a href="quapy.html#quapy.model_selection.GridSearchQ.fit">(quapy.model_selection.GridSearchQ method)</a>
 </li>
       </ul></li>
@@ -505,6 +518,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="quapy.html#quapy.protocol.OnLabelledCollectionProtocol.get_collator">get_collator() (quapy.protocol.OnLabelledCollectionProtocol class method)</a>
+</li>
+      <li><a href="quapy.method.html#quapy.method.aggregative.BayesianCC.get_conditional_probability_samples">get_conditional_probability_samples() (quapy.method.aggregative.BayesianCC method)</a>
 </li>
       <li><a href="quapy.html#quapy.functional.get_divergence">get_divergence() (in module quapy.functional)</a>
 </li>
@@ -542,6 +557,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="quapy.method.html#quapy.method.aggregative.BayesianCC.get_prevalence_samples">get_prevalence_samples() (quapy.method.aggregative.BayesianCC method)</a>
+</li>
       <li><a href="quapy.method.html#quapy.method.meta.get_probability_distribution">get_probability_distribution() (in module quapy.method.meta)</a>
 </li>
       <li><a href="quapy.html#quapy.util.get_quapy_home">get_quapy_home() (in module quapy.util)</a>
@@ -628,18 +645,20 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="quapy.html#quapy.functional.l1_norm">l1_norm() (in module quapy.functional)</a>
+</li>
       <li><a href="quapy.data.html#quapy.data.base.LabelledCollection">LabelledCollection (class in quapy.data.base)</a>
 </li>
       <li><a href="quapy.html#quapy.functional.linear_search">linear_search() (in module quapy.functional)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="quapy.data.html#quapy.data.base.Dataset.load">load() (quapy.data.base.Dataset class method)</a>
 
       <ul>
         <li><a href="quapy.data.html#quapy.data.base.LabelledCollection.load">(quapy.data.base.LabelledCollection class method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression">LowRankLogisticRegression (class in quapy.classification.methods)</a>
 </li>
       <li><a href="quapy.classification.html#quapy.classification.neural.LSTMnet">LSTMnet (class in quapy.classification.neural)</a>
@@ -674,6 +693,8 @@
 </li>
       <li><a href="quapy.method.html#quapy.method.meta.MedianEstimator2">MedianEstimator2 (class in quapy.method.meta)</a>
 </li>
+      <li><a href="quapy.method.html#quapy.method.aggregative.ACC.METHODS">METHODS (quapy.method.aggregative.ACC attribute)</a>
+</li>
       <li><a href="quapy.html#quapy.error.mkld">mkld() (in module quapy.error)</a>
 </li>
       <li><a href="quapy.html#quapy.error.mnae">mnae() (in module quapy.error)</a>
@@ -686,7 +707,7 @@
     module
 
       <ul>
-        <li><a href="generated/quapy.html#module-quapy">quapy</a>, <a href="quapy.html#module-quapy">[1]</a>
+        <li><a href="quapy.html#module-quapy">quapy</a>
 </li>
         <li><a href="quapy.classification.html#module-quapy.classification">quapy.classification</a>
 </li>
@@ -773,6 +794,8 @@
 </li>
       <li><a href="quapy.method.html#quapy.method.aggregative.newELM">newELM() (in module quapy.method.aggregative)</a>
 </li>
+      <li><a href="quapy.method.html#quapy.method.aggregative.ACC.newInvariantRatioEstimation">newInvariantRatioEstimation() (quapy.method.aggregative.ACC class method)</a>
+</li>
       <li><a href="quapy.method.html#quapy.method.base.newOneVsAll">newOneVsAll() (in module quapy.method.base)</a>
 </li>
       <li><a href="quapy.method.html#quapy.method.aggregative.newSVMAE">newSVMAE() (in module quapy.method.aggregative)</a>
@@ -786,6 +809,8 @@
       <li><a href="quapy.method.html#quapy.method.aggregative.newSVMRAE">newSVMRAE() (in module quapy.method.aggregative)</a>
 </li>
       <li><a href="quapy.html#quapy.error.nkld">nkld() (in module quapy.error)</a>
+</li>
+      <li><a href="quapy.method.html#quapy.method.aggregative.ACC.NORMALIZATIONS">NORMALIZATIONS (quapy.method.aggregative.ACC attribute)</a>
 </li>
       <li><a href="quapy.html#quapy.functional.normalize_prevalence">normalize_prevalence() (in module quapy.functional)</a>
 </li>
@@ -830,6 +855,8 @@
       <li><a href="quapy.method.html#quapy.method.aggregative.PACC">PACC (class in quapy.method.aggregative)</a>
 </li>
       <li><a href="quapy.html#quapy.util.parallel">parallel() (in module quapy.util)</a>
+</li>
+      <li><a href="quapy.html#quapy.util.parallel_unpack">parallel_unpack() (in module quapy.util)</a>
 </li>
       <li><a href="quapy.method.html#quapy.method.aggregative.PCC">PCC (class in quapy.method.aggregative)</a>
 </li>
@@ -881,6 +908,8 @@
 </li>
       <li><a href="quapy.method.html#quapy.method.aggregative.ProbabilisticClassifyAndCount">ProbabilisticClassifyAndCount (in module quapy.method.aggregative)</a>
 </li>
+      <li><a href="quapy.html#quapy.functional.projection_simplex_sort">projection_simplex_sort() (in module quapy.functional)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -912,6 +941,8 @@
 </li>
         <li><a href="quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.quantify">(quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation method)</a>
 </li>
+        <li><a href="quapy.method.html#quapy.method.non_aggregative.ReadMe.quantify">(quapy.method.non_aggregative.ReadMe method)</a>
+</li>
         <li><a href="quapy.html#quapy.model_selection.GridSearchQ.quantify">(quapy.model_selection.GridSearchQ method)</a>
 </li>
       </ul></li>
@@ -919,7 +950,7 @@
     quapy
 
       <ul>
-        <li><a href="generated/quapy.html#module-quapy">module</a>, <a href="quapy.html#module-quapy">[1]</a>
+        <li><a href="quapy.html#module-quapy">module</a>
 </li>
       </ul></li>
       <li>
@@ -1109,14 +1140,16 @@
 </li>
       <li><a href="quapy.html#quapy.protocol.AbstractStochasticSeededProtocol.random_state">random_state (quapy.protocol.AbstractStochasticSeededProtocol property)</a>
 </li>
+      <li><a href="quapy.method.html#quapy.method.non_aggregative.ReadMe">ReadMe (class in quapy.method.non_aggregative)</a>
+</li>
       <li><a href="quapy.classification.html#quapy.classification.calibration.RecalibratedProbabilisticClassifier">RecalibratedProbabilisticClassifier (class in quapy.classification.calibration)</a>
 </li>
       <li><a href="quapy.classification.html#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase">RecalibratedProbabilisticClassifierBase (class in quapy.classification.calibration)</a>
 </li>
-      <li><a href="quapy.data.html#quapy.data.base.Dataset.reduce">reduce() (quapy.data.base.Dataset method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="quapy.data.html#quapy.data.base.Dataset.reduce">reduce() (quapy.data.base.Dataset method)</a>
+</li>
       <li><a href="quapy.data.html#quapy.data.preprocessing.reduce_columns">reduce_columns() (in module quapy.data.preprocessing)</a>
 </li>
       <li><a href="quapy.data.html#quapy.data.reader.reindex_labels">reindex_labels() (in module quapy.data.reader)</a>
@@ -1145,6 +1178,8 @@
         <li><a href="quapy.html#quapy.protocol.UPP.sample">(quapy.protocol.UPP method)</a>
 </li>
       </ul></li>
+      <li><a href="quapy.method.html#quapy.method.aggregative.BayesianCC.sample_from_posterior">sample_from_posterior() (quapy.method.aggregative.BayesianCC method)</a>
+</li>
       <li><a href="quapy.html#quapy.protocol.AbstractStochasticSeededProtocol.samples_parameters">samples_parameters() (quapy.protocol.AbstractStochasticSeededProtocol method)</a>
 
       <ul>
@@ -1193,7 +1228,13 @@
 </li>
       <li><a href="quapy.html#quapy.error.smooth">smooth() (in module quapy.error)</a>
 </li>
-      <li><a href="quapy.method.html#quapy.method.aggregative.ACC.solve_adjustment">solve_adjustment() (quapy.method.aggregative.ACC class method)</a>
+      <li><a href="quapy.html#quapy.functional.softmax">softmax() (in module quapy.functional)</a>
+</li>
+      <li><a href="quapy.html#quapy.functional.solve_adjustment">solve_adjustment() (in module quapy.functional)</a>
+</li>
+      <li><a href="quapy.html#quapy.functional.solve_adjustment_binary">solve_adjustment_binary() (in module quapy.functional)</a>
+</li>
+      <li><a href="quapy.method.html#quapy.method.aggregative.ACC.SOLVERS">SOLVERS (quapy.method.aggregative.ACC attribute)</a>
 </li>
       <li><a href="quapy.data.html#quapy.data.base.LabelledCollection.split_random">split_random() (quapy.data.base.LabelledCollection method)</a>
 </li>
@@ -1210,6 +1251,8 @@
 </li>
       </ul></li>
       <li><a href="quapy.html#quapy.model_selection.Status">Status (class in quapy.model_selection)</a>
+</li>
+      <li><a href="quapy.method.html#quapy.method.non_aggregative.ReadMe.std_constrained_linear_ls">std_constrained_linear_ls() (quapy.method.non_aggregative.ReadMe method)</a>
 </li>
       <li><a href="quapy.html#quapy.functional.strprev">strprev() (in module quapy.functional)</a>
 </li>
@@ -1228,6 +1271,8 @@
       <li><a href="quapy.method.html#quapy.method._threshold_optim.T50">T50 (class in quapy.method._threshold_optim)</a>
 </li>
       <li><a href="quapy.html#quapy.util.temp_seed">temp_seed() (in module quapy.util)</a>
+</li>
+      <li><a href="quapy.html#quapy.functional.ternary_search">ternary_search() (in module quapy.functional)</a>
 </li>
       <li><a href="quapy.data.html#quapy.data.preprocessing.text2tfidf">text2tfidf() (in module quapy.data.preprocessing)</a>
 </li>
@@ -1261,6 +1306,16 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="quapy.data.html#quapy.data.base.Dataset.train_test">train_test (quapy.data.base.Dataset property)</a>
 </li>
+      <li><a href="quapy.classification.html#quapy.classification.neural.CNNnet.training">training (quapy.classification.neural.CNNnet attribute)</a>
+
+      <ul>
+        <li><a href="quapy.classification.html#quapy.classification.neural.LSTMnet.training">(quapy.classification.neural.LSTMnet attribute)</a>
+</li>
+        <li><a href="quapy.classification.html#quapy.classification.neural.TextClassifierNet.training">(quapy.classification.neural.TextClassifierNet attribute)</a>
+</li>
+        <li><a href="quapy.method.html#quapy.method._neural.QuaNetModule.training">(quapy.method._neural.QuaNetModule attribute)</a>
+</li>
+      </ul></li>
       <li><a href="quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.transform">transform() (quapy.classification.methods.LowRankLogisticRegression method)</a>
 
       <ul>

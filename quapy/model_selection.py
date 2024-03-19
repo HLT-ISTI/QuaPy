@@ -25,6 +25,7 @@ class Status(Enum):
 
 
 class ConfigStatus:
+
     def __init__(self, params, status, msg=''):
         self.params = params
         self.status = status

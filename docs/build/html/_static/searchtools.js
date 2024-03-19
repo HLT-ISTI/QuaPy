@@ -4,7 +4,7 @@
  *
  * Sphinx JavaScript utilities for the full-text search.
  *
- * :copyright: Copyright 2007-2024 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2022 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -57,12 +57,12 @@ const _removeChildren = (element) => {
 const _escapeRegExp = (string) =>
   string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 
-const _displayItem = (item, searchTerms, highlightTerms) => {
+const _displayItem = (item, searchTerms) => {
   const docBuilder = DOCUMENTATION_OPTIONS.BUILDER;
+  const docUrlRoot = DOCUMENTATION_OPTIONS.URL_ROOT;
   const docFileSuffix = DOCUMENTATION_OPTIONS.FILE_SUFFIX;
   const docLinkSuffix = DOCUMENTATION_OPTIONS.LINK_SUFFIX;
   const showSearchSummary = DOCUMENTATION_OPTIONS.SHOW_SEARCH_SUMMARY;
-  const contentRoot = document.documentElement.dataset.content_root;
 
   const [docName, title, anchor, descr, score, _filename] = item;
 
@@ -75,24 +75,20 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
     if (dirname.match(/\/index\/$/))
       dirname = dirname.substring(0, dirname.length - 6);
     else if (dirname === "index/") dirname = "";
-    requestUrl = contentRoot + dirname;
+    requestUrl = docUrlRoot + dirname;
     linkUrl = requestUrl;
   } else {
     // normal html builders
-    requestUrl = contentRoot + docName + docFileSuffix;
+    requestUrl = docUrlRoot + docName + docFileSuffix;
     linkUrl = docName + docLinkSuffix;
   }
   let linkEl = listItem.appendChild(document.createElement("a"));
   linkEl.href = linkUrl + anchor;
   linkEl.dataset.score = score;
   linkEl.innerHTML = title;
-  if (descr) {
+  if (descr)
     listItem.appendChild(document.createElement("span")).innerHTML =
       " (" + descr + ")";
-    // highlight search terms in the description
-    if (SPHINX_HIGHLIGHT_ENABLED)  // set in sphinx_highlight.js
-      highlightTerms.forEach((term) => _highlightText(listItem, term, "highlighted"));
-  }
   else if (showSearchSummary)
     fetch(requestUrl)
       .then((responseData) => responseData.text())
@@ -101,9 +97,6 @@ const _displayItem = (item, searchTerms, highlightTerms) => {
           listItem.appendChild(
             Search.makeSearchSummary(data, searchTerms)
           );
-        // highlight search terms in the summary
-        if (SPHINX_HIGHLIGHT_ENABLED)  // set in sphinx_highlight.js
-          highlightTerms.forEach((term) => _highlightText(listItem, term, "highlighted"));
       });
   Search.output.appendChild(listItem);
 };
@@ -122,15 +115,14 @@ const _finishSearch = (resultCount) => {
 const _displayNextItem = (
   results,
   resultCount,
-  searchTerms,
-  highlightTerms,
+  searchTerms
 ) => {
   // results left, load the summary and display it
   // this is intended to be dynamic (don't sub resultsCount)
   if (results.length) {
-    _displayItem(results.pop(), searchTerms, highlightTerms);
+    _displayItem(results.pop(), searchTerms);
     setTimeout(
-      () => _displayNextItem(results, resultCount, searchTerms, highlightTerms),
+      () => _displayNextItem(results, resultCount, searchTerms),
       5
     );
   }
@@ -164,7 +156,7 @@ const Search = {
     const htmlElement = new DOMParser().parseFromString(htmlString, 'text/html');
     htmlElement.querySelectorAll(".headerlink").forEach((el) => { el.remove() });
     const docContent = htmlElement.querySelector('[role="main"]');
-    if (docContent) return docContent.textContent;
+    if (docContent !== undefined) return docContent.textContent;
     console.warn(
       "Content block not found. Sphinx search tries to obtain it via '[role=main]'. Could you check your theme or template."
     );
@@ -288,9 +280,9 @@ const Search = {
     let results = [];
     _removeChildren(document.getElementById("search-progress"));
 
-    const queryLower = query.toLowerCase().trim();
+    const queryLower = query.toLowerCase();
     for (const [title, foundTitles] of Object.entries(allTitles)) {
-      if (title.toLowerCase().trim().includes(queryLower) && (queryLower.length >= title.length/2)) {
+      if (title.toLowerCase().includes(queryLower) && (queryLower.length >= title.length/2)) {
         for (const [file, id] of foundTitles) {
           let score = Math.round(100 * queryLower.length / title.length)
           results.push([
@@ -368,7 +360,7 @@ const Search = {
     // console.info("search results:", Search.lastresults);
 
     // print the results
-    _displayNextItem(results, results.length, searchTerms, highlightTerms);
+    _displayNextItem(results, results.length, searchTerms);
   },
 
   /**

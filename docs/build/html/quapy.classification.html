@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
+<html class="writer-html5" lang="en">
 <head>
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>quapy.classification package &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=92fd9be5" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+  <title>quapy.classification package &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
 
   
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script src="_static/jquery.js?v=5d32c60e"></script>
-        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="_static/documentation_options.js?v=22607128"></script>
-        <script src="_static/doctools.js?v=9a2dae69"></script>
-        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -95,15 +96,15 @@
            <div itemprop="articleBody">
              
   <section id="quapy-classification-package">
-<h1>quapy.classification package<a class="headerlink" href="#quapy-classification-package" title="Link to this heading"></a></h1>
+<h1>quapy.classification package<a class="headerlink" href="#quapy-classification-package" title="Permalink to this heading"></a></h1>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
 <section id="module-quapy.classification.calibration">
-<span id="quapy-classification-calibration-module"></span><h2>quapy.classification.calibration module<a class="headerlink" href="#module-quapy.classification.calibration" title="Link to this heading"></a></h2>
+<span id="quapy-classification-calibration-module"></span><h2>quapy.classification.calibration module<a class="headerlink" href="#module-quapy.classification.calibration" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.calibration.BCTSCalibration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">BCTSCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#BCTSCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.BCTSCalibration" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">BCTSCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#BCTSCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.BCTSCalibration" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase" title="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RecalibratedProbabilisticClassifierBase</span></code></a></p>
 <p>Applies the Bias-Corrected Temperature Scaling (BCTS) calibration method from <cite>abstention.calibration</cite>, as defined in
 <a class="reference external" href="http://proceedings.mlr.press/v119/alexandari20a.html">Alexandari et al. paper</a>:</p>
@@ -124,7 +125,7 @@ training set afterwards. Default value is 5.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.calibration.NBVSCalibration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">NBVSCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#NBVSCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.NBVSCalibration" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">NBVSCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#NBVSCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.NBVSCalibration" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase" title="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RecalibratedProbabilisticClassifierBase</span></code></a></p>
 <p>Applies the No-Bias Vector Scaling (NBVS) calibration method from <cite>abstention.calibration</cite>, as defined in
 <a class="reference external" href="http://proceedings.mlr.press/v119/alexandari20a.html">Alexandari et al. paper</a>:</p>
@@ -145,7 +146,7 @@ training set afterwards. Default value is 5.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.calibration.RecalibratedProbabilisticClassifier">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">RecalibratedProbabilisticClassifier</span></span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifier" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">RecalibratedProbabilisticClassifier</span></span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifier" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Abstract class for (re)calibration method from <cite>abstention.calibration</cite>, as defined in
 <a class="reference external" href="http://proceedings.mlr.press/v119/alexandari20a.html">Alexandari, A., Kundaje, A., &amp; Shrikumar, A. (2020, November). Maximum likelihood with bias-corrected calibration
@@ -154,7 +155,7 @@ is hard-to-beat at label shift adaptation. In International Conference on Machin
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">RecalibratedProbabilisticClassifierBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibrator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">RecalibratedProbabilisticClassifierBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calibrator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code>, <a class="reference internal" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifier" title="quapy.classification.calibration.RecalibratedProbabilisticClassifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">RecalibratedProbabilisticClassifier</span></code></a></p>
 <p>Applies a (re)calibration method from <cite>abstention.calibration</cite>, as defined in
 <a class="reference external" href="http://proceedings.mlr.press/v119/alexandari20a.html">Alexandari et al. paper</a>.</p>
@@ -174,7 +175,7 @@ training set afterwards. Default value is 5.</p></li>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.classes_">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.classes_" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.classes_" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the classes on which the classifier has been trained on</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -185,7 +186,7 @@ training set afterwards. Default value is 5.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit" title="Permalink to this definition"></a></dt>
 <dd><p>Fits the calibration for the probabilistic classifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -202,7 +203,7 @@ training set afterwards. Default value is 5.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit_cv">
-<span class="sig-name descname"><span class="pre">fit_cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase.fit_cv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit_cv" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit_cv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase.fit_cv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit_cv" title="Permalink to this definition"></a></dt>
 <dd><p>Fits the calibration in a cross-validation manner, i.e., it generates posterior probabilities for all
 training instances via cross-validation, and then retrains the classifier on all training instances.
 The posterior probabilities thus generated are used for calibrating the outputs of the classifier.</p>
@@ -221,7 +222,7 @@ The posterior probabilities thus generated are used for calibrating the outputs 
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit_tr_val">
-<span class="sig-name descname"><span class="pre">fit_tr_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase.fit_tr_val"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit_tr_val" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit_tr_val</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase.fit_tr_val"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit_tr_val" title="Permalink to this definition"></a></dt>
 <dd><p>Fits the calibration in a train/val-split manner, i.e.t, it partitions the training instances into a
 training and a validation set, and then uses the training samples to learn classifier which is then used
 to generate posterior probabilities for the held-out validation data. These posteriors are used to calibrate
@@ -241,7 +242,7 @@ the classifier. The classifier is not retrained on the whole dataset.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.predict" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.predict" title="Permalink to this definition"></a></dt>
 <dd><p>Predicts class labels for the data instances in <cite>X</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -255,7 +256,7 @@ the classifier. The classifier is not retrained on the whole dataset.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.predict_proba">
-<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.predict_proba" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#RecalibratedProbabilisticClassifierBase.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.predict_proba" title="Permalink to this definition"></a></dt>
 <dd><p>Generates posterior probabilities for the data instances in <cite>X</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -271,7 +272,7 @@ the classifier. The classifier is not retrained on the whole dataset.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.calibration.TSCalibration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">TSCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#TSCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.TSCalibration" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">TSCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#TSCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.TSCalibration" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase" title="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RecalibratedProbabilisticClassifierBase</span></code></a></p>
 <p>Applies the Temperature Scaling (TS) calibration method from <cite>abstention.calibration</cite>, as defined in
 <a class="reference external" href="http://proceedings.mlr.press/v119/alexandari20a.html">Alexandari et al. paper</a>:</p>
@@ -292,7 +293,7 @@ training set afterwards. Default value is 5.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.calibration.VSCalibration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">VSCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#VSCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.VSCalibration" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.calibration.</span></span><span class="sig-name descname"><span class="pre">VSCalibration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/calibration.html#VSCalibration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.calibration.VSCalibration" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase" title="quapy.classification.calibration.RecalibratedProbabilisticClassifierBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RecalibratedProbabilisticClassifierBase</span></code></a></p>
 <p>Applies the Vector Scaling (VS) calibration method from <cite>abstention.calibration</cite>, as defined in
 <a class="reference external" href="http://proceedings.mlr.press/v119/alexandari20a.html">Alexandari et al. paper</a>:</p>
@@ -313,10 +314,10 @@ training set afterwards. Default value is 5.</p></li>
 
 </section>
 <section id="module-quapy.classification.methods">
-<span id="quapy-classification-methods-module"></span><h2>quapy.classification.methods module<a class="headerlink" href="#module-quapy.classification.methods" title="Link to this heading"></a></h2>
+<span id="quapy-classification-methods-module"></span><h2>quapy.classification.methods module<a class="headerlink" href="#module-quapy.classification.methods" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.methods.LowRankLogisticRegression">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.methods.</span></span><span class="sig-name descname"><span class="pre">LowRankLogisticRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.methods.</span></span><span class="sig-name descname"><span class="pre">LowRankLogisticRegression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></p>
 <p>An example of a classification method (i.e., an object that implements <cite>fit</cite>, <cite>predict</cite>, and <cite>predict_proba</cite>)
 that also generates embedded inputs (i.e., that implements <cite>transform</cite>), as those required for
@@ -335,7 +336,7 @@ while classification is performed using <code class="xref py py-class docutils l
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.methods.LowRankLogisticRegression.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.fit" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.fit" title="Permalink to this definition"></a></dt>
 <dd><p>Fit the model according to the given training data. The fit consists of
 fitting <cite>TruncatedSVD</cite> and then <cite>LogisticRegression</cite> on the low-rank representation.</p>
 <dl class="field-list simple">
@@ -353,7 +354,7 @@ fitting <cite>TruncatedSVD</cite> and then <cite>LogisticRegression</cite> on th
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.methods.LowRankLogisticRegression.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.get_params" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.get_params" title="Permalink to this definition"></a></dt>
 <dd><p>Get hyper-parameters for this estimator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -364,7 +365,7 @@ fitting <cite>TruncatedSVD</cite> and then <cite>LogisticRegression</cite> on th
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.methods.LowRankLogisticRegression.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.predict" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.predict" title="Permalink to this definition"></a></dt>
 <dd><p>Predicts labels for the instances <cite>X</cite> embedded into the low-rank space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -379,7 +380,7 @@ instances in <cite>X</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.methods.LowRankLogisticRegression.predict_proba">
-<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.predict_proba" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.predict_proba" title="Permalink to this definition"></a></dt>
 <dd><p>Predicts posterior probabilities for the instances <cite>X</cite> embedded into the low-rank space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -393,7 +394,7 @@ instances in <cite>X</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.methods.LowRankLogisticRegression.set_params">
-<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.set_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.set_params" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.set_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.set_params" title="Permalink to this definition"></a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -406,7 +407,7 @@ and eventually also <cite>n_components</cite> for <cite>TruncatedSVD</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.methods.LowRankLogisticRegression.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.transform" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/methods.html#LowRankLogisticRegression.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.methods.LowRankLogisticRegression.transform" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the low-rank approximation of <cite>X</cite> with <cite>n_components</cite> dimensions, or <cite>X</cite> unaltered if
 <cite>n_components</cite> &gt;= <cite>X.shape[1]</cite>.</p>
 <dl class="field-list simple">
@@ -423,10 +424,10 @@ and eventually also <cite>n_components</cite> for <cite>TruncatedSVD</cite></p>
 
 </section>
 <section id="module-quapy.classification.neural">
-<span id="quapy-classification-neural-module"></span><h2>quapy.classification.neural module<a class="headerlink" href="#module-quapy.classification.neural" title="Link to this heading"></a></h2>
+<span id="quapy-classification-neural-module"></span><h2>quapy.classification.neural module<a class="headerlink" href="#module-quapy.classification.neural" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.neural.CNNnet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.neural.</span></span><span class="sig-name descname"><span class="pre">CNNnet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vocabulary_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repr_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_heights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[3,</span> <span class="pre">5,</span> <span class="pre">7]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#CNNnet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.CNNnet" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.neural.</span></span><span class="sig-name descname"><span class="pre">CNNnet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vocabulary_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repr_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_heights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[3,</span> <span class="pre">5,</span> <span class="pre">7]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#CNNnet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.CNNnet" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.classification.neural.TextClassifierNet" title="quapy.classification.neural.TextClassifierNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextClassifierNet</span></code></a></p>
 <p>An implementation of <a class="reference internal" href="#quapy.classification.neural.TextClassifierNet" title="quapy.classification.neural.TextClassifierNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.classification.neural.TextClassifierNet</span></code></a> based on
 Convolutional Neural Networks.</p>
@@ -448,7 +449,7 @@ consecutive tokens that each kernel covers</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.CNNnet.document_embedding">
-<span class="sig-name descname"><span class="pre">document_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#CNNnet.document_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.CNNnet.document_embedding" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">document_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#CNNnet.document_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.CNNnet.document_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Embeds documents (i.e., performs the forward pass up to the
 next-to-last layer).</p>
 <dl class="field-list simple">
@@ -466,7 +467,7 @@ dimensionality of the embedding</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.CNNnet.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#CNNnet.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.CNNnet.get_params" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#CNNnet.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.CNNnet.get_params" title="Permalink to this definition"></a></dt>
 <dd><p>Get hyper-parameters for this estimator</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -475,9 +476,14 @@ dimensionality of the embedding</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quapy.classification.neural.CNNnet.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#quapy.classification.neural.CNNnet.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.classification.neural.CNNnet.vocabulary_size">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vocabulary_size</span></span><a class="headerlink" href="#quapy.classification.neural.CNNnet.vocabulary_size" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vocabulary_size</span></span><a class="headerlink" href="#quapy.classification.neural.CNNnet.vocabulary_size" title="Permalink to this definition"></a></dt>
 <dd><p>Return the size of the vocabulary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -490,7 +496,7 @@ dimensionality of the embedding</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.neural.LSTMnet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.neural.</span></span><span class="sig-name descname"><span class="pre">LSTMnet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vocabulary_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repr_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_class_nlayers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#LSTMnet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.LSTMnet" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.neural.</span></span><span class="sig-name descname"><span class="pre">LSTMnet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vocabulary_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repr_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_class_nlayers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drop_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#LSTMnet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.LSTMnet" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.classification.neural.TextClassifierNet" title="quapy.classification.neural.TextClassifierNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">TextClassifierNet</span></code></a></p>
 <p>An implementation of <a class="reference internal" href="#quapy.classification.neural.TextClassifierNet" title="quapy.classification.neural.TextClassifierNet"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.classification.neural.TextClassifierNet</span></code></a> based on
 Long Short Term Memory networks.</p>
@@ -509,7 +515,7 @@ Long Short Term Memory networks.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.LSTMnet.document_embedding">
-<span class="sig-name descname"><span class="pre">document_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#LSTMnet.document_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.LSTMnet.document_embedding" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">document_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#LSTMnet.document_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.LSTMnet.document_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Embeds documents (i.e., performs the forward pass up to the
 next-to-last layer).</p>
 <dl class="field-list simple">
@@ -527,7 +533,7 @@ dimensionality of the embedding</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.LSTMnet.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#LSTMnet.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.LSTMnet.get_params" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#LSTMnet.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.LSTMnet.get_params" title="Permalink to this definition"></a></dt>
 <dd><p>Get hyper-parameters for this estimator</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -536,9 +542,14 @@ dimensionality of the embedding</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quapy.classification.neural.LSTMnet.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#quapy.classification.neural.LSTMnet.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.classification.neural.LSTMnet.vocabulary_size">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vocabulary_size</span></span><a class="headerlink" href="#quapy.classification.neural.LSTMnet.vocabulary_size" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vocabulary_size</span></span><a class="headerlink" href="#quapy.classification.neural.LSTMnet.vocabulary_size" title="Permalink to this definition"></a></dt>
 <dd><p>Return the size of the vocabulary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -551,7 +562,7 @@ dimensionality of the embedding</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.neural.NeuralClassifierTrainer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.neural.</span></span><span class="sig-name descname"><span class="pre">NeuralClassifierTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.classification.neural.TextClassifierNet" title="quapy.classification.neural.TextClassifierNet"><span class="pre">TextClassifierNet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpointpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../checkpoint/classifier_net.dat'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.neural.</span></span><span class="sig-name descname"><span class="pre">NeuralClassifierTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.classification.neural.TextClassifierNet" title="quapy.classification.neural.TextClassifierNet"><span class="pre">TextClassifierNet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size_test</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpointpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../checkpoint/classifier_net.dat'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Trains a neural network for text classification.</p>
 <dl class="field-list simple">
@@ -574,7 +585,7 @@ according to the evaluation in the held-out validation split (default ‘../chec
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.classification.neural.NeuralClassifierTrainer.device">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.device" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.device" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the device in which the network is allocated</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -585,7 +596,7 @@ according to the evaluation in the held-out validation split (default ‘../chec
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.NeuralClassifierTrainer.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.fit" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.fit" title="Permalink to this definition"></a></dt>
 <dd><p>Fits the model according to the given training data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -603,7 +614,7 @@ according to the evaluation in the held-out validation split (default ‘../chec
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.NeuralClassifierTrainer.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.get_params" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.get_params" title="Permalink to this definition"></a></dt>
 <dd><p>Get hyper-parameters for this estimator</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -614,7 +625,7 @@ according to the evaluation in the held-out validation split (default ‘../chec
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.NeuralClassifierTrainer.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.predict" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.predict" title="Permalink to this definition"></a></dt>
 <dd><p>Predicts labels for the instances</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -629,7 +640,7 @@ instances in <cite>X</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.NeuralClassifierTrainer.predict_proba">
-<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.predict_proba" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.predict_proba" title="Permalink to this definition"></a></dt>
 <dd><p>Predicts posterior probabilities for the instances</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -643,7 +654,7 @@ instances in <cite>X</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.NeuralClassifierTrainer.reset_net_params">
-<span class="sig-name descname"><span class="pre">reset_net_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vocab_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.reset_net_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.reset_net_params" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reset_net_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vocab_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.reset_net_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.reset_net_params" title="Permalink to this definition"></a></dt>
 <dd><p>Reinitialize the network parameters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -657,7 +668,7 @@ instances in <cite>X</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.NeuralClassifierTrainer.set_params">
-<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.set_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.set_params" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.set_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.set_params" title="Permalink to this definition"></a></dt>
 <dd><p>Set the parameters of this trainer and the learner it is training.
 In this current version, parameter names for the trainer and learner should
 be disjoint.</p>
@@ -670,7 +681,7 @@ be disjoint.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.NeuralClassifierTrainer.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.transform" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#NeuralClassifierTrainer.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.NeuralClassifierTrainer.transform" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the embeddings of the instances</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -687,12 +698,12 @@ where <cite>embed_size</cite> is defined by the classification network</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.neural.TextClassifierNet">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.neural.</span></span><span class="sig-name descname"><span class="pre">TextClassifierNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.neural.</span></span><span class="sig-name descname"><span class="pre">TextClassifierNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
 <p>Abstract Text classifier (<cite>torch.nn.Module</cite>)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.TextClassifierNet.dimensions">
-<span class="sig-name descname"><span class="pre">dimensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.dimensions" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">dimensions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.dimensions" title="Permalink to this definition"></a></dt>
 <dd><p>Gets the number of dimensions of the embedding space</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -703,7 +714,7 @@ where <cite>embed_size</cite> is defined by the classification network</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.TextClassifierNet.document_embedding">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">document_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.document_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.document_embedding" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">document_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.document_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.document_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Embeds documents (i.e., performs the forward pass up to the
 next-to-last layer).</p>
 <dl class="field-list simple">
@@ -721,7 +732,7 @@ dimensionality of the embedding</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.TextClassifierNet.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.forward" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.forward" title="Permalink to this definition"></a></dt>
 <dd><p>Performs the forward pass.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -737,7 +748,7 @@ for each of the instances and classes</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.TextClassifierNet.get_params">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.get_params" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.get_params" title="Permalink to this definition"></a></dt>
 <dd><p>Get hyper-parameters for this estimator</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -748,7 +759,7 @@ for each of the instances and classes</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.TextClassifierNet.predict_proba">
-<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.predict_proba" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.predict_proba" title="Permalink to this definition"></a></dt>
 <dd><p>Predicts posterior probabilities for the instances in <cite>x</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -762,9 +773,14 @@ is length of the pad in the batch</p>
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="quapy.classification.neural.TextClassifierNet.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.classification.neural.TextClassifierNet.vocabulary_size">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vocabulary_size</span></span><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.vocabulary_size" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vocabulary_size</span></span><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.vocabulary_size" title="Permalink to this definition"></a></dt>
 <dd><p>Return the size of the vocabulary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -775,7 +791,7 @@ is length of the pad in the batch</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.TextClassifierNet.xavier_uniform">
-<span class="sig-name descname"><span class="pre">xavier_uniform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.xavier_uniform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.xavier_uniform" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">xavier_uniform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TextClassifierNet.xavier_uniform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TextClassifierNet.xavier_uniform" title="Permalink to this definition"></a></dt>
 <dd><p>Performs Xavier initialization of the network parameters</p>
 </dd></dl>
 
@@ -783,7 +799,7 @@ is length of the pad in the batch</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.neural.TorchDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.neural.</span></span><span class="sig-name descname"><span class="pre">TorchDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TorchDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TorchDataset" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.neural.</span></span><span class="sig-name descname"><span class="pre">TorchDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TorchDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TorchDataset" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></p>
 <p>Transforms labelled instances into a Torch’s <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code> object</p>
 <dl class="field-list simple">
@@ -796,7 +812,7 @@ is length of the pad in the batch</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.neural.TorchDataset.asDataloader">
-<span class="sig-name descname"><span class="pre">asDataloader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TorchDataset.asDataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TorchDataset.asDataloader" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">asDataloader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/neural.html#TorchDataset.asDataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.neural.TorchDataset.asDataloader" title="Permalink to this definition"></a></dt>
 <dd><p>Converts the labelled collection into a Torch DataLoader with dynamic padding for
 the batch</p>
 <dl class="field-list simple">
@@ -820,10 +836,10 @@ applied, meaning that if the longest document in the batch is shorter than
 
 </section>
 <section id="module-quapy.classification.svmperf">
-<span id="quapy-classification-svmperf-module"></span><h2>quapy.classification.svmperf module<a class="headerlink" href="#module-quapy.classification.svmperf" title="Link to this heading"></a></h2>
+<span id="quapy-classification-svmperf-module"></span><h2>quapy.classification.svmperf module<a class="headerlink" href="#module-quapy.classification.svmperf" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.classification.svmperf.SVMperf">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.svmperf.</span></span><span class="sig-name descname"><span class="pre">SVMperf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/svmperf.html#SVMperf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.svmperf.SVMperf" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.classification.svmperf.</span></span><span class="sig-name descname"><span class="pre">SVMperf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svmperf_base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host_folder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/svmperf.html#SVMperf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.svmperf.SVMperf" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ClassifierMixin</span></code></p>
 <p>A wrapper for the <a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">SVM-perf package</a> by Thorsten Joachims.
 When using losses for quantification, the source code has to be patched. See
@@ -848,7 +864,7 @@ for further details.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.svmperf.SVMperf.decision_function">
-<span class="sig-name descname"><span class="pre">decision_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/svmperf.html#SVMperf.decision_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.svmperf.SVMperf.decision_function" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">decision_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/svmperf.html#SVMperf.decision_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.svmperf.SVMperf.decision_function" title="Permalink to this definition"></a></dt>
 <dd><p>Evaluate the decision function for the samples in <cite>X</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -865,7 +881,7 @@ for further details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.svmperf.SVMperf.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/svmperf.html#SVMperf.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.svmperf.SVMperf.fit" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/svmperf.html#SVMperf.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.svmperf.SVMperf.fit" title="Permalink to this definition"></a></dt>
 <dd><p>Trains the SVM for the multivariate performance loss</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -882,7 +898,7 @@ for further details.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.classification.svmperf.SVMperf.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/svmperf.html#SVMperf.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.svmperf.SVMperf.predict" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/svmperf.html#SVMperf.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.svmperf.SVMperf.predict" title="Permalink to this definition"></a></dt>
 <dd><p>Predicts labels for the instances <cite>X</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -897,14 +913,14 @@ instances in <cite>X</cite></p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="quapy.classification.svmperf.SVMperf.valid_losses">
-<span class="sig-name descname"><span class="pre">valid_losses</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'01':</span> <span class="pre">0,</span> <span class="pre">'f1':</span> <span class="pre">1,</span> <span class="pre">'kld':</span> <span class="pre">12,</span> <span class="pre">'mae':</span> <span class="pre">26,</span> <span class="pre">'mrae':</span> <span class="pre">27,</span> <span class="pre">'nkld':</span> <span class="pre">13,</span> <span class="pre">'q':</span> <span class="pre">22,</span> <span class="pre">'qacc':</span> <span class="pre">23,</span> <span class="pre">'qf1':</span> <span class="pre">24,</span> <span class="pre">'qgm':</span> <span class="pre">25}</span></em><a class="headerlink" href="#quapy.classification.svmperf.SVMperf.valid_losses" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">valid_losses</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'01':</span> <span class="pre">0,</span> <span class="pre">'f1':</span> <span class="pre">1,</span> <span class="pre">'kld':</span> <span class="pre">12,</span> <span class="pre">'mae':</span> <span class="pre">26,</span> <span class="pre">'mrae':</span> <span class="pre">27,</span> <span class="pre">'nkld':</span> <span class="pre">13,</span> <span class="pre">'q':</span> <span class="pre">22,</span> <span class="pre">'qacc':</span> <span class="pre">23,</span> <span class="pre">'qf1':</span> <span class="pre">24,</span> <span class="pre">'qgm':</span> <span class="pre">25}</span></em><a class="headerlink" href="#quapy.classification.svmperf.SVMperf.valid_losses" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="module-quapy.classification">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-quapy.classification" title="Link to this heading"></a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-quapy.classification" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 
