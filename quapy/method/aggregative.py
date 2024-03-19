@@ -394,21 +394,30 @@ class ACC(AggregativeCrispQuantifier):
 
     :param str method: adjustment method to be used:
 
-        * 'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`, which tries to invert :math:`P(C|Y)` matrix.
-        * 'invariant-ratio': invariant ratio estimator of `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>`_, which replaces the last equation with the normalization condition.
+        * 'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`,
+          which tries to invert :math:`P(C|Y)` matrix.
+        * 'invariant-ratio': invariant ratio estimator of `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>`_,
+          which replaces the last equation with the normalization condition.
 
     :param str solver: indicates the method to use for solving the system of linear equations. Valid options are:
 
-        * 'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has rank strictly less than `n_classes`.
-        * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
+        * 'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has rank
+          strictly less than `n_classes`.
+        * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds to
+          no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
         * 'exact': deprecated, defaults to 'exact-cc'
-        * 'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the default parameter. More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
+        * 'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the
+          default parameter. More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of
+          Adjusted Classify and Count", on proceedings of the 2nd International Workshop on Learning to Quantify:
+          Methods and Applications (LQ 2022), ECML/PKDD 2022, Grenoble (France)
+          <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
 
-    :param str clipping: the method to use for normalization.
+    :param str norm: the method to use for normalization.
 
-        * If `None` or `"none"`, no normalization is performed.
-        * If `"clip"`, the values are clipped to the range [0,1] and normalized, so they sum up to 1.
-        * If `"project"`, the values are projected onto the probability simplex.
+        * `clip`, the values are clipped to the range [0,1] and then L1-normalized.
+        * `mapsimplex` projects vectors onto the probability simplex. This implementation relies on
+          `Mathieu Blondel's projection_simplex_sort <https://gist.github.com/mblondel/6f3b7aaad90606b98f71>`_
+        * `condsoftmax`, applies a softmax normalization only to prevalence vectors that lie outside the simplex
 
     :param n_jobs: number of parallel workers
     """
@@ -418,26 +427,25 @@ class ACC(AggregativeCrispQuantifier):
             val_split=5,
             solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
             method: Literal['inversion', 'invariant-ratio'] = 'inversion',
-            clipping: Literal['clip', 'none', 'project'] = 'clip',
+            norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
             n_jobs=None,
-        ):
+    ):
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
         self.solver = solver
         self.method = method
-        self.clipping = clipping
+        self.norm = norm
 
     SOLVERS = ['exact', 'minimize', 'exact-raise', 'exact-cc']
     METHODS = ['inversion', 'invariant-ratio']
-    CLIPPING = ['clip', 'none', 'project', None]
-
+    NORMALIZATIONS = ['clip', 'mapsimplex', 'condsoftmax', None]
 
     @classmethod
     def newInvariantRatioEstimation(cls, classifier: BaseEstimator, val_split=5, n_jobs=None):
         """
         Constructs a quantifier that implements the Invariant Ratio Estimator of
-        `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>_`. This amounts
+        `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>`_. This amounts
         to setting method to 'invariant-ratio' and clipping to 'project'.
 
         :param classifier: a sklearn's Estimator that generates a classifier
@@ -451,15 +459,15 @@ class ACC(AggregativeCrispQuantifier):
         :param n_jobs: number of parallel workers
         :return: an instance of ACC configured so that it implements the Invariant Ratio Estimator
         """
-        return ACC(classifier, val_split=val_split, method='invariant-ratio', clipping='project', n_jobs=n_jobs)
+        return ACC(classifier, val_split=val_split, method='invariant-ratio', norm='mapsimplex', n_jobs=n_jobs)
 
     def _check_init_parameters(self):
         if self.solver not in ACC.SOLVERS:
             raise ValueError(f"unknown solver; valid ones are {ACC.SOLVERS}")
         if self.method not in ACC.METHODS:
             raise ValueError(f"unknown method; valid ones are {ACC.METHODS}")
-        if self.clipping not in ACC.CLIPPING:
-            raise ValueError(f"unknown clipping; valid ones are {ACC.CLIPPING}")
+        if self.norm not in ACC.NORMALIZATIONS:
+            raise ValueError(f"unknown clipping; valid ones are {ACC.NORMALIZATIONS}")
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -497,12 +505,12 @@ class ACC(AggregativeCrispQuantifier):
     def aggregate(self, classif_predictions):
         prevs_estim = self.cc.aggregate(classif_predictions)
         estimate = F.solve_adjustment(
-            p_c_cond_y=self.Pte_cond_estim_,
-            p_c=prevs_estim,
+            class_conditional_rates=self.Pte_cond_estim_,
+            unadjusted_counts=prevs_estim,
             solver=self.solver,
             method=self.method,
         )
-        return F.clip_prevalence(estimate, method=self.clipping)
+        return F.normalize_prevalence(estimate, method=self.norm)
 
 
 class PACC(AggregativeSoftQuantifier):
@@ -521,21 +529,30 @@ class PACC(AggregativeSoftQuantifier):
 
     :param str method: adjustment method to be used:
 
-        * 'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`, which tries to invert `P(C|Y)` matrix.
-        * 'invariant-ratio': invariant ratio estimator of `Vaz et al. <https://jmlr.org/papers/v20/18-456.html>`_, which replaces the last equation with the normalization condition.
+        * 'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`,
+          which tries to invert `P(C|Y)` matrix.
+        * 'invariant-ratio': invariant ratio estimator of `Vaz et al. <https://jmlr.org/papers/v20/18-456.html>`_,
+          which replaces the last equation with the normalization condition.
 
     :param str solver: the method to use for solving the system of linear equations. Valid options are:
 
-        * 'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has rank strictly less than `n_classes`.
-        * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
+        * 'exact-raise': tries to solve the system using matrix inversion.
+          Raises an error if the matrix has rank strictly less than `n_classes`.
+        * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which
+          corresponds to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
         * 'exact': deprecated, defaults to 'exact-cc'
-        * 'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the default parameter. More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of Adjusted Classify and Count", on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications (LQ 2022), ECML/PKDD 2022, Grenoble (France) <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
+        * 'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the
+          default parameter. More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions
+          of Adjusted Classify and Count", on proceedings of the 2nd International Workshop on Learning to
+          Quantify: Methods and Applications (LQ 2022), ECML/PKDD 2022, Grenoble (France)
+          <https://lq-2022.github.io/proceedings/CompleteVolume.pdf>`_.
 
-    :param str clipping: the method to use for normalization.
+    :param str norm: the method to use for normalization.
 
-        * If `None` or `"none"`, no normalization is performed.
-        * If `"clip"`, the values are clipped to the range [0,1] and normalized, so they sum up to 1.
-        * If `"project"`, the values are projected onto the probability simplex.
+        * `clip`, the values are clipped to the range [0,1] and then L1-normalized.
+        * `mapsimplex` projects vectors onto the probability simplex. This implementation relies on
+          `Mathieu Blondel's projection_simplex_sort <https://gist.github.com/mblondel/6f3b7aaad90606b98f71>`_
+        * `condsoftmax`, applies a softmax normalization only to prevalence vectors that lie outside the simplex
 
     :param n_jobs: number of parallel workers
     """
@@ -545,24 +562,23 @@ class PACC(AggregativeSoftQuantifier):
             val_split=5,
             solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
             method: Literal['inversion', 'invariant-ratio'] = 'inversion',
-            clipping: Literal['clip', 'none', 'project'] = 'clip',
-            n_jobs=None,
-        ):
+            norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
+            n_jobs=None
+    ):
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
-
         self.solver = solver
         self.method = method
-        self.clipping = clipping
+        self.norm = norm
 
     def _check_init_parameters(self):
         if self.solver not in ACC.SOLVERS:
             raise ValueError(f"unknown solver; valid ones are {ACC.SOLVERS}")
         if self.method not in ACC.METHODS:
             raise ValueError(f"unknown method; valid ones are {ACC.METHODS}")
-        if self.clipping not in ACC.CLIPPING:
-            raise ValueError(f"unknown clipping; valid ones are {ACC.CLIPPING}")
+        if self.clipping not in ACC.NORMALIZATIONS:
+            raise ValueError(f"unknown clipping; valid ones are {ACC.NORMALIZATIONS}")
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -580,12 +596,12 @@ class PACC(AggregativeSoftQuantifier):
         prevs_estim = self.pcc.aggregate(classif_posteriors)
 
         estimate = F.solve_adjustment(
-            p_c_cond_y=self.Pte_cond_estim_,
-            p_c=prevs_estim,
+            class_conditional_rates=self.Pte_cond_estim_,
+            unadjusted_counts=prevs_estim,
             solver=self.solver,
             method=self.method,
         )
-        return F.clip_prevalence(estimate, method=self.clipping)
+        return F.normalize_prevalence(estimate, method=self.norm)
 
     @classmethod
     def getPteCondEstim(cls, classes, y, y_):
