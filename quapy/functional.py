@@ -224,7 +224,7 @@ def normalize_prevalence(prevalences: ArrayLike, method='l1'):
     elif method=='condsoftmax':
         normalized = condsoftmax(prevalences)
     else:
-        raise ValueError(f'unknown {method=}, valid ones are ["l1", "clip", "mapsimplex", "softmax"]')
+        raise ValueError(f'unknown {method=}, valid ones are ["l1", "clip", "mapsimplex", "softmax", "condsoftmax"]')
 
     return normalized
 
