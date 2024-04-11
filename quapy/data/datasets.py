@@ -14,41 +14,76 @@ from quapy.util import download_file_if_not_exists, download_file, get_quapy_hom
 
 
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
-TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',
-                              'semeval13', 'semeval14', 'semeval15', 'semeval16',
-                              'sst', 'wa', 'wb']
-TWITTER_SENTIMENT_DATASETS_TRAIN = ['gasp', 'hcr', 'omd', 'sanders',
-                                 'semeval', 'semeval16',
-                                 'sst', 'wa', 'wb']
-UCI_BINARY_DATASETS = ['acute.a', 'acute.b',
-                'balance.1', 'balance.2', 'balance.3',
-                'breast-cancer',
-                'cmc.1', 'cmc.2', 'cmc.3',
-                'ctg.1', 'ctg.2', 'ctg.3',
-                       #'diabetes', # <-- I haven't found this one...
-                'german',
-                'haberman',
-                'ionosphere',
-                'iris.1', 'iris.2', 'iris.3',
-                'mammographic',
-                       'pageblocks.5',
-                       #'phoneme', # <-- I haven't found this one...
-                       'semeion',
-                       'sonar',
-                       'spambase',
-                       'spectf',
-                       'tictactoe',
-                       'transfusion',
-                       'wdbc',
-                       'wine.1', 'wine.2', 'wine.3',
-                       'wine-q-red', 'wine-q-white',
-                       'yeast']
+TWITTER_SENTIMENT_DATASETS_TEST = [
+    'gasp', 'hcr', 'omd', 'sanders',
+    'semeval13', 'semeval14', 'semeval15', 'semeval16',
+    'sst', 'wa', 'wb',
+]
+TWITTER_SENTIMENT_DATASETS_TRAIN = [
+    'gasp', 'hcr', 'omd', 'sanders',
+    'semeval', 'semeval16',
+    'sst', 'wa', 'wb',
+]
+UCI_BINARY_DATASETS = [
+    'acute.a', 'acute.b',
+    'balance.1', 'balance.2', 'balance.3',
+    'breast-cancer',
+    'cmc.1', 'cmc.2', 'cmc.3',
+    'ctg.1', 'ctg.2', 'ctg.3',
+    #'diabetes', # <-- I haven't found this one...
+    'german',
+    'haberman',
+    'ionosphere',
+    'iris.1', 'iris.2', 'iris.3',
+    'mammographic',
+    'pageblocks.5',
+    #'phoneme', # <-- I haven't found this one...
+    'semeion',
+    'sonar',
+    'spambase',
+    'spectf',
+    'tictactoe',
+    'transfusion',
+    'wdbc',
+    'wine.1', 'wine.2', 'wine.3',
+    'wine-q-red',
+    'wine-q-white',
+    'yeast',
+]
 
-UCI_MULTICLASS_DATASETS = ['dry-bean',
-                           'wine-quality',
-                           'academic-success',
-                           'digits',
-                           'letter']
+UCI_MULTICLASS_DATASETS = [
+    'dry-bean',
+    'wine-quality',
+    'academic-success',
+    'digits',
+    'letter',
+    'abalone',
+    'obesity',
+    'covertype',
+    'nursery',
+    'diabetes',
+    'yeast',
+    'hand_digits',
+    'satellite',
+    'shuttle',
+    'cmc',
+    'isolet',
+    'waveform.v1',
+    'molecular',
+    'poker_hand',
+    'connect-4',
+    'cardiotocography',
+    'mhr',
+    'chess2',
+    'page_block',
+    'room',
+    'phishing2',
+    'rt-iot22',
+    'support2',
+    'image_seg',
+    'steel_plates',
+    'hcv',
+]
 
 LEQUA2022_TASKS = ['T1A', 'T1B', 'T2A', 'T2B']
 
@@ -556,7 +591,7 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=Fals
     return data
 
 
-def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
+def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, verbose=False, min_ipc=100) -> Dataset:
     """
     Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`. 
 
@@ -580,13 +615,15 @@ def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, ver
         ~/quay_data/ directory)
     :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
     :param verbose: set to True (default is False) to get information (stats) about the dataset
+    :param min_ipc: minimum number of istances per class. Classes with less instances than min_ipc are discarded 
+        (deafult is 100)
     :return: a :class:`quapy.data.base.Dataset` instance
     """
-    data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, verbose)
+    data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, verbose, min_ipc)
     return Dataset(*data.split_stratified(1 - test_split, random_state=0))
 
 
-def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
+def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=False, min_ipc=100) -> LabelledCollection:
     """
     Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`.
 
@@ -610,6 +647,8 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
         ~/quay_data/ directory)
     :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
     :param verbose: set to True (default is False) to get information (stats) about the dataset
+    :param min_ipc: minimum number of istances per class. Classes with less instances than min_ipc are discarded 
+        (deafult is 100) 
     :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
     assert dataset_name in UCI_MULTICLASS_DATASETS, \
@@ -621,19 +660,71 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
         data_home = get_quapy_home()
     
     identifiers = {
-        "dry-bean": 602,
-        "wine-quality": 186,
-        "academic-success": 697,
-        "digits": 80,
-        "letter": 59
+        'dry-bean': 602,
+        'wine-quality': 186,
+        'academic-success': 697,
+        'digits': 80,
+        'letter': 59,
+        'abalone': 1,
+        'obesity': 544,
+        'covertype': 31,
+        'nursery': 76,
+        'diabetes': 296,
+        'yeast': 110,
+        'hand_digits': 81,
+        'satellite': 146,
+        'shuttle': 148,
+        'cmc': 30,
+        'isolet': 54,
+        'waveform.v1': 107,
+        'molecular': 69,
+        'poker_hand': 158,
+        'connect-4': 26,
+        'cardiotocography': 193,
+        'mhr': 863,
+        'chess2': 23,
+        'page_block': 78,
+        'room': 864,
+        'phishing2': 379,
+        'rt-iot22': 942,
+        'support2': 880,
+        'image_seg': 147,
+        'steel_plates': 198,
+        'hcv': 503,
     }
     
     full_names = {
-        "dry-bean": "Dry Bean Dataset",
-        "wine-quality": "Wine Quality",
-        "academic-success": "Predict students' dropout and academic success",
-        "digits": "Optical Recognition of Handwritten Digits",
-        "letter": "Letter Recognition"
+        'dry-bean': 'Dry Bean Dataset',
+        'wine-quality': 'Wine Quality',
+        'academic-success': 'Predict students\' dropout and academic success',
+        'digits': 'Optical Recognition of Handwritten Digits',
+        'letter': 'Letter Recognition',
+        'abalone': 'Abalone',
+        'obesity': 'Estimation of Obesity Levels Based On Eating Habits and Physical Condition',
+        'covertype': 'Covertype',
+        'nursery': 'Nursery',
+        'diabetes': 'Diabetes 130-US Hospitals for Years 1999-2008',
+        'yeast': 'Yeast',
+        'hand_digits': 'Pen-Based Recognition of Handwritten Digits',
+        'satellite': 'Statlog Landsat Satellite',
+        'shuttle': 'Statlog Shuttle',
+        'cmc': 'Contraceptive Method Choice',
+        'isolet': 'ISOLET',
+        'waveform.v1': 'Waveform Database Generator (Version 1)',
+        'molecular': 'Molecular Biology (Splice-junction Gene Sequences)',
+        'poker_hand': 'Poker Hand',
+        'connect-4': 'Connect-4',
+        'cardiotocography': 'Cardiotocography',
+        'mhr': 'Maternal Health Risk',
+        'chess2': 'Chess (King-Rook vs. King)',
+        'page_block': 'Page Blocks Classification',
+        'room': 'Room Occupancy Estimation',
+        'phishing2': 'Website Phishing',
+        'rt-iot22': 'RT-IoT2022',
+        'support2': 'SUPPORT2',
+        'image_seg': 'Statlog (Image Segmentation)',
+        'steel_plates': 'Steel Plates Faults',
+        'hcv': 'Hepatitis C Virus (HCV) for Egyptian patients',
     }
     
     identifier = identifiers[dataset_name]
@@ -644,14 +735,36 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
 
     file = join(data_home, 'uci_multiclass', dataset_name+'.pkl')
     
-    def download(id):
+    def download(id, name):
         data = fetch_ucirepo(id=id)
         X, y = data['data']['features'].to_numpy(), data['data']['targets'].to_numpy().squeeze()
+        # classes represented as arrays are transformed to tuples to treat them as signle objects
+        if name == 'support2':
+            y[:, 2] = np.fromiter((str(elm) for elm in y[:, 2]), dtype='object')
+        if y.ndim > 1:
+            y = np.fromiter((tuple(elm) for elm in y), dtype='object')
         classes = np.sort(np.unique(y))
         y = np.searchsorted(classes, y)
         return LabelledCollection(X, y)
 
-    data = pickled_resource(file, download, identifier)
+    def filter_classes(data: LabelledCollection, min_ipc):
+        classes = data.classes_
+        # restrict classes to only those with at least min_ipc instances
+        classes = classes[data.counts() >= min_ipc]
+        # filter X and y keeping only datapoints belonging to valid classes
+        filter_idx = np.in1d(data.y, classes)
+        X, y = data.X[filter_idx], data.y[filter_idx]
+        # map classes to range(len(classes))
+        y = np.searchsorted(classes, y)
+        return LabelledCollection(X, y)
+
+    data = pickled_resource(file, download, identifier, dataset_name)
+    data = filter_classes(data, min_ipc)
+    if data.n_classes <= 2:
+        raise ValueError(
+            f'Dataset {dataset_name} has too few valid classes to be multiclass with {min_ipc=}. '
+            'Try a lower value for min_ipc.'
+        )
 
     if verbose:
         data.stats()
