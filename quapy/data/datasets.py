@@ -591,7 +591,7 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=Fals
     return data
 
 
-def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, verbose=False, min_ipc=100) -> Dataset:
+def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, min_class_support=100, verbose=False) -> Dataset:
     """
     Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`. 
 
@@ -614,16 +614,16 @@ def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, ver
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
         ~/quay_data/ directory)
     :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
+    :param min_class_support: minimum number of istances per class. Classes with fewer instances
+        are discarded (deafult is 100)
     :param verbose: set to True (default is False) to get information (stats) about the dataset
-    :param min_ipc: minimum number of istances per class. Classes with less instances than min_ipc are discarded 
-        (deafult is 100)
     :return: a :class:`quapy.data.base.Dataset` instance
     """
-    data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, verbose, min_ipc)
+    data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, min_class_support, verbose=verbose)
     return Dataset(*data.split_stratified(1 - test_split, random_state=0))
 
 
-def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=False, min_ipc=100) -> LabelledCollection:
+def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_class_support=100, verbose=False) -> LabelledCollection:
     """
     Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`.
 
@@ -646,9 +646,9 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
     :param data_home: specify the quapy home directory where the dataset will be dumped (leave empty to use the default
         ~/quay_data/ directory)
     :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
+    :param min_class_support: minimum number of istances per class. Classes with fewer instances
+        are discarded (deafult is 100)
     :param verbose: set to True (default is False) to get information (stats) about the dataset
-    :param min_ipc: minimum number of istances per class. Classes with less instances than min_ipc are discarded 
-        (deafult is 100) 
     :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
     assert dataset_name in UCI_MULTICLASS_DATASETS, \
@@ -736,13 +736,20 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
     file = join(data_home, 'uci_multiclass', dataset_name+'.pkl')
     
     def download(id, name):
-        data = fetch_ucirepo(id=id)
-        X, y = data['data']['features'].to_numpy(), data['data']['targets'].to_numpy().squeeze()
-        # classes represented as arrays are transformed to tuples to treat them as signle objects
+        df = fetch_ucirepo(id=id)
+
+        df.data.features = pd.get_dummies(df.data.features, drop_first=True)
+
+        X, y = df.data.features.to_numpy(), df.data.targets.to_numpy().squeeze()
+        # classes represented as arrays are transformed to tuples to treat them as single objects
         if name == 'support2':
             y[:, 2] = np.fromiter((str(elm) for elm in y[:, 2]), dtype='object')
+            raise ValueError('this is support 2')
+
         if y.ndim > 1:
             y = np.fromiter((tuple(elm) for elm in y), dtype='object')
+            raise ValueError('more than one y')
+
         classes = np.sort(np.unique(y))
         y = np.searchsorted(classes, y)
         return LabelledCollection(X, y)
@@ -759,11 +766,11 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
         return LabelledCollection(X, y)
 
     data = pickled_resource(file, download, identifier, dataset_name)
-    data = filter_classes(data, min_ipc)
+    data = filter_classes(data, min_class_support)
     if data.n_classes <= 2:
         raise ValueError(
-            f'Dataset {dataset_name} has too few valid classes to be multiclass with {min_ipc=}. '
-            'Try a lower value for min_ipc.'
+            f'After filtering out classes with less than {min_class_support=} instances, the dataset {dataset_name} '
+            f'is no longer multiclass. Try a reducing this value.'
         )
 
     if verbose:
@@ -846,7 +853,6 @@ def fetch_lequa2022(task, data_home=None):
     test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
 
     return train, val_gen, test_gen
-
 
 
 def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=None):

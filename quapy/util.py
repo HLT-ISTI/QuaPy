@@ -6,6 +6,9 @@ import pickle
 import urllib
 from pathlib import Path
 from contextlib import ExitStack
+
+import pandas as pd
+
 import quapy as qp
 
 import numpy as np
@@ -244,6 +247,28 @@ def _check_sample_size(sample_size):
     assert isinstance(sample_size, int) and sample_size > 0, \
         'error: sample_size is not a positive integer'
     return sample_size
+
+
+def load_report(path, as_dict=False):
+    def str2prev_arr(strprev):
+        within = strprev.strip('[]').split()
+        float_list = [float(p) for p in within]
+        float_list[-1] = 1. - sum(float_list[:-1])
+        return np.asarray(float_list)
+
+    df = pd.read_csv(path, index_col=0)
+    df['true-prev'] = df['true-prev'].apply(str2prev_arr)
+    df['estim-prev'] = df['estim-prev'].apply(str2prev_arr)
+    if as_dict:
+        d = {}
+        for col in df.columns.values:
+            vals = df[col].values
+            if col in ['true-prev', 'estim-prev']:
+                vals = np.vstack(vals)
+            d[col] = vals
+        return d
+    else:
+        return df
 
 
 class EarlyStop:
