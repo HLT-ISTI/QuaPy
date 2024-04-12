@@ -29,7 +29,7 @@ def wrap_hyper(classifier_hyper_grid:dict):
 METHODS = [
     ('PACC', PACC(newLR()), wrap_hyper(logreg_grid)),
     ('EMQ',  EMQ(newLR()), wrap_hyper(logreg_grid)),
-    ('KDEy-ML',  KDEyML(newLR()), {**wrap_hyper(logreg_grid), **{'bandwidth': np.linspace(0.01, 0.2, 20)}}),
+    # ('KDEy-ML',  KDEyML(newLR()), {**wrap_hyper(logreg_grid), **{'bandwidth': np.linspace(0.01, 0.2, 20)}}),
 ]
 
 

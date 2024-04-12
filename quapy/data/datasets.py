@@ -591,7 +591,13 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=Fals
     return data
 
 
-def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, min_class_support=100, verbose=False) -> Dataset:
+def fetch_UCIMulticlassDataset(
+        dataset_name,
+        data_home=None,
+        min_test_split=0.3,
+        max_train_instances=25000,
+        min_class_support=100,
+        verbose=False) -> Dataset:
     """
     Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`. 
 
@@ -613,14 +619,24 @@ def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, min
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
         ~/quay_data/ directory)
-    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
+    :param min_test_split: minimum proportion of instances to be included in the test set. This value is interpreted
+        as a minimum proportion, meaning that the real proportion could be higher in case the training proportion
+        (1-`min_test_split`% of the instances) surpasses `max_train_instances`. In such case, only `max_train_instances`
+        are taken for training, and the rest (irrespective of `min_test_split`) is taken for test.
+    :param max_train_instances: maximum number of instances to keep for training (defaults to 25000)
     :param min_class_support: minimum number of istances per class. Classes with fewer instances
         are discarded (deafult is 100)
     :param verbose: set to True (default is False) to get information (stats) about the dataset
     :return: a :class:`quapy.data.base.Dataset` instance
     """
     data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, min_class_support, verbose=verbose)
-    return Dataset(*data.split_stratified(1 - test_split, random_state=0))
+    n = len(data)
+    train_prop = (1.-min_test_split)
+    n_train = int(n*train_prop)
+    if n_train > max_train_instances:
+        train_prop = (max_train_instances / n)
+
+    return Dataset(*data.split_stratified(train_prop, random_state=0))
 
 
 def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_class_support=100, verbose=False) -> LabelledCollection:
@@ -645,7 +661,7 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where the dataset will be dumped (leave empty to use the default
         ~/quay_data/ directory)
-    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
+    :param test_split: proportion of instances to be included in the test set. The rest conforms the training set
     :param min_class_support: minimum number of istances per class. Classes with fewer instances
         are discarded (deafult is 100)
     :param verbose: set to True (default is False) to get information (stats) about the dataset
