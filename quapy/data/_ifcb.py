@@ -1,20 +1,17 @@
 import os
 import pandas as pd
 import math
-
 from quapy.data import LabelledCollection
 from quapy.protocol import AbstractProtocol
 from pathlib import Path
 
 
 def get_sample_list(path_dir):
-    """Gets a sample list finding the csv files in a directory
+    """
+    Gets a sample list finding the csv files in a directory
 
-    Args:
-        path_dir (_type_): directory to look for samples
-
-    Returns:
-        _type_: list of samples
+    :param path_dir: directory to look for samples
+    :return: list of samples
     """
     samples = []
     for filename in sorted(os.listdir(path_dir)):
@@ -23,18 +20,15 @@ def get_sample_list(path_dir):
     return samples
 
 
-def generate_modelselection_split(samples, split=0.3):
-    """This function generates a train/test split for model selection
+def generate_modelselection_split(samples, test_prop=0.3):
+    """This function generates a train/test partition for model selection
     without the use of random numbers so the split is always the same
 
-    Args:
-        samples (_type_): list of samples
-        split (float, optional): percentage saved for test. Defaults to 0.3.
-
-    Returns:
-        _type_: list of samples to use as train and list of samples to use as test
+    :param samples: list of samples
+    :param test_prop: float, percentage saved for test. Defaults to 0.3.
+    :return: list of samples to use as train and list of samples to use as test
     """
-    num_items_to_pick = math.ceil(len(samples) * split)
+    num_items_to_pick = math.ceil(len(samples) * test_prop)
     step_size = math.floor(len(samples) / num_items_to_pick)
     test_indices = [i * step_size for i in range(num_items_to_pick)]
     test = [samples[i] for i in test_indices]

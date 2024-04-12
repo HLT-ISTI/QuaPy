@@ -577,7 +577,7 @@ class PACC(AggregativeSoftQuantifier):
             raise ValueError(f"unknown solver; valid ones are {ACC.SOLVERS}")
         if self.method not in ACC.METHODS:
             raise ValueError(f"unknown method; valid ones are {ACC.METHODS}")
-        if self.clipping not in ACC.NORMALIZATIONS:
+        if self.norm not in ACC.NORMALIZATIONS:
             raise ValueError(f"unknown clipping; valid ones are {ACC.NORMALIZATIONS}")
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):

@@ -735,14 +735,15 @@ def fetch_lequa2022(task, data_home=None):
     return train, val_gen, test_gen
 
 
+
 def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=None):
     """
     Loads the IFCB dataset for quantification from `Zenodo <https://zenodo.org/records/10036244>`_ (for more
     information on this dataset, please follow the zenodo link).
     This dataset is based on the data available publicly at
     `WHOI-Plankton repo <https://github.com/hsosik/WHOI-Plankton>`_.
-    The scripts for the processing are available at `P. González's repo <https://github.com/pglez82/IFCB_Zenodo>`_.
-    Basically, this is the IFCB dataset with precomputed features for testing quantification algorithms.
+    The dataset already comes with processed features.
+    The scripts used for the processing are available at `P. González's repo <https://github.com/pglez82/IFCB_Zenodo>`_.
 
     The datasets are downloaded only once, and stored for fast reuse.
 
@@ -798,7 +799,7 @@ def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=No
     if for_model_selection:
         # In this case, return 70% of training data as the training set and 30% as the test set
         samples = get_sample_list(train_samples_path)
-        train, test = generate_modelselection_split(samples, split=0.3)
+        train, test = generate_modelselection_split(samples, test_prop=0.3)
         train_gen = IFCBTrainSamplesFromDir(path_dir=train_samples_path, classes=classes, samples=train)
 
         # Test prevalence is computed from class labels
