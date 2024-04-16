@@ -12,12 +12,11 @@ from time import time
 In this example, we show how to perform model selection on a DistributionMatching quantifier.
 """
 
-model = KDEyML(LogisticRegression())
+model = DMy(LogisticRegression())
 
 qp.environ['SAMPLE_SIZE'] = 100
 qp.environ['N_JOBS'] = -1
 
-# training, test = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=5).train_test
 training, test = qp.datasets.fetch_UCIMulticlassDataset('letter').train_test
 
 with qp.util.temp_seed(0):
@@ -34,19 +33,21 @@ with qp.util.temp_seed(0):
 
     # We will explore a classification-dependent hyper-parameter (e.g., the 'C'
     # hyper-parameter of LogisticRegression) and a quantification-dependent hyper-parameter
-    # (e.g., the number of bins in a DistributionMatching quantifier.
+    # (e.g., the number of bins in a DistributionMatching quantifier).
     # Classifier-dependent hyper-parameters have to be marked with a prefix "classifier__"
     # in order to let the quantifier know this hyper-parameter belongs to its underlying
     # classifier.
+    # We consider 7 values for the classifier and 7 values for the quantifier.
+    # QuaPy is optimized so that only 7 classifiers are trained, and then reused to test the
+    # different configurations of the quantifier. In other words, quapy avoids to train
+    # the classifier 7x7 times.
     param_grid = {
         'classifier__C': np.logspace(-3,3,7),
-        'classifier__class_weight': ['balanced', None],
-        'bandwidth': np.linspace(0.01, 0.2, 20),
+        'nbins': [2, 3, 4, 5, 10, 15, 20]
     }
 
     tinit = time()
 
-    # model = OLD_GridSearchQ(
     model = qp.model_selection.GridSearchQ(
         model=model,
         param_grid=param_grid,

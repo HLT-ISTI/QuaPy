@@ -50,7 +50,9 @@ UCI_MULTICLASS_DATASETS = ['dry-bean',
                            'digits',
                            'letter']
 
-LEQUA2022_TASKS = ['T1A', 'T1B', 'T2A', 'T2B']
+LEQUA2022_VECTOR_TASKS = ['T1A', 'T1B']
+LEQUA2022_TEXT_TASKS = ['T2A', 'T2B']
+LEQUA2022_TASKS = LEQUA2022_VECTOR_TASKS + LEQUA2022_TEXT_TASKS
 
 _TXA_SAMPLE_SIZE = 250
 _TXB_SAMPLE_SIZE = 1000
@@ -209,7 +211,7 @@ def fetch_UCIBinaryDataset(dataset_name, data_home=None, test_split=0.3, verbose
     :return: a :class:`quapy.data.base.Dataset` instance
     """
     data = fetch_UCIBinaryLabelledCollection(dataset_name, data_home, verbose)
-    return Dataset(*data.split_stratified(1 - test_split, random_state=0))
+    return Dataset(*data.split_stratified(1 - test_split, random_state=0), name=dataset_name)
 
 
 def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
@@ -583,7 +585,7 @@ def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, ver
     :return: a :class:`quapy.data.base.Dataset` instance
     """
     data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, verbose)
-    return Dataset(*data.split_stratified(1 - test_split, random_state=0))
+    return Dataset(*data.split_stratified(1 - test_split, random_state=0), name=dataset_name)
 
 
 def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:

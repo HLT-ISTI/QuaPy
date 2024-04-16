@@ -8,7 +8,7 @@ from quapy.method.aggregative import PACC
 import quapy.functional as F
 
 
-class MyTestCase(unittest.TestCase):
+class TestReplicability(unittest.TestCase):
 
     def test_prediction_replicability(self):
 
@@ -26,7 +26,7 @@ class MyTestCase(unittest.TestCase):
             prev2 = pacc.fit(dataset.training).quantify(dataset.test.X)
             str_prev2 = strprev(prev2, prec=5)
 
-        self.assertEqual(str_prev1, str_prev2)  # add assertion here
+        self.assertEqual(str_prev1, str_prev2)
 
 
     def test_samping_replicability(self):
@@ -78,7 +78,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_parallel_replicability(self):
 
-        train, test = qp.datasets.fetch_UCIMulticlassDataset('dry-bean').train_test
+        train, test = qp.datasets.fetch_UCIMulticlassDataset('dry-bean').reduce().train_test
 
         test = test.sampling(500, *[0.1, 0.0, 0.1, 0.1, 0.2, 0.5, 0.0])
 
