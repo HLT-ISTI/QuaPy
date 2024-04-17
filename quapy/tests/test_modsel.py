@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 import quapy as qp
-import util
 from quapy.method.aggregative import PACC
 from quapy.model_selection import GridSearchQ
 from quapy.protocol import APP
