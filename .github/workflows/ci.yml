@@ -17,6 +17,8 @@ jobs:
       matrix:
         python-version:
         - "3.11"
+    env:
+      QUAPY_TESTS_OMIT_LARGE_DATASETS: True
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
