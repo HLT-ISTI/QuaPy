@@ -19,7 +19,7 @@ class ModselTestCase(unittest.TestCase):
 
         q = PACC(LogisticRegression(random_state=1, max_iter=5000))
 
-        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10).reduce()
+        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10).reduce(random_state=1)
         training, validation = data.training.split_stratified(0.7, random_state=1)
 
         param_grid = {'classifier__C': [0.000001, 10.]}
@@ -41,7 +41,7 @@ class ModselTestCase(unittest.TestCase):
 
         q = PACC(LogisticRegression(random_state=1, max_iter=5000))
 
-        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10).reduce(n_train=500)
+        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10).reduce(n_train=500, random_state=1)
         training, validation = data.training.split_stratified(0.7, random_state=1)
 
         param_grid = {'classifier__C': np.logspace(-3,3,7)}
@@ -79,7 +79,7 @@ class ModselTestCase(unittest.TestCase):
 
         q = PACC(SlowLR())
 
-        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10).reduce()
+        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10).reduce(random_state=1)
         training, validation = data.training.split_stratified(0.7, random_state=1)
 
         param_grid = {'classifier__C': np.logspace(-1,1,3)}
