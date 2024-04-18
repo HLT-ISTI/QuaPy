@@ -9,6 +9,29 @@ from quapy.method.meta import Ensemble
 from quapy.method import AGGREGATIVE_METHODS, BINARY_METHODS, NON_AGGREGATIVE_METHODS
 from quapy.functional import check_prevalence_vector
 
+# a random selection of composed methods to test the qunfold integration
+from quapy.method.composable import (
+    ComposableQuantifier,
+    LeastSquaresLoss,
+    HellingerSurrogateLoss,
+    ClassTransformer,
+    HistogramTransformer,
+    CVClassifier,
+)
+COMPOSABLE_METHODS = [
+    ComposableQuantifier( # ACC
+        LeastSquaresLoss(),
+        ClassTransformer(CVClassifier(LogisticRegression()))
+    ),
+    ComposableQuantifier( # HDy
+        HellingerSurrogateLoss(),
+        HistogramTransformer(
+            3, # 3 bins per class
+            preprocessor = ClassTransformer(CVClassifier(LogisticRegression()))
+        )
+    ),
+]
+
 class TestMethods(unittest.TestCase):
 
     tiny_dataset_multiclass = qp.datasets.fetch_UCIMulticlassDataset('academic-success').reduce(n_test=10)
@@ -86,6 +109,14 @@ class TestMethods(unittest.TestCase):
         model.fit(dataset.training)
         estim_prevalences = model.quantify(dataset.test.instances)
         self.assertTrue(check_prevalence_vector(estim_prevalences))
+
+    def test_composable(self):
+        for dataset in TestMethods.datasets:
+            for q in COMPOSABLE_METHODS:
+                print('testing', q)
+                q.fit(dataset.training)
+                estim_prevalences = q.quantify(dataset.test.X)
+                self.assertTrue(check_prevalence_vector(estim_prevalences))
 
 
 if __name__ == '__main__':
