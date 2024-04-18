@@ -1,9 +1,16 @@
 Change Log 0.1.9
 ----------------
+- Added Continuous Integration with GitHub Actions (thanks to Mirko Bunse!)
 
 - Added Bayesian CC method (thanks to Pawel Czyz!). The method is described in detail in the paper
     Ziegler, Albert, and Paweł Czyż. "Bayesian Quantification with Black-Box Estimators."
     arXiv preprint arXiv:2302.09159 (2023).
+
+- Removed binary UCI datasets {acute.a, acute.b, balance.2} from the list qp.data.datasets.UCI_BINARY_DATASETS
+    (the datasets are still loadable from the fetch_UCIBinaryLabelledCollection and fetch_UCIBinaryDataset
+    functions, though). The reason is that these datasets tend to yield results (for all methods) that are
+    one or two orders of magnitude greater than for other datasets, and this has a disproportionate impact in
+    methods average (I suspect there is something wrong in those datasets).
 
 
 Change Log 0.1.8

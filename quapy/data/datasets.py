@@ -20,8 +20,11 @@ TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',
 TWITTER_SENTIMENT_DATASETS_TRAIN = ['gasp', 'hcr', 'omd', 'sanders',
                                  'semeval', 'semeval16',
                                  'sst', 'wa', 'wb']
-UCI_BINARY_DATASETS = ['acute.a', 'acute.b',
-                'balance.1', 'balance.2', 'balance.3',
+UCI_BINARY_DATASETS = [
+                #'acute.a', 'acute.b',
+                'balance.1',
+                #'balance.2',
+                'balance.3',
                 'breast-cancer',
                 'cmc.1', 'cmc.2', 'cmc.3',
                 'ctg.1', 'ctg.2', 'ctg.3',
