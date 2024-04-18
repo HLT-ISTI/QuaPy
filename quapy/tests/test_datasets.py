@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -77,6 +78,9 @@ class TestDatasets(unittest.TestCase):
             self._check_dataset(dataset)
 
     def test_lequa2022(self):
+        if os.environ.get('QUAPY_TESTS_OMIT_LARGE_DATASETS'):
+            print("omitting test_lequa2022 because QUAPY_TESTS_OMIT_LARGE_DATASETS is set")
+            return
 
         for dataset_name in LEQUA2022_VECTOR_TASKS:
             print(f'loading dataset {dataset_name}...', end='')
@@ -104,6 +108,10 @@ class TestDatasets(unittest.TestCase):
 
 
     def test_IFCB(self):
+        if os.environ.get('QUAPY_TESTS_OMIT_LARGE_DATASETS'):
+            print("omitting test_IFCB because QUAPY_TESTS_OMIT_LARGE_DATASETS is set")
+            return
+
         print(f'loading dataset IFCB.')
         for mod_sel in [False, True]:
             train, gen = fetch_IFCB(single_sample_train=True, for_model_selection=mod_sel)

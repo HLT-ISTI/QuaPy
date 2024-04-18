@@ -125,6 +125,7 @@ setup(
     # projects.
     extras_require={  # Optional
        'bayes': ['jax', 'jaxlib', 'numpyro'],
+       'tests': ['certifi'],
     },
 
     # If there are data files included in your packages that need to be

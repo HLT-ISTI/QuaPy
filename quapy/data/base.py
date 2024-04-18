@@ -549,7 +549,7 @@ class Dataset:
             yield Dataset(train, test, name=f'fold {(i % nfolds) + 1}/{nfolds} (round={(i // nfolds) + 1})')
 
 
-    def reduce(self, n_train=100, n_test=100):
+    def reduce(self, n_train=100, n_test=100, random_state=None):
         """
         Reduce the number of instances in place for quick experiments. Preserves the prevalence of each set.
 
@@ -557,6 +557,14 @@ class Dataset:
         :param n_test: number of test documents to keep (default 100)
         :return: self
         """
-        self.training = self.training.sampling(n_train, *self.training.prevalence())
-        self.test = self.test.sampling(n_test, *self.test.prevalence())
+        self.training = self.training.sampling(
+            n_train,
+            *self.training.prevalence(),
+            random_state = random_state
+        )
+        self.test = self.test.sampling(
+            n_test,
+            *self.test.prevalence(),
+            random_state = random_state
+        )
         return self
