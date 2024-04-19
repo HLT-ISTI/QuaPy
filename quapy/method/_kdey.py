@@ -62,8 +62,13 @@ class KDEBase:
         :param bandwidth: float, the bandwidth of the kernel
         :return: a list of KernelDensity objects, each fitted with the corresponding class-specific covariates
         """
-        return [self.get_kde_function(X[y == cat], bandwidth) for cat in classes]
-
+        class_cond_X = []
+        for cat in classes:
+            selX = X[y==cat]
+            if selX.size==0:
+                selX = [F.uniform_prevalence(len(classes))]
+            class_cond_X.append(selX)
+        return [self.get_kde_function(X_cond_yi, bandwidth) for X_cond_yi in class_cond_X]
 
 
 class KDEyML(AggregativeSoftQuantifier, KDEBase):
