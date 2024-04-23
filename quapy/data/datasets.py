@@ -79,7 +79,6 @@ UCI_MULTICLASS_DATASETS = [
     'room',
     'phishing2',
     'rt-iot22',
-    'support2',
     'image_seg',
     'steel_plates',
     'hcv',
@@ -703,7 +702,6 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         'room': 864,
         'phishing2': 379,
         'rt-iot22': 942,
-        'support2': 880,
         'image_seg': 147,
         'steel_plates': 198,
         'hcv': 503,
@@ -737,7 +735,6 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         'room': 'Room Occupancy Estimation',
         'phishing2': 'Website Phishing',
         'rt-iot22': 'RT-IoT2022',
-        'support2': 'SUPPORT2',
         'image_seg': 'Statlog (Image Segmentation)',
         'steel_plates': 'Steel Plates Faults',
         'hcv': 'Hepatitis C Virus (HCV) for Egyptian patients',
@@ -753,17 +750,25 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
     
     def download(id, name):
         df = fetch_ucirepo(id=id)
+        
 
         df.data.features = pd.get_dummies(df.data.features, drop_first=True)
 
         X, y = df.data.features.to_numpy(), df.data.targets.to_numpy().squeeze()
-        # classes represented as arrays are transformed to tuples to treat them as single objects
-        if name == 'support2':
-            y[:, 2] = np.fromiter((str(elm) for elm in y[:, 2]), dtype='object')
-            raise ValueError('this is support 2')
+
+        with open(f"var/{name}_Xy.txt", "w") as f:
+            for row in X:
+                f.write(str(row) + "\n")
+            f.write("\n\n")
+            if y.ndim > 1:
+                unique_y = np.unique(np.fromiter((tuple(elm) for elm in y), dtype='object'))
+            else:
+                unique_y = np.unique(y)
+            f.write(str(unique_y) + "\n\n")
+            for row in y:
+                f.write(str(row) + "\n")
 
         if y.ndim > 1:
-            y = np.fromiter((tuple(elm) for elm in y), dtype='object')
             raise ValueError('more than one y')
 
         classes = np.sort(np.unique(y))
