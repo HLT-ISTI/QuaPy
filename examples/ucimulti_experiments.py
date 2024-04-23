@@ -62,9 +62,9 @@ if __name__ == '__main__':
 
         with open(global_result_path + '.csv', 'at') as csv:
 
-            for dataset in qp.datasets.UCI_MULTICLASS_DATASETS[:5]:
+            for dataset in qp.datasets.UCI_MULTICLASS_DATASETS[:12]:
 
-                if dataset in ['covertype', 'diabetes']:
+                if dataset in []:
                     continue
 
                 print('init', dataset)
@@ -106,7 +106,7 @@ if __name__ == '__main__':
                         )
                         report.to_csv(local_result_path)
 
-                means = report.mean()
+                means = report.mean(numeric_only=True)
                 csv.write(f'{method_name}\t{dataset}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\n')
                 csv.flush()
 
