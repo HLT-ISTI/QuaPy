@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
         with open(global_result_path + '.csv', 'at') as csv:
 
-            for dataset in qp.datasets.UCI_MULTICLASS_DATASETS[:12]:
+            for dataset in qp.datasets.UCI_MULTICLASS_DATASETS:
 
                 if dataset in []:
                     continue

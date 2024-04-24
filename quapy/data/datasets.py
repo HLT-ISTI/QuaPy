@@ -59,7 +59,7 @@ UCI_MULTICLASS_DATASETS = [
     'letter',
     'abalone',
     'obesity',
-    'covertype',
+    # 'covertype', --> very slow, skipped
     'nursery',
     # 'diabetes', --> very slow, skipped
     'yeast',
@@ -70,17 +70,17 @@ UCI_MULTICLASS_DATASETS = [
     'isolet',
     'waveform.v1',
     'molecular',
-    'poker_hand',
+    # 'poker_hand', --> very slow, skipped
     'connect-4',
-    'cardiotocography',
+    # 'cardiotocography', --> multiple labels, skipped
     'mhr',
-    'chess2',
+    'chess',
     'page_block',
-    'room',
+    # 'room', --> very slow, skipped
     'phishing2',
-    'rt-iot22',
+    # 'rt-iot22', --> very slow, skipped
     'image_seg',
-    'steel_plates',
+    # 'steel_plates', --> multiple labels, skipped
     'hcv',
 ]
 
@@ -697,7 +697,7 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         'connect-4': 26,
         'cardiotocography': 193,
         'mhr': 863,
-        'chess2': 23,
+        'chess': 23,
         'page_block': 78,
         'room': 864,
         'phishing2': 379,
@@ -730,7 +730,7 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         'connect-4': 'Connect-4',
         'cardiotocography': 'Cardiotocography',
         'mhr': 'Maternal Health Risk',
-        'chess2': 'Chess (King-Rook vs. King)',
+        'chess': 'Chess (King-Rook vs. King)',
         'page_block': 'Page Blocks Classification',
         'room': 'Room Occupancy Estimation',
         'phishing2': 'Website Phishing',
