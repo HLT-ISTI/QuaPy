@@ -1,5 +1,9 @@
 Change Log 0.1.9
 ----------------
+- Moved the wiki documents to the ./docs/ folder so that they become editable via PR for the community
+
+- Added Composable methods from Mirko Bunse's qunfold library! (thanks to Mirko Bunse!)
+
 - Added Continuous Integration with GitHub Actions (thanks to Mirko Bunse!)
 
 - Added Bayesian CC method (thanks to Pawel Czyz!). The method is described in detail in the paper
