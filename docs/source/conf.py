@@ -10,8 +10,10 @@ import pathlib
 import sys
 from os.path import join
 quapy_path = join(pathlib.Path(__file__).parents[2].resolve().as_posix(), 'quapy')
+wiki_path = join(pathlib.Path(__file__).parents[0].resolve().as_posix(), 'wiki')
 print(f'quapy path={quapy_path}')
 sys.path.insert(0, quapy_path)
+sys.path.insert(0, wiki_path)
 
 
 project = 'QuaPy: A Python-based open-source framework for quantification'
