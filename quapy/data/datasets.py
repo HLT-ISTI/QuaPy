@@ -61,7 +61,7 @@ UCI_MULTICLASS_DATASETS = [
     'obesity',
     'covertype',
     'nursery',
-    'diabetes',
+    # 'diabetes', --> very slow, skipped
     'yeast',
     'hand_digits',
     'satellite',
