@@ -6,14 +6,17 @@ import quapy as qp
 from sklearn.linear_model import LogisticRegression
 from time import time
 
-from quapy.error import QUANTIFICATION_ERROR_SINGLE, QUANTIFICATION_ERROR, QUANTIFICATION_ERROR_NAMES, \
-    QUANTIFICATION_ERROR_SINGLE_NAMES
+from quapy.error import QUANTIFICATION_ERROR_SINGLE_NAMES
 from quapy.method.aggregative import EMQ, PCC
 from quapy.method.base import BaseQuantifier
 
 
 class EvalTestCase(unittest.TestCase):
+
     def test_eval_speedup(self):
+        """
+        Checks whether the speed-up heuristics used by qp.evaluation work, i.e., actually save time
+        """
 
         data = qp.datasets.fetch_reviews('hp', tfidf=True, min_df=10, pickle=True)
         train, test = data.training, data.test
@@ -55,8 +58,11 @@ class EvalTestCase(unittest.TestCase):
         self.assertEqual(tend_no_optim>(tend_optim/2), True)
 
     def test_evaluation_output(self):
+        """
+        Checks the evaluation functions return correct types for different error_metrics
+        """
 
-        data = qp.datasets.fetch_reviews('hp', tfidf=True, min_df=10, pickle=True)
+        data = qp.datasets.fetch_reviews('hp', tfidf=True, min_df=10, pickle=True).reduce(n_train=100, n_test=100)
         train, test = data.training, data.test
 
         qp.environ['SAMPLE_SIZE']=100
@@ -77,7 +83,6 @@ class EvalTestCase(unittest.TestCase):
             self.assertTrue(isinstance(scores, np.ndarray))
 
             self.assertEqual(scores.mean(), score)
-
 
 
 if __name__ == '__main__':

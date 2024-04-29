@@ -54,7 +54,7 @@ class OneVsAll:
     pass
 
 
-def newOneVsAll(binary_quantifier, n_jobs=None):
+def newOneVsAll(binary_quantifier: BaseQuantifier, n_jobs=None):
     assert isinstance(binary_quantifier, BaseQuantifier), \
         f'{binary_quantifier} does not seem to be a Quantifier'
     if isinstance(binary_quantifier, qp.method.aggregative.AggregativeQuantifier):
@@ -69,7 +69,7 @@ class OneVsAllGeneric(OneVsAll, BaseQuantifier):
     quantifier for each class, and then l1-normalizes the outputs so that the class prevelence values sum up to 1.
     """
 
-    def __init__(self, binary_quantifier, n_jobs=None):
+    def __init__(self, binary_quantifier: BaseQuantifier, n_jobs=None):
         assert isinstance(binary_quantifier, BaseQuantifier), \
             f'{binary_quantifier} does not seem to be a Quantifier'
         if isinstance(binary_quantifier, qp.method.aggregative.AggregativeQuantifier):

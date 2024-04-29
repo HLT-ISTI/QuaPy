@@ -27,7 +27,7 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None):
+    def __init__(self, classifier: BaseEstimator, val_split=None, n_jobs=None):
         self.classifier = classifier
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)

@@ -82,6 +82,13 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
         :param fit_classifier: whether to train the learner (default is True). Set to False if the
             learner has been trained outside the quantifier.
+        :param val_split: specifies the data used for generating classifier predictions. This specification
+            can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+            be extracted from the training set; or as an integer (default 5), indicating that the predictions
+            are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+            for `k`); or as a collection defining the specific set of data to use for validation.
+            Alternatively, this set can be specified at fit time by indicating the exact set of data
+            on which the predictions are to be generated.
         :return: self
         """
         self._check_init_parameters()
@@ -111,6 +118,12 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         if fit_classifier:
             self._check_non_empty_classes(data)
 
+        if predict_on is None:
+            if not fit_classifier:
+                predict_on = data
+                if isinstance(self.val_split, LabelledCollection) and self.val_split!=predict_on:
+                    raise ValueError(f'{fit_classifier=} but a LabelledCollection was provided as val_split '
+                                     f'in __init__ that is not the same as the LabelledCollection provided in fit.')
         if predict_on is None:
             predict_on = self.val_split
 
@@ -467,7 +480,7 @@ class ACC(AggregativeCrispQuantifier):
         if self.method not in ACC.METHODS:
             raise ValueError(f"unknown method; valid ones are {ACC.METHODS}")
         if self.norm not in ACC.NORMALIZATIONS:
-            raise ValueError(f"unknown clipping; valid ones are {ACC.NORMALIZATIONS}")
+            raise ValueError(f"unknown normalization; valid ones are {ACC.NORMALIZATIONS}")
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -578,7 +591,8 @@ class PACC(AggregativeSoftQuantifier):
         if self.method not in ACC.METHODS:
             raise ValueError(f"unknown method; valid ones are {ACC.METHODS}")
         if self.norm not in ACC.NORMALIZATIONS:
-            raise ValueError(f"unknown clipping; valid ones are {ACC.NORMALIZATIONS}")
+            raise ValueError(f"unknown normalization; valid ones are {ACC.NORMALIZATIONS}")
+
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -1522,8 +1536,8 @@ AdjustedClassifyAndCount = ACC
 ProbabilisticClassifyAndCount = PCC
 ProbabilisticAdjustedClassifyAndCount = PACC
 ExpectationMaximizationQuantifier = EMQ
-DistributionMatchingY = DMy
 SLD = EMQ
+DistributionMatchingY = DMy
 HellingerDistanceY = HDy
 MedianSweep = MS
 MedianSweep2 = MS2

@@ -14,6 +14,7 @@ from quapy.util import download_file_if_not_exists, download_file, get_quapy_hom
 
 
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
+
 TWITTER_SENTIMENT_DATASETS_TEST = [
     'gasp', 'hcr', 'omd', 'sanders',
     'semeval13', 'semeval14', 'semeval15', 'semeval16',
@@ -25,8 +26,10 @@ TWITTER_SENTIMENT_DATASETS_TRAIN = [
     'sst', 'wa', 'wb',
 ]
 UCI_BINARY_DATASETS = [
-    'acute.a', 'acute.b',
-    'balance.1', 'balance.2', 'balance.3',
+    #'acute.a', 'acute.b',
+    'balance.1', 
+    #'balance.2', 
+    'balance.3',
     'breast-cancer',
     'cmc.1', 'cmc.2', 'cmc.3',
     'ctg.1', 'ctg.2', 'ctg.3',
@@ -78,7 +81,9 @@ UCI_MULTICLASS_DATASETS = [
     'hcv',
 ]
 
-LEQUA2022_TASKS = ['T1A', 'T1B', 'T2A', 'T2B']
+LEQUA2022_VECTOR_TASKS = ['T1A', 'T1B']
+LEQUA2022_TEXT_TASKS = ['T2A', 'T2B']
+LEQUA2022_TASKS = LEQUA2022_VECTOR_TASKS + LEQUA2022_TEXT_TASKS
 
 _TXA_SAMPLE_SIZE = 250
 _TXB_SAMPLE_SIZE = 1000
@@ -237,7 +242,7 @@ def fetch_UCIBinaryDataset(dataset_name, data_home=None, test_split=0.3, verbose
     :return: a :class:`quapy.data.base.Dataset` instance
     """
     data = fetch_UCIBinaryLabelledCollection(dataset_name, data_home, verbose)
-    return Dataset(*data.split_stratified(1 - test_split, random_state=0))
+    return Dataset(*data.split_stratified(1 - test_split, random_state=0), name=dataset_name)
 
 
 def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
@@ -622,6 +627,7 @@ def fetch_UCIMulticlassDataset(
     :param verbose: set to True (default is False) to get information (stats) about the dataset
     :return: a :class:`quapy.data.base.Dataset` instance
     """
+
     data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, min_class_support, verbose=verbose)
     n = len(data)
     train_prop = (1.-min_test_split)

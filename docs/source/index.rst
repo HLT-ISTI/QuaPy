@@ -21,6 +21,23 @@ GitHub
 QuaPy is hosted in GitHub at `https://github.com/HLT-ISTI/QuaPy <https://github.com/HLT-ISTI/QuaPy>`_
 
 
+Wiki Documents
+------------
+
+In this section you can find useful information concerning different aspects of QuaPy, with examples:
+
+.. toctree::
+   :maxdepth: 1
+
+   wiki/Datasets
+   wiki/Evaluation
+   wiki/ExplicitLossMinimization
+   wiki/Methods
+   wiki/Model-Selection
+   wiki/Plotting
+   wiki/Protocols
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
