@@ -593,6 +593,7 @@ class PACC(AggregativeSoftQuantifier):
         if self.norm not in ACC.NORMALIZATIONS:
             raise ValueError(f"unknown normalization; valid ones are {ACC.NORMALIZATIONS}")
 
+
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
         Estimates the misclassification rates

@@ -14,44 +14,72 @@ from quapy.util import download_file_if_not_exists, download_file, get_quapy_hom
 
 
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
-TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',
-                              'semeval13', 'semeval14', 'semeval15', 'semeval16',
-                              'sst', 'wa', 'wb']
-TWITTER_SENTIMENT_DATASETS_TRAIN = ['gasp', 'hcr', 'omd', 'sanders',
-                                 'semeval', 'semeval16',
-                                 'sst', 'wa', 'wb']
-UCI_BINARY_DATASETS = [
-                #'acute.a', 'acute.b',
-                'balance.1',
-                #'balance.2',
-                'balance.3',
-                'breast-cancer',
-                'cmc.1', 'cmc.2', 'cmc.3',
-                'ctg.1', 'ctg.2', 'ctg.3',
-                       #'diabetes', # <-- I haven't found this one...
-                'german',
-                'haberman',
-                'ionosphere',
-                'iris.1', 'iris.2', 'iris.3',
-                'mammographic',
-                       'pageblocks.5',
-                       #'phoneme', # <-- I haven't found this one...
-                       'semeion',
-                       'sonar',
-                       'spambase',
-                       'spectf',
-                       'tictactoe',
-                       'transfusion',
-                       'wdbc',
-                       'wine.1', 'wine.2', 'wine.3',
-                       'wine-q-red', 'wine-q-white',
-                       'yeast']
 
-UCI_MULTICLASS_DATASETS = ['dry-bean',
-                           'wine-quality',
-                           'academic-success',
-                           'digits',
-                           'letter']
+TWITTER_SENTIMENT_DATASETS_TEST = [
+    'gasp', 'hcr', 'omd', 'sanders',
+    'semeval13', 'semeval14', 'semeval15', 'semeval16',
+    'sst', 'wa', 'wb',
+]
+TWITTER_SENTIMENT_DATASETS_TRAIN = [
+    'gasp', 'hcr', 'omd', 'sanders',
+    'semeval', 'semeval16',
+    'sst', 'wa', 'wb',
+]
+UCI_BINARY_DATASETS = [
+    #'acute.a', 'acute.b',
+    'balance.1', 
+    #'balance.2', 
+    'balance.3',
+    'breast-cancer',
+    'cmc.1', 'cmc.2', 'cmc.3',
+    'ctg.1', 'ctg.2', 'ctg.3',
+    #'diabetes', # <-- I haven't found this one...
+    'german',
+    'haberman',
+    'ionosphere',
+    'iris.1', 'iris.2', 'iris.3',
+    'mammographic',
+    'pageblocks.5',
+    #'phoneme', # <-- I haven't found this one...
+    'semeion',
+    'sonar',
+    'spambase',
+    'spectf',
+    'tictactoe',
+    'transfusion',
+    'wdbc',
+    'wine.1', 'wine.2', 'wine.3',
+    'wine-q-red',
+    'wine-q-white',
+    'yeast',
+]
+
+UCI_MULTICLASS_DATASETS = [
+    'dry-bean',
+    'wine-quality',
+    'academic-success',
+    'digits',
+    'letter',
+    'abalone',
+    'obesity',
+    'nursery',
+    'yeast',
+    'hand_digits',
+    'satellite',
+    'shuttle',
+    'cmc',
+    'isolet',
+    'waveform-v1',
+    'molecular',
+    'poker_hand',
+    'connect-4',
+    'mhr',
+    'chess',
+    'page_block',
+    'phishing',
+    'image_seg',
+    'hcv',
+]
 
 LEQUA2022_VECTOR_TASKS = ['T1A', 'T1B']
 LEQUA2022_TEXT_TASKS = ['T2A', 'T2B']
@@ -561,7 +589,13 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=Fals
     return data
 
 
-def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
+def fetch_UCIMulticlassDataset(
+        dataset_name,
+        data_home=None,
+        min_test_split=0.3,
+        max_train_instances=25000,
+        min_class_support=100,
+        verbose=False) -> Dataset:
     """
     Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`. 
 
@@ -583,15 +617,28 @@ def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, ver
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
         ~/quay_data/ directory)
-    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
+    :param min_test_split: minimum proportion of instances to be included in the test set. This value is interpreted
+        as a minimum proportion, meaning that the real proportion could be higher in case the training proportion
+        (1-`min_test_split`% of the instances) surpasses `max_train_instances`. In such case, only `max_train_instances`
+        are taken for training, and the rest (irrespective of `min_test_split`) is taken for test.
+    :param max_train_instances: maximum number of instances to keep for training (defaults to 25000)
+    :param min_class_support: minimum number of istances per class. Classes with fewer instances
+        are discarded (deafult is 100)
     :param verbose: set to True (default is False) to get information (stats) about the dataset
     :return: a :class:`quapy.data.base.Dataset` instance
     """
-    data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, verbose)
-    return Dataset(*data.split_stratified(1 - test_split, random_state=0), name=dataset_name)
+
+    data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, min_class_support, verbose=verbose)
+    n = len(data)
+    train_prop = (1.-min_test_split)
+    n_train = int(n*train_prop)
+    if n_train > max_train_instances:
+        train_prop = (max_train_instances / n)
+
+    return Dataset(*data.split_stratified(train_prop, random_state=0))
 
 
-def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
+def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_class_support=100, verbose=False) -> LabelledCollection:
     """
     Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`.
 
@@ -613,7 +660,9 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where the dataset will be dumped (leave empty to use the default
         ~/quay_data/ directory)
-    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
+    :param test_split: proportion of instances to be included in the test set. The rest conforms the training set
+    :param min_class_support: minimum number of istances per class. Classes with fewer instances
+        are discarded (deafult is 100)
     :param verbose: set to True (default is False) to get information (stats) about the dataset
     :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
@@ -626,19 +675,57 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
         data_home = get_quapy_home()
     
     identifiers = {
-        "dry-bean": 602,
-        "wine-quality": 186,
-        "academic-success": 697,
-        "digits": 80,
-        "letter": 59
+        'dry-bean': 602,
+        'wine-quality': 186,
+        'academic-success': 697,
+        'digits': 80,
+        'letter': 59,
+        'abalone': 1,
+        'obesity': 544,
+        'nursery': 76,
+        'yeast': 110,
+        'hand_digits': 81,
+        'satellite': 146,
+        'shuttle': 148,
+        'cmc': 30,
+        'isolet': 54,
+        'waveform-v1': 107,
+        'molecular': 69,
+        'poker_hand': 158,
+        'connect-4': 26,
+        'mhr': 863,
+        'chess': 23,
+        'page_block': 78,
+        'phishing': 379,
+        'image_seg': 147,
+        'hcv': 503,
     }
     
     full_names = {
-        "dry-bean": "Dry Bean Dataset",
-        "wine-quality": "Wine Quality",
-        "academic-success": "Predict students' dropout and academic success",
-        "digits": "Optical Recognition of Handwritten Digits",
-        "letter": "Letter Recognition"
+        'dry-bean': 'Dry Bean Dataset',
+        'wine-quality': 'Wine Quality',
+        'academic-success': 'Predict students\' dropout and academic success',
+        'digits': 'Optical Recognition of Handwritten Digits',
+        'letter': 'Letter Recognition',
+        'abalone': 'Abalone',
+        'obesity': 'Estimation of Obesity Levels Based On Eating Habits and Physical Condition',
+        'nursery': 'Nursery',
+        'yeast': 'Yeast',
+        'hand_digits': 'Pen-Based Recognition of Handwritten Digits',
+        'satellite': 'Statlog Landsat Satellite',
+        'shuttle': 'Statlog Shuttle',
+        'cmc': 'Contraceptive Method Choice',
+        'isolet': 'ISOLET',
+        'waveform-v1': 'Waveform Database Generator (Version 1)',
+        'molecular': 'Molecular Biology (Splice-junction Gene Sequences)',
+        'poker_hand': 'Poker Hand',
+        'connect-4': 'Connect-4',
+        'mhr': 'Maternal Health Risk',
+        'chess': 'Chess (King-Rook vs. King)',
+        'page_block': 'Page Blocks Classification',
+        'phishing': 'Website Phishing',
+        'image_seg': 'Statlog (Image Segmentation)',
+        'hcv': 'Hepatitis C Virus (HCV) for Egyptian patients',
     }
     
     identifier = identifiers[dataset_name]
@@ -649,14 +736,36 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=
 
     file = join(data_home, 'uci_multiclass', dataset_name+'.pkl')
     
-    def download(id):
-        data = fetch_ucirepo(id=id)
-        X, y = data['data']['features'].to_numpy(), data['data']['targets'].to_numpy().squeeze()
+    def download(id, name):
+        df = fetch_ucirepo(id=id)
+
+        df.data.features = pd.get_dummies(df.data.features, drop_first=True)
+        X, y = df.data.features.to_numpy(), df.data.targets.to_numpy().squeeze()
+
+        assert y.ndim == 1, 'more than one y'
+
         classes = np.sort(np.unique(y))
         y = np.searchsorted(classes, y)
         return LabelledCollection(X, y)
 
-    data = pickled_resource(file, download, identifier)
+    def filter_classes(data: LabelledCollection, min_ipc):
+        classes = data.classes_
+        # restrict classes to only those with at least min_ipc instances
+        classes = classes[data.counts() >= min_ipc]
+        # filter X and y keeping only datapoints belonging to valid classes
+        filter_idx = np.in1d(data.y, classes)
+        X, y = data.X[filter_idx], data.y[filter_idx]
+        # map classes to range(len(classes))
+        y = np.searchsorted(classes, y)
+        return LabelledCollection(X, y)
+
+    data = pickled_resource(file, download, identifier, dataset_name)
+    data = filter_classes(data, min_class_support)
+    if data.n_classes <= 2:
+        raise ValueError(
+            f'After filtering out classes with less than {min_class_support=} instances, the dataset {dataset_name} '
+            f'is no longer multiclass. Try a reducing this value.'
+        )
 
     if verbose:
         data.stats()
@@ -746,8 +855,8 @@ def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=No
     information on this dataset, please follow the zenodo link).
     This dataset is based on the data available publicly at
     `WHOI-Plankton repo <https://github.com/hsosik/WHOI-Plankton>`_.
-    The scripts for the processing are available at `P. González's repo <https://github.com/pglez82/IFCB_Zenodo>`_.
-    Basically, this is the IFCB dataset with precomputed features for testing quantification algorithms.
+    The dataset already comes with processed features.
+    The scripts used for the processing are available at `P. González's repo <https://github.com/pglez82/IFCB_Zenodo>`_.
 
     The datasets are downloaded only once, and stored for fast reuse.
 
@@ -803,7 +912,7 @@ def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=No
     if for_model_selection:
         # In this case, return 70% of training data as the training set and 30% as the test set
         samples = get_sample_list(train_samples_path)
-        train, test = generate_modelselection_split(samples, split=0.3)
+        train, test = generate_modelselection_split(samples, test_prop=0.3)
         train_gen = IFCBTrainSamplesFromDir(path_dir=train_samples_path, classes=classes, samples=train)
 
         # Test prevalence is computed from class labels

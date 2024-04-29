@@ -21,7 +21,7 @@ class QuaNetTrainer(BaseQuantifier):
     Example:
 
     >>> import quapy as qp
-    >>> from quapy.method.meta import QuaNet
+    >>> from quapy.method_name.meta import QuaNet
     >>> from quapy.classification.neural import NeuralClassifierTrainer, CNNnet
     >>>
     >>> # use samples of 100 elements

@@ -29,12 +29,17 @@ def newLR():
 
 
 def calibratedLR():
-    return CalibratedClassifierCV(LogisticRegression(max_iter=1000, solver='lbfgs', n_jobs=-1))
+    return CalibratedClassifierCV(newLR())
 
 
 __C_range = np.logspace(-3, 3, 7)
-lr_params = {'classifier__C': __C_range, 'classifier__class_weight': [None, 'balanced']}
-svmperf_params = {'classifier__C': __C_range}
+lr_params = {
+    'classifier__C': __C_range,
+    'classifier__class_weight': [None, 'balanced']
+}
+svmperf_params = {
+    'classifier__C': __C_range
+}
 
 
 def quantification_models():
