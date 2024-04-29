@@ -59,28 +59,22 @@ UCI_MULTICLASS_DATASETS = [
     'letter',
     'abalone',
     'obesity',
-    # 'covertype', --> very slow, skipped
     'nursery',
-    # 'diabetes', --> very slow, skipped
     'yeast',
     'hand_digits',
     'satellite',
     'shuttle',
     'cmc',
     'isolet',
-    'waveform.v1',
+    'waveform-v1',
     'molecular',
-    # 'poker_hand', --> very slow, skipped
+    'poker_hand',
     'connect-4',
-    # 'cardiotocography', --> multiple labels, skipped
     'mhr',
     'chess',
     'page_block',
-    # 'room', --> very slow, skipped
-    'phishing2',
-    # 'rt-iot22', --> very slow, skipped
+    'phishing',
     'image_seg',
-    # 'steel_plates', --> multiple labels, skipped
     'hcv',
 ]
 
@@ -682,28 +676,22 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         'letter': 59,
         'abalone': 1,
         'obesity': 544,
-        'covertype': 31,
         'nursery': 76,
-        'diabetes': 296,
         'yeast': 110,
         'hand_digits': 81,
         'satellite': 146,
         'shuttle': 148,
         'cmc': 30,
         'isolet': 54,
-        'waveform.v1': 107,
+        'waveform-v1': 107,
         'molecular': 69,
         'poker_hand': 158,
         'connect-4': 26,
-        'cardiotocography': 193,
         'mhr': 863,
         'chess': 23,
         'page_block': 78,
-        'room': 864,
-        'phishing2': 379,
-        'rt-iot22': 942,
+        'phishing': 379,
         'image_seg': 147,
-        'steel_plates': 198,
         'hcv': 503,
     }
     
@@ -715,28 +703,22 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         'letter': 'Letter Recognition',
         'abalone': 'Abalone',
         'obesity': 'Estimation of Obesity Levels Based On Eating Habits and Physical Condition',
-        'covertype': 'Covertype',
         'nursery': 'Nursery',
-        'diabetes': 'Diabetes 130-US Hospitals for Years 1999-2008',
         'yeast': 'Yeast',
         'hand_digits': 'Pen-Based Recognition of Handwritten Digits',
         'satellite': 'Statlog Landsat Satellite',
         'shuttle': 'Statlog Shuttle',
         'cmc': 'Contraceptive Method Choice',
         'isolet': 'ISOLET',
-        'waveform.v1': 'Waveform Database Generator (Version 1)',
+        'waveform-v1': 'Waveform Database Generator (Version 1)',
         'molecular': 'Molecular Biology (Splice-junction Gene Sequences)',
         'poker_hand': 'Poker Hand',
         'connect-4': 'Connect-4',
-        'cardiotocography': 'Cardiotocography',
         'mhr': 'Maternal Health Risk',
         'chess': 'Chess (King-Rook vs. King)',
         'page_block': 'Page Blocks Classification',
-        'room': 'Room Occupancy Estimation',
-        'phishing2': 'Website Phishing',
-        'rt-iot22': 'RT-IoT2022',
+        'phishing': 'Website Phishing',
         'image_seg': 'Statlog (Image Segmentation)',
-        'steel_plates': 'Steel Plates Faults',
         'hcv': 'Hepatitis C Virus (HCV) for Egyptian patients',
     }
     
@@ -750,26 +732,11 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
     
     def download(id, name):
         df = fetch_ucirepo(id=id)
-        
 
         df.data.features = pd.get_dummies(df.data.features, drop_first=True)
-
         X, y = df.data.features.to_numpy(), df.data.targets.to_numpy().squeeze()
 
-        with open(f"var/{name}_Xy.txt", "w") as f:
-            for row in X:
-                f.write(str(row) + "\n")
-            f.write("\n\n")
-            if y.ndim > 1:
-                unique_y = np.unique(np.fromiter((tuple(elm) for elm in y), dtype='object'))
-            else:
-                unique_y = np.unique(y)
-            f.write(str(unique_y) + "\n\n")
-            for row in y:
-                f.write(str(row) + "\n")
-
-        if y.ndim > 1:
-            raise ValueError('more than one y')
+        assert y.ndim == 1, 'more than one y'
 
         classes = np.sort(np.unique(y))
         y = np.searchsorted(classes, y)
