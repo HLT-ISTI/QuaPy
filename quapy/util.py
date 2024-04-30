@@ -228,12 +228,14 @@ def pickled_resource(pickle_path:str, generation_func:callable, *args):
         return generation_func(*args)
     else:
         if os.path.exists(pickle_path):
-            return pickle.load(open(pickle_path, 'rb'))
+            with open(pickle_path, 'rb') as fin:
+                instance = pickle.load(fin)
         else:
             instance = generation_func(*args)
             os.makedirs(str(Path(pickle_path).parent), exist_ok=True)
-            pickle.dump(instance, open(pickle_path, 'wb'), pickle.HIGHEST_PROTOCOL)
-            return instance
+            with open(pickle_path, 'wb') as foo:
+                pickle.dump(instance, foo, pickle.HIGHEST_PROTOCOL)
+        return instance
 
 
 def _check_sample_size(sample_size):
