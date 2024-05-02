@@ -38,8 +38,8 @@ def baselines():
 
     yield CC(new_cls()), "CC", q_params
     yield ACC(new_cls()), "ACC", q_params
-    # yield PCC(new_cls()), "PCC", q_params
-    # yield PACC(new_cls()), "PACC", q_params
+    yield PCC(new_cls()), "PCC", q_params
+    yield PACC(new_cls()), "PACC", q_params
     # yield EMQ(CalibratedClassifierCV(new_cls())), "SLD-Platt", wrap_params(wrap_params(lr_params, 'estimator'), 'classifier')
     # yield EMQ(new_cls()), "SLD", q_params
     # yield EMQ(new_cls()), "SLD-BCTS", {**q_params, 'recalib': ['bcts'], 'val_split': [5]}
