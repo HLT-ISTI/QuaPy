@@ -1,14 +1,19 @@
+import zipfile
+
 import pandas as pd
 import os
 from os.path import join
 
+import quapy as qp
 from scripts.data import load_vector_documents
 
 from quapy.data import LabelledCollection
 from quapy.protocol import AbstractProtocol
-
+from quapy.util import download_file_if_not_exists
 
 LEQUA2024_TASKS = ['T1', 'T2', 'T3', 'T4']
+
+LEQUA2024_ZENODO = 'https://zenodo.org/record/11091067'  # v2, no ground truth for test yet
 
 
 class LabelledCollectionsFromDir(AbstractProtocol):
@@ -25,34 +30,35 @@ class LabelledCollectionsFromDir(AbstractProtocol):
             yield lc
 
 
-def fetch_lequa2024(task, data_home='./data', merge_T3=False):
+def fetch_lequa2024(task, data_home=None, merge_T3=False):
 
     from quapy.data._lequa2022 import SamplesFromDir
 
     assert task in LEQUA2024_TASKS, \
         f'Unknown task {task}. Valid ones are {LEQUA2024_TASKS}'
 
-    # if data_home is None:
-    #     data_home = get_quapy_home()
+    if data_home is None:
+        data_home = qp.util.get_quapy_home()
+
     lequa_dir = data_home
 
-    # URL_TRAINDEV=f'https://zenodo.org/record/6546188/files/{task}.train_dev.zip'
-    # URL_TEST=f'https://zenodo.org/record/6546188/files/{task}.test.zip'
-    # URL_TEST_PREV=f'https://zenodo.org/record/6546188/files/{task}.test_prevalences.zip'
+    URL_TRAINDEV=f'{LEQUA2024_ZENODO}/files/{task}.train_dev.zip'
+    URL_TEST=f'{LEQUA2024_ZENODO}/files/{task}.test.zip'
+    # URL_TEST_PREV=f'{LEQUA2024_ZENODO}/files/{task}.test_prevalences.zip'
 
-    # lequa_dir = join(data_home, 'lequa2024')
-    # os.makedirs(lequa_dir, exist_ok=True)
+    lequa_dir = join(data_home, 'lequa2024')
+    os.makedirs(lequa_dir, exist_ok=True)
 
-    # def download_unzip_and_remove(unzipped_path, url):
-    #     tmp_path = join(lequa_dir, task + '_tmp.zip')
-    #     download_file_if_not_exists(url, tmp_path)
-    #     with zipfile.ZipFile(tmp_path) as file:
-    #         file.extractall(unzipped_path)
-    #     os.remove(tmp_path)
+    def download_unzip_and_remove(unzipped_path, url):
+        tmp_path = join(lequa_dir, task + '_tmp.zip')
+        download_file_if_not_exists(url, tmp_path)
+        with zipfile.ZipFile(tmp_path) as file:
+            file.extractall(unzipped_path)
+        os.remove(tmp_path)
 
-    # if not os.path.exists(join(lequa_dir, task)):
-    #     download_unzip_and_remove(lequa_dir, URL_TRAINDEV)
-    #     download_unzip_and_remove(lequa_dir, URL_TEST)
+    if not os.path.exists(join(lequa_dir, task)):
+        download_unzip_and_remove(lequa_dir, URL_TRAINDEV)
+        download_unzip_and_remove(lequa_dir, URL_TEST)
     #     download_unzip_and_remove(lequa_dir, URL_TEST_PREV)
 
     load_fn = load_vector_documents

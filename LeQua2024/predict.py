@@ -21,7 +21,8 @@ def main(args):
     # check the number of samples
     nsamples = len(glob(os.path.join(args.samples, f'*.txt')))
     if nsamples not in {constants.DEV_SAMPLES, constants.TEST_SAMPLES}:
-        print(f'Warning: The number of samples (.txt) in {args.samples} does neither coincide with the expected number of '
+        print(f'Warning: The number of samples (.txt) in {args.samples} '
+              f'does neither coincide with the expected number of '
               f'dev samples ({constants.DEV_SAMPLES}) nor with the expected number of '
               f'test samples ({constants.TEST_SAMPLES}).')
 
@@ -39,7 +40,7 @@ def main(args):
 
 
 if __name__=='__main__':
-    parser = argparse.ArgumentParser(description='LeQua2022 prediction script')
+    parser = argparse.ArgumentParser(description='LeQua2024 prediction script')
     parser.add_argument('model', metavar='MODEL-PATH', type=str,
                         help='Path of saved model')
     parser.add_argument('samples', metavar='SAMPLES-PATH', type=str,
