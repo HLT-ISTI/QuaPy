@@ -44,10 +44,14 @@ mkdir -p submission_files
 
 for modelname in predictions/* ; do
   modelname=$(basename "$modelname")
-  submission_name=submission_files/$modelname.zip
-  rm -f $submission_name
-  echo "zipping results for $modelname"
-  zip -j $submission_name predictions/$modelname/task_*.csv
+  echo "modelname is $modelname"
+  for taskname in predictions/$modelname/*.csv ; do
+    taskname=$(basename "$taskname")
+    submission_name=submission_files/"$modelname"_"$taskname".zip
+    rm -f $submission_name
+    echo "zipping results for $modelname and task $taskname"
+    zip -j $submission_name predictions/$modelname/$taskname
+  done
 done
 
 echo "[Done]"
