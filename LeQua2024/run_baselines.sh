@@ -1,6 +1,14 @@
 #!/bin/bash
 set -x
 
+# download the official scripts 
+if [ ! -d "scripts" ]; then
+   echo "Downloading the official scripts from the LeQua 2024 github repo"
+   wget https://github.com/HLT-ISTI/LeQua2024_scripts/archive/refs/heads/main.zip
+   unzip main.zip 
+   mv LeQua2024_scripts-main scripts
+   rm main.zip
+fi
 
 # T1: binary (n=2)
 # T2: multiclass (n=28)
