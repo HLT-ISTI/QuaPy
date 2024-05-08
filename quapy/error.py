@@ -158,8 +158,8 @@ def kld(prevs, prevs_hat, eps=None):
     :return: Kullback-Leibler divergence between the two distributions
     """
     eps = __check_eps(eps)
-    smooth_prevs = prevs + eps
-    smooth_prevs_hat = prevs_hat + eps
+    smooth_prevs = smooth(prevs, eps)
+    smooth_prevs_hat = smooth(prevs_hat, eps)
     return (smooth_prevs*np.log(smooth_prevs/smooth_prevs_hat)).sum(axis=-1)
 
 
