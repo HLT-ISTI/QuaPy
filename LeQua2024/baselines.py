@@ -3,6 +3,8 @@ import pickle
 import os
 import sys
 from os.path import join
+
+import numpy as np
 from sklearn.linear_model import LogisticRegression as LR
 
 from scripts.constants import SAMPLE_SIZE
@@ -40,6 +42,7 @@ def baselines():
     yield ACC(new_cls()), "ACC", q_params
     yield PCC(new_cls()), "PCC", q_params
     yield PACC(new_cls()), "PACC", q_params
+    yield KDEyML(new_cls()), "KDEy-ML", {**q_params, 'bandwidth': np.linspace(0.01, 0.20, 20)}
 
 
 def main(args):
