@@ -1,6 +1,6 @@
 from collections import defaultdict
 import matplotlib.pyplot as plt
-from matplotlib.cm import get_cmap
+from matplotlib.pyplot import get_cmap
 import numpy as np
 from matplotlib import cm
 from scipy.stats import ttest_ind_from_stats

@@ -37,12 +37,18 @@ def wrap_params(cls_params:dict, prefix:str):
 def baselines():
 
     q_params = wrap_params(lr_params, 'classifier')
+    kde_params = {**q_params, 'bandwidth': np.linspace(0.01, 0.20, 20)}
+    dm_params = {**q_params, 'nbins': [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 64]}
 
     yield CC(new_cls()), "CC", q_params
     yield ACC(new_cls()), "ACC", q_params
     yield PCC(new_cls()), "PCC", q_params
     yield PACC(new_cls()), "PACC", q_params
-    yield KDEyML(new_cls()), "KDEy-ML", {**q_params, 'bandwidth': np.linspace(0.01, 0.20, 20)}
+    yield SLD(new_cls()), "SLD", q_params
+    yield KDEyML(new_cls()), "KDEy-ML", kde_params
+    yield KDEyHD(new_cls()), "KDEy-HD", kde_params
+    # yield KDEyCS(new_cls()), "KDEy-CS", kde_params
+    yield DMy(new_cls()), "DMy", dm_params
 
 
 def main(args):

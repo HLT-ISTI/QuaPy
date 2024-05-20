@@ -25,7 +25,7 @@ fi
 
 for task in T1 T2 T3 T4 ; do
 
-#  PYTHONPATH=.:scripts/:.. python3 baselines.py $task data/
+  PYTHONPATH=.:scripts/:.. python3 baselines.py $task data/
 
   TEST_SAMPLES=data/lequa2024/$task/public/test_samples
 
