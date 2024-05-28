@@ -8,6 +8,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression as LR
 
 from scripts.constants import SAMPLE_SIZE
+from scripts.evaluate import normalized_match_distance
 from LeQua2024._lequa2024 import LEQUA2024_TASKS, fetch_lequa2024, LEQUA2024_ZENODO
 from quapy.method.aggregative import *
 from quapy.method.non_aggregative import MaximumLikelihoodPrevalenceEstimation as MLPE
@@ -45,10 +46,10 @@ def baselines():
     yield PCC(new_cls()), "PCC", q_params
     yield PACC(new_cls()), "PACC", q_params
     yield SLD(new_cls()), "SLD", q_params
-    yield KDEyML(new_cls()), "KDEy-ML", kde_params
-    yield KDEyHD(new_cls()), "KDEy-HD", kde_params
+    #yield KDEyML(new_cls()), "KDEy-ML", kde_params
+    #yield KDEyHD(new_cls()), "KDEy-HD", kde_params
     # yield KDEyCS(new_cls()), "KDEy-CS", kde_params
-    yield DMy(new_cls()), "DMy", dm_params
+    #yield DMy(new_cls()), "DMy", dm_params
 
 
 def main(args):
@@ -86,7 +87,7 @@ def main(args):
                 quantifier,
                 param_grid,
                 protocol=gen_val,
-                error=qp.error.mrae,
+                error=normalized_match_distance if args.task=='T3' else qp.error.mrae,
                 refit=False,
                 verbose=True,
                 n_jobs=-1
