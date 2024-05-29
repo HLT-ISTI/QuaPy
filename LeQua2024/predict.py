@@ -7,6 +7,7 @@ from tqdm import tqdm
 from scripts.data import gen_load_samples
 from glob import glob
 from scripts import constants
+from regressor import KDEyRegressor, RegressionToSimplex
 
 """
 LeQua2024 prediction script 

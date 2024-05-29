@@ -23,7 +23,7 @@ else
 fi
 
 
-for task in  T1 T2 T3 T4 ; do
+for task in T1 T2 T3 T4 ; do
 
   PYTHONPATH=.:scripts/:.. python3 baselines.py $task data/
 
