@@ -25,7 +25,9 @@ df = pd.DataFrame(columns=['method', 'dataset', 'MAE', 'MRAE', 'tr-time', 'te-ti
 
 
 for dataset_name in tqdm(qp.datasets.UCI_BINARY_DATASETS, total=len(qp.datasets.UCI_BINARY_DATASETS)):
-    if dataset_name in ['acute.a', 'acute.b', 'balance.2', 'iris.1']: continue
+    if dataset_name in ['acute.a', 'acute.b', 'balance.2', 'iris.1']:
+        # these datasets tend to produce either too good or too bad results...
+        continue
 
     collection = qp.datasets.fetch_UCIBinaryLabelledCollection(dataset_name, verbose=False)
     train, test = collection.split_stratified()

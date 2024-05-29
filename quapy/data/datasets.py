@@ -791,7 +791,7 @@ def fetch_lequa2022(task, data_home=None):
 
     The datasets are downloaded only once, and stored for fast reuse.
 
-    See `lequa2022_experiments.py` provided in the example folder, that can serve as a guide on how to use these
+    See `4.lequa2022_experiments.py` provided in the example folder, that can serve as a guide on how to use these
     datasets.
 
 

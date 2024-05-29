@@ -13,7 +13,7 @@ $ pip install quapy[bayesian]
 Running the script via:
 
 ```
-$ python examples/bayesian_quantification.py
+$ python examples/13.bayesian_quantification.py
 ```
 
 will produce a plot `bayesian_quantification.pdf`.

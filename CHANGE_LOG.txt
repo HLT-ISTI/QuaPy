@@ -1,5 +1,11 @@
 Change Log 0.1.9
 ----------------
+- [TODO] add LeQua2024
+- [TODO] add njobs to env
+- [TODO] add basic examples
+- [TODO] add default classifier to env
+- [TODO] add default classifier to env
+
 - Moved the wiki documents to the ./docs/ folder so that they become editable via PR for the community
 
 - Added Composable methods from Mirko Bunse's qunfold library! (thanks to Mirko Bunse!)

@@ -33,7 +33,7 @@ returns an instance of SVM(Q) (i.e., an instance of CC properly set to work with
 Since we wan to explore the losses, we will instead use newELM. For this example we will create a quantifier for tweet 
 sentiment analysis considering three classes: negative, neutral, and positive. Since SVMperf is a binary classifier, 
 our quantifier will be binary as well. We will use a one-vs-all approach to work in multiclass model. 
-For more details about how one-vs-all works, we refer to the example "one_vs_all.py" and to the API documentation. 
+For more details about how one-vs-all works, we refer to the example "10.one_vs_all.py" and to the API documentation. 
 """
 
 qp.environ['SAMPLE_SIZE'] = 100
