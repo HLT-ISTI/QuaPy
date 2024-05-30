@@ -1,10 +1,7 @@
 import quapy as qp
-from method._kdey import KDEyML
-from quapy.method.non_aggregative import DMx
-from quapy.protocol import APP, UPP
+from quapy.protocol import UPP
 from quapy.method.aggregative import DMy
 from sklearn.linear_model import LogisticRegression
-from examples.comparing_gridsearch import OLD_GridSearchQ
 import numpy as np
 from time import time
 
@@ -12,10 +9,15 @@ from time import time
 In this example, we show how to perform model selection on a DistributionMatching quantifier.
 """
 
-model = DMy(LogisticRegression())
+model = DMy()
 
 qp.environ['SAMPLE_SIZE'] = 100
-qp.environ['N_JOBS'] = -1
+
+print(f'running model selection with N_JOBS={qp.environ["N_JOBS"]}; '
+      f'to increase the number of jobs use:\n> N_JOBS=-1 python3 1.model_selection.py\n'
+      f'alternatively, you can set this variable within the script as:\n'
+      f'import quapy as qp\n'
+      f'qp.environ["N_JOBS"]=-1')
 
 training, test = qp.datasets.fetch_UCIMulticlassDataset('letter').train_test
 
@@ -42,7 +44,7 @@ with qp.util.temp_seed(0):
     # different configurations of the quantifier. In other words, quapy avoids to train
     # the classifier 7x7 times.
     param_grid = {
-        'classifier__C': np.logspace(-3,3,7),
+        'classifier__C': np.logspace(-3, 3, 7),
         'nbins': [2, 3, 4, 5, 10, 15, 20]
     }
 

@@ -3,7 +3,6 @@ from copy import deepcopy
 from typing import Callable, Literal, Union
 import numpy as np
 from abstention.calibration import NoBiasVectorScaling, TempScaling, VectorScaling
-from scipy import optimize
 from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import confusion_matrix
@@ -12,7 +11,6 @@ from sklearn.model_selection import cross_val_predict
 import quapy as qp
 import quapy.functional as F
 from quapy.functional import get_divergence
-from quapy.classification.calibration import NBVSCalibration, BCTSCalibration, TSCalibration, VSCalibration
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric
@@ -343,8 +341,8 @@ class CC(AggregativeCrispQuantifier):
     :param classifier: a sklearn's Estimator that generates a classifier
     """
 
-    def __init__(self, classifier: BaseEstimator):
-        self.classifier = classifier
+    def __init__(self, classifier: BaseEstimator=None):
+        self.classifier = qp._get_classifier(classifier)
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -373,8 +371,8 @@ class PCC(AggregativeSoftQuantifier):
     :param classifier: a sklearn's Estimator that generates a classifier
     """
 
-    def __init__(self, classifier: BaseEstimator):
-        self.classifier = classifier
+    def __init__(self, classifier: BaseEstimator=None):
+        self.classifier = qp._get_classifier(classifier)
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
@@ -436,14 +434,14 @@ class ACC(AggregativeCrispQuantifier):
     """
     def __init__(
             self,
-            classifier: BaseEstimator,
+            classifier: BaseEstimator=None,
             val_split=5,
             solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
             method: Literal['inversion', 'invariant-ratio'] = 'inversion',
             norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
             n_jobs=None,
     ):
-        self.classifier = classifier
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
         self.solver = solver
@@ -571,14 +569,14 @@ class PACC(AggregativeSoftQuantifier):
     """
     def __init__(
             self,
-            classifier: BaseEstimator,
+            classifier: BaseEstimator=None,
             val_split=5,
             solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
             method: Literal['inversion', 'invariant-ratio'] = 'inversion',
             norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
             n_jobs=None
     ):
-        self.classifier = classifier
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
         self.solver = solver
@@ -668,8 +666,8 @@ class EMQ(AggregativeSoftQuantifier):
     MAX_ITER = 1000
     EPSILON = 1e-4
 
-    def __init__(self, classifier: BaseEstimator, val_split=None, exact_train_prev=True, recalib=None, n_jobs=None):
-        self.classifier = classifier
+    def __init__(self, classifier: BaseEstimator=None, val_split=None, exact_train_prev=True, recalib=None, n_jobs=None):
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
         self.exact_train_prev = exact_train_prev
         self.recalib = recalib
@@ -832,7 +830,7 @@ class BayesianCC(AggregativeCrispQuantifier):
     :param mcmc_seed: random seed for the MCMC sampler (default 0)
     """
     def __init__(self,
-                 classifier: BaseEstimator,
+                 classifier: BaseEstimator=None,
                  val_split: float = 0.75,
                  num_warmup: int = 500,
                  num_samples: int = 1_000,
@@ -849,7 +847,7 @@ class BayesianCC(AggregativeCrispQuantifier):
         if _bayesian.DEPENDENCIES_INSTALLED is False:
             raise ImportError("Auxiliary dependencies are required. Run `$ pip install quapy[bayes]` to install them.")
 
-        self.classifier = classifier
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
         self.num_warmup = num_warmup
         self.num_samples = num_samples
@@ -919,8 +917,8 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself), or an integer indicating the number of folds (default 5)..
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5):
-        self.classifier = classifier
+    def __init__(self, classifier: BaseEstimator=None, val_split=5):
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
@@ -995,8 +993,8 @@ class DyS(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     :param n_jobs: number of parallel workers.
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5, n_bins=8, divergence: Union[str, Callable]= 'HD', tol=1e-05, n_jobs=None):
-        self.classifier = classifier
+    def __init__(self, classifier: BaseEstimator=None, val_split=5, n_bins=8, divergence: Union[str, Callable]= 'HD', tol=1e-05, n_jobs=None):
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
         self.tol = tol
         self.divergence = divergence
@@ -1060,8 +1058,8 @@ class SMM(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself), or an integer indicating the number of folds (default 5)..
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5):
-        self.classifier = classifier
+    def __init__(self, classifier: BaseEstimator=None, val_split=5):
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
       
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
@@ -1109,9 +1107,9 @@ class DMy(AggregativeSoftQuantifier):
     :param n_jobs: number of parallel workers (default None)
     """
 
-    def __init__(self, classifier, val_split=5, nbins=8, divergence: Union[str, Callable]='HD',
+    def __init__(self, classifier: BaseEstimator=None, val_split=5, nbins=8, divergence: Union[str, Callable]='HD',
                  cdf=False, search='optim_minimize', n_jobs=None):
-        self.classifier = classifier
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
         self.nbins = nbins
         self.divergence = divergence

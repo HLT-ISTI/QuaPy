@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 import quapy as qp
-from quapy.method.aggregative import PACC, EMQ, KDEyML
+from quapy.method.aggregative import PACC, EMQ
 from quapy.model_selection import GridSearchQ
 from quapy.protocol import UPP
 from pathlib import Path
@@ -51,6 +51,7 @@ def load_timings(result_path):
 
     df = pd.read_csv(result_path+'.csv', sep='\t')
     return timings | df.pivot_table(index='Dataset', columns='Method', values='t_train').to_dict()
+
 
 if __name__ == '__main__':
 

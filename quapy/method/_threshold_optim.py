@@ -27,8 +27,8 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=None, n_jobs=None):
-        self.classifier = classifier
+    def __init__(self, classifier: BaseEstimator=None, val_split=None, n_jobs=None):
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
 
@@ -143,7 +143,7 @@ class T50(ThresholdOptimization):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5):
+    def __init__(self, classifier: BaseEstimator=None, val_split=5):
         super().__init__(classifier, val_split)
 
     def condition(self, tpr, fpr) -> float:
@@ -167,7 +167,7 @@ class MAX(ThresholdOptimization):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5):
+    def __init__(self, classifier: BaseEstimator=None, val_split=5):
         super().__init__(classifier, val_split)
 
     def condition(self, tpr, fpr) -> float:
@@ -192,7 +192,7 @@ class X(ThresholdOptimization):
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=5):
+    def __init__(self, classifier: BaseEstimator=None, val_split=5):
         super().__init__(classifier, val_split)
 
     def condition(self, tpr, fpr) -> float:
@@ -215,7 +215,7 @@ class MS(ThresholdOptimization):
         `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
-    def __init__(self, classifier: BaseEstimator, val_split=5):
+    def __init__(self, classifier: BaseEstimator=None, val_split=5):
         super().__init__(classifier, val_split)
 
     def condition(self, tpr, fpr) -> float:
@@ -254,7 +254,7 @@ class MS2(MS):
         `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
         :class:`quapy.data.base.LabelledCollection` (the split itself).
     """
-    def __init__(self, classifier: BaseEstimator, val_split=5):
+    def __init__(self, classifier: BaseEstimator=None, val_split=5):
         super().__init__(classifier, val_split)
 
     def discard(self, tpr, fpr) -> bool:

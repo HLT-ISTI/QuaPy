@@ -33,9 +33,10 @@ import quapy.functional as F  # <- this module has some functional utilities, li
 print(f'training prevalence = {F.strprev(train.prevalence())}')
 
 # let us train one quantifier, for example, PACC using a sklearn's Logistic Regressor as the underlying classifier
-classifier = LogisticRegression()
+# classifier = LogisticRegression()
 
-pacc = qp.method.aggregative.PACC(classifier)
+# pacc = qp.method.aggregative.PACC(classifier)
+pacc = qp.method.aggregative.PACC()
 
 print(f'training {pacc}')
 pacc.fit(train)

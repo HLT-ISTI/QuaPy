@@ -1,15 +1,18 @@
 """QuaPy module for quantification"""
+from sklearn.linear_model import LogisticRegression
+
 from quapy.data import datasets
 from . import error
 from . import data
 from . import functional
-# from . import method
+from . import method
 from . import evaluation
 from . import protocol
 from . import plot
 from . import util
 from . import model_selection
 from . import classification
+import os
 
 __version__ = '0.1.9'
 
@@ -20,7 +23,8 @@ environ = {
     'PAD_TOKEN': '[PAD]',
     'PAD_INDEX': 1,
     'SVMPERF_HOME': './svm_perf_quantification',
-    'N_JOBS': 1
+    'N_JOBS': int(os.getenv('N_JOBS', 1)),
+    'DEFAULT_CLS': LogisticRegression(max_iter=3000)
 }
 
 
@@ -48,3 +52,19 @@ def _get_sample_size(sample_size):
     if sample_size is None:
         raise ValueError('neither sample_size nor qp.environ["SAMPLE_SIZE"] have been specified')
     return sample_size
+
+
+def _get_classifier(classifier):
+    """
+    If `classifier` is None, then it returns `environ['DEFAULT_CLS']`;
+    if otherwise, returns `classifier`.
+
+    :param classifier: sklearn's estimator or None
+    :return: sklearn's estimator
+    """
+    if classifier is None:
+        from sklearn.base import clone
+        classifier = clone(environ['DEFAULT_CLS'])
+    if classifier is None:
+        raise ValueError('neither classifier nor qp.environ["DEFAULT_CLS"] have been specified')
+    return classifier
