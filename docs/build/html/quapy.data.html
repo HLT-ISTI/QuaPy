@@ -45,7 +45,16 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="wiki/Datasets.html">Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiki/Evaluation.html">Evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiki/ExplicitLossMinimization.html">Explicit Loss Minimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiki/Methods.html">Quantification Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiki/Model-Selection.html">Model Selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiki/Plotting.html">Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wiki/Protocols.html">Protocols</a></li>
+</ul>
+<ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">quapy</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="quapy.html">quapy package</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="quapy.html#subpackages">Subpackages</a><ul class="current">
@@ -628,8 +637,8 @@ with replacement.</p>
 information on this dataset, please follow the zenodo link).
 This dataset is based on the data available publicly at
 <a class="reference external" href="https://github.com/hsosik/WHOI-Plankton">WHOI-Plankton repo</a>.
-The scripts for the processing are available at <a class="reference external" href="https://github.com/pglez82/IFCB_Zenodo">P. González’s repo</a>.
-Basically, this is the IFCB dataset with precomputed features for testing quantification algorithms.</p>
+The dataset already comes with processed features.
+The scripts used for the processing are available at <a class="reference external" href="https://github.com/pglez82/IFCB_Zenodo">P. González’s repo</a>.</p>
 <p>The datasets are downloaded only once, and stored for fast reuse.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -722,7 +731,7 @@ This can be reproduced by using <a class="reference internal" href="#quapy.data.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.data.datasets.fetch_UCIMulticlassDataset">
-<span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_UCIMulticlassDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><span class="pre">Dataset</span></a></span></span><a class="reference internal" href="_modules/quapy/data/datasets.html#fetch_UCIMulticlassDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.datasets.fetch_UCIMulticlassDataset" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_UCIMulticlassDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_test_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_train_instances</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_class_support</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><span class="pre">Dataset</span></a></span></span><a class="reference internal" href="_modules/quapy/data/datasets.html#fetch_UCIMulticlassDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.datasets.fetch_UCIMulticlassDataset" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a UCI multiclass dataset as an instance of <a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.Dataset</span></code></a>.</p>
 <p>The list of available datasets is taken from <a class="reference external" href="https://archive.ics.uci.edu/">https://archive.ics.uci.edu/</a>, following these criteria:
 - It has more than 1000 instances
@@ -743,7 +752,13 @@ This can be reproduced by using <a class="reference internal" href="#quapy.data.
 <li><p><strong>dataset_name</strong> – a dataset name</p></li>
 <li><p><strong>data_home</strong> – specify the quapy home directory where collections will be dumped (leave empty to use the default
 ~/quay_data/ directory)</p></li>
-<li><p><strong>test_split</strong> – proportion of documents to be included in the test set. The rest conforms the training set</p></li>
+<li><p><strong>min_test_split</strong> – minimum proportion of instances to be included in the test set. This value is interpreted
+as a minimum proportion, meaning that the real proportion could be higher in case the training proportion
+(1-<cite>min_test_split`% of the instances) surpasses `max_train_instances</cite>. In such case, only <cite>max_train_instances</cite>
+are taken for training, and the rest (irrespective of <cite>min_test_split</cite>) is taken for test.</p></li>
+<li><p><strong>max_train_instances</strong> – maximum number of instances to keep for training (defaults to 25000)</p></li>
+<li><p><strong>min_class_support</strong> – minimum number of istances per class. Classes with fewer instances
+are discarded (deafult is 100)</p></li>
 <li><p><strong>verbose</strong> – set to True (default is False) to get information (stats) about the dataset</p></li>
 </ul>
 </dd>
@@ -755,7 +770,7 @@ This can be reproduced by using <a class="reference internal" href="#quapy.data.
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.data.datasets.fetch_UCIMulticlassLabelledCollection">
-<span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_UCIMulticlassLabelledCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></span><a class="reference internal" href="_modules/quapy/data/datasets.html#fetch_UCIMulticlassLabelledCollection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.datasets.fetch_UCIMulticlassLabelledCollection" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_UCIMulticlassLabelledCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_class_support</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></span><a class="reference internal" href="_modules/quapy/data/datasets.html#fetch_UCIMulticlassLabelledCollection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.datasets.fetch_UCIMulticlassLabelledCollection" title="Permalink to this definition"></a></dt>
 <dd><p>Loads a UCI multiclass collection as an instance of <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a>.</p>
 <p>The list of available datasets is taken from <a class="reference external" href="https://archive.ics.uci.edu/">https://archive.ics.uci.edu/</a>, following these criteria:
 - It has more than 1000 instances
@@ -776,7 +791,9 @@ This can be reproduced by using <a class="reference internal" href="#quapy.data.
 <li><p><strong>dataset_name</strong> – a dataset name</p></li>
 <li><p><strong>data_home</strong> – specify the quapy home directory where the dataset will be dumped (leave empty to use the default
 ~/quay_data/ directory)</p></li>
-<li><p><strong>test_split</strong> – proportion of documents to be included in the test set. The rest conforms the training set</p></li>
+<li><p><strong>test_split</strong> – proportion of instances to be included in the test set. The rest conforms the training set</p></li>
+<li><p><strong>min_class_support</strong> – minimum number of istances per class. Classes with fewer instances
+are discarded (deafult is 100)</p></li>
 <li><p><strong>verbose</strong> – set to True (default is False) to get information (stats) about the dataset</p></li>
 </ul>
 </dd>
@@ -798,7 +815,7 @@ We refer to the <a class="reference external" href="https://ceur-ws.org/Vol-3180
 A Detailed Overview of LeQua&#64; CLEF 2022: Learning to Quantify.</a> for a detailed description
 on the tasks and datasets.</p>
 <p>The datasets are downloaded only once, and stored for fast reuse.</p>
-<p>See <cite>lequa2022_experiments.py</cite> provided in the example folder, that can serve as a guide on how to use these
+<p>See <cite>4.lequa2022_experiments.py</cite> provided in the example folder, that can serve as a guide on how to use these
 datasets.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

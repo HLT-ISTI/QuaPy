@@ -1,6 +1,7 @@
 Change Log 0.1.9
 ----------------
-- [TODO] add LeQua2024
+- [TODO] add LeQua2024 and normalized match distance to qp.error
+- [TODO] add Friedman's method and DeBias
 
 - Added a default classifier for aggregative quantifiers, which now can be instantiated without specifying
     the classifier. The default classifier can be accessed in qp.environ['DEFAULT_CLS'] and is assigned to

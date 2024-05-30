@@ -13,7 +13,7 @@ for facilitating the analysis and interpretation of the experimental results.
 
 ### Last updates:
 
-* Version 0.1.8 is released! major changes can be consulted [here](CHANGE_LOG.txt).
+* Version 0.1.9 is released! major changes can be consulted [here](CHANGE_LOG.txt).
 * The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/modules.html)
 
 ### Installation
@@ -24,7 +24,7 @@ pip install quapy
 
 ### Cite QuaPy
 
-If you find QuaPy useful (and we hope you will), plese consider citing the original paper in your research:
+If you find QuaPy useful (and we hope you will), please consider citing the original paper in your research:
 
 ```
 @inproceedings{moreo2021quapy,
@@ -68,7 +68,7 @@ class prevalence of the training set. For this reason, any quantification model
 should be tested across many samples, even ones characterized by class prevalence 
 values different or very different from those found in the training set.
 QuaPy implements sampling procedures and evaluation protocols that automate this workflow.
-See the [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki) for detailed examples.
+See the [documentation](https://hlt-isti.github.io/QuaPy/build/html/) for detailed examples.
 
 ## Features
 
