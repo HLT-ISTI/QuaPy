@@ -264,39 +264,76 @@ greater than for other datasets, and this has a disproportionate impact in the a
 
 ### Multiclass datasets
 
-A collection of 5 multiclass datasets from the [UCI Machine Learning repository](https://archive.ics.uci.edu/ml/datasets.php). The datasets were first used
-in [this paper](https://arxiv.org/abs/2401.00490) and can be instantiated as follows:
+A collection of 24 multiclass datasets from the [UCI Machine Learning repository](https://archive.ics.uci.edu/ml/datasets.php). 
+Some of the datasets were first used in [this paper](https://arxiv.org/abs/2401.00490) and can be instantiated as follows:
 
 ```python
 import quapy as qp
-data = qp.datasets.fetch_UCIMulticlassLabelledCollection('dry-bean', test_split=0.4, verbose=True)
+data = qp.datasets.fetch_UCIMulticlassLabelledCollection('dry-bean', verbose=True)
+```
+
+A dataset can be instantiated filtering classes with a minimum number of instances using the `min_class_support` parameter
+(default: `100`) as folows:
+
+
+```python
+import quapy as qp
+data = qp.datasets.fetch_UCIMulticlassLabelledCollection('dry-bean', min_class_support=50, verbose=True)
 ```
 
 There are no pre-defined train-test partitions for these datasets, but you can easily create your own with the
-`split_stratified` method, e.g., `data.split_stratified()`. This is equivalent 
-to calling the following method directly:
+`split_stratified` method, e.g., `data.split_stratified()`. This can be also achieved using the method `fetch_UCIMulticlassDataset`
+as shown below:
 
 ```python
 data = qp.datasets.fetch_UCIMulticlassDataset('dry-bean', min_test_split=0.4, verbose=True)
+train, test = data.train_test
 ```
 
-The datasets correspond to all the datasets that can be retrieved from the platform
-using the following filters: 
+This method tries to respect the `min_test_split` value while generating the train-test partition, but the resulting training set
+will not be bigger than `max_train_instances`, which defaults to `25000`. A bigger value can be passed as a parameter:
+
+```python
+data = qp.datasets.fetch_UCIMulticlassDataset('dry-bean', min_test_split=0.4, max_train_instances=30000, verbose=True)
+train, test = data.train_test
+```
+
+The datasets correspond to a part of the datasets that can be retrieved from the platform using the following filters: 
 * datasets for classification
 * more than 2 classes 
 * containing at least 1,000 instances
 * can be imported using the Python API. 
 
-Some statistics about these datasets are displayed below:
+Some statistics about these datasets are displayed below :
 
-| **Dataset**      | **classes** | **train size** | **test size** |
-|------------------|:-----------:|:--------------:|:-------------:|
-| dry-bean         |      7      |      9527      |      4084     |
-| wine-quality     |      7      |      3428      |      1470     |
-| academic-success |      3      |      3096      |      1328     |
-| digits           |      10     |      3933      |      1687     |
-| letter           |      26     |      14000     |      6000     |
+| **Dataset** | **classes** | **instances** | **features** | **prevs** | **type** |
+|:------------|:-----------:|:-------------:|:------------:|:----------|:--------:|
+| dry-bean         |  7 |   13611 |  16 | [0.097, 0.038, 0.120, 0.261, 0.142, 0.149, 0.194] | dense |
+| wine-quality     |  5 |    6462 |  11 | [0.033, 0.331, 0.439, 0.167, 0.030] | dense |
+| academic-success |  3 |    4424 |  36 | [0.321, 0.179, 0.499] | dense |
+| digits           | 10 |    5620 |  64 | [0.099, 0.102, 0.099, 0.102, 0.101, 0.099, 0.099, 0.101, 0.099, 0.100] | dense |
+| letter           | 26 |   20000 |  16 | [0.039, 0.038, 0.037, 0.040, 0.038, 0.039, 0.039, 0.037, 0.038, 0.037, 0.037, 0.038, 0.040, 0.039, 0.038, 0.040, 0.039, 0.038, 0.037, 0.040, 0.041, 0.038, 0.038, 0.039, 0.039, 0.037] | dense |
+| abalone          | 11 |    3842 |   9 | [0.030, 0.067, 0.102, 0.148, 0.179, 0.165, 0.127, 0.069, 0.053, 0.033, 0.027] | dense |
+| obesity          |  7 |    2111 |  23 | [0.129, 0.136, 0.166, 0.141, 0.153, 0.137, 0.137] | dense |
+| nursery          |  4 |   12958 |  19 | [0.333, 0.329, 0.312, 0.025] | dense |
+| yeast            |  4 |    1299 |   8 | [0.356, 0.125, 0.188, 0.330] | dense |
+| hand_digits      | 10 |   10992 |  16 | [0.104, 0.104, 0.104, 0.096, 0.104, 0.096, 0.096, 0.104, 0.096, 0.096] | dense |
+| satellite        |  6 |    6435 |  36 | [0.238, 0.109, 0.211, 0.097, 0.110, 0.234] | dense |
+| shuttle          |  4 |   57927 |   7 | [0.787, 0.003, 0.154, 0.056] | dense |
+| cmc              |  3 |    1473 |   9 | [0.427, 0.226, 0.347] | dense |
+| isolet           | 26 |    7797 | 617 | [0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038] | dense |
+| waveform-v1      |  3 |    5000 |  21 | [0.331, 0.329, 0.339] | dense |
+| molecular        |  3 |    3190 | 227 | [0.240, 0.241, 0.519] | dense |
+| poker_hand       |  8 | 1024985 |  10 | [0.501, 0.423, 0.048, 0.021, 0.004, 0.002, 0.001, 0.000] | dense |
+| connect-4        |  3 |   67557 |  84 | [0.095, 0.246, 0.658] | dense |
+| mhr              |  3 |    1014 |   6 | [0.268, 0.400, 0.331] | dense |
+| chess            | 15 |   27870 |  20 | [0.100, 0.051, 0.102, 0.078, 0.017, 0.007, 0.163, 0.061, 0.025, 0.021, 0.014, 0.071, 0.150, 0.129, 0.009] | dense |
+| page_block       |  3 |    5357 |  10 | [0.917, 0.061, 0.021] | dense |
+| phishing         |  3 |    1353 |   9 | [0.519, 0.076, 0.405] | dense |
+| image_seg        |  7 |    2310 |  19 | [0.143, 0.143, 0.143, 0.143, 0.143, 0.143, 0.143] | dense |
+| hcv              |  4 |    1385 |  28 | [0.243, 0.240, 0.256, 0.261] | dense |
 
+Values shown above refer to datasets obtained through `fetchUCIMulticlassLabelledCollection` using all default parameters.
 
 ## LeQua 2022 Datasets
 
