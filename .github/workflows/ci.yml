@@ -36,7 +36,6 @@ jobs:
   docs:
     name: Documentation
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v1
     - name: Build documentation
