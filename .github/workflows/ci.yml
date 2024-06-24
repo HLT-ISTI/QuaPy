@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - main
+      - master
       - devel
 
 jobs:
@@ -31,3 +31,37 @@ jobs:
         python -m pip install -e .[bayes,composable,tests]
     - name: Test with unittest
       run: python -m unittest
+
+  # build and push documentation to gh-pages (only if pushed to the master branch)
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build documentation
+      uses: ammaraskar/sphinx-action@master
+      with:
+        pre-build-command: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -e .[docs]
+          mkdir -p docs/source/wiki/wiki_examples/selected_plots
+          cp docs/source/wiki_editable/wiki_examples/selected_plots/* docs/source/wiki/wiki_examples/selected_plots/
+          find docs/source/wiki_editable -name '*.md' -exec sh -c 'pandoc -f markdown -t rst "$$1" -o "docs/source/wiki/$$(basename "$$1" .md).rst"' _ {} \;
+          sphinx-apidoc --force --output-dir docs/source quapy
+        docs-folder: "docs/"
+    - name: Publish documentation
+      run: |
+        git clone ${{ github.server_url }}/${{ github.repository }}.git --branch gh-pages --single-branch __gh-pages/
+        cp -r docs/build/html/* __gh-pages/
+        cd __gh-pages/
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -am "Documentation based on ${{ github.sha }}" || true
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        branch: gh-pages
+        directory: __gh-pages/
+        github_token: ${{ secrets.GITHUB_TOKEN }}
