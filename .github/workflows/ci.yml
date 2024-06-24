@@ -42,8 +42,9 @@ jobs:
       uses: ammaraskar/sphinx-action@master
       with:
         pre-build-command: |
+          apt-get update -y && apt-get install -y git
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install -e .[docs]
+          python -m pip install -e .[composable,docs]
         docs-folder: "docs/"
     - name: Publish documentation
       run: |
