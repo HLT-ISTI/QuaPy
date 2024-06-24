@@ -45,10 +45,6 @@ jobs:
         pre-build-command: |
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install -e .[docs]
-          mkdir -p docs/source/wiki/wiki_examples/selected_plots
-          cp docs/source/wiki_editable/wiki_examples/selected_plots/* docs/source/wiki/wiki_examples/selected_plots/
-          find docs/source/wiki_editable -name '*.md' -exec sh -c 'pandoc -f markdown -t rst "$$1" -o "docs/source/wiki/$$(basename "$$1" .md).rst"' _ {} \;
-          sphinx-apidoc --force --output-dir docs/source quapy
         docs-folder: "docs/"
     - name: Publish documentation
       run: |
