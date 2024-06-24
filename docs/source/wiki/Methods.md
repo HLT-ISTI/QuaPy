@@ -438,6 +438,13 @@ that can be explored in model selection range in [0.01, 0.25]. The methods' perf
 vary smoothing with smooth variations of this hyperparameter.
 
 
+## Composable Methods
+
+The [](quapy.method.composable) module allows the composition of quantification methods from loss functions and feature transformations. Any composed method solves a linear system of equations by minimizing the loss after transforming the data. Methods of this kind include ACC, PACC, HDx, HDy, and many other well-known methods, as well as an unlimited number of re-combinations of their building blocks.
+
+The composition of a method is implemented through the [`ComposableQuantifier`](quapy.method.composable.ComposableQuantifier) class. Its documentation also features an example to get you started in composing your own methods. Look through the list of [module members](quapy.method.composable) to see which building blocks are already available. To implement your own loss functions and feature representations, follow the corresponding manual of the [qunfold package](https://github.com/mirkobunse/qunfold), which provides the back-end of QuaPy's composable module.
+
+
 ## Meta Models
 
 By _meta_ models we mean quantification methods that are defined on top of other
