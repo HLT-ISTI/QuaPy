@@ -42,7 +42,7 @@ jobs:
       uses: ammaraskar/sphinx-action@master
       with:
         pre-build-command: |
-          apt-get update -y && apt-get install -y git && git --version
+          apt-get --allow-releaseinfo-change update -y && apt-get install -y git && git --version
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install -e .[docs]
         docs-folder: "docs/"
