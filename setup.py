@@ -126,6 +126,7 @@ setup(
     extras_require={  # Optional
        'bayes': ['jax', 'jaxlib', 'numpyro'],
        'composable': ['qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.3'],
+       'neural': ['torch'],
        'tests': ['certifi'],
        'docs' : ['sphinx-rtd-theme', 'myst-parser'],
     },
