@@ -43,7 +43,7 @@ jobs:
       with:
         pre-build-command: |
           apt-get --allow-releaseinfo-change update -y && apt-get install -y git && git --version
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip setuptools wheel "jax[cpu]"
           python -m pip install -e .[composable,neural,docs]
         docs-folder: "docs/"
     - name: Publish documentation
