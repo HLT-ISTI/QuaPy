@@ -37,6 +37,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
+    'sphinx.ext.intersphinx',
     'myst_parser',
 ]
 
@@ -58,6 +59,10 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'sphinx_rtd_theme'
 # html_theme = 'furo'
 # need to be installed: pip install furo (not working...)
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
+# intersphinx configuration
+intersphinx_mapping = {
+    "sklearn": ("https://scikit-learn.org/stable/", None),
+}
 

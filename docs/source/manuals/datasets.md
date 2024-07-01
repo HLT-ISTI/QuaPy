@@ -67,9 +67,8 @@ for method in methods:
 ```
 
 However, generating samples for evaluation purposes is tackled in QuaPy
-by means of the evaluation protocols (see the dedicated entries in the Wiki
-for [evaluation](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation) and 
-[protocols](https://github.com/HLT-ISTI/QuaPy/wiki/Protocols)).
+by means of the evaluation protocols (see the dedicated entries in the manuals
+for [evaluation](./evaluation) and [protocols](./protocols)).
 
 
 ## Reviews Datasets

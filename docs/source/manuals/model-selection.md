@@ -33,11 +33,11 @@ of scenarios exhibiting different degrees of prior
 probability shift.
 
 The class _qp.model_selection.GridSearchQ_ implements a grid-search exploration over the space of 
-hyper-parameter combinations that [evaluates](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation) 
+hyper-parameter combinations that [evaluates](./evaluation) 
 each combination of hyper-parameters by means of a given quantification-oriented
 error metric (e.g., any of the error functions implemented
 in _qp.error_) and according to a 
-[sampling generation protocol](https://github.com/HLT-ISTI/QuaPy/wiki/Protocols).
+[sampling generation protocol](./protocols).
 
 The following is an example (also included in the examples folder) of model selection for quantification:
 

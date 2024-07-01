@@ -53,7 +53,7 @@ quapy.method.non\_aggregative module
    :show-inheritance:
 
 quapy.method.composable module
-------------------------
+------------------------------
 
 .. automodule:: quapy.method.composable
    :members:
