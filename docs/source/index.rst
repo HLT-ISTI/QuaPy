@@ -68,20 +68,14 @@ Manuals
 The following manuals illustrate several aspects of QuaPy through examples:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   manuals/datasets
-   manuals/evaluation
-   manuals/explicit-loss-minimization
-   manuals/methods
-   manuals/model-selection
-   manuals/plotting
-   manuals/protocols
+   manuals
 
 .. toctree::
    :hidden:
 
-   List of Modules <modules>
+   API <quapy>
 
 Features
 --------
