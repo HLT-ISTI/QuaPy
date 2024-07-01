@@ -72,8 +72,8 @@ one specific _sample generation procotol_ to genereate many
 samples, typically characterized by widely varying amounts of 
 _shift_ with respect to the original distribution, that are then
 used to evaluate the performance of a (trained) quantifier. 
-These protocols are explained in more detail in a dedicated [entry 
-in the wiki](Protocols.md). For the moment being, let us assume we already have
+These protocols are explained in more detail in a dedicated [manual](./protocols.md).
+For the moment being, let us assume we already have
 chosen and instantiated one specific such protocol, that we here
 simply call _prot_. Let also assume our model is called
 _quantifier_ and that our evaluatio measure of choice is 

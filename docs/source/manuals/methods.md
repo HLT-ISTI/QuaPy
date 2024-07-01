@@ -414,8 +414,8 @@ model.fit(dataset.training)
 estim_prevalence = model.quantify(dataset.test.instances)
 ```
 
-Check the examples _[explicit_loss_minimization.py](..%2Fexamples%2Fexplicit_loss_minimization.py)_
-and [one_vs_all.py](..%2Fexamples%2Fone_vs_all.py) for more details.
+Check the examples on [explicit_loss_minimization](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/5.explicit_loss_minimization.py)
+and on [one versus all quantification](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/10.one_vs_all.py) for more details.
 
 ### Kernel Density Estimation methods (KDEy)
 
