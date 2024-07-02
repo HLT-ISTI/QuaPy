@@ -442,6 +442,16 @@ vary smoothing with smooth variations of this hyperparameter.
 
 The [](quapy.method.composable) module allows the composition of quantification methods from loss functions and feature transformations. Any composed method solves a linear system of equations by minimizing the loss after transforming the data. Methods of this kind include ACC, PACC, HDx, HDy, and many other well-known methods, as well as an unlimited number of re-combinations of their building blocks.
 
+### Installation
+
+```sh
+pip install --upgrade pip setuptools wheel
+pip install "jax[cpu]"
+pip install quapy[composable]
+```
+
+### Basics
+
 The composition of a method is implemented through the [](quapy.method.composable.ComposableQuantifier) class. Its documentation also features an example to get you started in composing your own methods.
 
 ```python
@@ -450,6 +460,8 @@ ComposableQuantifier( # ordinal ACC, as proposed by Bunse et al., 2022
   ClassTransformer(RandomForestClassifier(oob_score=True))
 )
 ```
+
+More exhaustive examples of method compositions, including hyper-parameter optimization, can be found in [the example directory](https://github.com/HLT-ISTI/QuaPy/tree/master/examples).
 
 To implement your own loss functions and feature representations, follow the corresponding manual of the [qunfold package](https://github.com/mirkobunse/qunfold), which provides the back-end of QuaPy's composable module.
 

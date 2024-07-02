@@ -127,3 +127,9 @@ print(
 
 # Note that a proper evaluation would still require the best model to be
 # evaluated on a separate test set.
+
+# To implement your own loss functions and feature representations, please
+# follow the corresponding manual of the qunfold package. This package provides
+# the back-end of QuaPy’s composable module and is fully compatible with QuaPy.
+#
+# https://mirkobunse.github.io/qunfold/developer-guide.html#custom-implementations
