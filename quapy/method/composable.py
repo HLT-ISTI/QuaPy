@@ -56,7 +56,7 @@ def ComposableQuantifier(loss, transformer, **kwargs):
     Examples:
         Here, we create the ordinal variant of ACC (Bunse et al., 2023). This variant consists of the original feature transformation of ACC and of the original loss of ACC, the latter of which is regularized towards smooth solutions.
 
-            >>> from qunfold.method.composable import (
+            >>> from quapy.method.composable import (
             >>>     ComposableQuantifier,
             >>>     TikhonovRegularized,
             >>>     LeastSquaresLoss,
@@ -80,7 +80,7 @@ def ComposableQuantifier(loss, transformer, **kwargs):
         
         To use a classifier that does not provide the `oob_score` argument, such as logistic regression, you have to configure a cross validation of this classifier. Here, we employ 10 cross validation folds. 5 folds are the default.
 
-            >>> from qunfold.method.composable import CVClassifier
+            >>> from quapy.method.composable import CVClassifier
             >>> from sklearn.linear_model import LogisticRegression
             >>> acc_lr = ComposableQuantifier(
             >>>     LeastSquaresLoss(),
