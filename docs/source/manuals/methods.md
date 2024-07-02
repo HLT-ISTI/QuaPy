@@ -438,6 +438,65 @@ that can be explored in model selection range in [0.01, 0.25]. The methods' perf
 vary smoothing with smooth variations of this hyperparameter.
 
 
+## Composable Methods
+
+The [](quapy.method.composable) module allows the composition of quantification methods from loss functions and feature transformations. Any composed method solves a linear system of equations by minimizing the loss after transforming the data. Methods of this kind include ACC, PACC, HDx, HDy, and many other well-known methods, as well as an unlimited number of re-combinations of their building blocks.
+
+### Installation
+
+```sh
+pip install --upgrade pip setuptools wheel
+pip install "jax[cpu]"
+pip install quapy[composable]
+```
+
+### Basics
+
+The composition of a method is implemented through the [](quapy.method.composable.ComposableQuantifier) class. Its documentation also features an example to get you started in composing your own methods.
+
+```python
+ComposableQuantifier( # ordinal ACC, as proposed by Bunse et al., 2022
+  TikhonovRegularized(LeastSquaresLoss(), 0.01),
+  ClassTransformer(RandomForestClassifier(oob_score=True))
+)
+```
+
+More exhaustive examples of method compositions, including hyper-parameter optimization, can be found in [the example directory](https://github.com/HLT-ISTI/QuaPy/tree/master/examples).
+
+To implement your own loss functions and feature representations, follow the corresponding manual of the [qunfold package](https://github.com/mirkobunse/qunfold), which provides the back-end of QuaPy's composable module.
+
+### Loss functions
+
+- [](quapy.method.composable.LeastSquaresLoss)
+- [](quapy.method.composable.EnergyLoss)
+- [](quapy.method.composable.HellingerSurrogateLoss)
+- [](quapy.method.composable.BlobelLoss)
+- [](quapy.method.composable.CombinedLoss)
+
+```{hint}
+You can use the [](quapy.method.composable.CombinedLoss) to create arbitrary, weighted sums of losses and regularizers.
+```
+
+### Regularization functions
+
+- [](quapy.method.composable.TikhonovRegularized)
+- [](quapy.method.composable.TikhonovRegularization)
+
+### Feature transformations
+
+- [](quapy.method.composable.ClassTransformer)
+- [](quapy.method.composable.DistanceTransformer)
+- [](quapy.method.composable.HistogramTransformer)
+- [](quapy.method.composable.EnergyKernelTransformer)
+- [](quapy.method.composable.GaussianKernelTransformer)
+- [](quapy.method.composable.LaplacianKernelTransformer)
+- [](quapy.method.composable.GaussianRFFKernelTransformer)
+
+```{hint}
+The [](quapy.method.composable.ClassTransformer) requires the classifier to have a property `oob_score==True` and to produce a property `oob_decision_function` during fitting. In [scikit-learn](https://scikit-learn.org/), this requirement is fulfilled by any bagging classifier, such as random forests. Any other classifier needs to be cross-validated through the [](quapy.method.composable.CVClassifier).
+```
+
+
 ## Meta Models
 
 By _meta_ models we mean quantification methods that are defined on top of other

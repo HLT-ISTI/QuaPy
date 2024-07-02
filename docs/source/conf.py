@@ -30,6 +30,7 @@ release = quapy.__version__
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    'sphinx.ext.autosectionlabel',
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
@@ -39,6 +40,8 @@ extensions = [
     'sphinx.ext.intersphinx',
     'myst_parser',
 ]
+
+autosectionlabel_prefix_document = True
 
 source_suffix = ['.rst', '.md']
 
