@@ -43,7 +43,7 @@ quantification methods across different scenarios showcasing
 the accuracy of the quantifier in predicting class prevalences
 for a wide range of prior distributions. This can easily be
 achieved by means of the 
-[artificial sampling protocol](https://github.com/HLT-ISTI/QuaPy/wiki/Protocols)
+[artificial sampling protocol](./protocols)
 that is implemented in QuaPy.
 
 The following code shows how to perform one simple experiment
@@ -113,7 +113,7 @@ are '.png' or '.pdf'). If this path is not provided, then the plot
 will be shown but not saved. 
 The resulting plot should look like:
 
-![diagonal plot on Kindle](./wiki_examples/selected_plots/bin_diag.png)
+![diagonal plot on Kindle](./plots/bin_diag.png)
 
 Note that in this case, we are also indicating the training 
 prevalence, which is plotted in the diagonal a as cyan dot.
@@ -138,7 +138,7 @@ qp.plot.binary_bias_global(method_names, true_prevs, estim_prevs, savepath='./pl
 
 and should look like:
 
-![bias plot on Kindle](./wiki_examples/selected_plots/bin_bias.png)
+![bias plot on Kindle](./plots/bin_bias.png)
 
 The box plots show some interesting facts:
 * all methods are biased towards the training prevalence but specially
@@ -181,7 +181,7 @@ def gen_data():
 
 and the plot should now look like:
 
-![bias plot on IMDb](./wiki_examples/selected_plots/bin_bias_cc.png)
+![bias plot on IMDb](./plots/bin_bias_cc.png)
 
 which clearly shows a negative bias for CC variants trained on
 data containing more negatives (i.e., < 50%) and positive biases
@@ -195,7 +195,7 @@ To this aim, an argument _nbins_ is passed which indicates
 how many isometric subintervals to take. For example 
 the following plot is produced for _nbins=3_:
 
-![bias plot on IMDb](./wiki_examples/selected_plots/bin_bias_bin_cc.png)
+![bias plot on IMDb](./plots/bin_bias_bin_cc.png)
 
 Interestingly enough, the seemingly unbiased estimator (CC at 50%) happens to display
 a positive bias (or a tendency to overestimate) in cases of low prevalence 
@@ -205,7 +205,7 @@ and a negative bias (or a tendency to underestimate) in cases of high prevalence
 
 Out of curiosity, the diagonal plot for this experiment looks like:
 
-![diag plot on IMDb](./wiki_examples/selected_plots/bin_diag_cc.png)
+![diag plot on IMDb](./plots/bin_diag_cc.png)
 
 showing pretty clearly the dependency of CC on the prior probabilities
 of the labeled set it was trained on.
@@ -234,7 +234,7 @@ qp.plot.error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
     error_name='ae', n_bins=10, savepath='./plots/err_drift.png')
 ```
 
-![diag plot on IMDb](./wiki_examples/selected_plots/err_drift.png)
+![diag plot on IMDb](./plots/err_drift.png)
 
 Note that all methods work reasonably well in cases of low prevalence
 drift (i.e., any CC-variant is a good quantifier whenever the IID

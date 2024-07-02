@@ -116,4 +116,4 @@ are provided:
 
 ## Acknowledgments:
 
-<img src="SoBigData.png" alt="SoBigData++" width="250"/>
+<img src="docs/source/SoBigData.png" alt="SoBigData++" width="250"/>
