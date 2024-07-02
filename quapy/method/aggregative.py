@@ -781,7 +781,7 @@ class EMQ(AggregativeSoftQuantifier):
         Px = posterior_probabilities
         Ptr = np.copy(tr_prev)
 
-        if np.product(Ptr) == 0:  # some entry is 0; we should smooth the values to avoid 0 division
+        if np.prod(Ptr) == 0:  # some entry is 0; we should smooth the values to avoid 0 division
             Ptr += epsilon
             Ptr /= Ptr.sum()
 
