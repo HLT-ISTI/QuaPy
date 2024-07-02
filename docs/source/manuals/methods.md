@@ -29,7 +29,7 @@ instance in a sample-- while in quantification the output for a sample
 is one single array of class prevalences).
 Quantifiers also extend from scikit-learn's `BaseEstimator`, in order
 to simplify the use of `set_params` and `get_params` used in 
-[model selector](https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection).
+[model selection](./model-selection).
 
 ## Aggregative Methods
 
@@ -96,7 +96,7 @@ classifier, and then _clones_ these classifiers and explores the combinations
 of hyperparameters that are specific to the quantifier (this can result in huge
 time savings).
 Concerning the inference phase, this two-step process allow the evaluation of many 
-standard protocols (e.g., the [artificial sampling protocol](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation)) to be
+standard protocols (e.g., the [artificial sampling protocol](./evaluation)) to be
 carried out very efficiently. The reason is that the entire set can be pre-classified
 once, and the quantification estimations for different samples can directly
 reuse these predictions, without requiring to classify each element every time.
@@ -414,8 +414,8 @@ model.fit(dataset.training)
 estim_prevalence = model.quantify(dataset.test.instances)
 ```
 
-Check the examples _[explicit_loss_minimization.py](..%2Fexamples%2Fexplicit_loss_minimization.py)_
-and [one_vs_all.py](..%2Fexamples%2Fone_vs_all.py) for more details.
+Check the examples on [explicit_loss_minimization](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/5.explicit_loss_minimization.py)
+and on [one versus all quantification](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/10.one_vs_all.py) for more details.
 
 ### Kernel Density Estimation methods (KDEy)
 
@@ -484,8 +484,7 @@ the performance estimated for each member of the ensemble in terms of that evalu
 When using any of the above options, it is important to set the `red_size` parameter, which 
 informs of the number of members to retain.
 
-Please, check the [model selection](https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection)
-wiki if you want to optimize the hyperparameters of ensemble for classification or quantification.
+Please, check the [model selection manual](./model-selection) if you want to optimize the hyperparameters of ensemble for classification or quantification.
 
 ### The QuaNet neural network
 
