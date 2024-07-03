@@ -1432,12 +1432,10 @@ class AggregativeMedianEstimator(BinaryQuantifier):
 
     def _delayed_fit_classifier(self, args):
         with qp.util.temp_seed(self.random_state):
-            print('enter job')
             cls_params, training, kwargs = args
             model = deepcopy(self.base_quantifier)
             model.set_params(**cls_params)
             predictions = model.classifier_fit_predict(training, **kwargs)
-            print('exit job')
             return (model, predictions)
 
     def _delayed_fit_aggregation(self, args):
@@ -1467,7 +1465,6 @@ class AggregativeMedianEstimator(BinaryQuantifier):
                     backend='threading'
                 )
             else:
-                print('only 1')
                 model = self.base_quantifier
                 model.set_params(**cls_configs[0])
                 predictions = model.classifier_fit_predict(training, **kwargs)
