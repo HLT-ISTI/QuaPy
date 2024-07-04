@@ -167,7 +167,8 @@ def _prevalence_report(true_prevs, estim_prevs, error_metrics: Iterable[Union[st
         for error_name, error_metric in zip(error_names, error_funcs):
             score = error_metric(true_prev, estim_prev)
             series[error_name] = score
-        df = df.append(series, ignore_index=True)
+        # df = df.append(series, ignore_index=True)
+        df = pd.concat([df, pd.DataFrame([series])], ignore_index=True)
 
     return df
 

@@ -4,7 +4,7 @@ from data.base import LabelledCollection
 
 from sklearn.linear_model import LogisticRegression
 
-from distribution_matching.commons import METHODS, new_method, show_results
+from distribution_matching.commons import METHODS, new_method, show_results, MAX_LIKE_METHODS
 
 import quapy as qp
 from quapy.model_selection import GridSearchQ
@@ -37,6 +37,26 @@ if __name__ == '__main__':
 
             with open(global_result_path + '.csv', 'at') as csv:
 
+                # for dataset in qp.datasets.UCI_MULTICLASS_DATASETS:
+                extension = ['abalone',
+                             'obesity',
+                             'nursery',
+                             'yeast',
+                             'hand_digits',
+                             'satellite',
+                             'shuttle',
+                             'cmc',
+                             'isolet',
+                             'waveform-v1',
+                             'molecular',
+                             #'poker_hand',
+                             'connect-4',
+                             'mhr',
+                             'chess',
+                             'page_block',
+                             'phishing',
+                             'image_seg',
+                             'hcv']
                 for dataset in qp.datasets.UCI_MULTICLASS_DATASETS:
 
                     print('init', dataset)
@@ -81,8 +101,7 @@ if __name__ == '__main__':
                         report = qp.evaluation.evaluation_report(quantifier, protocol, error_metrics=['mae', 'mrae', 'kld'],
                                                                 verbose=True, n_jobs=-1)
                         report.to_csv(f'{local_result_path}.dataframe')
-                        means = report.mean()
-                        csv.write(f'{method}\t{data.name}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\t{means["kld"]:.5f}\n')
+                        csv.write(f'{method}\t{data.name}\t{report["mae"].mean():.5f}\t{report["mrae"].mean():.5f}\t{report["kld"].mean():.5f}\n')
                         csv.flush()
 
         show_results(global_result_path)

@@ -1,6 +1,3 @@
-import numpy as np
-
-
 def warn(*args, **kwargs):
     pass
 import warnings
@@ -9,8 +6,6 @@ import os
 import zipfile
 from os.path import join
 import pandas as pd
-import scipy
-import pickle
 from ucimlrepo import fetch_ucirepo
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
@@ -19,43 +14,76 @@ from quapy.util import download_file_if_not_exists, download_file, get_quapy_hom
 
 
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
-TWITTER_SENTIMENT_DATASETS_TEST = ['gasp', 'hcr', 'omd', 'sanders',
-                              'semeval13', 'semeval14', 'semeval15', 'semeval16',
-                              'sst', 'wa', 'wb']
-TWITTER_SENTIMENT_DATASETS_TRAIN = ['gasp', 'hcr', 'omd', 'sanders',
-                                 'semeval', 'semeval16',
-                                 'sst', 'wa', 'wb']
-UCI_DATASETS = ['acute.a', 'acute.b',
-                'balance.1', 'balance.2', 'balance.3',
-                'breast-cancer',
-                'cmc.1', 'cmc.2', 'cmc.3',
-                'ctg.1', 'ctg.2', 'ctg.3',
-                #'diabetes', # <-- I haven't found this one...
-                'german',
-                'haberman',
-                'ionosphere',
-                'iris.1', 'iris.2', 'iris.3',
-                'mammographic',
-                'pageblocks.5',
-                #'phoneme', # <-- I haven't found this one...
-                'semeion',
-                'sonar',
-                'spambase',
-                'spectf',
-                'tictactoe',
-                'transfusion',
-                'wdbc',
-                'wine.1', 'wine.2', 'wine.3',
-                'wine-q-red', 'wine-q-white',
-                'yeast']
 
-UCI_MULTICLASS_DATASETS = ['dry-bean',
-                           'wine-quality',
-                           'academic-success',
-                           'digits',
-                           'letter']
+TWITTER_SENTIMENT_DATASETS_TEST = [
+    'gasp', 'hcr', 'omd', 'sanders',
+    'semeval13', 'semeval14', 'semeval15', 'semeval16',
+    'sst', 'wa', 'wb',
+]
+TWITTER_SENTIMENT_DATASETS_TRAIN = [
+    'gasp', 'hcr', 'omd', 'sanders',
+    'semeval', 'semeval16',
+    'sst', 'wa', 'wb',
+]
+UCI_BINARY_DATASETS = [
+    #'acute.a', 'acute.b',
+    'balance.1', 
+    #'balance.2', 
+    'balance.3',
+    'breast-cancer',
+    'cmc.1', 'cmc.2', 'cmc.3',
+    'ctg.1', 'ctg.2', 'ctg.3',
+    #'diabetes', # <-- I haven't found this one...
+    'german',
+    'haberman',
+    'ionosphere',
+    'iris.1', 'iris.2', 'iris.3',
+    'mammographic',
+    'pageblocks.5',
+    #'phoneme', # <-- I haven't found this one...
+    'semeion',
+    'sonar',
+    'spambase',
+    'spectf',
+    'tictactoe',
+    'transfusion',
+    'wdbc',
+    'wine.1', 'wine.2', 'wine.3',
+    'wine-q-red',
+    'wine-q-white',
+    'yeast',
+]
 
-LEQUA2022_TASKS = ['T1A', 'T1B', 'T2A', 'T2B']
+UCI_MULTICLASS_DATASETS = [
+    'dry-bean',
+    'wine-quality',
+    'academic-success',
+    'digits',
+    'letter',
+    'abalone',
+    'obesity',
+    'nursery',
+    'yeast',
+    'hand_digits',
+    'satellite',
+    'shuttle',
+    'cmc',
+    'isolet',
+    'waveform-v1',
+    'molecular',
+    'poker_hand',
+    'connect-4',
+    'mhr',
+    'chess',
+    'page_block',
+    'phishing',
+    'image_seg',
+    'hcv',
+]
+
+LEQUA2022_VECTOR_TASKS = ['T1A', 'T1B']
+LEQUA2022_TEXT_TASKS = ['T2A', 'T2B']
+LEQUA2022_TASKS = LEQUA2022_VECTOR_TASKS + LEQUA2022_TEXT_TASKS
 
 _TXA_SAMPLE_SIZE = 250
 _TXB_SAMPLE_SIZE = 1000
@@ -192,7 +220,7 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
     return data
 
 
-def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
+def fetch_UCIBinaryDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
     """
     Loads a UCI dataset as an instance of :class:`quapy.data.base.Dataset`, as used in
     `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
@@ -213,11 +241,11 @@ def fetch_UCIDataset(dataset_name, data_home=None, test_split=0.3, verbose=False
     :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
     :return: a :class:`quapy.data.base.Dataset` instance
     """
-    data = fetch_UCILabelledCollection(dataset_name, data_home, verbose)
+    data = fetch_UCIBinaryLabelledCollection(dataset_name, data_home, verbose)
     return Dataset(*data.split_stratified(1 - test_split, random_state=0), name=dataset_name)
 
 
-def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
+def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
     """
     Loads a UCI collection as an instance of :class:`quapy.data.base.LabelledCollection`, as used in
     `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
@@ -232,8 +260,8 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     This can be reproduced by using :meth:`quapy.data.base.Dataset.kFCV`, e.g.:
 
     >>> import quapy as qp
-    >>> collection = qp.datasets.fetch_UCILabelledCollection("yeast")
-    >>> for data in qp.domains.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
+    >>> collection = qp.datasets.fetch_UCIBinaryLabelledCollection("yeast")
+    >>> for data in qp.train.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
     >>>     ...
 
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
@@ -246,9 +274,9 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
 
-    assert dataset_name in UCI_DATASETS, \
+    assert dataset_name in UCI_BINARY_DATASETS, \
         f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository. ' \
-        f'Valid ones are {UCI_DATASETS}'
+        f'Valid ones are {UCI_BINARY_DATASETS}'
     if data_home is None:
         data_home = get_quapy_home()
 
@@ -374,7 +402,8 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
     elif verbose:
         print('no file description available')
 
-    print(f'Loading {dataset_name} ({fullname})')
+    if verbose:
+        print(f'Loading {dataset_name} ({fullname})')
     if identifier == 'acute':
         df = pd.read_csv(data_path, header=None, encoding='utf-16', sep='\t')
 
@@ -555,111 +584,197 @@ def fetch_UCILabelledCollection(dataset_name, data_home=None, verbose=False) -> 
         y = binarize(y, pos_class='NUC')
 
     data = LabelledCollection(X, y)
-    data.stats()
+    if verbose:
+        data.stats()
     return data
 
-def _df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
-    df[col] = df[col].apply(lambda x:repl[x]).astype(astype, copy=False)
 
-
-def fetch_UCIMulticlassDataset(dataset_name, data_home=None, test_split=0.3, verbose=False) -> Dataset:
+def fetch_UCIMulticlassDataset(
+        dataset_name,
+        data_home=None,
+        min_test_split=0.3,
+        max_train_instances=25000,
+        min_class_support=100,
+        verbose=False) -> Dataset:
     """
-    Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`, as used in
-    `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
-    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
-    Information Fusion, 34, 87-100. <https://www.sciencedirect.com/science/article/pii/S1566253516300628>`_
-    and
-    `Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019).
-    Dynamic ensemble selection for quantification tasks.
-    Information Fusion, 45, 1-15. <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
-    The datasets do not come with a predefined train-test split (see :meth:`fetch_UCILabelledCollection` for further
-    information on how to use these collections), and so a train-test split is generated at desired proportion.
-    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
+    Loads a UCI multiclass dataset as an instance of :class:`quapy.data.base.Dataset`. 
 
-    :param dataset_name: a dataset name
-    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
-        ~/quay_data/ directory)
-    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
-    :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
-    :return: a :class:`quapy.data.base.Dataset` instance
-    """
-    data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, verbose)
-    return Dataset(*data.split_stratified(1 - test_split, random_state=0))
-
-
-def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, verbose=False) -> LabelledCollection:
-    """
-    Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`, as used in
-    `Pérez-Gállego, P., Quevedo, J. R., & del Coz, J. J. (2017).
-    Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
-    Information Fusion, 34, 87-100. <https://www.sciencedirect.com/science/article/pii/S1566253516300628>`_
-    and
-    `Pérez-Gállego, P., Castano, A., Quevedo, J. R., & del Coz, J. J. (2019).
-    Dynamic ensemble selection for quantification tasks.
-    Information Fusion, 45, 1-15. <https://www.sciencedirect.com/science/article/pii/S1566253517303652>`_.
-    The datasets do not come with a predefined train-test split, and so Pérez-Gállego et al. adopted a 5FCVx2 evaluation
-    protocol, meaning that each collection was used to generate two rounds (hence the x2) of 5 fold cross validation.
-    This can be reproduced by using :meth:`quapy.data.base.Dataset.kFCV`, e.g.:
+    The list of available datasets is taken from https://archive.ics.uci.edu/, following these criteria:
+    - It has more than 1000 instances
+    - It is suited for classification
+    - It has more than two classes
+    - It is available for Python import (requires ucimlrepo package)
 
     >>> import quapy as qp
-    >>> collection = qp.datasets.fetch_UCILabelledCollection("dry-bean")
-    >>> for data in qp.domains.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
+    >>> dataset = qp.datasets.fetch_UCIMulticlassDataset("dry-bean")
+    >>> train, test = dataset.train_test
     >>>     ...
 
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`
 
+    The datasets are downloaded only once and pickled into disk, saving time for consecutive calls.
+
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
         ~/quay_data/ directory)
-    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
-    :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
+    :param min_test_split: minimum proportion of instances to be included in the test set. This value is interpreted
+        as a minimum proportion, meaning that the real proportion could be higher in case the training proportion
+        (1-`min_test_split`% of the instances) surpasses `max_train_instances`. In such case, only `max_train_instances`
+        are taken for training, and the rest (irrespective of `min_test_split`) is taken for test.
+    :param max_train_instances: maximum number of instances to keep for training (defaults to 25000)
+    :param min_class_support: minimum number of istances per class. Classes with fewer instances
+        are discarded (deafult is 100)
+    :param verbose: set to True (default is False) to get information (stats) about the dataset
+    :return: a :class:`quapy.data.base.Dataset` instance
+    """
+
+    data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, min_class_support, verbose=verbose)
+    n = len(data)
+    train_prop = (1.-min_test_split)
+    n_train = int(n*train_prop)
+    if n_train > max_train_instances:
+        train_prop = (max_train_instances / n)
+
+    return Dataset(*data.split_stratified(train_prop, random_state=0))
+
+
+def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_class_support=100, verbose=False) -> LabelledCollection:
+    """
+    Loads a UCI multiclass collection as an instance of :class:`quapy.data.base.LabelledCollection`.
+
+    The list of available datasets is taken from https://archive.ics.uci.edu/, following these criteria:
+    - It has more than 1000 instances
+    - It is suited for classification
+    - It has more than two classes
+    - It is available for Python import (requires ucimlrepo package)
+    
+    >>> import quapy as qp
+    >>> collection = qp.datasets.fetch_UCIMulticlassLabelledCollection("dry-bean")
+    >>> X, y = collection.Xy
+    >>>     ...
+
+    The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_MULTICLASS_DATASETS`
+
+    The datasets are downloaded only once and pickled into disk, saving time for consecutive calls.
+
+    :param dataset_name: a dataset name
+    :param data_home: specify the quapy home directory where the dataset will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :param test_split: proportion of instances to be included in the test set. The rest conforms the training set
+    :param min_class_support: minimum number of istances per class. Classes with fewer instances
+        are discarded (deafult is 100)
+    :param verbose: set to True (default is False) to get information (stats) about the dataset
     :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
     assert dataset_name in UCI_MULTICLASS_DATASETS, \
-        f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository (multiclass). ' \
+        f'Name {dataset_name} does not match any known dataset from the ' \
+        f'UCI Machine Learning datasets repository (multiclass). ' \
         f'Valid ones are {UCI_MULTICLASS_DATASETS}'
-
+    
     if data_home is None:
         data_home = get_quapy_home()
-
-    identifiers = {"dry-bean": 602,
-                   "wine-quality": 186,
-                   "academic-success": 697,
-                   "digits": 80,
-                   "letter": 59}
-
-    full_names = {"dry-bean": "Dry Bean Dataset",
-                  "wine-quality": "Wine Quality",
-                  "academic-success": "Predict students' dropout and academic success",
-                  "digits": "Optical Recognition of Handwritten Digits",
-                  "letter": "Letter Recognition"
-                  }
-
+    
+    identifiers = {
+        'dry-bean': 602,
+        'wine-quality': 186,
+        'academic-success': 697,
+        'digits': 80,
+        'letter': 59,
+        'abalone': 1,
+        'obesity': 544,
+        'nursery': 76,
+        'yeast': 110,
+        'hand_digits': 81,
+        'satellite': 146,
+        'shuttle': 148,
+        'cmc': 30,
+        'isolet': 54,
+        'waveform-v1': 107,
+        'molecular': 69,
+        'poker_hand': 158,
+        'connect-4': 26,
+        'mhr': 863,
+        'chess': 23,
+        'page_block': 78,
+        'phishing': 379,
+        'image_seg': 147,
+        'hcv': 503,
+    }
+    
+    full_names = {
+        'dry-bean': 'Dry Bean Dataset',
+        'wine-quality': 'Wine Quality',
+        'academic-success': 'Predict students\' dropout and academic success',
+        'digits': 'Optical Recognition of Handwritten Digits',
+        'letter': 'Letter Recognition',
+        'abalone': 'Abalone',
+        'obesity': 'Estimation of Obesity Levels Based On Eating Habits and Physical Condition',
+        'nursery': 'Nursery',
+        'yeast': 'Yeast',
+        'hand_digits': 'Pen-Based Recognition of Handwritten Digits',
+        'satellite': 'Statlog Landsat Satellite',
+        'shuttle': 'Statlog Shuttle',
+        'cmc': 'Contraceptive Method Choice',
+        'isolet': 'ISOLET',
+        'waveform-v1': 'Waveform Database Generator (Version 1)',
+        'molecular': 'Molecular Biology (Splice-junction Gene Sequences)',
+        'poker_hand': 'Poker Hand',
+        'connect-4': 'Connect-4',
+        'mhr': 'Maternal Health Risk',
+        'chess': 'Chess (King-Rook vs. King)',
+        'page_block': 'Page Blocks Classification',
+        'phishing': 'Website Phishing',
+        'image_seg': 'Statlog (Image Segmentation)',
+        'hcv': 'Hepatitis C Virus (HCV) for Egyptian patients',
+    }
+    
     identifier = identifiers[dataset_name]
     fullname = full_names[dataset_name]
 
-    print(f'Loading UCI Muticlass {dataset_name} ({fullname})')
+    if verbose:
+        print(f'Loading UCI Muticlass {dataset_name} ({fullname})')
 
-    file = join(data_home, 'uci_multiclass', dataset_name + '.pkl')
-    if os.path.exists(file):
-        with open(file, 'rb') as file:
-            data = pickle.load(file)
-    else:
-        data = fetch_ucirepo(id=identifier)
-        X, y = data['data']['features'].to_numpy(), data['data']['targets'].to_numpy().squeeze()
+    file = join(data_home, 'uci_multiclass', dataset_name+'.pkl')
+    
+    def download(id, name):
+        df = fetch_ucirepo(id=id)
+
+        df.data.features = pd.get_dummies(df.data.features, drop_first=True)
+        X, y = df.data.features.to_numpy(), df.data.targets.to_numpy().squeeze()
+
+        assert y.ndim == 1, 'more than one y'
+
         classes = np.sort(np.unique(y))
         y = np.searchsorted(classes, y)
-        data = LabelledCollection(X, y)
-        os.makedirs(os.path.dirname(file), exist_ok=True)
-        with open(file, 'wb') as file:
-            pickle.dump(data, file)
+        return LabelledCollection(X, y)
 
-    data.stats()
+    def filter_classes(data: LabelledCollection, min_ipc):
+        classes = data.classes_
+        # restrict classes to only those with at least min_ipc instances
+        classes = classes[data.counts() >= min_ipc]
+        # filter X and y keeping only datapoints belonging to valid classes
+        filter_idx = np.in1d(data.y, classes)
+        X, y = data.X[filter_idx], data.y[filter_idx]
+        # map classes to range(len(classes))
+        y = np.searchsorted(classes, y)
+        return LabelledCollection(X, y)
+
+    data = pickled_resource(file, download, identifier, dataset_name)
+    data = filter_classes(data, min_class_support)
+    if data.n_classes <= 2:
+        raise ValueError(
+            f'After filtering out classes with less than {min_class_support=} instances, the dataset {dataset_name} '
+            f'is no longer multiclass. Try a reducing this value.'
+        )
+
+    if verbose:
+        data.stats()
+        
     return data
 
 
-def _df_replace(df, col, repl={'yes': 1, 'no': 0}, astype=float):
-    df[col] = df[col].apply(lambda x: repl[x]).astype(astype, copy=False)
+def _df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
+    df[col] = df[col].apply(lambda x:repl[x]).astype(astype, copy=False)
 
 
 def fetch_lequa2022(task, data_home=None):
@@ -676,7 +791,7 @@ def fetch_lequa2022(task, data_home=None):
 
     The datasets are downloaded only once, and stored for fast reuse.
 
-    See `lequa2022_experiments.py` provided in the example folder, that can serve as a guide on how to use these
+    See `4.lequa2022_experiments.py` provided in the example folder, that can serve as a guide on how to use these
     datasets.
 
 
@@ -685,8 +800,8 @@ def fetch_lequa2022(task, data_home=None):
         ~/quay_data/ directory)
     :return: a tuple `(train, val_gen, test_gen)` where `train` is an instance of
         :class:`quapy.data.base.LabelledCollection`, `val_gen` and `test_gen` are instances of
-        :class:`quapy.protocol.SamplesFromDir`, i.e., are sampling protocols that return a series of samples
-        labelled by prevalence.
+        :class:`quapy.data._lequa2022.SamplesFromDir`, a subclass of :class:`quapy.protocol.AbstractProtocol`,
+        that return a series of samples stored in a directory which are labelled by prevalence.
     """
 
     from quapy.data._lequa2022 import load_raw_documents, load_vector_documents, SamplesFromDir
@@ -732,4 +847,6 @@ def fetch_lequa2022(task, data_home=None):
     test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
 
     return train, val_gen, test_gen
+
+
 

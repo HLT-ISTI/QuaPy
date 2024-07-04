@@ -112,7 +112,7 @@ def gen_tables_uci_bin(eval):
     dir_results = f'../results/binary/{eval}'
 
     exclude = ['acute.a', 'acute.b', 'iris.1', 'balance.2']
-    datasets = [x for x in qp.datasets.UCI_DATASETS if x not in exclude]
+    datasets = [x for x in qp.datasets.UCI_BINARY_DATASETS if x not in exclude]
 
     tab =  new_table(datasets, BIN_METHODS)
 
@@ -176,17 +176,18 @@ def gen_tables_lequa(Methods, task, eval):
     return tab
 
 
-
 if __name__ == '__main__':
+
     os.makedirs('./latex', exist_ok=True)
 
     for eval in ['mae', 'mrae']:
         tabs = []
-        tabs.append(gen_tables_tweet(eval))
+        # tabs.append(gen_tables_tweet(eval))
         tabs.append(gen_tables_uci_multiclass(eval))
-        tabs.append(gen_tables_lequa(METHODS, 'T1B', eval))
+        # tabs.append(gen_tables_lequa(METHODS, 'T1B', eval))
 
-        names = ['Tweets', 'UCI-multi', 'LeQua']
+        # names = ['Tweets', 'UCI-multi', 'LeQua']
+        names = [ 'UCI-multi']
         table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=names)
         save_table(f'./latex/multiclass_{eval}.tex', table)
 

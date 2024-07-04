@@ -279,7 +279,7 @@ class Table:
         lines.append(l)
 
         for row in self.benchmarks:
-            rowname = benchmark_replace.get(row, row)
+            rowname = benchmark_replace.get(row, row.replace('_','\_'))
             l = rowname + ' & '
             l += self.latexRow(row, endl=endl)
             lines.append(l)

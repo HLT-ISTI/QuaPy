@@ -18,6 +18,9 @@ contains the scripts used to generate the tables.
 All datasets used in this research are automatically downloaded by quapy the first
 time they are employed, and saved for faster reuse.
 
+Please, install the following additional packages:
+* pip install statsmodels
+* pip install dirichlet
 
 # QuaPy
 
