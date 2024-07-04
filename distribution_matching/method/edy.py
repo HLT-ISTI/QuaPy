@@ -130,6 +130,43 @@ class EDy(AggregativeProbabilisticQuantifier):
 
 
     def _compute_ed_param_train(self, distance_func, train_distrib, classes, n_cls_i):
+        """ Computes params related to the train distribution for solving ED-problems using `quadprog.solve_qp`
+
+            Parameters
+            ----------
+            distance_func : function
+                The function used to measure the distance between each pair of examples
+
+            train_distrib : array, shape (n_bins * n_classes, n_classes)
+                Represents the distribution of each class in the training set
+
+            classes : ndarray, shape (n_classes, )
+                Class labels
+
+            n_cls_i: ndarray, shape (n_classes, )
+                The number of examples of each class
+
+            Returns
+            -------
+            K : array, shape (n_classes, n_classes)
+                Average distance between each pair of classes in the training set
+
+            G : array, shape (n_classes - 1, n_classes - 1)
+
+            C : array, shape (n_classes - 1, n_constraints)
+                n_constraints will be equal to the number of classes (n_classes)
+
+            b : array, shape (n_constraints,)
+
+            References
+            ----------
+            Alberto Castaño, Laura Morán-Fernández, Jaime Alonso, Verónica Bolón-Canedo, Amparo Alonso-Betanzos,
+            Juan José del Coz: An analysis of quantification methods based on matching distributions
+
+            Hideko Kawakubo, Marthinus Christoffel Du Plessis, and Masashi Sugiyama. 2016. Computationally efficient
+            class-prior estimation under class balance change using energy distance. Transactions on Information
+            and Systems 99, 1 (2016), 176–186.
+        """
         n_classes = len(classes)
         #  computing sum de distances for each pair of classes
         K = np.zeros((n_classes, n_classes))
