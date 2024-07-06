@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+
+from distribution_matching.method.edy import EDy
 from distribution_matching.method.kdey import KDEyCS, KDEyHD, KDEyML
 from quapy.method.aggregative import EMQ, CC, PCC, DistributionMatching, PACC, HDy, OneVsAllAggregative, ACC
 from distribution_matching.method.dirichlety import DIRy
@@ -14,7 +16,7 @@ if FULL_METHOD_LIST:
     DISTR_MATCH_METHODS = ['HDy-OvA', 'DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
     MAX_LIKE_METHODS = ['DIR', 'EMQ', 'EMQ-BCTS', 'KDEy-ML']
 else:
-    ADJUSTMENT_METHODS = ['PACC']
+    ADJUSTMENT_METHODS = ['EDy2']
     DISTR_MATCH_METHODS = ['DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
     MAX_LIKE_METHODS = ['EMQ', 'KDEy-ML']
 
@@ -100,6 +102,13 @@ def new_method(method, **lr_kwargs):
         }
         param_grid = {**method_params, **hyper_LR}
         quantifier = DistributionMatching(lr)
+    elif method == 'EDy':
+        param_grid = hyper_LR
+        quantifier = EDy(lr)
+    elif method == 'EDy2':
+        from sklearn.metrics.pairwise import euclidean_distances
+        param_grid = hyper_LR
+        quantifier = EDy(lr, distance=euclidean_distances)
     else:
         raise NotImplementedError('unknown method', method)
 

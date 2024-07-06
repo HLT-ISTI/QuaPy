@@ -6,6 +6,7 @@ from sklearn.metrics.pairwise import euclidean_distances, manhattan_distances
 from quapy.method.aggregative import AggregativeProbabilisticQuantifier, cross_generate_predictions, _get_divergence
 import quadprog
 
+
 class EDy(AggregativeProbabilisticQuantifier):
     """This class and its methods have been imported from quantificationlib <https://github.com/AICGijon/quantificationlib>"""
 
