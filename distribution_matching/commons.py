@@ -13,15 +13,15 @@ FULL_METHOD_LIST = False
 
 if FULL_METHOD_LIST:
     ADJUSTMENT_METHODS = ['ACC', 'PACC']
-    DISTR_MATCH_METHODS = ['HDy-OvA', 'DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
+    DISTR_MATCH_METHODS = ['EDy+', 'HDy-OvA', 'DM-T', 'DM-HD', 'KDEy-HD', 'DM-CS', 'KDEy-CS']
     MAX_LIKE_METHODS = ['DIR', 'EMQ', 'EMQ-BCTS', 'KDEy-ML']
 else:
-    ADJUSTMENT_METHODS = ['EDy2']
-    DISTR_MATCH_METHODS = ['DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
+    ADJUSTMENT_METHODS = ['PACC']
+    DISTR_MATCH_METHODS = ['EDy+', 'DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
     MAX_LIKE_METHODS = ['EMQ', 'KDEy-ML']
 
 # list of methods to consider
-METHODS  = ADJUSTMENT_METHODS + DISTR_MATCH_METHODS + MAX_LIKE_METHODS
+METHODS = ADJUSTMENT_METHODS + DISTR_MATCH_METHODS + MAX_LIKE_METHODS
 BIN_METHODS = [x.replace('-OvA', '') for x in METHODS]
 
 # common hyperparameterss
@@ -102,13 +102,9 @@ def new_method(method, **lr_kwargs):
         }
         param_grid = {**method_params, **hyper_LR}
         quantifier = DistributionMatching(lr)
-    elif method == 'EDy':
-        param_grid = hyper_LR
+    elif method == 'EDy+':
+        param_grid = {'distance': ['manhattan', 'euclidean'], **hyper_LR}
         quantifier = EDy(lr)
-    elif method == 'EDy2':
-        from sklearn.metrics.pairwise import euclidean_distances
-        param_grid = hyper_LR
-        quantifier = EDy(lr, distance=euclidean_distances)
     else:
         raise NotImplementedError('unknown method', method)
 

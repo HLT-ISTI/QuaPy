@@ -1,11 +1,6 @@
 import pickle
 import os
-from data.base import LabelledCollection
-
-from sklearn.linear_model import LogisticRegression
-
 from distribution_matching.commons import METHODS, new_method, show_results, MAX_LIKE_METHODS
-
 import quapy as qp
 from quapy.model_selection import GridSearchQ
 from quapy.protocol import UPP
@@ -25,7 +20,7 @@ if __name__ == '__main__':
 
         os.makedirs(result_dir, exist_ok=True)
 
-        for method in METHODS + ['EDy', 'EDy2']:
+        for method in METHODS + ['EDy+']:
 
             print('Init method', method)
 
@@ -37,26 +32,6 @@ if __name__ == '__main__':
 
             with open(global_result_path + '.csv', 'at') as csv:
 
-                # for dataset in qp.datasets.UCI_MULTICLASS_DATASETS:
-                # extension = ['abalone',
-                #              'obesity',
-                #              'nursery',
-                #              'yeast',
-                #              'hand_digits',
-                #              'satellite',
-                #              'shuttle',
-                #              'cmc',
-                #              'isolet',
-                #              'waveform-v1',
-                #              'molecular',
-                #              #'poker_hand',
-                #              'connect-4',
-                #              'mhr',
-                #              'chess',
-                #              'page_block',
-                #              'phishing',
-                #              'image_seg',
-                #              'hcv']
                 for dataset in qp.datasets.UCI_MULTICLASS_DATASETS:
 
                     print('init', dataset)

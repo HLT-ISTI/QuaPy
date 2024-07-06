@@ -288,9 +288,26 @@ class EDy(AggregativeProbabilisticQuantifier):
         # the last class was removed from the problem, its prevalence is 1 - the sum of prevalences for the other classes
         return np.append(prevalences, 1 - prevalences.sum())
 
+    def init_distance_function(self):
+        """
+        Guarantees that the distance is a function. If the distance was specified by a string, then it instantiates
+        the corresponding function
+        """
+        if isinstance(self.distance, str):
+            if self.distance == 'manhattan':
+                self.distance = manhattan_distances
+            elif self.distance == 'euclidean':
+                self.distance = euclidean_distances
+            else:
+                raise NotImplementedError(f'distance {self.distance} not understood')
+        elif not hasattr(self.distance, '__call__'):
+            raise ValueError(f'the distance does not seem to by a valid string name nor a callable function')
+
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
         if val_split is None:
             val_split = self.val_split
+
+        self.init_distance_function()
 
         self.classifier, y, posteriors, _, _ = cross_generate_predictions(
             data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs

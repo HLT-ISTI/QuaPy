@@ -124,7 +124,7 @@ class LabelledCollection:
         if len(prevs) == self.n_classes - 1:
             prevs = prevs + (1 - sum(prevs),)
         assert len(prevs) == self.n_classes, f'unexpected number of prevalences (found {len(prevs)}, expected {self.n_classes})'
-        assert sum(prevs) == 1, f'prevalences ({prevs}) wrong range (sum={sum(prevs)})'
+        assert np.isclose(sum(prevs), 1), f'prevalences ({prevs}) wrong range (sum={sum(prevs)})'
 
         # Decide how many instances should be taken for each class in order to satisfy the requested prevalence
         # accurately, and the number of instances in the sample (exactly). If int(size * prevs[i]) (which is
