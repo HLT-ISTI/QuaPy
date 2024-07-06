@@ -2,6 +2,7 @@ import itertools
 from collections import defaultdict
 import scipy
 import numpy as np
+from typing import Literal
 
 
 def prevalence_linspace(n_prevalences=21, repeats=1, smooth_limits_epsilon=0.01):
@@ -183,27 +184,70 @@ def adjusted_quantification(prevalence_estim, tpr, fpr, clip=True):
     return adjusted
 
 
-def normalize_prevalence(prevalences):
+def normalize_prevalence(prevalences, method='clip'):
     """
-    Normalize a vector or matrix of prevalence values. The normalization consists of applying a L1 normalization in
+    Normalizes a vector or matrix of prevalence values. The normalization consists of applying a L1 normalization in
     cases in which the prevalence values are not all-zeros, and to convert the prevalence values into `1/n_classes` in
     cases in which all values are zero.
 
     :param prevalences: array-like of shape `(n_classes,)` or of shape `(n_samples, n_classes,)` with prevalence values
+    :param str method: indicates the normalization method to employ, options are:
+
+        * `l1`: applies L1 normalization (default); a 0 vector is mapped onto the uniform prevalence
+        * `clip`: clip values in [0,1] and then rescales so that the L1 norm is 1
+        * `mapsimplex`: projects vectors onto the probability simplex. This implementation relies on
+          `Mathieu Blondel's projection_simplex_sort <https://gist.github.com/mblondel/6f3b7aaad90606b98f71>`_
+        * `softmax`: applies softmax to all vectors
+        * `condsoftmax`: applies softmax only to invalid prevalence vectors
+
     :return: a normalized vector or matrix of prevalence values
     """
-    prevalences = np.asarray(prevalences)
+    if method in ['none', None]:
+        return prevalences
+
+    prevalences = np.asarray(prevalences, dtype=float)
+
+    if method=='clip':
+        normalized = clip(prevalences)  # no need to check afterwards
+    else:
+        raise ValueError(f'unknown {method=}, valid ones are ["l1", "clip", "mapsimplex", "softmax", "condsoftmax"]')
+
+    return normalized
+
+
+
+def clip(prevalences) -> np.ndarray:
+    """
+    Clips the values in [0,1] and then applies the L1 normalization.
+
+    :param prevalences: array-like of shape `(n_classes,)` or of shape `(n_samples, n_classes,)` with prevalence values
+    :return: np.ndarray representing a valid distribution
+    """
+    clipped = np.clip(prevalences, 0, 1)
+    normalized = l1_norm(clipped)
+    return normalized
+
+def l1_norm(prevalences) -> np.ndarray:
+    """
+    Applies L1 normalization to the `unnormalized_arr` so that it becomes a valid prevalence
+    vector. Zero vectors are mapped onto the uniform distribution. Raises an exception if
+    the resulting vectors are not valid distributions. This may happen when the original
+    prevalence vectors contain negative values. Use the `clip` normalization function
+    instead to avoid this possibility.
+
+    :param prevalences: array-like of shape `(n_classes,)` or of shape `(n_samples, n_classes,)` with prevalence values
+    :return: np.ndarray representing a valid distribution
+    """
     n_classes = prevalences.shape[-1]
     accum = prevalences.sum(axis=-1, keepdims=True)
-    prevalences = np.true_divide(prevalences, accum, where=accum>0)
-    allzeros = accum.flatten()==0
+    prevalences = np.true_divide(prevalences, accum, where=accum > 0)
+    allzeros = accum.flatten() == 0
     if any(allzeros):
         if prevalences.ndim == 1:
-            prevalences = np.full(shape=n_classes, fill_value=1./n_classes)
+            prevalences = np.full(shape=n_classes, fill_value=1. / n_classes)
         else:
-            prevalences[accum.flatten()==0] = np.full(shape=n_classes, fill_value=1./n_classes)
+            prevalences[allzeros] = np.full(shape=n_classes, fill_value=1. / n_classes)
     return prevalences
-
 
 def __num_prevalence_combinations_depr(n_prevpoints:int, n_classes:int, n_repeats:int=1):
     """
@@ -318,3 +362,76 @@ def optim_minimize(loss, n_classes):
     constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
     r = optimize.minimize(loss, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
     return r.x
+
+
+def solve_adjustment(
+    class_conditional_rates: np.ndarray,
+    unadjusted_counts: np.ndarray,
+    method: Literal["inversion", "invariant-ratio"],
+    solver: Literal["exact", "minimize", "exact-raise", "exact-cc"]) -> np.ndarray:
+    """
+    Function that tries to solve for :math:`p` the equation :math:`q = M p`, where :math:`q` is the vector of
+    `unadjusted counts` (as estimated, e.g., via classify and count) with :math:`q_i` an estimate of
+    :math:`P(\hat{Y}=y_i)`, and where :math:`M` is the matrix of `class-conditional rates` with :math:`M_{ij}` an
+    estimate of :math:`P(\hat{Y}=y_i|Y=y_j)`.
+
+    :param class_conditional_rates: array of shape `(n_classes, n_classes,)` with entry `(i,j)` being the estimate
+        of :math:`P(\hat{Y}=y_i|Y=y_j)`, that is, the probability that an instance that belongs to class :math:`y_j`
+        ends up being classified as belonging to class :math:`y_i`
+
+    :param unadjusted_counts: array of shape `(n_classes,)` containing the unadjusted prevalence values (e.g., as
+        estimated by CC or PCC)
+
+    :param str method: indicates the adjustment method to be used. Valid options are:
+
+        * `inversion`: tries to solve the equation :math:`q = M p` as :math:`p = M^{-1} q` where
+          :math:`M^{-1}` is the matrix inversion of :math:`M`. This inversion may not exist in
+          degenerated cases.
+        * `invariant-ratio`: invariant ratio estimator of `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>`_,
+          which replaces the last equation in :math:`M` with the normalization condition (i.e., that the sum of
+          all prevalence values must equal 1).
+
+    :param str solver: the method to use for solving the system of linear equations. Valid options are:
+
+        * `exact-raise`: tries to solve the system using matrix inversion. Raises an error if the matrix has rank
+          strictly lower than `n_classes`.
+        * `exact-cc`: if the matrix is not full rank, returns :math:`q` (i.e., the unadjusted counts) as the estimates
+        * `exact`: deprecated, defaults to 'exact-cc' (will be removed in future versions)
+        * `minimize`: minimizes a loss, so the solution always exists
+    """
+    if solver == "exact":
+        print("The 'exact' solver is deprecated. Use 'exact-raise' or 'exact-cc'")
+        solver = "exact-cc"
+
+    A = np.asarray(class_conditional_rates, dtype=float)
+    B = np.asarray(unadjusted_counts, dtype=float)
+
+    if method == "inversion":
+        pass  # We leave A and B unchanged
+    elif method == "invariant-ratio":
+        # Change the last equation to replace it with the normalization condition
+        A[-1, :] = 1.0
+        B[-1] = 1.0
+    else:
+        raise ValueError(f"unknown {method=}")
+
+    if solver == "minimize":
+        def loss(prev):
+            return np.linalg.norm(A @ prev - B)
+        return optim_minimize(loss, n_classes=A.shape[0])
+    elif solver in ["exact-raise", "exact-cc"]:
+        # Solvers based on matrix inversion, so we use try/except block
+        try:
+            return np.linalg.solve(A, B)
+        except np.linalg.LinAlgError:
+            # The matrix is not invertible.
+            # Depending on the solver, we either raise an error
+            # or return the classifier predictions without adjustment
+            if solver == "exact-raise":
+                raise
+            elif solver == "exact-cc":
+                return unadjusted_counts
+            else:
+                raise ValueError(f"Solver {solver} not known.")
+    else:
+        raise ValueError(f'unknown {solver=}')

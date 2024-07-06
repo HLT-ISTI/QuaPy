@@ -312,28 +312,13 @@ class ACC(AggregativeQuantifier):
 
     def aggregate(self, classif_predictions):
         prevs_estim = self.cc.aggregate(classif_predictions)
-        return ACC.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
-
-    @classmethod
-    def solve_adjustment(cls, PteCondEstim, prevs_estim):
-        """
-        Solves the system linear system :math:`Ax = B` with :math:`A` = `PteCondEstim` and :math:`B` = `prevs_estim`
-
-        :param PteCondEstim: a `np.ndarray` of shape `(n_classes,n_classes,)` with entry `(i,j)` being the estimate
-            of :math:`P(y_i|y_j)`, that is, the probability that an instance that belongs to :math:`y_j` ends up being
-            classified as belonging to :math:`y_i`
-        :param prevs_estim: a `np.ndarray` of shape `(n_classes,)` with the class prevalence estimates
-        :return: an adjusted `np.ndarray` of shape `(n_classes,)` with the corrected class prevalence estimates
-        """
-        A = PteCondEstim
-        B = prevs_estim
-        try:
-            adjusted_prevs = np.linalg.solve(A, B)
-            adjusted_prevs = np.clip(adjusted_prevs, 0, 1)
-            adjusted_prevs /= adjusted_prevs.sum()
-        except np.linalg.LinAlgError:
-            adjusted_prevs = prevs_estim  # no way to adjust them!
-        return adjusted_prevs
+        estimate = F.solve_adjustment(
+            class_conditional_rates=self.Pte_cond_estim_,
+            unadjusted_counts=prevs_estim,
+            solver='minimize',
+            method='inversion',
+        )
+        return F.normalize_prevalence(estimate, method='clip')
 
 
 class PCC(AggregativeProbabilisticQuantifier):
@@ -415,7 +400,13 @@ class PACC(AggregativeProbabilisticQuantifier):
 
     def aggregate(self, classif_posteriors):
         prevs_estim = self.pcc.aggregate(classif_posteriors)
-        return ACC.solve_adjustment(self.Pte_cond_estim_, prevs_estim)
+        estimate = F.solve_adjustment(
+            class_conditional_rates=self.Pte_cond_estim_,
+            unadjusted_counts=prevs_estim,
+            solver='minimize',
+            method='inversion',
+        )
+        return F.normalize_prevalence(estimate, method='clip')
 
     def classify(self, data):
         return self.pcc.classify(data)

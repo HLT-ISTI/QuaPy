@@ -12,11 +12,11 @@ from sklearn.linear_model import LogisticRegression
 FULL_METHOD_LIST = False
 
 if FULL_METHOD_LIST:
-    ADJUSTMENT_METHODS = ['ACC', 'PACC']
+    ADJUSTMENT_METHODS = ['ACC+', 'PACC+']
     DISTR_MATCH_METHODS = ['EDy+', 'HDy-OvA', 'DM-T', 'DM-HD', 'KDEy-HD', 'DM-CS', 'KDEy-CS']
     MAX_LIKE_METHODS = ['DIR', 'EMQ', 'EMQ-BCTS', 'KDEy-ML']
 else:
-    ADJUSTMENT_METHODS = ['PACC']
+    ADJUSTMENT_METHODS = ['PACC+']
     DISTR_MATCH_METHODS = ['EDy+', 'DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
     MAX_LIKE_METHODS = ['EMQ', 'KDEy-ML']
 
@@ -47,10 +47,10 @@ def new_method(method, **lr_kwargs):
     elif method == 'PCC':
         param_grid = hyper_LR
         quantifier = PCC(lr)
-    elif method == 'ACC':
+    elif method == 'ACC+':
         param_grid = hyper_LR
         quantifier = ACC(lr)
-    elif method == 'PACC':
+    elif method == 'PACC+':
         param_grid = hyper_LR
         quantifier = PACC(lr)
     elif method in ['KDEy-HD']:
