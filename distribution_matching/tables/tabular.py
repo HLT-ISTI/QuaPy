@@ -245,7 +245,8 @@ class Table:
         if isbest:
             l = "\\textbf{"+l.strip()+"}"
 
-        stat = '' if self.ttest is None else '^{\phantom{\ddag}}'
+        phantom = '' if self.ttest is None else '^{\phantom{\ddag}}'
+        stat = phantom
         if self.ttest is not None and self.some_similar[j]:
             test_label = self.map['ttest'][i,j]
             if test_label == 'Sim':
@@ -264,7 +265,7 @@ class Table:
             std = f"\pm {std:{self.prec_std}}"
 
         if stat!='' or std!='':
-            l = f'{l}${stat}{std}$'
+            l = f'${phantom}${l}${stat}{std}$'
 
         if self.color:
             l += ' ' + self.map['color'][i,j]
