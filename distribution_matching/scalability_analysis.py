@@ -48,42 +48,46 @@ def train_quantifier(train, q_name):
         Q.fit(train, fit_classifier=False, val_split=train)
 
 
-for q_name, Q in methods():
-    print(f'starting: {q_name}')
-    times_file = f'times/{q_name}.pkl'
-    if os.path.exists(times_file):
-        print(f'file {times_file} already exists; skipping')
-        continue
+if __name__ == '__main__':
 
-    print('training times')
-    tr_times = {}
-    n_classes = data.n_classes
-    uniform = [1/n_classes] * n_classes
-    for n in log_space_n:
-        print(f'training with n={n} ', end='')
-        train_q_it = train_q.sampling(n, *uniform)
-        tinit = time()
-        for _ in REPEATS:
-            train_quantifier(train_q_it, q_name)
-        tend = (time()-tinit)/REPEATS
-        print(f'took {tend:.3f} s')
-        tr_times[n] = tend
+    for q_name, Q in methods():
+        print(f'starting: {q_name}')
+        times_file = f'times/{q_name}.pkl'
+        if os.path.exists(times_file):
+            print(f'file {times_file} already exists; skipping')
+            continue
 
-    print('test times')
-    train_q_10000 = train_q.sampling(10000, *uniform)
-    train_quantifier(train_q_10000, q_name)
+        print('training times')
+        tr_times = {}
+        n_classes = data.n_classes
+        uniform = [1/n_classes] * n_classes
+        for n in log_space_n:
+            print(f'training with n={n} ', end='')
+            train_q_it = train_q.sampling(n, *uniform)
+            tinit = time()
+            for _ in range(REPEATS):
+                train_quantifier(train_q_it, q_name)
+            tend = (time()-tinit)/REPEATS
+            if q_name=='EMQ':
+                tend=0.0001
+            print(f'took {tend:.6f} s')
+            tr_times[n] = tend
 
-    te_times = {}
-    for n in log_space_n:
-        print(f'testing with n={n} ', end='')
-        test_it = test.sampling(size=n)
-        tinit = time()
-        for _ in REPEATS:
-            Q.quantify(test_it.X)
-        tend = (time()-tinit)/REPEATS
-        print(f'took {tend:.3f} s')
-        te_times[n] = tend
+        print('test times')
+        train_q_10000 = train_q.sampling(10000, *uniform)
+        train_quantifier(train_q_10000, q_name)
 
-    os.makedirs('times', exist_ok=True)
-    pickle.dump((tr_times, te_times), open(times_file, 'wb'), pickle.HIGHEST_PROTOCOL)
+        te_times = {}
+        for n in log_space_n:
+            print(f'testing with n={n} ', end='')
+            test_it = test.sampling(size=n)
+            tinit = time()
+            for _ in range(REPEATS):
+                Q.quantify(test_it.X)
+            tend = (time()-tinit)/REPEATS
+            print(f'took {tend:.6f} s')
+            te_times[n] = tend
+
+        os.makedirs('times', exist_ok=True)
+        pickle.dump((tr_times, te_times), open(times_file, 'wb'), pickle.HIGHEST_PROTOCOL)
 

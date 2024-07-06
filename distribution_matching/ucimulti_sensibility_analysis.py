@@ -20,7 +20,7 @@ def task(val):
             quantifier = DistributionMatching(LogisticRegression(n_jobs=-1), val_split=10, nbins=val, divergence='HD',
                                               n_jobs=-1)
 
-        quantifier.fit(data.data)
+        quantifier.fit(data.training)
         protocol = UPP(data.test, repeats=n_bags_test)
         report = qp.evaluation.evaluation_report(quantifier, protocol, error_metrics=['mae', 'mrae', 'kld'],
                                                  verbose=True, n_jobs=-1)
