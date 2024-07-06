@@ -55,10 +55,9 @@ if __name__ == '__main__':
             reports = qp.util.parallel(task, grid, n_jobs=-1)
             with open(global_result_path + '.csv', 'at') as csv:
                 for val, report in zip(grid, reports):
-                    means = report.mean()
                     local_result_path = global_result_path + '_' + dataset + (f'_{val:.3f}' if isinstance(val, float) else f'{val}')
                     report.to_csv(f'{local_result_path}.dataframe')
-                    csv.write(f'{method}\t{dataset}\t{val}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\t{means["kld"]:.5f}\n')
+                    csv.write(f'{method}\t{dataset}\t{val}\t{report["mae"].mean():.5f}\t{report["mrae"].mean():.5f}\t{report["kld"].mean():.5f}\n')
                     csv.flush()
 
             show_results(global_result_path)
