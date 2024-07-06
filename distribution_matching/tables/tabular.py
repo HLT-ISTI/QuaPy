@@ -324,12 +324,14 @@ class Table:
 
 
 def pval_interpretation(p_val):
-    if 0.005 >= p_val:
+    # if 0.005 >= p_val:
+    #     return 'Diff'
+    # elif 0.05 >= p_val > 0.005:
+    #     return 'Sim'
+    if 0.05 >= p_val:
         return 'Diff'
-    elif 0.05 >= p_val > 0.005:
-        return 'Sim'
     elif p_val > 0.05:
-        return 'Same'
+        return 'Sim'
 
 
 def color_red2green_01(val, maxtone=50):

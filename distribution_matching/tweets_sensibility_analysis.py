@@ -4,8 +4,9 @@ import os
 
 import quapy as qp
 from distribution_matching.commons import show_results
-from quapy.method.aggregative import DMy
-from distribution_matching.method.method_kdey import KDEy
+from distribution_matching.method.kdey import KDEyML
+from quapy.method.aggregative import DistributionMatching
+
 from quapy.protocol import UPP
 
 SEED=1
@@ -43,15 +44,14 @@ if __name__ == '__main__':
                         data = qp.datasets.fetch_twitter(dataset, min_df=3, pickle=True, for_model_selection=False)
 
                         if method == 'KDEy-ML':
-                            quantifier = KDEy(LogisticRegression(n_jobs=-1), target='max_likelihood', val_split=10, bandwidth=val)
+                            quantifier = KDEyML(LogisticRegression(n_jobs=-1), val_split=10, bandwidth=val)
                         elif method == 'DM-HD':
-                            quantifier = DMy(LogisticRegression(n_jobs=-1), val_split=10, nbins=val, divergence='HD', n_jobs=-1)
+                            quantifier = DistributionMatching(LogisticRegression(n_jobs=-1), val_split=10, nbins=val, divergence='HD', n_jobs=-1)
                         quantifier.fit(data.training)
                         protocol = UPP(data.test, repeats=n_bags_test)
                         report = qp.evaluation.evaluation_report(quantifier, protocol, error_metrics=['mae', 'mrae', 'kld'], verbose=True, n_jobs=-1)
                         report.to_csv(f'{local_result_path}.dataframe')
-                        means = report.mean()
-                        csv.write(f'{method}\t{data.name}\t{val}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\t{means["kld"]:.5f}\n')
+                        csv.write(f'{method}\t{data.name}\t{val}\t{report["mae"].mean():.5f}\t{report["mrae"].mean():.5f}\t{report["kld"].mean():.5f}\n')
                         csv.flush()
 
         show_results(global_result_path)

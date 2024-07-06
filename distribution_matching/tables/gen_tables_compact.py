@@ -27,6 +27,10 @@ nice_bench = {
     'semeval16': 'SemEval16',
 }
 
+nice_method = {
+    'EDy+': 'EDy'
+}
+
 
 def save_table(path, table):
     print(f'saving results in {path}')
@@ -38,11 +42,11 @@ def new_table(datasets, methods):
         benchmarks=datasets,
         methods=methods,
         ttest='wilcoxon',
-        prec_mean=5,
+        prec_mean=4,
         show_std=SHOW_STD,
         prec_std=4,
         clean_zero=(eval=='mae'),
-        average=True,
+        average=False,
         maxtone=MAXTONE
     )
 
@@ -65,7 +69,7 @@ def make_table(tabs, eval, benchmark_groups, benchmark_names, compact=False):
             \hline               
             """
     for i, (tab, group, name) in enumerate(zip(tabs, benchmark_groups, benchmark_names)):
-        tablines = tab.latexTabular(benchmark_replace=nice_bench, endl='\\\\'+ cline, aslines=True)
+        tablines = tab.latexTabular(benchmark_replace=nice_bench, method_replace=nice_method, endl='\\\\'+ cline, aslines=True)
         tablines[0] = tablines[0].replace('\multicolumn{1}{c|}{}', '\\textbf{'+name+'}')
         if compact or len(tab.benchmarks)==1:
             # if compact, keep the method names and the average; discard the rest
@@ -73,11 +77,11 @@ def make_table(tabs, eval, benchmark_groups, benchmark_names, compact=False):
         else:
             tabular += '\n'.join(tablines)
 
-        tabular += "\n" + "\\textit{Rank} & " + tab.getRankTable(prec_mean=0 if name.startswith('LeQua') else 1).latexAverage()
-        if i < (len(tabs) - 1):
-            tabular += "\\hline\n"
-        else:
-            tabular += "\n"
+        # tabular += "\n" + "\\textit{Rank} & " + tab.getRankTable(prec_mean=0 if name.startswith('LeQua') else 1).latexAverage()
+        # if i < (len(tabs) - 1):
+        tabular += "\\hline\n"
+        # else:
+        #     tabular += "\n"
     tabular += "\end{tabular}"
     return tabular
 
@@ -182,12 +186,12 @@ if __name__ == '__main__':
 
     for eval in ['mae', 'mrae']:
         tabs = []
-        # tabs.append(gen_tables_tweet(eval))
+        tabs.append(gen_tables_tweet(eval))
         tabs.append(gen_tables_uci_multiclass(eval))
-        # tabs.append(gen_tables_lequa(METHODS, 'T1B', eval))
+        tabs.append(gen_tables_lequa(METHODS, 'T1B', eval))
 
-        # names = ['Tweets', 'UCI-multi', 'LeQua']
-        names = [ 'UCI-multi']
+        names = ['Tweets', 'UCI-multi', 'LeQua']
+        # names = [ 'UCI-multi']
         table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=names)
         save_table(f'./latex/multiclass_{eval}.tex', table)
 

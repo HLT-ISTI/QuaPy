@@ -3,7 +3,7 @@ from sklearn.linear_model import LogisticRegression
 import os
 import quapy as qp
 from distribution_matching.commons import show_results
-from distribution_matching.method.method_kdey import KDEy
+from distribution_matching.method.kdey import KDEyML
 from quapy.method.aggregative import DistributionMatching
 
 
@@ -14,11 +14,11 @@ def task(val):
     train, val_gen, test_gen = qp.datasets.fetch_lequa2022('T1B')
 
     with qp.util.temp_seed(SEED):
-        if method=='KDEy-ML':
-            quantifier = KDEy(LogisticRegression(), target='max_likelihood', val_split=10, bandwidth=val)
+        if method == 'KDEy-ML':
+            quantifier = KDEyML(LogisticRegression(n_jobs=-1), val_split=10, bandwidth=val)
         elif method == 'DM-HD':
-            quantifier = DistributionMatching(LogisticRegression(), val_split=10, nbins=val, divergence='HD')
-
+            quantifier = DistributionMatching(LogisticRegression(n_jobs=-1), val_split=10, nbins=val, divergence='HD',
+                                              n_jobs=-1)
         quantifier.fit(train)
         report = qp.evaluation.evaluation_report(
             quantifier, protocol=test_gen, error_metrics=['mae', 'mrae', 'kld'], verbose=True)

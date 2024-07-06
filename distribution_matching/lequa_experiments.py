@@ -56,10 +56,8 @@ if __name__ == '__main__':
                         quantifier, protocol=test_gen, error_metrics=['mae', 'mrae', 'kld'],
                         verbose=True, verbose_error=optim[1:], n_jobs=-1
                     )
-                    means = report.mean()
                     report.to_csv(result_path+'.dataframe')
-                    csv.write(f'{method}\tLeQua-{task}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\t{means["kld"]:.5f}\n')
+                    csv.write(f'{method}\tLeQua-{task}\t{report["mae"].mean():.5f}\t{report["mrae"].mean():.5f}\t{report["kld"].mean():.5f}\n')
                     csv.flush()
-                    print(means)
 
         show_results(result_path)

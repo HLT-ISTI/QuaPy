@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
             with open(global_result_path + '.csv', 'at') as csv:
 
-                for dataset in qp.datasets.UCI_DATASETS:
+                for dataset in qp.datasets.UCI_BINARY_DATASETS:
                     if dataset in ['acute.a', 'acute.b', 'iris.1']: continue # , 'pageblocks.5', 'spambase', 'wdbc']: continue
 
                     print('init', dataset)
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
                         param_grid, quantifier = new_method(method, max_iter=3000)
 
-                        data = qp.datasets.fetch_UCIDataset(dataset)
+                        data = qp.datasets.fetch_UCIBinaryDataset(dataset)
 
                         # model selection
                         train, test = data.train_test
@@ -76,8 +76,7 @@ if __name__ == '__main__':
                         report = qp.evaluation.evaluation_report(quantifier, protocol, error_metrics=['mae', 'mrae', 'kld'],
                                                                 verbose=True)
                         report.to_csv(f'{local_result_path}.dataframe')
-                        means = report.mean()
-                        csv.write(f'{method}\t{data.name}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\t{means["kld"]:.5f}\n')
+                        csv.write(f'{method}\t{data.name}\t{report["mae"].mean():.5f}\t{report["mrae"].mean():.5f}\t{report["kld"].mean():.5f}\n')
                         csv.flush()
 
         show_results(global_result_path)

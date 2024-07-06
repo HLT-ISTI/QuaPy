@@ -78,8 +78,7 @@ if __name__ == '__main__':
                         protocol = UPP(data.test, repeats=n_bags_test)
                         report = qp.evaluation.evaluation_report(quantifier, protocol, error_metrics=['mae', 'mrae', 'kld'], verbose=True)
                         report.to_csv(f'{local_result_path}.dataframe')
-                        means = report.mean()
-                        csv.write(f'{method}\t{data.name}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\t{means["kld"]:.5f}\n')
+                        csv.write(f'{method}\t{data.name}\t{report["mae"].mean():.5f}\t{report["mrae"].mean():.5f}\t{report["kld"].mean():.5f}\n')
                         csv.flush()
 
             show_results(global_result_path)
