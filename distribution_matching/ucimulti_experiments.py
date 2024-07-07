@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
         os.makedirs(result_dir, exist_ok=True)
 
-        for method in METHODS + ['EDy+']:
+        for method in METHODS:
 
             print('Init method', method)
 

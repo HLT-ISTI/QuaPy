@@ -18,7 +18,7 @@ for method, param, xlim, xticks in [
     ('DM-HD', 'nbins', (2,32), list(range(2,10)) + list(range(10,34,2)))
 ]:
 
-    for dataset in ['tweet', 'lequa', 'uciml']:
+    for dataset in ['uciml']: #['tweet', 'lequa', 'uciml']:
 
         if dataset == 'tweet':
             df = pd.read_csv(f'../results/tweet/sensibility/{method}.csv', sep='\t')

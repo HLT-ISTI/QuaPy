@@ -115,7 +115,7 @@ setup(
 
     install_requires=[
         'scikit-learn', 'pandas', 'tqdm', 'matplotlib', 'joblib', 'xlrd', 'abstention',
-        'quadprog', 'statsmodels', 'dirichlet', 'ucimlrepo'
+        'quadprog', 'statsmodels', 'dirichlet', 'ucimlrepo', 'seaborn'
     ],
 
     # List additional groups of dependencies here (e.g. development
