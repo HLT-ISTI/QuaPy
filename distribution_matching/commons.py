@@ -24,7 +24,7 @@ else:
 
 # list of methods to consider
 METHODS = ADJUSTMENT_METHODS + DISTR_MATCH_METHODS + MAX_LIKE_METHODS
-BIN_ADJUSTMENT_METHODS = ADJUSTMENT_METHODS + ['MS', 'MS2']
+BIN_ADJUSTMENT_METHODS = ADJUSTMENT_METHODS + ['MS2']  # MS2 gets better results than MS
 BIN_METHODS = BIN_ADJUSTMENT_METHODS + DISTR_MATCH_METHODS + MAX_LIKE_METHODS
 BIN_METHODS = [x.replace('-OvA', '') for x in BIN_METHODS]
 
@@ -46,13 +46,7 @@ nbins_range = [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 3
 def new_method(method, **lr_kwargs):
     lr = LogisticRegression(**lr_kwargs)
 
-    if method == 'CC':
-        param_grid = hyper_LR
-        quantifier = CC(lr)
-    elif method == 'PCC':
-        param_grid = hyper_LR
-        quantifier = PCC(lr)
-    elif method == 'ACC+':
+    if method == 'ACC+':
         param_grid = hyper_LR
         quantifier = ACC(lr)
     elif method == 'PACC+':
