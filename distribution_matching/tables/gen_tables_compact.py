@@ -1,5 +1,5 @@
 from distribution_matching.commons import (ADJUSTMENT_METHODS, BIN_METHODS, DISTR_MATCH_METHODS, MAX_LIKE_METHODS,
-                                           METHODS, FULL_METHOD_LIST)
+                                           METHODS, FULL_METHOD_LIST, BIN_ADJUSTMENT_METHODS)
 import quapy as qp
 from os import makedirs
 import os
@@ -14,6 +14,7 @@ MAXTONE = 35  # sets the intensity of the maximum color reached by the worst (re
 SHOW_STD = False
 
 NUM_ADJUSTMENT_METHODS = len(ADJUSTMENT_METHODS)
+NUM_BIN_ADJUSTMENT_METHODS = len(BIN_ADJUSTMENT_METHODS)
 NUM_MAXIMUM_LIKELIHOOD_METHODS = len(MAX_LIKE_METHODS)
 NUM_DISTRIBUTION_MATCHING_METHODS = len(DISTR_MATCH_METHODS)
 
@@ -28,7 +29,9 @@ nice_bench = {
 }
 
 nice_method = {
-    'EDy+': 'EDy'
+    'EDy+': 'EDy',
+    'ACC+': 'ACC',
+    'PACC+': 'PACC'
 }
 
 
@@ -51,19 +54,20 @@ def new_table(datasets, methods):
     )
 
 
-def make_table(tabs, eval, benchmark_groups, benchmark_names, compact=False):
+def make_table(tabs, eval, benchmark_groups, benchmark_names, compact=False, binary=False):
 
-    n_methods = len(METHODS)
-    assert n_methods == (NUM_ADJUSTMENT_METHODS+NUM_DISTRIBUTION_MATCHING_METHODS+NUM_MAXIMUM_LIKELIHOOD_METHODS), \
+    num_adjustment = NUM_BIN_ADJUSTMENT_METHODS if binary else NUM_ADJUSTMENT_METHODS
+    n_methods = len(BIN_METHODS) if binary else len(METHODS)
+    assert n_methods == (num_adjustment+NUM_DISTRIBUTION_MATCHING_METHODS+NUM_MAXIMUM_LIKELIHOOD_METHODS), \
         "Unexpected number of methods"
 
     cline = "\cline{2-" + str(n_methods+ 1) + "}"
 
     # write the latex table
     tabular = """
-            \\begin{tabular}{|c|""" + ('c|' * NUM_ADJUSTMENT_METHODS) + ('c|' * NUM_DISTRIBUTION_MATCHING_METHODS) +  ('c|' * NUM_MAXIMUM_LIKELIHOOD_METHODS) + """} """ + cline + """           
+            \\begin{tabular}{|c|""" + ('c|' * num_adjustment) + ('c|' * NUM_DISTRIBUTION_MATCHING_METHODS) +  ('c|' * NUM_MAXIMUM_LIKELIHOOD_METHODS) + """} """ + cline + """           
             \multicolumn{1}{c}{} & 
-            \multicolumn{"""+str(NUM_ADJUSTMENT_METHODS)+"""}{|c}{Adjustment} & 
+            \multicolumn{"""+str(num_adjustment)+"""}{|c}{Adjustment} & 
             \multicolumn{"""+str(NUM_DISTRIBUTION_MATCHING_METHODS)+"""}{|c|}{Distribution Matching} & 
             \multicolumn{"""+str(NUM_MAXIMUM_LIKELIHOOD_METHODS)+"""}{c|}{Maximum Likelihood} \\\\
             \hline               
@@ -191,7 +195,6 @@ if __name__ == '__main__':
         tabs.append(gen_tables_lequa(METHODS, 'T1B', eval))
 
         names = ['Tweets', 'UCI-multi', 'LeQua']
-        # names = [ 'UCI-multi']
         table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=names)
         save_table(f'./latex/multiclass_{eval}.tex', table)
 
@@ -200,12 +203,12 @@ if __name__ == '__main__':
         tabs.append(gen_tables_uci_bin(eval))
         
         # print uci-binary with all datasets for the appendix
-        table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=['UCI-binary'])
+        table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=['UCI-binary'], binary=True)
         save_table(f'./latex/ucibinary_{eval}.tex', table)
         
         # print uci-bin compacted plus lequa-T1A for the main body
         tabs.append(gen_tables_lequa(BIN_METHODS, 'T1A', eval))
-        table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=['UCI-binary', 'LeQua'], compact=True)
+        table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=['UCI-binary', 'LeQua'], compact=True, binary=True)
         save_table(f'./latex/binary_{eval}.tex', table)
 
     print("[Tables Done] runing latex")

@@ -2,6 +2,7 @@ import os
 import sys
 from typing import Union, Callable
 import numpy as np
+from dirichlet.dirichlet import NotConvergingError
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import LogisticRegression
 import pandas as pd
@@ -12,7 +13,7 @@ import quapy as qp
 from quapy.data import LabelledCollection
 from quapy.protocol import APP, UPP
 from quapy.method.aggregative import AggregativeProbabilisticQuantifier, _training_helper, cross_generate_predictions, \
-    DistributionMatching, _get_divergence
+    DistributionMatching, _get_divergence, CC, PCC
 import scipy
 from scipy import optimize
 from statsmodels.nonparametric.kernel_density import KDEMultivariateConditional
@@ -28,6 +29,7 @@ class DIRy(AggregativeProbabilisticQuantifier):
         self.val_split = val_split
         self.n_jobs = n_jobs
         self.target = target
+        self.dummy = None
 
     def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, LabelledCollection] = None):
 
@@ -39,11 +41,14 @@ class DIRy(AggregativeProbabilisticQuantifier):
         )
 
         self.val_parameters = []
-        for cat in range(data.n_classes):
-            dir_i = dirichlet.mle(posteriors[y == cat], maxiter=DIRy.MAXITER)
-            self.val_parameters.append(dir_i)
-            # print(cat)
-        # self.val_parameters = [dirichlet.mle(posteriors[y == cat], maxiter=DIRy.MAXITER) for cat in range(data.n_classes)]
+        try:
+            for cat in range(data.n_classes):
+                dir_i = dirichlet.mle(posteriors[y == cat], maxiter=DIRy.MAXITER)
+                self.val_parameters.append(dir_i)
+        except NotConvergingError as e:
+            print(e)
+            print(f'{self.__class__} failed to converge; resorting to PCC')
+            self.dummy = PCC(self.classifier).fit(data, fit_classifier=fit_classifier)
 
         return self
 
@@ -56,6 +61,9 @@ class DIRy(AggregativeProbabilisticQuantifier):
         return lambda posteriors: sum(prev_i * dirichlet.pdf(parameters_i)(posteriors) for parameters_i, prev_i in zip(self.val_parameters, prev))
 
     def aggregate(self, posteriors: np.ndarray):
+        if self.dummy is not None:
+            return self.dummy.aggregate(posteriors)
+
         if self.target == 'min_divergence':
             raise NotImplementedError('not yet')
             return self._target_divergence(posteriors)

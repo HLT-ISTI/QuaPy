@@ -3,13 +3,14 @@ import pandas as pd
 
 from distribution_matching.method.edy import EDy
 from distribution_matching.method.kdey import KDEyCS, KDEyHD, KDEyML
-from quapy.method.aggregative import EMQ, CC, PCC, DistributionMatching, PACC, HDy, OneVsAllAggregative, ACC
+from quapy.method.aggregative import EMQ, CC, PCC, DistributionMatching, PACC, HDy, OneVsAllAggregative, ACC, \
+    MedianSweep, MedianSweep2
 from distribution_matching.method.dirichlety import DIRy
 from sklearn.linear_model import LogisticRegression
 
 # set to True to get the full list of methods tested in the paper (reported in the appendix)
 # set to False to get the reduced list (shown in the body of the paper)
-FULL_METHOD_LIST = False
+FULL_METHOD_LIST = True
 
 if FULL_METHOD_LIST:
     ADJUSTMENT_METHODS = ['ACC+', 'PACC+']
@@ -20,13 +21,17 @@ else:
     DISTR_MATCH_METHODS = ['EDy+', 'DM-T', 'DM-HD', 'KDEy-HD',  'DM-CS', 'KDEy-CS']
     MAX_LIKE_METHODS = ['EMQ', 'KDEy-ML']
 
+
 # list of methods to consider
 METHODS = ADJUSTMENT_METHODS + DISTR_MATCH_METHODS + MAX_LIKE_METHODS
-BIN_METHODS = [x.replace('-OvA', '') for x in METHODS]
+BIN_ADJUSTMENT_METHODS = ADJUSTMENT_METHODS + ['MS', 'MS2']
+BIN_METHODS = BIN_ADJUSTMENT_METHODS + DISTR_MATCH_METHODS + MAX_LIKE_METHODS
+BIN_METHODS = [x.replace('-OvA', '') for x in BIN_METHODS]
+
 
 # common hyperparameterss
 hyper_LR = {
-    'classifier__C': np.logspace(-3,3,7),
+    'classifier__C': np.logspace(-3, 3, 7),
     'classifier__class_weight': ['balanced', None]
 }
 
@@ -53,6 +58,12 @@ def new_method(method, **lr_kwargs):
     elif method == 'PACC+':
         param_grid = hyper_LR
         quantifier = PACC(lr)
+    elif method == 'MS':
+        param_grid = hyper_LR
+        quantifier = MedianSweep(lr)
+    elif method == 'MS2':
+        param_grid = hyper_LR
+        quantifier = MedianSweep2(lr)
     elif method in ['KDEy-HD']:
         param_grid = {**hyper_kde, **hyper_LR}
         quantifier = KDEyHD(lr)

@@ -180,7 +180,8 @@ def cross_generate_predictions(
         val_split,
         probabilistic,
         fit_classifier,
-        n_jobs
+        n_jobs,
+        predict_method=None
 ):
 
     n_jobs = qp._get_njobs(n_jobs)
@@ -189,12 +190,13 @@ def cross_generate_predictions(
         assert fit_classifier == True, \
             'the parameters for the adjustment cannot be estimated with kFCV with fit_classifier=False'
 
-        if probabilistic:
-            classifier = _ensure_probabilistic(classifier)
-            predict = 'predict_proba'
-        else:
-            predict = 'predict'
-        y_pred = cross_val_predict(classifier, *data.Xy, cv=val_split, n_jobs=n_jobs, method=predict)
+        if predict_method is None:
+            if probabilistic:
+                classifier = _ensure_probabilistic(classifier)
+                predict_method = 'predict_proba'
+            else:
+                predict_method = 'predict'
+        y_pred = cross_val_predict(classifier, *data.Xy, cv=val_split, n_jobs=n_jobs, method=predict_method)
         class_count = data.counts()
 
         # fit the learner on all data
@@ -205,7 +207,13 @@ def cross_generate_predictions(
         classifier, val_data = _training_helper(
             classifier, data, fit_classifier, ensure_probabilistic=probabilistic, val_split=val_split
         )
-        y_pred = classifier.predict_proba(val_data.instances) if probabilistic else classifier.predict(val_data.instances)
+        if predict_method is None:
+            if probabilistic:
+                y_pred = classifier.predict_proba(val_data.instances)
+            else:
+                y_pred = classifier.predict(val_data.instances)
+        else:
+            y_pred = getattr(classifier, predict_method)(val_data.instances)
         y = val_data.labels
         classes = val_data.classes_
         class_count = val_data.counts()
@@ -976,271 +984,6 @@ def newSVMRAE(svmperf_base=None, C=1):
     return newELM(svmperf_base, loss='mrae', C=C)
 
 
-class ThresholdOptimization(AggregativeQuantifier, BinaryQuantifier):
-    """
-    Abstract class of Threshold Optimization variants for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_.
-    The goal is to bring improved stability to the denominator of the adjustment.
-    The different variants are based on different heuristics for choosing a decision threshold
-    that would allow for more true positives and many more false positives, on the grounds this
-    would deliver larger denominators.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-
-    def __init__(self, classifier: BaseEstimator, val_split=0.4, n_jobs=None):
-        self.classifier = classifier
-        self.val_split = val_split
-        self.n_jobs = qp._get_njobs(n_jobs)
-
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split: Union[float, int, LabelledCollection] = None):
-        self._check_binary(data, "Threshold Optimization")
-
-        if val_split is None:
-            val_split = self.val_split
-
-        self.classifier, y, y_, classes, class_count = cross_generate_predictions(
-            data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs
-        )
-
-        self.cc = CC(self.classifier)
-
-        self.tpr, self.fpr = self._optimize_threshold(y, y_)
-
-        return self
-
-    @abstractmethod
-    def _condition(self, tpr, fpr) -> float:
-        """
-        Implements the criterion according to which the threshold should be selected.
-        This function should return the (float) score to be minimized.
-
-        :param tpr: float, true positive rate
-        :param fpr: float, false positive rate
-        :return: float, a score for the given `tpr` and `fpr`
-        """
-        ...
-
-    def _optimize_threshold(self, y, probabilities):
-        """
-        Seeks for the best `tpr` and `fpr` according to the score obtained at different
-        decision thresholds. The scoring function is implemented in function `_condition`.
-
-        :param y: predicted labels for the validation set (or for the training set via `k`-fold cross validation)
-        :param probabilities: array-like with the posterior probabilities
-        :return: best `tpr` and `fpr` according to `_condition`
-        """
-        best_candidate_threshold_score = None
-        best_tpr = 0
-        best_fpr = 0
-        candidate_thresholds = np.unique(probabilities[:, 1])
-        for candidate_threshold in candidate_thresholds:
-            y_ = [self.classes_[1] if p > candidate_threshold else self.classes_[0] for p in probabilities[:, 1]]
-            TP, FP, FN, TN = self._compute_table(y, y_)
-            tpr = self._compute_tpr(TP, FP)
-            fpr = self._compute_fpr(FP, TN)
-            condition_score = self._condition(tpr, fpr)
-            if best_candidate_threshold_score is None or condition_score < best_candidate_threshold_score:
-                best_candidate_threshold_score = condition_score
-                best_tpr = tpr
-                best_fpr = fpr
-
-        return best_tpr, best_fpr
-
-    def aggregate(self, classif_predictions):
-        prevs_estim = self.cc.aggregate(classif_predictions)
-        if self.tpr - self.fpr == 0:
-            return prevs_estim
-        adjusted_prevs_estim = np.clip((prevs_estim[1] - self.fpr) / (self.tpr - self.fpr), 0, 1)
-        adjusted_prevs_estim = np.array((1 - adjusted_prevs_estim, adjusted_prevs_estim))
-        return adjusted_prevs_estim
-
-    def _compute_table(self, y, y_):
-        TP = np.logical_and(y == y_, y == self.classes_[1]).sum()
-        FP = np.logical_and(y != y_, y == self.classes_[0]).sum()
-        FN = np.logical_and(y != y_, y == self.classes_[1]).sum()
-        TN = np.logical_and(y == y_, y == self.classes_[0]).sum()
-        return TP, FP, FN, TN
-
-    def _compute_tpr(self, TP, FP):
-        if TP + FP == 0:
-            return 1
-        return TP / (TP + FP)
-
-    def _compute_fpr(self, FP, TN):
-        if FP + TN == 0:
-            return 0
-        return FP / (FP + TN)
-
-
-class T50(ThresholdOptimization):
-    """
-    Threshold Optimization variant for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that looks
-    for the threshold that makes `tpr` closest to 0.5.
-    The goal is to bring improved stability to the denominator of the adjustment.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
-        super().__init__(classifier, val_split)
-
-    def _condition(self, tpr, fpr) -> float:
-        return abs(tpr - 0.5)
-
-
-class MAX(ThresholdOptimization):
-    """
-    Threshold Optimization variant for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that looks
-    for the threshold that maximizes `tpr-fpr`.
-    The goal is to bring improved stability to the denominator of the adjustment.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
-        super().__init__(classifier, val_split)
-
-    def _condition(self, tpr, fpr) -> float:
-        # MAX strives to maximize (tpr - fpr), which is equivalent to minimize (fpr - tpr)
-        return (fpr - tpr)
-
-
-class X(ThresholdOptimization):
-    """
-    Threshold Optimization variant for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that looks
-    for the threshold that yields `tpr=1-fpr`.
-    The goal is to bring improved stability to the denominator of the adjustment.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
-        super().__init__(classifier, val_split)
-
-    def _condition(self, tpr, fpr) -> float:
-        return abs(1 - (tpr + fpr))
-
-
-class MS(ThresholdOptimization):
-    """
-    Median Sweep. Threshold Optimization variant for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that generates
-    class prevalence estimates for all decision thresholds and returns the median of them all.
-    The goal is to bring improved stability to the denominator of the adjustment.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
-        super().__init__(classifier, val_split)
-
-    def _condition(self, tpr, fpr) -> float:
-        return True
-
-    def _optimize_threshold(self, y, probabilities):
-        tprs = []
-        fprs = []
-        candidate_thresholds = np.unique(probabilities[:, 1])
-        for candidate_threshold in candidate_thresholds:
-            y_ = [self.classes_[1] if p > candidate_threshold else self.classes_[0] for p in probabilities[:, 1]]
-            TP, FP, FN, TN = self._compute_table(y, y_)
-            tpr = self._compute_tpr(TP, FP)
-            fpr = self._compute_fpr(FP, TN)
-            if self._condition(tpr, fpr):
-                tprs.append(tpr)
-                fprs.append(fpr)
-        return tprs, fprs
-
-    def aggregate(self, classif_predictions):
-        prevs_estim = self.cc.aggregate(classif_predictions)
-
-        positive_prevs = []
-        for tpr, fpr in zip(self.tpr, self.fpr):
-            if tpr - fpr > 0:
-                acc = np.clip((prevs_estim[1] - fpr) / (tpr - fpr), 0, 1)
-                positive_prevs.append(acc)
-
-        if len(positive_prevs) > 0:
-            adjusted_positive_prev = np.median(positive_prevs)
-            adjusted_prevs_estim = np.array((1 - adjusted_positive_prev, adjusted_positive_prev))
-            return adjusted_prevs_estim
-        else:
-            return prevs_estim
-
-
-class MS2(MS):
-    """
-    Median Sweep 2. Threshold Optimization variant for :class:`ACC` as proposed by
-    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
-    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that generates
-    class prevalence estimates for all decision thresholds and returns the median of for cases in
-    which `tpr-fpr>0.25`
-    The goal is to bring improved stability to the denominator of the adjustment.
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1, default 0.4), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
-    """
-    def __init__(self, classifier: BaseEstimator, val_split=0.4):
-        super().__init__(classifier, val_split)
-
-    def _condition(self, tpr, fpr) -> float:
-        return (tpr - fpr) > 0.25
-
-
-
-ClassifyAndCount = CC
-AdjustedClassifyAndCount = ACC
-ProbabilisticClassifyAndCount = PCC
-ProbabilisticAdjustedClassifyAndCount = PACC
-ExpectationMaximizationQuantifier = EMQ
-SLD = EMQ
-HellingerDistanceY = HDy
-MedianSweep = MS
-MedianSweep2 = MS2
-
 
 class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
     """
@@ -1299,3 +1042,320 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
         # the estimation for the positive class prevalence
         return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:, c])[1]
 
+
+
+
+"""
+These implementations are borrowed from QuaPy v0.1.8 in which the Threshold Optimization methods
+were fixed (they are bugged in <=QuaPy v0.1.7). 
+"""
+
+
+class BinaryAggregativeQuantifier(AggregativeQuantifier, BinaryQuantifier):
+
+    @property
+    def pos_label(self):
+        return self.classifier.classes_[1]
+
+    @property
+    def neg_label(self):
+        return self.classifier.classes_[0]
+
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
+        self._check_binary(data, self.__class__.__name__)
+        return super().fit(data, fit_classifier, val_split)
+
+
+
+class ThresholdOptimization(BinaryAggregativeQuantifier):
+    """
+    Abstract class of Threshold Optimization variants for :class:`ACC` as proposed by
+    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
+    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_.
+    The goal is to bring improved stability to the denominator of the adjustment.
+    The different variants are based on different heuristics for choosing a decision threshold
+    that would allow for more true positives and many more false positives, on the grounds this
+    would deliver larger denominators.
+
+    :param classifier: a sklearn's Estimator that generates a classifier
+    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
+        misclassification rates are to be estimated.
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
+        validation data, or as an integer, indicating that the misclassification rates should be estimated via
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
+        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    """
+
+    def __init__(self, classifier: BaseEstimator, val_split=5, n_jobs=None):
+        self.classifier = classifier
+        self.val_split = val_split
+        self.n_jobs = qp._get_njobs(n_jobs)
+
+    def classify(self, instances):
+        """
+        Provides the label predictions for the given instances. The predictions should respect the format expected by
+        :meth:`aggregate`, i.e., posterior probabilities for probabilistic quantifiers, or crisp predictions for
+        non-probabilistic quantifiers
+
+        :param instances: array-like
+        :return: np.ndarray of shape `(n_instances,)` with label predictions
+        """
+        return self.classifier.decision_function(instances)
+
+    @abstractmethod
+    def condition(self, tpr, fpr) -> float:
+        """
+        Implements the criterion according to which the threshold should be selected.
+        This function should return the (float) score to be minimized.
+
+        :param tpr: float, true positive rate
+        :param fpr: float, false positive rate
+        :return: float, a score for the given `tpr` and `fpr`
+        """
+        ...
+
+    def discard(self, tpr, fpr) -> bool:
+        """
+        Indicates whether a combination of tpr and fpr should be discarded
+
+        :param tpr: float, true positive rate
+        :param fpr: float, false positive rate
+        :return: true if the combination is to be discarded, false otherwise
+        """
+        return (tpr - fpr) == 0
+
+
+    def _eval_candidate_thresholds(self, decision_scores, y):
+        """
+        Seeks for the best `tpr` and `fpr` according to the score obtained at different
+        decision thresholds. The scoring function is implemented in function `_condition`.
+
+        :param decision_scores: array-like with the classification scores
+        :param y: predicted labels for the validation set (or for the training set via `k`-fold cross validation)
+        :return: best `tpr` and `fpr` and `threshold` according to `_condition`
+        """
+        candidate_thresholds = np.unique(decision_scores)
+
+        candidates = []
+        scores = []
+        for candidate_threshold in candidate_thresholds:
+            y_ = self.classes_[1 * (decision_scores >= candidate_threshold)]
+            TP, FP, FN, TN = self._compute_table(y, y_)
+            tpr = self._compute_tpr(TP, FN)
+            fpr = self._compute_fpr(FP, TN)
+            if not self.discard(tpr, fpr):
+                candidate_score = self.condition(tpr, fpr)
+                candidates.append([tpr, fpr, candidate_threshold])
+                scores.append(candidate_score)
+
+        if len(candidates) == 0:
+            # if no candidate gives rise to a valid combination of tpr and fpr, this method defaults to the standard
+            # classify & count; this is akin to assign tpr=1, fpr=0, threshold=0
+            tpr, fpr, threshold = 1, 0, 0
+            candidates.append([tpr, fpr, threshold])
+            scores.append(0)
+
+        candidates = np.asarray(candidates)
+        candidates = candidates[np.argsort(scores)]  # sort candidates by candidate_score
+
+        return candidates
+
+    def aggregate_with_threshold(self, classif_predictions, tprs, fprs, thresholds):
+        # This function performs the adjusted count for given tpr, fpr, and threshold.
+        # Note that, due to broadcasting, tprs, fprs, and thresholds could be arrays of length > 1
+        prevs_estims = np.mean(classif_predictions[:, None] >= thresholds, axis=0)
+        prevs_estims = (prevs_estims - fprs) / (tprs - fprs)
+        prevs_estims = F.as_binary_prevalence(prevs_estims, clip_if_necessary=True)
+        return prevs_estims.squeeze()
+
+    def _compute_table(self, y, y_):
+        TP = np.logical_and(y == y_, y == self.pos_label).sum()
+        FP = np.logical_and(y != y_, y == self.neg_label).sum()
+        FN = np.logical_and(y != y_, y == self.pos_label).sum()
+        TN = np.logical_and(y == y_, y == self.neg_label).sum()
+        return TP, FP, FN, TN
+
+    def _compute_tpr(self, TP, FP):
+        if TP + FP == 0:
+            return 1
+        return TP / (TP + FP)
+
+    def _compute_fpr(self, FP, TN):
+        if FP + TN == 0:
+            return 0
+        return FP / (FP + TN)
+
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
+        self._check_binary(data, "Threshold Optimization")
+
+        if val_split is None:
+            val_split = self.val_split
+
+        self.classifier, y, y_, classes, class_count = cross_generate_predictions(
+            data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs,
+            predict_method='decision_function'
+        )
+
+        # the standard behavior is to keep the best threshold only
+        self.tpr, self.fpr, self.threshold = self._eval_candidate_thresholds(y_, y)[0]
+        return self
+
+    def aggregate(self, classif_predictions: np.ndarray):
+        # the standard behavior is to compute the adjusted count using the best threshold found
+        return self.aggregate_with_threshold(classif_predictions, self.tpr, self.fpr, self.threshold)
+
+
+class T50(ThresholdOptimization):
+    """
+    Threshold Optimization variant for :class:`ACC` as proposed by
+    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
+    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that looks
+    for the threshold that makes `tpr` closest to 0.5.
+    The goal is to bring improved stability to the denominator of the adjustment.
+
+    :param classifier: a sklearn's Estimator that generates a classifier
+    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
+        misclassification rates are to be estimated.
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
+        validation data, or as an integer, indicating that the misclassification rates should be estimated via
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
+        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    """
+
+    def __init__(self, classifier: BaseEstimator, val_split=5):
+        super().__init__(classifier, val_split)
+
+    def condition(self, tpr, fpr) -> float:
+        return abs(tpr - 0.5)
+
+
+class MAX(ThresholdOptimization):
+    """
+    Threshold Optimization variant for :class:`ACC` as proposed by
+    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
+    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that looks
+    for the threshold that maximizes `tpr-fpr`.
+    The goal is to bring improved stability to the denominator of the adjustment.
+
+    :param classifier: a sklearn's Estimator that generates a classifier
+    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
+        misclassification rates are to be estimated.
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
+        validation data, or as an integer, indicating that the misclassification rates should be estimated via
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
+        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    """
+
+    def __init__(self, classifier: BaseEstimator, val_split=5):
+        super().__init__(classifier, val_split)
+
+    def condition(self, tpr, fpr) -> float:
+        # MAX strives to maximize (tpr - fpr), which is equivalent to minimize (fpr - tpr)
+        return (fpr - tpr)
+
+
+class X(ThresholdOptimization):
+    """
+    Threshold Optimization variant for :class:`ACC` as proposed by
+    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
+    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that looks
+    for the threshold that yields `tpr=1-fpr`.
+    The goal is to bring improved stability to the denominator of the adjustment.
+
+    :param classifier: a sklearn's Estimator that generates a classifier
+    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
+        misclassification rates are to be estimated.
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
+        validation data, or as an integer, indicating that the misclassification rates should be estimated via
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
+        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    """
+
+    def __init__(self, classifier: BaseEstimator, val_split=5):
+        super().__init__(classifier, val_split)
+
+    def condition(self, tpr, fpr) -> float:
+        return abs(1 - (tpr + fpr))
+
+
+class MS(ThresholdOptimization):
+    """
+    Median Sweep. Threshold Optimization variant for :class:`ACC` as proposed by
+    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
+    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that generates
+    class prevalence estimates for all decision thresholds and returns the median of them all.
+    The goal is to bring improved stability to the denominator of the adjustment.
+
+    :param classifier: a sklearn's Estimator that generates a classifier
+    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
+        misclassification rates are to be estimated.
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
+        validation data, or as an integer, indicating that the misclassification rates should be estimated via
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
+        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    """
+    def __init__(self, classifier: BaseEstimator, val_split=5):
+        super().__init__(classifier, val_split)
+
+    def condition(self, tpr, fpr) -> float:
+        return 1
+
+    def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
+        self._check_binary(data, "Threshold Optimization")
+
+        if val_split is None:
+            val_split = self.val_split
+
+        self.classifier, y, y_, classes, class_count = cross_generate_predictions(
+            data, self.classifier, val_split, probabilistic=True, fit_classifier=fit_classifier, n_jobs=self.n_jobs,
+            predict_method='decision_function'
+        )
+
+        # keeps all candidates
+        tprs_fprs_thresholds = self._eval_candidate_thresholds(y_, y)
+        self.tprs = tprs_fprs_thresholds[:, 0]
+        self.fprs = tprs_fprs_thresholds[:, 1]
+        self.thresholds = tprs_fprs_thresholds[:, 2]
+        return self
+
+    def aggregate(self, classif_predictions: np.ndarray):
+        prevalences = self.aggregate_with_threshold(classif_predictions, self.tprs, self.fprs, self.thresholds)
+        if prevalences.ndim==2:
+            prevalences = np.median(prevalences, axis=0)
+        return prevalences
+
+
+class MS2(MS):
+    """
+    Median Sweep 2. Threshold Optimization variant for :class:`ACC` as proposed by
+    `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
+    `Forman 2008 <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_ that generates
+    class prevalence estimates for all decision thresholds and returns the median of for cases in
+    which `tpr-fpr>0.25`
+    The goal is to bring improved stability to the denominator of the adjustment.
+
+    :param classifier: a sklearn's Estimator that generates a classifier
+    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
+        misclassification rates are to be estimated.
+        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
+        validation data, or as an integer, indicating that the misclassification rates should be estimated via
+        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
+        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    """
+    def __init__(self, classifier: BaseEstimator, val_split=5):
+        super().__init__(classifier, val_split)
+
+    def discard(self, tpr, fpr) -> bool:
+        return (tpr-fpr) <= 0.25
+
+
+
+ClassifyAndCount = CC
+AdjustedClassifyAndCount = ACC
+ProbabilisticClassifyAndCount = PCC
+ProbabilisticAdjustedClassifyAndCount = PACC
+ExpectationMaximizationQuantifier = EMQ
+SLD = EMQ
+HellingerDistanceY = HDy
+MedianSweep = MS
+MedianSweep2 = MS2

@@ -27,7 +27,7 @@ for method, param, xlim, xticks in [
             df = pd.read_csv(f'../results/lequa/T1B/sensibility/{method}.csv', sep='\t')
             ylim = (0.0125, 0.03)
         elif dataset == 'uciml':
-            ylim = (0, 0.23)
+            ylim = (0, 0.4)
             df = pd.read_csv(f'../results/ucimulti/sensibility/{method}.csv', sep='\t')
 
         for err in ['MAE']: #, 'MRAE']:
@@ -42,9 +42,10 @@ for method, param, xlim, xticks in [
             else:
                 g.set_ylabel(err)
 
-            g.set_ylim(ylim)
+            #g.set_ylim(ylim)
             g.set_xticks(xticks)
             plt.xticks(rotation=90)
+            plt.yscale('log')
             plt.grid()
             plt.savefig(f'./sensibility_{method}_{dataset}_{err}.pdf', bbox_inches='tight')
             plt.clf()
