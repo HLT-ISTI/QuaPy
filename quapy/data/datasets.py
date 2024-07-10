@@ -621,7 +621,8 @@ def fetch_UCIMulticlassDataset(
         as a minimum proportion, meaning that the real proportion could be higher in case the training proportion
         (1-`min_test_split`% of the instances) surpasses `max_train_instances`. In such case, only `max_train_instances`
         are taken for training, and the rest (irrespective of `min_test_split`) is taken for test.
-    :param max_train_instances: maximum number of instances to keep for training (defaults to 25000)
+    :param max_train_instances: maximum number of instances to keep for training (defaults to 25000);
+        set to -1 or None to avoid this check
     :param min_class_support: minimum number of istances per class. Classes with fewer instances
         are discarded (deafult is 100)
     :param verbose: set to True (default is False) to get information (stats) about the dataset
@@ -631,9 +632,10 @@ def fetch_UCIMulticlassDataset(
     data = fetch_UCIMulticlassLabelledCollection(dataset_name, data_home, min_class_support, verbose=verbose)
     n = len(data)
     train_prop = (1.-min_test_split)
-    n_train = int(n*train_prop)
-    if n_train > max_train_instances:
-        train_prop = (max_train_instances / n)
+    if (max_train_instances is not None) and (max_train_instances > 0):
+        n_train = int(n*train_prop)
+        if n_train > max_train_instances:
+            train_prop = (max_train_instances / n)
 
     return Dataset(*data.split_stratified(train_prop, random_state=0))
 
