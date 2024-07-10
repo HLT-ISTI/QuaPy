@@ -22,7 +22,7 @@ for bench in ['tweet', 'ucimulti', 'lequa/T1B']:
     #cmc    KDEy-ML  0.09010  0.15735
 
     # Usar FacetGrid para crear la cuadrícula de gráficos
-    g = sns.FacetGrid(df, row='Dataset', col='Method', hue='param name', margin_titles=True, height=2, aspect=2, sharex=False,  sharey=False)
+    g = sns.FacetGrid(df, row='Dataset', col='Method', hue='param name', margin_titles=True, height=2, aspect=1.4, sharex=False,  sharey=False)
     g.map(sns.lineplot, 'param', 'MAE')
 
     # Ajustar el layout
@@ -49,4 +49,4 @@ for bench in ['tweet', 'ucimulti', 'lequa/T1B']:
 
 
     plt.tight_layout()
-    plt.savefig(f'facet_{bench.replace('/','_')}.pdf')
+    plt.savefig(f'facet_{bench.replace("/","_")}.pdf')

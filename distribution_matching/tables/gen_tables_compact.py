@@ -40,12 +40,13 @@ def save_table(path, table):
     with open(path, 'wt') as foo:
         foo.write(table)
 
+
 def new_table(datasets, methods):
     return Table(
         benchmarks=datasets,
         methods=methods,
         ttest='wilcoxon',
-        prec_mean=4,
+        prec_mean=4 if FULL_METHOD_LIST else 5,
         show_std=SHOW_STD,
         prec_std=4,
         clean_zero=(eval=='mae'),
@@ -70,7 +71,7 @@ def make_table(tabs, eval, benchmark_groups, benchmark_names, compact=False, bin
             \multicolumn{"""+str(num_adjustment)+"""}{|c}{Adjustment} & 
             \multicolumn{"""+str(NUM_DISTRIBUTION_MATCHING_METHODS)+"""}{|c|}{Distribution Matching} & 
             \multicolumn{"""+str(NUM_MAXIMUM_LIKELIHOOD_METHODS)+"""}{c|}{Maximum Likelihood} \\\\
-            \hline               
+            \hline
             """
     for i, (tab, group, name) in enumerate(zip(tabs, benchmark_groups, benchmark_names)):
         tablines = tab.latexTabular(benchmark_replace=nice_bench, method_replace=nice_method, endl='\\\\'+ cline, aslines=True)
@@ -81,9 +82,12 @@ def make_table(tabs, eval, benchmark_groups, benchmark_names, compact=False, bin
         else:
             tabular += '\n'.join(tablines)
 
-        # tabular += "\n" + "\\textit{Rank} & " + tab.getRankTable(prec_mean=0 if name.startswith('LeQua') else 1).latexAverage()
+        if compact:
+            tabular += "\n" + "\\textit{Rank} & " + tab.getRankTable(prec_mean=0 if name.startswith('LeQua') else 1).latexAverage()
+        else:
+            tabular += "\\hline\n"
         # if i < (len(tabs) - 1):
-        tabular += "\\hline\n"
+
         # else:
         #     tabular += "\n"
     tabular += "\end{tabular}"
@@ -199,16 +203,16 @@ if __name__ == '__main__':
         save_table(f'./latex/multiclass_{eval}.tex', table)
 
     for eval in ['mae', 'mrae']:
+        # print uci-binary with all datasets for the appendix
         tabs = []
         tabs.append(gen_tables_uci_bin(eval))
-        
-        # print uci-binary with all datasets for the appendix
         table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=['UCI-binary'], binary=True)
         save_table(f'./latex/ucibinary_{eval}.tex', table)
-        
-        # print uci-bin compacted plus lequa-T1A for the main body
+
+        # print lequa-T1A for the main body
+        tabs = []
         tabs.append(gen_tables_lequa(BIN_METHODS, 'T1A', eval))
-        table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=['UCI-binary', 'LeQua'], compact=True, binary=True)
+        table = make_table(tabs, eval, benchmark_groups=tabs, benchmark_names=['LeQua'], compact=True, binary=True)
         save_table(f'./latex/binary_{eval}.tex', table)
 
     print("[Tables Done] runing latex")
