@@ -85,6 +85,8 @@ LEQUA2022_VECTOR_TASKS = ['T1A', 'T1B']
 LEQUA2022_TEXT_TASKS = ['T2A', 'T2B']
 LEQUA2022_TASKS = LEQUA2022_VECTOR_TASKS + LEQUA2022_TEXT_TASKS
 
+LEQUA2024_TASKS = ['T1', 'T2', 'T3', 'T4']
+
 _TXA_SAMPLE_SIZE = 250
 _TXB_SAMPLE_SIZE = 1000
 
@@ -97,6 +99,13 @@ LEQUA2022_SAMPLE_SIZE = {
     'T2B': _TXB_SAMPLE_SIZE,
     'binary': _TXA_SAMPLE_SIZE,
     'multiclass': _TXB_SAMPLE_SIZE
+}
+
+LEQUA2024_SAMPLE_SIZE = {
+    'T1': 250,
+    'T2': 1000,
+    'T3': 200,
+    'T4': 250,
 }
 
 
@@ -806,7 +815,7 @@ def fetch_lequa2022(task, data_home=None):
         that return a series of samples stored in a directory which are labelled by prevalence.
     """
 
-    from quapy.data._lequa2022 import load_raw_documents, load_vector_documents, SamplesFromDir
+    from quapy.data._lequa import load_raw_documents, load_vector_documents_2022, SamplesFromDir
 
     assert task in LEQUA2022_TASKS, \
         f'Unknown task {task}. Valid ones are {LEQUA2022_TASKS}'
@@ -833,7 +842,7 @@ def fetch_lequa2022(task, data_home=None):
         download_unzip_and_remove(lequa_dir, URL_TEST_PREV)
 
     if task in ['T1A', 'T1B']:
-        load_fn = load_vector_documents
+        load_fn = load_vector_documents_2022
     elif task in ['T2A', 'T2B']:
         load_fn = load_raw_documents
 
@@ -849,6 +858,65 @@ def fetch_lequa2022(task, data_home=None):
     test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
 
     return train, val_gen, test_gen
+
+
+def fetch_lequa2024(task, data_home=None, merge_T3=False):
+
+    from quapy.data._lequa import load_vector_documents_2024, SamplesFromDir, LabelledCollectionsFromDir
+
+    assert task in LEQUA2024_TASKS, \
+        f'Unknown task {task}. Valid ones are {LEQUA2024_TASKS}'
+
+    if data_home is None:
+        data_home = get_quapy_home()
+
+    lequa_dir = data_home
+
+    LEQUA2024_ZENODO = 'https://zenodo.org/records/11661820'  # v3, last one with labels
+
+    URL_TRAINDEV=f'{LEQUA2024_ZENODO}/files/{task}.train_dev.zip'
+    URL_TEST=f'{LEQUA2024_ZENODO}/files/{task}.test.zip'
+    URL_TEST_PREV=f'{LEQUA2024_ZENODO}/files/{task}.test_prevalences.zip'
+
+    lequa_dir = join(data_home, 'lequa2024')
+    os.makedirs(lequa_dir, exist_ok=True)
+
+    def download_unzip_and_remove(unzipped_path, url):
+        tmp_path = join(lequa_dir, task + '_tmp.zip')
+        download_file_if_not_exists(url, tmp_path)
+        with zipfile.ZipFile(tmp_path) as file:
+            file.extractall(unzipped_path)
+        os.remove(tmp_path)
+
+    if not os.path.exists(join(lequa_dir, task)):
+        download_unzip_and_remove(lequa_dir, URL_TRAINDEV)
+        download_unzip_and_remove(lequa_dir, URL_TEST)
+        download_unzip_and_remove(lequa_dir, URL_TEST_PREV)
+
+    load_fn = load_vector_documents_2024
+
+    val_samples_path = join(lequa_dir, task, 'public', 'dev_samples')
+    val_true_prev_path = join(lequa_dir, task, 'public', 'dev_prevalences.txt')
+    val_gen = SamplesFromDir(val_samples_path, val_true_prev_path, load_fn=load_fn)
+
+    test_samples_path = join(lequa_dir, task, 'public', 'test_samples')
+    test_true_prev_path = join(lequa_dir, task, 'public', 'test_prevalences.txt')
+    test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
+
+    if task != 'T3':
+        tr_path = join(lequa_dir, task, 'public', 'training_data.txt')
+        train = LabelledCollection.load(tr_path, loader_func=load_fn)
+        return train, val_gen, test_gen
+    else:
+        training_samples_path = join(lequa_dir, task, 'public', 'training_samples')
+        training_true_prev_path = join(lequa_dir, task, 'public', 'training_prevalences.txt')
+        train_gen = LabelledCollectionsFromDir(training_samples_path, training_true_prev_path, load_fn=load_fn)
+        if merge_T3:
+            train = LabelledCollection.join(*list(train_gen()))
+            return train, val_gen, test_gen
+        else:
+            return train_gen, val_gen, test_gen
+
 
 
 def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=None):

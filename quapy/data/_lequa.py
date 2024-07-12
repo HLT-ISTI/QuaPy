@@ -4,6 +4,8 @@ import numpy as np
 import os
 
 from quapy.protocol import AbstractProtocol
+from quapy.data import LabelledCollection
+
 
 DEV_SAMPLES = 1000
 TEST_SAMPLES = 5000
@@ -12,6 +14,13 @@ ERROR_TOL = 1E-3
 
 
 def load_category_map(path):
+    """
+    Loads the category map, i.e., a mapping of numerical ids of labels with a human readable name.
+
+    :param path: path to the label map file
+    :return: a dictionary cat2code (i.e., cat2code[cat_name] gives access to the category id) and a list code2cat (i.e.,
+        code2cat[cat_id] gives access to the category name)
+    """
     cat2code = {}
     with open(path, 'rt') as fin:
         for line in fin:
@@ -22,6 +31,16 @@ def load_category_map(path):
 
 
 def load_raw_documents(path):
+    """
+    Loads raw documents. In case the sample is unlabelled,
+    the labels returned are None
+
+    :param path: path to the data sample containing the raw documents
+    :return: a tuple with the documents (np.ndarray of strings of shape `(n,)`) and
+        the labels (a np.ndarray of shape `(n,)` if the sample is labelled,
+        or None if the sample is unlabelled), with `n` the number of instances in the sample
+        (250 for T1A, 1000 for T1B)
+    """
     df = pd.read_csv(path)
     documents = list(df["text"].values)
     labels = None
@@ -30,11 +49,39 @@ def load_raw_documents(path):
     return documents, labels
 
 
-def load_vector_documents(path):
+def load_vector_documents_2022(path):
+    """
+    Loads vectorized documents. In case the sample is unlabelled,
+    the labels returned are None
+
+    :param path: path to the data sample containing the raw documents
+    :return: a tuple with the documents (np.ndarray of shape `(n,300)`) and the labels (a np.ndarray of shape `(n,)` if
+        the sample is labelled, or None if the sample is unlabelled), with `n` the number of instances in the sample
+        (250 for T1A, 1000 for T1B)
+    """
     D = pd.read_csv(path).to_numpy(dtype=float)
     labelled = D.shape[1] == 301
     if labelled:
         X, y = D[:, 1:], D[:, 0].astype(int).flatten()
+    else:
+        X, y = D, None
+    return X, y
+
+
+def load_vector_documents_2024(path):
+    """
+    Loads vectorized documents. In case the sample is unlabelled,
+    the labels returned are None
+
+    :param path: path to the data sample containing the raw documents
+    :return: a tuple with the documents (np.ndarray of shape `(n,256)`) and the labels (a np.ndarray of shape `(n,)` if
+        the sample is labelled, or None if the sample is unlabelled), with `n` the number of instances in the sample
+        (250 for T1 and T4, 1000 for T2, and 200 for T3)
+    """
+    D = pd.read_csv(path).to_numpy(dtype=float)
+    labelled = D.shape[1] == 257
+    if labelled:
+        X, y = D[:,1:], D[:,0].astype(int).flatten()
     else:
         X, y = D, None
     return X, y
@@ -51,6 +98,20 @@ class SamplesFromDir(AbstractProtocol):
         for id, prevalence in self.true_prevs.iterrows():
             sample, _ = self.load_fn(os.path.join(self.path_dir, f'{id}.txt'))
             yield sample, prevalence
+
+
+class LabelledCollectionsFromDir(AbstractProtocol):
+
+    def __init__(self, path_dir:str, ground_truth_path:str, load_fn):
+        self.path_dir = path_dir
+        self.load_fn = load_fn
+        self.true_prevs = pd.read_csv(ground_truth_path, index_col=0)
+
+    def __call__(self):
+        for id, prevalence in self.true_prevs.iterrows():
+            collection_path = os.path.join(self.path_dir, f'{id}.txt')
+            lc = LabelledCollection.load(path=collection_path, loader_func=self.load_fn)
+            yield lc
 
 
 class ResultSubmission:
