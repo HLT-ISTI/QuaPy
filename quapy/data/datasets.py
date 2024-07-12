@@ -751,7 +751,7 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         df = fetch_ucirepo(id=id)
 
         df.data.features = pd.get_dummies(df.data.features, drop_first=True)
-        X, y = df.data.features.to_numpy(), df.data.targets.to_numpy().squeeze()
+        X, y = df.data.features.to_numpy(dtype=np.float64), df.data.targets.to_numpy().squeeze()
 
         assert y.ndim == 1, 'more than one y'
 
