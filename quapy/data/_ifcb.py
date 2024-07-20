@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import math
+from typing import Optional
 from quapy.data import LabelledCollection
 from quapy.protocol import AbstractProtocol
 from pathlib import Path
@@ -66,7 +67,7 @@ class IFCBTrainSamplesFromDir(AbstractProtocol):
 
 class IFCBTestSamples(AbstractProtocol):
 
-    def __init__(self, path_dir:str, test_prevalences: pd.DataFrame, samples: list = None, classes: list=None):
+    def __init__(self, path_dir:str, test_prevalences: Optional[pd.DataFrame]=None, samples: list=None, classes: list=None):
         self.path_dir = path_dir
         self.test_prevalences = test_prevalences
         self.classes = classes

@@ -271,7 +271,7 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=Fals
 
     >>> import quapy as qp
     >>> collection = qp.datasets.fetch_UCIBinaryLabelledCollection("yeast")
-    >>> for data in qp.train.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
+    >>> for data in qp.datasets.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
     >>>     ...
 
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
@@ -647,7 +647,6 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where the dataset will be dumped (leave empty to use the default
         ~/quay_data/ directory)
-    :param test_split: proportion of instances to be included in the test set. The rest conforms the training set
     :param min_class_support: minimum number of istances per class. Classes with fewer instances
         are discarded (deafult is 100)
     :param verbose: set to True (default is False) to get information (stats) about the dataset
@@ -736,6 +735,8 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         return LabelledCollection(X, y)
 
     def filter_classes(data: LabelledCollection, min_ipc):
+        if min_ipc is None:
+            min_ipc = 0
         classes = data.classes_
         # restrict classes to only those with at least min_ipc instances
         classes = classes[data.counts() >= min_ipc]
@@ -763,9 +764,11 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
 def _df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
     df[col] = df[col].apply(lambda x:repl[x]).astype(astype, copy=False)
 
+
 def _array_replace(arr, repl={"yes": 1, "no": 0}):
     for k, v in repl.items():
         arr[arr == k] = v
+
 
 def fetch_lequa2022(task, data_home=None):
     """
@@ -783,7 +786,6 @@ def fetch_lequa2022(task, data_home=None):
 
     See `4.lequa2022_experiments.py` provided in the example folder, that can serve as a guide on how to use these
     datasets.
-
 
     :param task: a string representing the task name; valid ones are T1A, T1B, T2A, and T2B
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
