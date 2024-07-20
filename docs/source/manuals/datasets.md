@@ -217,9 +217,9 @@ are summarized below.
 | cmc.1 | 2 | 1473 | 9 | [0.573, 0.427] | dense |
 | cmc.2 | 2 | 1473 | 9 | [0.774, 0.226] | dense |
 | cmc.3 | 2 | 1473 | 9 | [0.653, 0.347] | dense |
-| ctg.1 | 2 | 2126 | 22 | [0.222, 0.778] | dense |
-| ctg.2 | 2 | 2126 | 22 | [0.861, 0.139] | dense |
-| ctg.3 | 2 | 2126 | 22 | [0.917, 0.083] | dense |
+| ctg.1 | 2 | 2126 | 21 | [0.222, 0.778] | dense |
+| ctg.2 | 2 | 2126 | 21 | [0.861, 0.139] | dense |
+| ctg.3 | 2 | 2126 | 21 | [0.917, 0.083] | dense |
 | german | 2 | 1000 | 24 | [0.300, 0.700] | dense |
 | haberman | 2 | 306 | 3 | [0.735, 0.265] | dense |
 | ionosphere | 2 | 351 | 34 | [0.641, 0.359] | dense |
@@ -242,24 +242,15 @@ are summarized below.
 | wine-q-white | 2 | 4898 | 11 | [0.335, 0.665] | dense |
 | yeast | 2 | 1484 | 8 | [0.711, 0.289] | dense |
 
-### Issues:
+#### Notes:
 All datasets will be downloaded automatically the first time they are requested, and
 stored in the _quapy_data_ folder for faster further reuse. 
-However, some datasets require special actions that at the moment are not fully
-automated.
 
-* Datasets with ids "ctg.1", "ctg.2", and "ctg.3" (_Cardiotocography Data Set_) load
-an Excel file, which requires the user to install the _xlrd_ Python module in order 
-to open it.
-* The dataset with id "pageblocks.5" (_Page Blocks Classification (5)_) needs to
-open a "unix compressed file" (extension .Z), which is not directly doable with
-standard Pythons packages like gzip or zip. This file would need to be uncompressed using
-OS-dependent software manually. Information on how to do it will be printed the first
-time the dataset is invoked. 
-* It is a good idea to ignore datasets _acute.a_, _acute.b_ and _balance.2_, since the former two
-are very easy (many classifiers would score 100% accuracy) while the latter is extremely difficult
-  (probably there is some problem with this dataset, the errors it tends to produce are orders of magnitude 
-greater than for other datasets, and this has a disproportionate impact in the average performance).
+However, notice that it is a good idea to ignore datasets:
+* _acute.a_ and _acute.b_: these are very easy and many classifiers would score 100% accuracy
+* _balance.2_: this is extremely difficult; probably there is some problem with this dataset, 
+the errors it tends to produce are orders of magnitude greater than for other datasets, 
+and this has a disproportionate impact in the average performance.
 
 ### Multiclass datasets
 

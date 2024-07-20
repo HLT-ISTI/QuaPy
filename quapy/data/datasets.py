@@ -3,6 +3,7 @@ def warn(*args, **kwargs):
 import warnings
 warnings.warn = warn
 import os
+from contextlib import contextmanager
 import zipfile
 from os.path import join
 import pandas as pd
@@ -270,7 +271,7 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=Fals
 
     >>> import quapy as qp
     >>> collection = qp.datasets.fetch_UCIBinaryLabelledCollection("yeast")
-    >>> for data in qp.train.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
+    >>> for data in qp.datasets.Dataset.kFCV(collection, nfolds=5, nrepeats=2):
     >>>     ...
 
     The list of valid dataset names can be accessed in `quapy.data.datasets.UCI_DATASETS`
@@ -278,323 +279,298 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, verbose=Fals
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
         ~/quay_data/ directory)
-    :param test_split: proportion of documents to be included in the test set. The rest conforms the training set
     :param verbose: set to True (default is False) to get information (from the UCI ML repository) about the datasets
     :return: a :class:`quapy.data.base.LabelledCollection` instance
     """
-
-    assert dataset_name in UCI_BINARY_DATASETS, \
-        f'Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository. ' \
-        f'Valid ones are {UCI_BINARY_DATASETS}'
+    assert dataset_name in UCI_BINARY_DATASETS, (
+        f"Name {dataset_name} does not match any known dataset from the UCI Machine Learning datasets repository. "
+        f"Valid ones are {UCI_BINARY_DATASETS}"
+    )
     if data_home is None:
         data_home = get_quapy_home()
 
-    dataset_fullname = {
-        'acute.a': 'Acute Inflammations (urinary bladder)',
-        'acute.b': 'Acute Inflammations (renal pelvis)',
-        'balance.1': 'Balance Scale Weight & Distance Database (left)',
-        'balance.2': 'Balance Scale Weight & Distance Database (balanced)',
-        'balance.3': 'Balance Scale Weight & Distance Database (right)',
-        'breast-cancer':  'Breast Cancer Wisconsin (Original)',
-        'cmc.1': 'Contraceptive Method Choice (no use)',
-        'cmc.2': 'Contraceptive Method Choice (long term)',
-        'cmc.3': 'Contraceptive Method Choice (short term)',
-        'ctg.1': 'Cardiotocography Data Set (normal)',
-        'ctg.2': 'Cardiotocography Data Set (suspect)',
-        'ctg.3': 'Cardiotocography Data Set (pathologic)',
-        'german': 'Statlog German Credit Data',
-        'haberman': "Haberman's Survival Data",
-        'ionosphere': 'Johns Hopkins University Ionosphere DB',
-        'iris.1': 'Iris Plants Database(x)',
-        'iris.2': 'Iris Plants Database(versicolour)',
-        'iris.3': 'Iris Plants Database(virginica)',
-        'mammographic': 'Mammographic Mass',
-        'pageblocks.5': 'Page Blocks Classification (5)',
-        'semeion': 'Semeion Handwritten Digit (8)',
-        'sonar': 'Sonar, Mines vs. Rocks',
-        'spambase': 'Spambase Data Set',
-        'spectf': 'SPECTF Heart Data',
-        'tictactoe': 'Tic-Tac-Toe Endgame Database',
-        'transfusion': 'Blood Transfusion Service Center Data Set',
-        'wdbc': 'Wisconsin Diagnostic Breast Cancer',
-        'wine.1': 'Wine Recognition Data (1)',
-        'wine.2': 'Wine Recognition Data (2)',
-        'wine.3': 'Wine Recognition Data (3)',
-        'wine-q-red': 'Wine Quality Red (6-10)',
-        'wine-q-white': 'Wine Quality White (6-10)',
-        'yeast': 'Yeast',
+    # mapping bewteen dataset names and UCI api ids
+    identifiers = {
+        "acute.a": 184,
+        "acute.b": 184,
+        "balance.1": 12,
+        "balance.2": 12,
+        "balance.3": 12,
+        "breast-cancer": 15,
+        "cmc.1": 30,
+        "cmc.2": 30,
+        "cmc.3": 30,
+        # "ctg.1": ,  # not python importable
+        # "ctg.2": ,  # not python importable
+        # "ctg.3": ,  # not python importable
+        # "german": ,  # not python importable
+        "haberman": 43,
+        "ionosphere": 52,
+        "iris.1": 53,
+        "iris.2": 53,
+        "iris.3": 53,
+        "mammographic": 161,
+        "pageblocks.5": 78,
+        # "semeion": ,  # not python importable
+        "sonar": 151,
+        "spambase": 94,
+        "spectf": 96,
+        "tictactoe": 101,
+        "transfusion": 176,
+        "wdbc": 17,
+        "wine.1": 109,
+        "wine.2": 109,
+        "wine.3": 109,
+        "wine-q-red": 186,
+        "wine-q-white": 186,
+        "yeast": 110,
     }
 
-    # the identifier is an alias for the dataset group, it's part of the url data-folder, and is the name we use
-    # to download the raw dataset
-    identifier_map = {
-        'acute.a': 'acute',
-        'acute.b': 'acute',
-        'balance.1': 'balance-scale',
-        'balance.2': 'balance-scale',
-        'balance.3': 'balance-scale',
-        'breast-cancer': 'breast-cancer-wisconsin',
-        'cmc.1': 'cmc',
-        'cmc.2': 'cmc',
-        'cmc.3': 'cmc',
-        'ctg.1': '00193',
-        'ctg.2': '00193',
-        'ctg.3': '00193',
-        'german': 'statlog/german',
-        'haberman': 'haberman',
-        'ionosphere': 'ionosphere',
-        'iris.1': 'iris',
-        'iris.2': 'iris',
-        'iris.3': 'iris',
-        'mammographic': 'mammographic-masses',
-        'pageblocks.5': 'page-blocks',
-        'semeion': 'semeion',
-        'sonar': 'undocumented/connectionist-bench/sonar',
-        'spambase': 'spambase',
-        'spectf': 'spect',
-        'tictactoe': 'tic-tac-toe',
-        'transfusion': 'blood-transfusion',
-        'wdbc': 'breast-cancer-wisconsin',
-        'wine-q-red': 'wine-quality',
-        'wine-q-white': 'wine-quality',
-        'wine.1': 'wine',
-        'wine.2': 'wine',
-        'wine.3': 'wine',
-        'yeast': 'yeast',
+    # mapping between dataset names and dataset groups
+    groups = {
+        "acute.a": "acute",
+        "acute.b": "acute",
+        "balance.1": "balance",
+        "balance.2": "balance",
+        "balance.3": "balance",
+        "breast-cancer": "breast-cancer",
+        "cmc.1": "cmc",
+        "cmc.2": "cmc",
+        "cmc.3": "cmc",
+        "ctg.1": "ctg",
+        "ctg.2": "ctg",
+        "ctg.3": "ctg",
+        "german": "german",
+        "haberman": "haberman",
+        "ionosphere": "ionosphere",
+        "iris.1": "iris",
+        "iris.2": "iris",
+        "iris.3": "iris",
+        "mammographic": "mammographic",
+        "pageblocks.5": "pageblocks",
+        "semeion": "semeion",
+        "sonar": "sonar",
+        "spambase": "spambase",
+        "spectf": "spectf",
+        "tictactoe": "tictactoe",
+        "transfusion": "transfusion",
+        "wdbc": "wdbc",
+        "wine-q-red": "wine-quality",
+        "wine-q-white": "wine-quality",
+        "wine.1": "wine",
+        "wine.2": "wine",
+        "wine.3": "wine",
+        "yeast": "yeast",
     }
 
-    # the filename is the name of the file within the data_folder indexed by the identifier
-    file_name = {
-        'acute': 'diagnosis.data',
-        '00193': 'CTG.xls',
-        'statlog/german': 'german.data-numeric',
-        'mammographic-masses': 'mammographic_masses.data',
-        'page-blocks': 'page-blocks.data.Z',
-        'undocumented/connectionist-bench/sonar': 'sonar.all-data',
-        'spect': ['SPECTF.train', 'SPECTF.test'],
-        'blood-transfusion': 'transfusion.data',
-        'wine-quality': ['winequality-red.csv', 'winequality-white.csv'],
-        'breast-cancer-wisconsin': 'breast-cancer-wisconsin.data' if dataset_name=='breast-cancer' else 'wdbc.data'
+    # mapping between dataset short names and full names
+    full_names = {
+        "acute.a": "Acute Inflammations (urinary bladder)",
+        "acute.b": "Acute Inflammations (renal pelvis)",
+        "balance.1": "Balance Scale Weight & Distance Database (left)",
+        "balance.2": "Balance Scale Weight & Distance Database (balanced)",
+        "balance.3": "Balance Scale Weight & Distance Database (right)",
+        "breast-cancer": "Breast Cancer Wisconsin (Original)",
+        "cmc.1": "Contraceptive Method Choice (no use)",
+        "cmc.2": "Contraceptive Method Choice (long term)",
+        "cmc.3": "Contraceptive Method Choice (short term)",
+        "ctg.1": "Cardiotocography Data Set (normal)",
+        "ctg.2": "Cardiotocography Data Set (suspect)",
+        "ctg.3": "Cardiotocography Data Set (pathologic)",
+        "german": "Statlog German Credit Data",
+        "haberman": "Haberman's Survival Data",
+        "ionosphere": "Johns Hopkins University Ionosphere DB",
+        "iris.1": "Iris Plants Database(x)",
+        "iris.2": "Iris Plants Database(versicolour)",
+        "iris.3": "Iris Plants Database(virginica)",
+        "mammographic": "Mammographic Mass",
+        "pageblocks.5": "Page Blocks Classification (5)",
+        "semeion": "Semeion Handwritten Digit (8)",
+        "sonar": "Sonar, Mines vs. Rocks",
+        "spambase": "Spambase Data Set",
+        "spectf": "SPECTF Heart Data",
+        "tictactoe": "Tic-Tac-Toe Endgame Database",
+        "transfusion": "Blood Transfusion Service Center Data Set",
+        "wdbc": "Wisconsin Diagnostic Breast Cancer",
+        "wine.1": "Wine Recognition Data (1)",
+        "wine.2": "Wine Recognition Data (2)",
+        "wine.3": "Wine Recognition Data (3)",
+        "wine-q-red": "Wine Quality Red (6-10)",
+        "wine-q-white": "Wine Quality White (6-10)",
+        "yeast": "Yeast",
     }
 
-    # the filename containing the dataset description (if any)
-    desc_name = {
-        'acute': 'diagnosis.names',
-        '00193': None,
-        'statlog/german': 'german.doc',
-        'mammographic-masses': 'mammographic_masses.names',
-        'undocumented/connectionist-bench/sonar': 'sonar.names',
-        'spect': 'SPECTF.names',
-        'blood-transfusion': 'transfusion.names',
-        'wine-quality': 'winequality.names',
-        'breast-cancer-wisconsin': 'breast-cancer-wisconsin.names' if dataset_name == 'breast-cancer' else 'wdbc.names'
+    # mapping between dataset names and values of positive class
+    pos_class = {
+        "acute.a": "yes",
+        "acute.b": "yes",
+        "balance.1": "L",
+        "balance.2": "B",
+        "balance.3": "R",
+        "breast-cancer": 2,
+        "cmc.1": 1,
+        "cmc.2": 2,
+        "cmc.3": 3,
+        "ctg.1": 1,  # 1==Normal
+        "ctg.2": 2,  # 2==Suspect
+        "ctg.3": 3,  # 3==Pathologic
+        "german": 1,
+        "haberman": 2,
+        "ionosphere": "b",
+        "iris.1": "Iris-setosa",  # 1==Setosa
+        "iris.2": "Iris-versicolor",  # 2==Versicolor
+        "iris.3": "Iris-virginica",  # 3==Virginica
+        "mammographic": 1,
+        "pageblocks.5": 5,  # 5==block "graphic"
+        "semeion": 1,
+        "sonar": "R",
+        "spambase": 1,
+        "spectf": 0,
+        "tictactoe": "negative",
+        "transfusion": 1,
+        "wdbc": "M",
+        "wine.1": 1,
+        "wine.2": 2,
+        "wine.3": 3,
+        "wine-q-red": 1,
+        "wine-q-white": 1,
+        "yeast": "NUC",
     }
 
-    identifier = identifier_map[dataset_name]
-    filename = file_name.get(identifier, f'{identifier}.data')
-    descfile = desc_name.get(identifier, f'{identifier}.names')
-    fullname = dataset_fullname[dataset_name]
-
-    URL = f'http://archive.ics.uci.edu/ml/machine-learning-databases/{identifier}'
-    data_dir = join(data_home, 'uci_datasets', identifier)
-    if isinstance(filename, str):  # filename could be a list of files, in which case it will be processed later
-        data_path = join(data_dir, filename)
-        download_file_if_not_exists(f'{URL}/{filename}', data_path)
-
-    if descfile:
-        try:
-            download_file_if_not_exists(f'{URL}/{descfile}', f'{data_dir}/{descfile}')
-            if verbose:
-                print(open(f'{data_dir}/{descfile}', 'rt').read())
-        except Exception:
-            print('could not read the description file')
-    elif verbose:
-        print('no file description available')
+    identifier = identifiers.get(dataset_name, None)
+    dataset_group = groups[dataset_name]
+    fullname = full_names[dataset_name]
 
     if verbose:
-        print(f'Loading {dataset_name} ({fullname})')
-    if identifier == 'acute':
-        df = pd.read_csv(data_path, header=None, encoding='utf-16', sep='\t')
+        print(f"Loading UCI Binary {dataset_name} ({fullname})")
 
-        df[0] = df[0].apply(lambda x: float(x.replace(',', '.'))).astype(float, copy=False)
-        [_df_replace(df, col) for col in range(1, 6)]
-        X = df.loc[:, 0:5].values
-        if dataset_name == 'acute.a':
-            y = binarize(df[6], pos_class='yes')
-        elif dataset_name == 'acute.b':
-            y = binarize(df[7], pos_class='yes')
+    file = join(data_home, "uci_datasets", dataset_group + ".pkl")
 
-    if identifier == 'balance-scale':
-        df = pd.read_csv(data_path, header=None, sep=',')
-        if dataset_name == 'balance.1':
-            y = binarize(df[0], pos_class='L')
-        elif dataset_name == 'balance.2':
-            y = binarize(df[0], pos_class='B')
-        elif dataset_name == 'balance.3':
-            y = binarize(df[0], pos_class='R')
-        X = df.loc[:, 1:].astype(float).values
+    @contextmanager
+    def download_tmp_file(url_group: str, filename: str):
+        """
+        Download a data file for a group of datasets temporarely.
+        When used as a context, the file is removed once the context exits.
 
-    if identifier == 'breast-cancer-wisconsin' and dataset_name=='breast-cancer':
-        df = pd.read_csv(data_path, header=None, sep=',')
-        Xy = df.loc[:, 1:10]
-        Xy[Xy=='?']=np.nan
-        Xy = Xy.dropna(axis=0)
-        X = Xy.loc[:, 1:9]
-        X = X.astype(float).values
-        y = binarize(Xy[10], pos_class=2)
-
-    if identifier == 'breast-cancer-wisconsin' and dataset_name=='wdbc':
-        df = pd.read_csv(data_path, header=None, sep=',')
-        X = df.loc[:, 2:32].astype(float).values
-        y = df[1].values
-        y = binarize(y, pos_class='M')
-
-    if identifier == 'cmc':
-        df = pd.read_csv(data_path, header=None, sep=',')
-        X = df.loc[:, 0:8].astype(float).values
-        y = df[9].astype(int).values
-        if dataset_name == 'cmc.1':
-            y = binarize(y, pos_class=1)
-        elif dataset_name == 'cmc.2':
-            y = binarize(y, pos_class=2)
-        elif dataset_name == 'cmc.3':
-            y = binarize(y, pos_class=3)
-
-    if identifier == '00193':
-        df = pd.read_excel(data_path, sheet_name='Data', skipfooter=3)
-        df = df[list(range(1,24))] # select columns numbered (number 23 is the target label)
-        # replaces the header with the first row
-        new_header = df.iloc[0]  # grab the first row for the header
-        df = df[1:]  # take the data less the header row
-        df.columns = new_header  # set the header row as the df header
-        X = df.iloc[:, 0:22].astype(float).values
-        y = df['NSP'].astype(int).values
-        if dataset_name == 'ctg.1':
-            y = binarize(y, pos_class=1)  # 1==Normal
-        elif dataset_name == 'ctg.2':
-            y = binarize(y, pos_class=2)  # 2==Suspect
-        elif dataset_name == 'ctg.3':
-            y = binarize(y, pos_class=3)  # 3==Pathologic
-
-    if identifier == 'statlog/german':
-        df = pd.read_csv(data_path, header=None, delim_whitespace=True)
-        X = df.iloc[:, 0:24].astype(float).values
-        y = df[24].astype(int).values
-        y = binarize(y, pos_class=1)
-
-    if identifier == 'haberman':
-        df = pd.read_csv(data_path, header=None)
-        X = df.iloc[:, 0:3].astype(float).values
-        y = df[3].astype(int).values
-        y = binarize(y, pos_class=2)
-
-    if identifier == 'ionosphere':
-        df = pd.read_csv(data_path, header=None)
-        X = df.iloc[:, 0:34].astype(float).values
-        y = df[34].values
-        y = binarize(y, pos_class='b')
-
-    if identifier == 'iris':
-        df = pd.read_csv(data_path, header=None)
-        X = df.iloc[:, 0:4].astype(float).values
-        y = df[4].values
-        if dataset_name == 'iris.1':
-            y = binarize(y, pos_class='Iris-setosa')  # 1==Setosa
-        elif dataset_name == 'iris.2':
-            y = binarize(y, pos_class='Iris-versicolor')  # 2==Versicolor
-        elif dataset_name == 'iris.3':
-            y = binarize(y, pos_class='Iris-virginica')  # 3==Virginica
-
-    if identifier == 'mammographic-masses':
-        df = pd.read_csv(data_path, header=None, sep=',')
-        df[df == '?'] = np.nan
-        Xy = df.dropna(axis=0)
-        X = Xy.iloc[:, 0:5]
-        X = X.astype(float).values
-        y = binarize(Xy.iloc[:,5], pos_class=1)
-
-    if identifier == 'page-blocks':
-        data_path_ = data_path.replace('.Z', '')
-        if not os.path.exists(data_path_):
-            raise FileNotFoundError(f'Warning: file {data_path_} does not exist. If this is the first time you '
-                                    f'attempt to load this dataset, then you have to manually unzip the {data_path} '
-                                    f'and name the extracted file {data_path_} (unfortunately, neither zipfile, nor '
-                                    f'gzip can handle unix compressed files automatically -- there is a repo in GitHub '
-                                    f'https://github.com/umeat/unlzw where the problem seems to be solved anyway).')
-        df = pd.read_csv(data_path_, header=None, delim_whitespace=True)
-        X = df.iloc[:, 0:10].astype(float).values
-        y = df[10].values
-        y = binarize(y, pos_class=5)  # 5==block "graphic"
-
-    if identifier == 'semeion':
-        df = pd.read_csv(data_path, header=None, delim_whitespace=True )
-        X = df.iloc[:, 0:256].astype(float).values
-        y = df[263].values  # 263 stands for digit 8 (labels are one-hot vectors from col 256-266)
-        y = binarize(y, pos_class=1)
-
-    if identifier == 'undocumented/connectionist-bench/sonar':
-        df = pd.read_csv(data_path, header=None, sep=',')
-        X = df.iloc[:, 0:60].astype(float).values
-        y = df[60].values
-        y = binarize(y, pos_class='R')
-
-    if identifier == 'spambase':
-        df = pd.read_csv(data_path, header=None, sep=',')
-        X = df.iloc[:, 0:57].astype(float).values
-        y = df[57].values
-        y = binarize(y, pos_class=1)
-
-    if identifier == 'spect':
-        dfs = []
-        for file in filename:
-            data_path = join(data_dir, file)
-            download_file_if_not_exists(f'{URL}/{file}', data_path)
-            dfs.append(pd.read_csv(data_path, header=None, sep=','))
-        df = pd.concat(dfs)
-        X = df.iloc[:, 1:45].astype(float).values
-        y = df[0].values
-        y = binarize(y, pos_class=0)
-
-    if identifier == 'tic-tac-toe':
-        df = pd.read_csv(data_path, header=None, sep=',')
-        X = df.iloc[:, 0:9].replace('o',0).replace('b',1).replace('x',2).values
-        y = df[9].values
-        y = binarize(y, pos_class='negative')
-
-    if identifier == 'blood-transfusion':
-        df = pd.read_csv(data_path, sep=',')
-        X = df.iloc[:, 0:4].astype(float).values
-        y = df.iloc[:, 4].values
-        y = binarize(y, pos_class=1)
-
-    if identifier == 'wine':
-        df = pd.read_csv(data_path, header=None, sep=',')
-        X = df.iloc[:, 1:14].astype(float).values
-        y = df[0].values
-        if dataset_name == 'wine.1':
-            y = binarize(y, pos_class=1)
-        elif dataset_name == 'wine.2':
-            y = binarize(y, pos_class=2)
-        elif dataset_name == 'wine.3':
-            y = binarize(y, pos_class=3)
-
-    if identifier == 'wine-quality':
-        filename = filename[0] if dataset_name=='wine-q-red' else filename[1]
+        :param url_group: identifier of the dataset group in the URL
+        :param filename: name of the file to be downloaded
+        """
+        data_dir = join(data_home, "uci_datasets", "tmp")
+        os.makedirs(data_dir, exist_ok=True)
         data_path = join(data_dir, filename)
-        download_file_if_not_exists(f'{URL}/{filename}', data_path)
-        df = pd.read_csv(data_path, sep=';')
-        X = df.iloc[:, 0:11].astype(float).values
-        y = df.iloc[:, 11].values > 5
+        url = f"http://archive.ics.uci.edu/ml/machine-learning-databases/{url_group}/{filename}"
+        download_file_if_not_exists(url, data_path)
+        try:
+            yield data_path
+        finally:
+            os.remove(data_path)
 
-    if identifier == 'yeast':
-        df = pd.read_csv(data_path, header=None, delim_whitespace=True)
-        X = df.iloc[:, 1:9].astype(float).values
-        y = df.iloc[:, 9].values
-        y = binarize(y, pos_class='NUC')
+    def download(id: int | None, group: str) -> dict:
+        """
+        Download the data to be pickled for a dataset group. Use the `fetch_ucirepo` api when possible.
 
-    data = LabelledCollection(X, y)
+        :param id: numeric identifier for the group; can be None
+        :param group: group name
+        :return: a dictionary with X and y as keys and, optionally, extra data.
+        """
+
+        # use the fetch_ucirepo api, when possible, to download data
+        # fall back to direct download when needed
+        if group == "german":
+            with download_tmp_file("statlog/german", "german.data-numeric") as tmp:
+                df = pd.read_csv(tmp, header=None, delim_whitespace=True)
+            X, y = df.iloc[:, 0:24].astype(float).values, df[24].astype(int).values
+        elif group == "ctg":
+            with download_tmp_file("00193", "CTG.xls") as tmp:
+                df = pd.read_excel(tmp, sheet_name="Data", skipfooter=3)
+            df = df[list(range(1, 24))]  # select columns numbered (number 23 is the target label)
+            # replaces the header with the first row
+            new_header = df.iloc[0]  # grab the first row for the header
+            df = df[1:]  # take the data less the header row
+            df.columns = new_header  # set the header row as the df header
+            X = df.iloc[:, 0:21].astype(float).values  # column 21 is skipped, it is a class column
+            y = df["NSP"].astype(int).values
+        elif group == "semeion":
+            with download_tmp_file("semeion", "semeion.data") as tmp:
+                df = pd.read_csv(tmp, header=None, delim_whitespace=True)
+            X = df.iloc[:, 0:256].astype(float).values
+            y = df[263].values  # 263 stands for digit 8 (labels are one-hot vectors from col 256-266)
+        else:
+            df = fetch_ucirepo(id=id)
+            X, y = df.data.features.to_numpy(), df.data.targets.to_numpy().squeeze()
+
+        # transform data when needed before returning (returned data will be pickled)
+        if group == "acute":
+            _array_replace(X)
+            data = {"X": X, "y": y}
+        elif group == "balance":
+            # features' order is reversed to match data retrieved via direct download
+            X = X[:, np.arange(X.shape[1])[::-1]]
+            data = {"X": X, "y": y}
+        elif group == "breast-cancer":
+            # remove rows with nan values
+            Xy = np.hstack([X, y[:, np.newaxis]])
+            nan_rows = np.isnan(Xy).sum(axis=-1) > 0
+            Xy = Xy[~nan_rows]
+            data = {"X": Xy[:, :-1], "y": Xy[:, -1]}
+        elif group == "mammographic":
+            # remove rows with nan values
+            Xy = np.hstack([X, y[:, np.newaxis]])
+            nan_rows = np.isnan(Xy).sum(axis=-1) > 0
+            Xy = Xy[~nan_rows]
+            data = {"X": Xy[:, :-1], "y": Xy[:, -1]}
+        elif group == "tictactoe":
+            _array_replace(X, repl={"o": 0, "b": 1, "x": 2})
+            data = {"X": X, "y": y}
+        elif group == "wine-quality":
+            # add color data to split the final datasets
+            color = df.data.original["color"].to_numpy()
+            data = {"X": X, "y": y, "color": color}
+        else:
+            data = {"X": X, "y": y}
+
+        return data
+
+    def binarize_data(name, data: dict) -> LabelledCollection:
+        """
+        Filter and transform data to extract a binary dataset.
+
+        :param name: name of the dataset
+        :param data: dictionary containing X and y fields, plus additional data when needed
+        :return: a :class:`quapy.data.base.LabelledCollection` with the extracted dataset
+        """
+        if name == "acute.a":
+            X, y = data["X"], data["y"][:, 0]
+            # X, y = Xy[:, :-2], Xy[:, -2]
+        elif name == "acute.b":
+            X, y = data["X"], data["y"][:, 1]
+            # X, y = Xy[:, :-2], Xy[:, -1]
+        elif name == "wine-q-red":
+            X, y, color = data["X"], data["y"], data["color"]
+            # X, y, color = Xy[:, :-2], Xy[:, -2], Xy[:, -1]
+            red_idx = color == "red"
+            X, y = X[red_idx, :], y[red_idx]
+            y = (y > 5).astype(int)
+        elif name == "wine-q-white":
+            X, y, color = data["X"], data["y"], data["color"]
+            # X, y, color = Xy[:, :-2], Xy[:, -2], Xy[:, -1]
+            white_idx = color == "white"
+            X, y = X[white_idx, :], y[white_idx]
+            y = (y > 5).astype(int)
+        else:
+            X, y = data["X"], data["y"]
+            # X, y = Xy[:, :-1], Xy[:, -1]
+
+        y = binarize(y, pos_class=pos_class[name])
+
+        return LabelledCollection(X, y)
+
+    data = pickled_resource(file, download, identifier, dataset_group)
+    data = binarize_data(dataset_name, data)
+
     if verbose:
         data.stats()
+
     return data
 
 
@@ -671,7 +647,6 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
     :param dataset_name: a dataset name
     :param data_home: specify the quapy home directory where the dataset will be dumped (leave empty to use the default
         ~/quay_data/ directory)
-    :param test_split: proportion of instances to be included in the test set. The rest conforms the training set
     :param min_class_support: minimum number of istances per class. Classes with fewer instances
         are discarded (deafult is 100)
     :param verbose: set to True (default is False) to get information (stats) about the dataset
@@ -760,6 +735,8 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         return LabelledCollection(X, y)
 
     def filter_classes(data: LabelledCollection, min_ipc):
+        if min_ipc is None:
+            min_ipc = 0
         classes = data.classes_
         # restrict classes to only those with at least min_ipc instances
         classes = classes[data.counts() >= min_ipc]
@@ -788,6 +765,11 @@ def _df_replace(df, col, repl={'yes': 1, 'no':0}, astype=float):
     df[col] = df[col].apply(lambda x:repl[x]).astype(astype, copy=False)
 
 
+def _array_replace(arr, repl={"yes": 1, "no": 0}):
+    for k, v in repl.items():
+        arr[arr == k] = v
+
+
 def fetch_lequa2022(task, data_home=None):
     """
     Loads the official datasets provided for the `LeQua <https://lequa2022.github.io/index>`_ competition.
@@ -804,7 +786,6 @@ def fetch_lequa2022(task, data_home=None):
 
     See `4.lequa2022_experiments.py` provided in the example folder, that can serve as a guide on how to use these
     datasets.
-
 
     :param task: a string representing the task name; valid ones are T1A, T1B, T2A, and T2B
     :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
