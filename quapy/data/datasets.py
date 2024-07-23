@@ -9,7 +9,8 @@ from os.path import join
 import pandas as pd
 from ucimlrepo import fetch_ucirepo
 from quapy.data.base import Dataset, LabelledCollection
-from quapy.data.preprocessing import text2tfidf, reduce_columns, standardize
+from quapy.data.preprocessing import text2tfidf, reduce_columns
+from quapy.data.preprocessing import standardize as standardizer
 from quapy.data.reader import *
 from quapy.util import download_file_if_not_exists, download_file, get_quapy_home, pickled_resource
 from sklearn.preprocessing import StandardScaler
@@ -260,7 +261,7 @@ def fetch_UCIBinaryDataset(dataset_name, data_home=None, test_split=0.3, standar
     data = fetch_UCIBinaryLabelledCollection(dataset_name, data_home, verbose)
     dataset = Dataset(*data.split_stratified(1 - test_split, random_state=0), name=dataset_name)
     if standardize:
-        dataset = standardize(dataset)
+        dataset = standardizer(dataset)
     return dataset
 
 
@@ -643,7 +644,7 @@ def fetch_UCIMulticlassDataset(
     data = Dataset(*data.split_stratified(train_prop, random_state=0))
     
     if standardize:
-        data = standardize(data)
+        data = standardizer(data)
     
     return data
 
