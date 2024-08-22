@@ -5,6 +5,11 @@ Change Log 0.1.9
 - [TODO] add Friedman's method and DeBias
 - [TODO] check ignore warning stuff (check https://docs.python.org/3/library/warnings.html#temporarily-suppressing-warnings)
 
+- Added LeQua 2024 datasets and normalized match distance to qp.error
+
+- Improved data loaders for UCI binary and UCI multiclass datasets (thanks to Lorenzo Volpi!); these datasets
+    can be loaded with standardised covariates (default)
+
 - Added a default classifier for aggregative quantifiers, which now can be instantiated without specifying
     the classifier. The default classifier can be accessed in qp.environ['DEFAULT_CLS'] and is assigned to
     sklearn.linear_model.LogisticRegression(max_iter=3000). If the classifier is not specified, then a clone
