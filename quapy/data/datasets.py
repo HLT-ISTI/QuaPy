@@ -1,7 +1,3 @@
-def warn(*args, **kwargs):
-    pass
-import warnings
-warnings.warn = warn
 import os
 from contextlib import contextmanager
 import zipfile

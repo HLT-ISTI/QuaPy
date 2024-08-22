@@ -1,4 +1,3 @@
-import itertools
 import warnings
 from collections import defaultdict
 from typing import Literal, Union, Callable
