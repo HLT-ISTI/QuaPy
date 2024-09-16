@@ -1,9 +1,5 @@
 Change Log 0.1.9
 ----------------
-- [TODO] add LeQua2024 and normalized match distance to qp.error
-- [TODO] add CDE-iteration and Bayes-CDE methods
-- [TODO] add Friedman's method and DeBias
-- [TODO] check ignore warning stuff (check https://docs.python.org/3/library/warnings.html#temporarily-suppressing-warnings)
 
 - Added LeQua 2024 datasets and normalized match distance to qp.error
 
