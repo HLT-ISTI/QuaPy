@@ -20,9 +20,9 @@ jobs:
     env:
       QUAPY_TESTS_OMIT_LARGE_DATASETS: True
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -38,15 +38,17 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     steps:
-    - uses: actions/checkout@v1
-    - name: Build documentation
-      uses: ammaraskar/sphinx-action@master
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        pre-build-command: |
-          apt-get --allow-releaseinfo-change update -y && apt-get install -y git && git --version
-          python -m pip install --upgrade pip setuptools wheel "jax[cpu]"
-          python -m pip install -e .[composable,neural,docs]
-        docs-folder: "docs/"
+        python-version: 3.11
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools wheel "jax[cpu]"
+        python -m pip install -e .[composable,neural,docs]
+    - name: Build documentation
+      run: sphinx-build -M html docs/source docs/build
     - name: Publish documentation
       run: |
         git clone ${{ github.server_url }}/${{ github.repository }}.git --branch gh-pages --single-branch __gh-pages/
