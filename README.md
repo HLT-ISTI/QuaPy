@@ -14,7 +14,7 @@ for facilitating the analysis and interpretation of the experimental results.
 ### Last updates:
 
 * Version 0.1.9 is released! major changes can be consulted [here](CHANGE_LOG.txt).
-* The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/modules.html)
+* The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/index.html)
 
 ### Installation
 
@@ -67,7 +67,8 @@ class prevalence of the training set. For this reason, any quantification model
 should be tested across many samples, even ones characterized by class prevalence 
 values different or very different from those found in the training set.
 QuaPy implements sampling procedures and evaluation protocols that automate this workflow.
-See the [documentation](https://hlt-isti.github.io/QuaPy/build/html/) for detailed examples.
+See the [documentation](https://hlt-isti.github.io/QuaPy/manuals/protocols.html) 
+and the [examples directory](https://github.com/HLT-ISTI/QuaPy/tree/master/examples) for detailed examples.
 
 ## Features
 
@@ -100,18 +101,18 @@ In case you want to contribute improvements to quapy, please generate pull reque
   
 ## Documentation
 
-The [developer API documentation](https://hlt-isti.github.io/QuaPy/build/html/modules.html) is available [here](https://hlt-isti.github.io/QuaPy/build/html/index.html). 
+The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/). 
 
-Check out our [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki), in which many examples
+Check out our [Wiki](https://hlt-isti.github.io/QuaPy/manuals.html), in which many examples
 are provided:
 
-* [Datasets](https://github.com/HLT-ISTI/QuaPy/wiki/Datasets)
-* [Evaluation](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation)
-* [Protocols](https://github.com/HLT-ISTI/QuaPy/wiki/Protocols)
-* [Methods](https://github.com/HLT-ISTI/QuaPy/wiki/Methods)
-* [SVMperf](https://github.com/HLT-ISTI/QuaPy/wiki/ExplicitLossMinimization)
-* [Model Selection](https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection)
-* [Plotting](https://github.com/HLT-ISTI/QuaPy/wiki/Plotting)
+* [Datasets](https://hlt-isti.github.io/QuaPy/manuals/datasets.html)
+* [Evaluation](https://hlt-isti.github.io/QuaPy/manuals/evaluation.html)
+* [Explicit loss minimization](https://hlt-isti.github.io/QuaPy/manuals/explicit-loss-minimization.html)
+* [Methods](https://hlt-isti.github.io/QuaPy/manuals/methods.html)
+* [Model Selection](https://hlt-isti.github.io/QuaPy/manuals/datasets.html)
+* [Plotting](https://hlt-isti.github.io/QuaPy/manuals/plotting.html)
+* [Protocols](https://hlt-isti.github.io/QuaPy/manuals/protocols.html)
 
 ## Acknowledgments:
 

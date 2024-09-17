@@ -160,7 +160,7 @@ setup(
         'Contributors': 'https://github.com/HLT-ISTI/QuaPy/graphs/contributors',
         'Bug Reports': 'https://github.com/HLT-ISTI/QuaPy/issues',
         'Wiki': 'https://github.com/HLT-ISTI/QuaPy/wiki',
-        'Documentation': 'https://hlt-isti.github.io/QuaPy/build/html/index.html',
+        'Documentation': 'https://hlt-isti.github.io/QuaPy/',
         'Source': 'https://github.com/HLT-ISTI/QuaPy/',
     },
 )
