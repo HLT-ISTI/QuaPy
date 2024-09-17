@@ -1,45 +1,57 @@
 """This module allows the composition of quantification methods from loss functions and feature transformations. This functionality is realized through an integration of the qunfold package: https://github.com/mirkobunse/qunfold."""
 
-import qunfold
-from qunfold.quapy import QuaPyWrapper
-from qunfold.sklearn import CVClassifier
-from qunfold import (
-    LeastSquaresLoss, # losses
-    BlobelLoss,
-    EnergyLoss,
-    HellingerSurrogateLoss,
-    CombinedLoss,
-    TikhonovRegularization,
-    TikhonovRegularized,
-    ClassTransformer, # transformers
-    HistogramTransformer,
-    DistanceTransformer,
-    KernelTransformer,
-    EnergyKernelTransformer,
-    LaplacianKernelTransformer,
-    GaussianKernelTransformer,
-    GaussianRFFKernelTransformer,
-)
+_import_error_message = """qunfold, the back-end of quapy.method.composable, is not properly installed.
 
-__all__ = [ # control public members, e.g., for auto-documentation in sphinx; omit QuaPyWrapper
-    "ComposableQuantifier",
-    "CVClassifier",
-    "LeastSquaresLoss",
-    "BlobelLoss",
-    "EnergyLoss",
-    "HellingerSurrogateLoss",
-    "CombinedLoss",
-    "TikhonovRegularization",
-    "TikhonovRegularized",
-    "ClassTransformer",
-    "HistogramTransformer",
-    "DistanceTransformer",
-    "KernelTransformer",
-    "EnergyKernelTransformer",
-    "LaplacianKernelTransformer",
-    "GaussianKernelTransformer",
-    "GaussianRFFKernelTransformer",
-]
+To fix this error, call:
+
+    pip install --upgrade pip setuptools wheel
+    pip install "jax[cpu]"
+    pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4"
+"""
+
+try:
+    import qunfold
+    from qunfold.quapy import QuaPyWrapper
+    from qunfold.sklearn import CVClassifier
+    from qunfold import (
+        LeastSquaresLoss, # losses
+        BlobelLoss,
+        EnergyLoss,
+        HellingerSurrogateLoss,
+        CombinedLoss,
+        TikhonovRegularization,
+        TikhonovRegularized,
+        ClassTransformer, # transformers
+        HistogramTransformer,
+        DistanceTransformer,
+        KernelTransformer,
+        EnergyKernelTransformer,
+        LaplacianKernelTransformer,
+        GaussianKernelTransformer,
+        GaussianRFFKernelTransformer,
+    )
+
+    __all__ = [ # control public members, e.g., for auto-documentation in sphinx; omit QuaPyWrapper
+        "ComposableQuantifier",
+        "CVClassifier",
+        "LeastSquaresLoss",
+        "BlobelLoss",
+        "EnergyLoss",
+        "HellingerSurrogateLoss",
+        "CombinedLoss",
+        "TikhonovRegularization",
+        "TikhonovRegularized",
+        "ClassTransformer",
+        "HistogramTransformer",
+        "DistanceTransformer",
+        "KernelTransformer",
+        "EnergyKernelTransformer",
+        "LaplacianKernelTransformer",
+        "GaussianKernelTransformer",
+        "GaussianRFFKernelTransformer",
+    ]
+except ImportError as e:
+    raise ImportError(_import_error_message) from e
 
 def ComposableQuantifier(loss, transformer, **kwargs):
     """A generic quantification / unfolding method that solves a linear system of equations.
