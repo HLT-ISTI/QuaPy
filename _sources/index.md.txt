@@ -24,19 +24,18 @@ The following script fetches a dataset of tweets, trains, applies, and evaluates
 
 ```python
 import quapy as qp
-from sklearn.linear_model import LogisticRegression
 
-dataset = qp.datasets.fetch_twitter('semeval16')
+dataset = qp.datasets.fetch_UCIBinaryDataset("yeast")
+training, test = dataset.train_test
 
 # create an "Adjusted Classify & Count" quantifier
-model = qp.method.aggregative.ACC(LogisticRegression())
-model.fit(dataset.training)
+model = qp.method.aggregative.ACC()
+model.fit(training)
 
-estim_prevalence = model.quantify(dataset.test.instances)
-true_prevalence  = dataset.test.prevalence()
+estim_prevalence = model.quantify(test.X)
+true_prevalence  = test.prevalence()
 
 error = qp.error.mae(true_prevalence, estim_prevalence)
-
 print(f'Mean Absolute Error (MAE)={error:.3f}')
 ```
 
