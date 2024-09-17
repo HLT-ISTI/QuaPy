@@ -78,46 +78,58 @@
   <h1>Source code for quapy.method.composable</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;This module allows the composition of quantification methods from loss functions and feature transformations. This functionality is realized through an integration of the qunfold package: https://github.com/mirkobunse/qunfold.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">qunfold</span>
-<span class="kn">from</span> <span class="nn">qunfold.quapy</span> <span class="kn">import</span> <span class="n">QuaPyWrapper</span>
-<span class="kn">from</span> <span class="nn">qunfold.sklearn</span> <span class="kn">import</span> <span class="n">CVClassifier</span>
-<span class="kn">from</span> <span class="nn">qunfold</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">LeastSquaresLoss</span><span class="p">,</span> <span class="c1"># losses</span>
-    <span class="n">BlobelLoss</span><span class="p">,</span>
-    <span class="n">EnergyLoss</span><span class="p">,</span>
-    <span class="n">HellingerSurrogateLoss</span><span class="p">,</span>
-    <span class="n">CombinedLoss</span><span class="p">,</span>
-    <span class="n">TikhonovRegularization</span><span class="p">,</span>
-    <span class="n">TikhonovRegularized</span><span class="p">,</span>
-    <span class="n">ClassTransformer</span><span class="p">,</span> <span class="c1"># transformers</span>
-    <span class="n">HistogramTransformer</span><span class="p">,</span>
-    <span class="n">DistanceTransformer</span><span class="p">,</span>
-    <span class="n">KernelTransformer</span><span class="p">,</span>
-    <span class="n">EnergyKernelTransformer</span><span class="p">,</span>
-    <span class="n">LaplacianKernelTransformer</span><span class="p">,</span>
-    <span class="n">GaussianKernelTransformer</span><span class="p">,</span>
-    <span class="n">GaussianRFFKernelTransformer</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="n">_import_error_message</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;qunfold, the back-end of quapy.method.composable, is not properly installed.</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="c1"># control public members, e.g., for auto-documentation in sphinx; omit QuaPyWrapper</span>
-    <span class="s2">&quot;ComposableQuantifier&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CVClassifier&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;LeastSquaresLoss&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;BlobelLoss&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EnergyLoss&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;HellingerSurrogateLoss&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;CombinedLoss&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;TikhonovRegularization&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;TikhonovRegularized&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;ClassTransformer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;HistogramTransformer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;DistanceTransformer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;KernelTransformer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;EnergyKernelTransformer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;LaplacianKernelTransformer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;GaussianKernelTransformer&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;GaussianRFFKernelTransformer&quot;</span><span class="p">,</span>
-<span class="p">]</span>
+<span class="s2">To fix this error, call:</span>
+
+<span class="s2">    pip install --upgrade pip setuptools wheel</span>
+<span class="s2">    pip install &quot;jax[cpu]&quot;</span>
+<span class="s2">    pip install &quot;qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4&quot;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">qunfold</span>
+    <span class="kn">from</span> <span class="nn">qunfold.quapy</span> <span class="kn">import</span> <span class="n">QuaPyWrapper</span>
+    <span class="kn">from</span> <span class="nn">qunfold.sklearn</span> <span class="kn">import</span> <span class="n">CVClassifier</span>
+    <span class="kn">from</span> <span class="nn">qunfold</span> <span class="kn">import</span> <span class="p">(</span>
+        <span class="n">LeastSquaresLoss</span><span class="p">,</span> <span class="c1"># losses</span>
+        <span class="n">BlobelLoss</span><span class="p">,</span>
+        <span class="n">EnergyLoss</span><span class="p">,</span>
+        <span class="n">HellingerSurrogateLoss</span><span class="p">,</span>
+        <span class="n">CombinedLoss</span><span class="p">,</span>
+        <span class="n">TikhonovRegularization</span><span class="p">,</span>
+        <span class="n">TikhonovRegularized</span><span class="p">,</span>
+        <span class="n">ClassTransformer</span><span class="p">,</span> <span class="c1"># transformers</span>
+        <span class="n">HistogramTransformer</span><span class="p">,</span>
+        <span class="n">DistanceTransformer</span><span class="p">,</span>
+        <span class="n">KernelTransformer</span><span class="p">,</span>
+        <span class="n">EnergyKernelTransformer</span><span class="p">,</span>
+        <span class="n">LaplacianKernelTransformer</span><span class="p">,</span>
+        <span class="n">GaussianKernelTransformer</span><span class="p">,</span>
+        <span class="n">GaussianRFFKernelTransformer</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="c1"># control public members, e.g., for auto-documentation in sphinx; omit QuaPyWrapper</span>
+        <span class="s2">&quot;ComposableQuantifier&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CVClassifier&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LeastSquaresLoss&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;BlobelLoss&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EnergyLoss&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HellingerSurrogateLoss&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CombinedLoss&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TikhonovRegularization&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TikhonovRegularized&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ClassTransformer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;HistogramTransformer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;DistanceTransformer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;KernelTransformer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;EnergyKernelTransformer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LaplacianKernelTransformer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GaussianKernelTransformer&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GaussianRFFKernelTransformer&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">_import_error_message</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
 
 <div class="viewcode-block" id="ComposableQuantifier">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.composable.ComposableQuantifier">[docs]</a>
