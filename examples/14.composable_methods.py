@@ -2,6 +2,13 @@
 This example illustrates the composition of quantification methods from
 arbitrary loss functions and feature transformations. It will extend the basic
 example on the usage of quapy with this composition.
+
+This example requires the installation of qunfold, the back-end of QuaPy's
+composition module:
+
+    pip install --upgrade pip setuptools wheel
+    pip install "jax[cpu]"
+    pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4"
 """
 
 import numpy as np

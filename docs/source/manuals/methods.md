@@ -447,7 +447,7 @@ The [](quapy.method.composable) module allows the composition of quantification 
 ```sh
 pip install --upgrade pip setuptools wheel
 pip install "jax[cpu]"
-pip install quapy[composable]
+pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4"
 ```
 
 ### Basics
