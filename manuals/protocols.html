@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>7. Protocols &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="quapy package" href="../quapy.html" />
+    <link rel="prev" title="6. Plotting" href="plotting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Quickstart</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../manuals.html">Manuals</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="datasets.html">1. Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluation.html">2. Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explicit-loss-minimization.html">3. Explicit Loss Minimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="methods.html">4. Quantification Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model-selection.html">5. Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">6. Plotting</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">7. Protocols</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#artificial-prevalence-protocol">7.1. Artificial-Prevalence Protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sampling-from-the-unit-simplex-the-uniform-prevalence-protocol-upp">7.2. Sampling from the unit-simplex, the Uniform-Prevalence Protocol (UPP)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#natural-prevalence-protocol">7.3. Natural-Prevalence Protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other-protocols">7.4. Other protocols</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../manuals.html">Manuals</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">7. </span>Protocols</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manuals/protocols.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="protocols">
+<h1><span class="section-number">7. </span>Protocols<a class="headerlink" href="#protocols" title="Link to this heading"></a></h1>
+<p><em>New in v0.1.7!</em></p>
+<p>Quantification methods are expected to behave robustly in the presence of
+shift. For this reason, quantification methods need to be confronted with
+samples exhibiting widely varying amounts of shift.
+<em>Protocols</em> implement specific ways for generating such samples.</p>
+<p>In QuaPy, a protocol is an instance of <em>AbstractProtocol</em> implementing a
+<em>call</em> method that returns a generator yielding a tuple <em>(sample, prev)</em>
+every time. The protocol can also implement the function <em>total()</em> informing
+of the number of total samples that the protocol generates.</p>
+<p>Protocols can inherit from <em>AbstractStochasticSeededProtocol</em>, the class of
+protocols that generate samples stochastically, but that can be set with
+a seed in order to allow for replicating the exact same samples. This is important
+for evaluation purposes, since we typically require all our methods be evaluated
+on the exact same test samples in order to allow for a fair comparison.
+Indeed, the seed is set by default to 0, since this is the most commonly
+desired behaviour. Indicate <em>radom_state=None</em> for allowing different sequences of samples to be
+generated every time the protocol is invoked.</p>
+<p>Protocols that also inherit from <em>OnLabelledCollectionProtocol</em> are such that
+samples are generated from a <em>LabelledCollection</em> object (e.g., a test collection,
+or a validation collection). These protocols also allow for generating sequences of
+<em>LabelledCollection</em> instead of <em>(sample, prev)</em> by indicating
+<em>return_type=’labelled_collection’</em> instead of the default value <em>return_type=’sample_prev’</em>.</p>
+<p>For a more technical explanation on <em>AbstractStochasticSeededProtocol</em> and
+<em>OnLabelledCollectionProtocol</em>, see the “custom_protocol.py” provided in the
+example folder.</p>
+<p>QuaPy provides implementations of most popular sample generation protocols
+used in literature. This is the subject of the following sections.</p>
+<section id="artificial-prevalence-protocol">
+<h2><span class="section-number">7.1. </span>Artificial-Prevalence Protocol<a class="headerlink" href="#artificial-prevalence-protocol" title="Link to this heading"></a></h2>
+<p>The “artificial-sampling protocol” (APP) proposed by
+<a class="reference external" href="https://link.springer.com/chapter/10.1007/11564096_55">Forman (2005)</a>
+is likely the most popular protocol used for quantification evaluation.
+In APP, a test set is used to generate samples at
+desired prevalence values covering the full spectrum.</p>
+<p>In APP, the user specifies the number
+of (equally distant) points to be generated from the interval [0,1];
+in QuaPy this is achieved by setting <em>n_prevpoints</em>.
+For example, if <em>n_prevpoints=11</em> then, for each class, the prevalence values
+[0., 0.1, 0.2, …, 1.] will be used. This means that, for two classes,
+the number of different prevalence values will be 11 (since, once the prevalence
+of one class is determined, the other one is constrained). For 3 classes,
+the number of valid combinations can be obtained as 11 + 10 + … + 1 = 66.
+In general, the number of valid combinations that will be produced for a given
+value of n_prevpoints can be consulted by invoking
+<em>num_prevalence_combinations</em>, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="n">n_prevpoints</span> <span class="o">=</span> <span class="mi">21</span>
+<span class="n">n_classes</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>in this example, <em>n=1771</em>. Note the last argument, <em>n_repeats</em>, that
+informs of the number of examples that will be generated for any
+valid combination (typical values are, e.g., 1 for a single sample,
+or 10 or higher for computing standard deviations of performing statistical
+significance tests).</p>
+<p>One can instead work the other way around, i.e., one could decide for a
+maximum budged of evaluations and get the number of prevalence points that
+will give rise to a number of evaluations close, but not higher, than
+this budget. This can be achieved with the function
+<em>get_nprevpoints_approximation</em>, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">budget</span> <span class="o">=</span> <span class="mi">5000</span>
+<span class="n">n_prevpoints</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">get_nprevpoints_approximation</span><span class="p">(</span><span class="n">budget</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;by setting n_prevpoints=</span><span class="si">{</span><span class="n">n_prevpoints</span><span class="si">}</span><span class="s1"> the number of evaluations for </span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s1"> classes will be </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>this will produce the following output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">by</span> <span class="n">setting</span> <span class="n">n_prevpoints</span><span class="o">=</span><span class="mi">30</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span> <span class="n">evaluations</span> <span class="k">for</span> <span class="mi">4</span> <span class="n">classes</span> <span class="n">will</span> <span class="n">be</span> <span class="mi">4960</span>
+</pre></div>
+</div>
+<p>The following code shows an example of usage of APP for model selection
+and evaluation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">ACC</span>
+<span class="kn">from</span> <span class="nn">quapy.protocol</span> <span class="kn">import</span> <span class="n">APP</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;N_JOBS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+<span class="c1"># define an instance of our custom quantifier</span>
+<span class="n">quantifier</span> <span class="o">=</span> <span class="n">ACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
+
+<span class="c1"># load the IMDb dataset</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;imdb&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+
+<span class="c1"># model selection</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">train_prop</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+<span class="n">quantifier</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">GridSearchQ</span><span class="p">(</span>
+    <span class="n">quantifier</span><span class="p">,</span> 
+    <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)},</span> 
+    <span class="n">protocol</span><span class="o">=</span><span class="n">APP</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>  <span class="c1"># &lt;- this is the protocol we use for generating validation samples</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+
+<span class="c1"># default values are n_prevalences=21, repeats=10, random_state=0; this is equialent to:</span>
+<span class="c1"># val_app = APP(val, n_prevalences=21, repeats=10, random_state=0)</span>
+<span class="c1"># quantifier = GridSearchQ(quantifier, param_grid, protocol=val_app).fit(train)</span>
+
+<span class="c1"># evaluation with APP</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">),</span> <span class="n">error_metric</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;MAE = </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that APP is an instance of <em>AbstractStochasticSeededProtocol</em> and that the
+<em>random_state</em> is by default set to 0, meaning that all the generated validation
+samples will be consistent for all the combinations of hyperparameters being tested.
+Note also that the <em>sample_size</em> is not indicated when instantiating the protocol;
+in such cases QuaPy takes the value of <em>qp.environ[‘SAMPLE_SIZE’]</em>.</p>
+<p>This protocol is useful for testing a quantifier under conditions of
+<em>prior probability shift</em>.</p>
+</section>
+<section id="sampling-from-the-unit-simplex-the-uniform-prevalence-protocol-upp">
+<h2><span class="section-number">7.2. </span>Sampling from the unit-simplex, the Uniform-Prevalence Protocol (UPP)<a class="headerlink" href="#sampling-from-the-unit-simplex-the-uniform-prevalence-protocol-upp" title="Link to this heading"></a></h2>
+<p>Generating all possible combinations from a grid of prevalence values (APP) in
+multiclass is cumbersome, and when the number of classes increases it rapidly
+becomes impractical. In some cases, it is preferable to generate a fixed number
+of samples displaying prevalence values that are uniformly drawn from the unit-simplex,
+that is, so that every legitimate distribution is equally likely. The main drawback
+of this approach is that we are not guaranteed that all classes have been tested
+in the entire range of prevalence values. The main advantage is that every possible
+prevalence value is electable (this was not possible with standard APP, since values
+not included in the grid are never tested). Yet another advantage is that we can
+control the computational burden every evaluation incurs, by deciding in advance
+the number of samples to generate.</p>
+<p>The UPP protocol implements this idea by relying on the Kraemer algorithm
+for sampling from the unit-simplex as many vectors of prevalence values as indicated
+in the <em>repeats</em> parameter. UPP can be instantiated as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">protocol</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">in_protocol</span><span class="o">.</span><span class="n">UPP</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is the most convenient protocol for datasets
+containing many classes; see, e.g.,
+<a class="reference external" href="https://ceur-ws.org/Vol-3180/paper-146.pdf">LeQua (2022)</a>,
+and is useful for testing a quantifier under conditions of
+<em>prior probability shift</em>.</p>
+</section>
+<section id="natural-prevalence-protocol">
+<h2><span class="section-number">7.3. </span>Natural-Prevalence Protocol<a class="headerlink" href="#natural-prevalence-protocol" title="Link to this heading"></a></h2>
+<p>The “natural-prevalence protocol” (NPP) comes down to generating samples drawn
+uniformly at random from the original labelled collection. This protocol has
+sometimes been used in literature, although it is now considered to be deprecated,
+due to its limited capability to generate interesting amounts of shift.
+All other things being equal, this protocol can be used just like APP or UPP,
+and is instantiated via:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">protocol</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">in_protocol</span><span class="o">.</span><span class="n">NPP</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="other-protocols">
+<h2><span class="section-number">7.4. </span>Other protocols<a class="headerlink" href="#other-protocols" title="Link to this heading"></a></h2>
+<p>Other protocols exist in QuaPy and will be added to the <code class="docutils literal notranslate"><span class="pre">qp.protocol.py</span></code> module.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="plotting.html" class="btn btn-neutral float-left" title="6. Plotting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../quapy.html" class="btn btn-neutral float-right" title="quapy package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

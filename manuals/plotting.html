@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6. Plotting &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="7. Protocols" href="protocols.html" />
+    <link rel="prev" title="5. Model Selection" href="model-selection.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Quickstart</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../manuals.html">Manuals</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="datasets.html">1. Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluation.html">2. Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explicit-loss-minimization.html">3. Explicit Loss Minimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="methods.html">4. Quantification Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model-selection.html">5. Model Selection</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">6. Plotting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#diagonal-plot">6.1. Diagonal Plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quantification-bias">6.2. Quantification bias</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-by-drift">6.3. Error by Drift</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html">7. Protocols</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../manuals.html">Manuals</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">6. </span>Plotting</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manuals/plotting.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="plotting">
+<h1><span class="section-number">6. </span>Plotting<a class="headerlink" href="#plotting" title="Link to this heading"></a></h1>
+<p>The module <em>qp.plot</em> implements some basic plotting functions
+that can help analyse the performance of a quantification method.</p>
+<p>All plotting functions receive as inputs the outcomes of
+some experiments and include, for each experiment,
+the following three main arguments:</p>
+<ul class="simple">
+<li><p><em>method_names</em> a list containing the names of the quantification methods</p></li>
+<li><p><em>true_prevs</em> a list containing matrices of true prevalences</p></li>
+<li><p><em>estim_prevs</em> a list containing matrices of estimated prevalences
+(should be of the same shape as the corresponding matrix in <em>true_prevs</em>)</p></li>
+</ul>
+<p>Note that a method (as indicated by a name in <em>method_names</em>) can
+appear more than once. This could occur when various datasets are
+involved in the experiments. In this case, all experiments for the
+method will be merged and the plot will represent the method’s
+performance across various datasets.</p>
+<p>This is a very simple example of a valid input for the plotting functions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">method_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;classify &amp; count&#39;</span><span class="p">,</span> <span class="s1">&#39;EMQ&#39;</span><span class="p">,</span> <span class="s1">&#39;classify &amp; count&#39;</span><span class="p">]</span>
+<span class="n">true_prevs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">]]),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]]),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]]),</span>
+<span class="p">]</span>
+<span class="n">estim_prevs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">]]),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]]),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]]),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>in which the <em>classify &amp; count</em> has been tested in two datasets and
+the <em>EMQ</em> method has been tested only in one dataset. For the first
+experiment, only two (binary) quantifications have been tested,
+while for the second and third experiments three instances have
+been tested.</p>
+<p>In general, we would like to test the performance of the
+quantification methods across different scenarios showcasing
+the accuracy of the quantifier in predicting class prevalences
+for a wide range of prior distributions. This can easily be
+achieved by means of the
+<a class="reference internal" href="protocols.html"><span class="doc std std-doc">artificial sampling protocol</span></a>
+that is implemented in QuaPy.</p>
+<p>The following code shows how to perform one simple experiment
+in which the 4 <em>CC-variants</em>, all equipped with a linear SVM, are
+applied to one binary dataset of reviews about <em>Kindle</em> devices and
+tested across the entire spectrum of class priors (taking 21 splits
+of the interval [0,1], i.e., using prevalence steps of 0.05, and
+generating 100 random samples at each prevalence).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">protocol</span> <span class="kn">import</span> <span class="n">APP</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">CC</span><span class="p">,</span> <span class="n">ACC</span><span class="p">,</span> <span class="n">PCC</span><span class="p">,</span> <span class="n">PACC</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
+
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+
+<span class="k">def</span> <span class="nf">gen_data</span><span class="p">():</span>
+
+    <span class="k">def</span> <span class="nf">base_classifier</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">LinearSVC</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="s1">&#39;balanced&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">models</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="s1">&#39;CC&#39;</span><span class="p">,</span> <span class="n">CC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">&#39;ACC&#39;</span><span class="p">,</span> <span class="n">ACC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">&#39;PCC&#39;</span><span class="p">,</span> <span class="n">PCC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">&#39;PACC&#39;</span><span class="p">,</span> <span class="n">PACC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+
+    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+
+    <span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">():</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+        <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">prediction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+        <span class="n">method_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
+        <span class="n">true_prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">true_prev</span><span class="p">)</span>
+        <span class="n">estim_prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estim_prev</span><span class="p">)</span>
+        <span class="n">tr_prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">train</span><span class="o">.</span><span class="n">prevalence</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span>
+
+<span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span> <span class="o">=</span> <span class="n">gen_data</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>the plots that can be generated are explained below.</p>
+<section id="diagonal-plot">
+<h2><span class="section-number">6.1. </span>Diagonal Plot<a class="headerlink" href="#diagonal-plot" title="Link to this heading"></a></h2>
+<p>The <em>diagonal</em> plot shows a very insightful view of the
+quantifier’s performance. It plots the predicted class
+prevalence (in the y-axis) against the true class prevalence
+(in the x-axis). Unfortunately, it is limited to binary quantification,
+although one can simply generate as many <em>diagonal</em> plots as
+classes there are by indicating which class should be considered
+the target of the plot.</p>
+<p>The following call will produce the plot:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">binary_diagonal</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">train_prev</span><span class="o">=</span><span class="n">tr_prevs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">savepath</span><span class="o">=</span><span class="s1">&#39;./plots/bin_diag.png&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>the last argument is optional, and indicates the path where to save
+the plot (the file extension will determine the format – typical extensions
+are ‘.png’ or ‘.pdf’). If this path is not provided, then the plot
+will be shown but not saved.
+The resulting plot should look like:</p>
+<p><img alt="diagonal plot on Kindle" src="../_images/bin_diag.png" /></p>
+<p>Note that in this case, we are also indicating the training
+prevalence, which is plotted in the diagonal a as cyan dot.
+The color bands indicate the standard deviations of the predictions,
+and can be hidden by setting the argument <em>show_std=False</em> (see
+the complete list of arguments in the documentation).</p>
+<p>Finally, note how most quantifiers, and specially the “unadjusted”
+variants CC and PCC, are strongly biased towards the
+prevalence seen during training.</p>
+</section>
+<section id="quantification-bias">
+<h2><span class="section-number">6.2. </span>Quantification bias<a class="headerlink" href="#quantification-bias" title="Link to this heading"></a></h2>
+<p>This plot aims at evincing the bias that any quantifier
+displays with respect to the training prevalences by
+means of <a class="reference external" href="https://en.wikipedia.org/wiki/Box_plot">box plots</a>.
+This plot can be generated by:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">binary_bias_global</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="s1">&#39;./plots/bin_bias.png&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and should look like:</p>
+<p><img alt="bias plot on Kindle" src="../_images/bin_bias.png" /></p>
+<p>The box plots show some interesting facts:</p>
+<ul class="simple">
+<li><p>all methods are biased towards the training prevalence but specially
+so CC and PCC (an unbiased quantifier would have a box centered at 0)</p></li>
+<li><p>the bias is always positive, indicating that all methods tend to
+overestimate the positive class prevalence</p></li>
+<li><p>CC and PCC have high variability while ACC and specially PACC exhibit
+lower variability.</p></li>
+</ul>
+<p>Again, these plots could be generated for experiments ranging across
+different datasets, and the plot will merge all data accordingly.</p>
+<p>Another illustrative example can be shown that consists of
+training different CC quantifiers trained at different
+(artificially sampled) training prevalences.
+For this example, we generate training samples of 5000
+documents containing 10%, 20%, …, 90% of positives from the
+IMDb dataset, and generate the bias plot again.
+This example can be run by rewritting the <em>gen_data()</em> function
+like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">gen_data</span><span class="p">():</span>
+
+    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;imdb&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">LinearSVC</span><span class="p">())</span>
+
+    <span class="n">method_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">training_prevalence</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span>
+        <span class="n">training_size</span> <span class="o">=</span> <span class="mi">5000</span>
+        <span class="c1"># since the problem is binary, it suffices to specify the negative prevalence, since the positive is constrained</span>
+        <span class="n">train_sample</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">training_size</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="n">training_prevalence</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_sample</span><span class="p">)</span>
+        <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">prediction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">method_name</span> <span class="o">=</span> <span class="s1">&#39;CC$_{&#39;</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">training_prevalence</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;\%}$&#39;</span>
+        <span class="n">method_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">method_name</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">,</span> <span class="n">train_sample</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()))</span>
+
+    <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">method_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and the plot should now look like:</p>
+<p><img alt="bias plot on IMDb" src="../_images/bin_bias_cc.png" /></p>
+<p>which clearly shows a negative bias for CC variants trained on
+data containing more negatives (i.e., &lt; 50%) and positive biases
+in cases containing more positives (i.e., &gt;50%). The CC trained
+at 50% behaves as an unbiased estimator of the positive class
+prevalence.</p>
+<p>The function <em>qp.plot.binary_bias_bins</em> allows the user to
+generate box plots broken down by bins of true test prevalence.
+To this aim, an argument <em>nbins</em> is passed which indicates
+how many isometric subintervals to take. For example
+the following plot is produced for <em>nbins=3</em>:</p>
+<p><img alt="bias plot on IMDb" src="../_images/bin_bias_bin_cc.png" /></p>
+<p>Interestingly enough, the seemingly unbiased estimator (CC at 50%) happens to display
+a positive bias (or a tendency to overestimate) in cases of low prevalence
+(i.e., when the true prevalence of the positive class is below 33%),
+and a negative bias (or a tendency to underestimate) in cases of high prevalence
+(i.e., when the true prevalence is beyond 67%).</p>
+<p>Out of curiosity, the diagonal plot for this experiment looks like:</p>
+<p><img alt="diag plot on IMDb" src="../_images/bin_diag_cc.png" /></p>
+<p>showing pretty clearly the dependency of CC on the prior probabilities
+of the labeled set it was trained on.</p>
+</section>
+<section id="error-by-drift">
+<h2><span class="section-number">6.3. </span>Error by Drift<a class="headerlink" href="#error-by-drift" title="Link to this heading"></a></h2>
+<p>Above discussed plots are useful for analyzing and comparing
+the performance of different quantification methods, but are
+limited to the binary case. The “error by drift” is a plot
+that shows the error in predictions as a function of the
+(prior probability) drift between each test sample and the
+training set. Interestingly, the error and drift can both be measured
+in terms of any evaluation measure for quantification (like the
+ones available in <em>qp.error</em>) and can thus be computed
+irrespectively of the number of classes.</p>
+<p>The following shows how to generate the plot for the 4 CC variants,
+using 10 bins for the drift
+and <em>absolute error</em> as the measure of the error (the
+drift in the x-axis is always computed in terms of <em>absolute error</em> since
+other errors are harder to interpret):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">error_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span> 
+    <span class="n">error_name</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="s1">&#39;./plots/err_drift.png&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><img alt="diag plot on IMDb" src="../_images/err_drift.png" /></p>
+<p>Note that all methods work reasonably well in cases of low prevalence
+drift (i.e., any CC-variant is a good quantifier whenever the IID
+assumption is approximately preserved). The higher the drift, the worse
+those quantifiers tend to perform, although it is clear that PACC
+yields the lowest error for the most difficult cases.</p>
+<p>Remember that any plot can be generated <em>across many datasets</em>, and
+that this would probably result in a more solid comparison.
+In those cases, however, it is likely that the variances of each
+method get higher, to the detriment of the visualization.
+We recommend to set <em>show_std=False</em> in those cases
+in order to hide the color bands.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="model-selection.html" class="btn btn-neutral float-left" title="5. Model Selection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="protocols.html" class="btn btn-neutral float-right" title="7. Protocols" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

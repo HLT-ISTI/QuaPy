@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.method.meta &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Quickstart</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals.html">Manuals</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.method.meta</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.method.meta</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">make_scorer</span><span class="p">,</span> <span class="n">accuracy_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">cross_val_predict</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy</span> <span class="kn">import</span> <span class="n">functional</span> <span class="k">as</span> <span class="n">F</span>
+<span class="kn">from</span> <span class="nn">quapy.data</span> <span class="kn">import</span> <span class="n">LabelledCollection</span>
+<span class="kn">from</span> <span class="nn">quapy.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchQ</span>
+<span class="kn">from</span> <span class="nn">quapy.method.base</span> <span class="kn">import</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">BinaryQuantifier</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">CC</span><span class="p">,</span> <span class="n">ACC</span><span class="p">,</span> <span class="n">PACC</span><span class="p">,</span> <span class="n">HDy</span><span class="p">,</span> <span class="n">EMQ</span><span class="p">,</span> <span class="n">AggregativeQuantifier</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_neural</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+    <span class="n">_neural</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">if</span> <span class="n">_neural</span><span class="p">:</span>
+    <span class="n">QuaNet</span> <span class="o">=</span> <span class="n">_neural</span><span class="o">.</span><span class="n">QuaNetTrainer</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">QuaNet</span> <span class="o">=</span> <span class="s2">&quot;QuaNet is not available due to missing torch package&quot;</span>
+
+
+<div class="viewcode-block" id="MedianEstimator2">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.MedianEstimator2">[docs]</a>
+<span class="k">class</span> <span class="nc">MedianEstimator2</span><span class="p">(</span><span class="n">BinaryQuantifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method is a meta-quantifier that returns, as the estimated class prevalence values, the median of the</span>
+<span class="sd">    estimation returned by differently (hyper)parameterized base quantifiers.</span>
+<span class="sd">    The median of unit-vectors is only guaranteed to be a unit-vector for n=2 dimensions,</span>
+<span class="sd">    i.e., in cases of binary quantification.</span>
+
+<span class="sd">    :param base_quantifier: the base, binary quantifier</span>
+<span class="sd">    :param random_state: a seed to be set before fitting any base quantifier (default None)</span>
+<span class="sd">    :param param_grid: the grid or parameters towards which the median will be computed</span>
+<span class="sd">    :param n_jobs: number of parllel workes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_quantifier</span><span class="p">:</span> <span class="n">BinaryQuantifier</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span> <span class="o">=</span> <span class="n">base_quantifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span> <span class="o">=</span> <span class="n">param_grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MedianEstimator2.get_params">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.MedianEstimator2.get_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">deep</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MedianEstimator2.set_params">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.MedianEstimator2.set_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_delayed_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">):</span>
+            <span class="n">params</span><span class="p">,</span> <span class="n">training</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">model</span>
+
+<div class="viewcode-block" id="MedianEstimator2.fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.MedianEstimator2.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_binary</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="n">configs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">expand_grid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_fit</span><span class="p">,</span>
+            <span class="p">((</span><span class="n">params</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span> <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">),</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_delayed_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="n">model</span><span class="p">,</span> <span class="n">instances</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MedianEstimator2.quantify">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.MedianEstimator2.quantify">[docs]</a>
+    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+        <span class="n">prev_preds</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_predict</span><span class="p">,</span>
+            <span class="p">((</span><span class="n">model</span><span class="p">,</span> <span class="n">instances</span><span class="p">)</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">),</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span>
+        <span class="p">)</span>
+        <span class="n">prev_preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prev_preds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">prev_preds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MedianEstimator">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.MedianEstimator">[docs]</a>
+<span class="k">class</span> <span class="nc">MedianEstimator</span><span class="p">(</span><span class="n">BinaryQuantifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method is a meta-quantifier that returns, as the estimated class prevalence values, the median of the</span>
+<span class="sd">    estimation returned by differently (hyper)parameterized base quantifiers.</span>
+<span class="sd">    The median of unit-vectors is only guaranteed to be a unit-vector for n=2 dimensions,</span>
+<span class="sd">    i.e., in cases of binary quantification.</span>
+
+<span class="sd">    :param base_quantifier: the base, binary quantifier</span>
+<span class="sd">    :param random_state: a seed to be set before fitting any base quantifier (default None)</span>
+<span class="sd">    :param param_grid: the grid or parameters towards which the median will be computed</span>
+<span class="sd">    :param n_jobs: number of parllel workes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_quantifier</span><span class="p">:</span> <span class="n">BinaryQuantifier</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span> <span class="o">=</span> <span class="n">base_quantifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span> <span class="o">=</span> <span class="n">param_grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MedianEstimator.get_params">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.MedianEstimator.get_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">deep</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MedianEstimator.set_params">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.MedianEstimator.set_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_delayed_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">):</span>
+            <span class="n">params</span><span class="p">,</span> <span class="n">training</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">model</span>
+
+    <span class="k">def</span> <span class="nf">_delayed_fit_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">):</span>
+            <span class="n">cls_params</span><span class="p">,</span> <span class="n">training</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">cls_params</span><span class="p">)</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">classifier_fit_predict</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="n">predict_on</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">val_split</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_delayed_fit_aggregation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">):</span>
+            <span class="p">((</span><span class="n">model</span><span class="p">,</span> <span class="n">predictions</span><span class="p">),</span> <span class="n">q_params</span><span class="p">),</span> <span class="n">training</span> <span class="o">=</span> <span class="n">args</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">q_params</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">aggregation_fit</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">model</span>
+
+
+<div class="viewcode-block" id="MedianEstimator.fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.MedianEstimator.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_binary</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="p">,</span> <span class="n">AggregativeQuantifier</span><span class="p">):</span>
+            <span class="n">cls_configs</span><span class="p">,</span> <span class="n">q_configs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">group_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cls_configs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">models_preds</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_fit_classifier</span><span class="p">,</span>
+                    <span class="p">((</span><span class="n">params</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span> <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">cls_configs</span><span class="p">),</span>
+                    <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                    <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                    <span class="n">asarray</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">cls_configs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">classifier_fit_predict</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="n">predict_on</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">val_split</span><span class="p">)</span>
+                <span class="n">models_preds</span> <span class="o">=</span> <span class="p">[(</span><span class="n">model</span><span class="p">,</span> <span class="n">predictions</span><span class="p">)]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_fit_aggregation</span><span class="p">,</span>
+                <span class="p">((</span><span class="n">setup</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span> <span class="k">for</span> <span class="n">setup</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">models_preds</span><span class="p">,</span> <span class="n">q_configs</span><span class="p">)),</span>
+                <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                <span class="n">asarray</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">configs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">expand_grid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_fit</span><span class="p">,</span>
+                <span class="p">((</span><span class="n">params</span><span class="p">,</span> <span class="n">training</span><span class="p">)</span> <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">),</span>
+                <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                <span class="n">asarray</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_delayed_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="n">model</span><span class="p">,</span> <span class="n">instances</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MedianEstimator.quantify">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.MedianEstimator.quantify">[docs]</a>
+    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+        <span class="n">prev_preds</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_predict</span><span class="p">,</span>
+            <span class="p">((</span><span class="n">model</span><span class="p">,</span> <span class="n">instances</span><span class="p">)</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">),</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+            <span class="n">asarray</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">prev_preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prev_preds</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">prev_preds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Ensemble">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.Ensemble">[docs]</a>
+<span class="k">class</span> <span class="nc">Ensemble</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+    <span class="n">VALID_POLICIES</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ave&#39;</span><span class="p">,</span> <span class="s1">&#39;ptr&#39;</span><span class="p">,</span> <span class="s1">&#39;ds&#39;</span><span class="p">}</span> <span class="o">|</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">QUANTIFICATION_ERROR_NAMES</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implementation of the Ensemble methods for quantification described by </span>
+<span class="sd">    `Pérez-Gállego et al., 2017 &lt;https://www.sciencedirect.com/science/article/pii/S1566253516300628&gt;`_</span>
+<span class="sd">    and</span>
+<span class="sd">    `Pérez-Gállego et al., 2019 &lt;https://www.sciencedirect.com/science/article/pii/S1566253517303652&gt;`_.</span>
+<span class="sd">    The policies implemented include:</span>
+<span class="sd">    </span>
+<span class="sd">    - Average (`policy=&#39;ave&#39;`): computes class prevalence estimates as the average of the estimates </span>
+<span class="sd">      returned by the base quantifiers.</span>
+<span class="sd">    - Training Prevalence (`policy=&#39;ptr&#39;`): applies a dynamic selection to the ensemble’s members by retaining only </span>
+<span class="sd">      those members such that the class prevalence values in the samples they use as training set are closest to </span>
+<span class="sd">      preliminary class prevalence estimates computed as the average of the estimates of all the members. The final </span>
+<span class="sd">      estimate is recomputed by considering only the selected members.</span>
+<span class="sd">    - Distribution Similarity (`policy=&#39;ds&#39;`): performs a dynamic selection of base members by retaining</span>
+<span class="sd">      the members trained on samples whose distribution of posterior probabilities is closest, in terms of the</span>
+<span class="sd">      Hellinger Distance, to the distribution of posterior probabilities in the test sample</span>
+<span class="sd">    - Accuracy (`policy=&#39;&lt;valid error name&gt;&#39;`): performs a static selection of the ensemble members by</span>
+<span class="sd">      retaining those that minimize a quantification error measure, which is passed as an argument.</span>
+<span class="sd">      </span>
+<span class="sd">    Example:</span>
+<span class="sd">    </span>
+<span class="sd">    &gt;&gt;&gt; model = Ensemble(quantifier=ACC(LogisticRegression()), size=30, policy=&#39;ave&#39;, n_jobs=-1)</span>
+<span class="sd">    </span>
+<span class="sd">    :param quantifier: base quantification member of the ensemble </span>
+<span class="sd">    :param size: number of members</span>
+<span class="sd">    :param red_size: number of members to retain after selection (depending on the policy)</span>
+<span class="sd">    :param min_pos: minimum number of positive instances to consider a sample as valid </span>
+<span class="sd">    :param policy: the selection policy; available policies include: `ave` (default), `ptr`, `ds`, and accuracy </span>
+<span class="sd">        (which is instantiated via a valid error name, e.g., `mae`)</span>
+<span class="sd">    :param max_sample_size: maximum number of instances to consider in the samples (set to None </span>
+<span class="sd">        to indicate no limit, default)</span>
+<span class="sd">    :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out</span>
+<span class="sd">        validation split, or a :class:`quapy.data.base.LabelledCollection` (the split itself).</span>
+<span class="sd">    :param n_jobs: number of parallel workers (default 1)</span>
+<span class="sd">    :param verbose: set to True (default is False) to get some information in standard output</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">quantifier</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span>
+                 <span class="n">size</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                 <span class="n">red_size</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+                 <span class="n">min_pos</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">policy</span><span class="o">=</span><span class="s1">&#39;ave&#39;</span><span class="p">,</span>
+                 <span class="n">max_sample_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">val_split</span><span class="p">:</span><span class="n">Union</span><span class="p">[</span><span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">LabelledCollection</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">policy</span> <span class="ow">in</span> <span class="n">Ensemble</span><span class="o">.</span><span class="n">VALID_POLICIES</span><span class="p">,</span> \
+            <span class="sa">f</span><span class="s1">&#39;unknown policy=</span><span class="si">{</span><span class="n">policy</span><span class="si">}</span><span class="s1">; valid are </span><span class="si">{</span><span class="n">Ensemble</span><span class="o">.</span><span class="n">VALID_POLICIES</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">assert</span> <span class="n">max_sample_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_sample_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> \
+            <span class="s1">&#39;wrong value for max_sample_size; set it to a positive number or None&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span> <span class="o">=</span> <span class="n">quantifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_pos</span> <span class="o">=</span> <span class="n">min_pos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">red_size</span> <span class="o">=</span> <span class="n">red_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">=</span> <span class="n">policy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="o">=</span> <span class="n">val_split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">post_proba_fn</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_sample_size</span> <span class="o">=</span> <span class="n">max_sample_size</span>
+
+    <span class="k">def</span> <span class="nf">_sout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[Ensemble]&#39;</span> <span class="o">+</span> <span class="n">msg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Ensemble.fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.Ensemble.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">val_split</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">LabelledCollection</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">==</span> <span class="s1">&#39;ds&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">binary</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;ds policy is only defined for binary quantification, but this dataset is not binary&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">val_split</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">val_split</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span>
+
+        <span class="c1"># randomly chooses the prevalences for each member of the ensemble (preventing classes with less than</span>
+        <span class="c1"># min_pos positive examples)</span>
+        <span class="n">sample_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_sample_size</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_sample_size</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="n">prevs</span> <span class="o">=</span> <span class="p">[</span><span class="n">_draw_simplex</span><span class="p">(</span><span class="n">ndim</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">min_val</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_pos</span> <span class="o">/</span> <span class="n">sample_size</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)]</span>
+
+        <span class="n">posteriors</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">==</span> <span class="s1">&#39;ds&#39;</span><span class="p">:</span>
+            <span class="c1"># precompute the training posterior probabilities</span>
+            <span class="n">posteriors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_proba_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_policy_get_posteriors</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">is_static_policy</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">QUANTIFICATION_ERROR_NAMES</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">val_split</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">,</span> <span class="n">is_static_policy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span> <span class="n">sample_size</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">prev</span> <span class="ow">in</span> <span class="n">prevs</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
+            <span class="n">_delayed_new_instance</span><span class="p">,</span>
+            <span class="n">tqdm</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;fitting ensamble&#39;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">args</span><span class="p">,</span>
+            <span class="n">asarray</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)</span>
+
+        <span class="c1"># static selection policy (the name of a quantification-oriented error function to minimize)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">QUANTIFICATION_ERROR_NAMES</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_accuracy_policy</span><span class="p">(</span><span class="n">error_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">policy</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sout</span><span class="p">(</span><span class="s1">&#39;Fit [Done]&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Ensemble.quantify">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.Ensemble.quantify">[docs]</a>
+    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span><span class="n">_delayed_quantify</span><span class="p">,</span> <span class="p">((</span><span class="n">Qi</span><span class="p">,</span> <span class="n">instances</span><span class="p">)</span> <span class="k">for</span> <span class="n">Qi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span><span class="p">),</span> <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">==</span> <span class="s1">&#39;ptr&#39;</span><span class="p">:</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr_policy</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">policy</span> <span class="o">==</span> <span class="s1">&#39;ds&#39;</span><span class="p">:</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ds_policy</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">instances</span><span class="p">)</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">normalize_prevalence</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Ensemble.set_params">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.Ensemble.set_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function should not be used within :class:`quapy.model_selection.GridSearchQ` (is here for compatibility</span>
+<span class="sd">        with the abstract class).</span>
+<span class="sd">        Instead, use `Ensemble(GridSearchQ(q),...)`, with `q` a Quantifier (recommended), or</span>
+<span class="sd">        `Ensemble(Q(GridSearchCV(l)))` with `Q` a quantifier class that has a classifier `l` optimized for</span>
+<span class="sd">        classification (not recommended).</span>
+
+<span class="sd">        :param parameters: dictionary</span>
+<span class="sd">        :return: raises an Exception</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> should not be used within GridSearchQ; &#39;</span>
+                                  <span class="sa">f</span><span class="s1">&#39;instead, use Ensemble(GridSearchQ(q),...), with q a Quantifier (recommended), &#39;</span>
+                                  <span class="sa">f</span><span class="s1">&#39;or Ensemble(Q(GridSearchCV(l))) with Q a quantifier class that has a classifier &#39;</span>
+                                  <span class="sa">f</span><span class="s1">&#39;l optimized for classification (not recommended).&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Ensemble.get_params">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.Ensemble.get_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function should not be used within :class:`quapy.model_selection.GridSearchQ` (is here for compatibility</span>
+<span class="sd">        with the abstract class).</span>
+<span class="sd">        Instead, use `Ensemble(GridSearchQ(q),...)`, with `q` a Quantifier (recommended), or</span>
+<span class="sd">        `Ensemble(Q(GridSearchCV(l)))` with `Q` a quantifier class that has a classifier `l` optimized for</span>
+<span class="sd">        classification (not recommended).</span>
+
+<span class="sd">        :param deep: for compatibility with scikit-learn</span>
+<span class="sd">        :return: raises an Exception</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_accuracy_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Selects the red_size best performant quantifiers in a static way (i.e., dropping all non-selected instances).</span>
+<span class="sd">        For each model in the ensemble, the performance is measured in terms of _error_name_ on the quantification of</span>
+<span class="sd">        the samples used for training the rest of the models in the ensemble.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">quapy.evaluation</span> <span class="kn">import</span> <span class="n">evaluate_on_samples</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">error_name</span><span class="p">)</span>
+        <span class="n">tests</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span><span class="p">]</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span><span class="p">):</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">evaluate_on_samples</span><span class="p">(</span><span class="n">model</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">tests</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">tests</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">error</span><span class="p">))</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span> <span class="o">=</span> <span class="n">_select_k</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">red_size</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Selects the predictions made by models that have been trained on samples with a prevalence that is most similar</span>
+<span class="sd">        to a first approximation of the test prevalence as made by all models in the ensemble.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">test_prev_estim</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">tr_prevs</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span><span class="p">]</span>
+        <span class="n">ptr_differences</span> <span class="o">=</span> <span class="p">[</span><span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mse</span><span class="p">(</span><span class="n">ptr_i</span><span class="p">,</span> <span class="n">test_prev_estim</span><span class="p">)</span> <span class="k">for</span> <span class="n">ptr_i</span> <span class="ow">in</span> <span class="n">tr_prevs</span><span class="p">]</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">ptr_differences</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_select_k</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">red_size</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ds_policy_get_posteriors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        In the original article, there are some aspects regarding this method that are not mentioned. The paper says</span>
+<span class="sd">        that the distribution of posterior probabilities from training and test examples is compared by means of the</span>
+<span class="sd">        Hellinger Distance. However, how these posterior probabilities are generated is not specified. In the article,</span>
+<span class="sd">        a Logistic Regressor (LR) is used as the classifier device and that could be used for this purpose. However, in</span>
+<span class="sd">        general, a Quantifier is not necessarily an instance of Aggreggative Probabilistic Quantifiers, and so, that the</span>
+<span class="sd">        quantifier builds on top of a probabilistic classifier cannot be given for granted. Additionally, it would not</span>
+<span class="sd">        be correct to generate the posterior probabilities for training instances that have concurred in training the</span>
+<span class="sd">        classifier that generates them.</span>
+
+<span class="sd">        This function thus generates the posterior probabilities for all training documents in a cross-validation way,</span>
+<span class="sd">        using LR with hyperparameters that have previously been optimized via grid search in 5FCV.</span>
+
+<span class="sd">        :param data: a LabelledCollection</span>
+<span class="sd">        :return: (P,f,) where P is an ndarray containing the posterior probabilities of the training data, generated via</span>
+<span class="sd">            cross-validation and using an optimized LR, and the function to be used in order to generate posterior</span>
+<span class="sd">            probabilities for test instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Xy</span>
+        <span class="n">lr_base</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="s1">&#39;balanced&#39;</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+        <span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">)}</span>
+        <span class="n">optim</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">lr_base</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">refit</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+        <span class="n">posteriors</span> <span class="o">=</span> <span class="n">cross_val_predict</span><span class="p">(</span><span class="n">optim</span><span class="o">.</span><span class="n">best_estimator_</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;predict_proba&#39;</span><span class="p">)</span>
+        <span class="n">posteriors_generator</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">best_estimator_</span><span class="o">.</span><span class="n">predict_proba</span>
+
+        <span class="k">return</span> <span class="n">posteriors</span><span class="p">,</span> <span class="n">posteriors_generator</span>
+
+    <span class="k">def</span> <span class="nf">_ds_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+        <span class="n">test_posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_proba_fn</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+        <span class="n">test_distribution</span> <span class="o">=</span> <span class="n">get_probability_distribution</span><span class="p">(</span><span class="n">test_posteriors</span><span class="p">)</span>
+        <span class="n">tr_distributions</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ensemble</span><span class="p">]</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="n">HellingerDistance</span><span class="p">(</span><span class="n">tr_dist_i</span><span class="p">,</span> <span class="n">test_distribution</span><span class="p">)</span> <span class="k">for</span> <span class="n">tr_dist_i</span> <span class="ow">in</span> <span class="n">tr_distributions</span><span class="p">]</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">dist</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_select_k</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">red_size</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">aggregative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Indicates that the quantifier is not aggregative.</span>
+
+<span class="sd">        :return: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">probabilistic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Indicates that the quantifier is not probabilistic.</span>
+
+<span class="sd">        :return: False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="get_probability_distribution">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.get_probability_distribution">[docs]</a>
+<span class="k">def</span> <span class="nf">get_probability_distribution</span><span class="p">(</span><span class="n">posterior_probabilities</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Gets a histogram out of the posterior probabilities (only for the binary case).</span>
+
+<span class="sd">    :param posterior_probabilities: array-like of shape `(n_instances, 2,)`</span>
+<span class="sd">    :param bins: integer</span>
+<span class="sd">    :return: `np.ndarray` with the relative frequencies for each bin (for the positive class only)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">posterior_probabilities</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;the posterior probabilities do not seem to be for a binary problem&#39;</span>
+    <span class="n">posterior_probabilities</span> <span class="o">=</span> <span class="n">posterior_probabilities</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># take the positive posteriors only</span>
+    <span class="n">distribution</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">posterior_probabilities</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="nb">range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">distribution</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_select_k</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">elements</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">order</span><span class="p">[:</span><span class="n">k</span><span class="p">]]</span>
+
+
+<span class="k">def</span> <span class="nf">_delayed_new_instance</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">base_quantifier</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">val_split</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">,</span> <span class="n">keep_samples</span><span class="p">,</span> <span class="n">verbose</span><span class="p">,</span> <span class="n">sample_size</span> <span class="o">=</span> <span class="n">args</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">fit-start for prev </span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">(</span><span class="n">prev</span><span class="p">)</span><span class="si">}</span><span class="s1">, sample_size=</span><span class="si">{</span><span class="n">sample_size</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">base_quantifier</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">val_split</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val_split</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">val_split</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;val_split should be in (0,1)&#39;</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">val_split</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">train_prop</span><span class="o">=</span><span class="mi">1</span> <span class="o">-</span> <span class="n">val_split</span><span class="p">)</span>
+
+    <span class="n">sample_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling_index</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="o">*</span><span class="n">prev</span><span class="p">)</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">sample_index</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">val_split</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="n">val_split</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+
+    <span class="n">tr_prevalence</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+    <span class="n">tr_distribution</span> <span class="o">=</span> <span class="n">get_probability_distribution</span><span class="p">(</span><span class="n">posteriors</span><span class="p">[</span><span class="n">sample_index</span><span class="p">])</span> <span class="k">if</span> <span class="p">(</span><span class="n">posteriors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">\--fit-ended for prev </span><span class="si">{</span><span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">(</span><span class="n">prev</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">tr_prevalence</span><span class="p">,</span> <span class="n">tr_distribution</span><span class="p">,</span> <span class="n">sample</span> <span class="k">if</span> <span class="n">keep_samples</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_delayed_quantify</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">quantifier</span><span class="p">,</span> <span class="n">instances</span> <span class="o">=</span> <span class="n">args</span>
+    <span class="k">return</span> <span class="n">quantifier</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_draw_simplex</span><span class="p">(</span><span class="n">ndim</span><span class="p">,</span> <span class="n">min_val</span><span class="p">,</span> <span class="n">max_trials</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a uniform sampling from the ndim-dimensional simplex but guarantees that all dimensions</span>
+<span class="sd">    are &gt;= min_class_prev (for min_val&gt;0, this makes the sampling not truly uniform)</span>
+
+<span class="sd">    :param ndim: number of dimensions of the simplex</span>
+<span class="sd">    :param min_val: minimum class prevalence allowed. If less than 1/ndim a ValueError will be throw since</span>
+<span class="sd">    there is no possible solution.</span>
+<span class="sd">    :return: a sample from the ndim-dimensional simplex that is uniform in S(ndim)-R where S(ndim) is the simplex</span>
+<span class="sd">    and R is the simplex subset containing dimensions lower than min_val</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">min_val</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">ndim</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;no sample can be draw from the </span><span class="si">{</span><span class="n">ndim</span><span class="si">}</span><span class="s1">-dimensional simplex so that &#39;</span>
+                         <span class="sa">f</span><span class="s1">&#39;all its values are &gt;=</span><span class="si">{</span><span class="n">min_val</span><span class="si">}</span><span class="s1"> (try with a larger value for min_pos)&#39;</span><span class="p">)</span>
+    <span class="n">trials</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">uniform_simplex_sampling</span><span class="p">(</span><span class="n">ndim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">u</span> <span class="o">&gt;=</span> <span class="n">min_val</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">u</span>
+        <span class="n">trials</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">trials</span> <span class="o">&gt;=</span> <span class="n">max_trials</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;it looks like finding a random simplex with all its dimensions being&#39;</span>
+                             <span class="sa">f</span><span class="s1">&#39;&gt;= </span><span class="si">{</span><span class="n">min_val</span><span class="si">}</span><span class="s1"> is unlikely (it failed after </span><span class="si">{</span><span class="n">max_trials</span><span class="si">}</span><span class="s1"> trials)&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_instantiate_ensemble</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">base_quantifier_class</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_model_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">optim</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">base_quantifier</span> <span class="o">=</span> <span class="n">base_quantifier_class</span><span class="p">(</span><span class="n">classifier</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">optim</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">CLASSIFICATION_ERROR</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">optim</span> <span class="o">==</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">f1e</span><span class="p">:</span>
+            <span class="n">scoring</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">f1_score</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">optim</span> <span class="o">==</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">acce</span><span class="p">:</span>
+            <span class="n">scoring</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">accuracy_score</span><span class="p">)</span>
+        <span class="n">classifier</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="n">scoring</span><span class="p">)</span>
+        <span class="n">base_quantifier</span> <span class="o">=</span> <span class="n">base_quantifier_class</span><span class="p">(</span><span class="n">classifier</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">base_quantifier</span> <span class="o">=</span> <span class="n">GridSearchQ</span><span class="p">(</span><span class="n">base_quantifier_class</span><span class="p">(</span><span class="n">classifier</span><span class="p">),</span>
+                                      <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span><span class="p">,</span>
+                                      <span class="o">**</span><span class="n">param_model_sel</span><span class="p">,</span>
+                                      <span class="n">error</span><span class="o">=</span><span class="n">optim</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">base_quantifier</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_check_error</span><span class="p">(</span><span class="n">error</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">QUANTIFICATION_ERROR</span> <span class="ow">or</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">CLASSIFICATION_ERROR</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">error</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unexpected error type; must either be a callable function or a str representing</span><span class="se">\n</span><span class="s1">&#39;</span>
+                         <span class="sa">f</span><span class="s1">&#39;the name of an error function in </span><span class="si">{</span><span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">ERROR_NAMES</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ensembleFactory">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.ensembleFactory">[docs]</a>
+<span class="k">def</span> <span class="nf">ensembleFactory</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">base_quantifier_class</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">param_model_sel</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ensemble factory. Provides a unified interface for instantiating ensembles that can be optimized (via model</span>
+<span class="sd">    selection for quantification) for a given evaluation metric using :class:`quapy.model_selection.GridSearchQ`.</span>
+<span class="sd">    If the evaluation metric is classification-oriented</span>
+<span class="sd">    (instead of quantification-oriented), then the optimization will be carried out via sklearn&#39;s</span>
+<span class="sd">    `GridSearchCV &lt;https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html&gt;`_.</span>
+
+<span class="sd">    Example to instantiate an :class:`Ensemble` based on :class:`quapy.method.aggregative.PACC`</span>
+<span class="sd">    in which the base members are optimized for :meth:`quapy.error.mae` via</span>
+<span class="sd">    :class:`quapy.model_selection.GridSearchQ`. The ensemble follows the policy `Accuracy` based</span>
+<span class="sd">    on :meth:`quapy.error.mae` (the same measure being optimized),</span>
+<span class="sd">    meaning that a static selection of members of the ensemble is made based on their performance</span>
+<span class="sd">    in terms of this error.</span>
+
+<span class="sd">    &gt;&gt;&gt; param_grid = {</span>
+<span class="sd">    &gt;&gt;&gt;     &#39;C&#39;: np.logspace(-3,3,7),</span>
+<span class="sd">    &gt;&gt;&gt;     &#39;class_weight&#39;: [&#39;balanced&#39;, None]</span>
+<span class="sd">    &gt;&gt;&gt; }</span>
+<span class="sd">    &gt;&gt;&gt; param_mod_sel = {</span>
+<span class="sd">    &gt;&gt;&gt;     &#39;sample_size&#39;: 500,</span>
+<span class="sd">    &gt;&gt;&gt;     &#39;protocol&#39;: &#39;app&#39;</span>
+<span class="sd">    &gt;&gt;&gt; }</span>
+<span class="sd">    &gt;&gt;&gt; common={</span>
+<span class="sd">    &gt;&gt;&gt;     &#39;max_sample_size&#39;: 1000,</span>
+<span class="sd">    &gt;&gt;&gt;     &#39;n_jobs&#39;: -1,</span>
+<span class="sd">    &gt;&gt;&gt;     &#39;param_grid&#39;: param_grid,</span>
+<span class="sd">    &gt;&gt;&gt;     &#39;param_mod_sel&#39;: param_mod_sel,</span>
+<span class="sd">    &gt;&gt;&gt; }</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; ensembleFactory(LogisticRegression(), PACC, optim=&#39;mae&#39;, policy=&#39;mae&#39;, **common)</span>
+
+<span class="sd">    :param classifier: sklearn&#39;s Estimator that generates a classifier</span>
+<span class="sd">    :param base_quantifier_class: a class of quantifiers</span>
+<span class="sd">    :param param_grid: a dictionary with the grid of parameters to optimize for</span>
+<span class="sd">    :param optim: a valid quantification or classification error, or a string name of it</span>
+<span class="sd">    :param param_model_sel: a dictionary containing any keyworded argument to pass to</span>
+<span class="sd">        :class:`quapy.model_selection.GridSearchQ`</span>
+<span class="sd">    :param kwargs: kwargs for the class :class:`Ensemble`</span>
+<span class="sd">    :return: an instance of :class:`Ensemble`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">optim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">param_grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;param_grid is None but optim was requested.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">param_model_sel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;param_model_sel is None but optim was requested.&#39;</span><span class="p">)</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">_check_error</span><span class="p">(</span><span class="n">optim</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_instantiate_ensemble</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">base_quantifier_class</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">param_model_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ECC">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.ECC">[docs]</a>
+<span class="k">def</span> <span class="nf">ECC</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements an ensemble of :class:`quapy.method.aggregative.CC` quantifiers, as used by</span>
+<span class="sd">    `Pérez-Gállego et al., 2019 &lt;https://www.sciencedirect.com/science/article/pii/S1566253517303652&gt;`_.</span>
+
+<span class="sd">    Equivalent to:</span>
+
+<span class="sd">    &gt;&gt;&gt; ensembleFactory(classifier, CC, param_grid, optim, param_mod_sel, **kwargs)</span>
+
+<span class="sd">    See :meth:`ensembleFactory` for further details.</span>
+
+<span class="sd">    :param classifier: sklearn&#39;s Estimator that generates a classifier</span>
+<span class="sd">    :param param_grid: a dictionary with the grid of parameters to optimize for</span>
+<span class="sd">    :param optim: a valid quantification or classification error, or a string name of it</span>
+<span class="sd">    :param param_model_sel: a dictionary containing any keyworded argument to pass to</span>
+<span class="sd">        :class:`quapy.model_selection.GridSearchQ`</span>
+<span class="sd">    :param kwargs: kwargs for the class :class:`Ensemble`</span>
+<span class="sd">    :return: an instance of :class:`Ensemble`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">ensembleFactory</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">CC</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EACC">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.EACC">[docs]</a>
+<span class="k">def</span> <span class="nf">EACC</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements an ensemble of :class:`quapy.method.aggregative.ACC` quantifiers, as used by</span>
+<span class="sd">    `Pérez-Gállego et al., 2019 &lt;https://www.sciencedirect.com/science/article/pii/S1566253517303652&gt;`_.</span>
+
+<span class="sd">    Equivalent to:</span>
+
+<span class="sd">    &gt;&gt;&gt; ensembleFactory(classifier, ACC, param_grid, optim, param_mod_sel, **kwargs)</span>
+
+<span class="sd">    See :meth:`ensembleFactory` for further details.</span>
+
+<span class="sd">    :param classifier: sklearn&#39;s Estimator that generates a classifier</span>
+<span class="sd">    :param param_grid: a dictionary with the grid of parameters to optimize for</span>
+<span class="sd">    :param optim: a valid quantification or classification error, or a string name of it</span>
+<span class="sd">    :param param_model_sel: a dictionary containing any keyworded argument to pass to</span>
+<span class="sd">        :class:`quapy.model_selection.GridSearchQ`</span>
+<span class="sd">    :param kwargs: kwargs for the class :class:`Ensemble`</span>
+<span class="sd">    :return: an instance of :class:`Ensemble`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">ensembleFactory</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">ACC</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EPACC">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.EPACC">[docs]</a>
+<span class="k">def</span> <span class="nf">EPACC</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements an ensemble of :class:`quapy.method.aggregative.PACC` quantifiers.</span>
+
+<span class="sd">    Equivalent to:</span>
+
+<span class="sd">    &gt;&gt;&gt; ensembleFactory(classifier, PACC, param_grid, optim, param_mod_sel, **kwargs)</span>
+
+<span class="sd">    See :meth:`ensembleFactory` for further details.</span>
+
+<span class="sd">    :param classifier: sklearn&#39;s Estimator that generates a classifier</span>
+<span class="sd">    :param param_grid: a dictionary with the grid of parameters to optimize for</span>
+<span class="sd">    :param optim: a valid quantification or classification error, or a string name of it</span>
+<span class="sd">    :param param_model_sel: a dictionary containing any keyworded argument to pass to</span>
+<span class="sd">        :class:`quapy.model_selection.GridSearchQ`</span>
+<span class="sd">    :param kwargs: kwargs for the class :class:`Ensemble`</span>
+<span class="sd">    :return: an instance of :class:`Ensemble`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">ensembleFactory</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">PACC</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EHDy">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.EHDy">[docs]</a>
+<span class="k">def</span> <span class="nf">EHDy</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements an ensemble of :class:`quapy.method.aggregative.HDy` quantifiers, as used by</span>
+<span class="sd">    `Pérez-Gállego et al., 2019 &lt;https://www.sciencedirect.com/science/article/pii/S1566253517303652&gt;`_.</span>
+
+<span class="sd">    Equivalent to:</span>
+
+<span class="sd">    &gt;&gt;&gt; ensembleFactory(classifier, HDy, param_grid, optim, param_mod_sel, **kwargs)</span>
+
+<span class="sd">    See :meth:`ensembleFactory` for further details.</span>
+
+<span class="sd">    :param classifier: sklearn&#39;s Estimator that generates a classifier</span>
+<span class="sd">    :param param_grid: a dictionary with the grid of parameters to optimize for</span>
+<span class="sd">    :param optim: a valid quantification or classification error, or a string name of it</span>
+<span class="sd">    :param param_model_sel: a dictionary containing any keyworded argument to pass to</span>
+<span class="sd">        :class:`quapy.model_selection.GridSearchQ`</span>
+<span class="sd">    :param kwargs: kwargs for the class :class:`Ensemble`</span>
+<span class="sd">    :return: an instance of :class:`Ensemble`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">ensembleFactory</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">HDy</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EEMQ">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.meta.EEMQ">[docs]</a>
+<span class="k">def</span> <span class="nf">EEMQ</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements an ensemble of :class:`quapy.method.aggregative.EMQ` quantifiers.</span>
+
+<span class="sd">    Equivalent to:</span>
+
+<span class="sd">    &gt;&gt;&gt; ensembleFactory(classifier, EMQ, param_grid, optim, param_mod_sel, **kwargs)</span>
+
+<span class="sd">    See :meth:`ensembleFactory` for further details.</span>
+
+<span class="sd">    :param classifier: sklearn&#39;s Estimator that generates a classifier</span>
+<span class="sd">    :param param_grid: a dictionary with the grid of parameters to optimize for</span>
+<span class="sd">    :param optim: a valid quantification or classification error, or a string name of it</span>
+<span class="sd">    :param param_model_sel: a dictionary containing any keyworded argument to pass to</span>
+<span class="sd">        :class:`quapy.model_selection.GridSearchQ`</span>
+<span class="sd">    :param kwargs: kwargs for the class :class:`Ensemble`</span>
+<span class="sd">    :return: an instance of :class:`Ensemble`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">ensembleFactory</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">EMQ</span><span class="p">,</span> <span class="n">param_grid</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">param_mod_sel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

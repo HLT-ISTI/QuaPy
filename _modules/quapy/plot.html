@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.plot &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Quickstart</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../manuals.html">Manuals</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.plot</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.plot</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">get_cmap</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">ttest_ind_from_stats</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">ScalarFormatter</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.figsize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.dpi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.size&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">18</span>
+
+
+<div class="viewcode-block" id="binary_diagonal">
+<a class="viewcode-back" href="../../quapy.html#quapy.plot.binary_diagonal">[docs]</a>
+<span class="k">def</span> <span class="nf">binary_diagonal</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_std</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">train_prev</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The diagonal plot displays the predicted prevalence values (along the y-axis) as a function of the true prevalence</span>
+<span class="sd">    values (along the x-axis). The optimal quantifier is described by the diagonal (0,0)-(1,1) of the plot (hence the</span>
+<span class="sd">    name). It is convenient for binary quantification problems, though it can be used for multiclass problems by</span>
+<span class="sd">    indicating which class is to be taken as the positive class. (For multiclass quantification problems, other plots</span>
+<span class="sd">    like the :meth:`error_by_drift` might be preferable though).</span>
+
+<span class="sd">    :param method_names: array-like with the method names for each experiment</span>
+<span class="sd">    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for</span>
+<span class="sd">        each experiment</span>
+<span class="sd">    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)</span>
+<span class="sd">        for each experiment</span>
+<span class="sd">    :param pos_class: index of the positive class</span>
+<span class="sd">    :param title: the title to be displayed in the plot</span>
+<span class="sd">    :param show_std: whether or not to show standard deviations (represented by color bands). This might be inconvenient</span>
+<span class="sd">        for cases in which many methods are compared, or when the standard deviations are high -- default True)</span>
+<span class="sd">    :param legend: whether or not to display the leyend (default True)</span>
+<span class="sd">    :param train_prev: if indicated (default is None), the training prevalence (for the positive class) is hightlighted</span>
+<span class="sd">        in the plot. This is convenient when all the experiments have been conducted in the same dataset.</span>
+<span class="sd">    :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.</span>
+<span class="sd">    :param method_order: if indicated (default is None), imposes the order in which the methods are processed (i.e.,</span>
+<span class="sd">        listed in the legend and associated with matplotlib colors).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;--k&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;ideal&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span> <span class="o">=</span> <span class="n">_merge</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">)</span>
+
+    <span class="n">order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">method_order</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="p">{</span><span class="n">method_name</span><span class="p">:[</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">]</span> <span class="k">for</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="ow">in</span> <span class="n">order</span><span class="p">}</span>
+        <span class="n">order</span>  <span class="o">=</span> <span class="p">[(</span><span class="n">method_name</span><span class="p">,</span> <span class="o">*</span><span class="n">table</span><span class="p">[</span><span class="n">method_name</span><span class="p">])</span> <span class="k">for</span> <span class="n">method_name</span> <span class="ow">in</span> <span class="n">method_order</span><span class="p">]</span>
+
+    <span class="n">NUM_COLORS</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">method_names</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">NUM_COLORS</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">:</span>
+        <span class="n">cm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;tab20&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_prop_cycle</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="n">cm</span><span class="p">(</span><span class="mf">1.</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">NUM_COLORS</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_COLORS</span><span class="p">)])</span>
+    <span class="k">for</span> <span class="n">method</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
+        <span class="n">true_prev</span> <span class="o">=</span> <span class="n">true_prev</span><span class="p">[:,</span><span class="n">pos_class</span><span class="p">]</span>
+        <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">estim_prev</span><span class="p">[:,</span><span class="n">pos_class</span><span class="p">]</span>
+
+        <span class="n">x_ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">true_prev</span><span class="p">)</span>
+        <span class="n">x_ticks</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">y_ave</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">estim_prev</span><span class="p">[</span><span class="n">true_prev</span> <span class="o">==</span> <span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_ticks</span><span class="p">])</span>
+        <span class="n">y_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">estim_prev</span><span class="p">[</span><span class="n">true_prev</span> <span class="o">==</span> <span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">x_ticks</span><span class="p">])</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">x_ticks</span><span class="p">,</span> <span class="n">y_ave</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">show_std</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x_ticks</span><span class="p">,</span> <span class="n">y_ave</span> <span class="o">-</span> <span class="n">y_std</span><span class="p">,</span> <span class="n">y_ave</span> <span class="o">+</span> <span class="n">y_std</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">train_prev</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">train_prev</span> <span class="o">=</span> <span class="n">train_prev</span><span class="p">[</span><span class="n">pos_class</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">train_prev</span><span class="p">,</span> <span class="n">train_prev</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;tr-prev&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;true prevalence&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;estimated prevalence&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">legend</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+        <span class="c1"># box = ax.get_position()</span>
+        <span class="c1"># ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])</span>
+        <span class="c1"># ax.legend(loc=&#39;lower center&#39;,</span>
+        <span class="c1">#           bbox_to_anchor=(1, -0.5),</span>
+        <span class="c1">#           ncol=(len(method_names)+1)//2)</span>
+
+    <span class="n">_save_or_show</span><span class="p">(</span><span class="n">savepath</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="binary_bias_global">
+<a class="viewcode-back" href="../../quapy.html#quapy.plot.binary_bias_global">[docs]</a>
+<span class="k">def</span> <span class="nf">binary_bias_global</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Box-plots displaying the global bias (i.e., signed error computed as the estimated value minus the true value)</span>
+<span class="sd">    for each quantification method with respect to a given positive class.</span>
+
+<span class="sd">    :param method_names: array-like with the method names for each experiment</span>
+<span class="sd">    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for</span>
+<span class="sd">        each experiment</span>
+<span class="sd">    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)</span>
+<span class="sd">        for each experiment</span>
+<span class="sd">    :param pos_class: index of the positive class</span>
+<span class="sd">    :param title: the title to be displayed in the plot</span>
+<span class="sd">    :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span> <span class="o">=</span> <span class="n">_merge</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+    <span class="n">data</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">method</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">):</span>
+        <span class="n">true_prev</span> <span class="o">=</span> <span class="n">true_prev</span><span class="p">[:,</span><span class="n">pos_class</span><span class="p">]</span>
+        <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">estim_prev</span><span class="p">[:,</span><span class="n">pos_class</span><span class="p">]</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estim_prev</span><span class="o">-</span><span class="n">true_prev</span><span class="p">)</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">patch_artist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">showmeans</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;error bias&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+
+    <span class="n">_save_or_show</span><span class="p">(</span><span class="n">savepath</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="binary_bias_bins">
+<a class="viewcode-back" href="../../quapy.html#quapy.plot.binary_bias_bins">[docs]</a>
+<span class="k">def</span> <span class="nf">binary_bias_bins</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">tab10</span><span class="p">,</span>
+                     <span class="n">vertical_xticks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Box-plots displaying the local bias (i.e., signed error computed as the estimated value minus the true value)</span>
+<span class="sd">    for different bins of (true) prevalence of the positive classs, for each quantification method.</span>
+
+<span class="sd">    :param method_names: array-like with the method names for each experiment</span>
+<span class="sd">    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for</span>
+<span class="sd">        each experiment</span>
+<span class="sd">    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)</span>
+<span class="sd">        for each experiment</span>
+<span class="sd">    :param pos_class: index of the positive class</span>
+<span class="sd">    :param title: the title to be displayed in the plot</span>
+<span class="sd">    :param nbins: number of bins</span>
+<span class="sd">    :param colormap: the matplotlib colormap to use (default cm.tab10)</span>
+<span class="sd">    :param vertical_xticks: whether or not to add secondary grid (default is False)</span>
+<span class="sd">    :param legend: whether or not to display the legend (default is True)</span>
+<span class="sd">    :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">boxplot</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">setp</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+    <span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span> <span class="o">=</span> <span class="n">_merge</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">)</span>
+
+    <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nbins</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">binwidth</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">nbins</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">method</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">):</span>
+        <span class="n">true_prev</span> <span class="o">=</span> <span class="n">true_prev</span><span class="p">[:,</span><span class="n">pos_class</span><span class="p">]</span>
+        <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">estim_prev</span><span class="p">[:,</span><span class="n">pos_class</span><span class="p">]</span>
+
+        <span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)):</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">inds</span><span class="o">==</span><span class="n">ind</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estim_prev</span><span class="p">[</span><span class="n">selected</span><span class="p">]</span> <span class="o">-</span> <span class="n">true_prev</span><span class="p">[</span><span class="n">selected</span><span class="p">])</span>
+
+    <span class="n">nmethods</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">method_names</span><span class="p">)</span>
+    <span class="n">boxwidth</span> <span class="o">=</span> <span class="n">binwidth</span><span class="o">/</span><span class="p">(</span><span class="n">nmethods</span><span class="o">+</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="nb">bin</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">boxdata</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">method_names</span><span class="p">]</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bin</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">*</span><span class="n">boxwidth</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">boxwidth</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">method_names</span><span class="p">)]</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">boxplot</span><span class="p">(</span><span class="n">boxdata</span><span class="p">,</span> <span class="n">showmeans</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">positions</span><span class="o">=</span><span class="n">positions</span><span class="p">,</span> <span class="n">widths</span> <span class="o">=</span> <span class="n">boxwidth</span><span class="p">,</span> <span class="n">sym</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">patch_artist</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">boxid</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">method_names</span><span class="p">)):</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">colormap</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">boxid</span><span class="o">%</span><span class="nb">len</span><span class="p">(</span><span class="n">colormap</span><span class="o">.</span><span class="n">colors</span><span class="p">)]</span>
+            <span class="n">setp</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="s1">&#39;fliers&#39;</span><span class="p">][</span><span class="n">boxid</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">3.</span><span class="p">,</span> <span class="n">markeredgecolor</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">setp</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="s1">&#39;boxes&#39;</span><span class="p">][</span><span class="n">boxid</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">)</span>
+            <span class="n">setp</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="s1">&#39;medians&#39;</span><span class="p">][</span><span class="n">boxid</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+
+    <span class="n">major_xticks_positions</span><span class="p">,</span> <span class="n">minor_xticks_positions</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">major_xticks_labels</span><span class="p">,</span> <span class="n">minor_xticks_labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">major_xticks_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="n">minor_xticks_positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span> <span class="o">+</span> <span class="n">binwidth</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">major_xticks_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">minor_xticks_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">major_xticks_positions</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">minor_xticks_positions</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">major_xticks_labels</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">minor_xticks_labels</span><span class="p">,</span> <span class="n">minor</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="s1">&#39;vertical&#39;</span> <span class="k">if</span> <span class="n">vertical_xticks</span> <span class="k">else</span> <span class="s1">&#39;horizontal&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">vertical_xticks</span><span class="p">:</span>
+        <span class="c1"># Pad margins so that markers don&#39;t get clipped by the axes</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+        <span class="c1"># Tweak spacing to prevent clipping of tick-labels</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">legend</span><span class="p">:</span>
+        <span class="c1"># adds the legend to the list hs, initialized with the &quot;ideal&quot; quantifier (one that has 0 bias across all bins. i.e.</span>
+        <span class="c1"># a line from (0,0) to (1,0). The other elements are simply labelled dot-plots that are to be removed (setting</span>
+        <span class="c1"># set_visible to False for all but the first element) after the legend has been placed</span>
+        <span class="n">hs</span><span class="o">=</span><span class="p">[</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;-k&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">colorid</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">method_names</span><span class="p">)):</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">colormap</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">colorid</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colormap</span><span class="o">.</span><span class="n">colors</span><span class="p">)]</span>
+            <span class="n">h</span><span class="p">,</span> <span class="o">=</span> <span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span><span class="n">mec</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.</span><span class="p">)</span>
+            <span class="n">hs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">hs</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;ideal&#39;</span><span class="p">]</span><span class="o">+</span><span class="n">method_names</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+        <span class="p">[</span><span class="n">h</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">hs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+
+    <span class="c1"># x-axis and y-axis labels and limits</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;prevalence&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;error bias&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">_save_or_show</span><span class="p">(</span><span class="n">savepath</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="error_by_drift">
+<a class="viewcode-back" href="../../quapy.html#quapy.plot.error_by_drift">[docs]</a>
+<span class="k">def</span> <span class="nf">error_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span>
+                   <span class="n">n_bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">error_name</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">show_std</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">show_density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                   <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                   <span class="n">logscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Quantification error as a function of distribution shift&#39;</span><span class="p">,</span>
+                   <span class="n">vlines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">method_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                   <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plots the error (along the x-axis, as measured in terms of `error_name`) as a function of the train-test shift</span>
+<span class="sd">    (along the y-axis, as measured in terms of :meth:`quapy.error.ae`). This plot is useful especially for multiclass</span>
+<span class="sd">    problems, in which &quot;diagonal plots&quot; may be cumbersone, and in order to gain understanding about how methods</span>
+<span class="sd">    fare in different regions of the prior probability shift spectrum (e.g., in the low-shift regime vs. in the</span>
+<span class="sd">    high-shift regime).</span>
+
+<span class="sd">    :param method_names: array-like with the method names for each experiment</span>
+<span class="sd">    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for</span>
+<span class="sd">        each experiment</span>
+<span class="sd">    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)</span>
+<span class="sd">        for each experiment</span>
+<span class="sd">    :param tr_prevs: training prevalence of each experiment</span>
+<span class="sd">    :param n_bins: number of bins in which the y-axis is to be divided (default is 20)</span>
+<span class="sd">    :param error_name: a string representing the name of an error function (as defined in `quapy.error`, default is &quot;ae&quot;)</span>
+<span class="sd">    :param show_std: whether or not to show standard deviations as color bands (default is False)</span>
+<span class="sd">    :param show_density: whether or not to display the distribution of experiments for each bin (default is True)</span>
+<span class="sd">    :param show_density: whether or not to display the legend of the chart (default is True)</span>
+<span class="sd">    :param logscale: whether or not to log-scale the y-error measure (default is False)</span>
+<span class="sd">    :param title: title of the plot (default is &quot;Quantification error as a function of distribution shift&quot;)</span>
+<span class="sd">    :param vlines: array-like list of values (default is None). If indicated, highlights some regions of the space</span>
+<span class="sd">        using vertical dotted lines.</span>
+<span class="sd">    :param method_order: if indicated (default is None), imposes the order in which the methods are processed (i.e.,</span>
+<span class="sd">        listed in the legend and associated with matplotlib colors).</span>
+<span class="sd">    :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+
+    <span class="n">x_error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">ae</span>
+    <span class="n">y_error</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">error_name</span><span class="p">)</span>
+
+    <span class="c1"># get all data as a dictionary {&#39;m&#39;:{&#39;x&#39;:ndarray, &#39;y&#39;:ndarray}} where &#39;m&#39; is a method name (in the same</span>
+    <span class="c1"># order as in method_order (if specified), and where &#39;x&#39; are the train-test shifts (computed as according to</span>
+    <span class="c1"># x_error function) and &#39;y&#39; is the estim-test shift (computed as according to y_error)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_join_data_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span> <span class="n">x_error</span><span class="p">,</span> <span class="n">y_error</span><span class="p">,</span> <span class="n">method_order</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">method_order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">method_order</span> <span class="o">=</span> <span class="n">method_names</span>
+
+    <span class="n">_set_colors</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">n_methods</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">method_order</span><span class="p">))</span>
+
+    <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">binwidth</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">n_bins</span>
+    <span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span><span class="p">,</span> <span class="n">min_y</span><span class="p">,</span> <span class="n">max_y</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">npoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">method_order</span><span class="p">:</span>
+        <span class="n">tr_test_drifts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+        <span class="n">method_drifts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">logscale</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">ScalarFormatter</span><span class="p">())</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">get_major_formatter</span><span class="p">()</span><span class="o">.</span><span class="n">set_scientific</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">minorticks_off</span><span class="p">()</span>
+
+        <span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">tr_test_drifts</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">ystds</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span><span class="n">ind</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">))):</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">inds</span><span class="o">==</span><span class="n">ind</span>
+            <span class="k">if</span> <span class="n">selected</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">xs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ind</span><span class="o">*</span><span class="n">binwidth</span><span class="o">-</span><span class="n">binwidth</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">ys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">method_drifts</span><span class="p">[</span><span class="n">selected</span><span class="p">]))</span>
+                <span class="n">ystds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">method_drifts</span><span class="p">[</span><span class="n">selected</span><span class="p">]))</span>
+                <span class="n">npoints</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">method_drifts</span><span class="p">[</span><span class="n">selected</span><span class="p">])</span>
+
+        <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span>
+        <span class="n">ystds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ystds</span><span class="p">)</span>
+
+        <span class="n">min_x_method</span><span class="p">,</span> <span class="n">max_x_method</span><span class="p">,</span> <span class="n">min_y_method</span><span class="p">,</span> <span class="n">max_y_method</span> <span class="o">=</span> <span class="n">xs</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">xs</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">ys</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">ys</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="n">min_x</span> <span class="o">=</span> <span class="n">min_x_method</span> <span class="k">if</span> <span class="n">min_x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">min_x_method</span> <span class="o">&lt;</span> <span class="n">min_x</span> <span class="k">else</span> <span class="n">min_x</span>
+        <span class="n">max_x</span> <span class="o">=</span> <span class="n">max_x_method</span> <span class="k">if</span> <span class="n">max_x</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_x_method</span> <span class="o">&gt;</span> <span class="n">max_x</span> <span class="k">else</span> <span class="n">max_x</span>
+        <span class="n">max_y</span> <span class="o">=</span> <span class="n">max_y_method</span> <span class="k">if</span> <span class="n">max_y</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_y_method</span> <span class="o">&gt;</span> <span class="n">max_y</span> <span class="k">else</span> <span class="n">max_y</span>
+        <span class="n">min_y</span> <span class="o">=</span> <span class="n">min_y_method</span> <span class="k">if</span> <span class="n">min_y</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">min_y_method</span> <span class="o">&lt;</span> <span class="n">min_y</span> <span class="k">else</span> <span class="n">min_y</span>
+        <span class="n">max_y</span> <span class="o">=</span> <span class="n">max_y_method</span> <span class="k">if</span> <span class="n">max_y</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_y_method</span> <span class="o">&gt;</span> <span class="n">max_y</span> <span class="k">else</span> <span class="n">max_y</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">show_std</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="o">-</span><span class="n">ystds</span><span class="p">,</span> <span class="n">ys</span><span class="o">+</span><span class="n">ystds</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">show_density</span><span class="p">:</span>
+        <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+        <span class="n">densities</span> <span class="o">=</span> <span class="n">npoints</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">npoints</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">bar</span><span class="p">([</span><span class="n">ind</span> <span class="o">*</span> <span class="n">binwidth</span><span class="o">-</span><span class="n">binwidth</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">))],</span>
+               <span class="n">densities</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">binwidth</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">max</span><span class="p">(</span><span class="n">densities</span><span class="p">))</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Distribution shift between training set and test sample&#39;</span><span class="p">,</span>
+           <span class="n">ylabel</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">error_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s1"> (true distribution, predicted distribution)&#39;</span><span class="p">,</span>
+           <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">box</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="n">box</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">width</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">box</span><span class="o">.</span><span class="n">height</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">vlines</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">vline</span> <span class="ow">in</span> <span class="n">vlines</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">vline</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="n">max_x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">logscale</span><span class="p">:</span>
+        <span class="c1">#nice scale for the logaritmic axis</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span> <span class="o">**</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">max_y</span><span class="p">)))</span>
+    
+    
+    <span class="k">if</span> <span class="n">show_legend</span><span class="p">:</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower center&#39;</span><span class="p">,</span>
+                  <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+                  <span class="n">ncol</span><span class="o">=</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">method_names</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+      
+    <span class="n">_save_or_show</span><span class="p">(</span><span class="n">savepath</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="brokenbar_supremacy_by_drift">
+<a class="viewcode-back" href="../../quapy.html#quapy.plot.brokenbar_supremacy_by_drift">[docs]</a>
+<span class="k">def</span> <span class="nf">brokenbar_supremacy_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span>
+                                 <span class="n">n_bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">binning</span><span class="o">=</span><span class="s1">&#39;isomerous&#39;</span><span class="p">,</span>
+                                 <span class="n">x_error</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">y_error</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">ttest_alpha</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">tail_density_threshold</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+                                 <span class="n">method_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                 <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Displays (only) the top performing methods for different regions of the train-test shift in form of a broken</span>
+<span class="sd">    bar chart, in which each method has bars only for those regions in which either one of the following conditions</span>
+<span class="sd">    hold: (i) it is the best method (in average) for the bin, or (ii) it is not statistically significantly different</span>
+<span class="sd">    (in average) as according to a two-sided t-test on independent samples at confidence `ttest_alpha`.</span>
+<span class="sd">    The binning can be made &quot;isometric&quot; (same size), or &quot;isomerous&quot; (same number of experiments -- default). A second</span>
+<span class="sd">    plot is displayed on top, that displays the distribution of experiments for each bin (when binning=&quot;isometric&quot;) or</span>
+<span class="sd">    the percentiles points of the distribution (when binning=&quot;isomerous&quot;).</span>
+
+<span class="sd">    :param method_names: array-like with the method names for each experiment</span>
+<span class="sd">    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for</span>
+<span class="sd">        each experiment</span>
+<span class="sd">    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)</span>
+<span class="sd">        for each experiment</span>
+<span class="sd">    :param tr_prevs: training prevalence of each experiment</span>
+<span class="sd">    :param n_bins: number of bins in which the y-axis is to be divided (default is 20)</span>
+<span class="sd">    :param binning: type of binning, either &quot;isomerous&quot; (default) or &quot;isometric&quot;</span>
+<span class="sd">    :param x_error: a string representing the name of an error function (as defined in `quapy.error`) to be used for</span>
+<span class="sd">        measuring the amount of train-test shift (default is &quot;ae&quot;)</span>
+<span class="sd">    :param y_error: a string representing the name of an error function (as defined in `quapy.error`) to be used for</span>
+<span class="sd">        measuring the amount of error in the prevalence estimations (default is &quot;ae&quot;)</span>
+<span class="sd">    :param ttest_alpha: the confidence interval above which a p-value (two-sided t-test on independent samples) is</span>
+<span class="sd">        to be considered as an indicator that the two means are not statistically significantly different. Default is</span>
+<span class="sd">        0.005, meaning that a `p-value &gt; 0.005` indicates the two methods involved are to be considered similar</span>
+<span class="sd">    :param tail_density_threshold: sets a threshold on the density of experiments (over the total number of experiments)</span>
+<span class="sd">        below which a bin in the tail (i.e., the right-most ones) will be discarded. This is in order to avoid some</span>
+<span class="sd">        bins to be shown for train-test outliers.</span>
+<span class="sd">    :param method_order: if indicated (default is None), imposes the order in which the methods are processed (i.e.,</span>
+<span class="sd">        listed in the legend and associated with matplotlib colors).</span>
+<span class="sd">    :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">binning</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;isomerous&#39;</span><span class="p">,</span> <span class="s1">&#39;isometric&#39;</span><span class="p">],</span> <span class="s1">&#39;unknown binning type; valid types are &quot;isomerous&quot; and &quot;isometric&quot;&#39;</span>
+
+    <span class="n">x_error</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">x_error</span><span class="p">)</span>
+    <span class="n">y_error</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">y_error</span><span class="p">)</span>
+
+    <span class="c1"># get all data as a dictionary {&#39;m&#39;:{&#39;x&#39;:ndarray, &#39;y&#39;:ndarray}} where &#39;m&#39; is a method name (in the same</span>
+    <span class="c1"># order as in method_order (if specified), and where &#39;x&#39; are the train-test shifts (computed as according to</span>
+    <span class="c1"># x_error function) and &#39;y&#39; is the estim-test shift (computed as according to y_error)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_join_data_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span> <span class="n">x_error</span><span class="p">,</span> <span class="n">y_error</span><span class="p">,</span> <span class="n">method_order</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">method_order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">method_order</span> <span class="o">=</span> <span class="n">method_names</span>
+
+    <span class="k">if</span> <span class="n">binning</span> <span class="o">==</span> <span class="s1">&#39;isomerous&#39;</span><span class="p">:</span>
+        <span class="c1"># take bins containing the same amount of examples</span>
+        <span class="n">tr_test_drifts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">method_order</span><span class="p">])</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">tr_test_drifts</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># take equidistant bins</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.001</span>
+    <span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.001</span>
+
+    <span class="c1"># we use this to keep track of how many datapoits contribute to each bin</span>
+    <span class="n">inds_histogram_global</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">n_methods</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">method_order</span><span class="p">)</span>
+    <span class="n">buckets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_methods</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">method</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">method_order</span><span class="p">):</span>
+        <span class="n">tr_test_drifts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+        <span class="n">method_drifts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
+
+        <span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">tr_test_drifts</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">inds_histogram_global</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">tr_test_drifts</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)):</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">inds</span> <span class="o">==</span> <span class="n">j</span>
+            <span class="k">if</span> <span class="n">selected</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">buckets</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">method_drifts</span><span class="p">[</span><span class="n">selected</span><span class="p">])</span>
+                <span class="n">buckets</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">method_drifts</span><span class="p">[</span><span class="n">selected</span><span class="p">])</span>
+                <span class="n">buckets</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+    <span class="c1"># cancel last buckets with low density</span>
+    <span class="n">histogram</span> <span class="o">=</span> <span class="n">inds_histogram_global</span> <span class="o">/</span> <span class="n">inds_histogram_global</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">tail</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">histogram</span><span class="p">))):</span>
+        <span class="k">if</span> <span class="n">histogram</span><span class="p">[</span><span class="n">tail</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">tail_density_threshold</span><span class="p">:</span>
+            <span class="n">buckets</span><span class="p">[:,</span><span class="n">tail</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="n">salient_methods</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">best_methods</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">bucket</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">buckets</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">nc</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">[:,</span> <span class="n">bucket</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">nc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">best_methods</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="k">continue</span>
+
+        <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">buckets</span><span class="p">[:,</span> <span class="n">bucket</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">rank1</span> <span class="o">=</span> <span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">best_bucket_methods</span> <span class="o">=</span> <span class="p">[</span><span class="n">method_order</span><span class="p">[</span><span class="n">rank1</span><span class="p">]]</span>
+        <span class="n">best_mean</span><span class="p">,</span> <span class="n">best_std</span><span class="p">,</span> <span class="n">best_nc</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">[</span><span class="n">rank1</span><span class="p">,</span> <span class="n">bucket</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="k">for</span> <span class="n">method_index</span> <span class="ow">in</span> <span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">method_mean</span><span class="p">,</span> <span class="n">method_std</span><span class="p">,</span> <span class="n">method_nc</span> <span class="o">=</span> <span class="n">buckets</span><span class="p">[</span><span class="n">method_index</span><span class="p">,</span> <span class="n">bucket</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">pval</span> <span class="o">=</span> <span class="n">ttest_ind_from_stats</span><span class="p">(</span><span class="n">best_mean</span><span class="p">,</span> <span class="n">best_std</span><span class="p">,</span> <span class="n">best_nc</span><span class="p">,</span> <span class="n">method_mean</span><span class="p">,</span> <span class="n">method_std</span><span class="p">,</span> <span class="n">method_nc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pval</span> <span class="o">&gt;</span> <span class="n">ttest_alpha</span><span class="p">:</span>
+                <span class="n">best_bucket_methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method_order</span><span class="p">[</span><span class="n">method_index</span><span class="p">])</span>
+        <span class="n">best_methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_bucket_methods</span><span class="p">)</span>
+        <span class="n">salient_methods</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">best_bucket_methods</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">best_bucket_methods</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">binning</span><span class="o">==</span><span class="s1">&#39;isomerous&#39;</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;height_ratios&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]},</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">salient_methods</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;height_ratios&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]},</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">salient_methods</span><span class="p">)))</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">high_from</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">yticks</span><span class="p">,</span> <span class="n">yticks_method_names</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;Accent&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">colors</span>
+    <span class="n">vlines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">bar_high</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">method_order</span> <span class="k">if</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">salient_methods</span><span class="p">]:</span>
+        <span class="n">broken_paths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">path_start</span><span class="p">,</span> <span class="n">path_end</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">best_bucket_methods</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">best_methods</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">best_bucket_methods</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">path_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">path_start</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="n">path_end</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">path_start</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">path_end</span> <span class="o">+=</span> <span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">path_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">broken_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">((</span><span class="n">path_start</span><span class="p">,</span> <span class="n">path_end</span><span class="p">)))</span>
+                    <span class="n">path_start</span><span class="p">,</span> <span class="n">path_end</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">path_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">broken_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">tuple</span><span class="p">((</span><span class="n">path_start</span><span class="p">,</span> <span class="n">path_end</span><span class="p">)))</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">broken_barh</span><span class="p">(</span><span class="n">broken_paths</span><span class="p">,</span> <span class="p">(</span><span class="n">high_from</span><span class="p">,</span> <span class="n">bar_high</span><span class="p">),</span> <span class="n">facecolors</span><span class="o">=</span><span class="n">color</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">yticks_method_names</span><span class="p">)])</span>
+        <span class="n">yticks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">high_from</span><span class="o">+</span><span class="n">bar_high</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">high_from</span> <span class="o">+=</span> <span class="n">bar_high</span>
+        <span class="n">yticks_method_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">path_start</span><span class="p">,</span> <span class="n">path_end</span> <span class="ow">in</span> <span class="n">broken_paths</span><span class="p">:</span>
+            <span class="n">vlines</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">path_start</span><span class="p">,</span> <span class="n">path_start</span><span class="o">+</span><span class="n">path_end</span><span class="p">])</span>
+
+    <span class="n">vlines</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">vlines</span><span class="p">)</span>
+    <span class="n">vlines</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">vlines</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vlines</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">v</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">high_from</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">vlines</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vlines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Distribution shift between training set and sample&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">yticks</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">yticks_method_names</span><span class="p">)</span>
+
+    <span class="c1"># upper plot (explaining distribution)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">binning</span> <span class="o">==</span> <span class="s1">&#39;isometric&#39;</span><span class="p">:</span>
+        <span class="c1"># show the density for each region</span>
+        <span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="mi">0</span>
+        <span class="n">y_pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">+</span><span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">b</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">b</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="n">histogram</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">bar_width</span> <span class="o">=</span> <span class="p">[</span><span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="k">if</span> <span class="n">histogram</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">y_pos</span><span class="p">,</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">histogram</span> <span class="k">if</span> <span class="n">n</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">],</span> <span class="n">bar_width</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;silver&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;shift</span><span class="se">\n</span><span class="s1">distribution&#39;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">vlines</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vlines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># show the percentiles of the distribution</span>
+        <span class="n">cumsum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">histogram</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])):</span>
+            <span class="n">start</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">broken_barh</span><span class="p">([</span><span class="nb">tuple</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">width</span><span class="p">))],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">facecolors</span><span class="o">=</span><span class="s1">&#39;whitesmoke&#39;</span> <span class="k">if</span> <span class="n">i</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">0</span> <span class="k">else</span> <span class="s1">&#39;silver&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;$P_{&#39;</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">cumsum</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">))</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">+</span><span class="s1">&#39;}$&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">vlines</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">vlines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">_save_or_show</span><span class="p">(</span><span class="n">savepath</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">_merge</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">):</span>
+    <span class="n">ndims</span> <span class="o">=</span> <span class="n">true_prevs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;true&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ndims</span><span class="p">)),</span> <span class="s1">&#39;estim&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ndims</span><span class="p">))})</span>
+    <span class="n">method_order</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">for</span> <span class="n">method</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">):</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;true&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;true&#39;</span><span class="p">],</span> <span class="n">true_prev</span><span class="p">])</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;estim&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;estim&#39;</span><span class="p">],</span> <span class="n">estim_prev</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">method_order</span><span class="p">:</span>
+            <span class="n">method_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+    <span class="n">true_prevs_</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="s1">&#39;true&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">method_order</span><span class="p">]</span>
+    <span class="n">estim_prevs_</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="s1">&#39;estim&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">method_order</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">method_order</span><span class="p">,</span> <span class="n">true_prevs_</span><span class="p">,</span> <span class="n">estim_prevs_</span>
+
+
+<span class="k">def</span> <span class="nf">_set_colors</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">n_methods</span><span class="p">):</span>
+    <span class="n">NUM_COLORS</span> <span class="o">=</span> <span class="n">n_methods</span>
+    <span class="n">cm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;tab20&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_prop_cycle</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="n">cm</span><span class="p">(</span><span class="mf">1.</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">NUM_COLORS</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_COLORS</span><span class="p">)])</span>
+
+
+<span class="k">def</span> <span class="nf">_save_or_show</span><span class="p">(</span><span class="n">savepath</span><span class="p">):</span>
+    <span class="c1"># if savepath is specified, then saves the plot in that path; otherwise the plot is shown</span>
+    <span class="k">if</span> <span class="n">savepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">create_parent_dir</span><span class="p">(</span><span class="n">savepath</span><span class="p">)</span>
+        <span class="c1"># plt.tight_layout()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">savepath</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_join_data_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span> <span class="n">x_error</span><span class="p">,</span> <span class="n">y_error</span><span class="p">,</span> <span class="n">method_order</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">))})</span>
+
+    <span class="k">if</span> <span class="n">method_order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">method_order</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">method</span><span class="p">,</span> <span class="n">test_prevs_i</span><span class="p">,</span> <span class="n">estim_prevs_i</span><span class="p">,</span> <span class="n">tr_prev_i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">):</span>
+        <span class="n">tr_prev_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">tr_prev_i</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">repeats</span><span class="o">=</span><span class="n">test_prevs_i</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">tr_test_drifts</span> <span class="o">=</span> <span class="n">x_error</span><span class="p">(</span><span class="n">test_prevs_i</span><span class="p">,</span> <span class="n">tr_prev_i</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">tr_test_drifts</span><span class="p">])</span>
+
+        <span class="n">method_drifts</span> <span class="o">=</span> <span class="n">y_error</span><span class="p">(</span><span class="n">test_prevs_i</span><span class="p">,</span> <span class="n">estim_prevs_i</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">data</span><span class="p">[</span><span class="n">method</span><span class="p">][</span><span class="s1">&#39;y&#39;</span><span class="p">],</span> <span class="n">method_drifts</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">method_order</span><span class="p">:</span>
+            <span class="n">method_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.classification.methods &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Quickstart</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals.html">Manuals</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.classification.methods</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.classification.methods</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">TruncatedSVD</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+
+<div class="viewcode-block" id="LowRankLogisticRegression">
+<a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression">[docs]</a>
+<span class="k">class</span> <span class="nc">LowRankLogisticRegression</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An example of a classification method (i.e., an object that implements `fit`, `predict`, and `predict_proba`)</span>
+<span class="sd">    that also generates embedded inputs (i.e., that implements `transform`), as those required for</span>
+<span class="sd">    :class:`quapy.method.neural.QuaNet`. This is a mock method to allow for easily instantiating</span>
+<span class="sd">    :class:`quapy.method.neural.QuaNet` on array-like real-valued instances.</span>
+<span class="sd">    The transformation consists of applying :class:`sklearn.decomposition.TruncatedSVD`</span>
+<span class="sd">    while classification is performed using :class:`sklearn.linear_model.LogisticRegression` on the low-rank space.</span>
+
+<span class="sd">    :param n_components: the number of principal components to retain</span>
+<span class="sd">    :param kwargs: parameters for the</span>
+<span class="sd">        `Logistic Regression &lt;https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html&gt;`__ classifier</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_components</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span> <span class="o">=</span> <span class="n">n_components</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LowRankLogisticRegression.get_params">
+<a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.get_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get hyper-parameters for this estimator.</span>
+
+<span class="sd">        :return: a dictionary with parameter names mapped to their values</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;n_components&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">}</span>
+        <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">params</span></div>
+
+
+<div class="viewcode-block" id="LowRankLogisticRegression.set_params">
+<a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.set_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the parameters of this estimator.</span>
+
+<span class="sd">        :param parameters: a `**kwargs` dictionary with the estimator parameters for</span>
+<span class="sd">            `Logistic Regression &lt;https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html&gt;`__</span>
+<span class="sd">            and eventually also `n_components` for `TruncatedSVD`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">params_</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;n_components&#39;</span> <span class="ow">in</span> <span class="n">params_</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span> <span class="o">=</span> <span class="n">params_</span><span class="p">[</span><span class="s1">&#39;n_components&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">params_</span><span class="p">[</span><span class="s1">&#39;n_components&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params_</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LowRankLogisticRegression.fit">
+<a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit the model according to the given training data. The fit consists of</span>
+<span class="sd">        fitting `TruncatedSVD` and then `LogisticRegression` on the low-rank representation.</span>
+
+<span class="sd">        :param X: array-like of shape `(n_samples, n_features)` with the instances</span>
+<span class="sd">        :param y: array-like of shape `(n_samples, n_classes)` with the class labels</span>
+<span class="sd">        :return: `self`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nF</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pca</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">nF</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pca</span> <span class="o">=</span> <span class="n">TruncatedSVD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="LowRankLogisticRegression.predict">
+<a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.predict">[docs]</a>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predicts labels for the instances `X` embedded into the low-rank space.</span>
+
+<span class="sd">        :param X: array-like of shape `(n_samples, n_features)` instances to classify</span>
+<span class="sd">        :return: a `numpy` array of length `n` containing the label predictions, where `n` is the number of</span>
+<span class="sd">            instances in `X`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LowRankLogisticRegression.predict_proba">
+<a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.predict_proba">[docs]</a>
+    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predicts posterior probabilities for the instances `X` embedded into the low-rank space.</span>
+
+<span class="sd">        :param X: array-like of shape `(n_samples, n_features)` instances to classify</span>
+<span class="sd">        :return: array-like of shape `(n_samples, n_classes)` with the posterior probabilities</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LowRankLogisticRegression.transform">
+<a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.methods.LowRankLogisticRegression.transform">[docs]</a>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the low-rank approximation of `X` with `n_components` dimensions, or `X` unaltered if</span>
+<span class="sd">        `n_components` &gt;= `X.shape[1]`.</span>
+<span class="sd">        </span>
+<span class="sd">        :param X: array-like of shape `(n_samples, n_features)` instances to embed</span>
+<span class="sd">        :return: array-like of shape `(n_samples, n_components)` with the embedded instances</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pca</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">X</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pca</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

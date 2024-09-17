@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.functional &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Quickstart</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../manuals.html">Manuals</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.functional</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.functional</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">ArrayLike</span>
+
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+<span class="c1"># Counter utils</span>
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="counts_from_labels">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.counts_from_labels">[docs]</a>
+<span class="k">def</span> <span class="nf">counts_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">classes</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the raw count values from a vector of labels.</span>
+
+<span class="sd">    :param labels: array-like of shape `(n_instances,)` with the label for each instance</span>
+<span class="sd">    :param classes: the class labels. This is needed in order to correctly compute the prevalence vector even when</span>
+<span class="sd">        some classes have no examples.</span>
+<span class="sd">    :return: ndarray of shape `(len(classes),)` with the raw counts for each class, in the same order</span>
+<span class="sd">        as they appear in `classes`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;param labels does not seem to be a ndarray of label predictions&#39;</span><span class="p">)</span>
+    <span class="n">unique</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">by_class</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">unique</span><span class="p">,</span> <span class="n">counts</span><span class="p">)))</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">by_class</span><span class="p">[</span><span class="n">class_</span><span class="p">]</span> <span class="k">for</span> <span class="n">class_</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">counts</span></div>
+
+
+
+<div class="viewcode-block" id="prevalence_from_labels">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_from_labels">[docs]</a>
+<span class="k">def</span> <span class="nf">prevalence_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">classes</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the prevalence values from a vector of labels.</span>
+
+<span class="sd">    :param labels: array-like of shape `(n_instances,)` with the label for each instance</span>
+<span class="sd">    :param classes: the class labels. This is needed in order to correctly compute the prevalence vector even when</span>
+<span class="sd">        some classes have no examples.</span>
+<span class="sd">    :return: ndarray of shape `(len(classes),)` with the class proportions for each class, in the same order</span>
+<span class="sd">        as they appear in `classes`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">counts_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="p">)</span>
+    <span class="n">prevalences</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">prevalences</span></div>
+
+
+
+<div class="viewcode-block" id="prevalence_from_probabilities">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_from_probabilities">[docs]</a>
+<span class="k">def</span> <span class="nf">prevalence_from_probabilities</span><span class="p">(</span><span class="n">posteriors</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">binarize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a vector of prevalence values from a matrix of posterior probabilities.</span>
+
+<span class="sd">    :param posteriors: array-like of shape `(n_instances, n_classes,)` with posterior probabilities for each class</span>
+<span class="sd">    :param binarize: set to True (default is False) for computing the prevalence values on crisp decisions (i.e.,</span>
+<span class="sd">        converting the vectors of posterior probabilities into class indices, by taking the argmax).</span>
+<span class="sd">    :return: array of shape `(n_classes,)` containing the prevalence values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">posteriors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">posteriors</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">posteriors</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;param posteriors does not seem to be a ndarray of posterior probabilities&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">binarize</span><span class="p">:</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prevalence_from_labels</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">posteriors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prevalences</span> <span class="o">=</span> <span class="n">posteriors</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">prevalences</span> <span class="o">/=</span> <span class="n">prevalences</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">prevalences</span></div>
+
+
+
+<div class="viewcode-block" id="num_prevalence_combinations">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.num_prevalence_combinations">[docs]</a>
+<span class="k">def</span> <span class="nf">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the number of valid prevalence combinations in the n_classes-dimensional simplex if `n_prevpoints` equally</span>
+<span class="sd">    distant prevalence values are generated and `n_repeats` repetitions are requested.</span>
+<span class="sd">    The computation comes down to calculating:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\binom{N+C-1}{C-1} \\times r</span>
+
+<span class="sd">    where `N` is `n_prevpoints-1`, i.e., the number of probability mass blocks to allocate, `C` is the number of</span>
+<span class="sd">    classes, and `r` is `n_repeats`. This solution comes from the</span>
+<span class="sd">    `Stars and Bars &lt;https://brilliant.org/wiki/integer-equations-star-and-bars/&gt;`_ problem.</span>
+
+<span class="sd">    :param int n_classes: number of classes</span>
+<span class="sd">    :param int n_prevpoints: number of prevalence points.</span>
+<span class="sd">    :param int n_repeats: number of repetitions for each prevalence combination</span>
+<span class="sd">    :return: The number of possible combinations. For example, if `n_classes`=2, `n_prevpoints`=5, `n_repeats`=1,</span>
+<span class="sd">        then the number of possible combinations are 5, i.e.: [0,1], [0.25,0.75], [0.50,0.50], [0.75,0.25],</span>
+<span class="sd">        and [1.0,0.0]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">n_prevpoints</span><span class="o">-</span><span class="mi">1</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">n_classes</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">n_repeats</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">binom</span><span class="p">(</span><span class="n">N</span> <span class="o">+</span> <span class="n">C</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">C</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">r</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_nprevpoints_approximation">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.get_nprevpoints_approximation">[docs]</a>
+<span class="k">def</span> <span class="nf">get_nprevpoints_approximation</span><span class="p">(</span><span class="n">combinations_budget</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Searches for the largest number of (equidistant) prevalence points to define for each of the `n_classes` classes so</span>
+<span class="sd">    that the number of valid prevalence values generated as combinations of prevalence points (points in a</span>
+<span class="sd">    `n_classes`-dimensional simplex) do not exceed combinations_budget.</span>
+
+<span class="sd">    :param int combinations_budget: maximum number of combinations allowed</span>
+<span class="sd">    :param int n_classes: number of classes</span>
+<span class="sd">    :param int n_repeats: number of repetitions for each prevalence combination</span>
+<span class="sd">    :return: the largest number of prevalence points that generate less than combinations_budget valid prevalences</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">n_classes</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">n_repeats</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">combinations_budget</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;parameters must be positive integers&#39;</span>
+    <span class="n">n_prevpoints</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">combinations</span> <span class="o">=</span> <span class="n">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">combinations</span> <span class="o">&gt;</span> <span class="n">combinations_budget</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">n_prevpoints</span><span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_prevpoints</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+<span class="c1"># Prevalence vectors</span>
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="as_binary_prevalence">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.as_binary_prevalence">[docs]</a>
+<span class="k">def</span> <span class="nf">as_binary_prevalence</span><span class="p">(</span><span class="n">positive_prevalence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">],</span> <span class="n">clip_if_necessary</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper that, given a float representing the prevalence for the positive class, returns a np.ndarray of two</span>
+<span class="sd">    values representing a binary distribution.</span>
+
+<span class="sd">    :param positive_prevalence: float or array-like of floats with the prevalence for the positive class</span>
+<span class="sd">    :param bool clip_if_necessary: if True, clips the value in [0,1] in order to guarantee the resulting distribution</span>
+<span class="sd">        is valid. If False, it then checks that the value is in the valid range, and raises an error if not.</span>
+<span class="sd">    :return: np.ndarray of shape `(2,)`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">positive_prevalence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">positive_prevalence</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clip_if_necessary</span><span class="p">:</span>
+        <span class="n">positive_prevalence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">positive_prevalence</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">positive_prevalence</span><span class="p">,</span> <span class="n">positive_prevalence</span>  <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> \
+            <span class="s1">&#39;the value provided is not a valid prevalence for the positive class&#39;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span><span class="o">-</span><span class="n">positive_prevalence</span><span class="p">,</span> <span class="n">positive_prevalence</span><span class="p">])</span><span class="o">.</span><span class="n">T</span></div>
+
+
+
+<div class="viewcode-block" id="strprev">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.strprev">[docs]</a>
+<span class="k">def</span> <span class="nf">strprev</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">prec</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a string representation for a prevalence vector. E.g.,</span>
+
+<span class="sd">    &gt;&gt;&gt; strprev([1/3, 2/3], prec=2)</span>
+<span class="sd">    &gt;&gt;&gt; &#39;[0.33, 0.67]&#39;</span>
+
+<span class="sd">    :param prevalences: array-like of prevalence values</span>
+<span class="sd">    :param prec: int, indicates the float precision (number of decimal values to print)</span>
+<span class="sd">    :return: string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s1">&#39;[&#39;</span><span class="o">+</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">p</span><span class="si">:</span><span class="s1">.</span><span class="si">{</span><span class="n">prec</span><span class="si">}</span><span class="s1">f</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prevalences</span><span class="p">])</span> <span class="o">+</span> <span class="s1">&#39;]&#39;</span></div>
+
+
+
+<div class="viewcode-block" id="check_prevalence_vector">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.check_prevalence_vector">[docs]</a>
+<span class="k">def</span> <span class="nf">check_prevalence_vector</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">raise_exception</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">,</span> <span class="n">aggr</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks that `prevalences` is a valid prevalence vector, i.e., it contains values in [0,1] and</span>
+<span class="sd">    the values sum up to 1. In other words, verifies that the `prevalences` vectors lies in the</span>
+<span class="sd">    probability simplex.</span>
+
+<span class="sd">    :param ArrayLike prevalences: the prevalence vector, or vectors, to check</span>
+<span class="sd">    :param bool raise_exception: whether to raise an exception if the vector (or any of the vectors) does</span>
+<span class="sd">        not lie in the simplex (default False)</span>
+<span class="sd">    :param float tolerance: error tolerance for the check `sum(prevalences) - 1 = 0`</span>
+<span class="sd">    :param bool aggr: if True (default) returns one single bool (True if all prevalence vectors are valid,</span>
+<span class="sd">        False otherwise), if False returns an array of bool, one for each prevalence vector</span>
+<span class="sd">    :return: a single bool True if `prevalences` is a vector of prevalence values that lies on the simplex,</span>
+<span class="sd">        or False otherwise; alternatively, if `prevalences` is a matrix of shape `(num_vectors, n_classes,)`</span>
+<span class="sd">        then it returns one such bool for each prevalence vector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prevalences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevalences</span><span class="p">)</span>
+
+    <span class="n">all_positive</span> <span class="o">=</span> <span class="n">prevalences</span><span class="o">&gt;=</span><span class="mi">0</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_positive</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">raise_exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;some prevalence vectors contain negative numbers; &#39;</span>
+                             <span class="s1">&#39;consider using the qp.functional.normalize_prevalence with &#39;</span>
+                             <span class="s1">&#39;any method from [&quot;clip&quot;, &quot;mapsimplex&quot;, &quot;softmax&quot;]&#39;</span><span class="p">)</span>
+
+    <span class="n">all_close_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">prevalences</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="n">tolerance</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_close_1</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">raise_exception</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;some prevalence vectors do not sum up to 1; &#39;</span>
+                             <span class="s1">&#39;consider using the qp.functional.normalize_prevalence with &#39;</span>
+                             <span class="s1">&#39;any method from [&quot;l1&quot;, &quot;clip&quot;, &quot;mapsimplex&quot;, &quot;softmax&quot;]&#39;</span><span class="p">)</span>
+
+    <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">all_positive</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="n">all_close_1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">aggr</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">valid</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">valid</span></div>
+
+
+
+<div class="viewcode-block" id="uniform_prevalence">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.uniform_prevalence">[docs]</a>
+<span class="k">def</span> <span class="nf">uniform_prevalence</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a vector representing the uniform distribution for `n_classes`</span>
+
+<span class="sd">    :param n_classes: number of classes</span>
+<span class="sd">    :return: np.ndarray with all values 1/n_classes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">n_classes</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> \
+        <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;param </span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s1"> not understood; must be a positive integer representing the &#39;</span>
+         <span class="sa">f</span><span class="s1">&#39;number of classes &#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">1.</span><span class="o">/</span><span class="n">n_classes</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="normalize_prevalence">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.normalize_prevalence">[docs]</a>
+<span class="k">def</span> <span class="nf">normalize_prevalence</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;l1&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalizes a vector or matrix of prevalence values. The normalization consists of applying a L1 normalization in</span>
+<span class="sd">    cases in which the prevalence values are not all-zeros, and to convert the prevalence values into `1/n_classes` in</span>
+<span class="sd">    cases in which all values are zero.</span>
+
+<span class="sd">    :param prevalences: array-like of shape `(n_classes,)` or of shape `(n_samples, n_classes,)` with prevalence values</span>
+<span class="sd">    :param str method: indicates the normalization method to employ, options are:</span>
+
+<span class="sd">        * `l1`: applies L1 normalization (default); a 0 vector is mapped onto the uniform prevalence</span>
+<span class="sd">        * `clip`: clip values in [0,1] and then rescales so that the L1 norm is 1</span>
+<span class="sd">        * `mapsimplex`: projects vectors onto the probability simplex. This implementation relies on</span>
+<span class="sd">          `Mathieu Blondel&#39;s projection_simplex_sort &lt;https://gist.github.com/mblondel/6f3b7aaad90606b98f71&gt;`_</span>
+<span class="sd">        * `softmax`: applies softmax to all vectors</span>
+<span class="sd">        * `condsoftmax`: applies softmax only to invalid prevalence vectors</span>
+
+<span class="sd">    :return: a normalized vector or matrix of prevalence values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">prevalences</span>
+
+    <span class="n">prevalences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevalences</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;l1&#39;</span><span class="p">:</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="n">l1_norm</span><span class="p">(</span><span class="n">prevalences</span><span class="p">)</span>
+        <span class="n">check_prevalence_vector</span><span class="p">(</span><span class="n">normalized</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;clip&#39;</span><span class="p">:</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="n">clip</span><span class="p">(</span><span class="n">prevalences</span><span class="p">)</span>  <span class="c1"># no need to check afterwards</span>
+    <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;mapsimplex&#39;</span><span class="p">:</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="n">projection_simplex_sort</span><span class="p">(</span><span class="n">prevalences</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;softmax&#39;</span><span class="p">:</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="n">softmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span><span class="o">==</span><span class="s1">&#39;condsoftmax&#39;</span><span class="p">:</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="n">condsoftmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unknown </span><span class="si">{</span><span class="n">method</span><span class="si">=}</span><span class="s1">, valid ones are [&quot;l1&quot;, &quot;clip&quot;, &quot;mapsimplex&quot;, &quot;softmax&quot;, &quot;condsoftmax&quot;]&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">normalized</span></div>
+
+
+
+<div class="viewcode-block" id="l1_norm">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.l1_norm">[docs]</a>
+<span class="k">def</span> <span class="nf">l1_norm</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies L1 normalization to the `unnormalized_arr` so that it becomes a valid prevalence</span>
+<span class="sd">    vector. Zero vectors are mapped onto the uniform distribution. Raises an exception if</span>
+<span class="sd">    the resulting vectors are not valid distributions. This may happen when the original</span>
+<span class="sd">    prevalence vectors contain negative values. Use the `clip` normalization function</span>
+<span class="sd">    instead to avoid this possibility.</span>
+
+<span class="sd">    :param prevalences: array-like of shape `(n_classes,)` or of shape `(n_samples, n_classes,)` with prevalence values</span>
+<span class="sd">    :return: np.ndarray representing a valid distribution</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_classes</span> <span class="o">=</span> <span class="n">prevalences</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">accum</span> <span class="o">=</span> <span class="n">prevalences</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">prevalences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">true_divide</span><span class="p">(</span><span class="n">prevalences</span><span class="p">,</span> <span class="n">accum</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="n">accum</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">allzeros</span> <span class="o">=</span> <span class="n">accum</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">allzeros</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">prevalences</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">prevalences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">n_classes</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prevalences</span><span class="p">[</span><span class="n">allzeros</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">n_classes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">prevalences</span></div>
+
+
+
+<div class="viewcode-block" id="clip">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.clip">[docs]</a>
+<span class="k">def</span> <span class="nf">clip</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clips the values in [0,1] and then applies the L1 normalization.</span>
+
+<span class="sd">    :param prevalences: array-like of shape `(n_classes,)` or of shape `(n_samples, n_classes,)` with prevalence values</span>
+<span class="sd">    :return: np.ndarray representing a valid distribution</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">clipped</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">prevalences</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">normalized</span> <span class="o">=</span> <span class="n">l1_norm</span><span class="p">(</span><span class="n">clipped</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">normalized</span></div>
+
+
+
+<div class="viewcode-block" id="projection_simplex_sort">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.projection_simplex_sort">[docs]</a>
+<span class="k">def</span> <span class="nf">projection_simplex_sort</span><span class="p">(</span><span class="n">unnormalized_arr</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Projects a point onto the probability simplex.</span>
+
+<span class="sd">    The code is adapted from Mathieu Blondel&#39;s BSD-licensed</span>
+<span class="sd">    `implementation &lt;https://gist.github.com/mblondel/6f3b7aaad90606b98f71&gt;`_</span>
+<span class="sd">    (see function `projection_simplex_sort` in their repo) which is accompanying the paper</span>
+
+<span class="sd">    Mathieu Blondel, Akinori Fujino, and Naonori Ueda.</span>
+<span class="sd">    Large-scale Multiclass Support Vector Machine Training via Euclidean Projection onto the Simplex,</span>
+<span class="sd">    ICPR 2014, `URL &lt;http://www.mblondel.org/publications/mblondel-icpr2014.pdf&gt;`_</span>
+
+<span class="sd">    :param `unnormalized_arr`: point in n-dimensional space, shape `(n,)`</span>
+<span class="sd">    :return: projection of `unnormalized_arr` onto the (n-1)-dimensional probability simplex, shape `(n,)`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unnormalized_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">unnormalized_arr</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unnormalized_arr</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">unnormalized_arr</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">cssv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span>
+    <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">cond</span> <span class="o">=</span> <span class="n">u</span> <span class="o">-</span> <span class="n">cssv</span> <span class="o">/</span> <span class="n">ind</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="n">ind</span><span class="p">[</span><span class="n">cond</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">cssv</span><span class="p">[</span><span class="n">cond</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">unnormalized_arr</span> <span class="o">-</span> <span class="n">theta</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="softmax">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.softmax">[docs]</a>
+<span class="k">def</span> <span class="nf">softmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies the softmax function to all vectors even if the original vectors were valid distributions.</span>
+<span class="sd">    If you want to leave valid vectors untouched, use condsoftmax instead.</span>
+
+<span class="sd">    :param prevalences: array-like of shape `(n_classes,)` or of shape `(n_samples, n_classes,)` with prevalence values</span>
+<span class="sd">    :return: np.ndarray representing a valid distribution</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">normalized</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">normalized</span></div>
+
+
+
+<div class="viewcode-block" id="condsoftmax">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.condsoftmax">[docs]</a>
+<span class="k">def</span> <span class="nf">condsoftmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies the softmax function only to vectors that do not represent valid distributions.</span>
+
+<span class="sd">    :param prevalences: array-like of shape `(n_classes,)` or of shape `(n_samples, n_classes,)` with prevalence values</span>
+<span class="sd">    :return: np.ndarray representing a valid distribution</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">invalid_idx</span> <span class="o">=</span> <span class="o">~</span> <span class="n">check_prevalence_vector</span><span class="p">(</span><span class="n">prevalences</span><span class="p">,</span> <span class="n">aggr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">raise_exception</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">invalid_idx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">)</span> <span class="ow">and</span> <span class="n">invalid_idx</span><span class="p">:</span>
+        <span class="c1"># only one vector</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prevalences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">prevalences</span><span class="p">)</span>
+        <span class="n">prevalences</span><span class="p">[</span><span class="n">invalid_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">[</span><span class="n">invalid_idx</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="n">prevalences</span>
+    <span class="k">return</span> <span class="n">normalized</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+<span class="c1"># Divergences</span>
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="HellingerDistance">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.HellingerDistance">[docs]</a>
+<span class="k">def</span> <span class="nf">HellingerDistance</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Q</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Hellingher Distance (HD) between (discretized) distributions `P` and `Q`.</span>
+<span class="sd">    The HD for two discrete distributions of `k` bins is defined as:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        HD(P,Q) = \\frac{ 1 }{ \\sqrt{ 2 } } \\sqrt{ \\sum_{i=1}^k ( \\sqrt{p_i} - \\sqrt{q_i} )^2 }</span>
+
+<span class="sd">    :param P: real-valued array-like of shape `(k,)` representing a discrete distribution</span>
+<span class="sd">    :param Q: real-valued array-like of shape `(k,)` representing a discrete distribution</span>
+<span class="sd">    :return: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">P</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Q</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="TopsoeDistance">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.TopsoeDistance">[docs]</a>
+<span class="k">def</span> <span class="nf">TopsoeDistance</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Q</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Topsoe distance between two (discretized) distributions `P` and `Q`.</span>
+<span class="sd">    The Topsoe distance for two discrete distributions of `k` bins is defined as:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        Topsoe(P,Q) = \\sum_{i=1}^k \\left( p_i \\log\\left(\\frac{ 2 p_i + \\epsilon }{ p_i+q_i+\\epsilon }\\right) +</span>
+<span class="sd">            q_i \\log\\left(\\frac{ 2 q_i + \\epsilon }{ p_i+q_i+\\epsilon }\\right) \\right)</span>
+
+<span class="sd">    :param P: real-valued array-like of shape `(k,)` representing a discrete distribution</span>
+<span class="sd">    :param Q: real-valued array-like of shape `(k,)` representing a discrete distribution</span>
+<span class="sd">    :return: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">P</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">P</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">P</span><span class="o">+</span><span class="n">Q</span><span class="o">+</span><span class="n">epsilon</span><span class="p">))</span> <span class="o">+</span> <span class="n">Q</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="mi">2</span><span class="o">*</span><span class="n">Q</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">P</span><span class="o">+</span><span class="n">Q</span><span class="o">+</span><span class="n">epsilon</span><span class="p">)))</span></div>
+
+
+
+<div class="viewcode-block" id="get_divergence">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.get_divergence">[docs]</a>
+<span class="k">def</span> <span class="nf">get_divergence</span><span class="p">(</span><span class="n">divergence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Guarantees that the divergence received as argument is a function. That is, if this argument is already</span>
+<span class="sd">    a callable, then it is returned, if it is instead a string, then tries to instantiate the corresponding</span>
+<span class="sd">    divergence from the string name.</span>
+
+<span class="sd">    :param divergence: callable or string indicating the name of the divergence function</span>
+<span class="sd">    :return: callable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">divergence</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">divergence</span><span class="o">==</span><span class="s1">&#39;HD&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">HellingerDistance</span>
+        <span class="k">elif</span> <span class="n">divergence</span><span class="o">==</span><span class="s1">&#39;topsoe&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TopsoeDistance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unknown divergence </span><span class="si">{</span><span class="n">divergence</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">divergence</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">divergence</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;argument &quot;divergence&quot; not understood; use a str or a callable function&#39;</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+<span class="c1"># Solvers</span>
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="argmin_prevalence">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.argmin_prevalence">[docs]</a>
+<span class="k">def</span> <span class="nf">argmin_prevalence</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+                      <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                      <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;optim_minimize&quot;</span><span class="p">,</span> <span class="s2">&quot;linear_search&quot;</span><span class="p">,</span> <span class="s2">&quot;ternary_search&quot;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;optim_minimize&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Searches for the prevalence vector that minimizes a loss function.</span>
+
+<span class="sd">    :param loss: callable, the function to minimize</span>
+<span class="sd">    :param n_classes: int, number of classes</span>
+<span class="sd">    :param method: string indicating the search strategy. Possible values are::</span>
+<span class="sd">        &#39;optim_minimize&#39;: uses scipy.optim</span>
+<span class="sd">        &#39;linear_search&#39;: carries out a linear search for binary problems in the space [0, 0.01, 0.02, ..., 1]</span>
+<span class="sd">        &#39;ternary_search&#39;: implements the ternary search (not yet implemented)</span>
+<span class="sd">    :return: np.ndarray, a prevalence vector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;optim_minimize&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;linear_search&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">linear_search</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;ternary_search&#39;</span><span class="p">:</span>
+        <span class="n">ternary_search</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="optim_minimize">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.optim_minimize">[docs]</a>
+<span class="k">def</span> <span class="nf">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Searches for the optimal prevalence values, i.e., an `n_classes`-dimensional vector of the (`n_classes`-1)-simplex</span>
+<span class="sd">    that yields the smallest lost. This optimization is carried out by means of a constrained search using scipy&#39;s</span>
+<span class="sd">    SLSQP routine.</span>
+
+<span class="sd">    :param loss: (callable) the function to minimize</span>
+<span class="sd">    :param n_classes: (int) the number of classes, i.e., the dimensionality of the prevalence vector</span>
+<span class="sd">    :return: (ndarray) the best prevalence vector found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
+
+    <span class="c1"># the initial point is set as the uniform distribution</span>
+    <span class="n">uniform_distribution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,))</span>
+
+    <span class="c1"># solutions are bounded to those contained in the unit-simplex</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">))</span>  <span class="c1"># values in [0,1]</span>
+    <span class="n">constraints</span> <span class="o">=</span> <span class="p">({</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;eq&#39;</span><span class="p">,</span> <span class="s1">&#39;fun&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">)})</span>  <span class="c1"># values summing up to 1</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">uniform_distribution</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;SLSQP&#39;</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="n">bounds</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">x</span></div>
+
+
+
+<div class="viewcode-block" id="linear_search">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.linear_search">[docs]</a>
+<span class="k">def</span> <span class="nf">linear_search</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Performs a linear search for the best prevalence value in binary problems. The search is carried out by exploring</span>
+<span class="sd">    the range [0,1] stepping by 0.01. This search is inefficient, and is added only for completeness (some of the</span>
+<span class="sd">    early methods in quantification literature used it, e.g., HDy). A most powerful alternative is `optim_minimize`.</span>
+
+<span class="sd">    :param loss: (callable) the function to minimize</span>
+<span class="sd">    :param n_classes: (int) the number of classes, i.e., the dimensionality of the prevalence vector</span>
+<span class="sd">    :return: (ndarray) the best prevalence vector found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">n_classes</span><span class="o">==</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;linear search is only available for binary problems&#39;</span>
+
+    <span class="n">prev_selected</span><span class="p">,</span> <span class="n">min_score</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">prev</span> <span class="ow">in</span> <span class="n">prevalence_linspace</span><span class="p">(</span><span class="n">grid_points</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">smooth_limits_epsilon</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">loss</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span> <span class="o">-</span> <span class="n">prev</span><span class="p">,</span> <span class="n">prev</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">min_score</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="n">min_score</span><span class="p">:</span>
+            <span class="n">prev_selected</span><span class="p">,</span> <span class="n">min_score</span> <span class="o">=</span> <span class="n">prev</span><span class="p">,</span> <span class="n">score</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">1</span> <span class="o">-</span> <span class="n">prev_selected</span><span class="p">,</span> <span class="n">prev_selected</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="ternary_search">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.ternary_search">[docs]</a>
+<span class="k">def</span> <span class="nf">ternary_search</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+<span class="c1"># Sampling utils</span>
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="prevalence_linspace">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_linspace">[docs]</a>
+<span class="k">def</span> <span class="nf">prevalence_linspace</span><span class="p">(</span><span class="n">grid_points</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">smooth_limits_epsilon</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Produces an array of uniformly separated values of prevalence.</span>
+<span class="sd">    By default, produces an array of 21 prevalence values, with</span>
+<span class="sd">    step 0.05 and with the limits smoothed, i.e.:</span>
+<span class="sd">    [0.01, 0.05, 0.10, 0.15, ..., 0.90, 0.95, 0.99]</span>
+
+<span class="sd">    :param grid_points: the number of prevalence values to sample from the [0,1] interval (default 21)</span>
+<span class="sd">    :param repeats: number of times each prevalence is to be repeated (defaults to 1)</span>
+<span class="sd">    :param smooth_limits_epsilon: the quantity to add and subtract to the limits 0 and 1</span>
+<span class="sd">    :return: an array of uniformly separated prevalence values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="n">grid_points</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">smooth_limits_epsilon</span>
+    <span class="n">p</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="n">smooth_limits_epsilon</span>
+    <span class="k">if</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;the smoothing in the limits is greater than the prevalence step&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">repeats</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">repeats</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span></div>
+
+
+
+<div class="viewcode-block" id="uniform_prevalence_sampling">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.uniform_prevalence_sampling">[docs]</a>
+<span class="k">def</span> <span class="nf">uniform_prevalence_sampling</span><span class="p">(</span><span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements the `Kraemer algorithm &lt;http://www.cs.cmu.edu/~nasmith/papers/smith+tromble.tr04.pdf&gt;`_</span>
+<span class="sd">    for sampling uniformly at random from the unit simplex. This implementation is adapted from this</span>
+<span class="sd">    `post &lt;https://cs.stackexchange.com/questions/3227/uniform-sampling-from-a-simplex&gt;_`.</span>
+
+<span class="sd">    :param n_classes: integer, number of classes (dimensionality of the simplex)</span>
+<span class="sd">    :param size: number of samples to return</span>
+<span class="sd">    :return: `np.ndarray` of shape `(size, n_classes,)` if `size&gt;1`, or of shape `(n_classes,)` otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n_classes</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="mi">1</span><span class="o">-</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">_0s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">_1s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">_0s</span><span class="p">,</span> <span class="n">u</span><span class="p">])</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">_1s</span><span class="p">])</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">b</span><span class="o">-</span><span class="n">a</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">u</span></div>
+
+
+
+<span class="n">uniform_simplex_sampling</span> <span class="o">=</span> <span class="n">uniform_prevalence_sampling</span>
+
+
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+<span class="c1"># Adjustment</span>
+<span class="c1"># ------------------------------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="solve_adjustment_binary">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.solve_adjustment_binary">[docs]</a>
+<span class="k">def</span> <span class="nf">solve_adjustment_binary</span><span class="p">(</span><span class="n">prevalence_estim</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">tpr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fpr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">clip</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements the adjustment of ACC and PACC for the binary case. The adjustment for a prevalence estimate of the</span>
+<span class="sd">    positive class `p` comes down to computing:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        ACC(p) = \\frac{ p - fpr }{ tpr - fpr }</span>
+
+<span class="sd">    :param float prevalence_estim: the estimated value for the positive class (`p` in the formula)</span>
+<span class="sd">    :param float tpr: the true positive rate of the classifier</span>
+<span class="sd">    :param float fpr: the false positive rate of the classifier</span>
+<span class="sd">    :param bool clip: set to True (default) to clip values that might exceed the range [0,1]</span>
+<span class="sd">    :return: float, the adjusted count</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">den</span> <span class="o">=</span> <span class="n">tpr</span> <span class="o">-</span> <span class="n">fpr</span>
+    <span class="k">if</span> <span class="n">den</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">den</span> <span class="o">+=</span> <span class="mf">1e-8</span>
+    <span class="n">adjusted</span> <span class="o">=</span> <span class="p">(</span><span class="n">prevalence_estim</span> <span class="o">-</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">/</span> <span class="n">den</span>
+    <span class="k">if</span> <span class="n">clip</span><span class="p">:</span>
+        <span class="n">adjusted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">adjusted</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">adjusted</span></div>
+
+
+
+<div class="viewcode-block" id="solve_adjustment">
+<a class="viewcode-back" href="../../quapy.html#quapy.functional.solve_adjustment">[docs]</a>
+<span class="k">def</span> <span class="nf">solve_adjustment</span><span class="p">(</span>
+    <span class="n">class_conditional_rates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">unadjusted_counts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;inversion&quot;</span><span class="p">,</span> <span class="s2">&quot;invariant-ratio&quot;</span><span class="p">],</span>
+    <span class="n">solver</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;exact&quot;</span><span class="p">,</span> <span class="s2">&quot;minimize&quot;</span><span class="p">,</span> <span class="s2">&quot;exact-raise&quot;</span><span class="p">,</span> <span class="s2">&quot;exact-cc&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function that tries to solve for :math:`p` the equation :math:`q = M p`, where :math:`q` is the vector of</span>
+<span class="sd">    `unadjusted counts` (as estimated, e.g., via classify and count) with :math:`q_i` an estimate of</span>
+<span class="sd">    :math:`P(\hat{Y}=y_i)`, and where :math:`M` is the matrix of `class-conditional rates` with :math:`M_{ij}` an</span>
+<span class="sd">    estimate of :math:`P(\hat{Y}=y_i|Y=y_j)`.</span>
+
+<span class="sd">    :param class_conditional_rates: array of shape `(n_classes, n_classes,)` with entry `(i,j)` being the estimate</span>
+<span class="sd">        of :math:`P(\hat{Y}=y_i|Y=y_j)`, that is, the probability that an instance that belongs to class :math:`y_j`</span>
+<span class="sd">        ends up being classified as belonging to class :math:`y_i`</span>
+
+<span class="sd">    :param unadjusted_counts: array of shape `(n_classes,)` containing the unadjusted prevalence values (e.g., as</span>
+<span class="sd">        estimated by CC or PCC)</span>
+
+<span class="sd">    :param str method: indicates the adjustment method to be used. Valid options are:</span>
+
+<span class="sd">        * `inversion`: tries to solve the equation :math:`q = M p` as :math:`p = M^{-1} q` where</span>
+<span class="sd">          :math:`M^{-1}` is the matrix inversion of :math:`M`. This inversion may not exist in</span>
+<span class="sd">          degenerated cases.</span>
+<span class="sd">        * `invariant-ratio`: invariant ratio estimator of `Vaz et al. 2018 &lt;https://jmlr.org/papers/v20/18-456.html&gt;`_,</span>
+<span class="sd">          which replaces the last equation in :math:`M` with the normalization condition (i.e., that the sum of</span>
+<span class="sd">          all prevalence values must equal 1).</span>
+
+<span class="sd">    :param str solver: the method to use for solving the system of linear equations. Valid options are:</span>
+
+<span class="sd">        * `exact-raise`: tries to solve the system using matrix inversion. Raises an error if the matrix has rank</span>
+<span class="sd">          strictly lower than `n_classes`.</span>
+<span class="sd">        * `exact-cc`: if the matrix is not full rank, returns :math:`q` (i.e., the unadjusted counts) as the estimates</span>
+<span class="sd">        * `exact`: deprecated, defaults to &#39;exact-cc&#39; (will be removed in future versions)</span>
+<span class="sd">        * `minimize`: minimizes a loss, so the solution always exists</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;exact&quot;</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;The &#39;exact&#39; solver is deprecated. Use &#39;exact-raise&#39; or &#39;exact-cc&#39;&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">solver</span> <span class="o">=</span> <span class="s2">&quot;exact-cc&quot;</span>
+
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">class_conditional_rates</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">unadjusted_counts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;inversion&quot;</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># We leave A and B unchanged</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;invariant-ratio&quot;</span><span class="p">:</span>
+        <span class="c1"># Change the last equation to replace it with the normalization condition</span>
+        <span class="n">A</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">B</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown </span><span class="si">{</span><span class="n">method</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;minimize&quot;</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">prev</span> <span class="o">-</span> <span class="n">B</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">solver</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;exact-raise&quot;</span><span class="p">,</span> <span class="s2">&quot;exact-cc&quot;</span><span class="p">]:</span>
+        <span class="c1"># Solvers based on matrix inversion, so we use try/except block</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+            <span class="c1"># The matrix is not invertible.</span>
+            <span class="c1"># Depending on the solver, we either raise an error</span>
+            <span class="c1"># or return the classifier predictions without adjustment</span>
+            <span class="k">if</span> <span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;exact-raise&quot;</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">elif</span> <span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;exact-cc&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">unadjusted_counts</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Solver </span><span class="si">{</span><span class="n">solver</span><span class="si">}</span><span class="s2"> not known.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unknown </span><span class="si">{</span><span class="n">solver</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

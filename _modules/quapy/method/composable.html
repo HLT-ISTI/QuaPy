@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.method.composable &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Quickstart</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals.html">Manuals</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.method.composable</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.method.composable</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This module allows the composition of quantification methods from loss functions and feature transformations. This functionality is realized through an integration of the qunfold package: https://github.com/mirkobunse/qunfold.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">qunfold</span>
+<span class="kn">from</span> <span class="nn">qunfold.quapy</span> <span class="kn">import</span> <span class="n">QuaPyWrapper</span>
+<span class="kn">from</span> <span class="nn">qunfold.sklearn</span> <span class="kn">import</span> <span class="n">CVClassifier</span>
+<span class="kn">from</span> <span class="nn">qunfold</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LeastSquaresLoss</span><span class="p">,</span> <span class="c1"># losses</span>
+    <span class="n">BlobelLoss</span><span class="p">,</span>
+    <span class="n">EnergyLoss</span><span class="p">,</span>
+    <span class="n">HellingerSurrogateLoss</span><span class="p">,</span>
+    <span class="n">CombinedLoss</span><span class="p">,</span>
+    <span class="n">TikhonovRegularization</span><span class="p">,</span>
+    <span class="n">TikhonovRegularized</span><span class="p">,</span>
+    <span class="n">ClassTransformer</span><span class="p">,</span> <span class="c1"># transformers</span>
+    <span class="n">HistogramTransformer</span><span class="p">,</span>
+    <span class="n">DistanceTransformer</span><span class="p">,</span>
+    <span class="n">KernelTransformer</span><span class="p">,</span>
+    <span class="n">EnergyKernelTransformer</span><span class="p">,</span>
+    <span class="n">LaplacianKernelTransformer</span><span class="p">,</span>
+    <span class="n">GaussianKernelTransformer</span><span class="p">,</span>
+    <span class="n">GaussianRFFKernelTransformer</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="c1"># control public members, e.g., for auto-documentation in sphinx; omit QuaPyWrapper</span>
+    <span class="s2">&quot;ComposableQuantifier&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CVClassifier&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LeastSquaresLoss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BlobelLoss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EnergyLoss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HellingerSurrogateLoss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CombinedLoss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TikhonovRegularization&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TikhonovRegularized&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClassTransformer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HistogramTransformer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DistanceTransformer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;KernelTransformer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EnergyKernelTransformer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LaplacianKernelTransformer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GaussianKernelTransformer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GaussianRFFKernelTransformer&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<div class="viewcode-block" id="ComposableQuantifier">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.composable.ComposableQuantifier">[docs]</a>
+<span class="k">def</span> <span class="nf">ComposableQuantifier</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">transformer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A generic quantification / unfolding method that solves a linear system of equations.</span>
+
+<span class="sd">    This class represents any quantifier that can be described in terms of a loss function, a feature transformation, and a regularization term. In this implementation, the loss is minimized through unconstrained second-order minimization. Valid probability estimates are ensured through a soft-max trick by Bunse (2022).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        loss: An instance of a loss class from `quapy.methods.composable`.</span>
+<span class="sd">        transformer: An instance of a transformer class from `quapy.methods.composable`.</span>
+<span class="sd">        solver (optional): The `method` argument in `scipy.optimize.minimize`. Defaults to `&quot;trust-ncg&quot;`.</span>
+<span class="sd">        solver_options (optional): The `options` argument in `scipy.optimize.minimize`. Defaults to `{&quot;gtol&quot;: 1e-8, &quot;maxiter&quot;: 1000}`.</span>
+<span class="sd">        seed (optional): A random number generator seed from which a numpy RandomState is created. Defaults to `None`.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Here, we create the ordinal variant of ACC (Bunse et al., 2023). This variant consists of the original feature transformation of ACC and of the original loss of ACC, the latter of which is regularized towards smooth solutions.</span>
+
+<span class="sd">            &gt;&gt;&gt; from quapy.method.composable import (</span>
+<span class="sd">            &gt;&gt;&gt;     ComposableQuantifier,</span>
+<span class="sd">            &gt;&gt;&gt;     TikhonovRegularized,</span>
+<span class="sd">            &gt;&gt;&gt;     LeastSquaresLoss,</span>
+<span class="sd">            &gt;&gt;&gt;     ClassTransformer,</span>
+<span class="sd">            &gt;&gt;&gt; )</span>
+<span class="sd">            &gt;&gt;&gt; from sklearn.ensemble import RandomForestClassifier</span>
+<span class="sd">            &gt;&gt;&gt; o_acc = ComposableQuantifier(</span>
+<span class="sd">            &gt;&gt;&gt;     TikhonovRegularized(LeastSquaresLoss(), 0.01),</span>
+<span class="sd">            &gt;&gt;&gt;     ClassTransformer(RandomForestClassifier(oob_score=True))</span>
+<span class="sd">            &gt;&gt;&gt; )</span>
+
+<span class="sd">        Here, we perform hyper-parameter optimization with the ordinal ACC.</span>
+
+<span class="sd">            &gt;&gt;&gt; quapy.model_selection.GridSearchQ(</span>
+<span class="sd">            &gt;&gt;&gt;     model = o_acc,</span>
+<span class="sd">            &gt;&gt;&gt;     param_grid = { # try both splitting criteria</span>
+<span class="sd">            &gt;&gt;&gt;         &quot;transformer__classifier__estimator__criterion&quot;: [&quot;gini&quot;, &quot;entropy&quot;],</span>
+<span class="sd">            &gt;&gt;&gt;     },</span>
+<span class="sd">            &gt;&gt;&gt;     # ...</span>
+<span class="sd">            &gt;&gt;&gt; )</span>
+<span class="sd">        </span>
+<span class="sd">        To use a classifier that does not provide the `oob_score` argument, such as logistic regression, you have to configure a cross validation of this classifier. Here, we employ 10 cross validation folds. 5 folds are the default.</span>
+
+<span class="sd">            &gt;&gt;&gt; from quapy.method.composable import CVClassifier</span>
+<span class="sd">            &gt;&gt;&gt; from sklearn.linear_model import LogisticRegression</span>
+<span class="sd">            &gt;&gt;&gt; acc_lr = ComposableQuantifier(</span>
+<span class="sd">            &gt;&gt;&gt;     LeastSquaresLoss(),</span>
+<span class="sd">            &gt;&gt;&gt;     ClassTransformer(CVClassifier(LogisticRegression(), 10))</span>
+<span class="sd">            &gt;&gt;&gt; )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">QuaPyWrapper</span><span class="p">(</span><span class="n">qunfold</span><span class="o">.</span><span class="n">GenericMethod</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">transformer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.model_selection &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Quickstart</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../manuals.html">Manuals</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.model_selection</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.model_selection</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">signal</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">clone</span>
+
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy</span> <span class="kn">import</span> <span class="n">evaluation</span>
+<span class="kn">from</span> <span class="nn">quapy.protocol</span> <span class="kn">import</span> <span class="n">AbstractProtocol</span><span class="p">,</span> <span class="n">OnLabelledCollectionProtocol</span>
+<span class="kn">from</span> <span class="nn">quapy.data.base</span> <span class="kn">import</span> <span class="n">LabelledCollection</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">AggregativeQuantifier</span>
+<span class="kn">from</span> <span class="nn">quapy.util</span> <span class="kn">import</span> <span class="n">timeout</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+
+<div class="viewcode-block" id="Status">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.Status">[docs]</a>
+<span class="k">class</span> <span class="nc">Status</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">SUCCESS</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">TIMEOUT</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">INVALID</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="mi">4</span></div>
+
+
+
+<div class="viewcode-block" id="ConfigStatus">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.ConfigStatus">[docs]</a>
+<span class="k">class</span> <span class="nc">ConfigStatus</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">status</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;:params:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="si">}</span><span class="s1"> :status:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="si">}</span><span class="s1"> &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">msg</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConfigStatus.success">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.ConfigStatus.success">[docs]</a>
+    <span class="k">def</span> <span class="nf">success</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">Status</span><span class="o">.</span><span class="n">SUCCESS</span></div>
+
+
+<div class="viewcode-block" id="ConfigStatus.failed">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.ConfigStatus.failed">[docs]</a>
+    <span class="k">def</span> <span class="nf">failed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">Status</span><span class="o">.</span><span class="n">SUCCESS</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="GridSearchQ">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ">[docs]</a>
+<span class="k">class</span> <span class="nc">GridSearchQ</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Grid Search optimization targeting a quantification-oriented metric.</span>
+
+<span class="sd">    Optimizes the hyperparameters of a quantification method, based on an evaluation method and on an evaluation</span>
+<span class="sd">    protocol for quantification.</span>
+
+<span class="sd">    :param model: the quantifier to optimize</span>
+<span class="sd">    :type model: BaseQuantifier</span>
+<span class="sd">    :param param_grid: a dictionary with keys the parameter names and values the list of values to explore</span>
+<span class="sd">    :param protocol: a sample generation protocol, an instance of :class:`quapy.protocol.AbstractProtocol`</span>
+<span class="sd">    :param error: an error function (callable) or a string indicating the name of an error function (valid ones</span>
+<span class="sd">        are those in :class:`quapy.error.QUANTIFICATION_ERROR`</span>
+<span class="sd">    :param refit: whether to refit the model on the whole labelled collection (training+validation) with</span>
+<span class="sd">        the best chosen hyperparameter combination. Ignored if protocol=&#39;gen&#39;</span>
+<span class="sd">    :param timeout: establishes a timer (in seconds) for each of the hyperparameters configurations being tested.</span>
+<span class="sd">        Whenever a run takes longer than this timer, that configuration will be ignored. If all configurations end up</span>
+<span class="sd">        being ignored, a TimeoutError exception is raised. If -1 (default) then no time bound is set.</span>
+<span class="sd">    :param raise_errors: boolean, if True then raises an exception when a param combination yields any error, if</span>
+<span class="sd">        otherwise is False (default), then the combination is marked with an error status, but the process goes on.</span>
+<span class="sd">        However, if no configuration yields a valid model, then a ValueError exception will be raised.</span>
+<span class="sd">    :param verbose: set to True to get information through the stdout</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">model</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span>
+                 <span class="n">param_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+                 <span class="n">protocol</span><span class="p">:</span> <span class="n">AbstractProtocol</span><span class="p">,</span>
+                 <span class="n">error</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mae</span><span class="p">,</span>
+                 <span class="n">refit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">timeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">raise_errors</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span> <span class="o">=</span> <span class="n">param_grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">protocol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refit</span> <span class="o">=</span> <span class="n">refit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raise_errors</span> <span class="o">=</span> <span class="n">raise_errors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">AbstractProtocol</span><span class="p">),</span> <span class="s1">&#39;unknown protocol&#39;</span>
+
+    <span class="k">def</span> <span class="nf">_sout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">]: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__check_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">QUANTIFICATION_ERROR</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">error</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="s1">&#39;__call__&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">error</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unexpected error type; must either be a callable function or a str representing</span><span class="se">\n</span><span class="s1">&#39;</span>
+                             <span class="sa">f</span><span class="s1">&#39;the name of an error function in </span><span class="si">{</span><span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">QUANTIFICATION_ERROR_NAMES</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_prepare_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cls_params</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">job</span><span class="p">(</span><span class="n">cls_params</span><span class="p">):</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">cls_params</span><span class="p">)</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">classifier_fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_training</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">predictions</span>
+
+        <span class="n">predictions</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">took</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_handler</span><span class="p">(</span><span class="n">job</span><span class="p">,</span> <span class="n">cls_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[classifier fit] hyperparams=</span><span class="si">{</span><span class="n">cls_params</span><span class="si">}</span><span class="s1"> [took </span><span class="si">{</span><span class="n">took</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">s]&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">took</span>
+
+    <span class="k">def</span> <span class="nf">_prepare_aggregation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="n">model</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">cls_took</span><span class="p">,</span> <span class="n">cls_params</span><span class="p">,</span> <span class="n">q_params</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">cls_params</span><span class="p">,</span> <span class="o">**</span><span class="n">q_params</span><span class="p">}</span>
+
+        <span class="k">def</span> <span class="nf">job</span><span class="p">(</span><span class="n">q_params</span><span class="p">):</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">q_params</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">aggregation_fit</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_training</span><span class="p">)</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">error_metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">score</span>
+
+        <span class="n">score</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">aggr_took</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_handler</span><span class="p">(</span><span class="n">job</span><span class="p">,</span> <span class="n">q_params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print_status</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">aggr_took</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="p">(</span><span class="n">cls_took</span><span class="o">+</span><span class="n">aggr_took</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_prepare_nonaggr_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">job</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_training</span><span class="p">)</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">error_metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">score</span>
+
+        <span class="n">score</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">took</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_error_handler</span><span class="p">(</span><span class="n">job</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_print_status</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">took</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">took</span>
+
+    <span class="k">def</span> <span class="nf">_break_down_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decides whether to break down the fit phase in two (classifier-fit followed by aggregation-fit).</span>
+<span class="sd">        In order to do so, some conditions should be met: a) the quantifier is of type aggregative,</span>
+<span class="sd">        b) the set of hyperparameters can be split into two disjoint non-empty groups.</span>
+
+<span class="sd">        :return: True if the conditions are met, False otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">AggregativeQuantifier</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">cls_configs</span><span class="p">,</span> <span class="n">q_configs</span> <span class="o">=</span> <span class="n">group_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cls_configs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">q_configs</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_compute_scores_aggregative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
+        <span class="c1"># break down the set of hyperparameters into two: classifier-specific, quantifier-specific</span>
+        <span class="n">cls_configs</span><span class="p">,</span> <span class="n">q_configs</span> <span class="o">=</span> <span class="n">group_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span><span class="p">)</span>
+
+        <span class="c1"># train all classifiers and get the predictions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_training</span> <span class="o">=</span> <span class="n">training</span>
+        <span class="n">cls_outs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_classifier</span><span class="p">,</span>
+            <span class="n">cls_configs</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span>
+        <span class="p">)</span>
+
+        <span class="c1"># filter out classifier configurations that yielded any error</span>
+        <span class="n">success_outs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">took</span><span class="p">),</span> <span class="n">cls_config</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cls_outs</span><span class="p">,</span> <span class="n">cls_configs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">success</span><span class="p">():</span>
+                <span class="n">success_outs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">model</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">took</span><span class="p">,</span> <span class="n">cls_config</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error_collector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">success_outs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No valid configuration found for the classifier!&#39;</span><span class="p">)</span>
+
+        <span class="c1"># explore the quantifier-specific hyperparameters for each valid training configuration</span>
+        <span class="n">aggr_configs</span> <span class="o">=</span> <span class="p">[(</span><span class="o">*</span><span class="n">out</span><span class="p">,</span> <span class="n">q_config</span><span class="p">)</span> <span class="k">for</span> <span class="n">out</span><span class="p">,</span> <span class="n">q_config</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">success_outs</span><span class="p">,</span> <span class="n">q_configs</span><span class="p">)]</span>
+        <span class="n">aggr_outs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_aggregation</span><span class="p">,</span>
+            <span class="n">aggr_configs</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">aggr_outs</span>
+
+    <span class="k">def</span> <span class="nf">_compute_scores_nonaggregative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="p">):</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="n">expand_grid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_training</span> <span class="o">=</span> <span class="n">training</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_nonaggr_model</span><span class="p">,</span>
+            <span class="n">configs</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">scores</span>
+
+    <span class="k">def</span> <span class="nf">_print_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">took</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">success</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;hyperparams=[</span><span class="si">{</span><span class="n">params</span><span class="si">}</span><span class="s1">]</span><span class="se">\t</span><span class="s1"> got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">score</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1"> [took </span><span class="si">{</span><span class="n">took</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">s]&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;error=</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GridSearchQ.fit">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Learning routine. Fits methods with all combinations of hyperparameters and selects the one minimizing</span>
+<span class="sd">            the error metric.</span>
+
+<span class="sd">        :param training: the training set on which to optimize the hyperparameters</span>
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refit</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">OnLabelledCollectionProtocol</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeWarning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;&quot;refit&quot; was requested, but the protocol does not implement &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;the </span><span class="si">{</span><span class="n">OnLabelledCollectionProtocol</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> interface&#39;</span>
+            <span class="p">)</span>
+
+        <span class="n">tinit</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">error_collector</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;starting model selection with n_jobs=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_break_down_fit</span><span class="p">():</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_scores_aggregative</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_scores_nonaggregative</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_scores_</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_score_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">took</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">status</span><span class="o">.</span><span class="n">success</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_score_</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_score_</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_score_</span> <span class="o">=</span> <span class="n">score</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_params_</span> <span class="o">=</span> <span class="n">params</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_model_</span> <span class="o">=</span> <span class="n">model</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">param_scores_</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">params</span><span class="p">)]</span> <span class="o">=</span> <span class="n">score</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">param_scores_</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">params</span><span class="p">)]</span> <span class="o">=</span> <span class="n">status</span><span class="o">.</span><span class="n">status</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error_collector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+
+        <span class="n">tend</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">tinit</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_score_</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;no combination of hyperparameters seemed to work&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;optimization finished: best params </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best_params_</span><span class="si">}</span><span class="s1"> (score=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best_score_</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1">) &#39;</span>
+                   <span class="sa">f</span><span class="s1">&#39;[took </span><span class="si">{</span><span class="n">tend</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">s]&#39;</span><span class="p">)</span>
+
+        <span class="n">no_errors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">error_collector</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">no_errors</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;warning: </span><span class="si">{</span><span class="n">no_errors</span><span class="si">}</span><span class="s1"> errors found&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">err</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_collector</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">refit</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="p">,</span> <span class="n">OnLabelledCollectionProtocol</span><span class="p">):</span>
+                <span class="n">tinit</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sout</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;refitting on the whole development set&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">best_model_</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">get_labelled_collection</span><span class="p">())</span>
+                <span class="n">tend</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tinit</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">refit_time_</span> <span class="o">=</span> <span class="n">tend</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># already checked</span>
+                <span class="k">raise</span> <span class="ne">RuntimeWarning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;the model cannot be refit on the whole dataset&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="GridSearchQ.quantify">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.quantify">[docs]</a>
+    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Estimate class prevalence values using the best model found after calling the :meth:`fit` method.</span>
+
+<span class="sd">        :param instances: sample contanining the instances</span>
+<span class="sd">        :return: a ndarray of shape `(n_classes)` with class prevalence estimates as according to the best model found</span>
+<span class="sd">            by the model selection process.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;best_model_&#39;</span><span class="p">),</span> <span class="s1">&#39;quantify called before fit&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_model</span><span class="p">()</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GridSearchQ.set_params">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.set_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the hyper-parameters to explore.</span>
+
+<span class="sd">        :param parameters: a dictionary with keys the parameter names and values the list of values to explore</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span> <span class="o">=</span> <span class="n">parameters</span></div>
+
+
+<div class="viewcode-block" id="GridSearchQ.get_params">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.get_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the dictionary of hyper-parameters to explore (`param_grid`)</span>
+
+<span class="sd">        :param deep: Unused</span>
+<span class="sd">        :return: the dictionary `param_grid`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span></div>
+
+
+<div class="viewcode-block" id="GridSearchQ.best_model">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.GridSearchQ.best_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">best_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the best model found after calling the :meth:`fit` method, i.e., the one trained on the combination</span>
+<span class="sd">        of hyper-parameters that minimized the error function.</span>
+
+<span class="sd">        :return: a trained quantifier</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;best_model_&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_model_</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;best_model called before fit&#39;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Endorses one job with two returned values: the status, and the time of execution</span>
+
+<span class="sd">        :param func: the function to be called</span>
+<span class="sd">        :param params: parameters of the function</span>
+<span class="sd">        :return: `tuple(out, status, time)` where `out` is the function output,</span>
+<span class="sd">            `status` is an enum value from `Status`, and `time` is the time it</span>
+<span class="sd">            took to complete the call</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">def</span> <span class="nf">_handle</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">exception</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raise_errors</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">exception</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ConfigStatus</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exception</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">timeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">):</span>
+                <span class="n">tinit</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="n">ConfigStatus</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">Status</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">TimeoutError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">_handle</span><span class="p">(</span><span class="n">Status</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">_handle</span><span class="p">(</span><span class="n">Status</span><span class="o">.</span><span class="n">INVALID</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">_handle</span><span class="p">(</span><span class="n">Status</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+
+        <span class="n">took</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tinit</span>
+        <span class="k">return</span> <span class="n">output</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">took</span></div>
+
+
+
+<div class="viewcode-block" id="cross_val_predict">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.cross_val_predict">[docs]</a>
+<span class="k">def</span> <span class="nf">cross_val_predict</span><span class="p">(</span><span class="n">quantifier</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">nfolds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Akin to `scikit-learn&#39;s cross_val_predict &lt;https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_predict.html&gt;`_</span>
+<span class="sd">    but for quantification.</span>
+
+<span class="sd">    :param quantifier: a quantifier issuing class prevalence values</span>
+<span class="sd">    :param data: a labelled collection</span>
+<span class="sd">    :param nfolds: number of folds for k-fold cross validation generation</span>
+<span class="sd">    :param random_state: random seed for reproducibility</span>
+<span class="sd">    :return: a vector of class prevalence values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">total_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">n_classes</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">kFCV</span><span class="p">(</span><span class="n">nfolds</span><span class="o">=</span><span class="n">nfolds</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">):</span>
+        <span class="n">quantifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+        <span class="n">fold_prev</span> <span class="o">=</span> <span class="n">quantifier</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">rel_size</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">total_prev</span> <span class="o">+=</span> <span class="n">fold_prev</span><span class="o">*</span><span class="n">rel_size</span>
+
+    <span class="k">return</span> <span class="n">total_prev</span></div>
+
+
+
+<div class="viewcode-block" id="expand_grid">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.expand_grid">[docs]</a>
+<span class="k">def</span> <span class="nf">expand_grid</span><span class="p">(</span><span class="n">param_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Expands a param_grid dictionary as a list of configurations.</span>
+<span class="sd">    Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; combinations = expand_grid({&#39;A&#39;: [1, 10, 100], &#39;B&#39;: [True, False]})</span>
+<span class="sd">    &gt;&gt;&gt; print(combinations)</span>
+<span class="sd">    &gt;&gt;&gt; [{&#39;A&#39;: 1, &#39;B&#39;: True}, {&#39;A&#39;: 1, &#39;B&#39;: False}, {&#39;A&#39;: 10, &#39;B&#39;: True}, {&#39;A&#39;: 10, &#39;B&#39;: False}, {&#39;A&#39;: 100, &#39;B&#39;: True}, {&#39;A&#39;: 100, &#39;B&#39;: False}]</span>
+
+<span class="sd">    :param param_grid: dictionary with keys representing hyper-parameter names, and values representing the range</span>
+<span class="sd">        to explore for that hyper-parameter</span>
+<span class="sd">    :return: a list of configurations, i.e., combinations of hyper-parameter assignments in the grid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">param_grid</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">params_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">param_grid</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">configs</span> <span class="o">=</span> <span class="p">[{</span><span class="n">k</span><span class="p">:</span> <span class="n">combs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">params_keys</span><span class="p">)}</span> <span class="k">for</span> <span class="n">combs</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">params_values</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">configs</span></div>
+
+
+
+<div class="viewcode-block" id="group_params">
+<a class="viewcode-back" href="../../quapy.html#quapy.model_selection.group_params">[docs]</a>
+<span class="k">def</span> <span class="nf">group_params</span><span class="p">(</span><span class="n">param_grid</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Partitions a param_grid dictionary as two lists of configurations, one for the classifier-specific</span>
+<span class="sd">    hyper-parameters, and another for que quantifier-specific hyper-parameters</span>
+
+<span class="sd">    :param param_grid: dictionary with keys representing hyper-parameter names, and values representing the range</span>
+<span class="sd">        to explore for that hyper-parameter</span>
+<span class="sd">    :return: two expanded grids of configurations, one for the classifier, another for the quantifier</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">classifier_params</span><span class="p">,</span> <span class="n">quantifier_params</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">param_grid</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;classifier__&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;val_split&#39;</span><span class="p">:</span>
+            <span class="n">classifier_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">quantifier_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+
+    <span class="n">classifier_configs</span> <span class="o">=</span> <span class="n">expand_grid</span><span class="p">(</span><span class="n">classifier_params</span><span class="p">)</span>
+    <span class="n">quantifier_configs</span> <span class="o">=</span> <span class="n">expand_grid</span><span class="p">(</span><span class="n">quantifier_params</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">classifier_configs</span><span class="p">,</span> <span class="n">quantifier_configs</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

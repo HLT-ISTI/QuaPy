@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.method._neural &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Quickstart</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals.html">Manuals</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.method._neural</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.method._neural</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">MSELoss</span>
+<span class="kn">from</span> <span class="nn">torch.nn.functional</span> <span class="kn">import</span> <span class="n">relu</span>
+
+<span class="kn">from</span> <span class="nn">quapy.protocol</span> <span class="kn">import</span> <span class="n">UPP</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">quapy.util</span> <span class="kn">import</span> <span class="n">EarlyStop</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+
+<div class="viewcode-block" id="QuaNetTrainer">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer">[docs]</a>
+<span class="k">class</span> <span class="nc">QuaNetTrainer</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implementation of `QuaNet &lt;https://dl.acm.org/doi/abs/10.1145/3269206.3269287&gt;`_, a neural network for</span>
+<span class="sd">    quantification. This implementation uses `PyTorch &lt;https://pytorch.org/&gt;`_ and can take advantage of GPU</span>
+<span class="sd">    for speeding-up the training phase.</span>
+
+<span class="sd">    Example:</span>
+
+<span class="sd">    &gt;&gt;&gt; import quapy as qp</span>
+<span class="sd">    &gt;&gt;&gt; from quapy.method_name.meta import QuaNet</span>
+<span class="sd">    &gt;&gt;&gt; from quapy.classification.neural import NeuralClassifierTrainer, CNNnet</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # use samples of 100 elements</span>
+<span class="sd">    &gt;&gt;&gt; qp.environ[&#39;SAMPLE_SIZE&#39;] = 100</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # load the kindle dataset as text, and convert words to numerical indexes</span>
+<span class="sd">    &gt;&gt;&gt; dataset = qp.datasets.fetch_reviews(&#39;kindle&#39;, pickle=True)</span>
+<span class="sd">    &gt;&gt;&gt; qp.train.preprocessing.index(dataset, min_df=5, inplace=True)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # the text classifier is a CNN trained by NeuralClassifierTrainer</span>
+<span class="sd">    &gt;&gt;&gt; cnn = CNNnet(dataset.vocabulary_size, dataset.n_classes)</span>
+<span class="sd">    &gt;&gt;&gt; classifier = NeuralClassifierTrainer(cnn, device=&#39;cuda&#39;)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # train QuaNet (QuaNet is an alias to QuaNetTrainer)</span>
+<span class="sd">    &gt;&gt;&gt; model = QuaNet(classifier, qp.environ[&#39;SAMPLE_SIZE&#39;], device=&#39;cuda&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; model.fit(dataset.training)</span>
+<span class="sd">    &gt;&gt;&gt; estim_prevalence = model.quantify(dataset.test.instances)</span>
+
+<span class="sd">    :param classifier: an object implementing `fit` (i.e., that can be trained on labelled data),</span>
+<span class="sd">        `predict_proba` (i.e., that can generate posterior probabilities of unlabelled examples) and</span>
+<span class="sd">        `transform` (i.e., that can generate embedded representations of the unlabelled instances).</span>
+<span class="sd">    :param sample_size: integer, the sample size; default is None, meaning that the sample size should be</span>
+<span class="sd">        taken from qp.environ[&quot;SAMPLE_SIZE&quot;]</span>
+<span class="sd">    :param n_epochs: integer, maximum number of training epochs</span>
+<span class="sd">    :param tr_iter_per_poch: integer, number of training iterations before considering an epoch complete</span>
+<span class="sd">    :param va_iter_per_poch: integer, number of validation iterations to perform after each epoch</span>
+<span class="sd">    :param lr: float, the learning rate</span>
+<span class="sd">    :param lstm_hidden_size: integer, hidden dimensionality of the LSTM cells</span>
+<span class="sd">    :param lstm_nlayers: integer, number of LSTM layers</span>
+<span class="sd">    :param ff_layers: list of integers, dimensions of the densely-connected FF layers on top of the</span>
+<span class="sd">        quantification embedding</span>
+<span class="sd">    :param bidirectional: boolean, indicates whether the LSTM is bidirectional or not</span>
+<span class="sd">    :param qdrop_p: float, dropout probability</span>
+<span class="sd">    :param patience: integer, number of epochs showing no improvement in the validation set before stopping the</span>
+<span class="sd">        training phase (early stopping)</span>
+<span class="sd">    :param checkpointdir: string, a path where to store models&#39; checkpoints</span>
+<span class="sd">    :param checkpointname: string (optional), the name of the model&#39;s checkpoint</span>
+<span class="sd">    :param device: string, indicate &quot;cpu&quot; or &quot;cuda&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">classifier</span><span class="p">,</span>
+                 <span class="n">sample_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">n_epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                 <span class="n">tr_iter_per_poch</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                 <span class="n">va_iter_per_poch</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                 <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+                 <span class="n">lstm_hidden_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+                 <span class="n">lstm_nlayers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">ff_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
+                 <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">qdrop_p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                 <span class="n">patience</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">checkpointdir</span><span class="o">=</span><span class="s1">&#39;../checkpoint&#39;</span><span class="p">,</span>
+                 <span class="n">checkpointname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">):</span>
+
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="s1">&#39;transform&#39;</span><span class="p">),</span> \
+            <span class="sa">f</span><span class="s1">&#39;the classifier </span><span class="si">{</span><span class="n">classifier</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> does not seem to be able to produce document embeddings &#39;</span> \
+                <span class="sa">f</span><span class="s1">&#39;since it does not implement the method &quot;transform&quot;&#39;</span>
+        <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="s1">&#39;predict_proba&#39;</span><span class="p">),</span> \
+            <span class="sa">f</span><span class="s1">&#39;the classifier </span><span class="si">{</span><span class="n">classifier</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> does not seem to be able to produce posterior probabilities &#39;</span> \
+                <span class="sa">f</span><span class="s1">&#39;since it does not implement the method &quot;predict_proba&quot;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_sample_size</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_epochs</span> <span class="o">=</span> <span class="n">n_epochs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tr_iter</span> <span class="o">=</span> <span class="n">tr_iter_per_poch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">va_iter</span> <span class="o">=</span> <span class="n">va_iter_per_poch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lr</span> <span class="o">=</span> <span class="n">lr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quanet_params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;lstm_hidden_size&#39;</span><span class="p">:</span> <span class="n">lstm_hidden_size</span><span class="p">,</span>
+            <span class="s1">&#39;lstm_nlayers&#39;</span><span class="p">:</span> <span class="n">lstm_nlayers</span><span class="p">,</span>
+            <span class="s1">&#39;ff_layers&#39;</span><span class="p">:</span> <span class="n">ff_layers</span><span class="p">,</span>
+            <span class="s1">&#39;bidirectional&#39;</span><span class="p">:</span> <span class="n">bidirectional</span><span class="p">,</span>
+            <span class="s1">&#39;qdrop_p&#39;</span><span class="p">:</span> <span class="n">qdrop_p</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">patience</span> <span class="o">=</span> <span class="n">patience</span>
+        <span class="k">if</span> <span class="n">checkpointname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">local_random</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">Random</span><span class="p">()</span>
+            <span class="n">random_code</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">local_random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000000</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+            <span class="n">checkpointname</span> <span class="o">=</span> <span class="s1">&#39;QuaNet-&#39;</span><span class="o">+</span><span class="n">random_code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpointdir</span> <span class="o">=</span> <span class="n">checkpointdir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">checkpointdir</span><span class="p">,</span> <span class="n">checkpointname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__check_params_colision</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quanet_params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">get_params</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="QuaNetTrainer.fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Trains QuaNet.</span>
+
+<span class="sd">        :param data: the training data on which to train QuaNet. If `fit_classifier=True`, the data will be split in</span>
+<span class="sd">            40/40/20 for training the classifier, training QuaNet, and validating QuaNet, respectively. If</span>
+<span class="sd">            `fit_classifier=False`, the data will be split in 66/34 for training QuaNet and validating it, respectively.</span>
+<span class="sd">        :param fit_classifier: if True, trains the classifier on a split containing 40% of the data</span>
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpointdir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fit_classifier</span><span class="p">:</span>
+            <span class="n">classifier_data</span><span class="p">,</span> <span class="n">unused_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="mf">0.4</span><span class="p">)</span>
+            <span class="n">train_data</span><span class="p">,</span> <span class="n">valid_data</span> <span class="o">=</span> <span class="n">unused_data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="mf">0.66</span><span class="p">)</span>  <span class="c1"># 0.66 split of 60% makes 40% and 20%</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">classifier_data</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">classifier_data</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">train_data</span><span class="p">,</span> <span class="n">valid_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="mf">0.66</span><span class="p">)</span>
+
+        <span class="c1"># estimate the hard and soft stats tpr and fpr of the classifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tr_prev</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+
+        <span class="c1"># compute the posterior probabilities of the instances</span>
+        <span class="n">valid_posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">valid_data</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+        <span class="n">train_posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">train_data</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+
+        <span class="c1"># turn instances&#39; original representations into embeddings</span>
+        <span class="n">valid_data_embed</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">valid_data</span><span class="o">.</span><span class="n">instances</span><span class="p">),</span> <span class="n">valid_data</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span><span class="p">)</span>
+        <span class="n">train_data_embed</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">train_data</span><span class="o">.</span><span class="n">instances</span><span class="p">),</span> <span class="n">train_data</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">quantifiers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;cc&#39;</span><span class="p">:</span> <span class="n">CC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;acc&#39;</span><span class="p">:</span> <span class="n">ACC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="n">valid_data</span><span class="p">),</span>
+            <span class="s1">&#39;pcc&#39;</span><span class="p">:</span> <span class="n">PCC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="s1">&#39;pacc&#39;</span><span class="p">:</span> <span class="n">PACC</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="n">valid_data</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">classifier_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">quantifiers</span><span class="p">[</span><span class="s1">&#39;emq&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">EMQ</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">classifier_data</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;tr-loss&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;va-loss&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;tr-mae&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;va-mae&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">nQ</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quantifiers</span><span class="p">)</span>
+        <span class="n">nC</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">n_classes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quanet</span> <span class="o">=</span> <span class="n">QuaNetModule</span><span class="p">(</span>
+            <span class="n">doc_embedding_size</span><span class="o">=</span><span class="n">train_data_embed</span><span class="o">.</span><span class="n">instances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">n_classes</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span>
+            <span class="n">stats_size</span><span class="o">=</span><span class="n">nQ</span><span class="o">*</span><span class="n">nC</span><span class="p">,</span>
+            <span class="n">order_by</span><span class="o">=</span><span class="mi">0</span> <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">binary</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">quanet_params</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quanet</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quanet</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lr</span><span class="p">)</span>
+        <span class="n">early_stop</span> <span class="o">=</span> <span class="n">EarlyStop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">patience</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">checkpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span>
+
+        <span class="k">for</span> <span class="n">epoch_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_epochs</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_epoch</span><span class="p">(</span><span class="n">train_data_embed</span><span class="p">,</span> <span class="n">train_posteriors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tr_iter</span><span class="p">,</span> <span class="n">epoch_i</span><span class="p">,</span> <span class="n">early_stop</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_epoch</span><span class="p">(</span><span class="n">valid_data_embed</span><span class="p">,</span> <span class="n">valid_posteriors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">va_iter</span><span class="p">,</span> <span class="n">epoch_i</span><span class="p">,</span> <span class="n">early_stop</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">early_stop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;va-loss&#39;</span><span class="p">],</span> <span class="n">epoch_i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">early_stop</span><span class="o">.</span><span class="n">IMPROVED</span><span class="p">:</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quanet</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">checkpoint</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">early_stop</span><span class="o">.</span><span class="n">STOP</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;training ended by patience exhausted; loading best model parameters in </span><span class="si">{</span><span class="n">checkpoint</span><span class="si">}</span><span class="s1"> &#39;</span>
+                      <span class="sa">f</span><span class="s1">&#39;for epoch </span><span class="si">{</span><span class="n">early_stop</span><span class="o">.</span><span class="n">best_epoch</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">quanet</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">checkpoint</span><span class="p">))</span>
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_aggregative_estims</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">):</span>
+        <span class="n">label_predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">prevs_estim</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">quantifier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantifiers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="n">posteriors</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">AggregativeSoftQuantifier</span><span class="p">)</span> <span class="k">else</span> <span class="n">label_predictions</span>
+            <span class="n">prevs_estim</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">quantifier</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">predictions</span><span class="p">))</span>
+
+        <span class="c1"># there is no real need for adding static estims like the TPR or FPR from training since those are constant</span>
+
+        <span class="k">return</span> <span class="n">prevs_estim</span>
+
+<div class="viewcode-block" id="QuaNetTrainer.quantify">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.quantify">[docs]</a>
+    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+        <span class="n">posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+        <span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+        <span class="n">quant_estims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_aggregative_estims</span><span class="p">(</span><span class="n">posteriors</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quanet</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">prevalence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quanet</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">embeddings</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">,</span> <span class="n">quant_estims</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span><span class="p">):</span>
+                <span class="n">prevalence</span> <span class="o">=</span> <span class="n">prevalence</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+            <span class="n">prevalence</span> <span class="o">=</span> <span class="n">prevalence</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">prevalence</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_epoch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">,</span> <span class="n">iterations</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">early_stop</span><span class="p">,</span> <span class="n">train</span><span class="p">):</span>
+        <span class="n">mse_loss</span> <span class="o">=</span> <span class="n">MSELoss</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">quanet</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">train</span><span class="p">)</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mae_errors</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">sampler</span> <span class="o">=</span> <span class="n">UPP</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">sample_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span>
+            <span class="n">repeats</span><span class="o">=</span><span class="n">iterations</span><span class="p">,</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">train</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># different samples during train, same samples during validation</span>
+        <span class="p">)</span>
+        <span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">sampler</span><span class="o">.</span><span class="n">samples_parameters</span><span class="p">(),</span> <span class="n">total</span><span class="o">=</span><span class="n">sampler</span><span class="o">.</span><span class="n">total</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">it</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pbar</span><span class="p">):</span>
+            <span class="n">sample_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">sample_posteriors</span> <span class="o">=</span> <span class="n">posteriors</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">quant_estims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_aggregative_estims</span><span class="p">(</span><span class="n">sample_posteriors</span><span class="p">)</span>
+            <span class="n">ptrue</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">([</span><span class="n">sample_data</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                <span class="n">phat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quanet</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">sample_data</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="n">sample_posteriors</span><span class="p">,</span> <span class="n">quant_estims</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">mse_loss</span><span class="p">(</span><span class="n">phat</span><span class="p">,</span> <span class="n">ptrue</span><span class="p">)</span>
+                <span class="n">mae</span> <span class="o">=</span> <span class="n">mae_loss</span><span class="p">(</span><span class="n">phat</span><span class="p">,</span> <span class="n">ptrue</span><span class="p">)</span>
+                <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                    <span class="n">phat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quanet</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">sample_data</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="n">sample_posteriors</span><span class="p">,</span> <span class="n">quant_estims</span><span class="p">)</span>
+                    <span class="n">loss</span> <span class="o">=</span> <span class="n">mse_loss</span><span class="p">(</span><span class="n">phat</span><span class="p">,</span> <span class="n">ptrue</span><span class="p">)</span>
+                    <span class="n">mae</span> <span class="o">=</span> <span class="n">mae_loss</span><span class="p">(</span><span class="n">phat</span><span class="p">,</span> <span class="n">ptrue</span><span class="p">)</span>
+
+            <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+            <span class="n">mae_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mae</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+            <span class="n">mse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
+            <span class="n">mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">mae_errors</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;tr-loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mse</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;tr-mae&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mae</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;va-loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mse</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s1">&#39;va-mae&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mae</span>
+
+            <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+                <span class="n">pbar</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[QuaNet] &#39;</span>
+                                     <span class="sa">f</span><span class="s1">&#39;epoch=</span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s1"> [it=</span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">iterations</span><span class="si">}</span><span class="s1">]</span><span class="se">\t</span><span class="s1">&#39;</span>
+                                     <span class="sa">f</span><span class="s1">&#39;tr-mseloss=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;tr-loss&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1"> tr-maeloss=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;tr-mae&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="se">\t</span><span class="s1">&#39;</span>
+                                     <span class="sa">f</span><span class="s1">&#39;val-mseloss=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;va-loss&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1"> val-maeloss=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">[</span><span class="s2">&quot;va-mae&quot;</span><span class="p">]</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1"> &#39;</span>
+                                     <span class="sa">f</span><span class="s1">&#39;patience=</span><span class="si">{</span><span class="n">early_stop</span><span class="o">.</span><span class="n">patience</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">early_stop</span><span class="o">.</span><span class="n">PATIENCE_LIMIT</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QuaNetTrainer.get_params">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.get_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">classifier_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">get_params</span><span class="p">()</span>
+        <span class="n">classifier_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;classifier__&#39;</span><span class="o">+</span><span class="n">k</span><span class="p">:</span><span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">classifier_params</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="o">**</span><span class="n">classifier_params</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">quanet_params</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="QuaNetTrainer.set_params">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.set_params">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">parameters</span><span class="p">):</span>
+        <span class="n">learner_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">parameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quanet_params</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">quanet_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">elif</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;classifier__&#39;</span><span class="p">):</span>
+                <span class="n">learner_params</span><span class="p">[</span><span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;classifier__&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown parameter &#39;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">learner_params</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__check_params_colision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quanet_params</span><span class="p">,</span> <span class="n">learner_params</span><span class="p">):</span>
+        <span class="n">quanet_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">quanet_params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">learner_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">learner_params</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">intersection</span> <span class="o">=</span> <span class="n">quanet_keys</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">learner_keys</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">intersection</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;the use of parameters </span><span class="si">{</span><span class="n">intersection</span><span class="si">}</span><span class="s1"> is ambiguous sine those can refer to &#39;</span>
+                             <span class="sa">f</span><span class="s1">&#39;the parameters of QuaNet or the learner </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QuaNetTrainer.clean_checkpoint">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.clean_checkpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">clean_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes the checkpoint</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="QuaNetTrainer.clean_checkpoint_dir">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetTrainer.clean_checkpoint_dir">[docs]</a>
+    <span class="k">def</span> <span class="nf">clean_checkpoint_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes anything contained in the checkpoint directory</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">shutil</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">checkpointdir</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">classes_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span></div>
+
+
+
+<div class="viewcode-block" id="mae_loss">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.mae_loss">[docs]</a>
+<span class="k">def</span> <span class="nf">mae_loss</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Torch-like wrapper for the Mean Absolute Error</span>
+
+<span class="sd">    :param output: predictions</span>
+<span class="sd">    :param target: ground truth values</span>
+<span class="sd">    :return: mean absolute error loss</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">output</span> <span class="o">-</span> <span class="n">target</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="QuaNetModule">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetModule">[docs]</a>
+<span class="k">class</span> <span class="nc">QuaNetModule</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements the `QuaNet &lt;https://dl.acm.org/doi/abs/10.1145/3269206.3269287&gt;`_ forward pass.</span>
+<span class="sd">    See :class:`QuaNetTrainer` for training QuaNet.</span>
+
+<span class="sd">    :param doc_embedding_size: integer, the dimensionality of the document embeddings</span>
+<span class="sd">    :param n_classes: integer, number of classes</span>
+<span class="sd">    :param stats_size: integer, number of statistics estimated by simple quantification methods</span>
+<span class="sd">    :param lstm_hidden_size: integer, hidden dimensionality of the LSTM cell</span>
+<span class="sd">    :param lstm_nlayers: integer, number of LSTM layers</span>
+<span class="sd">    :param ff_layers: list of integers, dimensions of the densely-connected FF layers on top of the</span>
+<span class="sd">        quantification embedding</span>
+<span class="sd">    :param bidirectional: boolean, whether or not to use bidirectional LSTM</span>
+<span class="sd">    :param qdrop_p: float, dropout probability</span>
+<span class="sd">    :param order_by: integer, class for which the document embeddings are to be sorted</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">doc_embedding_size</span><span class="p">,</span>
+                 <span class="n">n_classes</span><span class="p">,</span>
+                 <span class="n">stats_size</span><span class="p">,</span>
+                 <span class="n">lstm_hidden_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+                 <span class="n">lstm_nlayers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">ff_layers</span><span class="o">=</span><span class="p">[</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">512</span><span class="p">],</span>
+                 <span class="n">bidirectional</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">qdrop_p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                 <span class="n">order_by</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_classes</span> <span class="o">=</span> <span class="n">n_classes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order_by</span> <span class="o">=</span> <span class="n">order_by</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">=</span> <span class="n">lstm_hidden_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlayers</span> <span class="o">=</span> <span class="n">lstm_nlayers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bidirectional</span> <span class="o">=</span> <span class="n">bidirectional</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ndirections</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bidirectional</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qdrop_p</span> <span class="o">=</span> <span class="n">qdrop_p</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">LSTM</span><span class="p">(</span><span class="n">doc_embedding_size</span> <span class="o">+</span> <span class="n">n_classes</span><span class="p">,</span>  <span class="c1"># +n_classes stands for the posterior probs. (concatenated)</span>
+                                  <span class="n">lstm_hidden_size</span><span class="p">,</span> <span class="n">lstm_nlayers</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="n">bidirectional</span><span class="p">,</span>
+                                  <span class="n">dropout</span><span class="o">=</span><span class="n">qdrop_p</span><span class="p">,</span> <span class="n">batch_first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qdrop_p</span><span class="p">)</span>
+
+        <span class="n">lstm_output_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndirections</span>
+        <span class="n">ff_input_size</span> <span class="o">=</span> <span class="n">lstm_output_size</span> <span class="o">+</span> <span class="n">stats_size</span>
+        <span class="n">prev_size</span> <span class="o">=</span> <span class="n">ff_input_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ff_layers</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">lin_size</span> <span class="ow">in</span> <span class="n">ff_layers</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ff_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">prev_size</span><span class="p">,</span> <span class="n">lin_size</span><span class="p">))</span>
+            <span class="n">prev_size</span> <span class="o">=</span> <span class="n">lin_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">prev_size</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">device</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">is_cuda</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_init_hidden</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">directions</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bidirectional</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">var_hidden</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nlayers</span> <span class="o">*</span> <span class="n">directions</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="n">var_cell</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nlayers</span> <span class="o">*</span> <span class="n">directions</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lstm</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">is_cuda</span><span class="p">:</span>
+            <span class="n">var_hidden</span><span class="p">,</span> <span class="n">var_cell</span> <span class="o">=</span> <span class="n">var_hidden</span><span class="o">.</span><span class="n">cuda</span><span class="p">(),</span> <span class="n">var_cell</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">var_hidden</span><span class="p">,</span> <span class="n">var_cell</span>
+
+<div class="viewcode-block" id="QuaNetModule.forward">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method._neural.QuaNetModule.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc_embeddings</span><span class="p">,</span> <span class="n">doc_posteriors</span><span class="p">,</span> <span class="n">statistics</span><span class="p">):</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span>
+        <span class="n">doc_embeddings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">doc_embeddings</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">doc_posteriors</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">doc_posteriors</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+        <span class="n">statistics</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">as_tensor</span><span class="p">(</span><span class="n">statistics</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">order_by</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">doc_posteriors</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">order_by</span><span class="p">])</span>
+            <span class="n">doc_embeddings</span> <span class="o">=</span> <span class="n">doc_embeddings</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+            <span class="n">doc_posteriors</span> <span class="o">=</span> <span class="n">doc_posteriors</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+
+        <span class="n">embeded_posteriors</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">doc_embeddings</span><span class="p">,</span> <span class="n">doc_posteriors</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># the entire set represents only one instance in quapy contexts, and so the batch_size=1</span>
+        <span class="c1"># the shape should be (1, number-of-instances, embedding-size + n_classes)</span>
+        <span class="n">embeded_posteriors</span> <span class="o">=</span> <span class="n">embeded_posteriors</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span><span class="o">.</span><span class="n">flatten_parameters</span><span class="p">()</span>
+        <span class="n">_</span><span class="p">,</span> <span class="p">(</span><span class="n">rnn_hidden</span><span class="p">,</span><span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstm</span><span class="p">(</span><span class="n">embeded_posteriors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_hidden</span><span class="p">())</span>
+        <span class="n">rnn_hidden</span> <span class="o">=</span> <span class="n">rnn_hidden</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nlayers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ndirections</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">)</span>
+        <span class="n">quant_embedding</span> <span class="o">=</span> <span class="n">rnn_hidden</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">quant_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">quant_embedding</span><span class="p">,</span> <span class="n">statistics</span><span class="p">))</span>
+
+        <span class="n">abstracted</span> <span class="o">=</span> <span class="n">quant_embedding</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">linear</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ff_layers</span><span class="p">:</span>
+            <span class="n">abstracted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">relu</span><span class="p">(</span><span class="n">linear</span><span class="p">(</span><span class="n">abstracted</span><span class="p">)))</span>
+
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">abstracted</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">prevalence</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">prevalence</span></div>
+</div>
+
+
+
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

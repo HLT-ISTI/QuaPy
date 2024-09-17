@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1. Datasets &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="2. Evaluation" href="evaluation.html" />
+    <link rel="prev" title="Manuals" href="../manuals.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Quickstart</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../manuals.html">Manuals</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1. Datasets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#reviews-datasets">1.1. Reviews Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twitter-sentiment-datasets">1.2. Twitter Sentiment Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uci-machine-learning">1.3. UCI Machine Learning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#binary-datasets">1.3.1. Binary datasets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#multiclass-datasets">1.3.2. Multiclass datasets</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lequa-2022-datasets">1.4. LeQua 2022 Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ifcb-plankton-dataset">1.5. IFCB Plankton dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-custom-datasets">1.6. Adding Custom Datasets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#data-processing">1.6.1. Data Processing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="evaluation.html">2. Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explicit-loss-minimization.html">3. Explicit Loss Minimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="methods.html">4. Quantification Methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model-selection.html">5. Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">6. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html">7. Protocols</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../manuals.html">Manuals</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1. </span>Datasets</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manuals/datasets.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="datasets">
+<h1><span class="section-number">1. </span>Datasets<a class="headerlink" href="#datasets" title="Link to this heading"></a></h1>
+<p>QuaPy makes available several datasets that have been used in
+quantification literature, as well as an interface to allow
+anyone import their custom datasets.</p>
+<p>A <em>Dataset</em> object in QuaPy is roughly a pair of <em>LabelledCollection</em> objects,
+one playing the role of the training set, another the test set.
+<em>LabelledCollection</em> is a data class consisting of the (iterable)
+instances and labels. This class handles most of the sampling functionality in QuaPy.
+Take a look at the following code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+<span class="n">instances</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;1st positive document&#39;</span><span class="p">,</span> <span class="s1">&#39;2nd positive document&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;the only negative document&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;1st neutral document&#39;</span><span class="p">,</span> <span class="s1">&#39;2nd neutral document&#39;</span><span class="p">,</span> <span class="s1">&#39;3rd neutral document&#39;</span>
+<span class="p">]</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">LabelledCollection</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">prevalence</span><span class="p">(),</span> <span class="n">prec</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+</pre></div>
+</div>
+<p>Output the class prevalences (showing 2 digit precision):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="mf">0.17</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">,</span> <span class="mf">0.33</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>One can easily produce new samples at desired class prevalence values:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample_size</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">prev</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="o">*</span><span class="n">prev</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;instances:&#39;</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;labels:&#39;</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;prevalence:&#39;</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">prevalence</span><span class="p">(),</span> <span class="n">prec</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Which outputs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">instances</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;the only negative document&#39;</span> <span class="s1">&#39;2nd positive document&#39;</span>
+  <span class="s1">&#39;2nd positive document&#39;</span> <span class="s1">&#39;2nd neutral document&#39;</span> <span class="s1">&#39;1st positive document&#39;</span>
+  <span class="s1">&#39;the only negative document&#39;</span> <span class="s1">&#39;the only negative document&#39;</span>
+  <span class="s1">&#39;the only negative document&#39;</span> <span class="s1">&#39;2nd positive document&#39;</span>
+  <span class="s1">&#39;1st positive document&#39;</span><span class="p">]</span>
+<span class="n">labels</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span> <span class="mi">2</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">prevalence</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.40</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Samples can be made consistent across different runs (e.g., to test
+different methods on the same exact samples) by sampling and retaining
+the indexes, that can then be used to generate the sample:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling_index</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="o">*</span><span class="n">prev</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>However, generating samples for evaluation purposes is tackled in QuaPy
+by means of the evaluation protocols (see the dedicated entries in the manuals
+for <a class="reference internal" href="evaluation.html"><span class="doc std std-doc">evaluation</span></a> and <a class="reference internal" href="protocols.html"><span class="doc std std-doc">protocols</span></a>).</p>
+<section id="reviews-datasets">
+<h2><span class="section-number">1.1. </span>Reviews Datasets<a class="headerlink" href="#reviews-datasets" title="Link to this heading"></a></h2>
+<p>Three datasets of reviews about Kindle devices, Harry Potter’s series, and
+the well-known IMDb movie reviews can be fetched using a unified interface.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These datasets have been used in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Esuli</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="n">Moreo</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="o">&amp;</span> <span class="n">Sebastiani</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span> <span class="p">(</span><span class="mi">2018</span><span class="p">,</span> <span class="n">October</span><span class="p">)</span><span class="o">.</span> 
+<span class="n">A</span> <span class="n">recurrent</span> <span class="n">neural</span> <span class="n">network</span> <span class="k">for</span> <span class="n">sentiment</span> <span class="n">quantification</span><span class="o">.</span> 
+<span class="n">In</span> <span class="n">Proceedings</span> <span class="n">of</span> <span class="n">the</span> <span class="mi">27</span><span class="n">th</span> <span class="n">ACM</span> <span class="n">International</span> <span class="n">Conference</span> <span class="n">on</span> 
+<span class="n">Information</span> <span class="ow">and</span> <span class="n">Knowledge</span> <span class="n">Management</span> <span class="p">(</span><span class="n">pp</span><span class="o">.</span> <span class="mi">1775</span><span class="o">-</span><span class="mi">1778</span><span class="p">)</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>The list of reviews ids is available in:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">REVIEWS_SENTIMENT_DATASETS</span>
+</pre></div>
+</div>
+<p>Some statistics of the fhe available datasets are summarized below:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dataset</p></th>
+<th class="head text-center"><p>classes</p></th>
+<th class="head text-center"><p>train size</p></th>
+<th class="head text-center"><p>test size</p></th>
+<th class="head text-center"><p>train prev</p></th>
+<th class="head text-center"><p>test prev</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>hp</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>9533</p></td>
+<td class="text-center"><p>18399</p></td>
+<td class="text-center"><p>[0.018, 0.982]</p></td>
+<td class="text-center"><p>[0.065, 0.935]</p></td>
+<td><p>text</p></td>
+</tr>
+<tr class="row-odd"><td><p>kindle</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>3821</p></td>
+<td class="text-center"><p>21591</p></td>
+<td class="text-center"><p>[0.081, 0.919]</p></td>
+<td class="text-center"><p>[0.063, 0.937]</p></td>
+<td><p>text</p></td>
+</tr>
+<tr class="row-even"><td><p>imdb</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>25000</p></td>
+<td class="text-center"><p>25000</p></td>
+<td class="text-center"><p>[0.500, 0.500]</p></td>
+<td class="text-center"><p>[0.500, 0.500]</p></td>
+<td><p>text</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="twitter-sentiment-datasets">
+<h2><span class="section-number">1.2. </span>Twitter Sentiment Datasets<a class="headerlink" href="#twitter-sentiment-datasets" title="Link to this heading"></a></h2>
+<p>11 Twitter datasets for sentiment analysis.
+Text is not accessible, and the documents were made available
+in tf-idf format. Each dataset presents two splits: a train/val
+split for model selection purposes, and a train+val/test split
+for model evaluation. The following code exemplifies how to load
+a twitter dataset for model selection.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;gasp&#39;</span><span class="p">,</span> <span class="n">for_model_selection</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The datasets were used in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Gao</span><span class="p">,</span> <span class="n">W</span><span class="o">.</span><span class="p">,</span> <span class="o">&amp;</span> <span class="n">Sebastiani</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span> <span class="p">(</span><span class="mi">2015</span><span class="p">,</span> <span class="n">August</span><span class="p">)</span><span class="o">.</span> 
+<span class="n">Tweet</span> <span class="n">sentiment</span><span class="p">:</span> <span class="n">From</span> <span class="n">classification</span> <span class="n">to</span> <span class="n">quantification</span><span class="o">.</span> 
+<span class="n">In</span> <span class="mi">2015</span> <span class="n">IEEE</span><span class="o">/</span><span class="n">ACM</span> <span class="n">International</span> <span class="n">Conference</span> <span class="n">on</span> <span class="n">Advances</span> <span class="ow">in</span> 
+<span class="n">Social</span> <span class="n">Networks</span> <span class="n">Analysis</span> <span class="ow">and</span> <span class="n">Mining</span> <span class="p">(</span><span class="n">ASONAM</span><span class="p">)</span> <span class="p">(</span><span class="n">pp</span><span class="o">.</span> <span class="mi">97</span><span class="o">-</span><span class="mi">104</span><span class="p">)</span><span class="o">.</span> <span class="n">IEEE</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Three of the datasets (semeval13, semeval14, and semeval15) share the
+same training set (semeval), meaning that the training split one would get
+when requesting any of them is the same. The dataset “semeval” can only
+be requested with “for_model_selection=True”.
+The lists of the Twitter dataset’s ids can be consulted in:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># a list of 11 dataset ids that can be used for model selection or model evaluation</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">TWITTER_SENTIMENT_DATASETS_TEST</span>
+
+<span class="c1"># 9 dataset ids in which &quot;semeval13&quot;, &quot;semeval14&quot;, and &quot;semeval15&quot; are replaced with &quot;semeval&quot;</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">TWITTER_SENTIMENT_DATASETS_TRAIN</span>  
+</pre></div>
+</div>
+<p>Some details can be found below:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dataset</p></th>
+<th class="head text-center"><p>classes</p></th>
+<th class="head text-center"><p>train size</p></th>
+<th class="head text-center"><p>test size</p></th>
+<th class="head text-center"><p>features</p></th>
+<th class="head text-center"><p>train prev</p></th>
+<th class="head text-center"><p>test prev</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>gasp</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>8788</p></td>
+<td class="text-center"><p>3765</p></td>
+<td class="text-center"><p>694582</p></td>
+<td class="text-center"><p>[0.421, 0.496, 0.082]</p></td>
+<td class="text-center"><p>[0.407, 0.507, 0.086]</p></td>
+<td><p>sparse</p></td>
+</tr>
+<tr class="row-odd"><td><p>hcr</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>1594</p></td>
+<td class="text-center"><p>798</p></td>
+<td class="text-center"><p>222046</p></td>
+<td class="text-center"><p>[0.546, 0.211, 0.243]</p></td>
+<td class="text-center"><p>[0.640, 0.167, 0.193]</p></td>
+<td><p>sparse</p></td>
+</tr>
+<tr class="row-even"><td><p>omd</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>1839</p></td>
+<td class="text-center"><p>787</p></td>
+<td class="text-center"><p>199151</p></td>
+<td class="text-center"><p>[0.463, 0.271, 0.266]</p></td>
+<td class="text-center"><p>[0.437, 0.283, 0.280]</p></td>
+<td><p>sparse</p></td>
+</tr>
+<tr class="row-odd"><td><p>sanders</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>2155</p></td>
+<td class="text-center"><p>923</p></td>
+<td class="text-center"><p>229399</p></td>
+<td class="text-center"><p>[0.161, 0.691, 0.148]</p></td>
+<td class="text-center"><p>[0.164, 0.688, 0.148]</p></td>
+<td><p>sparse</p></td>
+</tr>
+<tr class="row-even"><td><p>semeval13</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>11338</p></td>
+<td class="text-center"><p>3813</p></td>
+<td class="text-center"><p>1215742</p></td>
+<td class="text-center"><p>[0.159, 0.470, 0.372]</p></td>
+<td class="text-center"><p>[0.158, 0.430, 0.412]</p></td>
+<td><p>sparse</p></td>
+</tr>
+<tr class="row-odd"><td><p>semeval14</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>11338</p></td>
+<td class="text-center"><p>1853</p></td>
+<td class="text-center"><p>1215742</p></td>
+<td class="text-center"><p>[0.159, 0.470, 0.372]</p></td>
+<td class="text-center"><p>[0.109, 0.361, 0.530]</p></td>
+<td><p>sparse</p></td>
+</tr>
+<tr class="row-even"><td><p>semeval15</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>11338</p></td>
+<td class="text-center"><p>2390</p></td>
+<td class="text-center"><p>1215742</p></td>
+<td class="text-center"><p>[0.159, 0.470, 0.372]</p></td>
+<td class="text-center"><p>[0.153, 0.413, 0.434]</p></td>
+<td><p>sparse</p></td>
+</tr>
+<tr class="row-odd"><td><p>semeval16</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>8000</p></td>
+<td class="text-center"><p>2000</p></td>
+<td class="text-center"><p>889504</p></td>
+<td class="text-center"><p>[0.157, 0.351, 0.492]</p></td>
+<td class="text-center"><p>[0.163, 0.341, 0.497]</p></td>
+<td><p>sparse</p></td>
+</tr>
+<tr class="row-even"><td><p>sst</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>2971</p></td>
+<td class="text-center"><p>1271</p></td>
+<td class="text-center"><p>376132</p></td>
+<td class="text-center"><p>[0.261, 0.452, 0.288]</p></td>
+<td class="text-center"><p>[0.207, 0.481, 0.312]</p></td>
+<td><p>sparse</p></td>
+</tr>
+<tr class="row-odd"><td><p>wa</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>2184</p></td>
+<td class="text-center"><p>936</p></td>
+<td class="text-center"><p>248563</p></td>
+<td class="text-center"><p>[0.305, 0.414, 0.281]</p></td>
+<td class="text-center"><p>[0.282, 0.446, 0.272]</p></td>
+<td><p>sparse</p></td>
+</tr>
+<tr class="row-even"><td><p>wb</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>4259</p></td>
+<td class="text-center"><p>1823</p></td>
+<td class="text-center"><p>404333</p></td>
+<td class="text-center"><p>[0.270, 0.392, 0.337]</p></td>
+<td class="text-center"><p>[0.274, 0.392, 0.335]</p></td>
+<td><p>sparse</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="uci-machine-learning">
+<h2><span class="section-number">1.3. </span>UCI Machine Learning<a class="headerlink" href="#uci-machine-learning" title="Link to this heading"></a></h2>
+<section id="binary-datasets">
+<h3><span class="section-number">1.3.1. </span>Binary datasets<a class="headerlink" href="#binary-datasets" title="Link to this heading"></a></h3>
+<p>A set of 32 datasets from the <a class="reference external" href="https://archive.ics.uci.edu/ml/datasets.php">UCI Machine Learning repository</a>
+used in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Pérez</span><span class="o">-</span><span class="n">Gállego</span><span class="p">,</span> <span class="n">P</span><span class="o">.</span><span class="p">,</span> <span class="n">Quevedo</span><span class="p">,</span> <span class="n">J</span><span class="o">.</span> <span class="n">R</span><span class="o">.</span><span class="p">,</span> <span class="o">&amp;</span> <span class="k">del</span> <span class="n">Coz</span><span class="p">,</span> <span class="n">J</span><span class="o">.</span> <span class="n">J</span><span class="o">.</span> <span class="p">(</span><span class="mi">2017</span><span class="p">)</span><span class="o">.</span>
+<span class="n">Using</span> <span class="n">ensembles</span> <span class="k">for</span> <span class="n">problems</span> <span class="k">with</span> <span class="n">characterizable</span> <span class="n">changes</span> 
+<span class="ow">in</span> <span class="n">data</span> <span class="n">distribution</span><span class="p">:</span> <span class="n">A</span> <span class="n">case</span> <span class="n">study</span> <span class="n">on</span> <span class="n">quantification</span><span class="o">.</span>
+<span class="n">Information</span> <span class="n">Fusion</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">87</span><span class="o">-</span><span class="mf">100.</span>
+</pre></div>
+</div>
+<p>The list does not exactly coincide with that used in Pérez-Gállego et al. 2017
+since we were unable to find the datasets with ids “diabetes” and “phoneme”.</p>
+<p>These dataset can be loaded by calling, e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;yeast&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This call will return a <em>Dataset</em> object in which the training and
+test splits are randomly drawn, in a stratified manner, from the whole
+collection at 70% and 30%, respectively. The <em>verbose=True</em> option indicates
+that the dataset description should be printed in standard output.
+The original data is not split,
+and some papers submit the entire collection to a kFCV validation.
+In order to accommodate with these practices, one could first instantiate
+the entire collection, and then creating a generator that will return one
+training+test dataset at a time, following a kFCV protocol:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+
+<span class="n">collection</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="s2">&quot;yeast&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">kFCV</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">nfolds</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">nrepeats</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<p>Above code will allow to conduct a 2x5FCV evaluation on the “yeast” dataset.</p>
+<p>All datasets come in numerical form (dense matrices); some statistics
+are summarized below.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dataset</p></th>
+<th class="head text-center"><p>classes</p></th>
+<th class="head text-center"><p>instances</p></th>
+<th class="head text-center"><p>features</p></th>
+<th class="head text-center"><p>prev</p></th>
+<th class="head"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>acute.a</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>120</p></td>
+<td class="text-center"><p>6</p></td>
+<td class="text-center"><p>[0.508, 0.492]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>acute.b</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>120</p></td>
+<td class="text-center"><p>6</p></td>
+<td class="text-center"><p>[0.583, 0.417]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>balance.1</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>625</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>[0.539, 0.461]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>balance.2</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>625</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>[0.922, 0.078]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>balance.3</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>625</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>[0.539, 0.461]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>breast-cancer</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>683</p></td>
+<td class="text-center"><p>9</p></td>
+<td class="text-center"><p>[0.350, 0.650]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>cmc.1</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>1473</p></td>
+<td class="text-center"><p>9</p></td>
+<td class="text-center"><p>[0.573, 0.427]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>cmc.2</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>1473</p></td>
+<td class="text-center"><p>9</p></td>
+<td class="text-center"><p>[0.774, 0.226]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>cmc.3</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>1473</p></td>
+<td class="text-center"><p>9</p></td>
+<td class="text-center"><p>[0.653, 0.347]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>ctg.1</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>2126</p></td>
+<td class="text-center"><p>21</p></td>
+<td class="text-center"><p>[0.222, 0.778]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>ctg.2</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>2126</p></td>
+<td class="text-center"><p>21</p></td>
+<td class="text-center"><p>[0.861, 0.139]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>ctg.3</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>2126</p></td>
+<td class="text-center"><p>21</p></td>
+<td class="text-center"><p>[0.917, 0.083]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>german</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>24</p></td>
+<td class="text-center"><p>[0.300, 0.700]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>haberman</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>306</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>[0.735, 0.265]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>ionosphere</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>351</p></td>
+<td class="text-center"><p>34</p></td>
+<td class="text-center"><p>[0.641, 0.359]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>iris.1</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>150</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>[0.667, 0.333]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>iris.2</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>150</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>[0.667, 0.333]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>iris.3</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>150</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>[0.667, 0.333]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>mammographic</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>830</p></td>
+<td class="text-center"><p>5</p></td>
+<td class="text-center"><p>[0.514, 0.486]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>pageblocks.5</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>5473</p></td>
+<td class="text-center"><p>10</p></td>
+<td class="text-center"><p>[0.979, 0.021]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>semeion</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>1593</p></td>
+<td class="text-center"><p>256</p></td>
+<td class="text-center"><p>[0.901, 0.099]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>sonar</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>208</p></td>
+<td class="text-center"><p>60</p></td>
+<td class="text-center"><p>[0.534, 0.466]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>spambase</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>4601</p></td>
+<td class="text-center"><p>57</p></td>
+<td class="text-center"><p>[0.606, 0.394]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>spectf</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>267</p></td>
+<td class="text-center"><p>44</p></td>
+<td class="text-center"><p>[0.794, 0.206]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>tictactoe</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>958</p></td>
+<td class="text-center"><p>9</p></td>
+<td class="text-center"><p>[0.653, 0.347]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>transfusion</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>748</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>[0.762, 0.238]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>wdbc</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>569</p></td>
+<td class="text-center"><p>30</p></td>
+<td class="text-center"><p>[0.627, 0.373]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>wine.1</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>178</p></td>
+<td class="text-center"><p>13</p></td>
+<td class="text-center"><p>[0.669, 0.331]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>wine.2</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>178</p></td>
+<td class="text-center"><p>13</p></td>
+<td class="text-center"><p>[0.601, 0.399]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>wine.3</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>178</p></td>
+<td class="text-center"><p>13</p></td>
+<td class="text-center"><p>[0.730, 0.270]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>wine-q-red</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>1599</p></td>
+<td class="text-center"><p>11</p></td>
+<td class="text-center"><p>[0.465, 0.535]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td><p>wine-q-white</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>4898</p></td>
+<td class="text-center"><p>11</p></td>
+<td class="text-center"><p>[0.335, 0.665]</p></td>
+<td><p>dense</p></td>
+</tr>
+<tr class="row-even"><td><p>yeast</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>1484</p></td>
+<td class="text-center"><p>8</p></td>
+<td class="text-center"><p>[0.711, 0.289]</p></td>
+<td><p>dense</p></td>
+</tr>
+</tbody>
+</table>
+<section id="notes">
+<h4><span class="section-number">1.3.1.1. </span>Notes:<a class="headerlink" href="#notes" title="Link to this heading"></a></h4>
+<p>All datasets will be downloaded automatically the first time they are requested, and
+stored in the <em>quapy_data</em> folder for faster further reuse.</p>
+<p>However, notice that it is a good idea to ignore datasets:</p>
+<ul class="simple">
+<li><p><em>acute.a</em> and <em>acute.b</em>: these are very easy and many classifiers would score 100% accuracy</p></li>
+<li><p><em>balance.2</em>: this is extremely difficult; probably there is some problem with this dataset,
+the errors it tends to produce are orders of magnitude greater than for other datasets,
+and this has a disproportionate impact in the average performance.</p></li>
+</ul>
+</section>
+</section>
+<section id="multiclass-datasets">
+<h3><span class="section-number">1.3.2. </span>Multiclass datasets<a class="headerlink" href="#multiclass-datasets" title="Link to this heading"></a></h3>
+<p>A collection of 24 multiclass datasets from the <a class="reference external" href="https://archive.ics.uci.edu/ml/datasets.php">UCI Machine Learning repository</a>.
+Some of the datasets were first used in <a class="reference external" href="https://arxiv.org/abs/2401.00490">this paper</a> and can be instantiated as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A dataset can be instantiated filtering classes with a minimum number of instances using the <code class="docutils literal notranslate"><span class="pre">min_class_support</span></code> parameter
+(default: <code class="docutils literal notranslate"><span class="pre">100</span></code>) as folows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span> <span class="n">min_class_support</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There are no pre-defined train-test partitions for these datasets, but you can easily create your own with the
+<code class="docutils literal notranslate"><span class="pre">split_stratified</span></code> method, e.g., <code class="docutils literal notranslate"><span class="pre">data.split_stratified()</span></code>. This can be also achieved using the method <code class="docutils literal notranslate"><span class="pre">fetch_UCIMulticlassDataset</span></code>
+as shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span> <span class="n">min_test_split</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">train_test</span>
+</pre></div>
+</div>
+<p>This method tries to respect the <code class="docutils literal notranslate"><span class="pre">min_test_split</span></code> value while generating the train-test partition, but the resulting training set
+will not be bigger than <code class="docutils literal notranslate"><span class="pre">max_train_instances</span></code>, which defaults to <code class="docutils literal notranslate"><span class="pre">25000</span></code>. A bigger value can be passed as a parameter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span> <span class="n">min_test_split</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">max_train_instances</span><span class="o">=</span><span class="mi">30000</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">train_test</span>
+</pre></div>
+</div>
+<p>The datasets correspond to a part of the datasets that can be retrieved from the platform using the following filters:</p>
+<ul class="simple">
+<li><p>datasets for classification</p></li>
+<li><p>more than 2 classes</p></li>
+<li><p>containing at least 1,000 instances</p></li>
+<li><p>can be imported using the Python API.</p></li>
+</ul>
+<p>Some statistics about these datasets are displayed below :</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p><strong>Dataset</strong></p></th>
+<th class="head text-center"><p><strong>classes</strong></p></th>
+<th class="head text-center"><p><strong>instances</strong></p></th>
+<th class="head text-center"><p><strong>features</strong></p></th>
+<th class="head text-left"><p><strong>prevs</strong></p></th>
+<th class="head text-center"><p><strong>type</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>dry-bean</p></td>
+<td class="text-center"><p>7</p></td>
+<td class="text-center"><p>13611</p></td>
+<td class="text-center"><p>16</p></td>
+<td class="text-left"><p>[0.097, 0.038, 0.120, 0.261, 0.142, 0.149, 0.194]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>wine-quality</p></td>
+<td class="text-center"><p>5</p></td>
+<td class="text-center"><p>6462</p></td>
+<td class="text-center"><p>11</p></td>
+<td class="text-left"><p>[0.033, 0.331, 0.439, 0.167, 0.030]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>academic-success</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>4424</p></td>
+<td class="text-center"><p>36</p></td>
+<td class="text-left"><p>[0.321, 0.179, 0.499]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>digits</p></td>
+<td class="text-center"><p>10</p></td>
+<td class="text-center"><p>5620</p></td>
+<td class="text-center"><p>64</p></td>
+<td class="text-left"><p>[0.099, 0.102, 0.099, 0.102, 0.101, 0.099, 0.099, 0.101, 0.099, 0.100]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>letter</p></td>
+<td class="text-center"><p>26</p></td>
+<td class="text-center"><p>20000</p></td>
+<td class="text-center"><p>16</p></td>
+<td class="text-left"><p>[0.039, 0.038, 0.037, 0.040, 0.038, 0.039, 0.039, 0.037, 0.038, 0.037, 0.037, 0.038, 0.040, 0.039, 0.038, 0.040, 0.039, 0.038, 0.037, 0.040, 0.041, 0.038, 0.038, 0.039, 0.039, 0.037]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>abalone</p></td>
+<td class="text-center"><p>11</p></td>
+<td class="text-center"><p>3842</p></td>
+<td class="text-center"><p>9</p></td>
+<td class="text-left"><p>[0.030, 0.067, 0.102, 0.148, 0.179, 0.165, 0.127, 0.069, 0.053, 0.033, 0.027]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>obesity</p></td>
+<td class="text-center"><p>7</p></td>
+<td class="text-center"><p>2111</p></td>
+<td class="text-center"><p>23</p></td>
+<td class="text-left"><p>[0.129, 0.136, 0.166, 0.141, 0.153, 0.137, 0.137]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>nursery</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>12958</p></td>
+<td class="text-center"><p>19</p></td>
+<td class="text-left"><p>[0.333, 0.329, 0.312, 0.025]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>yeast</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>1299</p></td>
+<td class="text-center"><p>8</p></td>
+<td class="text-left"><p>[0.356, 0.125, 0.188, 0.330]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>hand_digits</p></td>
+<td class="text-center"><p>10</p></td>
+<td class="text-center"><p>10992</p></td>
+<td class="text-center"><p>16</p></td>
+<td class="text-left"><p>[0.104, 0.104, 0.104, 0.096, 0.104, 0.096, 0.096, 0.104, 0.096, 0.096]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>satellite</p></td>
+<td class="text-center"><p>6</p></td>
+<td class="text-center"><p>6435</p></td>
+<td class="text-center"><p>36</p></td>
+<td class="text-left"><p>[0.238, 0.109, 0.211, 0.097, 0.110, 0.234]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>shuttle</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>57927</p></td>
+<td class="text-center"><p>7</p></td>
+<td class="text-left"><p>[0.787, 0.003, 0.154, 0.056]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>cmc</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>1473</p></td>
+<td class="text-center"><p>9</p></td>
+<td class="text-left"><p>[0.427, 0.226, 0.347]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>isolet</p></td>
+<td class="text-center"><p>26</p></td>
+<td class="text-center"><p>7797</p></td>
+<td class="text-center"><p>617</p></td>
+<td class="text-left"><p>[0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038, 0.038]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>waveform-v1</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>21</p></td>
+<td class="text-left"><p>[0.331, 0.329, 0.339]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>molecular</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>3190</p></td>
+<td class="text-center"><p>227</p></td>
+<td class="text-left"><p>[0.240, 0.241, 0.519]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>poker_hand</p></td>
+<td class="text-center"><p>8</p></td>
+<td class="text-center"><p>1024985</p></td>
+<td class="text-center"><p>10</p></td>
+<td class="text-left"><p>[0.501, 0.423, 0.048, 0.021, 0.004, 0.002, 0.001, 0.000]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>connect-4</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>67557</p></td>
+<td class="text-center"><p>84</p></td>
+<td class="text-left"><p>[0.095, 0.246, 0.658]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>mhr</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>1014</p></td>
+<td class="text-center"><p>6</p></td>
+<td class="text-left"><p>[0.268, 0.400, 0.331]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>chess</p></td>
+<td class="text-center"><p>15</p></td>
+<td class="text-center"><p>27870</p></td>
+<td class="text-center"><p>20</p></td>
+<td class="text-left"><p>[0.100, 0.051, 0.102, 0.078, 0.017, 0.007, 0.163, 0.061, 0.025, 0.021, 0.014, 0.071, 0.150, 0.129, 0.009]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>page_block</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>5357</p></td>
+<td class="text-center"><p>10</p></td>
+<td class="text-left"><p>[0.917, 0.061, 0.021]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>phishing</p></td>
+<td class="text-center"><p>3</p></td>
+<td class="text-center"><p>1353</p></td>
+<td class="text-center"><p>9</p></td>
+<td class="text-left"><p>[0.519, 0.076, 0.405]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>image_seg</p></td>
+<td class="text-center"><p>7</p></td>
+<td class="text-center"><p>2310</p></td>
+<td class="text-center"><p>19</p></td>
+<td class="text-left"><p>[0.143, 0.143, 0.143, 0.143, 0.143, 0.143, 0.143]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>hcv</p></td>
+<td class="text-center"><p>4</p></td>
+<td class="text-center"><p>1385</p></td>
+<td class="text-center"><p>28</p></td>
+<td class="text-left"><p>[0.243, 0.240, 0.256, 0.261]</p></td>
+<td class="text-center"><p>dense</p></td>
+</tr>
+</tbody>
+</table>
+<p>Values shown above refer to datasets obtained through <code class="docutils literal notranslate"><span class="pre">fetchUCIMulticlassLabelledCollection</span></code> using all default parameters.</p>
+</section>
+</section>
+<section id="lequa-2022-datasets">
+<h2><span class="section-number">1.4. </span>LeQua 2022 Datasets<a class="headerlink" href="#lequa-2022-datasets" title="Link to this heading"></a></h2>
+<p>QuaPy also provides the datasets used for the LeQua 2022 competition.
+In brief, there are 4 tasks (T1A, T1B, T2A, T2B) having to do with text quantification
+problems. Tasks T1A and T1B provide documents in vector form, while T2A and T2B provide
+raw documents instead.
+Tasks T1A and T2A are binary sentiment quantification problems, while T2A and T2B
+are multiclass quantification problems consisting of estimating the class prevalence
+values of 28 different merchandise products.</p>
+<p>Every task consists of a training set, a set of validation samples (for model selection)
+and a set of test samples (for evaluation). QuaPy returns this data as a LabelledCollection
+(training) and two generation protocols (for validation and test samples), as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">training</span><span class="p">,</span> <span class="n">val_generator</span><span class="p">,</span> <span class="n">test_generator</span> <span class="o">=</span> <span class="n">fetch_lequa2022</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See the <code class="docutils literal notranslate"><span class="pre">lequa2022_experiments.py</span></code> in the examples folder for further details on how to
+carry out experiments using these datasets.</p>
+<p>The datasets are downloaded only once, and stored for fast reuse.</p>
+<p>Some statistics are summarized below:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dataset</p></th>
+<th class="head text-center"><p>classes</p></th>
+<th class="head text-center"><p>train size</p></th>
+<th class="head text-center"><p>validation samples</p></th>
+<th class="head text-center"><p>test samples</p></th>
+<th class="head text-center"><p>docs by sample</p></th>
+<th class="head text-center"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>T1A</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>250</p></td>
+<td class="text-center"><p>vector</p></td>
+</tr>
+<tr class="row-odd"><td><p>T1B</p></td>
+<td class="text-center"><p>28</p></td>
+<td class="text-center"><p>20000</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>vector</p></td>
+</tr>
+<tr class="row-even"><td><p>T2A</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>250</p></td>
+<td class="text-center"><p>text</p></td>
+</tr>
+<tr class="row-odd"><td><p>T2B</p></td>
+<td class="text-center"><p>28</p></td>
+<td class="text-center"><p>20000</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>text</p></td>
+</tr>
+</tbody>
+</table>
+<p>For further details on the datasets, we refer to the original
+<a class="reference external" href="https://ceur-ws.org/Vol-3180/paper-146.pdf">paper</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Esuli</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="n">Moreo</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="n">Sebastiani</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="p">,</span> <span class="o">&amp;</span> <span class="n">Sperduti</span><span class="p">,</span> <span class="n">G</span><span class="o">.</span> <span class="p">(</span><span class="mi">2022</span><span class="p">)</span><span class="o">.</span>
+<span class="n">A</span> <span class="n">Detailed</span> <span class="n">Overview</span> <span class="n">of</span> <span class="n">LeQua</span><span class="o">@</span> <span class="n">CLEF</span> <span class="mi">2022</span><span class="p">:</span> <span class="n">Learning</span> <span class="n">to</span> <span class="n">Quantify</span><span class="o">.</span>
+</pre></div>
+</div>
+</section>
+<section id="ifcb-plankton-dataset">
+<h2><span class="section-number">1.5. </span>IFCB Plankton dataset<a class="headerlink" href="#ifcb-plankton-dataset" title="Link to this heading"></a></h2>
+<p>IFCB is a dataset of plankton species in water samples hosted in <code class="docutils literal notranslate"><span class="pre">Zenodo</span> <span class="pre">&lt;https://zenodo.org/records/10036244&gt;</span></code><em>.
+This dataset is based on the data available publicly at <code class="docutils literal notranslate"><span class="pre">WHOI-Plankton</span> <span class="pre">repo</span> <span class="pre">&lt;https://github.com/hsosik/WHOI-Plankton&gt;</span></code></em>
+and in the scripts for the processing are available at <code class="docutils literal notranslate"><span class="pre">P.</span> <span class="pre">González's</span> <span class="pre">repo</span> <span class="pre">&lt;https://github.com/pglez82/IFCB_Zenodo&gt;</span></code>_.</p>
+<p>This dataset comes with precomputed features for testing quantification algorithms.</p>
+<p>Some statistics:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head text-center"><p><strong>Training</strong></p></th>
+<th class="head text-center"><p><strong>Validation</strong></p></th>
+<th class="head text-center"><p><strong>Test</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>samples</p></td>
+<td class="text-center"><p>200</p></td>
+<td class="text-center"><p>86</p></td>
+<td class="text-center"><p>678</p></td>
+</tr>
+<tr class="row-odd"><td><p>total instances</p></td>
+<td class="text-center"><p>584474</p></td>
+<td class="text-center"><p>246916</p></td>
+<td class="text-center"><p>2626429</p></td>
+</tr>
+<tr class="row-even"><td><p>mean per sample</p></td>
+<td class="text-center"><p>2922.3</p></td>
+<td class="text-center"><p>2871.1</p></td>
+<td class="text-center"><p>3873.8</p></td>
+</tr>
+<tr class="row-odd"><td><p>min per sample</p></td>
+<td class="text-center"><p>266</p></td>
+<td class="text-center"><p>59</p></td>
+<td class="text-center"><p>33</p></td>
+</tr>
+<tr class="row-even"><td><p>max per sample</p></td>
+<td class="text-center"><p>6645</p></td>
+<td class="text-center"><p>7375</p></td>
+<td class="text-center"><p>9112</p></td>
+</tr>
+</tbody>
+</table>
+<p>The number of features is 512, while the number of classes is 50.
+In terms of prevalence, the mean is 0.020, the minimum is 0, and the maximum is 0.978.</p>
+<p>The dataset can be loaded for model selection (<code class="docutils literal notranslate"><span class="pre">for_model_selection=True</span></code>, thus returning the training and validation)
+or for test (<code class="docutils literal notranslate"><span class="pre">for_model_selection=False</span></code>, thus returning the training+validation and the test).</p>
+<p>Additionally, the training can be interpreted as a list (a generator) of samples (<code class="docutils literal notranslate"><span class="pre">single_sample_train=False</span></code>)
+or as a single training set (<code class="docutils literal notranslate"><span class="pre">single_sample_train=True</span></code>).</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">train</span><span class="p">,</span> <span class="n">val_gen</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_IFCB</span><span class="p">(</span><span class="n">for_model_selection</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">single_sample_train</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># ... model selection</span>
+
+<span class="n">train</span><span class="p">,</span> <span class="n">test_gen</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_IFCB</span><span class="p">(</span><span class="n">for_model_selection</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">single_sample_train</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># ... train and evaluation</span>
+</pre></div>
+</div>
+</section>
+<section id="adding-custom-datasets">
+<h2><span class="section-number">1.6. </span>Adding Custom Datasets<a class="headerlink" href="#adding-custom-datasets" title="Link to this heading"></a></h2>
+<p>QuaPy provides data loaders for simple formats dealing with
+text, following the format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">class</span><span class="o">-</span><span class="nb">id</span> \<span class="n">t</span> <span class="n">first</span> <span class="n">document</span><span class="s1">&#39;s pre-processed text </span><span class="se">\n</span>
+<span class="n">class</span><span class="o">-</span><span class="nb">id</span> \<span class="n">t</span> <span class="n">second</span> <span class="n">document</span><span class="s1">&#39;s pre-processed text </span><span class="se">\n</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>and sparse representations of the form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="ow">or</span> <span class="o">+</span><span class="mi">1</span><span class="p">}</span> <span class="n">col</span><span class="p">(</span><span class="nb">int</span><span class="p">):</span><span class="n">val</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="n">col</span><span class="p">(</span><span class="nb">int</span><span class="p">):</span><span class="n">val</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">...</span> \<span class="n">n</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>The code in charge in loading a LabelledCollection is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">loader_func</span><span class="p">:</span><span class="nb">callable</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="o">*</span><span class="n">loader_func</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>indicating that any <em>loader_func</em> (e.g., a user-defined one) which
+returns valid arguments for initializing a <em>LabelledCollection</em> object will allow
+to load any collection. In particular, the <em>LabelledCollection</em> receives as
+arguments the instances (as an iterable) and the labels (as an iterable) and,
+additionally, the number of classes can be specified (it would otherwise be
+inferred from the labels, but that requires at least one positive example for
+all classes to be present in the collection).</p>
+<p>The same <em>loader_func</em> can be passed to a Dataset, along with two
+paths, in order to create a training and test pair of <em>LabelledCollection</em>,
+e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+
+<span class="n">train_path</span> <span class="o">=</span> <span class="s1">&#39;../my_data/train.dat&#39;</span>
+<span class="n">test_path</span> <span class="o">=</span> <span class="s1">&#39;../my_data/test.dat&#39;</span>
+
+<span class="k">def</span> <span class="nf">my_custom_loader</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="o">...</span>
+    <span class="k">return</span> <span class="n">instances</span><span class="p">,</span> <span class="n">labels</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">train_path</span><span class="p">,</span> <span class="n">test_path</span><span class="p">,</span> <span class="n">my_custom_loader</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="data-processing">
+<h3><span class="section-number">1.6.1. </span>Data Processing<a class="headerlink" href="#data-processing" title="Link to this heading"></a></h3>
+<p>QuaPy implements a number of preprocessing functions in the package <em>qp.data.preprocessing</em>, including:</p>
+<ul class="simple">
+<li><p><em>text2tfidf</em>: tfidf vectorization</p></li>
+<li><p><em>reduce_columns</em>: reducing the number of columns based on term frequency</p></li>
+<li><p><em>standardize</em>: transforms the column values into z-scores (i.e., subtract the mean and normalizes by the standard deviation, so
+that the column values have zero mean and unit variance).</p></li>
+<li><p><em>index</em>: transforms textual tokens into lists of numeric ids)</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../manuals.html" class="btn btn-neutral float-left" title="Manuals" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="evaluation.html" class="btn btn-neutral float-right" title="2. Evaluation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

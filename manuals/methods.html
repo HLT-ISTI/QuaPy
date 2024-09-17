@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4. Quantification Methods &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5. Model Selection" href="model-selection.html" />
+    <link rel="prev" title="3. Explicit Loss Minimization" href="explicit-loss-minimization.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Quickstart</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../manuals.html">Manuals</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="datasets.html">1. Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluation.html">2. Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="explicit-loss-minimization.html">3. Explicit Loss Minimization</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">4. Quantification Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#aggregative-methods">4.1. Aggregative Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#the-classify-count-variants">4.1.1. The Classify &amp; Count variants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#expectation-maximization-emq">4.1.2. Expectation Maximization (EMQ)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hellinger-distance-y-hdy">4.1.3. Hellinger Distance y (HDy)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#threshold-optimization-methods">4.1.4. Threshold Optimization methods</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#explicit-loss-minimization">4.1.5. Explicit Loss Minimization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kernel-density-estimation-methods-kdey">4.1.6. Kernel Density Estimation methods (KDEy)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#composable-methods">4.2. Composable Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#installation">4.2.1. Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#basics">4.2.2. Basics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#loss-functions">4.2.3. Loss functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#regularization-functions">4.2.4. Regularization functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#feature-transformations">4.2.5. Feature transformations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#meta-models">4.3. Meta Models</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ensembles">4.3.1. Ensembles</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-quanet-neural-network">4.3.2. The QuaNet neural network</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="model-selection.html">5. Model Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plotting.html">6. Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocols.html">7. Protocols</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../manuals.html">Manuals</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">4. </span>Quantification Methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/manuals/methods.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quantification-methods">
+<h1><span class="section-number">4. </span>Quantification Methods<a class="headerlink" href="#quantification-methods" title="Link to this heading"></a></h1>
+<p>Quantification methods can be categorized as belonging to
+<code class="docutils literal notranslate"><span class="pre">aggregative</span></code> and <code class="docutils literal notranslate"><span class="pre">non-aggregative</span></code> groups.
+Most methods included in QuaPy at the moment are of type <code class="docutils literal notranslate"><span class="pre">aggregative</span></code>
+(though we plan to add many more methods in the near future), i.e.,
+are methods characterized by the fact that
+quantification is performed as an aggregation function of the individual
+products of classification.</p>
+<p>Any quantifier in QuaPy shoud extend the class <code class="docutils literal notranslate"><span class="pre">BaseQuantifier</span></code>,
+and implement some abstract methods:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span> <span class="o">...</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>The meaning of those functions should be familiar to those
+used to work with scikit-learn since the class structure of QuaPy
+is directly inspired by scikit-learn’s <em>Estimators</em>. Functions
+<code class="docutils literal notranslate"><span class="pre">fit</span></code> and <code class="docutils literal notranslate"><span class="pre">quantify</span></code> are used to train the model and to provide
+class estimations (the reason why
+scikit-learn’ structure has not been adopted <em>as is</em> in QuaPy responds to
+the fact that scikit-learn’s <code class="docutils literal notranslate"><span class="pre">predict</span></code> function is expected to return
+one output for each input element –e.g., a predicted label for each
+instance in a sample– while in quantification the output for a sample
+is one single array of class prevalences).
+Quantifiers also extend from scikit-learn’s <code class="docutils literal notranslate"><span class="pre">BaseEstimator</span></code>, in order
+to simplify the use of <code class="docutils literal notranslate"><span class="pre">set_params</span></code> and <code class="docutils literal notranslate"><span class="pre">get_params</span></code> used in
+<a class="reference internal" href="model-selection.html"><span class="doc std std-doc">model selection</span></a>.</p>
+<section id="aggregative-methods">
+<h2><span class="section-number">4.1. </span>Aggregative Methods<a class="headerlink" href="#aggregative-methods" title="Link to this heading"></a></h2>
+<p>All quantification methods are implemented as part of the
+<code class="docutils literal notranslate"><span class="pre">qp.method</span></code> package. In particular, <code class="docutils literal notranslate"><span class="pre">aggregative</span></code> methods are defined in
+<code class="docutils literal notranslate"><span class="pre">qp.method.aggregative</span></code>, and extend <code class="docutils literal notranslate"><span class="pre">AggregativeQuantifier(BaseQuantifier)</span></code>.
+The methods that any <code class="docutils literal notranslate"><span class="pre">aggregative</span></code> quantifier must implement are:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span> <span class="o">...</span>
+</pre></div>
+</div>
+<p>These two functions replace the <code class="docutils literal notranslate"><span class="pre">fit</span></code> and <code class="docutils literal notranslate"><span class="pre">quantify</span></code> methods, since those
+come with default implementations. The <code class="docutils literal notranslate"><span class="pre">fit</span></code> function is provided and amounts to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_check_init_parameters</span><span class="p">()</span>
+    <span class="n">classif_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier_fit_predict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">predict_on</span><span class="o">=</span><span class="n">val_split</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_fit</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span>
+</pre></div>
+</div>
+<p>Note that this function fits the classifier, and generates the predictions. This is assumed
+to be a routine common to all aggregative quantifiers, and is provided by QuaPy. What remains
+ahead is to define the <code class="docutils literal notranslate"><span class="pre">aggregation_fit</span></code> function, that takes as input the classifier predictions
+and the original training data (this latter is typically unused). The classifier predictions
+can be:</p>
+<ul class="simple">
+<li><p>confidence scores: quantifiers inheriting directly from <code class="docutils literal notranslate"><span class="pre">AggregativeQuantifier</span></code></p></li>
+<li><p>crisp predictions: quantifiers inheriting from <code class="docutils literal notranslate"><span class="pre">AggregativeCrispQuantifier</span></code></p></li>
+<li><p>posterior probabilities: quantifiers inheriting from <code class="docutils literal notranslate"><span class="pre">AggregativeSoftQuantifier</span></code></p></li>
+<li><p><em>anything</em>: custom quantifiers overriding the <code class="docutils literal notranslate"><span class="pre">classify</span></code> method</p></li>
+</ul>
+<p>Note also that the <code class="docutils literal notranslate"><span class="pre">fit</span></code> method also calls <code class="docutils literal notranslate"><span class="pre">_check_init_parameters</span></code>; this function is meant to be
+overriden (if needed) and allows the method to quickly raise any exception based on any inconsistency
+found in the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> arguments, thus avoiding to break after training the classifier and generating
+predictions.</p>
+<p>Similarly, the function <code class="docutils literal notranslate"><span class="pre">quantify</span></code> is provided, and amounts to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+    <span class="n">classif_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>in which only the function <code class="docutils literal notranslate"><span class="pre">aggregate</span></code> is required to be overriden in most cases.</p>
+<p>Aggregative quantifiers are expected to maintain a classifier (which is
+accessed through the <code class="docutils literal notranslate"><span class="pre">&#64;property</span></code> <code class="docutils literal notranslate"><span class="pre">classifier</span></code>). This classifier is
+given as input to the quantifier, and can be already fit
+on external data (in which case, the <code class="docutils literal notranslate"><span class="pre">fit_learner</span></code> argument should
+be set to False), or be fit by the quantifier’s fit (default).</p>
+<p>The above patterns (in training: fit the classifier, then fit the aggregation;
+in test: classify, then aggregate) allows QuaPy to optimize many internal procedures.
+In particular, the model selection routing takes advantage of this two-step process
+and generates classifiers only for the valid combinations of hyperparameters of the
+classifier, and then <em>clones</em> these classifiers and explores the combinations
+of hyperparameters that are specific to the quantifier (this can result in huge
+time savings).
+Concerning the inference phase, this two-step process allow the evaluation of many
+standard protocols (e.g., the <a class="reference internal" href="evaluation.html"><span class="doc std std-doc">artificial sampling protocol</span></a>) to be
+carried out very efficiently. The reason is that the entire set can be pre-classified
+once, and the quantification estimations for different samples can directly
+reuse these predictions, without requiring to classify each element every time.
+QuaPy leverages this property to speed-up any procedure having to do with
+quantification over samples, as is customarily done in model selection or
+in evaluation.</p>
+<section id="the-classify-count-variants">
+<h3><span class="section-number">4.1.1. </span>The Classify &amp; Count variants<a class="headerlink" href="#the-classify-count-variants" title="Link to this heading"></a></h3>
+<p>QuaPy implements the four CC variants, i.e.:</p>
+<ul class="simple">
+<li><p><em>CC</em> (Classify &amp; Count), the simplest aggregative quantifier; one that
+simply relies on the label predictions of a classifier to deliver class estimates.</p></li>
+<li><p><em>ACC</em> (Adjusted Classify &amp; Count), the adjusted variant of CC.</p></li>
+<li><p><em>PCC</em> (Probabilistic Classify &amp; Count), the probabilistic variant of CC that
+relies on the soft estimations (or posterior probabilities) returned by a (probabilistic) classifier.</p></li>
+<li><p><em>PACC</em> (Probabilistic Adjusted Classify &amp; Count), the adjusted variant of PCC.</p></li>
+</ul>
+<p>The following code serves as a complete example using CC equipped
+with a SVM as the classifier:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
+
+<span class="n">training</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+
+<span class="c1"># instantiate a classifier learner, in this case a SVM</span>
+<span class="n">svm</span> <span class="o">=</span> <span class="n">LinearSVC</span><span class="p">()</span>
+
+<span class="c1"># instantiate a Classify &amp; Count with the SVM</span>
+<span class="c1"># (an alias is available in qp.method.aggregative.ClassifyAndCount)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">CC</span><span class="p">(</span><span class="n">svm</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The same code could be used to instantiate an ACC, by simply replacing
+the instantiation of the model with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">ACC</span><span class="p">(</span><span class="n">svm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the adjusted variants (ACC and PACC) need to estimate
+some parameters for performing the adjustment (e.g., the
+<em>true positive rate</em> and the <em>false positive rate</em> in case of
+binary classification) that are estimated on a validation split
+of the labelled set. In this case, the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> method of
+ACC defines an additional parameter, <code class="docutils literal notranslate"><span class="pre">val_split</span></code>. If this parameter
+is set to a float in [0,1] representing a fraction (e.g., 0.4)
+then that fraction of labelled data (e.g., 40%)
+will be used for estimating the parameters for adjusting the
+predictions. This parameters can also be set with an integer,
+indicating that the parameters should be estimated by means of
+<em>k</em>-fold cross-validation, for which the integer indicates the
+number <em>k</em> of folds (the default value is 5). Finally, <code class="docutils literal notranslate"><span class="pre">val_split</span></code> can be set to a
+specific held-out validation set (i.e., an instance of <code class="docutils literal notranslate"><span class="pre">LabelledCollection</span></code>).</p>
+<p>The specification of <code class="docutils literal notranslate"><span class="pre">val_split</span></code> can be
+postponed to the invokation of the fit method (if <code class="docutils literal notranslate"><span class="pre">val_split</span></code> was also
+set in the constructor, the one specified at fit time would prevail),
+e.g.:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">ACC</span><span class="p">(</span><span class="n">svm</span><span class="p">)</span>
+<span class="c1"># perform 5-fold cross validation for estimating ACC&#39;s parameters</span>
+<span class="c1"># (overrides the default val_split=0.4 in the constructor)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following code illustrates the case in which PCC is used:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">PCC</span><span class="p">(</span><span class="n">svm</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;classifier:&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In this case, QuaPy will print:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">The</span> <span class="n">learner</span> <span class="n">LinearSVC</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">seem</span> <span class="n">to</span> <span class="n">be</span> <span class="n">probabilistic</span><span class="o">.</span> <span class="n">The</span> <span class="n">learner</span> <span class="n">will</span> <span class="n">be</span> <span class="n">calibrated</span><span class="o">.</span>
+<span class="n">classifier</span><span class="p">:</span> <span class="n">CalibratedClassifierCV</span><span class="p">(</span><span class="n">base_estimator</span><span class="o">=</span><span class="n">LinearSVC</span><span class="p">(),</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The first output indicates that the learner (<code class="docutils literal notranslate"><span class="pre">LinearSVC</span></code> in this case)
+is not a probabilistic classifier (i.e., it does not implement the
+<code class="docutils literal notranslate"><span class="pre">predict_proba</span></code> method) and so, the classifier will be converted to
+a probabilistic one through <a class="reference external" href="https://scikit-learn.org/stable/modules/calibration.html">calibration</a>.
+As a result, the classifier that is printed in the second line points
+to a <code class="docutils literal notranslate"><span class="pre">CalibratedClassifier</span></code> instance. Note that calibration can only
+be applied to hard classifiers when <code class="docutils literal notranslate"><span class="pre">fit_learner=True</span></code>; an exception
+will be raised otherwise.</p>
+<p>Lastly, everything we said aboud ACC and PCC
+applies to PACC as well.</p>
+<p><em>New in v0.1.9</em>: quantifiers ACC and PACC now have three additional arguments: <code class="docutils literal notranslate"><span class="pre">method</span></code>, <code class="docutils literal notranslate"><span class="pre">solver</span></code> and <code class="docutils literal notranslate"><span class="pre">norm</span></code>:</p>
+<ul class="simple">
+<li><p>Argument <code class="docutils literal notranslate"><span class="pre">method</span></code> specifies how to solve, for <code class="docutils literal notranslate"><span class="pre">p</span></code>, the linear system <code class="docutils literal notranslate"><span class="pre">q</span> <span class="pre">=</span> <span class="pre">Mp</span></code> (where <code class="docutils literal notranslate"><span class="pre">q</span></code> is the unadjusted counts for the
+test sample, <code class="docutils literal notranslate"><span class="pre">M</span></code> contains the class-conditional unadjusted counts –i.e., the missclassification rates– and <code class="docutils literal notranslate"><span class="pre">p</span></code> is the
+sought prevalence vector):</p>
+<ul>
+<li><p>option <code class="docutils literal notranslate"><span class="pre">&quot;inversion&quot;</span></code>: attempts to invert matrix <code class="docutils literal notranslate"><span class="pre">M</span></code>, thus solving <code class="docutils literal notranslate"><span class="pre">Minv</span> <span class="pre">q</span> <span class="pre">=</span> <span class="pre">p</span></code>. In degenerated cases, this
+inversion may not exist. In such cases, the method defaults to returning <code class="docutils literal notranslate"><span class="pre">q</span></code> (the unadjusted counts)</p></li>
+<li><p>option <code class="docutils literal notranslate"><span class="pre">&quot;invariant-ratio&quot;&quot;</span></code> uses the invariant ratio estimator system proposed in Remark 5 of
+<a class="reference external" href="https://jmlr.csail.mit.edu/papers/volume20/18-456/18-456.pdf">Vaz, A.F., Izbicki F. and Stern, R.B. “Quantification Under Prior Probability Shift: the Ratio Estimator
+and its Extensions”, in Journal of Machine Learning Research 20 (2019)</a>.</p></li>
+</ul>
+</li>
+<li><p>Argument <code class="docutils literal notranslate"><span class="pre">solver</span></code> specifies how to solve the linear system.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;exact-raise&quot;</span></code> solves the system of linear equations and raises an exception if the system is not solvable</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;exact-cc&quot;</span></code> returns the original unadjusted count if the system is not solvable</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;minimize&quot;</span></code>  minimizes the L2 norm of :math:<code class="docutils literal notranslate"><span class="pre">|Mp-q|</span></code>. This one generally works better, and is the
+default parameter. More details about this can be consulted in
+<a class="reference external" href="https://lq-2022.github.io/proceedings/CompleteVolume.pdf">Bunse, M. “On Multi-Class Extensions of Adjusted Classify and Count”,
+on proceedings of the 2nd International Workshop on Learning to Quantify: Methods and Applications (LQ 2022),
+ECML/PKDD 2022, Grenoble (France)</a>).</p></li>
+</ul>
+</li>
+<li><p>Argument <code class="docutils literal notranslate"><span class="pre">norm</span></code> specifies how to normalize the estimate <code class="docutils literal notranslate"><span class="pre">p</span></code> when the vector lies outside of the probability simplex.
+Options are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;clip&quot;</span></code> which clips the values to range <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> and then L1-normalizes the vector</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;mapsimplex&quot;</span></code> which projects the results on the probability simplex, as proposed by Vaz et al. in
+<a class="reference external" href="https://jmlr.csail.mit.edu/papers/volume20/18-456/18-456.pdf">Remark 5 of Vaz, et. (2019)</a>. This implementation
+relies on <a class="reference external" href="https://gist.github.com/mblondel/6f3b7aaad90606b98f71">Mathieu Blondel’s <code class="docutils literal notranslate"><span class="pre">projection_simplex_sort</span></code></a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;condsoftmax&quot;</span></code>  applies softmax normalization only if the prevalence vector lies outside of the probability simplex.</p></li>
+</ul>
+</li>
+</ul>
+<section id="bayesiancc-new-in-v0-1-9">
+<h4><span class="section-number">4.1.1.1. </span>BayesianCC (<em>New in v0.1.9</em>!)<a class="headerlink" href="#bayesiancc-new-in-v0-1-9" title="Link to this heading"></a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">BayesianCC</span></code> is a variant of ACC introduced in
+<a class="reference external" href="https://arxiv.org/abs/2302.09159">Ziegler, A. and Czyż, P. “Bayesian quantification with black-box estimators”, arXiv (2023)</a>,
+which models the probabilities <code class="docutils literal notranslate"><span class="pre">q</span> <span class="pre">=</span> <span class="pre">Mp</span></code> using latent random variables with weak Bayesian priors, rather than
+plug-in probability estimates. In particular, it uses Markov Chain Monte Carlo sampling to find the values of
+<code class="docutils literal notranslate"><span class="pre">p</span></code> compatible with the observed quantities.
+The <code class="docutils literal notranslate"><span class="pre">aggregate</span></code> method returns the posterior mean and the <code class="docutils literal notranslate"><span class="pre">get_prevalence_samples</span></code> method can be used to find
+uncertainty around <code class="docutils literal notranslate"><span class="pre">p</span></code> estimates (conditional on the observed data and the trained classifier)
+and is suitable for problems in which the <code class="docutils literal notranslate"><span class="pre">q</span> <span class="pre">=</span> <span class="pre">Mp</span></code> matrix is nearly non-invertible.</p>
+<p>Note that this quantification method requires <code class="docutils literal notranslate"><span class="pre">val_split</span></code> to be a <code class="docutils literal notranslate"><span class="pre">float</span></code> and installation of additional dependencies (<code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">quapy[bayes]</span></code>) needed to run Markov chain Monte Carlo sampling. Markov Chain Monte Carlo is is slower than matrix inversion methods, but is guaranteed to sample proper probability vectors, so no clipping strategies are required.
+An example presenting how to run the method and use posterior samples is available in <code class="docutils literal notranslate"><span class="pre">examples/bayesian_quantification.py</span></code>.</p>
+</section>
+</section>
+<section id="expectation-maximization-emq">
+<h3><span class="section-number">4.1.2. </span>Expectation Maximization (EMQ)<a class="headerlink" href="#expectation-maximization-emq" title="Link to this heading"></a></h3>
+<p>The Expectation Maximization Quantifier (EMQ), also known as
+the SLD, is available at <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.EMQ</span></code> or via the
+alias <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.ExpectationMaximizationQuantifier</span></code>.
+The method is described in:</p>
+<p><em>Saerens, M., Latinne, P., and Decaestecker, C. (2002). Adjusting the outputs of a classifier
+to new a priori probabilities: A simple procedure. Neural Computation, 14(1):21–41.</em></p>
+<p>EMQ works with a probabilistic classifier (if the classifier
+given as input is a hard one, a calibration will be attempted).
+Although this method was originally proposed for improving the
+posterior probabilities of a probabilistic classifier, and not
+for improving the estimation of prior probabilities, EMQ ranks
+almost always among the most effective quantifiers in the
+experiments we have carried out.</p>
+<p>An example of use can be found below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">EMQ</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>New in v0.1.7</em>: EMQ now accepts two new parameters in the construction method, namely
+<code class="docutils literal notranslate"><span class="pre">exact_train_prev</span></code> which allows to use the true training prevalence as the departing
+prevalence estimation (default behaviour), or instead an approximation of it as
+suggested by <a class="reference external" href="http://proceedings.mlr.press/v119/alexandari20a.html">Alexandari et al. (2020)</a>
+(by setting <code class="docutils literal notranslate"><span class="pre">exact_train_prev=False</span></code>).
+The other parameter is <code class="docutils literal notranslate"><span class="pre">recalib</span></code> which allows to indicate a calibration method, among those
+proposed by <a class="reference external" href="http://proceedings.mlr.press/v119/alexandari20a.html">Alexandari et al. (2020)</a>,
+including the Bias-Corrected Temperature Scaling, Vector Scaling, etc.
+See the API documentation for further details.</p>
+</section>
+<section id="hellinger-distance-y-hdy">
+<h3><span class="section-number">4.1.3. </span>Hellinger Distance y (HDy)<a class="headerlink" href="#hellinger-distance-y-hdy" title="Link to this heading"></a></h3>
+<p>Implementation of the method based on the Hellinger Distance y (HDy) proposed by
+<a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0020025512004069">González-Castro, V., Alaiz-Rodrı́guez, R., and Alegre, E. (2013). Class distribution
+estimation based on the Hellinger distance. Information Sciences, 218:146–164.</a></p>
+<p>It is implemented in <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.HDy</span></code> (also accessible
+through the allias <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.HellingerDistanceY</span></code>).
+This method works with a probabilistic classifier (hard classifiers
+can be used as well and will be calibrated) and requires a validation
+set to estimate parameter for the mixture model. Just like
+ACC and PACC, this quantifier receives a <code class="docutils literal notranslate"><span class="pre">val_split</span></code> argument
+in the constructor (or in the fit method, in which case the previous
+value is overridden) that can either be a float indicating the proportion
+of training data to be taken as the validation set (in a random
+stratified split), or a validation set (i.e., an instance of
+<code class="docutils literal notranslate"><span class="pre">LabelledCollection</span></code>) itself.</p>
+<p>HDy was proposed as a binary classifier and the implementation
+provided in QuaPy accepts only binary datasets.</p>
+<p>The following code shows an example of use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="c1"># load a binary dataset</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;hp&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">text2tfidf</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">HDy</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>New in v0.1.7:</em> QuaPy now provides an implementation of the generalized
+“Distribution Matching” approaches for multiclass, inspired by the framework
+of <a class="reference external" href="https://arxiv.org/abs/1606.00868">Firat (2016)</a>. One can instantiate
+a variant of HDy for multiclass quantification as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mutliclassHDy</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">DMy</span><span class="p">(</span><span class="n">classifier</span><span class="o">=</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">divergence</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span> <span class="n">cdf</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><em>New in v0.1.7:</em> QuaPy now provides an implementation of the “DyS”
+framework proposed by <a class="reference external" href="https://ojs.aaai.org/index.php/AAAI/article/view/4376">Maletzke et al (2020)</a>
+and the “SMM” method proposed by <a class="reference external" href="https://ieeexplore.ieee.org/document/9260028">Hassan et al (2019)</a>
+(thanks to <em>Pablo González</em> for the contributions!)</p>
+</section>
+<section id="threshold-optimization-methods">
+<h3><span class="section-number">4.1.4. </span>Threshold Optimization methods<a class="headerlink" href="#threshold-optimization-methods" title="Link to this heading"></a></h3>
+<p><em>New in v0.1.7:</em> QuaPy now implements Forman’s threshold optimization methods;
+see, e.g., <a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/1150402.1150423">(Forman 2006)</a>
+and <a class="reference external" href="https://link.springer.com/article/10.1007/s10618-008-0097-y">(Forman 2008)</a>.
+These include: T50, MAX, X, Median Sweep (MS), and its variant MS2.</p>
+</section>
+<section id="explicit-loss-minimization">
+<h3><span class="section-number">4.1.5. </span>Explicit Loss Minimization<a class="headerlink" href="#explicit-loss-minimization" title="Link to this heading"></a></h3>
+<p>The Explicit Loss Minimization (ELM) represent a family of methods
+based on structured output learning, i.e., quantifiers relying on
+classifiers that have been optimized targeting a
+quantification-oriented evaluation measure.
+The original methods are implemented in QuaPy as classify &amp; count (CC)
+quantifiers that use Joachim’s <a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">SVMperf</a>
+as the underlying classifier, properly set to optimize for the desired loss.</p>
+<p>In QuaPy, this can be more achieved by calling the functions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">newSVMQ</span></code>: returns the quantification method called SVM(Q) that optimizes for the metric <em>Q</em> defined
+in <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S003132031400291X"><em>Barranquero, J., Díez, J., and del Coz, J. J. (2015). Quantification-oriented learning based
+on reliable classifiers. Pattern Recognition, 48(2):591–604.</em></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">newSVMKLD</span></code> and <code class="docutils literal notranslate"><span class="pre">newSVMNKLD</span></code>: returns the quantification method called SVM(KLD) and SVM(nKLD), standing for
+Kullback-Leibler Divergence and Normalized Kullback-Leibler Divergence, as proposed in <a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/2700406"><em>Esuli, A. and Sebastiani, F. (2015).
+Optimizing text quantifiers for multivariate loss functions.
+ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27.</em></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">newSVMAE</span></code> and <code class="docutils literal notranslate"><span class="pre">newSVMRAE</span></code>: returns a quantification method called SVM(AE) and SVM(RAE) that optimizes for the (Mean) Absolute Error and for the
+(Mean) Relative Absolute Error, as first used by
+<a class="reference external" href="https://arxiv.org/abs/2011.02552"><em>Moreo, A. and Sebastiani, F. (2021). Tweet sentiment quantification: An experimental re-evaluation. PLOS ONE 17 (9), 1-23.</em></a></p></li>
+</ul>
+<p>the last two methods (SVM(AE) and SVM(RAE)) have been implemented in
+QuaPy in order to make available ELM variants for what nowadays
+are considered the most well-behaved evaluation metrics in quantification.</p>
+<p>In order to make these models work, you would need to run the script
+<code class="docutils literal notranslate"><span class="pre">prepare_svmperf.sh</span></code> (distributed along with QuaPy) that
+downloads <code class="docutils literal notranslate"><span class="pre">SVMperf</span></code>’ source code, applies a patch that
+implements the quantification oriented losses, and compiles the
+sources.</p>
+<p>If you want to add any custom loss, you would need to modify
+the source code of <code class="docutils literal notranslate"><span class="pre">SVMperf</span></code> in order to implement it, and
+assign a valid loss code to it. Then you must re-compile
+the whole thing and instantiate the quantifier in QuaPy
+as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># you can either set the path to your custom svm_perf_quantification implementation</span>
+<span class="c1"># in the environment variable, or as an argument to the constructor of ELM</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SVMPERF_HOME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;./path/to/svm_perf_quantification&#39;</span>
+
+<span class="c1"># assign an alias to your custom loss and the id you have assigned to it</span>
+<span class="n">svmperf</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">svmperf</span><span class="o">.</span><span class="n">SVMperf</span>
+<span class="n">svmperf</span><span class="o">.</span><span class="n">valid_losses</span><span class="p">[</span><span class="s1">&#39;mycustomloss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">28</span>
+
+<span class="c1"># instantiate the ELM method indicating the loss</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">ELM</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mycustomloss&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All ELM are binary quantifiers since they rely on <code class="docutils literal notranslate"><span class="pre">SVMperf</span></code>, that
+currently supports only binary classification.
+ELM variants (any binary quantifier in general) can be extended
+to operate in single-label scenarios trivially by adopting a
+“one-vs-all” strategy (as, e.g., in
+<a class="reference external" href="https://link.springer.com/article/10.1007/s13278-016-0327-z"><em>Gao, W. and Sebastiani, F. (2016). From classification to quantification in tweet sentiment
+analysis. Social Network Analysis and Mining, 6(19):1–22</em></a>).
+In QuaPy this is possible by using the <code class="docutils literal notranslate"><span class="pre">OneVsAll</span></code> class.</p>
+<p>There are two ways for instantiating this class, <code class="docutils literal notranslate"><span class="pre">OneVsAllGeneric</span></code> that works for
+any quantifier, and <code class="docutils literal notranslate"><span class="pre">OneVsAllAggregative</span></code> that is optimized for aggregative quantifiers.
+In general, you can simply use the <code class="docutils literal notranslate"><span class="pre">newOneVsAll</span></code> function and QuaPy will choose
+the more convenient of the two.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">SVMQ</span>
+
+<span class="c1"># load a single-label dataset (this one contains 3 classes)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># let qp know where svmperf is</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SVMPERF_HOME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;../svm_perf_quantification&#39;</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">newOneVsAll</span><span class="p">(</span><span class="n">SVMQ</span><span class="p">(),</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># run them on parallel</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Check the examples on <a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/5.explicit_loss_minimization.py">explicit_loss_minimization</a>
+and on <a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/10.one_vs_all.py">one versus all quantification</a> for more details.</p>
+</section>
+<section id="kernel-density-estimation-methods-kdey">
+<h3><span class="section-number">4.1.6. </span>Kernel Density Estimation methods (KDEy)<a class="headerlink" href="#kernel-density-estimation-methods-kdey" title="Link to this heading"></a></h3>
+<p><em>New in v0.1.8</em>: QuaPy now provides implementations for the three variants
+of KDE-based methods proposed in
+<em><a class="reference external" href="https://arxiv.org/abs/2401.00490">Moreo, A., González, P. and del Coz, J.J., 2023.
+Kernel Density Estimation for Multiclass Quantification.
+arXiv preprint arXiv:2401.00490.</a></em>.
+The variants differ in the divergence metric to be minimized:</p>
+<ul class="simple">
+<li><p>KDEy-HD: minimizes the (squared) Hellinger Distance and solves the problem via a Monte Carlo approach</p></li>
+<li><p>KDEy-CS: minimizes the Cauchy-Schwarz divergence and solves the problem via a closed-form solution</p></li>
+<li><p>KDEy-ML: minimizes the Kullback-Leibler divergence and solves the problem via maximum-likelihood</p></li>
+</ul>
+<p>These methods are specifically devised for multiclass problems (although they can tackle
+binary problems too).</p>
+<p>All KDE-based methods depend on the hyperparameter <code class="docutils literal notranslate"><span class="pre">bandwidth</span></code> of the kernel. Typical values
+that can be explored in model selection range in [0.01, 0.25]. The methods’ performance
+vary smoothing with smooth variations of this hyperparameter.</p>
+</section>
+</section>
+<section id="composable-methods">
+<h2><span class="section-number">4.2. </span>Composable Methods<a class="headerlink" href="#composable-methods" title="Link to this heading"></a></h2>
+<p>The <a class="reference internal" href="../quapy.method.html#module-quapy.method.composable" title="quapy.method.composable"><code class="xref myst py py-mod docutils literal notranslate"><span class="pre">quapy.method.composable</span></code></a> module allows the composition of quantification methods from loss functions and feature transformations. Any composed method solves a linear system of equations by minimizing the loss after transforming the data. Methods of this kind include ACC, PACC, HDx, HDy, and many other well-known methods, as well as an unlimited number of re-combinations of their building blocks.</p>
+<section id="installation">
+<h3><span class="section-number">4.2.1. </span>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h3>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip<span class="w"> </span>setuptools<span class="w"> </span>wheel
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;jax[cpu]&quot;</span>
+pip<span class="w"> </span>install<span class="w"> </span>quapy<span class="o">[</span>composable<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="basics">
+<h3><span class="section-number">4.2.2. </span>Basics<a class="headerlink" href="#basics" title="Link to this heading"></a></h3>
+<p>The composition of a method is implemented through the <a class="reference internal" href="../quapy.method.html#quapy.method.composable.ComposableQuantifier" title="quapy.method.composable.ComposableQuantifier"><code class="xref myst py py-func docutils literal notranslate"><span class="pre">quapy.method.composable.ComposableQuantifier</span></code></a> class. Its documentation also features an example to get you started in composing your own methods.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ComposableQuantifier</span><span class="p">(</span> <span class="c1"># ordinal ACC, as proposed by Bunse et al., 2022</span>
+  <span class="n">TikhonovRegularized</span><span class="p">(</span><span class="n">LeastSquaresLoss</span><span class="p">(),</span> <span class="mf">0.01</span><span class="p">),</span>
+  <span class="n">ClassTransformer</span><span class="p">(</span><span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">oob_score</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>More exhaustive examples of method compositions, including hyper-parameter optimization, can be found in <a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/tree/master/examples">the example directory</a>.</p>
+<p>To implement your own loss functions and feature representations, follow the corresponding manual of the <a class="reference external" href="https://github.com/mirkobunse/qunfold">qunfold package</a>, which provides the back-end of QuaPy’s composable module.</p>
+</section>
+<section id="loss-functions">
+<h3><span class="section-number">4.2.3. </span>Loss functions<a class="headerlink" href="#loss-functions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.LeastSquaresLoss" title="quapy.method.composable.LeastSquaresLoss"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.LeastSquaresLoss</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.EnergyLoss" title="quapy.method.composable.EnergyLoss"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.EnergyLoss</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.HellingerSurrogateLoss" title="quapy.method.composable.HellingerSurrogateLoss"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.HellingerSurrogateLoss</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.BlobelLoss" title="quapy.method.composable.BlobelLoss"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.BlobelLoss</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.CombinedLoss" title="quapy.method.composable.CombinedLoss"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.CombinedLoss</span></code></a></p></li>
+</ul>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>You can use the <a class="reference internal" href="../quapy.method.html#quapy.method.composable.CombinedLoss" title="quapy.method.composable.CombinedLoss"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.CombinedLoss</span></code></a> to create arbitrary, weighted sums of losses and regularizers.</p>
+</div>
+</section>
+<section id="regularization-functions">
+<h3><span class="section-number">4.2.4. </span>Regularization functions<a class="headerlink" href="#regularization-functions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.TikhonovRegularized" title="quapy.method.composable.TikhonovRegularized"><code class="xref myst py py-func docutils literal notranslate"><span class="pre">quapy.method.composable.TikhonovRegularized</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.TikhonovRegularization" title="quapy.method.composable.TikhonovRegularization"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.TikhonovRegularization</span></code></a></p></li>
+</ul>
+</section>
+<section id="feature-transformations">
+<h3><span class="section-number">4.2.5. </span>Feature transformations<a class="headerlink" href="#feature-transformations" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.ClassTransformer" title="quapy.method.composable.ClassTransformer"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.ClassTransformer</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.DistanceTransformer" title="quapy.method.composable.DistanceTransformer"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.DistanceTransformer</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.HistogramTransformer" title="quapy.method.composable.HistogramTransformer"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.HistogramTransformer</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.EnergyKernelTransformer" title="quapy.method.composable.EnergyKernelTransformer"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.EnergyKernelTransformer</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.GaussianKernelTransformer" title="quapy.method.composable.GaussianKernelTransformer"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.GaussianKernelTransformer</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.LaplacianKernelTransformer" title="quapy.method.composable.LaplacianKernelTransformer"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.LaplacianKernelTransformer</span></code></a></p></li>
+<li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.GaussianRFFKernelTransformer" title="quapy.method.composable.GaussianRFFKernelTransformer"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.GaussianRFFKernelTransformer</span></code></a></p></li>
+</ul>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>The <a class="reference internal" href="../quapy.method.html#quapy.method.composable.ClassTransformer" title="quapy.method.composable.ClassTransformer"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.ClassTransformer</span></code></a> requires the classifier to have a property <code class="docutils literal notranslate"><span class="pre">oob_score==True</span></code> and to produce a property <code class="docutils literal notranslate"><span class="pre">oob_decision_function</span></code> during fitting. In <a class="reference external" href="https://scikit-learn.org/">scikit-learn</a>, this requirement is fulfilled by any bagging classifier, such as random forests. Any other classifier needs to be cross-validated through the <a class="reference internal" href="../quapy.method.html#quapy.method.composable.CVClassifier" title="quapy.method.composable.CVClassifier"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.CVClassifier</span></code></a>.</p>
+</div>
+</section>
+</section>
+<section id="meta-models">
+<h2><span class="section-number">4.3. </span>Meta Models<a class="headerlink" href="#meta-models" title="Link to this heading"></a></h2>
+<p>By <em>meta</em> models we mean quantification methods that are defined on top of other
+quantification methods, and that thus do not squarely belong to the aggregative nor
+the non-aggregative group (indeed, <em>meta</em> models could use quantifiers from any of those
+groups).
+<em>Meta</em> models are implemented in the <code class="docutils literal notranslate"><span class="pre">qp.method.meta</span></code> module.</p>
+<section id="ensembles">
+<h3><span class="section-number">4.3.1. </span>Ensembles<a class="headerlink" href="#ensembles" title="Link to this heading"></a></h3>
+<p>QuaPy implements (some of) the variants proposed in:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253516300628"><em>Pérez-Gállego, P., Quevedo, J. R., &amp; del Coz, J. J. (2017).
+Using ensembles for problems with characterizable changes in data distribution: A case study on quantification.
+Information Fusion, 34, 87-100.</em></a></p></li>
+<li><p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253517303652"><em>Pérez-Gállego, P., Castano, A., Quevedo, J. R., &amp; del Coz, J. J. (2019).
+Dynamic ensemble selection for quantification tasks.
+Information Fusion, 45, 1-15.</em></a></p></li>
+</ul>
+<p>The following code shows how to instantiate an Ensemble of 30 <em>Adjusted Classify &amp; Count</em> (ACC)
+quantifiers operating with a <em>Logistic Regressor</em> (LR) as the base classifier, and using the
+<em>average</em> as the aggregation policy (see the original article for further details).
+The last parameter indicates to use all processors for parallelization.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">ACC</span>
+<span class="kn">from</span> <span class="nn">quapy.method.meta</span> <span class="kn">import</span> <span class="n">Ensemble</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;haberman&#39;</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">quantifier</span><span class="o">=</span><span class="n">ACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">()),</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="s1">&#39;ave&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Other aggregation policies implemented in QuaPy include:</p>
+<ul class="simple">
+<li><p>‘ptr’ for applying a dynamic selection based on the training prevalence of the ensemble’s members</p></li>
+<li><p>‘ds’ for applying a dynamic selection based on the Hellinger Distance</p></li>
+<li><p><em>any valid quantification measure</em> (e.g., ‘mse’) for performing a static selection based on
+the performance estimated for each member of the ensemble in terms of that evaluation metric.</p></li>
+</ul>
+<p>When using any of the above options, it is important to set the <code class="docutils literal notranslate"><span class="pre">red_size</span></code> parameter, which
+informs of the number of members to retain.</p>
+<p>Please, check the <a class="reference internal" href="model-selection.html"><span class="doc std std-doc">model selection manual</span></a> if you want to optimize the hyperparameters of ensemble for classification or quantification.</p>
+</section>
+<section id="the-quanet-neural-network">
+<h3><span class="section-number">4.3.2. </span>The QuaNet neural network<a class="headerlink" href="#the-quanet-neural-network" title="Link to this heading"></a></h3>
+<p>QuaPy offers an implementation of QuaNet, a deep learning model presented in:</p>
+<p><a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/3269206.3269287"><em>Esuli, A., Moreo, A., &amp; Sebastiani, F. (2018, October).
+A recurrent neural network for sentiment quantification.
+In Proceedings of the 27th ACM International Conference on
+Information and Knowledge Management (pp. 1775-1778).</em></a></p>
+<p>This model requires <code class="docutils literal notranslate"><span class="pre">torch</span></code> to be installed.
+QuaNet also requires a classifier that can provide embedded representations
+of the inputs.
+In the original paper, QuaNet was tested using an LSTM as the base classifier.
+In the following example, we show an instantiation of QuaNet that instead uses CNN as a probabilistic classifier, taking its last layer representation as the document embedding:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.method.meta</span> <span class="kn">import</span> <span class="n">QuaNet</span>
+<span class="kn">from</span> <span class="nn">quapy.classification.neural</span> <span class="kn">import</span> <span class="n">NeuralClassifierTrainer</span><span class="p">,</span> <span class="n">CNNnet</span>
+
+<span class="c1"># use samples of 100 elements</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="c1"># load the kindle dataset as text, and convert words to numerical indexes</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># the text classifier is a CNN trained by NeuralClassifierTrainer</span>
+<span class="n">cnn</span> <span class="o">=</span> <span class="n">CNNnet</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">n_classes</span><span class="p">)</span>
+<span class="n">learner</span> <span class="o">=</span> <span class="n">NeuralClassifierTrainer</span><span class="p">(</span><span class="n">cnn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+
+<span class="c1"># train QuaNet</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">QuaNet</span><span class="p">(</span><span class="n">learner</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="explicit-loss-minimization.html" class="btn btn-neutral float-left" title="3. Explicit Loss Minimization" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="model-selection.html" class="btn btn-neutral float-right" title="5. Model Selection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

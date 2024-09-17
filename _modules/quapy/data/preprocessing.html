@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.data.preprocessing &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Quickstart</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../manuals.html">Manuals</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quapy.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.data.preprocessing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.data.preprocessing</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">spmatrix</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">TfidfVectorizer</span><span class="p">,</span> <span class="n">CountVectorizer</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.data.base</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">from</span> <span class="nn">quapy.util</span> <span class="kn">import</span> <span class="n">map_parallel</span>
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">LabelledCollection</span>
+
+
+<div class="viewcode-block" id="text2tfidf">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.preprocessing.text2tfidf">[docs]</a>
+<span class="k">def</span> <span class="nf">text2tfidf</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sublinear_tf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transforms a :class:`quapy.data.base.Dataset` of textual instances into a :class:`quapy.data.base.Dataset` of</span>
+<span class="sd">    tfidf weighted sparse vectors</span>
+
+<span class="sd">    :param dataset: a :class:`quapy.data.base.Dataset` where the instances of training and test collections are</span>
+<span class="sd">        lists of str</span>
+<span class="sd">    :param min_df: minimum number of occurrences for a word to be considered as part of the vocabulary (default 3)</span>
+<span class="sd">    :param sublinear_tf: whether or not to apply the log scalling to the tf counters (default True)</span>
+<span class="sd">    :param inplace: whether or not to apply the transformation inplace (True), or to a new copy (False, default)</span>
+<span class="sd">    :param kwargs: the rest of parameters of the transformation (as for sklearn&#39;s</span>
+<span class="sd">        `TfidfVectorizer &lt;https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html&gt;`_)</span>
+<span class="sd">    :return: a new :class:`quapy.data.base.Dataset` in `csr_matrix` format (if inplace=False) or a reference to the</span>
+<span class="sd">        current Dataset (if inplace=True) where the instances are stored in a `csr_matrix` of real-valued tfidf scores</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__check_type</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="n">__check_type</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+    <span class="n">vectorizer</span> <span class="o">=</span> <span class="n">TfidfVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="n">min_df</span><span class="p">,</span> <span class="n">sublinear_tf</span><span class="o">=</span><span class="n">sublinear_tf</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">training_documents</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+    <span class="n">test_documents</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">training</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">training_documents</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">test_documents</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">vocabulary_</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">training</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">training_documents</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">test_documents</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">vectorizer</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="reduce_columns">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.preprocessing.reduce_columns">[docs]</a>
+<span class="k">def</span> <span class="nf">reduce_columns</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reduces the dimensionality of the instances, represented as a `csr_matrix` (or any subtype of</span>
+<span class="sd">    `scipy.sparse.spmatrix`), of training and test documents by removing the columns of words which are not present</span>
+<span class="sd">    in at least `min_df` instances in the training set</span>
+
+<span class="sd">    :param dataset: a :class:`quapy.data.base.Dataset` in which instances are represented in sparse format (any</span>
+<span class="sd">        subtype of scipy.sparse.spmatrix)</span>
+<span class="sd">    :param min_df: integer, minimum number of instances below which the columns are removed</span>
+<span class="sd">    :param inplace: whether or not to apply the transformation inplace (True), or to a new copy (False, default)</span>
+<span class="sd">    :return: a new :class:`quapy.data.base.Dataset` (if inplace=False) or a reference to the current</span>
+<span class="sd">        :class:`quapy.data.base.Dataset` (inplace=True) where the dimensions corresponding to infrequent terms</span>
+<span class="sd">        in the training set have been removed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__check_type</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="n">spmatrix</span><span class="p">)</span>
+    <span class="n">__check_type</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="n">spmatrix</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">instances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;unaligned vector spaces&#39;</span>
+
+    <span class="k">def</span> <span class="nf">filter_by_occurrences</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">W</span><span class="p">):</span>
+        <span class="n">column_prevalence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">take_columns</span> <span class="o">=</span> <span class="n">column_prevalence</span> <span class="o">&gt;=</span> <span class="n">min_df</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="n">take_columns</span><span class="p">]</span>
+        <span class="n">W</span> <span class="o">=</span> <span class="n">W</span><span class="p">[:,</span> <span class="n">take_columns</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">W</span>
+
+    <span class="n">Xtr</span><span class="p">,</span> <span class="n">Xte</span> <span class="o">=</span> <span class="n">filter_by_occurrences</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">instances</span> <span class="o">=</span> <span class="n">Xtr</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span> <span class="o">=</span> <span class="n">Xte</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">training</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">Xte</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="standardize">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.preprocessing.standardize">[docs]</a>
+<span class="k">def</span> <span class="nf">standardize</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standardizes the real-valued columns of a :class:`quapy.data.base.Dataset`.</span>
+<span class="sd">    Standardization, aka z-scoring, of a variable `X` comes down to subtracting the average and normalizing by the</span>
+<span class="sd">    standard deviation.</span>
+
+<span class="sd">    :param dataset: a :class:`quapy.data.base.Dataset` object</span>
+<span class="sd">    :param inplace: set to True if the transformation is to be applied inplace, or to False (default) if a new</span>
+<span class="sd">        :class:`quapy.data.base.Dataset` is to be returned</span>
+<span class="sd">    :return: an instance of :class:`quapy.data.base.Dataset`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_test</span>
+    <span class="n">std_train_X</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">train</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">std_test_X</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">instances</span> <span class="o">=</span> <span class="n">std_train_X</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span> <span class="o">=</span> <span class="n">std_test_X</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">training</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">std_train_X</span><span class="p">,</span> <span class="n">train</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">train</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">std_test_X</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">test</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">vocabulary</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="index">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.preprocessing.index">[docs]</a>
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Indexes the tokens of a textual :class:`quapy.data.base.Dataset` of string documents.</span>
+<span class="sd">    To index a document means to replace each different token by a unique numerical index.</span>
+<span class="sd">    Rare words (i.e., words occurring less than `min_df` times) are replaced by a special token `UNK`</span>
+
+<span class="sd">    :param dataset: a :class:`quapy.data.base.Dataset` object where the instances of training and test documents</span>
+<span class="sd">        are lists of str</span>
+<span class="sd">    :param min_df: minimum number of occurrences below which the term is replaced by a `UNK` index</span>
+<span class="sd">    :param inplace: whether or not to apply the transformation inplace (True), or to a new copy (False, default)</span>
+<span class="sd">    :param kwargs: the rest of parameters of the transformation (as for sklearn&#39;s</span>
+<span class="sd">        `CountVectorizer &lt;https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html&gt;_`)</span>
+<span class="sd">    :return: a new :class:`quapy.data.base.Dataset` (if inplace=False) or a reference to the current</span>
+<span class="sd">        :class:`quapy.data.base.Dataset` (inplace=True) consisting of lists of integer values representing indices.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">__check_type</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="n">__check_type</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+    <span class="n">indexer</span> <span class="o">=</span> <span class="n">IndexTransformer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="n">min_df</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">training_index</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+    <span class="n">test_index</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+
+    <span class="n">training_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">training_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="n">test_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">test_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">training</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">training_index</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">test</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">test_index</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">dataset</span><span class="o">.</span><span class="n">vocabulary</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">vocabulary_</span>
+        <span class="k">return</span> <span class="n">dataset</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">training</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">training_index</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">test_index</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">training</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">indexer</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">__check_type</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">container_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">element_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">container_type</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">container</span><span class="p">,</span> <span class="n">container_type</span><span class="p">),</span> \
+            <span class="sa">f</span><span class="s1">&#39;unexpected type of container (expected </span><span class="si">{</span><span class="n">container_type</span><span class="si">}</span><span class="s1">, found </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">container</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span>
+    <span class="k">if</span> <span class="n">element_type</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">container</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">element_type</span><span class="p">),</span> \
+            <span class="sa">f</span><span class="s1">&#39;unexpected type of element (expected </span><span class="si">{</span><span class="n">container_type</span><span class="si">}</span><span class="s1">, found </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">container</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span>
+
+
+<div class="viewcode-block" id="IndexTransformer">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.preprocessing.IndexTransformer">[docs]</a>
+<span class="k">class</span> <span class="nc">IndexTransformer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class implements a sklearn&#39;s-style transformer that indexes text as numerical ids for the tokens it</span>
+<span class="sd">    contains, and that would be generated by sklearn&#39;s</span>
+<span class="sd">    `CountVectorizer &lt;https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html&gt;`_</span>
+
+<span class="sd">    :param kwargs: keyworded arguments from</span>
+<span class="sd">        `CountVectorizer &lt;https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.CountVectorizer.html&gt;`_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vect</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unk</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># a valid index is assigned after fit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pad</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>  <span class="c1"># a valid index is assigned after fit</span>
+
+<div class="viewcode-block" id="IndexTransformer.fit">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.preprocessing.IndexTransformer.fit">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fits the transformer, i.e., decides on the vocabulary, given a list of strings.</span>
+
+<span class="sd">        :param X: a list of strings</span>
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vect</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analyzer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vect</span><span class="o">.</span><span class="n">build_analyzer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vect</span><span class="o">.</span><span class="n">vocabulary_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_word</span><span class="p">(</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;UNK_TOKEN&#39;</span><span class="p">],</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;UNK_INDEX&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_word</span><span class="p">(</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PAD_TOKEN&#39;</span><span class="p">],</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PAD_INDEX&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="IndexTransformer.transform">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.preprocessing.IndexTransformer.transform">[docs]</a>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the strings in `X` as lists of numerical ids</span>
+
+<span class="sd">        :param X: a list of strings</span>
+<span class="sd">        :param n_jobs: the number of parallel workers to carry out this task</span>
+<span class="sd">        :return: a `np.ndarray` of numerical ids</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># given the number of tasks and the number of jobs, generates the slices for the parallel processes</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">unk</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;transform called before fit&#39;</span>
+        <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">map_parallel</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span></div>
+
+
+
+    <span class="k">def</span> <span class="nf">_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">documents</span><span class="p">):</span>
+        <span class="n">vocab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">vocab</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unk</span><span class="p">)</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">analyzer</span><span class="p">(</span><span class="n">doc</span><span class="p">)]</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">documents</span><span class="p">,</span> <span class="s1">&#39;indexing&#39;</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="IndexTransformer.fit_transform">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.preprocessing.IndexTransformer.fit_transform">[docs]</a>
+    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fits the transform on `X` and transforms it.</span>
+
+<span class="sd">        :param X: a list of strings</span>
+<span class="sd">        :param n_jobs: the number of parallel workers to carry out this task</span>
+<span class="sd">        :return: a `np.ndarray` of numerical ids</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IndexTransformer.vocabulary_size">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.preprocessing.IndexTransformer.vocabulary_size">[docs]</a>
+    <span class="k">def</span> <span class="nf">vocabulary_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the length of the vocabulary according to which the document tokens have been indexed</span>
+
+<span class="sd">        :return: integer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IndexTransformer.add_word">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.preprocessing.IndexTransformer.add_word">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_word</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nogaps</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds a new token (regardless of whether it has been found in the text or not), with dedicated id.</span>
+<span class="sd">        Useful to define special tokens for codifying unknown words, or padding tokens.</span>
+
+<span class="sd">        :param word: string, surface form of the token</span>
+<span class="sd">        :param id: integer, numerical value to assign to the token (leave as None for indicating the next valid id,</span>
+<span class="sd">            default)</span>
+<span class="sd">        :param nogaps: if set to True (default) asserts that the id indicated leads to no numerical gaps with</span>
+<span class="sd">            precedent ids stored so far</span>
+<span class="sd">        :return: integer, the numerical id for the new token</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">word</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;word </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s1"> already in dictionary&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># add the word with the next id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">id2word</span> <span class="o">=</span> <span class="p">{</span><span class="n">id_</span><span class="p">:</span><span class="n">word_</span> <span class="k">for</span> <span class="n">word_</span><span class="p">,</span> <span class="n">id_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="k">if</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">id2word</span><span class="p">:</span>
+                <span class="n">old_word</span> <span class="o">=</span> <span class="n">id2word</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="nb">id</span>
+                <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">[</span><span class="n">old_word</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_word</span><span class="p">(</span><span class="n">old_word</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">nogaps</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">id</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;word </span><span class="si">{</span><span class="n">word</span><span class="si">}</span><span class="s1"> added with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s1">, while the current vocabulary size &#39;</span>
+                                     <span class="sa">f</span><span class="s1">&#39;is of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">()</span><span class="si">}</span><span class="s1">, and id gaps are not allowed&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vocabulary_</span><span class="p">[</span><span class="n">word</span><span class="p">]</span></div>
+</div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
