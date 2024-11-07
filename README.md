@@ -117,7 +117,7 @@ are provided:
 
 ## Acknowledgments:
 
-This work has been founded by the QuaDaSh project (P2022TB5JF) ``Finanziato dall’Unione europea- Next Generation EU, Missione 4 Componente 2 CUP B53D23026250001".
+This work has been funded by the QuaDaSh project (P2022TB5JF) "Finanziato dall’Unione europea- Next Generation EU, Missione 4 Componente 2 CUP B53D23026250001".
 
 <img src="docs/source/EUfooter.png" alt="EUcommission" width="1000"/>
 <img src="docs/source/SoBigData.png" alt="SoBigData++" width="250"/>
