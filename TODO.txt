@@ -1,0 +1,3 @@
+- Test the return_type="index" in protocols and finish the "distributin_samples.py" example
+- Add EDy (an implementation is available at quantificationlib)
+-
