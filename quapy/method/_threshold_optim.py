@@ -5,10 +5,10 @@ from sklearn.base import BaseEstimator
 import quapy as qp
 import quapy.functional as F
 from quapy.data import LabelledCollection
-from quapy.method.aggregative import BinaryAggregativeQuantifier
+from quapy.method.aggregative import AggregativeSoftQuantifier, BinaryAggregativeQuantifier
 
 
-class ThresholdOptimization(BinaryAggregativeQuantifier):
+class ThresholdOptimization(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     """
     Abstract class of Threshold Optimization variants for :class:`ACC` as proposed by
     `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
@@ -93,7 +93,7 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
     def aggregate_with_threshold(self, classif_predictions, tprs, fprs, thresholds):
         # This function performs the adjusted count for given tpr, fpr, and threshold.
         # Note that, due to broadcasting, tprs, fprs, and thresholds could be arrays of length > 1
-        prevs_estims = np.mean(classif_predictions[:, None] >= thresholds, axis=0)
+        prevs_estims = np.mean(classif_predictions[:, 1][:, np.newaxis] >= np.asarray(thresholds), axis=0)
         prevs_estims = (prevs_estims - fprs) / (tprs - fprs)
         prevs_estims = F.as_binary_prevalence(prevs_estims, clip_if_necessary=True)
         return prevs_estims.squeeze()
