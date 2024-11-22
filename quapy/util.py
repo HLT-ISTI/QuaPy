@@ -208,7 +208,7 @@ def save_text_file(path, text):
     :param text: text to save.
     """
     create_parent_dir(path)
-    with open(text, 'wt') as fout:
+    with open(path, 'wt') as fout:
         fout.write(text)
 
 
