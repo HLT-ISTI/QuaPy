@@ -32,6 +32,16 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
         self.val_split = val_split
         self.n_jobs = qp._get_njobs(n_jobs)
 
+    def _classifier_method(self):
+        """
+        Name of the method that must be used for issuing label predictions. If the classifier uses "predict_proba" (i.e.,
+        the standard method name for scikit-learn soft predictions), this will be used. Otherwise, the default
+        "decision_function" for AggregativeQuantifier will be used.
+
+        :return: string
+        """
+        return 'predict_proba' if hasattr(self.classifier, 'predict_proba') else 'decision_function'
+
     @abstractmethod
     def condition(self, tpr, fpr) -> float:
         """
