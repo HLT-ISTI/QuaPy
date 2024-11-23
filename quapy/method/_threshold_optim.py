@@ -5,10 +5,10 @@ from sklearn.base import BaseEstimator
 import quapy as qp
 import quapy.functional as F
 from quapy.data import LabelledCollection
-from quapy.method.aggregative import AggregativeSoftQuantifier, BinaryAggregativeQuantifier
+from quapy.method.aggregative import BinaryAggregativeQuantifier
 
 
-class ThresholdOptimization(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
+class ThresholdOptimization(BinaryAggregativeQuantifier):
     """
     Abstract class of Threshold Optimization variants for :class:`ACC` as proposed by
     `Forman 2006 <https://dl.acm.org/doi/abs/10.1145/1150402.1150423>`_ and
