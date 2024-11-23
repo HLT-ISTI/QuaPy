@@ -74,6 +74,7 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
         :param y: predicted labels for the validation set (or for the training set via `k`-fold cross validation)
         :return: best `tpr` and `fpr` and `threshold` according to `_condition`
         """
+        decision_scores = decision_scores[:, self.pos_label] if decision_scores.ndim > 1 else decision_scores
         candidate_thresholds = np.unique(decision_scores)
 
         candidates = []
@@ -103,7 +104,8 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
     def aggregate_with_threshold(self, classif_predictions, tprs, fprs, thresholds):
         # This function performs the adjusted count for given tpr, fpr, and threshold.
         # Note that, due to broadcasting, tprs, fprs, and thresholds could be arrays of length > 1
-        prevs_estims = np.mean(classif_predictions[:, 1][:, np.newaxis] >= np.asarray(thresholds), axis=0)
+        classif_predictions = classif_predictions[:, self.pos_label] if classif_predictions.ndim > 1 else classif_predictions
+        prevs_estims = np.mean(classif_predictions[:, np.newaxis] >= np.asarray(thresholds), axis=0)
         prevs_estims = (prevs_estims - fprs) / (tprs - fprs)
         prevs_estims = F.as_binary_prevalence(prevs_estims, clip_if_necessary=True)
         return prevs_estims.squeeze()
