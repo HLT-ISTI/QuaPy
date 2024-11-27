@@ -33,9 +33,9 @@ quantifier = KDEyML(classifier=LogisticRegression())
 
 # model selection
 param_grid = {
-    'classifier__C': np.logspace(-3, 3, 7),          # classifier-dependent: inverse of regularization strength
-    'classifier__class_weight': ['balanced', None],  # classifier-dependent: weights of each class
-    'bandwidth': np.linspace(0.01, 0.2, 20)          # quantifier-dependent: bandwidth of the kernel
+    'classifier__C': np.logspace(-3, 3, 7),       # classifier-dependent: inverse of regularization strength
+    'classifier__class_weight': ['balanced', None],         # classifier-dependent: weights of each class
+    'bandwidth': np.linspace(0.01, 0.2, 20)  # quantifier-dependent: bandwidth of the kernel
 }
 model_selection = GridSearchQ(quantifier, param_grid, protocol=val_generator, error='mrae', refit=False, verbose=True)
 quantifier = model_selection.fit(training)

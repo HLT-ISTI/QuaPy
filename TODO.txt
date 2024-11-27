@@ -1,3 +1,8 @@
-- Test the return_type="index" in protocols and finish the "distributin_samples.py" example
-- Add EDy (an implementation is available at quantificationlib)
--
+- [TODO] Test the return_type="index" in protocols and finish the "distributin_samples.py" example
+- [TODO] Add EDy (an implementation is available at quantificationlib)
+- [TODO] add ensemble methods SC-MQ, MC-SQ, MC-MQ
+- [TODO] add HistNetQ
+- [TODO] add CDE-iteration and Bayes-CDE methods
+- [TODO] add Friedman's method and DeBias
+- [TODO] check ignore warning stuff
+    check https://docs.python.org/3/library/warnings.html#temporarily-suppressing-warnings

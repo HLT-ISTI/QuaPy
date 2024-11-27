@@ -637,7 +637,7 @@ def fetch_UCIMulticlassDataset(
         if n_train > max_train_instances:
             train_prop = (max_train_instances / n)
 
-    data = Dataset(*data.split_stratified(train_prop, random_state=0))
+    data = Dataset(*data.split_stratified(train_prop, random_state=0), name=dataset_name)
     
     if standardize:
         data = standardizer(data)
