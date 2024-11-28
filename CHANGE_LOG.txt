@@ -1,7 +1,11 @@
 Change Log 0.1.10
 -----------------
 
-- ...
+- Added (aggregative) bootstrap for deriving confidence regions (confidence intervals, ellipses in the simplex, or
+    ellipses in the CLR space). This method is efficient as it leverages the two-phases of the aggregative quantifiers.
+    This method applies resampling only to the aggregation phase, thus avoiding to train many quantifiers, or
+    classify multiple times the instances of a sample. See the new example no. 15.
+
 
 Change Log 0.1.9
 ----------------

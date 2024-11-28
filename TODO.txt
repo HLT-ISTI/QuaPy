@@ -1,3 +1,4 @@
+- [TODO] adapt BayesianCC to WithConfidence interface
 - [TODO] Test the return_type="index" in protocols and finish the "distributin_samples.py" example
 - [TODO] Add EDy (an implementation is available at quantificationlib)
 - [TODO] add ensemble methods SC-MQ, MC-SQ, MC-MQ
