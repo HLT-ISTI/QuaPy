@@ -1,3 +1,4 @@
+import method.confidence
 from . import base
 from . import aggregative
 from . import non_aggregative
@@ -22,7 +23,7 @@ AGGREGATIVE_METHODS = {
     aggregative.KDEyML,
     aggregative.KDEyCS,
     aggregative.KDEyHD,
-    aggregative.BayesianCC
+    method.confidence.BayesianCC
 }
 
 BINARY_METHODS = {
@@ -45,7 +46,7 @@ MULTICLASS_METHODS = {
     aggregative.KDEyML,
     aggregative.KDEyCS,
     aggregative.KDEyHD,
-    aggregative.BayesianCC
+    method.confidence.BayesianCC
 }
 
 NON_AGGREGATIVE_METHODS = {

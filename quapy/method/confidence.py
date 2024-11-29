@@ -1,6 +1,11 @@
 import numpy as np
+from sklearn.base import BaseEstimator
+from sklearn.metrics import confusion_matrix
+
 import quapy as qp
 import quapy.functional as F
+from method import _bayesian
+from method.aggregative import AggregativeCrispQuantifier
 from quapy.data import LabelledCollection
 from quapy.method.aggregative import AggregativeQuantifier
 from scipy.stats import chi2
@@ -80,6 +85,7 @@ class WithConfidenceABC(ABC):
     """
     Abstract class for confidence regions.
     """
+    METHODS = ['intervals', 'ellipse', 'ellipse-clr']
 
     @abstractmethod
     def quantify_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
@@ -94,6 +100,30 @@ class WithConfidenceABC(ABC):
         """
         ...
 
+    @classmethod
+    def construct_region(cls, prev_estims, confidence_level=0.95, method='intervals'):
+        """
+        Construct a confidence region given many prevalence estimations.
+
+        :param prev_estims: np.ndarray of shape (n_estims, n_classes)
+        :param confidence_level: float, the confidence level for the region (default 0.95)
+        :param method: str, indicates the method for constructing regions. Set to `intervals` for
+            constructing confidence intervals (default), or to `ellipse` for constructing an
+            ellipse in the probability simplex, or to `ellipse-clr` for constructing an ellipse
+            in the Centered-Log Ratio (CLR) unconstrained space.
+        """
+        region = None
+        if method == 'intervals':
+            region = ConfidenceIntervals(prev_estims, confidence_level=confidence_level)
+        elif method == 'ellipse':
+            region = ConfidenceEllipseSimplex(prev_estims, confidence_level=confidence_level)
+        elif method == 'ellipse-clr':
+            region = ConfidenceEllipseCLR(prev_estims, confidence_level=confidence_level)
+
+        if region is None:
+            raise NotImplementedError(f'unknown method {method}')
+
+        return region
 
 def simplex_volume(n):
     """
@@ -239,7 +269,10 @@ class ConfidenceIntervals(ConfidenceRegionABC):
         X = np.asarray(X)
 
         self.means_ = X.mean(axis=0)
-        self.I_low, self.I_high = np.percentile(X, q=[2.5, 97.5], axis=0)
+        alpha = 1-confidence_level
+        low_perc = (alpha/2.)*100
+        high_perc = (1-alpha/2.)*100
+        self.I_low, self.I_high = np.percentile(X, q=[low_perc, high_perc], axis=0)
 
     def point_estimate(self):
         """
@@ -312,20 +345,18 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
     :para n_test_samples: int, the number of test resamplings (defaults to 500, set to > 1 to activate a
         population-based bootstrap approach)
     :param confidence_level: float, the confidence level for the confidence region (default 0.95)
-    :param method: string, set to `intervals` for constructing confidence intervals (default), or to
+    :param region: string, set to `intervals` for constructing confidence intervals (default), or to
         `ellipse` for constructing an ellipse in the probability simplex, or to `ellipse-clr` for
         constructing an ellipse in the Centered-Log Ratio (CLR) unconstrained space.
     :param random_state: int for replicating samples, None (default) for non-replicable samples
     """
-
-    METHODS = ['intervals', 'ellipse', 'ellipse-clr']
 
     def __init__(self,
                  quantifier: AggregativeQuantifier,
                  n_train_samples=1,
                  n_test_samples=500,
                  confidence_level=0.95,
-                 method='intervals',
+                 region='intervals',
                  random_state=None):
 
         assert isinstance(quantifier, AggregativeQuantifier), \
@@ -336,29 +367,13 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
             f'{n_test_samples=} must be >= 1'
         assert n_test_samples>1 or n_train_samples>1, \
             f'either {n_test_samples=} or {n_train_samples=} must be >1'
-        assert method in self.METHODS, \
-            f'unknown method; valid ones are {self.METHODS}'
 
         self.quantifier = quantifier
         self.n_train_samples = n_train_samples
         self.n_test_samples = n_test_samples
         self.confidence_level = confidence_level
-        self.method = method
+        self.region = region
         self.random_state = random_state
-
-    def _return_conf(self, prevs, confidence_level):
-        region = None
-        if self.method == 'intervals':
-            region = ConfidenceIntervals(prevs, confidence_level=confidence_level)
-        elif self.method == 'ellipse':
-            region = ConfidenceEllipseSimplex(prevs, confidence_level=confidence_level)
-        elif self.method == 'ellipse-clr':
-            region = ConfidenceEllipseCLR(prevs, confidence_level=confidence_level)
-
-        if region is None:
-            raise NotImplementedError(f'unknown method {self.method}')
-
-        return region
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         self.quantifiers = []
@@ -395,7 +410,7 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
                     prev_i = quantifier.aggregate(sample_i)
                     prevs.append(prev_i)
 
-        conf = self._return_conf(prevs, confidence_level)
+        conf = WithConfidenceABC.construct_region(prevs, confidence_level, method=self.region)
         prev_estim = conf.point_estimate()
 
         return prev_estim, conf
@@ -416,3 +431,111 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
 
     def _classifier_method(self):
         return self.quantifier._classifier_method()
+
+
+class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
+    """
+    `Bayesian quantification <https://arxiv.org/abs/2302.09159>`_ method,
+    which is a variant of :class:`ACC` that calculates the posterior probability distribution
+    over the prevalence vectors, rather than providing a point estimate obtained
+    by matrix inversion.
+
+    Can be used to diagnose degeneracy in the predictions visible when the confusion
+    matrix has high condition number or to quantify uncertainty around the point estimate.
+
+    This method relies on extra dependencies, which have to be installed via:
+    `$ pip install quapy[bayes]`
+
+    :param classifier: a sklearn's Estimator that generates a classifier
+    :param val_split: a float in (0, 1) indicating the proportion of the training data to be used,
+        as a stratified held-out validation set, for generating classifier predictions.
+    :param num_warmup: number of warmup iterations for the MCMC sampler (default 500)
+    :param num_samples: number of samples to draw from the posterior (default 1000)
+    :param mcmc_seed: random seed for the MCMC sampler (default 0)
+    :param confidence_level: float in [0,1] to construct a confidence region around the point estimate (default 0.95)
+    :param region: string, set to `intervals` for constructing confidence intervals (default), or to
+        `ellipse` for constructing an ellipse in the probability simplex, or to `ellipse-clr` for
+        constructing an ellipse in the Centered-Log Ratio (CLR) unconstrained space.
+    """
+    def __init__(self,
+                 classifier: BaseEstimator=None,
+                 val_split: int = 5,
+                 num_warmup: int = 500,
+                 num_samples: int = 1_000,
+                 mcmc_seed: int = 0,
+                 confidence_level: float = 0.95,
+                 region: str = 'intervals'):
+
+        if num_warmup <= 0:
+            raise ValueError(f'parameter {num_warmup=} must be a positive integer')
+        if num_samples <= 0:
+            raise ValueError(f'parameter {num_samples=} must be a positive integer')
+
+        # if (not isinstance(val_split, float)) or val_split <= 0 or val_split >= 1:
+        #     raise ValueError(f'val_split must be a float in (0, 1), got {val_split}')
+
+        if _bayesian.DEPENDENCIES_INSTALLED is False:
+            raise ImportError("Auxiliary dependencies are required. Run `$ pip install quapy[bayes]` to install them.")
+
+        self.classifier = qp._get_classifier(classifier)
+        self.val_split = val_split
+        self.num_warmup = num_warmup
+        self.num_samples = num_samples
+        self.mcmc_seed = mcmc_seed
+        self.confidence_level = confidence_level
+        self.region = region
+
+        # Array of shape (n_classes, n_predicted_classes,) where entry (y, c) is the number of instances
+        # labeled as class y and predicted as class c.
+        # By default, this array is set to None and later defined as part of the `aggregation_fit` phase
+        self._n_and_c_labeled = None
+
+        # Dictionary with posterior samples, set when `aggregate` is provided.
+        self._samples = None
+
+    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+        """
+        Estimates the misclassification rates.
+
+        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
+            as instances, the label predictions issued by the classifier and, as labels, the true labels
+        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        """
+        pred_labels, true_labels = classif_predictions.Xy
+        self._n_and_c_labeled = confusion_matrix(y_true=true_labels, y_pred=pred_labels, labels=self.classifier.classes_).astype(float)
+
+    def sample_from_posterior(self, classif_predictions):
+        if self._n_and_c_labeled is None:
+            raise ValueError("aggregation_fit must be called before sample_from_posterior")
+
+        n_c_unlabeled = F.counts_from_labels(classif_predictions, self.classifier.classes_).astype(float)
+
+        self._samples = _bayesian.sample_posterior(
+            n_c_unlabeled=n_c_unlabeled,
+            n_y_and_c_labeled=self._n_and_c_labeled,
+            num_warmup=self.num_warmup,
+            num_samples=self.num_samples,
+            seed=self.mcmc_seed,
+        )
+        return self._samples
+
+    def get_prevalence_samples(self):
+        if self._samples is None:
+            raise ValueError("sample_from_posterior must be called before get_prevalence_samples")
+        return self._samples[_bayesian.P_TEST_Y]
+
+    def get_conditional_probability_samples(self):
+        if self._samples is None:
+            raise ValueError("sample_from_posterior must be called before get_conditional_probability_samples")
+        return self._samples[_bayesian.P_C_COND_Y]
+
+    def aggregate(self, classif_predictions):
+        samples = self.sample_from_posterior(classif_predictions)[_bayesian.P_TEST_Y]
+        return np.asarray(samples.mean(axis=0), dtype=float)
+
+    def quantify_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
+        classif_predictions = self.classify(instances)
+        point_estimate = self.aggregate(classif_predictions)
+        samples = self.get_prevalence_samples()  # available after calling "aggregate" function
+        region = WithConfidenceABC.construct_region(samples, confidence_level=self.confidence_level, method=self.region)
+        return point_estimate, region

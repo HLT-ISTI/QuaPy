@@ -29,7 +29,8 @@ import quapy as qp
 
 from sklearn.ensemble import RandomForestClassifier
 
-from quapy.method.aggregative import BayesianCC, ACC, PACC
+from quapy.method.aggregative import ACC, PACC
+from method.confidence import BayesianCC
 from quapy.data import LabelledCollection, Dataset
 
 
