@@ -363,8 +363,8 @@ def __check_eps(eps=None):
 
 
 CLASSIFICATION_ERROR = {f1e, acce}
-QUANTIFICATION_ERROR = {mae, mnae, mrae, mnrae, mse, mkld, mnkld, mean_bias_binary}
-QUANTIFICATION_ERROR_SINGLE = {ae, nae, rae, nrae, se, kld, nkld, bias_binary}
+QUANTIFICATION_ERROR = {mae, mnae, mrae, mnrae, mse, mkld, mnkld}
+QUANTIFICATION_ERROR_SINGLE = {ae, nae, rae, nrae, se, kld, nkld}
 QUANTIFICATION_ERROR_SMOOTH = {kld, nkld, rae, nrae, mkld, mnkld, mrae}
 CLASSIFICATION_ERROR_NAMES = {func.__name__ for func in CLASSIFICATION_ERROR}
 QUANTIFICATION_ERROR_NAMES = {func.__name__ for func in QUANTIFICATION_ERROR}
