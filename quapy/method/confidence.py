@@ -4,8 +4,8 @@ from sklearn.metrics import confusion_matrix
 
 import quapy as qp
 import quapy.functional as F
-from method import _bayesian
-from method.aggregative import AggregativeCrispQuantifier
+from quapy.method import _bayesian
+from quapy.method.aggregative import AggregativeCrispQuantifier
 from quapy.data import LabelledCollection
 from quapy.method.aggregative import AggregativeQuantifier
 from scipy.stats import chi2
