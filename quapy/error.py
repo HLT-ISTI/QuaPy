@@ -298,6 +298,31 @@ def nmd(prevs, prevs_hat):
     return (1./(n-1))*np.mean(match_distance(prevs, prevs_hat))
 
 
+def bias_binary(prevs, prevs_hat):
+    """
+    Computes the (positive) bias in a binary problem. The bias is simply the difference between the
+    predicted positive value and the true positive value, so that a positive such value indicates the
+    prediction has positive bias (i.e., it tends to overestimate) the true value, and negative otherwise.
+    :math:`bias(p,\\hat{p})=\\hat{p}_1-p_1`,
+    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
+    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted
+        prevalence values
+    :return: binary bias
+    """
+    assert prevs.shape[-1] == 2 and prevs.shape[-1] == 2, f'bias_binary can only be applied to binary problems'
+    return prevs_hat[...,1]-prevs[...,1]
+
+
+def mean_bias_binary(prevs, prevs_hat):
+    """
+    Computes the mean of the (positive) bias in a binary problem.
+    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
+    :return: mean binary bias
+    """
+    return np.mean(bias_binary(prevs, prevs_hat))
+
+
 def md(prevs, prevs_hat, ERROR_TOL=1E-3):
     """
     Computes the Match Distance, under the assumption that the cost in mistaking class i with class i+1 is 1 in
@@ -338,8 +363,8 @@ def __check_eps(eps=None):
 
 
 CLASSIFICATION_ERROR = {f1e, acce}
-QUANTIFICATION_ERROR = {mae, mnae, mrae, mnrae, mse, mkld, mnkld}
-QUANTIFICATION_ERROR_SINGLE = {ae, nae, rae, nrae, se, kld, nkld}
+QUANTIFICATION_ERROR = {mae, mnae, mrae, mnrae, mse, mkld, mnkld, mean_bias_binary}
+QUANTIFICATION_ERROR_SINGLE = {ae, nae, rae, nrae, se, kld, nkld, bias_binary}
 QUANTIFICATION_ERROR_SMOOTH = {kld, nkld, rae, nrae, mkld, mnkld, mrae}
 CLASSIFICATION_ERROR_NAMES = {func.__name__ for func in CLASSIFICATION_ERROR}
 QUANTIFICATION_ERROR_NAMES = {func.__name__ for func in QUANTIFICATION_ERROR}

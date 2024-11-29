@@ -14,7 +14,7 @@ from . import model_selection
 from . import classification
 import os
 
-__version__ = '0.1.9'
+__version__ = '0.1.10'
 
 environ = {
     'SAMPLE_SIZE': None,

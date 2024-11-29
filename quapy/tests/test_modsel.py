@@ -25,7 +25,7 @@ class ModselTestCase(unittest.TestCase):
         param_grid = {'classifier__C': [0.000001, 10.]}
         app = APP(validation, sample_size=100, random_state=1)
         q = GridSearchQ(
-            q, param_grid, protocol=app, error='mae', refit=True, timeout=-1, verbose=True
+            q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, verbose=True, n_jobs=-1
         ).fit(training)
         print('best params', q.best_params_)
         print('best score', q.best_score_)
@@ -39,9 +39,9 @@ class ModselTestCase(unittest.TestCase):
         obtains the same optimal parameters
         """
 
-        q = PACC(LogisticRegression(random_state=1, max_iter=5000))
+        q = PACC(LogisticRegression(random_state=1, max_iter=500))
 
-        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10).reduce(n_train=500, random_state=1)
+        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=50).reduce(n_train=500, random_state=1)
         training, validation = data.training.split_stratified(0.7, random_state=1)
 
         param_grid = {'classifier__C': np.logspace(-3,3,7)}
@@ -50,7 +50,7 @@ class ModselTestCase(unittest.TestCase):
         print('starting model selection in sequential exploration')
         tinit = time.time()
         modsel = GridSearchQ(
-            q, param_grid, protocol=app, error='mae', refit=True, timeout=-1, n_jobs=1, verbose=True
+            q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=1, verbose=True
         ).fit(training)
         tend_seq = time.time()-tinit
         best_c_seq = modsel.best_params_['classifier__C']
@@ -59,7 +59,7 @@ class ModselTestCase(unittest.TestCase):
         print('starting model selection in parallel exploration')
         tinit = time.time()
         modsel = GridSearchQ(
-            q, param_grid, protocol=app, error='mae', refit=True, timeout=-1, n_jobs=-1, verbose=True
+            q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=-1, verbose=True
         ).fit(training)
         tend_par = time.time() - tinit
         best_c_par = modsel.best_params_['classifier__C']

@@ -1,4 +1,6 @@
 from copy import deepcopy
+from typing import Iterable
+
 import quapy as qp
 import numpy as np
 import itertools
@@ -60,6 +62,36 @@ class IterateProtocol(AbstractProtocol):
         :return: int
         """
         return len(self.samples)
+
+
+class ProtocolFromIndex(AbstractProtocol):
+    """
+    A protocol from a list of indexes
+
+    :param data: a :class:`quapy.data.base.LabelledCollection`
+    :param indexes: a list of indexes
+    """
+    def __init__(self, data: LabelledCollection, indexes: Iterable):
+        self.data = data
+        self.indexes = indexes
+
+    def __call__(self):
+        """
+        Yields one sample at a time extracted using the indexes
+
+        :return: yields a tuple `(sample, prev) at a time, where `sample` is a set of instances
+            and in which `prev` is an `nd.array` with the class prevalence values
+        """
+        for index in self.indexes:
+            yield self.data.sampling_from_index(index).Xp
+
+    def total(self):
+        """
+        Returns the number of samples in this protocol
+
+        :return: int
+        """
+        return len(self.indexes)
 
 
 class AbstractStochasticSeededProtocol(AbstractProtocol):
@@ -124,9 +156,9 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
             if self.random_state is not None:
                 stack.enter_context(qp.util.temp_seed(self.random_state))
             for params in self.samples_parameters():
-                yield self.collator(self.sample(params))
+                yield self.collator(self.sample(params), params)
 
-    def collator(self, sample, *args):
+    def collator(self, sample, params):
         """
         The collator prepares the sample to accommodate the desired output format before returning the output.
         This collator simply returns the sample as it is. Classes inheriting from this abstract class can
@@ -191,9 +223,11 @@ class OnLabelledCollectionProtocol:
         assert return_type in cls.RETURN_TYPES, \
             f'unknown return type passed as argument; valid ones are {cls.RETURN_TYPES}'
         if return_type=='sample_prev':
-            return lambda lc:lc.Xp
+            return lambda lc,params:lc.Xp
         elif return_type=='labelled_collection':
-            return lambda lc:lc
+            return lambda lc,params:lc
+        elif return_type=='index':
+            return lambda lc,params:params
 
 
 class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):

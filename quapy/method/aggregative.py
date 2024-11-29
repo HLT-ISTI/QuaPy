@@ -591,7 +591,6 @@ class PACC(AggregativeSoftQuantifier):
         if self.norm not in ACC.NORMALIZATIONS:
             raise ValueError(f"unknown normalization; valid ones are {ACC.NORMALIZATIONS}")
 
-
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
         """
         Estimates the misclassification rates
@@ -870,13 +869,13 @@ class BayesianCC(AggregativeCrispQuantifier):
         :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
         """
         pred_labels, true_labels = classif_predictions.Xy
-        self._n_and_c_labeled = confusion_matrix(y_true=true_labels, y_pred=pred_labels, labels=self.classifier.classes_)
+        self._n_and_c_labeled = confusion_matrix(y_true=true_labels, y_pred=pred_labels, labels=self.classifier.classes_).astype(float)
 
     def sample_from_posterior(self, classif_predictions):
         if self._n_and_c_labeled is None:
             raise ValueError("aggregation_fit must be called before sample_from_posterior")
 
-        n_c_unlabeled = F.counts_from_labels(classif_predictions, self.classifier.classes_)
+        n_c_unlabeled = F.counts_from_labels(classif_predictions, self.classifier.classes_).astype(float)
 
         self._samples = _bayesian.sample_posterior(
             n_c_unlabeled=n_c_unlabeled,
