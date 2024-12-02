@@ -221,7 +221,7 @@ Options are:
   * `"condsoftmax"`  applies softmax normalization only if the prevalence vector lies outside of the probability simplex.
 
 
-#### BayesianCC (_New in v0.1.9_!)
+#### BayesianCC
 
 The `BayesianCC` is a variant of ACC introduced in 
 [Ziegler, A. and Czyż, P. "Bayesian quantification with black-box estimators", arXiv (2023)](https://arxiv.org/abs/2302.09159), 
@@ -280,8 +280,8 @@ See the API documentation for further details.
 ### Hellinger Distance y (HDy)
 
 Implementation of the method based on the Hellinger Distance y (HDy) proposed by
-[González-Castro, V., Alaiz-Rodrı́guez, R., and Alegre, E. (2013). Class distribution
-estimation based on the Hellinger distance. Information Sciences, 218:146–164.](https://www.sciencedirect.com/science/article/pii/S0020025512004069)
+[González-Castro, V., Alaiz-Rodríguez, R., and Alegre, E. (2013). Class distribution
+estimation based on the Hellinger distance. Information Sciences, 218:146-164.](https://www.sciencedirect.com/science/article/pii/S0020025512004069)
 
 It is implemented in `qp.method.aggregative.HDy` (also accessible
 through the allias `qp.method.aggregative.HellingerDistanceY`).
@@ -423,7 +423,7 @@ _New in v0.1.8_: QuaPy now provides implementations for the three variants
 of KDE-based methods proposed in 
 _[Moreo, A., González, P. and del Coz, J.J., 2023. 
 Kernel Density Estimation for Multiclass Quantification. 
-arXiv preprint arXiv:2401.00490.](https://arxiv.org/abs/2401.00490)_. 
+arXiv preprint arXiv:2401.00490](https://arxiv.org/abs/2401.00490)_. 
 The variants differ in the divergence metric to be minimized:
 
 - KDEy-HD: minimizes the (squared) Hellinger Distance and solves the problem via a Monte Carlo approach
@@ -582,3 +582,25 @@ model.fit(dataset.training)
 estim_prevalence = model.quantify(dataset.test.instances)
 ```
 
+## Confidence Regions for Class Prevalence Estimation
+
+_(New in v0.1.10!)_ Some quantification methods go beyond providing a single point estimate of class prevalence values and also produce confidence regions, which characterize the uncertainty around the point estimate. In QuaPy, two such methods are currently implemented:
+
+* Aggregative Bootstrap: The Aggregative Bootstrap method extends any aggregative quantifier by generating confidence regions for class prevalence estimates through bootstrapping. Key features of this method include:
+
+    * Optimized Computation: The bootstrap is applied to pre-classified instances, significantly speeding up training and inference.
+During training, bootstrap repetitions are performed only after training the classifier once. These repetitions are used to train multiple aggregation functions.
+During inference, bootstrap is applied over pre-classified test instances.
+  * General Applicability: Aggregative Bootstrap can be applied to any aggregative quantifier.
+  For further information, check the [example](https://github.com/HLT-ISTI/QuaPy/tree/master/examples) provided.
+
+* BayesianCC: is a Bayesian variant of the Adjusted Classify & Count (ACC) quantifier (see more details in [Aggregative Quantifiers](#bayesiancc)).
+
+Confidence regions are constructed around a point estimate, which is typically computed as the mean value of a set of samples.
+The confidence region can be instantiated in three ways:
+* Confidence intervals: are standard confidence intervals generated for each class independently (_method="intervals"_).
+* Confidence ellipse in the simplex: an ellipse constructed around the mean point; the ellipse lies on the simplex and takes
+  into account possible inter-class dependencies in the data (_method="ellipse"_). 
+* Confidence ellipse in the Centered-Log Ratio (CLR) space: the underlying assumption of the ellipse is that the components are
+  normally distributed. However, we know elements from the simplex have an inner structure. A better approach is to first
+  transform the components into an unconstrained space (the CLR), and then construct the ellipse in such space (_method="ellipse-clr"_).

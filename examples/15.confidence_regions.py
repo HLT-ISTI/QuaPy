@@ -1,4 +1,3 @@
-from quapy.method.confidence import BayesianCC
 from quapy.method.confidence import AggregativeBootstrap
 from quapy.method.aggregative import PACC
 import quapy.functional as F
@@ -25,7 +24,6 @@ train, test = data.train_test
 # by simply wrapping an aggregative quantifier within the AggregativeBootstrap class, we can obtain confidence
 # intervals around the point estimate, in this case, at 95% of confidence
 pacc = AggregativeBootstrap(PACC(), n_test_samples=500, confidence_level=0.95)
-
 
 with qp.util.temp_seed(0):
     # we train the quantifier the usual way

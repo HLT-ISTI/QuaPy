@@ -447,8 +447,13 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
     `$ pip install quapy[bayes]`
 
     :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: a float in (0, 1) indicating the proportion of the training data to be used,
-        as a stratified held-out validation set, for generating classifier predictions.
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a collection defining the specific set of data to use for validation.
+        Alternatively, this set can be specified at fit time by indicating the exact set of data
+        on which the predictions are to be generated.
     :param num_warmup: number of warmup iterations for the MCMC sampler (default 500)
     :param num_samples: number of samples to draw from the posterior (default 1000)
     :param mcmc_seed: random seed for the MCMC sampler (default 0)
