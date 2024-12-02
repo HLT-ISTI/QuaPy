@@ -248,13 +248,13 @@ class GridSearchQ(BaseQuantifier):
                 self.param_scores_[str(params)] = status.status
                 self.error_collector.append(status)
 
-        tend = time()-tinit
+        self.fit_time_ = time()-tinit
 
         if self.best_score_ is None:
             raise ValueError('no combination of hyperparameters seemed to work')
 
         self._sout(f'optimization finished: best params {self.best_params_} (score={self.best_score_:.5f}) '
-                   f'[took {tend:.4f}s]')
+                   f'[took {self.fit_time_:.4f}s]')
 
         no_errors = len(self.error_collector)
         if no_errors>0:

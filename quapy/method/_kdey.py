@@ -1,5 +1,8 @@
 from typing import Union
 import numpy as np
+from scipy.optimize import optimize, minimize_scalar
+
+from quapy.protocol import UPP
 from sklearn.base import BaseEstimator
 from sklearn.neighbors import KernelDensity
 
@@ -111,15 +114,69 @@ class KDEyML(AggregativeSoftQuantifier, KDEBase):
     :param random_state: a seed to be set before fitting any base quantifier (default None)
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5, bandwidth=0.1, random_state=None):
+    def __init__(self, classifier: BaseEstimator=None, val_split=5, bandwidth=0.1, auto_reduction=500, auto_repeats=25, random_state=None):
         self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
-        self.bandwidth = KDEBase._check_bandwidth(bandwidth)
+        self.bandwidth = bandwidth
+        if bandwidth!='auto':
+            self.bandwidth = KDEBase._check_bandwidth(bandwidth)
+
+        assert auto_reduction is None or (isinstance(auto_reduction, int) and auto_reduction>0), \
+            (f'param {auto_reduction=} should either be None (no reduction) or a positive integer '
+             f'(number of training instances).')
+
+        self.auto_reduction = auto_reduction
+        self.auto_repeats = auto_repeats
         self.random_state=random_state
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        self.mix_densities = self.get_mixture_components(*classif_predictions.Xy, data.classes_, self.bandwidth)
+        if self.bandwidth == 'auto':
+            self.bandwidth_val = self.auto_bandwidth_likelihood(classif_predictions)
+        else:
+            self.bandwidth_val = self.bandwidth
+        self.mix_densities = self.get_mixture_components(*classif_predictions.Xy, data.classes_, self.bandwidth_val)
         return self
+
+    def auto_bandwidth_likelihood(self, classif_predictions: LabelledCollection):
+        train, val = classif_predictions.split_stratified(train_prop=0.5, random_state=self.random_state)
+        n_classes = classif_predictions.n_classes
+        epsilon = 1e-8
+        repeats = self.auto_repeats
+
+        auto_reduction = self.auto_reduction
+        if auto_reduction is None:
+            auto_reduction = len(classif_predictions)
+        else:
+            # reduce samples to speed up computation
+            train = train.sampling(auto_reduction)
+
+        prot = UPP(val, sample_size=auto_reduction, repeats=repeats, random_state=self.random_state)
+
+        def eval_bandwidth_nll(bandwidth):
+            mix_densities = self.get_mixture_components(*train.Xy, train.classes_, bandwidth)
+            loss_accum = 0
+            for (sample, prevtrue) in prot():
+                test_densities = [self.pdf(kde_i, sample) for kde_i in mix_densities]
+
+                def neg_loglikelihood_prev(prev):
+                    test_mixture_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip(prev, test_densities))
+                    test_loglikelihood = np.log(test_mixture_likelihood + epsilon)
+                    nll = -np.sum(test_loglikelihood)
+                    return nll
+
+                pred_prev, neglikelihood = F.optim_minimize(neg_loglikelihood_prev, n_classes=n_classes, return_loss=True)
+                loss_accum += neglikelihood
+            return loss_accum
+
+        r = minimize_scalar(eval_bandwidth_nll, bounds=(0.0001, 0.2), options={'xatol': 0.005})
+        best_band = r.x
+        best_loss_value = r.fun
+        nit = r.nit
+
+        # print(f'[{self.__class__.__name__}:autobandwidth] '
+        #       f'found bandwidth={best_band:.8f} after {nit=} iterations loss_val={best_loss_value:.5f})')
+
+        return best_band
 
     def aggregate(self, posteriors: np.ndarray):
         """

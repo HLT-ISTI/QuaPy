@@ -693,14 +693,26 @@ def EEMQ(classifier, param_grid=None, optim=None, param_mod_sel=None, **kwargs):
     return ensembleFactory(classifier, EMQ, param_grid, optim, param_mod_sel, **kwargs)
 
 
+def merge(prev_predictions, merge_fun):
+    prev_predictions = np.asarray(prev_predictions)
+    if merge_fun == 'median':
+        prevalences = np.median(prev_predictions, axis=0)
+        prevalences = F.normalize_prevalence(prevalences, method='l1')
+    elif merge_fun == 'mean':
+        prevalences = np.mean(prev_predictions, axis=0)
+    else:
+        raise NotImplementedError(f'merge function {merge_fun} not implemented!')
+    return prevalences
+
+
 class SCMQ(AggregativeSoftQuantifier):
 
-    MERGE_FUNCTIONS = ['median']
+    MERGE_FUNCTIONS = ['median', 'mean']
 
     def __init__(self, classifier, quantifiers: List[AggregativeSoftQuantifier], merge_fun='median', val_split=5):
         self.classifier = classifier
-        self.quantifiers = quantifiers
-        assert merge_fun in self.MERGE_FUNCTIONS, f'unknwon {merge_fun=}, valid ones are {self.MERGE_FUNCTIONS}'
+        self.quantifiers = [deepcopy(q) for q in quantifiers]
+        assert merge_fun in self.MERGE_FUNCTIONS, f'unknown {merge_fun=}, valid ones are {self.MERGE_FUNCTIONS}'
         self.merge_fun = merge_fun
         self.val_split = val_split
 
@@ -715,21 +727,50 @@ class SCMQ(AggregativeSoftQuantifier):
         for quantifier_i in self.quantifiers:
             prevalence_i = quantifier_i.aggregate(classif_predictions)
             prev_predictions.append(prevalence_i)
-        return self.merge(prev_predictions)
-
-    def merge(self, prev_predictions):
-        prev_predictions = np.asarray(prev_predictions)
-        if self.merge_fun == 'median':
-            prevalences = np.median(prev_predictions, axis=0)
-            prevalences = F.normalize_prevalence(prevalences, method='l1')
-        elif self.merge_fun == 'mean':
-            prevalences = np.mean(prev_predictions, axis=0)
-        else:
-            raise NotImplementedError(f'merge function {self.merge_fun} not implemented!')
-        return prevalences
+        return merge(prev_predictions, merge_fun=self.merge_fun)
 
 
+class MCSQ(BaseQuantifier):
+    def __init__(self, classifiers, quantifier: AggregativeSoftQuantifier, merge_fun='median', val_split=5):
+        self.merge_fun = merge_fun
+        self.val_split = val_split
+        self.mcsqs = []
+        for classifier in classifiers:
+            quantifier = deepcopy(quantifier)
+            quantifier.classifier = classifier
+            self.mcsqs.append(quantifier)
 
+    def fit(self, data: LabelledCollection):
+        for q in self.mcsqs:
+            q.fit(data, val_split=self.val_split)
+        return self
+
+    def quantify(self, instances):
+        prev_predictions = []
+        for q in self.mcsqs:
+            prevalence_i = q.quantify(instances)
+            prev_predictions.append(prevalence_i)
+        return merge(prev_predictions, merge_fun=self.merge_fun)
+
+
+class MCMQ(BaseQuantifier):
+    def __init__(self, classifiers, quantifiers: List[AggregativeSoftQuantifier], merge_fun='median', val_split=5):
+        self.merge_fun = merge_fun
+        self.scmqs = []
+        for classifier in classifiers:
+            self.scmqs.append(SCMQ(classifier, quantifiers, val_split=val_split))
+
+    def fit(self, data: LabelledCollection):
+        for q in self.scmqs:
+            q.fit(data)
+        return self
+
+    def quantify(self, instances):
+        prev_predictions = []
+        for q in self.scmqs:
+            prevalence_i = q.quantify(instances)
+            prev_predictions.append(prevalence_i)
+        return merge(prev_predictions, merge_fun=self.merge_fun)
 
 
 

@@ -416,7 +416,7 @@ def argmin_prevalence(loss: Callable,
         raise NotImplementedError()
 
 
-def optim_minimize(loss: Callable, n_classes: int):
+def optim_minimize(loss: Callable, n_classes: int, return_loss=False):
     """
     Searches for the optimal prevalence values, i.e., an `n_classes`-dimensional vector of the (`n_classes`-1)-simplex
     that yields the smallest lost. This optimization is carried out by means of a constrained search using scipy's
@@ -424,18 +424,24 @@ def optim_minimize(loss: Callable, n_classes: int):
 
     :param loss: (callable) the function to minimize
     :param n_classes: (int) the number of classes, i.e., the dimensionality of the prevalence vector
-    :return: (ndarray) the best prevalence vector found
+    :param return_loss: bool, if True, returns also the value of the loss (default is False).
+    :return: (ndarray) the best prevalence vector found or a tuple which also contains the value of the loss
+        if return_loss=True
     """
     from scipy import optimize
 
     # the initial point is set as the uniform distribution
-    uniform_distribution = np.full(fill_value=1 / n_classes, shape=(n_classes,))
+    uniform_distribution = uniform_prevalence(n_classes=n_classes)
 
     # solutions are bounded to those contained in the unit-simplex
     bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
     constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
     r = optimize.minimize(loss, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
-    return r.x
+    
+    if return_loss:
+        return r.x, r.fun
+    else:
+        return r.x
 
 
 def linear_search(loss: Callable, n_classes: int):
