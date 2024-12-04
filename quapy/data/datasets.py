@@ -499,7 +499,7 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, standardize=
             y = df["NSP"].astype(int).values
         elif group == "semeion":
             with download_tmp_file("semeion", "semeion.data") as tmp:
-                df = pd.read_csv(tmp, header=None, delim_whitespace=True)
+                df = pd.read_csv(tmp, header=None, sep='\s+')
             X = df.iloc[:, 0:256].astype(float).values
             y = df[263].values  # 263 stands for digit 8 (labels are one-hot vectors from col 256-266)
         else:
