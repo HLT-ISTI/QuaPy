@@ -6,3 +6,4 @@
 - [TODO] add Friedman's method and DeBias
 - [TODO] check ignore warning stuff
     check https://docs.python.org/3/library/warnings.html#temporarily-suppressing-warnings
+- [TODO] nmd and md are not selectable from qp.evaluation.evaluate as a string
