@@ -132,7 +132,7 @@ svm = LinearSVC()
 # (an alias is available in qp.method.aggregative.ClassifyAndCount)
 model = qp.method.aggregative.CC(svm)
 model.fit(training)
-estim_prevalence = model.quantify(test.instances)
+estim_prevalence = model.predict(test.instances)
 ```
 
 The same code could be used to instantiate an ACC, by simply replacing
@@ -172,7 +172,7 @@ The following code illustrates the case in which PCC is used:
 ```python
 model = qp.method.aggregative.PCC(svm)
 model.fit(training)
-estim_prevalence = model.quantify(test.instances)
+estim_prevalence = model.predict(test.instances)
 print('classifier:', model.classifier)
 ```
 In this case, QuaPy will print:
@@ -263,7 +263,7 @@ dataset = qp.datasets.fetch_twitter('hcr', pickle=True)
 
 model = qp.method.aggregative.EMQ(LogisticRegression())
 model.fit(dataset.training)
-estim_prevalence = model.quantify(dataset.test.instances)
+estim_prevalence = model.predict(dataset.test.instances)
 ```
 
 _New in v0.1.7_: EMQ now accepts two new parameters in the construction method, namely
@@ -298,7 +298,8 @@ stratified split), or a validation set (i.e., an instance of
 HDy was proposed as a binary classifier and the implementation
 provided in QuaPy accepts only binary datasets. 
  
-The following code shows an example of use:   
+The following code shows an example of use:
+
 ```python
 import quapy as qp
 from sklearn.linear_model import LogisticRegression
@@ -309,7 +310,7 @@ qp.data.preprocessing.text2tfidf(dataset, min_df=5, inplace=True)
 
 model = qp.method.aggregative.HDy(LogisticRegression())
 model.fit(dataset.training)
-estim_prevalence = model.quantify(dataset.test.instances)
+estim_prevalence = model.predict(dataset.test.instances)
 ```
 
 _New in v0.1.7:_ QuaPy now provides an implementation of the generalized
@@ -411,7 +412,7 @@ qp.environ['SVMPERF_HOME'] = '../svm_perf_quantification'
 
 model = newOneVsAll(SVMQ(), n_jobs=-1)  # run them on parallel
 model.fit(dataset.training)
-estim_prevalence = model.quantify(dataset.test.instances)
+estim_prevalence = model.predict(dataset.test.instances)
 ```
 
 Check the examples on [explicit_loss_minimization](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/5.explicit_loss_minimization.py)
@@ -531,7 +532,7 @@ dataset = qp.datasets.fetch_UCIBinaryDataset('haberman')
 
 model = Ensemble(quantifier=ACC(LogisticRegression()), size=30, policy='ave', n_jobs=-1)
 model.fit(dataset.training)
-estim_prevalence = model.quantify(dataset.test.instances)
+estim_prevalence = model.predict(dataset.test.instances)
 ```
 
 Other aggregation policies implemented in QuaPy include:
@@ -579,6 +580,6 @@ learner = NeuralClassifierTrainer(cnn, device='cuda')
 # train QuaNet
 model = QuaNet(learner, device='cuda')
 model.fit(dataset.training)
-estim_prevalence = model.quantify(dataset.test.instances)
+estim_prevalence = model.predict(dataset.test.instances)
 ```
 

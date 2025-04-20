@@ -51,7 +51,7 @@ class TestMethods(unittest.TestCase):
                 q = model(learner)
                 print('testing', q)
                 q.fit(dataset.training, fit_classifier=False)
-                estim_prevalences = q.quantify(dataset.test.X)
+                estim_prevalences = q.predict(dataset.test.X)
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_non_aggregative(self):
@@ -65,7 +65,7 @@ class TestMethods(unittest.TestCase):
                 q = model()
                 print(f'testing {q} on dataset {dataset.name}')
                 q.fit(dataset.training)
-                estim_prevalences = q.quantify(dataset.test.X)
+                estim_prevalences = q.predict(dataset.test.X)
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_ensembles(self):
@@ -81,7 +81,7 @@ class TestMethods(unittest.TestCase):
             print(f'testing {base_quantifier} on dataset {dataset.name} with {policy=}')
             ensemble = Ensemble(quantifier=base_quantifier, size=3, policy=policy, n_jobs=-1)
             ensemble.fit(dataset.training)
-            estim_prevalences = ensemble.quantify(dataset.test.instances)
+            estim_prevalences = ensemble.predict(dataset.test.instances)
             self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_quanet(self):
@@ -107,7 +107,7 @@ class TestMethods(unittest.TestCase):
         model = QuaNet(learner, device='cpu', n_epochs=2, tr_iter_per_poch=10, va_iter_per_poch=10, patience=2)
 
         model.fit(dataset.training)
-        estim_prevalences = model.quantify(dataset.test.instances)
+        estim_prevalences = model.predict(dataset.test.instances)
         self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_composable(self):
@@ -115,7 +115,7 @@ class TestMethods(unittest.TestCase):
             for q in COMPOSABLE_METHODS:
                 print('testing', q)
                 q.fit(dataset.training)
-                estim_prevalences = q.quantify(dataset.test.X)
+                estim_prevalences = q.predict(dataset.test.X)
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
 

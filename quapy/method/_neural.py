@@ -38,7 +38,7 @@ class QuaNetTrainer(BaseQuantifier):
     >>> # train QuaNet (QuaNet is an alias to QuaNetTrainer)
     >>> model = QuaNet(classifier, qp.environ['SAMPLE_SIZE'], device='cuda')
     >>> model.fit(dataset.training)
-    >>> estim_prevalence = model.quantify(dataset.test.instances)
+    >>> estim_prevalence = model.predict(dataset.test.instances)
 
     :param classifier: an object implementing `fit` (i.e., that can be trained on labelled data),
         `predict_proba` (i.e., that can generate posterior probabilities of unlabelled examples) and
@@ -201,9 +201,9 @@ class QuaNetTrainer(BaseQuantifier):
 
         return prevs_estim
 
-    def quantify(self, instances):
-        posteriors = self.classifier.predict_proba(instances)
-        embeddings = self.classifier.transform(instances)
+    def predict(self, X):
+        posteriors = self.classifier.predict_proba(X)
+        embeddings = self.classifier.transform(X)
         quant_estims = self._get_aggregative_estims(posteriors)
         self.quanet.eval()
         with torch.no_grad():

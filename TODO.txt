@@ -1,3 +1,27 @@
+Para quitar el labelledcollection de los métodos:
+
+- El follón viene por la semántica confusa de fit en agregativos, que recibe 3 parámetros:
+    - data: LabelledCollection, que puede ser:
+        - el training set si hay que entrenar el clasificador
+        - None si no hay que entregar el clasificador
+        - el validation, que entra en conflicto con val_split, si no hay que entrenar clasificador
+    - fit_classifier: dice si hay que entrenar el clasificador o no, y estos cambia la semántica de los otros
+    - val_split: que puede ser:
+        - un número: el número de kfcv, lo cual implica fit_classifier=True y data=todo el training set
+        - una fración en [0,1]: que indica la parte que usamos para validation; implica fit_classifier=True y data=train+val
+        - un labelled collection: el conjunto de validación específico; no implica fit_classifier=True ni False
+- La forma de quitar la dependencia de los métodos con LabelledCollection debería ser así:
+    - En el constructor se dice si el clasificador que se recibe por parámetro hay que entrenarlo o ya está entrenado;
+        es decir, hay un fit_classifier=True o False.
+        - fit_classifier=True:
+            - data en fit es todo el training incluyendo el validation y todo
+            - val_split:
+                - int: número de folds en kfcv
+                - proporción en [0,1]
+        - fit_classifier=False:
+
+
+
 - [TODO] document confidence in manuals
 - [TODO] Test the return_type="index" in protocols and finish the "distributing_samples.py" example
 - [TODO] Add EDy (an implementation is available at quantificationlib)

@@ -41,8 +41,8 @@ class EvalTestCase(unittest.TestCase):
             def __init__(self, cls):
                 self.emq = EMQ(cls)
 
-            def quantify(self, instances):
-                return self.emq.quantify(instances)
+            def predict(self, X):
+                return self.emq.predict(X)
 
             def fit(self, data):
                 self.emq.fit(data)

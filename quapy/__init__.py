@@ -14,7 +14,7 @@ from . import model_selection
 from . import classification
 import os
 
-__version__ = '0.1.10'
+__version__ = '0.1.10r'
 
 environ = {
     'SAMPLE_SIZE': None,
@@ -24,7 +24,7 @@ environ = {
     'PAD_INDEX': 1,
     'SVMPERF_HOME': './svm_perf_quantification',
     'N_JOBS': int(os.getenv('N_JOBS', 1)),
-    'DEFAULT_CLS': LogisticRegression(max_iter=3000)
+    'DEFAULT_CLS': LogisticRegression()
 }
 
 

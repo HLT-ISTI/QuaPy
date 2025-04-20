@@ -17,13 +17,13 @@ class TestReplicability(unittest.TestCase):
         with qp.util.temp_seed(0):
             lr = LogisticRegression(random_state=0, max_iter=10000)
             pacc = PACC(lr)
-            prev = pacc.fit(dataset.training).quantify(dataset.test.X)
+            prev = pacc.fit(dataset.training).predict(dataset.test.X)
             str_prev1 = strprev(prev, prec=5)
 
         with qp.util.temp_seed(0):
             lr = LogisticRegression(random_state=0, max_iter=10000)
             pacc = PACC(lr)
-            prev2 = pacc.fit(dataset.training).quantify(dataset.test.X)
+            prev2 = pacc.fit(dataset.training).predict(dataset.test.X)
             str_prev2 = strprev(prev2, prec=5)
 
         self.assertEqual(str_prev1, str_prev2)
@@ -85,17 +85,17 @@ class TestReplicability(unittest.TestCase):
         with qp.util.temp_seed(10):
             pacc = PACC(LogisticRegression(), val_split=2, n_jobs=2)
             pacc.fit(train, val_split=0.5)
-            prev1 = F.strprev(pacc.quantify(test.instances))
+            prev1 = F.strprev(pacc.predict(test.instances))
 
         with qp.util.temp_seed(0):
             pacc = PACC(LogisticRegression(), val_split=2, n_jobs=2)
             pacc.fit(train, val_split=0.5)
-            prev2 = F.strprev(pacc.quantify(test.instances))
+            prev2 = F.strprev(pacc.predict(test.instances))
 
         with qp.util.temp_seed(0):
             pacc = PACC(LogisticRegression(), val_split=2, n_jobs=2)
             pacc.fit(train, val_split=0.5)
-            prev3 = F.strprev(pacc.quantify(test.instances))
+            prev3 = F.strprev(pacc.predict(test.instances))
 
         print(prev1)
         print(prev2)

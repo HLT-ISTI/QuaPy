@@ -30,11 +30,11 @@ class MaximumLikelihoodPrevalenceEstimation(BaseQuantifier):
         self.estimated_prevalence = data.prevalence()
         return self
 
-    def quantify(self, instances):
+    def predict(self, X):
         """
         Ignores the input instances and returns, as the class prevalence estimantes, the training prevalence.
 
-        :param instances: array-like (ignored)
+        :param X: array-like (ignored)
         :return: the class prevalence seen during training
         """
         return self.estimated_prevalence
@@ -122,20 +122,20 @@ class DMx(BaseQuantifier):
 
         return self
 
-    def quantify(self, instances):
+    def predict(self, X):
         """
         Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution
         (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.
         The matching is computed as the average dissimilarity (in terms of the dissimilarity measure of choice)
         between all feature-specific discrete distributions.
 
-        :param instances: instances in the sample
+        :param X: instances in the sample
         :return: a vector of class prevalence estimates
         """
 
-        assert instances.shape[1] == self.nfeats, f'wrong shape; expected {self.nfeats}, found {instances.shape[1]}'
+        assert X.shape[1] == self.nfeats, f'wrong shape; expected {self.nfeats}, found {X.shape[1]}'
 
-        test_distribution = self.__get_distributions(instances)
+        test_distribution = self.__get_distributions(X)
         divergence = get_divergence(self.divergence)
         n_classes, n_feats, nbins = self.validation_distribution.shape
         def loss(prev):
@@ -163,8 +163,8 @@ class ReadMe(BaseQuantifier):
         X = self.vectorizer.fit_transform(X)
         self.class_conditional_X = {i: X[y==i] for i in range(data.classes_)}
 
-    def quantify(self, instances):
-        X = self.vectorizer.transform(instances)
+    def predict(self, X):
+        X = self.vectorizer.transform(X)
 
         # number of features
         num_docs, num_feats = X.shape

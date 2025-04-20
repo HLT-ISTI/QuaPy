@@ -39,10 +39,10 @@ class MyQuantifier(BaseQuantifier):
         return self
 
     # in general, we would need to implement the method quantify(self, instances); this would amount to:
-    def quantify(self, instances):
+    def predict(self, X):
         assert hasattr(self.classifier, 'predict_proba'), \
             'the underlying classifier is not probabilistic! [abort]'
-        posterior_probabilities = self.classifier.predict_proba(instances)
+        posterior_probabilities = self.classifier.predict_proba(X)
         positive_probabilities = posterior_probabilities[:, 1]
         crisp_decisions = positive_probabilities > self.alpha
         pos_prev = crisp_decisions.mean()

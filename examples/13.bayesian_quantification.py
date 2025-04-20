@@ -123,7 +123,7 @@ def _get_estimate(estimator_class, training: LabelledCollection, test: np.ndarra
     """Auxiliary method for running ACC and PACC."""
     estimator = estimator_class(get_random_forest())
     estimator.fit(training)
-    return estimator.quantify(test)
+    return estimator.predict(test)
 
 
 def train_and_plot_bayesian_quantification(ax: plt.Axes, training: LabelledCollection, test: LabelledCollection) -> None:
@@ -133,7 +133,7 @@ def train_and_plot_bayesian_quantification(ax: plt.Axes, training: LabelledColle
     quantifier.fit(training)
 
     # Obtain mean prediction
-    mean_prediction = quantifier.quantify(test.X)
+    mean_prediction = quantifier.predict(test.X)
     mae = qp.error.mae(test.prevalence(), mean_prediction)
     x_ax = np.arange(training.n_classes)
     ax.plot(x_ax, mean_prediction, c="salmon", linewidth=2, linestyle=":", label="Bayesian")

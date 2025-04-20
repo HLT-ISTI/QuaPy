@@ -27,7 +27,7 @@ quantifier = QuaNet(cnn_classifier, device='cuda')
 quantifier.fit(train, fit_classifier=False)
 
 # prediction and evaluation
-estim_prevalence = quantifier.quantify(test.instances)
+estim_prevalence = quantifier.predict(test.instances)
 mae = qp.error.mae(test.prevalence(), estim_prevalence)
 
 print(f'true prevalence: {F.strprev(test.prevalence())}')

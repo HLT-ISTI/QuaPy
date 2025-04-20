@@ -72,12 +72,12 @@ class MedianEstimator2(BinaryQuantifier):
 
     def _delayed_predict(self, args):
         model, instances = args
-        return model.quantify(instances)
+        return model.predict(instances)
 
-    def quantify(self, instances):
+    def predict(self, X):
         prev_preds = qp.util.parallel(
             self._delayed_predict,
-            ((model, instances) for model in self.models),
+            ((model, X) for model in self.models),
             seed=qp.environ.get('_R_SEED', None),
             n_jobs=self.n_jobs
         )
@@ -174,12 +174,12 @@ class MedianEstimator(BinaryQuantifier):
 
     def _delayed_predict(self, args):
         model, instances = args
-        return model.quantify(instances)
+        return model.predict(instances)
 
-    def quantify(self, instances):
+    def predict(self, X):
         prev_preds = qp.util.parallel(
             self._delayed_predict,
-            ((model, instances) for model in self.models),
+            ((model, X) for model in self.models),
             seed=qp.environ.get('_R_SEED', None),
             n_jobs=self.n_jobs,
             asarray=False
@@ -294,15 +294,15 @@ class Ensemble(BaseQuantifier):
         self._sout('Fit [Done]')
         return self
 
-    def quantify(self, instances):
+    def predict(self, X):
         predictions = np.asarray(
-            qp.util.parallel(_delayed_quantify, ((Qi, instances) for Qi in self.ensemble), n_jobs=self.n_jobs)
+            qp.util.parallel(_delayed_quantify, ((Qi, X) for Qi in self.ensemble), n_jobs=self.n_jobs)
         )
 
         if self.policy == 'ptr':
             predictions = self._ptr_policy(predictions)
         elif self.policy == 'ds':
-            predictions = self._ds_policy(predictions, instances)
+            predictions = self._ds_policy(predictions, X)
 
         predictions = np.mean(predictions, axis=0)
         return F.normalize_prevalence(predictions)
@@ -470,7 +470,7 @@ def _delayed_new_instance(args):
 
 def _delayed_quantify(args):
     quantifier, instances = args
-    return quantifier[0].quantify(instances)
+    return quantifier[0].predict(instances)
 
 
 def _draw_simplex(ndim, min_val, max_trials=100):

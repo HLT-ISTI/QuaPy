@@ -232,11 +232,11 @@ class LabelledCollection:
         :return: two instances of :class:`LabelledCollection`, the first one with `train_prop` elements, and the
             second one with `1-train_prop` elements
         """
-        tr_docs, te_docs, tr_labels, te_labels = train_test_split(
+        tr_X, te_X, tr_y, te_y = train_test_split(
             self.instances, self.labels, train_size=train_prop, stratify=self.labels, random_state=random_state
         )
-        training = LabelledCollection(tr_docs, tr_labels, classes=self.classes_)
-        test = LabelledCollection(te_docs, te_labels, classes=self.classes_)
+        training = LabelledCollection(tr_X, tr_y, classes=self.classes_)
+        test = LabelledCollection(te_X, te_y, classes=self.classes_)
         return training, test
 
     def split_random(self, train_prop=0.6, random_state=None):

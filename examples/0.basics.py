@@ -41,7 +41,7 @@ pacc.fit(train)
 
 # let's now test our quantifier on the test data (of course, we should not use the test labels y at this point, only X)
 X_test = test.X
-estim_prevalence = pacc.quantify(X_test)
+estim_prevalence = pacc.predict(X_test)
 
 print(f'estimated test prevalence = {F.strprev(estim_prevalence)}')
 print(f'true test prevalence = {F.strprev(test.prevalence())}')

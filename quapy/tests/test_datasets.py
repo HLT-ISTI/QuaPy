@@ -18,7 +18,7 @@ class TestDatasets(unittest.TestCase):
         q = self.new_quantifier()
         print(f'testing method {q} in {dataset.name}...', end='')
         q.fit(dataset.training)
-        estim_prevalences = q.quantify(dataset.test.instances)
+        estim_prevalences = q.predict(dataset.test.instances)
         self.assertTrue(F.check_prevalence_vector(estim_prevalences))
         print(f'[done]')
 
@@ -26,7 +26,7 @@ class TestDatasets(unittest.TestCase):
         for X, p in gen():
             if vectorizer is not None:
                 X = vectorizer.transform(X)
-            estim_prevalences = q.quantify(X)
+            estim_prevalences = q.predict(X)
             self.assertTrue(F.check_prevalence_vector(estim_prevalences))
             max_samples_test -= 1
             if max_samples_test == 0:

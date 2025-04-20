@@ -275,15 +275,15 @@ class GridSearchQ(BaseQuantifier):
 
         return self
 
-    def quantify(self, instances):
+    def predict(self, X):
         """Estimate class prevalence values using the best model found after calling the :meth:`fit` method.
 
-        :param instances: sample contanining the instances
+        :param X: sample contanining the instances
         :return: a ndarray of shape `(n_classes)` with class prevalence estimates as according to the best model found
             by the model selection process.
         """
         assert hasattr(self, 'best_model_'), 'quantify called before fit'
-        return self.best_model().quantify(instances)
+        return self.best_model().predict(X)
 
     def set_params(self, **parameters):
         """Sets the hyper-parameters to explore.
@@ -365,7 +365,7 @@ def cross_val_predict(quantifier: BaseQuantifier, data: LabelledCollection, nfol
 
     for train, test in data.kFCV(nfolds=nfolds, random_state=random_state):
         quantifier.fit(train)
-        fold_prev = quantifier.quantify(test.X)
+        fold_prev = quantifier.predict(test.X)
         rel_size = 1. * len(test) / len(data)
         total_prev += fold_prev*rel_size
 
