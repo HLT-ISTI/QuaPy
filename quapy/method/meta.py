@@ -52,19 +52,19 @@ class MedianEstimator2(BinaryQuantifier):
 
     def _delayed_fit(self, args):
         with qp.util.temp_seed(self.random_state):
-            params, training = args
+            params, X, y = args
             model = deepcopy(self.base_quantifier)
             model.set_params(**params)
-            model.fit(training)
+            model.fit(X, y)
             return model
 
-    def fit(self, training: LabelledCollection):
-        self._check_binary(training, self.__class__.__name__)
+    def fit(self, X, y):
+        self._check_binary(y, self.__class__.__name__)
 
         configs = qp.model_selection.expand_grid(self.param_grid)
         self.models = qp.util.parallel(
             self._delayed_fit,
-            ((params, training) for params in configs),
+            ((params, X, y) for params in configs),
             seed=qp.environ.get('_R_SEED', None),
             n_jobs=self.n_jobs
         )
@@ -95,7 +95,7 @@ class MedianEstimator(BinaryQuantifier):
     :param base_quantifier: the base, binary quantifier
     :param random_state: a seed to be set before fitting any base quantifier (default None)
     :param param_grid: the grid or parameters towards which the median will be computed
-    :param n_jobs: number of parllel workes
+    :param n_jobs: number of parallel workers
     """
     def __init__(self, base_quantifier: BinaryQuantifier, param_grid: dict, random_state=None, n_jobs=None):
         self.base_quantifier = base_quantifier
@@ -111,65 +111,23 @@ class MedianEstimator(BinaryQuantifier):
 
     def _delayed_fit(self, args):
         with qp.util.temp_seed(self.random_state):
-            params, training = args
+            params, X, y = args
             model = deepcopy(self.base_quantifier)
             model.set_params(**params)
-            model.fit(training)
+            model.fit(X, y)
             return model
 
-    def _delayed_fit_classifier(self, args):
-        with qp.util.temp_seed(self.random_state):
-            cls_params, training = args
-            model = deepcopy(self.base_quantifier)
-            model.set_params(**cls_params)
-            predictions = model.classifier_fit_predict(training, predict_on=model.val_split)
-            return (model, predictions)
+    def fit(self, X, y):
+        self._check_binary(y, self.__class__.__name__)
 
-    def _delayed_fit_aggregation(self, args):
-        with qp.util.temp_seed(self.random_state):
-            ((model, predictions), q_params), training = args
-            model = deepcopy(model)
-            model.set_params(**q_params)
-            model.aggregation_fit(predictions, training)
-            return model
-
-
-    def fit(self, training: LabelledCollection):
-        self._check_binary(training, self.__class__.__name__)
-
-        if isinstance(self.base_quantifier, AggregativeQuantifier):
-            cls_configs, q_configs = qp.model_selection.group_params(self.param_grid)
-
-            if len(cls_configs) > 1:
-                models_preds = qp.util.parallel(
-                    self._delayed_fit_classifier,
-                    ((params, training) for params in cls_configs),
-                    seed=qp.environ.get('_R_SEED', None),
-                    n_jobs=self.n_jobs,
-                    asarray=False
-                )
-            else:
-                model = self.base_quantifier
-                model.set_params(**cls_configs[0])
-                predictions = model.classifier_fit_predict(training, predict_on=model.val_split)
-                models_preds = [(model, predictions)]
-
-            self.models = qp.util.parallel(
-                self._delayed_fit_aggregation,
-                ((setup, training) for setup in itertools.product(models_preds, q_configs)),
-                seed=qp.environ.get('_R_SEED', None),
-                n_jobs=self.n_jobs,
-                asarray=False
-            )
-        else:
-            configs = qp.model_selection.expand_grid(self.param_grid)
-            self.models = qp.util.parallel(
-                self._delayed_fit,
-                ((params, training) for params in configs),
-                seed=qp.environ.get('_R_SEED', None),
-                n_jobs=self.n_jobs,
-                asarray=False
-            )
+        configs = qp.model_selection.expand_grid(self.param_grid)
+        self.models = qp.util.parallel(
+            self._delayed_fit,
+            ((params, X, y) for params in configs),
+            seed=qp.environ.get('_R_SEED', None),
+            n_jobs=self.n_jobs,
+            asarray=False
+        )
         return self
 
     def _delayed_predict(self, args):
@@ -257,13 +215,14 @@ class Ensemble(BaseQuantifier):
         if self.verbose:
             print('[Ensemble]' + msg)
 
-    def fit(self, data: qp.data.LabelledCollection, val_split: Union[qp.data.LabelledCollection, float] = None):
+    def fit(self, X, y):
+
+        data = LabelledCollection(X, y)
 
         if self.policy == 'ds' and not data.binary:
             raise ValueError(f'ds policy is only defined for binary quantification, but this dataset is not binary')
 
-        if val_split is None:
-            val_split = self.val_split
+        val_split = self.val_split
 
         # randomly chooses the prevalences for each member of the ensemble (preventing classes with less than
         # min_pos positive examples)
@@ -704,10 +663,10 @@ class SCMQ(AggregativeSoftQuantifier):
         self.merge_fun = merge_fun
         self.val_split = val_split
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         for quantifier in self.quantifiers:
             quantifier.classifier = self.classifier
-            quantifier.aggregation_fit(classif_predictions, data)
+            quantifier.aggregation_fit(classif_predictions, labels)
         return self
 
     def aggregate(self, classif_predictions: np.ndarray):

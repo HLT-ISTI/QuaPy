@@ -18,18 +18,23 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
     that would allow for more true positives and many more false positives, on the grounds this
     would deliver larger denominators.
 
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+
+    :param n_jobs: number of parallel workers
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=None, n_jobs=None):
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+    def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=None, n_jobs=None):
+        super.__init__(classifier, fit_classifier, val_split)
         self.n_jobs = qp._get_njobs(n_jobs)
 
     @abstractmethod
@@ -115,8 +120,8 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
             return 0
         return FP / (FP + TN)
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        decision_scores, y = classif_predictions.Xy
+    def aggregation_fit(self, classif_predictions, labels):
+        decision_scores, y = classif_predictions, labels
         # the standard behavior is to keep the best threshold only
         self.tpr, self.fpr, self.threshold = self._eval_candidate_thresholds(decision_scores, y)[0]
         return self
@@ -134,17 +139,22 @@ class T50(ThresholdOptimization):
     for the threshold that makes `tpr` closest to 0.5.
     The goal is to bring improved stability to the denominator of the adjustment.
 
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5):
-        super().__init__(classifier, val_split)
+    def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=5):
+        super().__init__(classifier, fit_classifier, val_split)
 
     def condition(self, tpr, fpr) -> float:
         return abs(tpr - 0.5)
@@ -158,17 +168,20 @@ class MAX(ThresholdOptimization):
     for the threshold that maximizes `tpr-fpr`.
     The goal is to bring improved stability to the denominator of the adjustment.
 
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5):
-        super().__init__(classifier, val_split)
+    def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=5):
+        super().__init__(classifier, fit_classifier, val_split)
 
     def condition(self, tpr, fpr) -> float:
         # MAX strives to maximize (tpr - fpr), which is equivalent to minimize (fpr - tpr)
@@ -183,17 +196,20 @@ class X(ThresholdOptimization):
     for the threshold that yields `tpr=1-fpr`.
     The goal is to bring improved stability to the denominator of the adjustment.
 
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5):
-        super().__init__(classifier, val_split)
+    def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=5):
+        super().__init__(classifier, fit_classifier, val_split)
 
     def condition(self, tpr, fpr) -> float:
         return abs(1 - (tpr + fpr))
@@ -207,22 +223,25 @@ class MS(ThresholdOptimization):
     class prevalence estimates for all decision thresholds and returns the median of them all.
     The goal is to bring improved stability to the denominator of the adjustment.
 
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
     """
-    def __init__(self, classifier: BaseEstimator=None, val_split=5):
-        super().__init__(classifier, val_split)
+
+    def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=5):
+        super().__init__(classifier, fit_classifier, val_split)
 
     def condition(self, tpr, fpr) -> float:
         return 1
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        decision_scores, y = classif_predictions.Xy
+    def aggregation_fit(self, classif_predictions, labels):
+        decision_scores, y = classif_predictions, labels
         # keeps all candidates
         tprs_fprs_thresholds = self._eval_candidate_thresholds(decision_scores, y)
         self.tprs = tprs_fprs_thresholds[:, 0]
@@ -246,16 +265,19 @@ class MS2(MS):
     which `tpr-fpr>0.25`
     The goal is to bring improved stability to the denominator of the adjustment.
 
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set in which the
-        misclassification rates are to be estimated.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the misclassification rates should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
     """
-    def __init__(self, classifier: BaseEstimator=None, val_split=5):
-        super().__init__(classifier, val_split)
+
+    def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=5):
+        super().__init__(classifier, fit_classifier, val_split)
 
     def discard(self, tpr, fpr) -> bool:
         return (tpr-fpr) <= 0.25

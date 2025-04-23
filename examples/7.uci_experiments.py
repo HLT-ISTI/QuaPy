@@ -50,7 +50,7 @@ def quantification_models():
     yield 'MAX', MAX(newLR()), lr_params
     yield 'MS', MS(newLR()), lr_params
     yield 'MS2', MS2(newLR()), lr_params
-    yield 'sldc', EMQ(newLR(), recalib='platt'), lr_params
+    yield 'sldc', EMQ(newLR(), calib='platt'), lr_params
     yield 'svmmae', newSVMAE(), svmperf_params
     yield 'hdy', HDy(newLR()), lr_params
 

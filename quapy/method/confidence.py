@@ -375,18 +375,20 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
         self.region = region
         self.random_state = random_state
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
+        data = LabelledCollection(classif_predictions, labels, classes=self.classes_)
         self.quantifiers = []
         if self.n_train_samples==1:
-            self.quantifier.aggregation_fit(classif_predictions, data)
+            self.quantifier.aggregation_fit(classif_predictions, labels)
             self.quantifiers.append(self.quantifier)
         else:
             # model-based bootstrap (only on the aggregative part)
-            full_index = np.arange(len(data))
+            n_examples = len(data)
+            full_index = np.arange(n_examples)
             with qp.util.temp_seed(self.random_state):
                 for i in range(self.n_train_samples):
                     quantifier = copy.deepcopy(self.quantifier)
-                    index = resample(full_index, n_samples=len(data))
+                    index = resample(full_index, n_samples=n_examples)
                     classif_predictions_i = classif_predictions.sampling_from_index(index)
                     data_i = data.sampling_from_index(index)
                     quantifier.aggregation_fit(classif_predictions_i, data_i)
@@ -415,10 +417,10 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
 
         return prev_estim, conf
 
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
+    def fit(self, X, y):
         self.quantifier._check_init_parameters()
-        classif_predictions = self.quantifier.classifier_fit_predict(data, fit_classifier, predict_on=val_split)
-        self.aggregation_fit(classif_predictions, data)
+        classif_predictions, labels = self.quantifier.classifier_fit_predict(X, y)
+        self.aggregation_fit(classif_predictions, labels)
         return self
 
     def quantify_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
@@ -446,7 +448,8 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
     This method relies on extra dependencies, which have to be installed via:
     `$ pip install quapy[bayes]`
 
-    :param classifier: a sklearn's Estimator that generates a classifier
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
     :param val_split: a float in (0, 1) indicating the proportion of the training data to be used,
         as a stratified held-out validation set, for generating classifier predictions.
     :param num_warmup: number of warmup iterations for the MCMC sampler (default 500)
@@ -493,16 +496,17 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
         # Dictionary with posterior samples, set when `aggregate` is provided.
         self._samples = None
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Estimates the misclassification rates.
 
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the label predictions issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param classif_predictions: array-like with the label predictions returned by the classifier
+        :param labels: array-like with the true labels associated to each classifier prediction
         """
-        pred_labels, true_labels = classif_predictions.Xy
-        self._n_and_c_labeled = confusion_matrix(y_true=true_labels, y_pred=pred_labels, labels=self.classifier.classes_).astype(float)
+        pred_labels = classif_predictions
+        true_labels = labels
+        self._n_and_c_labeled = confusion_matrix(y_true=true_labels, y_pred=pred_labels,
+                                                 labels=self.classifier.classes_)
 
     def sample_from_posterior(self, classif_predictions):
         if self._n_and_c_labeled is None:

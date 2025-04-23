@@ -21,13 +21,13 @@ class QuaNetTrainer(BaseQuantifier):
     Example:
 
     >>> import quapy as qp
-    >>> from quapy.method_name.meta import QuaNet
+    >>> from quapy.method.meta import QuaNet
     >>> from quapy.classification.neural import NeuralClassifierTrainer, CNNnet
     >>>
     >>> # use samples of 100 elements
     >>> qp.environ['SAMPLE_SIZE'] = 100
     >>>
-    >>> # load the kindle dataset as text, and convert words to numerical indexes
+    >>> # load the Kindle dataset as text, and convert words to numerical indexes
     >>> dataset = qp.datasets.fetch_reviews('kindle', pickle=True)
     >>> qp.train.preprocessing.index(dataset, min_df=5, inplace=True)
     >>>
@@ -37,12 +37,14 @@ class QuaNetTrainer(BaseQuantifier):
     >>>
     >>> # train QuaNet (QuaNet is an alias to QuaNetTrainer)
     >>> model = QuaNet(classifier, qp.environ['SAMPLE_SIZE'], device='cuda')
-    >>> model.fit(dataset.training)
+    >>> model.fit(*dataset.training.Xy)
     >>> estim_prevalence = model.predict(dataset.test.instances)
 
     :param classifier: an object implementing `fit` (i.e., that can be trained on labelled data),
         `predict_proba` (i.e., that can generate posterior probabilities of unlabelled examples) and
         `transform` (i.e., that can generate embedded representations of the unlabelled instances).
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
     :param sample_size: integer, the sample size; default is None, meaning that the sample size should be
         taken from qp.environ["SAMPLE_SIZE"]
     :param n_epochs: integer, maximum number of training epochs
@@ -64,6 +66,7 @@ class QuaNetTrainer(BaseQuantifier):
 
     def __init__(self,
                  classifier,
+                 fit_classifier=True,
                  sample_size=None,
                  n_epochs=100,
                  tr_iter_per_poch=500,
@@ -86,6 +89,7 @@ class QuaNetTrainer(BaseQuantifier):
             f'the classifier {classifier.__class__.__name__} does not seem to be able to produce posterior probabilities ' \
                 f'since it does not implement the method "predict_proba"'
         self.classifier = classifier
+        self.fit_classifier = fit_classifier
         self.sample_size = qp._get_sample_size(sample_size)
         self.n_epochs = n_epochs
         self.tr_iter = tr_iter_per_poch
@@ -111,20 +115,21 @@ class QuaNetTrainer(BaseQuantifier):
         self.__check_params_colision(self.quanet_params, self.classifier.get_params())
         self._classes_ = None
 
-    def fit(self, data: LabelledCollection, fit_classifier=True):
+    def fit(self, X, y):
         """
         Trains QuaNet.
 
-        :param data: the training data on which to train QuaNet. If `fit_classifier=True`, the data will be split in
+        :param X: the training instances on which to train QuaNet. If `fit_classifier=True`, the data will be split in
             40/40/20 for training the classifier, training QuaNet, and validating QuaNet, respectively. If
             `fit_classifier=False`, the data will be split in 66/34 for training QuaNet and validating it, respectively.
-        :param fit_classifier: if True, trains the classifier on a split containing 40% of the data
+        :param y: the labels of X
         :return: self
         """
+        data = LabelledCollection(X, y)
         self._classes_ = data.classes_
         os.makedirs(self.checkpointdir, exist_ok=True)
 
-        if fit_classifier:
+        if self.fit_classifier:
             classifier_data, unused_data = data.split_stratified(0.4)
             train_data, valid_data = unused_data.split_stratified(0.66)  # 0.66 split of 60% makes 40% and 20%
             self.classifier.fit(*classifier_data.Xy)
