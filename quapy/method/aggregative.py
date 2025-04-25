@@ -67,8 +67,14 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
             assert val_split > 1, \
                 (f'when {val_split=} is indicated as an integer, it represents the number of folds in a kFCV '
                  f'and must thus be >1')
-            assert fit_classifier, (f'when {val_split=} is indicated as an integer (the number of folds for kFCV) '
-                                    f'the parameter {fit_classifier=} must be True')
+            if val_split==5 and not fit_classifier:
+                print(f'Warning: {val_split=} will be ignored when the classifier is already trained '
+                      f'({fit_classifier=}). Parameter {self.val_split=} will be set to None. Set {val_split=} '
+                      f'to None to avoid this warning.')
+                self.val_split=None
+            if val_split!=5:
+                assert fit_classifier, (f'Parameter {val_split=} has been modified, but {fit_classifier=} '
+                                        f'indicates the classifier should not be retrained.')
         elif isinstance(val_split, float):
             assert 0 < val_split < 1, \
                 (f'when {val_split=} is indicated as a float, it represents the fraction of training instances '
@@ -174,7 +180,9 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         elif self.val_split is None:
             if self.fit_classifier:
                 self.classifier.fit(X, y)
-            predictions, labels = None, None
+                predictions, labels = None, None
+            else:
+                predictions, labels = self.classify(X), y
         else:
             raise ValueError(f'unexpected type for {self.val_split=}')
 

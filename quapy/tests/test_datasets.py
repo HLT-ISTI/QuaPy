@@ -17,7 +17,7 @@ class TestDatasets(unittest.TestCase):
     def _check_dataset(self, dataset):
         q = self.new_quantifier()
         print(f'testing method {q} in {dataset.name}...', end='')
-        q.fit(dataset.training)
+        q.fit(*dataset.training.Xy)
         estim_prevalences = q.predict(dataset.test.instances)
         self.assertTrue(F.check_prevalence_vector(estim_prevalences))
         print(f'[done]')
@@ -89,7 +89,7 @@ class TestDatasets(unittest.TestCase):
             n_classes = train.n_classes
             train = train.sampling(100, *F.uniform_prevalence(n_classes))
             q = self.new_quantifier()
-            q.fit(train)
+            q.fit(*train.Xy)
             self._check_samples(gen_val, q, max_samples_test=5)
             self._check_samples(gen_test, q, max_samples_test=5)
 
@@ -102,7 +102,7 @@ class TestDatasets(unittest.TestCase):
             tfidf = TfidfVectorizer()
             train.instances = tfidf.fit_transform(train.instances)
             q = self.new_quantifier()
-            q.fit(train)
+            q.fit(*train.Xy)
             self._check_samples(gen_val, q, max_samples_test=5, vectorizer=tfidf)
             self._check_samples(gen_test, q, max_samples_test=5, vectorizer=tfidf)
 

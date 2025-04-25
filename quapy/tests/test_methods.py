@@ -48,9 +48,9 @@ class TestMethods(unittest.TestCase):
                     print(f'skipping the test of binary model {model.__name__} on multiclass dataset {dataset.name}')
                     continue
 
-                q = model(learner)
+                q = model(learner, fit_classifier=False)
                 print('testing', q)
-                q.fit(dataset.training, fit_classifier=False)
+                q.fit(*dataset.training.Xy)
                 estim_prevalences = q.predict(dataset.test.X)
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
