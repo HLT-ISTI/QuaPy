@@ -1,3 +1,18 @@
+Add the fix suggested by Alexander:
+
+For a more general application, I would maybe first stablish a per-class threshold value of plausible prevalence
+based on the number of actual positives and the required sample size; e.g., for sample_size=100 and actual
+positives [10, 100, 500] -> [0.1, 1.0, 1.0], meaning that class 0 can be sampled at most at 0.1 prevalence, while
+the others can be sampled up to 1. prevalence. Then, when a prevalence value is requested, e.g., [0.33, 0.33, 0.33],
+we may either clip each value and normalize (as you suggest for the extreme case, e.g., [0.1, 0.33, 0.33]/sum) or
+scale each value by per-class thresholds, i.e., [0.33*0.1, 0.33*1, 0.33*1]/sum.
+- This affects LabelledCollection
+- This functionality should be accessible via sampling protocols and evaluation functions
+
+Solve the pre-trained classifier issues. An example is the coptic-codes script I did, which needed a mock_lr to
+work for having access to classes_; think also the case in which the precomputed outputs are already generated
+as in the unifying problems code.
+
 Para quitar el labelledcollection de los métodos:
 
 - El follón viene por la semántica confusa de fit en agregativos, que recibe 3 parámetros:

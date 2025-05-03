@@ -106,7 +106,7 @@ class TestMethods(unittest.TestCase):
         from quapy.method.meta import QuaNet
         model = QuaNet(learner, device='cpu', n_epochs=2, tr_iter_per_poch=10, va_iter_per_poch=10, patience=2)
 
-        model.fit(dataset.training)
+        model.fit(*dataset.training.Xy)
         estim_prevalences = model.predict(dataset.test.instances)
         self.assertTrue(check_prevalence_vector(estim_prevalences))
 
@@ -114,7 +114,7 @@ class TestMethods(unittest.TestCase):
         for dataset in TestMethods.datasets:
             for q in COMPOSABLE_METHODS:
                 print('testing', q)
-                q.fit(dataset.training)
+                q.fit(*dataset.training.Xy)
                 estim_prevalences = q.predict(dataset.test.X)
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
