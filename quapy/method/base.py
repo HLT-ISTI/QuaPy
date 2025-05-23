@@ -46,7 +46,7 @@ class BaseQuantifier(BaseEstimator):
         :param X: array-like
         :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.
         """
-        ...
+        return self.predict(X)
 
 
 class BinaryQuantifier(BaseQuantifier):

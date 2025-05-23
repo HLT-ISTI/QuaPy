@@ -149,13 +149,13 @@ class QuaNetTrainer(BaseQuantifier):
         train_data_embed = LabelledCollection(self.classifier.transform(train_data.instances), train_data.labels, self._classes_)
 
         self.quantifiers = {
-            'cc': CC(self.classifier).fit(None, fit_classifier=False),
-            'acc': ACC(self.classifier).fit(None, fit_classifier=False, val_split=valid_data),
-            'pcc': PCC(self.classifier).fit(None, fit_classifier=False),
-            'pacc': PACC(self.classifier).fit(None, fit_classifier=False, val_split=valid_data),
+            'cc': CC(self.classifier, fit_classifier=False).fit(*valid_data.Xy),
+            'acc': ACC(self.classifier, fit_classifier=False).fit(*valid_data.Xy),
+            'pcc': PCC(self.classifier, fit_classifier=False).fit(*valid_data.Xy),
+            'pacc': PACC(self.classifier, fit_classifier=False).fit(*valid_data.Xy),
         }
         if classifier_data is not None:
-            self.quantifiers['emq'] = EMQ(self.classifier).fit(classifier_data, fit_classifier=False)
+            self.quantifiers['emq'] = EMQ(self.classifier, fit_classifier=False).fit(*valid_data.Xy)
 
         self.status = {
             'tr-loss': -1,

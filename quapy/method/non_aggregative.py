@@ -20,14 +20,16 @@ class MaximumLikelihoodPrevalenceEstimation(BaseQuantifier):
     def __init__(self):
         self._classes_ = None
 
-    def fit(self, data: LabelledCollection):
+    def fit(self, X, y):
         """
         Computes the training prevalence and stores it.
 
-        :param data: the training sample
+        :param X: array-like of shape `(n_samples, n_features)`, the training instances
+        :param y: array-like of shape `(n_samples,)`, the labels
         :return: self
         """
-        self.estimated_prevalence = data.prevalence()
+        self._classes_ = F.classes_from_labels(labels=y)
+        self.estimated_prevalence = F.prevalence_from_labels(y, classes=self._classes_)
         return self
 
     def predict(self, X):
@@ -114,9 +116,10 @@ class DMx(BaseQuantifier):
         """
         self.nfeats = X.shape[1]
         self.feat_ranges = _get_features_range(X)
+        n_classes = len(np.unique(y))
 
         self.validation_distribution = np.asarray(
-            [self.__get_distributions(X[y==cat]) for cat in range(data.n_classes)]
+            [self.__get_distributions(X[y==cat]) for cat in range(n_classes)]
         )
 
         return self

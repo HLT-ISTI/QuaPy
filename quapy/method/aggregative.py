@@ -100,7 +100,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         # consistency checks: fit_classifier?
         if self.fit_classifier:
             if fitted:
-                raise RuntimeWarning(f'the classifier is already fitted, by {fit_classifier=} was requested')
+                raise RuntimeWarning(f'the classifier is already fitted, but {fit_classifier=} was requested')
         else:
             assert fitted, (f'{fit_classifier=} requires the classifier to be already trained, '
                             f'but this does not seem to be')
@@ -158,7 +158,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
 
         predictions, labels = None, None
         if isinstance(self.val_split, int):
-            assert self.fit_classifier, f'unexpected value for {self.fit_classifier=}'
+            assert self.fit_classifier, f'{self.__class__}: unexpected value for {self.fit_classifier=}'
             num_folds = self.val_split
             n_jobs = self.n_jobs if hasattr(self, 'n_jobs') else qp._get_njobs(None)
             predictions = cross_val_predict(self.classifier, X, y, cv=num_folds, n_jobs=n_jobs, method=self._classifier_method())
@@ -717,7 +717,7 @@ class EMQ(AggregativeSoftQuantifier):
         super().__init__(classifier, fit_classifier, val_split)
         self.exact_train_prev = exact_train_prev
         self.calib = calib
-        self.on_calib_errors = on_calib_error
+        self.on_calib_error = on_calib_error
         self.n_jobs = n_jobs
 
     @classmethod
@@ -790,9 +790,9 @@ class EMQ(AggregativeSoftQuantifier):
         try:
             self.calibration_function = calibrator(P, np.eye(n_classes)[y], posterior_supplied=True)
         except Exception as e:
-            if self.on_calib_errors == 'raise':
+            if self.on_calib_error == 'raise':
                 raise RuntimeError(f'calibration {self.calib} failed at fit time: {e}')
-            elif self.on_calib_errors == 'backup':
+            elif self.on_calib_error == 'backup':
                 self.calibration_function = lambda P: P
 
     def _calibrate_if_requested(self, uncalib_posteriors):
@@ -800,12 +800,12 @@ class EMQ(AggregativeSoftQuantifier):
             try:
                 calib_posteriors = self.calibration_function(uncalib_posteriors)
             except Exception as e:
-                if self.on_calib_errors == 'raise':
+                if self.on_calib_error == 'raise':
                     raise RuntimeError(f'calibration {self.calib} failed at predict time: {e}')
-                elif self.on_calib_errors == 'backup':
+                elif self.on_calib_error == 'backup':
                     calib_posteriors = uncalib_posteriors
                 else:
-                    raise ValueError(f'unexpected {self.on_calib_errors=}; '
+                    raise ValueError(f'unexpected {self.on_calib_error=}; '
                                      f'valid options are {EMQ.ON_CALIB_ERROR_VALUES}')
             return calib_posteriors
         return uncalib_posteriors

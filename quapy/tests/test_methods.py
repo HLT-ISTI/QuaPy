@@ -64,7 +64,7 @@ class TestMethods(unittest.TestCase):
 
                 q = model()
                 print(f'testing {q} on dataset {dataset.name}')
-                q.fit(dataset.training)
+                q.fit(*dataset.training.Xy)
                 estim_prevalences = q.predict(dataset.test.X)
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
@@ -80,7 +80,7 @@ class TestMethods(unittest.TestCase):
 
             print(f'testing {base_quantifier} on dataset {dataset.name} with {policy=}')
             ensemble = Ensemble(quantifier=base_quantifier, size=3, policy=policy, n_jobs=-1)
-            ensemble.fit(dataset.training)
+            ensemble.fit(*dataset.training.Xy)
             estim_prevalences = ensemble.predict(dataset.test.instances)
             self.assertTrue(check_prevalence_vector(estim_prevalences))
 
@@ -116,6 +116,7 @@ class TestMethods(unittest.TestCase):
                 print('testing', q)
                 q.fit(*dataset.training.Xy)
                 estim_prevalences = q.predict(dataset.test.X)
+                print(estim_prevalences)
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
 
