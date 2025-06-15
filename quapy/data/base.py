@@ -319,6 +319,15 @@ class LabelledCollection:
         return LabelledCollection(instances, labels, classes=classes)
 
     @property
+    def classes(self):
+        """
+        Gets an array-like with the classes used in this collection
+
+        :return: array-like
+        """
+        return self.classes_
+
+    @property
     def Xy(self):
         """
         Gets the instances and labels. This is useful when working with `sklearn` estimators, e.g.:

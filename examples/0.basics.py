@@ -37,7 +37,7 @@ classifier = LogisticRegression()
 pacc = qp.method.aggregative.PACC(classifier)
 
 print(f'training {pacc}')
-pacc.fit(train)
+pacc.fit(X, y)
 
 # let's now test our quantifier on the test data (of course, we should not use the test labels y at this point, only X)
 X_test = test.X

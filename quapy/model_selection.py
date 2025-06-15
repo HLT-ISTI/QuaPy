@@ -109,7 +109,7 @@ class GridSearchQ(BaseQuantifier):
 
         def job(cls_params):
             model.set_params(**cls_params)
-            predictions = model.classifier_fit_predict(self._training)
+            predictions = model.classifier_fit_predict(self._training_X, self._training_y)
             return predictions
 
         predictions, status, took = self._error_handler(job, cls_params)
@@ -123,7 +123,8 @@ class GridSearchQ(BaseQuantifier):
 
         def job(q_params):
             model.set_params(**q_params)
-            model.aggregation_fit(predictions, self._training)
+            P, y = predictions
+            model.aggregation_fit(P, y)
             score = evaluation.evaluate(model, protocol=self.protocol, error_metric=self.error)
             return score
 
@@ -136,7 +137,7 @@ class GridSearchQ(BaseQuantifier):
 
         def job(params):
             model.set_params(**params)
-            model.fit(self._training)
+            model.fit(self._training_X, self._training_y)
             score = evaluation.evaluate(model, protocol=self.protocol, error_metric=self.error)
             return score
 
@@ -159,17 +160,19 @@ class GridSearchQ(BaseQuantifier):
             return False
         return True
 
-    def _compute_scores_aggregative(self, training):
+    def _compute_scores_aggregative(self, X, y):
         # break down the set of hyperparameters into two: classifier-specific, quantifier-specific
         cls_configs, q_configs = group_params(self.param_grid)
 
         # train all classifiers and get the predictions
-        self._training = training
+        self._training_X = X
+        self._training_y = y
         cls_outs = qp.util.parallel(
             self._prepare_classifier,
             cls_configs,
             seed=qp.environ.get('_R_SEED', None),
-            n_jobs=self.n_jobs
+            n_jobs=self.n_jobs,
+            asarray=False
         )
 
         # filter out classifier configurations that yielded any error
@@ -194,9 +197,10 @@ class GridSearchQ(BaseQuantifier):
 
         return aggr_outs
 
-    def _compute_scores_nonaggregative(self, training):
+    def _compute_scores_nonaggregative(self, X, y):
         configs = expand_grid(self.param_grid)
-        self._training = training
+        self._training_X = X
+        self._training_y = y
         scores = qp.util.parallel(
             self._prepare_nonaggr_model,
             configs,
@@ -211,11 +215,12 @@ class GridSearchQ(BaseQuantifier):
         else:
             self._sout(f'error={status}')
 
-    def fit(self, training: LabelledCollection):
+    def fit(self, X, y):
         """ Learning routine. Fits methods with all combinations of hyperparameters and selects the one minimizing
             the error metric.
 
-        :param training: the training set on which to optimize the hyperparameters
+        :param X: array-like, training covariates
+        :param y: array-like, labels of training data
         :return: self
         """
 
@@ -231,9 +236,9 @@ class GridSearchQ(BaseQuantifier):
 
         self._sout(f'starting model selection with n_jobs={self.n_jobs}')
         if self._break_down_fit():
-            results = self._compute_scores_aggregative(training)
+            results = self._compute_scores_aggregative(X, y)
         else:
-            results = self._compute_scores_nonaggregative(training)
+            results = self._compute_scores_nonaggregative(X, y)
 
         self.param_scores_ = {}
         self.best_score_ = None
@@ -266,7 +271,10 @@ class GridSearchQ(BaseQuantifier):
             if isinstance(self.protocol, OnLabelledCollectionProtocol):
                 tinit = time()
                 self._sout(f'refitting on the whole development set')
-                self.best_model_.fit(training + self.protocol.get_labelled_collection())
+                validation_collection = self.protocol.get_labelled_collection()
+                training_collection = LabelledCollection(X, y, classes=validation_collection.classes)
+                devel_collection = training_collection + validation_collection
+                self.best_model_.fit(*devel_collection.Xy)
                 tend = time() - tinit
                 self.refit_time_ = tend
             else:

@@ -12,9 +12,11 @@ In this example, we show how to perform model selection on a DistributionMatchin
 model = DMy()
 
 qp.environ['SAMPLE_SIZE'] = 100
+qp.environ['N_JOBS'] = -1
 
 print(f'running model selection with N_JOBS={qp.environ["N_JOBS"]}; '
-      f'to increase the number of jobs use:\n> N_JOBS=-1 python3 1.model_selection.py\n'
+      f'to increase/decrease the number of jobs use:\n'
+      f'> N_JOBS=-1 python3 1.model_selection.py\n'
       f'alternatively, you can set this variable within the script as:\n'
       f'import quapy as qp\n'
       f'qp.environ["N_JOBS"]=-1')
@@ -50,6 +52,7 @@ with qp.util.temp_seed(0):
 
     tinit = time()
 
+    Xtr, ytr = training.Xy
     model = qp.model_selection.GridSearchQ(
         model=model,
         param_grid=param_grid,
@@ -58,7 +61,7 @@ with qp.util.temp_seed(0):
         refit=False,   # retrain on the whole labelled set once done
         # raise_errors=False,
         verbose=True  # show information as the process goes on
-    ).fit(training)
+    ).fit(Xtr, ytr)
 
 tend = time()
 
