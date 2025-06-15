@@ -450,8 +450,17 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
 
     :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
         the one indicated in `qp.environ['DEFAULT_CLS']`
-    :param val_split: a float in (0, 1) indicating the proportion of the training data to be used,
-        as a stratified held-out validation set, for generating classifier predictions.
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+        This hyperparameter is only meant to be used when the heuristics are to be applied, i.e., if a
+        calibration is required. The default value is None (meaning the calibration is not required). In
+        case this hyperparameter is set to a value other than None, but the calibration is not required
+        (calib=None), a warning message will be raised.
     :param num_warmup: number of warmup iterations for the MCMC sampler (default 500)
     :param num_samples: number of samples to draw from the posterior (default 1000)
     :param mcmc_seed: random seed for the MCMC sampler (default 0)
@@ -462,6 +471,7 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
     """
     def __init__(self,
                  classifier: BaseEstimator=None,
+                 fit_classifier=True,
                  val_split: int = 5,
                  num_warmup: int = 500,
                  num_samples: int = 1_000,
@@ -480,8 +490,7 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
         if _bayesian.DEPENDENCIES_INSTALLED is False:
             raise ImportError("Auxiliary dependencies are required. Run `$ pip install quapy[bayes]` to install them.")
 
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+        super().__init__(classifier, fit_classifier, val_split)
         self.num_warmup = num_warmup
         self.num_samples = num_samples
         self.mcmc_seed = mcmc_seed

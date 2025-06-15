@@ -64,7 +64,7 @@ class TestMethods(unittest.TestCase):
 
                 q = model()
                 print(f'testing {q} on dataset {dataset.name}')
-                q.fit(dataset.training)
+                q.fit(*dataset.training.Xy)
                 estim_prevalences = q.predict(dataset.test.X)
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 

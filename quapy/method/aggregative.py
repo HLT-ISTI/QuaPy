@@ -717,7 +717,7 @@ class EMQ(AggregativeSoftQuantifier):
         super().__init__(classifier, fit_classifier, val_split)
         self.exact_train_prev = exact_train_prev
         self.calib = calib
-        self.on_calib_errors = on_calib_error
+        self.on_calib_error = on_calib_error
         self.n_jobs = n_jobs
 
     @classmethod
@@ -790,9 +790,9 @@ class EMQ(AggregativeSoftQuantifier):
         try:
             self.calibration_function = calibrator(P, np.eye(n_classes)[y], posterior_supplied=True)
         except Exception as e:
-            if self.on_calib_errors == 'raise':
+            if self.on_calib_error == 'raise':
                 raise RuntimeError(f'calibration {self.calib} failed at fit time: {e}')
-            elif self.on_calib_errors == 'backup':
+            elif self.on_calib_error == 'backup':
                 self.calibration_function = lambda P: P
 
     def _calibrate_if_requested(self, uncalib_posteriors):
@@ -800,12 +800,12 @@ class EMQ(AggregativeSoftQuantifier):
             try:
                 calib_posteriors = self.calibration_function(uncalib_posteriors)
             except Exception as e:
-                if self.on_calib_errors == 'raise':
+                if self.on_calib_error == 'raise':
                     raise RuntimeError(f'calibration {self.calib} failed at predict time: {e}')
-                elif self.on_calib_errors == 'backup':
+                elif self.on_calib_error == 'backup':
                     calib_posteriors = uncalib_posteriors
                 else:
-                    raise ValueError(f'unexpected {self.on_calib_errors=}; '
+                    raise ValueError(f'unexpected {self.on_calib_error=}; '
                                      f'valid options are {EMQ.ON_CALIB_ERROR_VALUES}')
             return calib_posteriors
         return uncalib_posteriors

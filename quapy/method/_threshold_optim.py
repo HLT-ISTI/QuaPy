@@ -34,7 +34,7 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
     """
 
     def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=None, n_jobs=None):
-        super.__init__(classifier, fit_classifier, val_split)
+        super().__init__(classifier, fit_classifier, val_split)
         self.n_jobs = qp._get_njobs(n_jobs)
 
     @abstractmethod

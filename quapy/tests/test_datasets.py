@@ -106,7 +106,6 @@ class TestDatasets(unittest.TestCase):
             self._check_samples(gen_val, q, max_samples_test=5, vectorizer=tfidf)
             self._check_samples(gen_test, q, max_samples_test=5, vectorizer=tfidf)
 
-
     def test_IFCB(self):
         if os.environ.get('QUAPY_TESTS_OMIT_LARGE_DATASETS'):
             print("omitting test_IFCB because QUAPY_TESTS_OMIT_LARGE_DATASETS is set")

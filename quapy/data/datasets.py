@@ -548,25 +548,20 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, standardize=
         """
         if name == "acute.a":
             X, y = data["X"], data["y"][:, 0]
-            # X, y = Xy[:, :-2], Xy[:, -2]
         elif name == "acute.b":
             X, y = data["X"], data["y"][:, 1]
-            # X, y = Xy[:, :-2], Xy[:, -1]
         elif name == "wine-q-red":
             X, y, color = data["X"], data["y"], data["color"]
-            # X, y, color = Xy[:, :-2], Xy[:, -2], Xy[:, -1]
             red_idx = color == "red"
             X, y = X[red_idx, :], y[red_idx]
             y = (y > 5).astype(int)
         elif name == "wine-q-white":
             X, y, color = data["X"], data["y"], data["color"]
-            # X, y, color = Xy[:, :-2], Xy[:, -2], Xy[:, -1]
             white_idx = color == "white"
             X, y = X[white_idx, :], y[white_idx]
             y = (y > 5).astype(int)
         else:
             X, y = data["X"], data["y"]
-            # X, y = Xy[:, :-1], Xy[:, -1]
 
         y = binarize(y, pos_class=pos_class[name])
 
