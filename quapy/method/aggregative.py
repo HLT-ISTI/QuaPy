@@ -100,7 +100,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         # consistency checks: fit_classifier?
         if self.fit_classifier:
             if fitted:
-                raise RuntimeWarning(f'the classifier is already fitted, by {fit_classifier=} was requested')
+                raise RuntimeWarning(f'the classifier is already fitted, but {fit_classifier=} was requested')
         else:
             assert fitted, (f'{fit_classifier=} requires the classifier to be already trained, '
                             f'but this does not seem to be')
@@ -158,7 +158,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
 
         predictions, labels = None, None
         if isinstance(self.val_split, int):
-            assert self.fit_classifier, f'unexpected value for {self.fit_classifier=}'
+            assert self.fit_classifier, f'{self.__class__}: unexpected value for {self.fit_classifier=}'
             num_folds = self.val_split
             n_jobs = self.n_jobs if hasattr(self, 'n_jobs') else qp._get_njobs(None)
             predictions = cross_val_predict(self.classifier, X, y, cv=num_folds, n_jobs=n_jobs, method=self._classifier_method())

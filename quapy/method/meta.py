@@ -414,15 +414,15 @@ def _delayed_new_instance(args):
     sample = data.sampling_from_index(sample_index)
 
     if val_split is not None:
-        model.fit(sample, val_split=val_split)
+        model.fit(*sample.Xy, val_split=val_split)
     else:
-        model.fit(sample)
+        model.fit(*sample.Xy)
 
     tr_prevalence = sample.prevalence()
     tr_distribution = get_probability_distribution(posteriors[sample_index]) if (posteriors is not None) else None
 
     if verbose:
-        print(f'\t\--fit-ended for prev {F.strprev(prev)}')
+        print(f'\t--fit-ended for prev {F.strprev(prev)}')
 
     return (model, tr_prevalence, tr_distribution, sample if keep_samples else None)
 

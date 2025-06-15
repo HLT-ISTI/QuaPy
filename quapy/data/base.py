@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
 from numpy.random import RandomState
 from quapy.functional import strprev
 from quapy.util import temp_seed
+import functional as F
 
 
 class LabelledCollection:
@@ -34,8 +35,7 @@ class LabelledCollection:
         self.labels = np.asarray(labels)
         n_docs = len(self)
         if classes is None:
-            self.classes_ = np.unique(self.labels)
-            self.classes_.sort()
+            self.classes_ = F.classes_from_labels(self.labels)
         else:
             self.classes_ = np.unique(np.asarray(classes))
             self.classes_.sort()
