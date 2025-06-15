@@ -1,13 +1,21 @@
 """This module allows the composition of quantification methods from loss functions and feature transformations. This functionality is realized through an integration of the qunfold package: https://github.com/mirkobunse/qunfold."""
 
-_import_error_message = """qunfold, the back-end of quapy.method.composable, is not properly installed.
-
+__install_istructions = """
 To fix this error, call:
 
     pip install --upgrade pip setuptools wheel
     pip install "jax[cpu]"
-    pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4"
+    pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.5"
 """
+__import_error_message = (
+        "qunfold, the back-end of quapy.method.composable, is not properly installed." + __install_istructions
+)
+__old_version_message = (
+    "The version of qunfold you have installed is not compatible with current quapy's version, "
+    "which requires qunfold>=0.1.5. " + __install_istructions
+)
+
+from packaging.version import Version
 
 try:
     import qunfold
@@ -51,7 +59,19 @@ try:
         "GaussianRFFKernelTransformer",
     ]
 except ImportError as e:
-    raise ImportError(_import_error_message) from e
+    raise ImportError(__import_error_message) from e
+
+
+def check_compatible_qunfold_version():
+    try:
+        version_str = qunfold.__version__
+    except AttributeError:
+        # versions of qunfold <= 0.1.4 did not declare __version__ in the __init__.py but only in the setup.py
+        version_str = "0.1.4"
+
+    compatible = Version(version_str) >= Version("0.1.5")
+    return compatible
+
 
 def ComposableQuantifier(loss, transformer, **kwargs):
     """A generic quantification / unfolding method that solves a linear system of equations.
@@ -99,4 +119,7 @@ def ComposableQuantifier(loss, transformer, **kwargs):
             >>>     ClassTransformer(CVClassifier(LogisticRegression(), 10))
             >>> )
         """
+    if not check_compatible_qunfold_version():
+        raise ImportError(__old_version_message)
+
     return QuaPyWrapper(qunfold.GenericMethod(loss, transformer, **kwargs))

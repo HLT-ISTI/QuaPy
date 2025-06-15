@@ -1,3 +1,5 @@
+Update READMEs, wiki, & examples for new fit-predict interface
+
 Add the fix suggested by Alexander:
 
 For a more general application, I would maybe first stablish a per-class threshold value of plausible prevalence

@@ -17,6 +17,7 @@ from quapy.method.composable import (
     ClassTransformer,
     HistogramTransformer,
     CVClassifier,
+    check_compatible_qunfold_version
 )
 COMPOSABLE_METHODS = [
     ComposableQuantifier( # ACC
@@ -111,13 +112,18 @@ class TestMethods(unittest.TestCase):
         self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_composable(self):
-        for dataset in TestMethods.datasets:
-            for q in COMPOSABLE_METHODS:
-                print('testing', q)
-                q.fit(*dataset.training.Xy)
-                estim_prevalences = q.predict(dataset.test.X)
-                print(estim_prevalences)
-                self.assertTrue(check_prevalence_vector(estim_prevalences))
+        from packaging.version import Version
+        if check_compatible_qunfold_version():
+            for dataset in TestMethods.datasets:
+                for q in COMPOSABLE_METHODS:
+                    print('testing', q)
+                    q.fit(*dataset.training.Xy)
+                    estim_prevalences = q.predict(dataset.test.X)
+                    print(estim_prevalences)
+                    self.assertTrue(check_prevalence_vector(estim_prevalences))
+        else:
+            from quapy.method.composable import __old_version_message
+            print(__old_version_message)
 
 
 if __name__ == '__main__':

@@ -15,6 +15,7 @@ CLEAN TODO-FILE
         my_acc.fit(the_data, fit_classifier=False)
         in which case the_data is to be used for validation purposes. However, the val_split could be set as a fraction
         indicating only part of the_data must be used for validation, and the rest wasted... it was certainly confusing.
+    - This change imposes a versioning constrain with qunfold, which now must be >= 0.1.6
 - EMQ has been modified, so that the representation function "classify" now only provides posterior
     probabilities and, if required, these are recalibrated (e.g., by "bcts") during the aggregation function.
     - A new parameter "on_calib_error" is passed to the constructor, which informs of the policy to follow
