@@ -1,3 +1,5 @@
+Allow n_prevpoints in APP to be specified by a user-defined grid?
+
 Update READMEs, wiki, & examples for new fit-predict interface
 
 Add the fix suggested by Alexander:
