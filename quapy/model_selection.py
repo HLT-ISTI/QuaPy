@@ -372,7 +372,7 @@ def cross_val_predict(quantifier: BaseQuantifier, data: LabelledCollection, nfol
     total_prev = np.zeros(shape=data.n_classes)
 
     for train, test in data.kFCV(nfolds=nfolds, random_state=random_state):
-        quantifier.fit(train)
+        quantifier.fit(*train.Xy)
         fold_prev = quantifier.predict(test.X)
         rel_size = 1. * len(test) / len(data)
         total_prev += fold_prev*rel_size

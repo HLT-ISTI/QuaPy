@@ -13,17 +13,18 @@ class TestReplicability(unittest.TestCase):
     def test_prediction_replicability(self):
 
         dataset = qp.datasets.fetch_UCIBinaryDataset('yeast')
+        train, test = dataset.train_test
 
         with qp.util.temp_seed(0):
             lr = LogisticRegression(random_state=0, max_iter=10000)
             pacc = PACC(lr)
-            prev = pacc.fit(dataset.training).predict(dataset.test.X)
+            prev = pacc.fit(*train.Xy).predict(test.X)
             str_prev1 = strprev(prev, prec=5)
 
         with qp.util.temp_seed(0):
             lr = LogisticRegression(random_state=0, max_iter=10000)
             pacc = PACC(lr)
-            prev2 = pacc.fit(dataset.training).predict(dataset.test.X)
+            prev2 = pacc.fit(*train.Xy).predict(test.X)
             str_prev2 = strprev(prev2, prec=5)
 
         self.assertEqual(str_prev1, str_prev2)
@@ -83,18 +84,18 @@ class TestReplicability(unittest.TestCase):
         test = test.sampling(500, *[0.1, 0.0, 0.1, 0.1, 0.2, 0.5, 0.0])
 
         with qp.util.temp_seed(10):
-            pacc = PACC(LogisticRegression(), val_split=2, n_jobs=2)
-            pacc.fit(train, val_split=0.5)
+            pacc = PACC(LogisticRegression(), val_split=.5, n_jobs=2)
+            pacc.fit(*train.Xy)
             prev1 = F.strprev(pacc.predict(test.instances))
 
         with qp.util.temp_seed(0):
-            pacc = PACC(LogisticRegression(), val_split=2, n_jobs=2)
-            pacc.fit(train, val_split=0.5)
+            pacc = PACC(LogisticRegression(), val_split=.5, n_jobs=2)
+            pacc.fit(*train.Xy)
             prev2 = F.strprev(pacc.predict(test.instances))
 
         with qp.util.temp_seed(0):
-            pacc = PACC(LogisticRegression(), val_split=2, n_jobs=2)
-            pacc.fit(train, val_split=0.5)
+            pacc = PACC(LogisticRegression(), val_split=.5, n_jobs=2)
+            pacc.fit(*train.Xy)
             prev3 = F.strprev(pacc.predict(test.instances))
 
         print(prev1)

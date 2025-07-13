@@ -1,3 +1,7 @@
+Adapt examples; remaining: example 4-onwards
+
+Add 'platt' to calib options in EMQ?
+
 Allow n_prevpoints in APP to be specified by a user-defined grid?
 
 Update READMEs, wiki, & examples for new fit-predict interface

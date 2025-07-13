@@ -23,6 +23,12 @@ print(f'running model selection with N_JOBS={qp.environ["N_JOBS"]}; '
 
 training, test = qp.datasets.fetch_UCIMulticlassDataset('letter').train_test
 
+# evaluation in terms of MAE with default hyperparameters
+model.fit(*training.Xy)
+mae_score = qp.evaluation.evaluate(model, protocol=UPP(test), error_metric='mae')
+print(f'MAE (non optimized)={mae_score:.5f}')
+
+
 with qp.util.temp_seed(0):
 
     # The model will be returned by the fit method of GridSearchQ.

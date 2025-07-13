@@ -10,15 +10,17 @@ from quapy.method import AGGREGATIVE_METHODS, BINARY_METHODS, NON_AGGREGATIVE_ME
 from quapy.functional import check_prevalence_vector
 
 # a random selection of composed methods to test the qunfold integration
+from quapy.method.composable import check_compatible_qunfold_version
+
 from quapy.method.composable import (
     ComposableQuantifier,
     LeastSquaresLoss,
     HellingerSurrogateLoss,
     ClassTransformer,
     HistogramTransformer,
-    CVClassifier,
-    check_compatible_qunfold_version
+    CVClassifier
 )
+
 COMPOSABLE_METHODS = [
     ComposableQuantifier( # ACC
         LeastSquaresLoss(),
@@ -70,7 +72,6 @@ class TestMethods(unittest.TestCase):
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_ensembles(self):
-
         qp.environ['SAMPLE_SIZE'] = 10
 
         base_quantifier = ACC(LogisticRegression())

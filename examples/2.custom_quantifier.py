@@ -31,8 +31,7 @@ class MyQuantifier(BaseQuantifier):
         self.alpha = alpha
         self.classifier = classifier
 
-    # in general, we would need to implement the method fit(self, data: LabelledCollection, fit_classifier=True,
-    # val_split=None); this would amount to:
+    # in general, we would need to implement the method fit(self, X, y); this would amount to:
     def fit(self, X, y):
         n_classes = F.num_classes_from_labels(y)
         assert n_classes==2, \
@@ -61,8 +60,9 @@ class MyQuantifier(BaseQuantifier):
 class MyAggregativeSoftQuantifier(AggregativeSoftQuantifier, BinaryQuantifier):
 
     def __init__(self, classifier, alpha=0.5):
-        # aggregative quantifiers have an internal attribute called self.classifier
-        self.classifier = classifier
+        # aggregative quantifiers have an internal attribute called self.classifier, but this is defined
+        # within the super's init
+        super().__init__(classifier, fit_classifier=True, val_split=None)
         self.alpha = alpha
 
     # since this method is of type aggregative, we can simply implement the method aggregation_fit, which
@@ -144,7 +144,7 @@ if __name__ == '__main__':
         evaluation took 4.66s [MAE = 0.0630]
     """
     # Note that the first implementation is much slower, both in terms of grid-search optimization and in terms of
-    # evaluation. The reason why is that QuaPy is highly optimized for aggregative quantifiers (by far, the most
+    # evaluation. The reason why, is that QuaPy is highly optimized for aggregative quantifiers (by far, the most
     # popular type of quantification methods), thus significantly speeding up model selection and test routines.
     # Furthermore, it is simpler to extend an aggregation type since QuaPy implements boilerplate functions for you.
 

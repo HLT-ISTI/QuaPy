@@ -52,18 +52,12 @@ class TestDatasets(unittest.TestCase):
 
     def test_UCIBinaryDataset(self):
         for dataset_name in UCI_BINARY_DATASETS:
-            try:
-                print(f'loading dataset {dataset_name}...', end='')
-                dataset = fetch_UCIBinaryDataset(dataset_name)
-                dataset.stats()
-                dataset.reduce()
-                print(f'[done]')
-                self._check_dataset(dataset)
-            except FileNotFoundError as fnfe:
-                if dataset_name == 'pageblocks.5' and fnfe.args[0].find(
-                        'If this is the first time you attempt to load this dataset') > 0:
-                    print('The pageblocks.5 dataset requires some hand processing to be usable; skipping this test.')
-                    continue
+            print(f'loading dataset {dataset_name}...', end='')
+            dataset = fetch_UCIBinaryDataset(dataset_name)
+            dataset.stats()
+            dataset.reduce()
+            print(f'[done]')
+            self._check_dataset(dataset)
 
     def test_UCIMultiDataset(self):
         for dataset_name in UCI_MULTICLASS_DATASETS:
@@ -83,7 +77,7 @@ class TestDatasets(unittest.TestCase):
             return
 
         for dataset_name in LEQUA2022_VECTOR_TASKS:
-            print(f'loading dataset {dataset_name}...', end='')
+            print(f'LeQu2022: loading dataset {dataset_name}...', end='')
             train, gen_val, gen_test = fetch_lequa2022(dataset_name)
             train.stats()
             n_classes = train.n_classes
@@ -94,7 +88,7 @@ class TestDatasets(unittest.TestCase):
             self._check_samples(gen_test, q, max_samples_test=5)
 
         for dataset_name in LEQUA2022_TEXT_TASKS:
-            print(f'loading dataset {dataset_name}...', end='')
+            print(f'LeQu2022: loading dataset {dataset_name}...', end='')
             train, gen_val, gen_test = fetch_lequa2022(dataset_name)
             train.stats()
             n_classes = train.n_classes
@@ -105,6 +99,23 @@ class TestDatasets(unittest.TestCase):
             q.fit(*train.Xy)
             self._check_samples(gen_val, q, max_samples_test=5, vectorizer=tfidf)
             self._check_samples(gen_test, q, max_samples_test=5, vectorizer=tfidf)
+
+    def test_lequa2024(self):
+        if os.environ.get('QUAPY_TESTS_OMIT_LARGE_DATASETS'):
+            print("omitting test_lequa2024 because QUAPY_TESTS_OMIT_LARGE_DATASETS is set")
+            return
+
+        for task in LEQUA2024_TASKS:
+            print(f'LeQu2024: loading task {task}...', end='')
+            train, gen_val, gen_test = fetch_lequa2024(task, merge_T3=True)
+            train.stats()
+            n_classes = train.n_classes
+            train = train.sampling(100, *F.uniform_prevalence(n_classes))
+            q = self.new_quantifier()
+            q.fit(*train.Xy)
+            self._check_samples(gen_val, q, max_samples_test=5)
+            self._check_samples(gen_test, q, max_samples_test=5)
+
 
     def test_IFCB(self):
         if os.environ.get('QUAPY_TESTS_OMIT_LARGE_DATASETS'):

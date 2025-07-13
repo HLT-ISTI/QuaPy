@@ -58,11 +58,11 @@ param_grid = {
 }
 print('starting model selection')
 model_selection = GridSearchQ(quantifier, param_grid, protocol=UPP(val), verbose=True, refit=False)
-quantifier = model_selection.fit(train_modsel).best_model()
+quantifier = model_selection.fit(*train_modsel.Xy).best_model()
 
 print('training on the whole training set')
 train, test = qp.datasets.fetch_twitter('hcr', for_model_selection=False, pickle=True).train_test
-quantifier.fit(train)
+quantifier.fit(*train.Xy)
 
 # evaluation
 mae = qp.evaluation.evaluate(quantifier, protocol=UPP(test), error_metric='mae')

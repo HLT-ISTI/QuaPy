@@ -784,6 +784,8 @@ class EMQ(AggregativeSoftQuantifier):
     def _fit_calibration(self, calibrator, P, y):
         n_classes = len(self.classes_)
 
+        print(y, 'Y')
+        print(y.dtype, 'DTYPE')
         if not np.issubdtype(y.dtype, np.number):
             y = np.searchsorted(self.classes_, y)
 

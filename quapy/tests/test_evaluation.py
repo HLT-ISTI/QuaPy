@@ -29,7 +29,7 @@ class EvalTestCase(unittest.TestCase):
                 time.sleep(1)
                 return super().predict_proba(X)
 
-        emq = EMQ(SlowLR()).fit(train)
+        emq = EMQ(SlowLR()).fit(*train.Xy)
 
         tinit = time()
         score = qp.evaluation.evaluate(emq, protocol, error_metric='mae', verbose=True, aggr_speedup='force')
@@ -44,11 +44,11 @@ class EvalTestCase(unittest.TestCase):
             def predict(self, X):
                 return self.emq.predict(X)
 
-            def fit(self, data):
-                self.emq.fit(data)
+            def fit(self, X, y):
+                self.emq.fit(X, y)
                 return self
 
-        emq = NonAggregativeEMQ(SlowLR()).fit(train)
+        emq = NonAggregativeEMQ(SlowLR()).fit(*train.Xy)
 
         tinit = time()
         score = qp.evaluation.evaluate(emq, protocol, error_metric='mae', verbose=True)
@@ -69,7 +69,7 @@ class EvalTestCase(unittest.TestCase):
 
         protocol = qp.protocol.APP(test, random_state=0)
 
-        q = PCC(LogisticRegression()).fit(train)
+        q = PCC(LogisticRegression()).fit(*train.Xy)
 
         single_errors = list(QUANTIFICATION_ERROR_SINGLE_NAMES)
         averaged_errors = ['m'+e for e in single_errors]
