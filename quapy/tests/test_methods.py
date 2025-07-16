@@ -14,20 +14,20 @@ from quapy.method.composable import (
     ComposableQuantifier,
     LeastSquaresLoss,
     HellingerSurrogateLoss,
-    ClassTransformer,
-    HistogramTransformer,
+    ClassRepresentation,
+    HistogramRepresentation,
     CVClassifier,
 )
 COMPOSABLE_METHODS = [
     ComposableQuantifier( # ACC
         LeastSquaresLoss(),
-        ClassTransformer(CVClassifier(LogisticRegression()))
+        ClassRepresentation(CVClassifier(LogisticRegression()))
     ),
     ComposableQuantifier( # HDy
         HellingerSurrogateLoss(),
-        HistogramTransformer(
+        HistogramRepresentation(
             3, # 3 bins per class
-            preprocessor = ClassTransformer(CVClassifier(LogisticRegression()))
+            preprocessor = ClassRepresentation(CVClassifier(LogisticRegression()))
         )
     ),
 ]
