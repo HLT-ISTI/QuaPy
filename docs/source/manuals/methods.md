@@ -447,7 +447,7 @@ The [](quapy.method.composable) module allows the composition of quantification 
 ```sh
 pip install --upgrade pip setuptools wheel
 pip install "jax[cpu]"
-pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4"
+pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.5"
 ```
 
 ### Basics
@@ -455,9 +455,16 @@ pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4"
 The composition of a method is implemented through the [](quapy.method.composable.ComposableQuantifier) class. Its documentation also features an example to get you started in composing your own methods.
 
 ```python
+from quapy.method.composable import (
+    ComposableQuantifier,
+    TikhonovRegularized,
+    LeastSquaresLoss,
+    ClassRepresentation,
+)
+
 ComposableQuantifier( # ordinal ACC, as proposed by Bunse et al., 2022
-  TikhonovRegularized(LeastSquaresLoss(), 0.01),
-  ClassTransformer(RandomForestClassifier(oob_score=True))
+    TikhonovRegularized(LeastSquaresLoss(), 0.01),
+    ClassRepresentation(RandomForestClassifier(oob_score=True))
 )
 ```
 
@@ -484,16 +491,16 @@ You can use the [](quapy.method.composable.CombinedLoss) to create arbitrary, we
 
 ### Feature transformations
 
-- [](quapy.method.composable.ClassTransformer)
-- [](quapy.method.composable.DistanceTransformer)
-- [](quapy.method.composable.HistogramTransformer)
-- [](quapy.method.composable.EnergyKernelTransformer)
-- [](quapy.method.composable.GaussianKernelTransformer)
-- [](quapy.method.composable.LaplacianKernelTransformer)
-- [](quapy.method.composable.GaussianRFFKernelTransformer)
+- [](quapy.method.composable.ClassRepresentation)
+- [](quapy.method.composable.DistanceRepresentation)
+- [](quapy.method.composable.HistogramRepresentation)
+- [](quapy.method.composable.EnergyKernelRepresentation)
+- [](quapy.method.composable.GaussianKernelRepresentation)
+- [](quapy.method.composable.LaplacianKernelRepresentation)
+- [](quapy.method.composable.GaussianRFFKernelRepresentation)
 
 ```{hint}
-The [](quapy.method.composable.ClassTransformer) requires the classifier to have a property `oob_score==True` and to produce a property `oob_decision_function` during fitting. In [scikit-learn](https://scikit-learn.org/), this requirement is fulfilled by any bagging classifier, such as random forests. Any other classifier needs to be cross-validated through the [](quapy.method.composable.CVClassifier).
+The [](quapy.method.composable.ClassRepresentation) requires the classifier to have a property `oob_score==True` and to produce a property `oob_decision_function` during fitting. In [scikit-learn](https://scikit-learn.org/), this requirement is fulfilled by any bagging classifier, such as random forests. Any other classifier needs to be cross-validated through the [](quapy.method.composable.CVClassifier).
 ```
 
 
