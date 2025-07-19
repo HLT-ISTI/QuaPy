@@ -24,7 +24,8 @@ print(f'running model selection with N_JOBS={qp.environ["N_JOBS"]}; '
 training, test = qp.datasets.fetch_UCIMulticlassDataset('letter').train_test
 
 # evaluation in terms of MAE with default hyperparameters
-model.fit(*training.Xy)
+Xtr, ytr = training.Xy
+model.fit(Xtr, ytr)
 mae_score = qp.evaluation.evaluate(model, protocol=UPP(test), error_metric='mae')
 print(f'MAE (non optimized)={mae_score:.5f}')
 
