@@ -152,7 +152,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         :param X: array-like of shape `(n_samples, n_features)`, the training instances
         :param y: array-like of shape `(n_samples,)`, the labels
         """
-        self._check_classifier()
+        self._check_classifier(adapt_if_necessary=self.fit_classifier)
 
         # self._check_non_empty_classes(y)
 
