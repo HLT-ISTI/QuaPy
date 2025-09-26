@@ -1,4 +1,5 @@
 Adapt examples; remaining: example 4-onwards
+not working: 4, 4b, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
 
 Add 'platt' to calib options in EMQ?
 
@@ -8,7 +9,7 @@ Update READMEs, wiki, & examples for new fit-predict interface
 
 Add the fix suggested by Alexander:
 
-For a more general application, I would maybe first stablish a per-class threshold value of plausible prevalence
+For a more general application, I would maybe first establish a per-class threshold value of plausible prevalence
 based on the number of actual positives and the required sample size; e.g., for sample_size=100 and actual
 positives [10, 100, 500] -> [0.1, 1.0, 1.0], meaning that class 0 can be sampled at most at 0.1 prevalence, while
 the others can be sampled up to 1. prevalence. Then, when a prevalence value is requested, e.g., [0.33, 0.33, 0.33],

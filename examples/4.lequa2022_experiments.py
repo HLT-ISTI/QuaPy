@@ -37,7 +37,7 @@ quantifier = EMQ(classifier=LogisticRegression())
 param_grid = {
     'classifier__C': np.logspace(-3, 3, 7),          # classifier-dependent: inverse of regularization strength
     'classifier__class_weight': ['balanced', None],  # classifier-dependent: weights of each class
-    'calib': ['bcts', None]                 # quantifier-dependent: recalibration method (new in v0.1.7)
+    # 'calib': ['bcts', None]                 # quantifier-dependent: recalibration method (new in v0.1.7)
 }
 model_selection = GridSearchQ(quantifier, param_grid, protocol=val_generator, error='mrae', refit=False, verbose=True)
 quantifier = model_selection.fit(Xtr, ytr)
@@ -51,4 +51,4 @@ report['estim-prev'] = report['estim-prev'].map(F.strprev)
 print(report)
 
 print('Averaged values:')
-print(report.mean())
+print(report.mean(numeric_only=True))

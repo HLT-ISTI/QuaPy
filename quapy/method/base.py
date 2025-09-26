@@ -89,18 +89,18 @@ class OneVsAllGeneric(OneVsAll, BaseQuantifier):
         self.binary_quantifier = binary_quantifier
         self.n_jobs = qp._get_njobs(n_jobs)
 
-    def fit(self, data: LabelledCollection, fit_classifier=True):
-        assert not data.binary, f'{self.__class__.__name__} expect non-binary data'
-        assert fit_classifier == True, 'fit_classifier must be True'
+    def fit(self, X, y):
+        self.classes = sorted(np.unique(y))
+        assert len(self.classes)!=2, f'{self.__class__.__name__} expect non-binary data'
 
-        self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in data.classes_}
-        self._parallel(self._delayed_binary_fit, data)
+        self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in self.classes}
+        self._parallel(self._delayed_binary_fit, X, y)
         return self
 
     def _parallel(self, func, *args, **kwargs):
         return np.asarray(
             Parallel(n_jobs=self.n_jobs, backend='threading')(
-                delayed(func)(c, *args, **kwargs) for c in self.classes_
+                delayed(func)(c, *args, **kwargs) for c in self.classes
             )
         )
 
@@ -108,13 +108,13 @@ class OneVsAllGeneric(OneVsAll, BaseQuantifier):
         prevalences = self._parallel(self._delayed_binary_predict, X)
         return qp.functional.normalize_prevalence(prevalences)
 
-    @property
-    def classes_(self):
-        return sorted(self.dict_binary_quantifiers.keys())
+    # @property
+    # def classes_(self):
+    #     return sorted(self.dict_binary_quantifiers.keys())
 
     def _delayed_binary_predict(self, c, X):
         return self.dict_binary_quantifiers[c].predict(X)[1]
 
-    def _delayed_binary_fit(self, c, data):
-        bindata = LabelledCollection(data.instances, data.labels == c, classes=[False, True])
-        self.dict_binary_quantifiers[c].fit(bindata)
+    def _delayed_binary_fit(self, c, X, y):
+        bindata = LabelledCollection(X, y == c, classes=[False, True])
+        self.dict_binary_quantifiers[c].fit(*bindata.Xy)

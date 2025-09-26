@@ -193,7 +193,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         """
         Trains the aggregation function.
 
-        :param classif_predictions: array-like with  the classification predictions
+        :param classif_predictions: array-like with the classification predictions
             (whatever the method :meth:`classify` returns)
         :param labels: array-like with the true labels associated to each classifier prediction
         """
@@ -1401,7 +1401,7 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
         """
         If the base quantifier is not probabilistic, returns a matrix of shape `(n,m,)` with `n` the number of
         instances and `m` the number of classes. The entry `(i,j)` is a binary value indicating whether instance
-        `i `belongs to class `j`. The binary classifications are independent of each other, meaning that an instance
+        `i` belongs to class `j`. The binary classifications are independent of each other, meaning that an instance
         can end up be attributed to 0, 1, or more classes.
         If the base quantifier is probabilistic, returns a matrix of shape `(n,m,2)` with `n` the number of instances
         and `m` the number of classes. The entry `(i,j,1)` (resp. `(i,j,0)`) is a value in [0,1] indicating the
@@ -1422,12 +1422,20 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
         prevalences = self._parallel(self._delayed_binary_aggregate, classif_predictions)
         return F.normalize_prevalence(prevalences)
 
+    def aggregation_fit(self, classif_predictions, labels):
+        self._parallel(self._delayed_binary_aggregate_fit(c, classif_predictions, labels))
+        return self
+
     def _delayed_binary_classification(self, c, X):
         return self.dict_binary_quantifiers[c].classify(X)
 
     def _delayed_binary_aggregate(self, c, classif_predictions):
         # the estimation for the positive class prevalence
         return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:, c])[1]
+
+    def _delayed_binary_aggregate_fit(self, c, classif_predictions, labels):
+        # trains the aggregation function of the cth quantifier
+        return self.dict_binary_quantifiers[c].aggregate_fit(classif_predictions[:, c], labels)
 
 
 class AggregativeMedianEstimator(BinaryQuantifier):

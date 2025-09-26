@@ -50,7 +50,7 @@ def quantification_models():
     yield 'MAX', MAX(newLR()), lr_params
     yield 'MS', MS(newLR()), lr_params
     yield 'MS2', MS2(newLR()), lr_params
-    yield 'sldc', EMQ(newLR(), calib='platt'), lr_params
+    yield 'sldc', EMQ(newLR()), lr_params
     yield 'svmmae', newSVMAE(), svmperf_params
     yield 'hdy', HDy(newLR()), lr_params
 
@@ -98,8 +98,8 @@ def run(experiment):
         print(f'running dataset={dataset_name} model={model_name} loss={optim_loss} run={run+1}/5')
         # model selection (hyperparameter optimization for a quantification-oriented loss)
         train, test = data.train_test
-        train, val = train.split_stratified()
         if hyperparams is not None:
+            train, val = train.split_stratified()
             model_selection = qp.model_selection.GridSearchQ(
                 deepcopy(model),
                 param_grid=hyperparams,
@@ -109,11 +109,11 @@ def run(experiment):
                 timeout=60*60,
                 verbose=True
             )
-            model_selection.fit(train)
+            model_selection.fit(*train.Xy)
             model = model_selection.best_model()
             best_params = model_selection.best_params_
         else:
-            model.fit(data.training)
+            model.fit(*train.Xy)
             best_params = {}
 
         # model evaluation
@@ -121,19 +121,19 @@ def run(experiment):
             model,
             protocol=APP(test, n_prevalences=21, repeats=100)
         )
-        test_true_prevalence = data.test.prevalence()
+        test_true_prevalence = test.prevalence()
 
         evaluate_experiment(true_prevalences, estim_prevalences)
         save_results(dataset_name, model_name, run, optim_loss,
                      true_prevalences, estim_prevalences,
-                     data.training.prevalence(), test_true_prevalence,
+                     train.prevalence(), test_true_prevalence,
                      best_params)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run experiments for Tweeter Sentiment Quantification')
-    parser.add_argument('results', metavar='RESULT_PATH', type=str,
-                        help='path to the directory where to store the results')
+    parser.add_argument('--results', metavar='RESULT_PATH', type=str,
+                        help='path to the directory where to store the results', default='./uci_results')
     parser.add_argument('--svmperfpath', metavar='SVMPERF_PATH', type=str, default='../svm_perf_quantification',
                         help='path to the directory with svmperf')
     parser.add_argument('--checkpointdir', metavar='PATH', type=str, default='./checkpoint',
