@@ -107,7 +107,7 @@ def run(experiment):
                 error=optim_loss,
                 refit=True,
                 timeout=60*60,
-                verbose=True
+                verbose=False
             )
             model_selection.fit(*train.Xy)
             model = model_selection.best_model()
