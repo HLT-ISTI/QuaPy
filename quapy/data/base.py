@@ -96,6 +96,15 @@ class LabelledCollection:
         return len(self.classes_)
 
     @property
+    def n_instances(self):
+        """
+        The number of instances
+
+        :return: integer
+        """
+        return len(self.labels)
+
+    @property
     def binary(self):
         """
         Returns True if the number of classes is 2
@@ -423,6 +432,11 @@ class LabelledCollection:
             test = self.sampling_from_index(test_index)
             yield train, test
 
+    def __repr__(self):
+        repr=f'<{self.n_instances} instances (dtype={type(self.instances[0])}), '
+        repr+=f'n_classes={self.n_classes} {self.classes_}, prevalence={F.strprev(self.prevalence())}>'
+        return repr
+
 
 class Dataset:
     """
@@ -577,3 +591,6 @@ class Dataset:
             random_state = random_state
         )
         return self
+
+    def __repr__(self):
+        return f'training={self.training}; test={self.test}'

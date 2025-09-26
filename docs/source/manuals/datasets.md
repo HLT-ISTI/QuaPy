@@ -464,4 +464,4 @@ QuaPy implements a number of preprocessing functions in the package _qp.data.pre
 * _reduce_columns_: reducing the number of columns based on term frequency
 * _standardize_: transforms the column values into z-scores (i.e., subtract the mean and normalizes by the standard deviation, so
 that the column values have zero mean and unit variance).
-* _index_: transforms textual tokens into lists of numeric ids) 
+* _index_: transforms textual tokens into lists of numeric ids
