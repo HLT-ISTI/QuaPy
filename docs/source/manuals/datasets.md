@@ -402,6 +402,10 @@ train, test_gen = qp.datasets.fetch_IFCB(for_model_selection=False, single_sampl
 # ... train and evaluation
 ```
 
+See also [Automatic plankton quantification using deep features
+P González, A Castaño, EE Peacock, J Díez, JJ Del Coz, HM Sosik
+Journal of Plankton Research 41 (4), 449-463](https://par.nsf.gov/servlets/purl/10172325).
+
 
 
 ## Adding Custom Datasets

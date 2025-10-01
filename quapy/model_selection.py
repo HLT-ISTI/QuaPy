@@ -86,14 +86,14 @@ class GridSearchQ(BaseQuantifier):
         self.n_jobs = qp._get_njobs(n_jobs)
         self.raise_errors = raise_errors
         self.verbose = verbose
-        self.__check_error(error)
+        self.__check_error_measure(error)
         assert isinstance(protocol, AbstractProtocol), 'unknown protocol'
 
     def _sout(self, msg):
         if self.verbose:
             print(f'[{self.__class__.__name__}:{self.model.__class__.__name__}]: {msg}')
 
-    def __check_error(self, error):
+    def __check_error_measure(self, error):
         if error in qp.error.QUANTIFICATION_ERROR:
             self.error = error
         elif isinstance(error, str):

@@ -33,26 +33,15 @@ class SVMperf(BaseEstimator, ClassifierMixin):
     valid_losses = {'01':0, 'f1':1, 'kld':12, 'nkld':13, 'q':22, 'qacc':23, 'qf1':24, 'qgm':25, 'mae':26, 'mrae':27}
 
     def __init__(self, svmperf_base, C=0.01, verbose=False, loss='01', host_folder=None):
-        assert exists(svmperf_base), f'path {svmperf_base} does not seem to point to a valid path'
+        assert exists(svmperf_base), \
+            (f'path {svmperf_base} does not seem to point to a valid path;'
+             f'did you install svm-perf? '
+             f'see instructions in https://hlt-isti.github.io/QuaPy/manuals/explicit-loss-minimization.html')
         self.svmperf_base = svmperf_base
         self.C = C
         self.verbose = verbose
         self.loss = loss
         self.host_folder = host_folder
-
-    # def set_params(self, **parameters):
-    #     """
-    #     Set the hyper-parameters for svm-perf. Currently, only the `C` and `loss` parameters are supported
-    #
-    #     :param parameters: a `**kwargs` dictionary `{'C': <float>}`
-    #     """
-    #     assert sorted(list(parameters.keys())) == ['C', 'loss'], \
-    #         'currently, only the C and loss parameters are supported'
-    #     self.C = parameters.get('C', self.C)
-    #     self.loss = parameters.get('loss', self.loss)
-    #
-    # def get_params(self, deep=True):
-    #     return {'C': self.C, 'loss': self.loss}
 
     def fit(self, X, y):
         """

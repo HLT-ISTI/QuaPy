@@ -122,7 +122,7 @@ def get_random_forest() -> RandomForestClassifier:
 def _get_estimate(estimator_class, training: LabelledCollection, test: np.ndarray) -> None:
     """Auxiliary method for running ACC and PACC."""
     estimator = estimator_class(get_random_forest())
-    estimator.fit(training)
+    estimator.fit(*training.Xy)
     return estimator.predict(test)
 
 
@@ -130,7 +130,7 @@ def train_and_plot_bayesian_quantification(ax: plt.Axes, training: LabelledColle
     """Fits Bayesian quantification and plots posterior mean as well as individual samples"""
     print('training model Bayesian CC...', end='')
     quantifier = BayesianCC(classifier=get_random_forest())
-    quantifier.fit(training)
+    quantifier.fit(*training.Xy)
 
     # Obtain mean prediction
     mean_prediction = quantifier.predict(test.X)

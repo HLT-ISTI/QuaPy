@@ -21,6 +21,7 @@ Let see one example:
 # load some data
 data = qp.datasets.fetch_UCIMulticlassDataset('molecular')
 train, test = data.train_test
+Xtr, ytr = train.Xy
 
 # by simply wrapping an aggregative quantifier within the AggregativeBootstrap class, we can obtain confidence
 # intervals around the point estimate, in this case, at 95% of confidence
@@ -29,7 +30,7 @@ pacc = AggregativeBootstrap(PACC(), n_test_samples=500, confidence_level=0.95)
 
 with qp.util.temp_seed(0):
     # we train the quantifier the usual way
-    pacc.fit(train)
+    pacc.fit(Xtr, ytr)
 
     # let us simulate some shift in the test data
     random_prevalence = F.uniform_prevalence_sampling(n_classes=test.n_classes)
@@ -53,7 +54,7 @@ with qp.util.temp_seed(0):
     print(f'point-estimate:   {F.strprev(pred_prev)}')
     print(f'absolute error:   {error:.3f}')
     print(f'Is the true value in the confidence region?: {conf_intervals.coverage(true_prev)==1}')
-    print(f'Proportion of simplex covered at {pacc.confidence_level*100:.1f}%: {conf_intervals.simplex_portion()*100:.2f}%')
+    print(f'Proportion of simplex covered at confidence level {pacc.confidence_level*100:.1f}%: {conf_intervals.simplex_portion()*100:.2f}%')
 
 """
 Final remarks: 

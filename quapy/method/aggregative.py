@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from argparse import ArgumentError
 from copy import deepcopy
 from typing import Callable, Literal, Union
 import numpy as np
@@ -18,6 +19,10 @@ from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric
 from quapy.method import _bayesian
+
+# import warnings
+# from sklearn.exceptions import ConvergenceWarning
+# warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 
 # Abstract classes
@@ -51,7 +56,11 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         the training data be wasted.
     """
 
-    def __init__(self, classifier: Union[None,BaseEstimator], fit_classifier:bool=True, val_split:Union[int,float,tuple,None]=5):
+    def __init__(self,
+                 classifier: Union[None,BaseEstimator],
+                 fit_classifier:bool=True,
+                 val_split:Union[int,float,tuple,None]=5):
+
         self.classifier = qp._get_classifier(classifier)
         self.fit_classifier = fit_classifier
         self.val_split = val_split
@@ -63,6 +72,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         assert isinstance(fit_classifier, bool), \
             f'unexpected type for {fit_classifier=}; must be True or False'
 
+        # val_split is indicated as a number of folds for cross-validation
         if isinstance(val_split, int):
             assert val_split > 1, \
                 (f'when {val_split=} is indicated as an integer, it represents the number of folds in a kFCV '
@@ -75,12 +85,14 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
             if val_split!=5:
                 assert fit_classifier, (f'Parameter {val_split=} has been modified, but {fit_classifier=} '
                                         f'indicates the classifier should not be retrained.')
+        # val_split is indicated as a fraction of validation instances
         elif isinstance(val_split, float):
             assert 0 < val_split < 1, \
                 (f'when {val_split=} is indicated as a float, it represents the fraction of training instances '
                  f'to be used for validation, and must thus be in the range (0,1)')
             assert fit_classifier, (f'when {val_split=} is indicated as a float (the fraction of training instances '
                                     f'to be used for validation), the parameter {fit_classifier=} must be True')
+        # val_split is indicated as a validation collection (X,y)
         elif isinstance(val_split, tuple):
             assert len(val_split) == 2, \
                 (f'when {val_split=} is indicated as a tuple, it represents the collection (X,y) on which the '
@@ -674,26 +686,26 @@ class EMQ(AggregativeSoftQuantifier):
     :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
         the one indicated in `qp.environ['DEFAULT_CLS']`
 
-    :param fit_classifier: whether to train the learner (default is True). Set to False if the
-        learner has been trained outside the quantifier.
+    :param fit_classifier: whether to train the classifier (default is True). Set to False if the
+        given classifier has already been trained.
 
-    :param val_split: specifies the data used for generating classifier predictions. This specification
-        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
-        be extracted from the training set; or as an integer (default 5), indicating that the predictions
-        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
-        This hyperparameter is only meant to be used when the heuristics are to be applied, i.e., if a
-        calibration is required. The default value is None (meaning the calibration is not required). In
-        case this hyperparameter is set to a value other than None, but the calibration is not required
-        (calib=None), a warning message will be raised.
+    :param val_split: specifies the data used for generating the classifier predictions on which the
+        aggregation function is to be trained. This specification can be made as float in (0, 1) indicating
+        the proportion of stratified held-out validation set to be extracted from the training set; or as
+        an integer (default 5), indicating that the predictions are to be generated in a `k`-fold
+        cross-validation manner (with this integer indicating the value for `k`); or as a tuple (X,y) defining
+        the specific set of data to use for validation. This hyperparameter is only meant to be used when
+        the heuristics are to be applied, i.e., if a calibration is required. The default value is None
+        (meaning the calibration is not required). In case this hyperparameter is set to a value other than
+        None, but the calibration is not required (calib=None), a warning message will be raised.
 
-    :param exact_train_prev: set to True (default) for using the true training prevalence as the initial observation;
-        set to False for computing the training prevalence as an estimate of it, i.e., as the expected
-        value of the posterior probabilities of the training instances.
+    :param exact_train_prev: set to True (default) for using the true training prevalence as the initial
+        observation; set to False for computing the training prevalence as an estimate of it, i.e., as the
+        expected value of the posterior probabilities of the training instances.
 
     :param calib: a string indicating the method of calibration.
-        Available choices include "nbvs" (No-Bias Vector Scaling), "bcts" (Bias-Corrected Temperature Scaling,
-        default), "ts" (Temperature Scaling), and "vs" (Vector Scaling). Default is None (no calibration).
+        Available choices include "nbvs" (No-Bias Vector Scaling), "bcts" (Bias-Corrected Temperature Scaling),
+        "ts" (Temperature Scaling), and "vs" (Vector Scaling). Default is None (no calibration).
 
     :param on_calib_error: a string indicating the policy to follow in case the calibrator fails at runtime.
         Options include "raise" (default), in which case a RuntimeException is raised; and "backup", in which
@@ -823,6 +835,19 @@ class EMQ(AggregativeSoftQuantifier):
         """
         P = classif_predictions
         y = labels
+
+        requires_predictions = (self.calib is not None) or (not self.exact_train_prev)
+        if P is None and requires_predictions:
+            # classifier predictions were not generated because val_split=None
+            raise ArgumentError(self.val_split, self.__class__.__name__ +
+                                ": Classifier predictions for the aggregative fit were not generated because "
+                                "val_split=None. This usually happens when you enable calibrations or heuristics "
+                                "during model selection but left val_split set to its default value (None). "
+                                "Please provide one of the following values for val_split: (i) an integer >1 "
+                                "(e.g. val_split=5) for k-fold cross-validation; (ii) a float in (0,1) (e.g. "
+                                "val_split=0.3) for a proportion split; or (iii) a tuple (X, y) with explicit "
+                                "validation data")
+
         if self.calib is not None:
             calibrator = {
                 'nbvs': NoBiasVectorScaling(),

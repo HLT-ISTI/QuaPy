@@ -1,5 +1,7 @@
 Adapt examples; remaining: example 4-onwards
-not working: 4, 4b, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16
+not working: 15 (qunfold)
+
+Solve the warnings issue; right now there is a warning ignore in method/__init__.py:
 
 Add 'platt' to calib options in EMQ?
 
