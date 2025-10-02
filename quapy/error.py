@@ -45,89 +45,95 @@ def acce(y_true, y_pred):
     return 1. - (y_true == y_pred).mean()
 
 
-def mae(prevs, prevs_hat):
+def mae(prevs_true, prevs_hat):
     """Computes the mean absolute error (see :meth:`quapy.error.ae`) across the sample pairs.
 
-    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted
         prevalence values
     :return: mean absolute error
     """
-    return ae(prevs, prevs_hat).mean()
+    return ae(prevs_true, prevs_hat).mean()
 
 
-def ae(prevs, prevs_hat):
+def ae(prevs_true, prevs_hat):
     """Computes the absolute error between the two prevalence vectors.
      Absolute error between two prevalence vectors :math:`p` and :math:`\\hat{p}`  is computed as
      :math:`AE(p,\\hat{p})=\\frac{1}{|\\mathcal{Y}|}\\sum_{y\\in \\mathcal{Y}}|\\hat{p}(y)-p(y)|`,
      where :math:`\\mathcal{Y}` are the classes of interest.
 
-    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
     :return: absolute error
     """
-    assert prevs.shape == prevs_hat.shape, f'wrong shape {prevs.shape} vs. {prevs_hat.shape}'
-    return abs(prevs_hat - prevs).mean(axis=-1)
+    prevs_true = np.asarray(prevs_true)
+    prevs_hat = np.asarray(prevs_hat)
+    assert prevs_true.shape == prevs_hat.shape, f'wrong shape {prevs_true.shape} vs. {prevs_hat.shape}'
+    return abs(prevs_hat - prevs_true).mean(axis=-1)
 
 
-def nae(prevs, prevs_hat):
+def nae(prevs_true, prevs_hat):
     """Computes the normalized absolute error between the two prevalence vectors.
      Normalized absolute error between two prevalence vectors :math:`p` and :math:`\\hat{p}`  is computed as
      :math:`NAE(p,\\hat{p})=\\frac{AE(p,\\hat{p})}{z_{AE}}`,
      where :math:`z_{AE}=\\frac{2(1-\\min_{y\\in \\mathcal{Y}} p(y))}{|\\mathcal{Y}|}`, and :math:`\\mathcal{Y}`
      are the classes of interest.
 
-    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
     :return: normalized absolute error
     """
-    assert prevs.shape == prevs_hat.shape, f'wrong shape {prevs.shape} vs. {prevs_hat.shape}'
-    return abs(prevs_hat - prevs).sum(axis=-1)/(2*(1-prevs.min(axis=-1)))
+    prevs_true = np.asarray(prevs_true)
+    prevs_hat = np.asarray(prevs_hat)
+    assert prevs_true.shape == prevs_hat.shape, f'wrong shape {prevs_true.shape} vs. {prevs_hat.shape}'
+    return abs(prevs_hat - prevs_true).sum(axis=-1)/(2 * (1 - prevs_true.min(axis=-1)))
 
 
-def mnae(prevs, prevs_hat):
+def mnae(prevs_true, prevs_hat):
     """Computes the mean normalized absolute error (see :meth:`quapy.error.nae`) across the sample pairs.
 
-    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted
         prevalence values
     :return: mean normalized absolute error
     """
-    return nae(prevs, prevs_hat).mean()
+    return nae(prevs_true, prevs_hat).mean()
 
 
-def mse(prevs, prevs_hat):
+def mse(prevs_true, prevs_hat):
     """Computes the mean squared error (see :meth:`quapy.error.se`) across the sample pairs.
 
-    :param prevs: array-like of shape `(n_samples, n_classes,)` with the
+    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the
         true prevalence values
     :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the
         predicted prevalence values
     :return: mean squared error
     """
-    return se(prevs, prevs_hat).mean()
+    return se(prevs_true, prevs_hat).mean()
 
 
-def se(prevs, prevs_hat):
+def se(prevs_true, prevs_hat):
     """Computes the squared error between the two prevalence vectors.
      Squared error between two prevalence vectors :math:`p` and :math:`\\hat{p}`  is computed as
      :math:`SE(p,\\hat{p})=\\frac{1}{|\\mathcal{Y}|}\\sum_{y\\in \\mathcal{Y}}(\\hat{p}(y)-p(y))^2`,
      where
      :math:`\\mathcal{Y}` are the classes of interest.
 
-    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
     :return: absolute error
     """
-    return ((prevs_hat - prevs) ** 2).mean(axis=-1)
+    prevs_true = np.asarray(prevs_true)
+    prevs_hat = np.asarray(prevs_hat)
+    return ((prevs_hat - prevs_true) ** 2).mean(axis=-1)
 
 
-def mkld(prevs, prevs_hat, eps=None):
+def mkld(prevs_true, prevs_hat, eps=None):
     """Computes the mean Kullback-Leibler divergence (see :meth:`quapy.error.kld`) across the
     sample pairs. The distributions are smoothed using the `eps` factor
     (see :meth:`quapy.error.smooth`).
 
-    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true
+    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true
         prevalence values
     :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted
         prevalence values
@@ -137,10 +143,10 @@ def mkld(prevs, prevs_hat, eps=None):
         (which has thus to be set beforehand).
     :return: mean Kullback-Leibler distribution
     """
-    return kld(prevs, prevs_hat, eps).mean()
+    return kld(prevs_true, prevs_hat, eps).mean()
 
 
-def kld(prevs, prevs_hat, eps=None):
+def kld(prevs_true, prevs_hat, eps=None):
     """Computes the Kullback-Leibler divergence between the two prevalence distributions.
      Kullback-Leibler divergence between two prevalence distributions :math:`p` and :math:`\\hat{p}`
      is computed as
@@ -149,7 +155,7 @@ def kld(prevs, prevs_hat, eps=None):
      where :math:`\\mathcal{Y}` are the classes of interest.
      The distributions are smoothed using the `eps` factor (see :meth:`quapy.error.smooth`).
 
-    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
     :param eps: smoothing factor. KLD is not defined in cases in which the distributions contain
         zeros; `eps` is typically set to be :math:`\\frac{1}{2T}`, with :math:`T` the sample size.
@@ -158,17 +164,17 @@ def kld(prevs, prevs_hat, eps=None):
     :return: Kullback-Leibler divergence between the two distributions
     """
     eps = __check_eps(eps)
-    smooth_prevs = smooth(prevs, eps)
+    smooth_prevs = smooth(prevs_true, eps)
     smooth_prevs_hat = smooth(prevs_hat, eps)
     return (smooth_prevs*np.log(smooth_prevs/smooth_prevs_hat)).sum(axis=-1)
 
 
-def mnkld(prevs, prevs_hat, eps=None):
+def mnkld(prevs_true, prevs_hat, eps=None):
     """Computes the mean Normalized Kullback-Leibler divergence (see :meth:`quapy.error.nkld`)
     across the sample pairs. The distributions are smoothed using the `eps` factor
     (see :meth:`quapy.error.smooth`).
 
-    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted
         prevalence values
     :param eps: smoothing factor. NKLD is not defined in cases in which the distributions contain
@@ -177,10 +183,10 @@ def mnkld(prevs, prevs_hat, eps=None):
         (which has thus to be set beforehand).
     :return: mean Normalized Kullback-Leibler distribution
     """
-    return nkld(prevs, prevs_hat, eps).mean()
+    return nkld(prevs_true, prevs_hat, eps).mean()
 
 
-def nkld(prevs, prevs_hat, eps=None):
+def nkld(prevs_true, prevs_hat, eps=None):
     """Computes the Normalized Kullback-Leibler divergence between the two prevalence distributions.
      Normalized Kullback-Leibler divergence between two prevalence distributions :math:`p` and
      :math:`\\hat{p}` is computed as
@@ -189,7 +195,7 @@ def nkld(prevs, prevs_hat, eps=None):
      :math:`\\mathcal{Y}` are the classes of interest.
      The distributions are smoothed using the `eps` factor (see :meth:`quapy.error.smooth`).
 
-    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
     :param eps: smoothing factor. NKLD is not defined in cases in which the distributions
         contain zeros; `eps` is typically set to be :math:`\\frac{1}{2T}`, with :math:`T` the sample
@@ -197,16 +203,16 @@ def nkld(prevs, prevs_hat, eps=None):
         `SAMPLE_SIZE` (which has thus to be set beforehand).
     :return: Normalized Kullback-Leibler divergence between the two distributions
     """
-    ekld = np.exp(kld(prevs, prevs_hat, eps))
+    ekld = np.exp(kld(prevs_true, prevs_hat, eps))
     return 2. * ekld / (1 + ekld) - 1.
 
 
-def mrae(prevs, prevs_hat, eps=None):
+def mrae(prevs_true, prevs_hat, eps=None):
     """Computes the mean relative absolute error (see :meth:`quapy.error.rae`) across
     the sample pairs. The distributions are smoothed using the `eps` factor (see
     :meth:`quapy.error.smooth`).
 
-    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true
+    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true
         prevalence values
     :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted
         prevalence values
@@ -216,10 +222,10 @@ def mrae(prevs, prevs_hat, eps=None):
         the environment variable `SAMPLE_SIZE` (which has thus to be set beforehand).
     :return: mean relative absolute error
     """
-    return rae(prevs, prevs_hat, eps).mean()
+    return rae(prevs_true, prevs_hat, eps).mean()
 
 
-def rae(prevs, prevs_hat, eps=None):
+def rae(prevs_true, prevs_hat, eps=None):
     """Computes the absolute relative error between the two prevalence vectors.
      Relative absolute error between two prevalence vectors :math:`p` and :math:`\\hat{p}`
      is computed as
@@ -228,7 +234,7 @@ def rae(prevs, prevs_hat, eps=None):
      where :math:`\\mathcal{Y}` are the classes of interest.
      The distributions are smoothed using the `eps` factor (see :meth:`quapy.error.smooth`).
 
-    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
     :param eps: smoothing factor. `rae` is not defined in cases in which the true distribution
         contains zeros; `eps` is typically set to be :math:`\\frac{1}{2T}`, with :math:`T` the
@@ -237,12 +243,12 @@ def rae(prevs, prevs_hat, eps=None):
     :return: relative absolute error
     """
     eps = __check_eps(eps)
-    prevs = smooth(prevs, eps)
+    prevs_true = smooth(prevs_true, eps)
     prevs_hat = smooth(prevs_hat, eps)
-    return (abs(prevs - prevs_hat) / prevs).mean(axis=-1)
+    return (abs(prevs_true - prevs_hat) / prevs_true).mean(axis=-1)
 
 
-def nrae(prevs, prevs_hat, eps=None):
+def nrae(prevs_true, prevs_hat, eps=None):
     """Computes the normalized absolute relative error between the two prevalence vectors.
      Relative absolute error between two prevalence vectors :math:`p` and :math:`\\hat{p}`
      is computed as
@@ -252,7 +258,7 @@ def nrae(prevs, prevs_hat, eps=None):
      and :math:`\\mathcal{Y}` are the classes of interest.
      The distributions are smoothed using the `eps` factor (see :meth:`quapy.error.smooth`).
 
-    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
     :param eps: smoothing factor. `nrae` is not defined in cases in which the true distribution
         contains zeros; `eps` is typically set to be :math:`\\frac{1}{2T}`, with :math:`T` the
@@ -261,18 +267,18 @@ def nrae(prevs, prevs_hat, eps=None):
     :return: normalized relative absolute error
     """
     eps = __check_eps(eps)
-    prevs = smooth(prevs, eps)
+    prevs_true = smooth(prevs_true, eps)
     prevs_hat = smooth(prevs_hat, eps)
-    min_p = prevs.min(axis=-1)
-    return (abs(prevs - prevs_hat) / prevs).sum(axis=-1)/(prevs.shape[-1]-1+(1-min_p)/min_p)
+    min_p = prevs_true.min(axis=-1)
+    return (abs(prevs_true - prevs_hat) / prevs_true).sum(axis=-1)/(prevs_true.shape[-1] - 1 + (1 - min_p) / min_p)
 
 
-def mnrae(prevs, prevs_hat, eps=None):
+def mnrae(prevs_true, prevs_hat, eps=None):
     """Computes the mean normalized relative absolute error (see :meth:`quapy.error.nrae`) across
     the sample pairs. The distributions are smoothed using the `eps` factor (see
     :meth:`quapy.error.smooth`).
 
-    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true
+    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true
         prevalence values
     :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted
         prevalence values
@@ -282,57 +288,61 @@ def mnrae(prevs, prevs_hat, eps=None):
         the environment variable `SAMPLE_SIZE` (which has thus to be set beforehand).
     :return: mean normalized relative absolute error
     """
-    return nrae(prevs, prevs_hat, eps).mean()
+    return nrae(prevs_true, prevs_hat, eps).mean()
 
 
-def nmd(prevs, prevs_hat):
+def nmd(prevs_true, prevs_hat):
     """
     Computes the Normalized Match Distance; which is the Normalized Distance multiplied by the factor
     `1/(n-1)` to guarantee the measure ranges between 0 (best prediction) and 1 (worst prediction).
 
-    :param prevs: array-like of shape `(n_classes,)` or `(n_instances, n_classes)`  with the true prevalence values
+    :param prevs_true: array-like of shape `(n_classes,)` or `(n_instances, n_classes)`  with the true prevalence values
     :param prevs_hat: array-like of shape `(n_classes,)` or `(n_instances, n_classes)` with the predicted prevalence values
     :return: float in [0,1]
     """
-    n = prevs.shape[-1]
-    return (1./(n-1))*np.mean(match_distance(prevs, prevs_hat))
+    prevs_true = np.asarray(prevs_true)
+    prevs_hat = np.asarray(prevs_hat)
+    n = prevs_true.shape[-1]
+    return (1./(n-1))*np.mean(match_distance(prevs_true, prevs_hat))
 
 
-def bias_binary(prevs, prevs_hat):
+def bias_binary(prevs_true, prevs_hat):
     """
     Computes the (positive) bias in a binary problem. The bias is simply the difference between the
     predicted positive value and the true positive value, so that a positive such value indicates the
     prediction has positive bias (i.e., it tends to overestimate) the true value, and negative otherwise.
     :math:`bias(p,\\hat{p})=\\hat{p}_1-p_1`,
-    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted
         prevalence values
     :return: binary bias
     """
-    assert prevs.shape[-1] == 2 and prevs.shape[-1] == 2, f'bias_binary can only be applied to binary problems'
-    return prevs_hat[...,1]-prevs[...,1]
+    prevs_true = np.asarray(prevs_true)
+    prevs_hat = np.asarray(prevs_hat)
+    assert prevs_true.shape[-1] == 2 and prevs_true.shape[-1] == 2, f'bias_binary can only be applied to binary problems'
+    return prevs_hat[...,1]-prevs_true[...,1]
 
 
-def mean_bias_binary(prevs, prevs_hat):
+def mean_bias_binary(prevs_true, prevs_hat):
     """
     Computes the mean of the (positive) bias in a binary problem.
-    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values
+    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values
     :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values
     :return: mean binary bias
     """
-    return np.mean(bias_binary(prevs, prevs_hat))
+    return np.mean(bias_binary(prevs_true, prevs_hat))
 
 
-def md(prevs, prevs_hat, ERROR_TOL=1E-3):
+def md(prevs_true, prevs_hat, ERROR_TOL=1E-3):
     """
     Computes the Match Distance, under the assumption that the cost in mistaking class i with class i+1 is 1 in
     all cases.
 
-    :param prevs: array-like of shape `(n_classes,)` or `(n_instances, n_classes)`  with the true prevalence values
+    :param prevs_true: array-like of shape `(n_classes,)` or `(n_instances, n_classes)`  with the true prevalence values
     :param prevs_hat: array-like of shape `(n_classes,)` or `(n_instances, n_classes)` with the predicted prevalence values
     :return: float
     """
-    P = np.cumsum(prevs, axis=-1)
+    P = np.cumsum(prevs_true, axis=-1)
     P_hat = np.cumsum(prevs_hat, axis=-1)
     assert np.all(np.isclose(P_hat[..., -1], 1.0, rtol=ERROR_TOL)), \
         'arg error in match_distance: the array does not represent a valid distribution'
@@ -349,6 +359,7 @@ def smooth(prevs, eps):
     :param eps: smoothing factor
     :return: array-like of shape `(n_classes,)` with the smoothed distribution
     """
+    prevs = np.asarray(prevs)
     n_classes = prevs.shape[-1]
     return (prevs + eps) / (eps * n_classes + 1)
 
