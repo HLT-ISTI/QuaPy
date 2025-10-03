@@ -1,6 +1,6 @@
 """
 This example illustrates the composition of quantification methods from
-arbitrary loss functions and feature transformations. It will extend the basic
+arbitrary loss functions and feature representations. It will extend the basic
 example on the usage of quapy with this composition.
 
 This example requires the installation of qunfold, the back-end of QuaPy's
@@ -8,7 +8,7 @@ composition module:
 
     pip install --upgrade pip setuptools wheel
     pip install "jax[cpu]"
-    pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4"
+    pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.5"
 """
 
 import numpy as np
@@ -24,20 +24,20 @@ data = qp.data.preprocessing.text2tfidf(
 training, testing = data.train_test
 
 # We start by recovering PACC from its building blocks, a LeastSquaresLoss and
-# a probabilistic ClassTransformer. A 5-fold cross-validation is implemented
+# a probabilistic ClassRepresentation. A 5-fold cross-validation is implemented
 # through a CVClassifier.
 
 from quapy.method.composable import (
     ComposableQuantifier,
     LeastSquaresLoss,
-    ClassTransformer,
+    ClassRepresentation,
     CVClassifier,
 )
 from sklearn.linear_model import LogisticRegression
 
 pacc = ComposableQuantifier(
     LeastSquaresLoss(),
-    ClassTransformer(
+    ClassRepresentation(
         CVClassifier(LogisticRegression(random_state=0), 5),
         is_probabilistic = True
     ),
@@ -63,7 +63,7 @@ from quapy.method.composable import HellingerSurrogateLoss
 
 model = ComposableQuantifier(
     HellingerSurrogateLoss(), # the loss is different from before
-    ClassTransformer( # we use the same transformer
+    ClassRepresentation( # we use the same representation
         CVClassifier(LogisticRegression(random_state=0), 5),
         is_probabilistic = True
     ),
@@ -79,7 +79,7 @@ absolute_errors = qp.evaluation.evaluate(
 print(f"MAE = {np.mean(absolute_errors):.4f}+-{np.std(absolute_errors):.4f}")
 
 # In general, any composed method solves a linear system of equations by
-# minimizing the loss after transforming the data. Methods of this kind include
+# minimizing the loss after representing the data. Methods of this kind include
 # ACC, PACC, HDx, HDy, and many other well-known methods, as well as an
 # unlimited number of re-combinations of their building blocks.
 
@@ -93,18 +93,18 @@ from quapy.method.composable import CombinedLoss
 
 model = ComposableQuantifier(
     CombinedLoss(HellingerSurrogateLoss(), LeastSquaresLoss()),
-    ClassTransformer(
+    ClassRepresentation(
         CVClassifier(LogisticRegression(random_state=0), 5),
         is_probabilistic = True
     ),
 )
 
-from qunfold.quapy import QuaPyWrapper
-from qunfold import GenericMethod
+from quapy.method.composable import QUnfoldWrapper
+from qunfold import LinearMethod
 
-model = QuaPyWrapper(GenericMethod(
+model = QUnfoldWrapper(LinearMethod(
     CombinedLoss(HellingerSurrogateLoss(), LeastSquaresLoss()),
-    ClassTransformer(
+    ClassRepresentation(
         CVClassifier(LogisticRegression(random_state=0), 5),
         is_probabilistic = True
     ),
@@ -115,7 +115,7 @@ model = QuaPyWrapper(GenericMethod(
 
 param_grid = {
     "loss__weights": [ (w, 1-w) for w in [.1, .5, .9] ],
-    "transformer__classifier__estimator__C": [1e-1, 1e1],
+    "representation__classifier__estimator__C": [1e-1, 1e1],
 }
 
 grid_search = qp.model_selection.GridSearchQ(
