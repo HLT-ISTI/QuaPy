@@ -53,8 +53,8 @@ training, test = dataset.train_test
 model = qp.method.aggregative.ACC()
 model.fit(training)
 
-estim_prevalence = model.quantify(test.X)
-true_prevalence  = test.prevalence()
+estim_prevalence = model.predict(test.X)
+true_prevalence = test.prevalence()
 
 error = qp.error.mae(true_prevalence, estim_prevalence)
 print(f'Mean Absolute Error (MAE)={error:.3f}')

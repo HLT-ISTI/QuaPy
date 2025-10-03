@@ -3,14 +3,13 @@ from sklearn.linear_model import LogisticRegression
 
 import quapy as qp
 from quapy.method.aggregative import PACC
-from quapy.data import LabelledCollection
 from quapy.protocol import AbstractStochasticSeededProtocol
 import quapy.functional as F
 
 """
 In this example, we create a custom protocol.
-The protocol generates samples of a Gaussian mixture model with random mixture parameter (the sample prevalence).
-Datapoints are univariate and we consider 2 classes only.
+The protocol generates synthetic samples of a Gaussian mixture model with random mixture parameter 
+(the sample prevalence). Datapoints are univariate and we consider 2 classes only for simplicity.
 """
 class GaussianMixProtocol(AbstractStochasticSeededProtocol):
     # We need to extend AbstractStochasticSeededProtocol if we want the samples to be replicable
@@ -81,10 +80,9 @@ with qp.util.temp_seed(0):
     Xpos = np.random.normal(loc=mu_2, scale=std_2, size=100)
     X = np.concatenate([Xneg, Xpos]).reshape(-1,1)
     y = [0]*100 + [1]*100
-    training = LabelledCollection(X, y)
 
     pacc = PACC(LogisticRegression())
-    pacc.fit(training)
+    pacc.fit(X, y)
 
 
 mae = qp.evaluation.evaluate(pacc, protocol=gm, error_metric='mae', verbose=True)

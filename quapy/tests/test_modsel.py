@@ -26,7 +26,7 @@ class ModselTestCase(unittest.TestCase):
         app = APP(validation, sample_size=100, random_state=1)
         q = GridSearchQ(
             q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, verbose=True, n_jobs=-1
-        ).fit(training)
+        ).fit(*training.Xy)
         print('best params', q.best_params_)
         print('best score', q.best_score_)
 
@@ -51,7 +51,7 @@ class ModselTestCase(unittest.TestCase):
         tinit = time.time()
         modsel = GridSearchQ(
             q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=1, verbose=True
-        ).fit(training)
+        ).fit(*training.Xy)
         tend_seq = time.time()-tinit
         best_c_seq = modsel.best_params_['classifier__C']
         print(f'[done] took {tend_seq:.2f}s best C = {best_c_seq}')
@@ -60,7 +60,7 @@ class ModselTestCase(unittest.TestCase):
         tinit = time.time()
         modsel = GridSearchQ(
             q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=-1, verbose=True
-        ).fit(training)
+        ).fit(*training.Xy)
         tend_par = time.time() - tinit
         best_c_par = modsel.best_params_['classifier__C']
         print(f'[done] took {tend_par:.2f}s best C = {best_c_par}')
@@ -90,7 +90,7 @@ class ModselTestCase(unittest.TestCase):
             q, param_grid, protocol=app, timeout=3, n_jobs=-1, verbose=True, raise_errors=True
         )
         with self.assertRaises(TimeoutError):
-            modsel.fit(training)
+            modsel.fit(*training.Xy)
 
         print('Expecting ValueError to be raised')
         modsel = GridSearchQ(
@@ -99,7 +99,7 @@ class ModselTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             # this exception is not raised because of the timeout, but because no combination of hyperparams
             # succedded (in this case, a ValueError is raised, regardless of "raise_errors"
-            modsel.fit(training)
+            modsel.fit(*training.Xy)
 
 
 if __name__ == '__main__':

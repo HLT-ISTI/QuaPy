@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
 from numpy.random import RandomState
 from quapy.functional import strprev
 from quapy.util import temp_seed
+import functional as F
 
 
 class LabelledCollection:
@@ -34,8 +35,7 @@ class LabelledCollection:
         self.labels = np.asarray(labels)
         n_docs = len(self)
         if classes is None:
-            self.classes_ = np.unique(self.labels)
-            self.classes_.sort()
+            self.classes_ = F.classes_from_labels(self.labels)
         else:
             self.classes_ = np.unique(np.asarray(classes))
             self.classes_.sort()
@@ -94,6 +94,15 @@ class LabelledCollection:
         :return: integer
         """
         return len(self.classes_)
+
+    @property
+    def n_instances(self):
+        """
+        The number of instances
+
+        :return: integer
+        """
+        return len(self.labels)
 
     @property
     def binary(self):
@@ -232,11 +241,11 @@ class LabelledCollection:
         :return: two instances of :class:`LabelledCollection`, the first one with `train_prop` elements, and the
             second one with `1-train_prop` elements
         """
-        tr_docs, te_docs, tr_labels, te_labels = train_test_split(
+        tr_X, te_X, tr_y, te_y = train_test_split(
             self.instances, self.labels, train_size=train_prop, stratify=self.labels, random_state=random_state
         )
-        training = LabelledCollection(tr_docs, tr_labels, classes=self.classes_)
-        test = LabelledCollection(te_docs, te_labels, classes=self.classes_)
+        training = LabelledCollection(tr_X, tr_y, classes=self.classes_)
+        test = LabelledCollection(te_X, te_y, classes=self.classes_)
         return training, test
 
     def split_random(self, train_prop=0.6, random_state=None):
@@ -317,6 +326,15 @@ class LabelledCollection:
         labels = np.concatenate([lc.labels for lc in args])
         classes = np.unique(labels).sort()
         return LabelledCollection(instances, labels, classes=classes)
+
+    @property
+    def classes(self):
+        """
+        Gets an array-like with the classes used in this collection
+
+        :return: array-like
+        """
+        return self.classes_
 
     @property
     def Xy(self):
@@ -413,6 +431,11 @@ class LabelledCollection:
             train = self.sampling_from_index(train_index)
             test = self.sampling_from_index(test_index)
             yield train, test
+
+    def __repr__(self):
+        repr=f'<{self.n_instances} instances (dtype={type(self.instances[0])}), '
+        repr+=f'n_classes={self.n_classes} {self.classes_}, prevalence={F.strprev(self.prevalence())}>'
+        return repr
 
 
 class Dataset:
@@ -568,3 +591,6 @@ class Dataset:
             random_state = random_state
         )
         return self
+
+    def __repr__(self):
+        return f'training={self.training}; test={self.test}'

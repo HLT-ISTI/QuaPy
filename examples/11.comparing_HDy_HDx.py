@@ -23,8 +23,9 @@ qp.environ['SAMPLE_SIZE']=100
 
 df = pd.DataFrame(columns=['method', 'dataset', 'MAE', 'MRAE', 'tr-time', 'te-time'])
 
+datasets = qp.datasets.UCI_BINARY_DATASETS
 
-for dataset_name in tqdm(qp.datasets.UCI_BINARY_DATASETS, total=len(qp.datasets.UCI_BINARY_DATASETS)):
+for dataset_name in tqdm(datasets, total=len(datasets), desc='datasets processed'):
     if dataset_name in ['acute.a', 'acute.b', 'balance.2', 'iris.1']:
         # these datasets tend to produce either too good or too bad results...
         continue
@@ -32,23 +33,25 @@ for dataset_name in tqdm(qp.datasets.UCI_BINARY_DATASETS, total=len(qp.datasets.
     collection = qp.datasets.fetch_UCIBinaryLabelledCollection(dataset_name, verbose=False)
     train, test = collection.split_stratified()
 
+    Xtr, ytr = train.Xy
+
     # HDy............................................
     tinit = time()
-    hdy = HDy(LogisticRegression()).fit(train)
+    hdy = HDy(LogisticRegression()).fit(Xtr, ytr)
     t_hdy_train = time()-tinit
 
     tinit = time()
-    hdy_report = qp.evaluation.evaluation_report(hdy, APP(test), error_metrics=['mae', 'mrae']).mean()
+    hdy_report = qp.evaluation.evaluation_report(hdy, APP(test), error_metrics=['mae', 'mrae']).mean(numeric_only=True)
     t_hdy_test = time() - tinit
     df.loc[len(df)] = ['HDy', dataset_name, hdy_report['mae'], hdy_report['mrae'], t_hdy_train, t_hdy_test]
 
     # HDx............................................
     tinit = time()
-    hdx = DMx.HDx(n_jobs=-1).fit(train)
+    hdx = DMx.HDx(n_jobs=-1).fit(Xtr, ytr)
     t_hdx_train = time() - tinit
 
     tinit = time()
-    hdx_report = qp.evaluation.evaluation_report(hdx, APP(test), error_metrics=['mae', 'mrae']).mean()
+    hdx_report = qp.evaluation.evaluation_report(hdx, APP(test), error_metrics=['mae', 'mrae']).mean(numeric_only=True)
     t_hdx_test = time() - tinit
     df.loc[len(df)] = ['HDx', dataset_name, hdx_report['mae'], hdx_report['mrae'], t_hdx_train, t_hdx_test]
 

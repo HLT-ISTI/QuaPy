@@ -1,3 +1,7 @@
+import warnings
+from sklearn.exceptions import ConvergenceWarning
+warnings.simplefilter("ignore", ConvergenceWarning)
+
 from . import confidence
 from . import base
 from . import aggregative
@@ -60,6 +64,8 @@ META_METHODS = {
 }
 
 QUANTIFICATION_METHODS = AGGREGATIVE_METHODS | NON_AGGREGATIVE_METHODS | META_METHODS
+
+
 
 
 

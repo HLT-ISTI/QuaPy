@@ -71,7 +71,7 @@ class TestProtocols(unittest.TestCase):
         # surprisingly enough, for some n_prevalences the test fails, notwithstanding
         # everything is correct. The problem is that in function APP.prevalence_grid()
         # there is sometimes one rounding error that gets cumulated and
-        # surpasses 1.0 (by a very small float value, 0.0000000000002 or sthe like)
+        # surpasses 1.0 (by a very small float value, 0.0000000000002 or the like)
         # so these tuples are mistakenly removed... I have tried with np.close, and
         # other workarounds, but eventually happens that there is some negative probability
         # in the sampling function...

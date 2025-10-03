@@ -50,7 +50,7 @@ train_modsel, val = qp.datasets.fetch_twitter('hcr', for_model_selection=True, p
 model selection: 
 We explore the classifier's loss and the classifier's C hyperparameters.
 Since our model is actually an instance of OneVsAllAggregative, we need to add the prefix "binary_quantifier", and
-since our binary quantifier is an instance of CC, we need to add the prefix "classifier".
+since our binary quantifier is an instance of CC (an aggregative quantifier), we need to add the prefix "classifier".
 """
 param_grid = {
     'binary_quantifier__classifier__loss': ['q', 'kld', 'mae'],  # classifier-dependent hyperparameter
@@ -58,11 +58,11 @@ param_grid = {
 }
 print('starting model selection')
 model_selection = GridSearchQ(quantifier, param_grid, protocol=UPP(val), verbose=True, refit=False)
-quantifier = model_selection.fit(train_modsel).best_model()
+quantifier = model_selection.fit(*train_modsel.Xy).best_model()
 
 print('training on the whole training set')
 train, test = qp.datasets.fetch_twitter('hcr', for_model_selection=False, pickle=True).train_test
-quantifier.fit(train)
+quantifier.fit(*train.Xy)
 
 # evaluation
 mae = qp.evaluation.evaluate(quantifier, protocol=UPP(test), error_metric='mae')

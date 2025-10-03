@@ -1,13 +1,8 @@
-from typing import Union
 import numpy as np
-from scipy.optimize import optimize, minimize_scalar
-
-from quapy.protocol import UPP
 from sklearn.base import BaseEstimator
 from sklearn.neighbors import KernelDensity
 
 import quapy as qp
-from quapy.data import LabelledCollection
 from quapy.method.aggregative import AggregativeSoftQuantifier
 import quapy.functional as F
 
@@ -102,81 +97,28 @@ class KDEyML(AggregativeSoftQuantifier, KDEBase):
 
     which corresponds to the maximum likelihood estimate.
 
-    :param classifier: a sklearn's Estimator that generates a binary classifier.
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
     :param val_split: specifies the data used for generating classifier predictions. This specification
         can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
         be extracted from the training set; or as an integer (default 5), indicating that the predictions
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`); or as a collection defining the specific set of data to use for validation.
-        Alternatively, this set can be specified at fit time by indicating the exact set of data
-        on which the predictions are to be generated.
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
     :param bandwidth: float, the bandwidth of the Kernel
     :param random_state: a seed to be set before fitting any base quantifier (default None)
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5, bandwidth=0.1, auto_reduction=500, auto_repeats=25, random_state=None):
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
-        self.bandwidth = bandwidth
-        if bandwidth!='auto':
-            self.bandwidth = KDEBase._check_bandwidth(bandwidth)
-
-        assert auto_reduction is None or (isinstance(auto_reduction, int) and auto_reduction>0), \
-            (f'param {auto_reduction=} should either be None (no reduction) or a positive integer '
-             f'(number of training instances).')
-
-        self.auto_reduction = auto_reduction
-        self.auto_repeats = auto_repeats
+    def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=5, bandwidth=0.1,
+                 random_state=None):
+        super().__init__(classifier, fit_classifier, val_split)
+        self.bandwidth = KDEBase._check_bandwidth(bandwidth)
         self.random_state=random_state
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        if self.bandwidth == 'auto':
-            self.bandwidth_val = self.auto_bandwidth_likelihood(classif_predictions)
-        else:
-            self.bandwidth_val = self.bandwidth
-        self.mix_densities = self.get_mixture_components(*classif_predictions.Xy, data.classes_, self.bandwidth_val)
+    def aggregation_fit(self, classif_predictions, labels):
+        self.mix_densities = self.get_mixture_components(classif_predictions, labels, self.classes_, self.bandwidth)
         return self
-
-    def auto_bandwidth_likelihood(self, classif_predictions: LabelledCollection):
-        train, val = classif_predictions.split_stratified(train_prop=0.5, random_state=self.random_state)
-        n_classes = classif_predictions.n_classes
-        epsilon = 1e-8
-        repeats = self.auto_repeats
-
-        auto_reduction = self.auto_reduction
-        if auto_reduction is None:
-            auto_reduction = len(classif_predictions)
-        else:
-            # reduce samples to speed up computation
-            train = train.sampling(auto_reduction)
-
-        prot = UPP(val, sample_size=auto_reduction, repeats=repeats, random_state=self.random_state)
-
-        def eval_bandwidth_nll(bandwidth):
-            mix_densities = self.get_mixture_components(*train.Xy, train.classes_, bandwidth)
-            loss_accum = 0
-            for (sample, prevtrue) in prot():
-                test_densities = [self.pdf(kde_i, sample) for kde_i in mix_densities]
-
-                def neg_loglikelihood_prev(prev):
-                    test_mixture_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip(prev, test_densities))
-                    test_loglikelihood = np.log(test_mixture_likelihood + epsilon)
-                    nll = -np.sum(test_loglikelihood)
-                    return nll
-
-                pred_prev, neglikelihood = F.optim_minimize(neg_loglikelihood_prev, n_classes=n_classes, return_loss=True)
-                loss_accum += neglikelihood
-            return loss_accum
-
-        r = minimize_scalar(eval_bandwidth_nll, bounds=(0.0001, 0.2), options={'xatol': 0.005})
-        best_band = r.x
-        best_loss_value = r.fun
-        nit = r.nit
-
-        # print(f'[{self.__class__.__name__}:autobandwidth] '
-        #       f'found bandwidth={best_band:.8f} after {nit=} iterations loss_val={best_loss_value:.5f})')
-
-        return best_band
 
     def aggregate(self, posteriors: np.ndarray):
         """
@@ -230,35 +172,35 @@ class KDEyHD(AggregativeSoftQuantifier, KDEBase):
     where the datapoints (trials) :math:`x_1,\\ldots,x_t\\sim_{\\mathrm{iid}} r` with :math:`r`  the
     uniform distribution.
 
-    :param classifier: a sklearn's Estimator that generates a binary classifier.
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
     :param val_split: specifies the data used for generating classifier predictions. This specification
         can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
         be extracted from the training set; or as an integer (default 5), indicating that the predictions
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`); or as a collection defining the specific set of data to use for validation.
-        Alternatively, this set can be specified at fit time by indicating the exact set of data
-        on which the predictions are to be generated.
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
     :param bandwidth: float, the bandwidth of the Kernel
     :param random_state: a seed to be set before fitting any base quantifier (default None)
     :param montecarlo_trials: number of Monte Carlo trials (default 10000)
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5, divergence: str='HD',
+    def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=5, divergence: str='HD',
                  bandwidth=0.1, random_state=None, montecarlo_trials=10000):
-        
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+
+        super().__init__(classifier, fit_classifier, val_split)
         self.divergence = divergence
         self.bandwidth = KDEBase._check_bandwidth(bandwidth)
         self.random_state=random_state
         self.montecarlo_trials = montecarlo_trials
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        self.mix_densities = self.get_mixture_components(*classif_predictions.Xy, data.classes_, self.bandwidth)
+    def aggregation_fit(self, classif_predictions, labels):
+        self.mix_densities = self.get_mixture_components(classif_predictions, labels, self.classes_, self.bandwidth)
 
         N = self.montecarlo_trials
         rs = self.random_state
-        n = data.n_classes
+        n = len(self.classes_)
         self.reference_samples = np.vstack([kde_i.sample(N//n, random_state=rs) for kde_i in self.mix_densities])
         self.reference_classwise_densities = np.asarray([self.pdf(kde_j, self.reference_samples) for kde_j in self.mix_densities])
         self.reference_density = np.mean(self.reference_classwise_densities, axis=0)  # equiv. to (uniform @ self.reference_classwise_densities)
@@ -322,20 +264,20 @@ class KDEyCS(AggregativeSoftQuantifier):
 
     The authors showed that this distribution matching admits a closed-form solution
 
-    :param classifier: a sklearn's Estimator that generates a binary classifier.
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
     :param val_split: specifies the data used for generating classifier predictions. This specification
         can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
         be extracted from the training set; or as an integer (default 5), indicating that the predictions
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`); or as a collection defining the specific set of data to use for validation.
-        Alternatively, this set can be specified at fit time by indicating the exact set of data
-        on which the predictions are to be generated.
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
     :param bandwidth: float, the bandwidth of the Kernel
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5, bandwidth=0.1):
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+    def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=5, bandwidth=0.1):
+        super().__init__(classifier, fit_classifier, val_split)
         self.bandwidth = KDEBase._check_bandwidth(bandwidth)
 
     def gram_matrix_mix_sum(self, X, Y=None):
@@ -350,17 +292,17 @@ class KDEyCS(AggregativeSoftQuantifier):
         gram = norm_factor * rbf_kernel(X, Y, gamma=gamma)
         return gram.sum()
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
 
-        P, y = classif_predictions.Xy
-        n = data.n_classes
+        P, y = classif_predictions, labels
+        n = len(self.classes_)
 
         assert all(sorted(np.unique(y)) == np.arange(n)), \
             'label name gaps not allowed in current implementation'
 
         # counts_inv keeps track of the relative weight of each datapoint within its class
         # (i.e., the weight in its KDE model)
-        counts_inv = 1 / (data.counts())
+        counts_inv = 1 / (F.counts_from_labels(y, classes=self.classes_))
 
         # tr_tr_sums corresponds to symbol \overline{B} in the paper
         tr_tr_sums = np.zeros(shape=(n,n), dtype=float)

@@ -9,6 +9,11 @@ import numpy as np
 """
 In this example, we will create a quantifier for tweet sentiment analysis considering three classes: negative, neutral,
 and positive. We will use a one-vs-all approach using a binary quantifier for demonstration purposes.
+
+Caveat: the one-vs-all approach is deemed inadequate under prior probability shift conditions. The reasons
+are discussed in:
+Donyavi, Z., Serapio, A., & Batista, G. (2023). MC-SQ: A highly accurate ensemble for multi-class quantifi-
+cation. In: Proceedings of the 2023 SIAM International Conference on Data Mining (SDM), SIAM, pp. 622–630
 """
 
 qp.environ['SAMPLE_SIZE'] = 100
@@ -40,11 +45,11 @@ param_grid = {
 }
 print('starting model selection')
 model_selection = GridSearchQ(quantifier, param_grid, protocol=UPP(val), verbose=True, refit=False)
-quantifier = model_selection.fit(train_modsel).best_model()
+quantifier = model_selection.fit(*train_modsel.Xy).best_model()
 
 print('training on the whole training set')
 train, test = qp.datasets.fetch_twitter('hcr', for_model_selection=False, pickle=True).train_test
-quantifier.fit(train)
+quantifier.fit(*train.Xy)
 
 # evaluation
 mae = qp.evaluation.evaluate(quantifier, protocol=UPP(test), error_metric='mae')

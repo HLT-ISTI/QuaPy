@@ -1,10 +1,35 @@
 Change Log 0.1.10
 -----------------
 
+CLEAN TODO-FILE
+
+- Base code Refactor:
+    - Removing coupling between LabelledCollection and quantification methods; the fit interface changes:
+        def fit(data:LabelledCollection): -> def fit(X, y):
+    - Adding function "predict" (function "quantify" is still present as an alias)
+    - Aggregative methods's behavior in terms of fit_classifier and how to treat the val_split is now
+        indicated exclusively at construction time, and it is no longer possible to indicate it at fit time.
+        This is because, in v<=0.1.9, one could create a method (e.g., ACC) and then indicate:
+        my_acc.fit(tr_data, fit_classifier=False, val_split=val_data)
+        in which case the first argument is unused, and this was ambiguous with
+        my_acc.fit(the_data, fit_classifier=False)
+        in which case the_data is to be used for validation purposes. However, the val_split could be set as a fraction
+        indicating only part of the_data must be used for validation, and the rest wasted... it was certainly confusing.
+    - This change imposes a versioning constrain with qunfold, which now must be >= 0.1.6
+- EMQ has been modified, so that the representation function "classify" now only provides posterior
+    probabilities and, if required, these are recalibrated (e.g., by "bcts") during the aggregation function.
+    - A new parameter "on_calib_error" is passed to the constructor, which informs of the policy to follow
+        in case the abstention's calibration functions failed (which happens sometimes). Options include:
+            - 'raise': raises a RuntimeException (default)
+            - 'backup': reruns avoiding calibration
+    - Parameter "recalib" has been renamed "calib"
 - Added aggregative bootstrap for deriving confidence regions (confidence intervals, ellipses in the simplex, or
     ellipses in the CLR space). This method is efficient as it leverages the two-phases of the aggregative quantifiers.
     This method applies resampling only to the aggregation phase, thus avoiding to train many quantifiers, or
-    classify multiple times the instances of a sample. See the new example no. 15.
+    classify multiple times the instances of a sample. See:
+    - quapy/method/confidence.py (new)
+    - the new example no. 15.
+- BayesianCC moved to confidence.py, where methods having to do with confidence intervals live
 
 
 Change Log 0.1.9

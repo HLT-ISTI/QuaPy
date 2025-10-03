@@ -375,18 +375,20 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
         self.region = region
         self.random_state = random_state
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
+        data = LabelledCollection(classif_predictions, labels, classes=self.classes_)
         self.quantifiers = []
         if self.n_train_samples==1:
-            self.quantifier.aggregation_fit(classif_predictions, data)
+            self.quantifier.aggregation_fit(classif_predictions, labels)
             self.quantifiers.append(self.quantifier)
         else:
             # model-based bootstrap (only on the aggregative part)
-            full_index = np.arange(len(data))
+            n_examples = len(data)
+            full_index = np.arange(n_examples)
             with qp.util.temp_seed(self.random_state):
                 for i in range(self.n_train_samples):
                     quantifier = copy.deepcopy(self.quantifier)
-                    index = resample(full_index, n_samples=len(data))
+                    index = resample(full_index, n_samples=n_examples)
                     classif_predictions_i = classif_predictions.sampling_from_index(index)
                     data_i = data.sampling_from_index(index)
                     quantifier.aggregation_fit(classif_predictions_i, data_i)
@@ -415,10 +417,10 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
 
         return prev_estim, conf
 
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
+    def fit(self, X, y):
         self.quantifier._check_init_parameters()
-        classif_predictions = self.quantifier.classifier_fit_predict(data, fit_classifier, predict_on=val_split)
-        self.aggregation_fit(classif_predictions, data)
+        classif_predictions, labels = self.quantifier.classifier_fit_predict(X, y)
+        self.aggregation_fit(classif_predictions, labels)
         return self
 
     def quantify_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
@@ -446,14 +448,15 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
     This method relies on extra dependencies, which have to be installed via:
     `$ pip install quapy[bayes]`
 
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: specifies the data used for generating classifier predictions. This specification
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+    :param val_split:  specifies the data used for generating classifier predictions. This specification
         can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
         be extracted from the training set; or as an integer (default 5), indicating that the predictions
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`); or as a collection defining the specific set of data to use for validation.
-        Alternatively, this set can be specified at fit time by indicating the exact set of data
-        on which the predictions are to be generated.
+        for `k`); or as a tuple `(X,y)` defining the specific set of data to use for validation. Set to
+        None when the method does not require any validation data, in order to avoid that some portion of
+        the training data be wasted.
     :param num_warmup: number of warmup iterations for the MCMC sampler (default 500)
     :param num_samples: number of samples to draw from the posterior (default 1000)
     :param mcmc_seed: random seed for the MCMC sampler (default 0)
@@ -464,6 +467,7 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
     """
     def __init__(self,
                  classifier: BaseEstimator=None,
+                 fit_classifier=True,
                  val_split: int = 5,
                  num_warmup: int = 500,
                  num_samples: int = 1_000,
@@ -476,14 +480,11 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
         if num_samples <= 0:
             raise ValueError(f'parameter {num_samples=} must be a positive integer')
 
-        # if (not isinstance(val_split, float)) or val_split <= 0 or val_split >= 1:
-        #     raise ValueError(f'val_split must be a float in (0, 1), got {val_split}')
-
         if _bayesian.DEPENDENCIES_INSTALLED is False:
-            raise ImportError("Auxiliary dependencies are required. Run `$ pip install quapy[bayes]` to install them.")
+            raise ImportError("Auxiliary dependencies are required. "
+                              "Run `$ pip install quapy[bayes]` to install them.")
 
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+        super().__init__(classifier, fit_classifier, val_split)
         self.num_warmup = num_warmup
         self.num_samples = num_samples
         self.mcmc_seed = mcmc_seed
@@ -498,16 +499,20 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
         # Dictionary with posterior samples, set when `aggregate` is provided.
         self._samples = None
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Estimates the misclassification rates.
 
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the label predictions issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param classif_predictions: array-like with the label predictions returned by the classifier
+        :param labels: array-like with the true labels associated to each classifier prediction
         """
-        pred_labels, true_labels = classif_predictions.Xy
-        self._n_and_c_labeled = confusion_matrix(y_true=true_labels, y_pred=pred_labels, labels=self.classifier.classes_).astype(float)
+        pred_labels = classif_predictions
+        true_labels = labels
+        self._n_and_c_labeled = confusion_matrix(
+            y_true=true_labels,
+            y_pred=pred_labels,
+            labels=self.classifier.classes_
+        ).astype(float)
 
     def sample_from_posterior(self, classif_predictions):
         if self._n_and_c_labeled is None:

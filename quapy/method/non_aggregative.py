@@ -20,21 +20,23 @@ class MaximumLikelihoodPrevalenceEstimation(BaseQuantifier):
     def __init__(self):
         self._classes_ = None
 
-    def fit(self, data: LabelledCollection):
+    def fit(self, X, y):
         """
         Computes the training prevalence and stores it.
 
-        :param data: the training sample
+        :param X: array-like of shape `(n_samples, n_features)`, the training instances
+        :param y: array-like of shape `(n_samples,)`, the labels
         :return: self
         """
-        self.estimated_prevalence = data.prevalence()
+        self._classes_ = F.classes_from_labels(labels=y)
+        self.estimated_prevalence = F.prevalence_from_labels(y, classes=self._classes_)
         return self
 
-    def quantify(self, instances):
+    def predict(self, X):
         """
         Ignores the input instances and returns, as the class prevalence estimantes, the training prevalence.
 
-        :param instances: array-like (ignored)
+        :param X: array-like (ignored)
         :return: the class prevalence seen during training
         """
         return self.estimated_prevalence
@@ -100,7 +102,7 @@ class DMx(BaseQuantifier):
 
         return distributions
 
-    def fit(self, data: LabelledCollection):
+    def fit(self, X, y):
         """
         Generates the validation distributions out of the training data (covariates).
         The validation distributions have shape `(n, nfeats, nbins)`, with `n` the number of classes, `nfeats`
@@ -109,33 +111,33 @@ class DMx(BaseQuantifier):
         training data labelled with class `i`; while `dij = di[j]` is the discrete distribution for feature j in
         training data labelled with class `i`, and `dij[k]` is the fraction of instances with a value in the `k`-th bin.
 
-        :param data: the training set
+        :param X: array-like of shape `(n_samples, n_features)`, the training instances
+        :param y: array-like of shape `(n_samples,)`, the labels
         """
-        X, y = data.Xy
-
         self.nfeats = X.shape[1]
         self.feat_ranges = _get_features_range(X)
+        n_classes = len(np.unique(y))
 
         self.validation_distribution = np.asarray(
-            [self.__get_distributions(X[y==cat]) for cat in range(data.n_classes)]
+            [self.__get_distributions(X[y==cat]) for cat in range(n_classes)]
         )
 
         return self
 
-    def quantify(self, instances):
+    def predict(self, X):
         """
         Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution
         (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.
         The matching is computed as the average dissimilarity (in terms of the dissimilarity measure of choice)
         between all feature-specific discrete distributions.
 
-        :param instances: instances in the sample
+        :param X: instances in the sample
         :return: a vector of class prevalence estimates
         """
 
-        assert instances.shape[1] == self.nfeats, f'wrong shape; expected {self.nfeats}, found {instances.shape[1]}'
+        assert X.shape[1] == self.nfeats, f'wrong shape; expected {self.nfeats}, found {X.shape[1]}'
 
-        test_distribution = self.__get_distributions(instances)
+        test_distribution = self.__get_distributions(X)
         divergence = get_divergence(self.divergence)
         n_classes, n_feats, nbins = self.validation_distribution.shape
         def loss(prev):
@@ -147,53 +149,53 @@ class DMx(BaseQuantifier):
         return F.argmin_prevalence(loss, n_classes, method=self.search)
 
 
-class ReadMe(BaseQuantifier):
-
-    def __init__(self, bootstrap_trials=100, bootstrap_range=100, bagging_trials=100, bagging_range=25, **vectorizer_kwargs):
-        raise NotImplementedError('under development ...')
-        self.bootstrap_trials = bootstrap_trials
-        self.bootstrap_range = bootstrap_range
-        self.bagging_trials = bagging_trials
-        self.bagging_range = bagging_range
-        self.vectorizer_kwargs = vectorizer_kwargs
-
-    def fit(self, data: LabelledCollection):
-        X, y = data.Xy
-        self.vectorizer = CountVectorizer(binary=True, **self.vectorizer_kwargs)
-        X = self.vectorizer.fit_transform(X)
-        self.class_conditional_X = {i: X[y==i] for i in range(data.classes_)}
-
-    def quantify(self, instances):
-        X = self.vectorizer.transform(instances)
-
-        # number of features
-        num_docs, num_feats = X.shape
-
-        # bootstrap
-        p_boots = []
-        for _ in range(self.bootstrap_trials):
-            docs_idx = np.random.choice(num_docs, size=self.bootstra_range, replace=False)
-            class_conditional_X = {i: X[docs_idx] for i, X in self.class_conditional_X.items()}
-            Xboot = X[docs_idx]
-
-            # bagging
-            p_bags = []
-            for _ in range(self.bagging_trials):
-                feat_idx = np.random.choice(num_feats, size=self.bagging_range, replace=False)
-                class_conditional_Xbag = {i: X[:, feat_idx] for i, X in class_conditional_X.items()}
-                Xbag = Xboot[:,feat_idx]
-                p = self.std_constrained_linear_ls(Xbag, class_conditional_Xbag)
-                p_bags.append(p)
-            p_boots.append(np.mean(p_bags, axis=0))
-
-        p_mean = np.mean(p_boots, axis=0)
-        p_std  = np.std(p_bags, axis=0)
-
-        return p_mean
-
-
-    def std_constrained_linear_ls(self, X, class_cond_X: dict):
-        pass
+# class ReadMe(BaseQuantifier):
+#
+#     def __init__(self, bootstrap_trials=100, bootstrap_range=100, bagging_trials=100, bagging_range=25, **vectorizer_kwargs):
+#         raise NotImplementedError('under development ...')
+#         self.bootstrap_trials = bootstrap_trials
+#         self.bootstrap_range = bootstrap_range
+#         self.bagging_trials = bagging_trials
+#         self.bagging_range = bagging_range
+#         self.vectorizer_kwargs = vectorizer_kwargs
+#
+#     def fit(self, data: LabelledCollection):
+#         X, y = data.Xy
+#         self.vectorizer = CountVectorizer(binary=True, **self.vectorizer_kwargs)
+#         X = self.vectorizer.fit_transform(X)
+#         self.class_conditional_X = {i: X[y==i] for i in range(data.classes_)}
+#
+#     def predict(self, X):
+#         X = self.vectorizer.transform(X)
+#
+#         # number of features
+#         num_docs, num_feats = X.shape
+#
+#         # bootstrap
+#         p_boots = []
+#         for _ in range(self.bootstrap_trials):
+#             docs_idx = np.random.choice(num_docs, size=self.bootstra_range, replace=False)
+#             class_conditional_X = {i: X[docs_idx] for i, X in self.class_conditional_X.items()}
+#             Xboot = X[docs_idx]
+#
+#             # bagging
+#             p_bags = []
+#             for _ in range(self.bagging_trials):
+#                 feat_idx = np.random.choice(num_feats, size=self.bagging_range, replace=False)
+#                 class_conditional_Xbag = {i: X[:, feat_idx] for i, X in class_conditional_X.items()}
+#                 Xbag = Xboot[:,feat_idx]
+#                 p = self.std_constrained_linear_ls(Xbag, class_conditional_Xbag)
+#                 p_bags.append(p)
+#             p_boots.append(np.mean(p_bags, axis=0))
+#
+#         p_mean = np.mean(p_boots, axis=0)
+#         p_std  = np.std(p_bags, axis=0)
+#
+#         return p_mean
+#
+#
+#     def std_constrained_linear_ls(self, X, class_cond_X: dict):
+#         pass
 
 
 def _get_features_range(X):

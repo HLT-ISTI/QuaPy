@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 import quapy as qp
+from quapy.method.aggregative import PACC
 
 # let's fetch some dataset to run one experiment
 # datasets are available in the "qp.data.datasets" module (there is a shortcut in qp.datasets)
@@ -34,14 +35,14 @@ print(f'training prevalence = {F.strprev(train.prevalence())}')
 
 # let us train one quantifier, for example, PACC using a sklearn's Logistic Regressor as the underlying classifier
 classifier = LogisticRegression()
-pacc = qp.method.aggregative.PACC(classifier)
+pacc = PACC(classifier)
 
 print(f'training {pacc}')
-pacc.fit(train)
+pacc.fit(X, y)
 
 # let's now test our quantifier on the test data (of course, we should not use the test labels y at this point, only X)
 X_test = test.X
-estim_prevalence = pacc.quantify(X_test)
+estim_prevalence = pacc.predict(X_test)
 
 print(f'estimated test prevalence = {F.strprev(estim_prevalence)}')
 print(f'true test prevalence = {F.strprev(test.prevalence())}')
