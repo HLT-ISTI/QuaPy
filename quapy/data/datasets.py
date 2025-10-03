@@ -114,7 +114,8 @@ def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle
     """
     Loads a Reviews dataset as a Dataset instance, as used in
     `Esuli, A., Moreo, A., and Sebastiani, F. "A recurrent neural network for sentiment quantification."
-    Proceedings of the 27th ACM International Conference on Information and Knowledge Management. 2018. <https://dl.acm.org/doi/abs/10.1145/3269206.3269287>`_.
+    Proceedings of the 27th ACM International Conference on Information and Knowledge Management. 2018.
+    <https://dl.acm.org/doi/abs/10.1145/3269206.3269287>`_.
     The list of valid dataset names can be accessed in `quapy.data.datasets.REVIEWS_SENTIMENT_DATASETS`
 
     :param dataset_name: the name of the dataset: valid ones are 'hp', 'kindle', 'imdb'

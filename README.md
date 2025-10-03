@@ -13,7 +13,7 @@ for facilitating the analysis and interpretation of the experimental results.
 
 ### Last updates:
 
-* Version 0.1.9 is released! major changes can be consulted [here](CHANGE_LOG.txt).
+* Version 0.2.0 is released! major changes can be consulted [here](CHANGE_LOG.txt).
 * The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/modules.html)
 
 ### Installation
@@ -46,12 +46,12 @@ of the test set.
 ```python
 import quapy as qp
 
-dataset = qp.datasets.fetch_UCIBinaryDataset("yeast")
-training, test = dataset.train_test
+training, test = qp.datasets.fetch_UCIBinaryDataset("yeast").train_test
 
 # create an "Adjusted Classify & Count" quantifier
 model = qp.method.aggregative.ACC()
-model.fit(training)
+Xtr, ytr = training.Xy
+model.fit(Xtr, ytr)
 
 estim_prevalence = model.predict(test.X)
 true_prevalence = test.prevalence()
@@ -79,7 +79,8 @@ quantification methods based on structured output learning, HDy, QuaNet, quantif
     * 32 UCI Machine Learning datasets.
     * 11 Twitter quantification-by-sentiment datasets.
     * 3 product reviews quantification-by-sentiment datasets. 
-    * 4 tasks from LeQua competition (_new in v0.1.7!_)
+    * 4 tasks from LeQua 2022 competition and 4 tasks from LeQua 2024 competition
+    * IFCB for Plancton quantification 
 * Native support for binary and single-label multiclass quantification scenarios.
 * Model selection functionality that minimizes quantification-oriented loss functions.
 * Visualization tools for analysing the experimental results.
@@ -116,3 +117,7 @@ are provided:
 ## Acknowledgments:
 
 <img src="docs/source/SoBigData.png" alt="SoBigData++" width="250"/>
+
+This work has been supported by the QuaDaSh project 
+_"Finanziato dall’Unione europea---Next Generation EU, 
+Missione 4 Componente 2 CUP B53D23026250001"_.
