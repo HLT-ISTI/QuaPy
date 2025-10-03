@@ -46,18 +46,18 @@ e.g.:
 
 ```python
 qp.environ['SAMPLE_SIZE'] = 100  # once for all
-true_prev = np.asarray([0.5, 0.3, 0.2])  # let's assume 3 classes
-estim_prev = np.asarray([0.1, 0.3, 0.6])
+true_prev = [0.5, 0.3, 0.2]  # let's assume 3 classes
+estim_prev = [0.1, 0.3, 0.6]
 error = qp.error.mrae(true_prev, estim_prev)
 print(f'mrae({true_prev}, {estim_prev}) = {error:.3f}')
 ```
 
 will print:
 ```
-mrae([0.500, 0.300, 0.200], [0.100, 0.300, 0.600]) = 0.914
+mrae([0.5, 0.3, 0.2], [0.1, 0.3, 0.6]) = 0.914
 ```
 
-Finally, it is possible to instantiate QuaPy's quantification
+It is also possible to instantiate QuaPy's quantification
 error functions from strings using, e.g.:
 
 ```python
@@ -85,7 +85,7 @@ print(f'MAE = {mae:.4f}')
 ```
 
 It is often desirable to evaluate our system using more than one
-single evaluatio measure. In this case, it is convenient to generate
+single evaluation measure. In this case, it is convenient to generate
 a _report_. A report in QuaPy is a dataframe accounting for all the
 true prevalence values with their corresponding prevalence values
 as estimated by the quantifier, along with the error each has given
@@ -104,7 +104,7 @@ report['estim-prev'] = report['estim-prev'].map(F.strprev)
 print(report)
 
 print('Averaged values:')
-print(report.mean())
+print(report.mean(numeric_only=True))
 ```
 
 This will produce an output like:
@@ -141,11 +141,14 @@ true_prevs, estim_prevs = qp.evaluation.prediction(quantifier, protocol=prot)
 
 All the evaluation functions implement specific optimizations for speeding-up 
 the evaluation of aggregative quantifiers (i.e., of instances of _AggregativeQuantifier_).
+
 The optimization comes down to generating classification predictions (either crisp or soft) 
 only once for the entire test set, and then applying the sampling procedure to the
 predictions, instead of generating samples of instances and then computing the 
 classification predictions every time. This is only possible when the protocol
-is an instance of _OnLabelledCollectionProtocol_. The optimization is only 
+is an instance of _OnLabelledCollectionProtocol_. 
+
+The optimization is only 
 carried out when the number of classification predictions thus generated would be
 smaller than the number of predictions required for the entire protocol; e.g., 
 if the original dataset contains 1M instances, but the protocol is such that it would
@@ -156,4 +159,4 @@ precompute all the predictions irrespectively of the number of instances and num
 Finally, this can be deactivated by setting _aggr_speedup=False_. Note that this optimization
 is not only applied for the final evaluation, but also for the internal evaluations carried
 out during _model selection_. Since these are typically many, the heuristic can help reduce the
-execution time a lot.
+execution time significatively.

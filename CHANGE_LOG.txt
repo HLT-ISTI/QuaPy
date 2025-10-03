@@ -1,4 +1,4 @@
-Change Log 0.1.10
+Change Log 0.2.0
 -----------------
 
 CLEAN TODO-FILE
@@ -6,7 +6,7 @@ CLEAN TODO-FILE
 - Base code Refactor:
     - Removing coupling between LabelledCollection and quantification methods; the fit interface changes:
         def fit(data:LabelledCollection): -> def fit(X, y):
-    - Adding function "predict" (function "quantify" is still present as an alias)
+    - Adding function "predict" (function "quantify" is still present as an alias, for the nostalgic)
     - Aggregative methods's behavior in terms of fit_classifier and how to treat the val_split is now
         indicated exclusively at construction time, and it is no longer possible to indicate it at fit time.
         This is because, in v<=0.1.9, one could create a method (e.g., ACC) and then indicate:
@@ -21,15 +21,16 @@ CLEAN TODO-FILE
     - A new parameter "on_calib_error" is passed to the constructor, which informs of the policy to follow
         in case the abstention's calibration functions failed (which happens sometimes). Options include:
             - 'raise': raises a RuntimeException (default)
-            - 'backup': reruns avoiding calibration
+            - 'backup': reruns by silently avoiding calibration
     - Parameter "recalib" has been renamed "calib"
 - Added aggregative bootstrap for deriving confidence regions (confidence intervals, ellipses in the simplex, or
     ellipses in the CLR space). This method is efficient as it leverages the two-phases of the aggregative quantifiers.
     This method applies resampling only to the aggregation phase, thus avoiding to train many quantifiers, or
     classify multiple times the instances of a sample. See:
     - quapy/method/confidence.py (new)
-    - the new example no. 15.
-- BayesianCC moved to confidence.py, where methods having to do with confidence intervals live
+    - the new example no. 16.confidence_regions.py
+- BayesianCC moved to confidence.py, where methods having to do with confidence intervals belong.
+- Improved documentation of qp.plot module.
 
 
 Change Log 0.1.9
