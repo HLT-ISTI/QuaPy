@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split, RepeatedStratifiedKFold
 from numpy.random import RandomState
 from quapy.functional import strprev
 from quapy.util import temp_seed
-import functional as F
+import quapy.functional as F
 
 
 class LabelledCollection:
