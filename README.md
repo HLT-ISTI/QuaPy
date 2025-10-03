@@ -103,16 +103,16 @@ In case you want to contribute improvements to quapy, please generate pull reque
 
 The [developer API documentation](https://hlt-isti.github.io/QuaPy/build/html/modules.html) is available [here](https://hlt-isti.github.io/QuaPy/build/html/index.html). 
 
-Check out our [Wiki](https://github.com/HLT-ISTI/QuaPy/wiki), in which many examples
+Check out the [Manuals](https://hlt-isti.github.io/QuaPy/manuals.html), in which many code examples
 are provided:
 
-* [Datasets](https://github.com/HLT-ISTI/QuaPy/wiki/Datasets)
-* [Evaluation](https://github.com/HLT-ISTI/QuaPy/wiki/Evaluation)
-* [Protocols](https://github.com/HLT-ISTI/QuaPy/wiki/Protocols)
-* [Methods](https://github.com/HLT-ISTI/QuaPy/wiki/Methods)
-* [SVMperf](https://github.com/HLT-ISTI/QuaPy/wiki/ExplicitLossMinimization)
-* [Model Selection](https://github.com/HLT-ISTI/QuaPy/wiki/Model-Selection)
-* [Plotting](https://github.com/HLT-ISTI/QuaPy/wiki/Plotting)
+* [Datasets](https://hlt-isti.github.io/QuaPy/manuals/datasets.html)
+* [Evaluation](https://hlt-isti.github.io/QuaPy/manuals/evaluation.html)
+* [Protocols](https://hlt-isti.github.io/QuaPy/manuals/protocols.html)
+* [Methods](https://hlt-isti.github.io/QuaPy/manuals/methods.html)
+* [SVMperf](https://hlt-isti.github.io/QuaPy/manuals/explicit-loss-minimization.html)
+* [Model Selection](https://hlt-isti.github.io/QuaPy/manuals/model-selection.html)
+* [Plotting](https://hlt-isti.github.io/QuaPy/manuals/plotting.html)
 
 ## Acknowledgments:
 
