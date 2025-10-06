@@ -23,21 +23,29 @@ def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=No
     indicating which class is to be taken as the positive class. (For multiclass quantification problems, other plots
     like the :meth:`error_by_drift` might be preferable though).
 
+    The format convention is as follows: `method_names`, `true_prevs`, and `estim_prevs` are array-like of the same
+    length, with the ith element describing the output of an independent experiment. The elements of `true_prevs`, and
+    `estim_prevs` are `ndarrays` with coherent shape for the same experiment. Experiments for the same method on
+    different datasets can be used, in which case the method name can appear more than once in `method_names`.
+
     :param method_names: array-like with the method names for each experiment
-    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for
-        each experiment
-    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)
-        for each experiment
-    :param pos_class: index of the positive class
-    :param title: the title to be displayed in the plot
-    :param show_std: whether or not to show standard deviations (represented by color bands). This might be inconvenient
+    :param true_prevs: array-like with the true prevalence values for each experiment. Each entry is a ndarray of
+        shape `(n_samples, n_classes)` components.
+    :param estim_prevs: array-like with the estimated prevalence values for each experiment. Each entry is a ndarray of
+        shape `(n_samples, n_classes)` components and `n_samples` must coincide with the corresponding entry in
+        `true_prevs`.
+    :param pos_class: index of the positive class (default 1)
+    :param title: the title to be displayed in the plot (default None)
+    :param show_std: whether to show standard deviations (represented by color bands). This might be inconvenient
         for cases in which many methods are compared, or when the standard deviations are high -- default True)
-    :param legend: whether or not to display the leyend (default True)
-    :param train_prev: if indicated (default is None), the training prevalence (for the positive class) is hightlighted
-        in the plot. This is convenient when all the experiments have been conducted in the same dataset.
+    :param legend: whether to display the legend (default True)
+    :param train_prev: if indicated (default is None), the training prevalence (for the positive class) is highlighted
+        in the plot. This is convenient when all the experiments have been conducted in the same dataset, or in
+        datasets with the same training prevalence.
     :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.
     :param method_order: if indicated (default is None), imposes the order in which the methods are processed (i.e.,
         listed in the legend and associated with matplotlib colors).
+    :return: returns (fig, ax) matplotlib objects for eventual customisation
     """
     fig, ax = plt.subplots()
     ax.set_aspect('equal')
@@ -78,13 +86,9 @@ def binary_diagonal(method_names, true_prevs, estim_prevs, pos_class=1, title=No
 
     if legend:
         ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-        # box = ax.get_position()
-        # ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-        # ax.legend(loc='lower center',
-        #           bbox_to_anchor=(1, -0.5),
-        #           ncol=(len(method_names)+1)//2)
 
     _save_or_show(savepath)
+    return fig, ax
 
 
 def binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=1, title=None, savepath=None):
@@ -92,14 +96,21 @@ def binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=1, title
     Box-plots displaying the global bias (i.e., signed error computed as the estimated value minus the true value)
     for each quantification method with respect to a given positive class.
 
+    The format convention is as follows: `method_names`, `true_prevs`, and `estim_prevs` are array-like of the same
+    length, with the ith element describing the output of an independent experiment. The elements of `true_prevs`, and
+    `estim_prevs` are `ndarrays` with coherent shape for the same experiment. Experiments for the same method on
+    different datasets can be used, in which case the method name can appear more than once in `method_names`.
+
     :param method_names: array-like with the method names for each experiment
-    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for
-        each experiment
-    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)
-        for each experiment
+    :param true_prevs: array-like with the true prevalence values for each experiment. Each entry is a ndarray of
+        shape `(n_samples, n_classes)` components.
+    :param estim_prevs: array-like with the estimated prevalence values for each experiment. Each entry is a ndarray of
+        shape `(n_samples, n_classes)` components and `n_samples` must coincide with the corresponding entry in
+        `true_prevs`.
     :param pos_class: index of the positive class
-    :param title: the title to be displayed in the plot
+    :param title: the title to be displayed in the plot (default None)
     :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.
+    :return: returns (fig, ax) matplotlib objects for eventual customisation
     """
 
     method_names, true_prevs, estim_prevs = _merge(method_names, true_prevs, estim_prevs)
@@ -120,25 +131,34 @@ def binary_bias_global(method_names, true_prevs, estim_prevs, pos_class=1, title
 
     _save_or_show(savepath)
 
+    return fig, ax
+
 
 def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=None, nbins=5, colormap=cm.tab10,
                      vertical_xticks=False, legend=True, savepath=None):
     """
     Box-plots displaying the local bias (i.e., signed error computed as the estimated value minus the true value)
-    for different bins of (true) prevalence of the positive classs, for each quantification method.
+    for different bins of (true) prevalence of the positive class, for each quantification method.
+
+    The format convention is as follows: `method_names`, `true_prevs`, and `estim_prevs` are array-like of the same
+    length, with the ith element describing the output of an independent experiment. The elements of `true_prevs`, and
+    `estim_prevs` are `ndarrays` with coherent shape for the same experiment. Experiments for the same method on
+    different datasets can be used, in which case the method name can appear more than once in `method_names`.
 
     :param method_names: array-like with the method names for each experiment
-    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for
-        each experiment
-    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)
-        for each experiment
+    :param true_prevs: array-like with the true prevalence values for each experiment. Each entry is a ndarray of
+        shape `(n_samples, n_classes)` components.
+    :param estim_prevs: array-like with the estimated prevalence values for each experiment. Each entry is a ndarray of
+        shape `(n_samples, n_classes)` components and `n_samples` must coincide with the corresponding entry in
+        `true_prevs`.
     :param pos_class: index of the positive class
-    :param title: the title to be displayed in the plot
-    :param nbins: number of bins
+    :param title: the title to be displayed in the plot (default None)
+    :param nbins: number of bins (default 5)
     :param colormap: the matplotlib colormap to use (default cm.tab10)
     :param vertical_xticks: whether or not to add secondary grid (default is False)
     :param legend: whether or not to display the legend (default is True)
     :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.
+    :return: returns (fig, ax) matplotlib objects for eventual customisation
     """
     from pylab import boxplot, plot, setp
 
@@ -210,13 +230,15 @@ def binary_bias_bins(method_names, true_prevs, estim_prevs, pos_class=1, title=N
 
     _save_or_show(savepath)
 
+    return fig, ax
+
 
 def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
                    n_bins=20, error_name='ae', show_std=False,
                    show_density=True,
                    show_legend=True,
                    logscale=False,
-                   title=f'Quantification error as a function of distribution shift',
+                   title=None,
                    vlines=None,
                    method_order=None,
                    savepath=None):
@@ -227,11 +249,17 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
     fare in different regions of the prior probability shift spectrum (e.g., in the low-shift regime vs. in the
     high-shift regime).
 
+    The format convention is as follows: `method_names`, `true_prevs`, and `estim_prevs` are array-like of the same
+    length, with the ith element describing the output of an independent experiment. The elements of `true_prevs`, and
+    `estim_prevs` are `ndarrays` with coherent shape for the same experiment. Experiments for the same method on
+    different datasets can be used, in which case the method name can appear more than once in `method_names`.
+
     :param method_names: array-like with the method names for each experiment
-    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for
-        each experiment
-    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)
-        for each experiment
+    :param true_prevs: array-like with the true prevalence values for each experiment. Each entry is a ndarray of
+        shape `(n_samples, n_classes)` components.
+    :param estim_prevs: array-like with the estimated prevalence values for each experiment. Each entry is a ndarray of
+        shape `(n_samples, n_classes)` components and `n_samples` must coincide with the corresponding entry in
+        `true_prevs`.
     :param tr_prevs: training prevalence of each experiment
     :param n_bins: number of bins in which the y-axis is to be divided (default is 20)
     :param error_name: a string representing the name of an error function (as defined in `quapy.error`, default is "ae")
@@ -239,12 +267,13 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
     :param show_density: whether or not to display the distribution of experiments for each bin (default is True)
     :param show_density: whether or not to display the legend of the chart (default is True)
     :param logscale: whether or not to log-scale the y-error measure (default is False)
-    :param title: title of the plot (default is "Quantification error as a function of distribution shift")
+    :param title: title of the plot (default is None)
     :param vlines: array-like list of values (default is None). If indicated, highlights some regions of the space
         using vertical dotted lines.
     :param method_order: if indicated (default is None), imposes the order in which the methods are processed (i.e.,
         listed in the legend and associated with matplotlib colors).
     :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.
+    :return: returns (fig, ax) matplotlib objects for eventual customisation
     """
 
     fig, ax = plt.subplots()
@@ -253,13 +282,13 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
     x_error = qp.error.ae
     y_error = getattr(qp.error, error_name)
 
+    if method_order is None:
+        method_order = []
+
     # get all data as a dictionary {'m':{'x':ndarray, 'y':ndarray}} where 'm' is a method name (in the same
     # order as in method_order (if specified), and where 'x' are the train-test shifts (computed as according to
     # x_error function) and 'y' is the estim-test shift (computed as according to y_error)
     data = _join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error, y_error, method_order)
-
-    if method_order is None:
-        method_order = method_names
 
     _set_colors(ax, n_methods=len(method_order))
 
@@ -313,11 +342,11 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
         ax2.spines['right'].set_color('g')
         ax2.tick_params(axis='y', colors='g')
     
-    ax.set(xlabel=f'Distribution shift between training set and test sample',
-           ylabel=f'{error_name.upper()} (true distribution, predicted distribution)',
+    ax.set(xlabel=f'Prior shift between training set and test sample',
+           ylabel=f'{error_name.upper()} (true prev, predicted prev)',
            title=title)
-    box = ax.get_position()
-    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+    # box = ax.get_position()
+    # ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
     if vlines:
         for vline in vlines:
             ax.axvline(vline, 0, 1, linestyle='--', color='k')
@@ -327,13 +356,14 @@ def error_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
         #nice scale for the logaritmic axis
         ax.set_ylim(0,10 ** math.ceil(math.log10(max_y)))
     
-    
     if show_legend:
-        fig.legend(loc='lower center',
+        fig.legend(loc='center left',
                   bbox_to_anchor=(1, 0.5),
-                  ncol=(len(method_names)+1)//2)
-      
+                  ncol=1)
+
     _save_or_show(savepath)
+
+    return fig, ax
 
 
 def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs,
@@ -350,11 +380,17 @@ def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs
     plot is displayed on top, that displays the distribution of experiments for each bin (when binning="isometric") or
     the percentiles points of the distribution (when binning="isomerous").
 
+    The format convention is as follows: `method_names`, `true_prevs`, and `estim_prevs` are array-like of the same
+    length, with the ith element describing the output of an independent experiment. The elements of `true_prevs`, and
+    `estim_prevs` are `ndarrays` with coherent shape for the same experiment. Experiments for the same method on
+    different datasets can be used, in which case the method name can appear more than once in `method_names`.
+
     :param method_names: array-like with the method names for each experiment
-    :param true_prevs: array-like with the true prevalence values (each being a ndarray with n_classes components) for
-        each experiment
-    :param estim_prevs: array-like with the estimated prevalence values (each being a ndarray with n_classes components)
-        for each experiment
+    :param true_prevs: array-like with the true prevalence values for each experiment. Each entry is a ndarray of
+        shape `(n_samples, n_classes)` components.
+    :param estim_prevs: array-like with the estimated prevalence values for each experiment. Each entry is a ndarray of
+        shape `(n_samples, n_classes)` components and `n_samples` must coincide with the corresponding entry in
+        `true_prevs`.
     :param tr_prevs: training prevalence of each experiment
     :param n_bins: number of bins in which the y-axis is to be divided (default is 20)
     :param binning: type of binning, either "isomerous" (default) or "isometric"
@@ -371,12 +407,15 @@ def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs
     :param method_order: if indicated (default is None), imposes the order in which the methods are processed (i.e.,
         listed in the legend and associated with matplotlib colors).
     :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.
-    :return:
+    :return: returns (fig, ax) matplotlib objects for eventual customisation
     """
     assert binning in ['isomerous', 'isometric'], 'unknown binning type; valid types are "isomerous" and "isometric"'
 
     x_error = getattr(qp.error, x_error)
     y_error = getattr(qp.error, y_error)
+
+    if method_order is None:
+        method_order = []
 
     # get all data as a dictionary {'m':{'x':ndarray, 'y':ndarray}} where 'm' is a method name (in the same
     # order as in method_order (if specified), and where 'x' are the train-test shifts (computed as according to
@@ -518,6 +557,8 @@ def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs
 
     _save_or_show(savepath)
 
+    return fig, ax
+
 
 def _merge(method_names, true_prevs, estim_prevs):
     ndims = true_prevs[0].shape[1]
@@ -535,8 +576,9 @@ def _merge(method_names, true_prevs, estim_prevs):
 
 def _set_colors(ax, n_methods):
     NUM_COLORS = n_methods
-    cm = plt.get_cmap('tab20')
-    ax.set_prop_cycle(color=[cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
+    if NUM_COLORS>10:
+        cm = plt.get_cmap('tab20')
+        ax.set_prop_cycle(color=[cm(1. * i / NUM_COLORS) for i in range(NUM_COLORS)])
 
 
 def _save_or_show(savepath):
@@ -568,3 +610,39 @@ def _join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error
             method_order.append(method)
 
     return data
+
+
+def calibration_plot(prob_classifier, X, y, nbins=10, savepath=None):
+    posteriors = prob_classifier.predict_proba(X)
+    assert posteriors.ndim==2, 'calibration plot only works for binary problems'
+    posteriors = posteriors[:,1]
+    pred_y = posteriors>=0.5
+    bins = np.linspace(0, 1, nbins + 1)
+    binned_values = np.digitize(posteriors, bins, right=False)
+    print(np.unique(binned_values))
+    correct = pred_y == y
+    bin_centers = (bins[:-1] + bins[1:]) / 2
+    bins_names = np.arange(nbins)
+    y_axis = [correct[binned_values==bin].mean() for bin in bins_names]
+    y_axis = [v if not np.isnan(v) else 0 for v in y_axis]
+    # Crear el gráfico de barras
+    plt.bar(bin_centers, y_axis, width=bins[1]-bins[0], edgecolor='black', alpha=0.7)
+
+    # Etiquetas y título
+    plt.xlabel("Bin")
+    plt.ylabel("Value")
+    plt.title("Bar plot of calculated values per bin")
+    plt.xticks(bin_centers, [f"{b:.2f}" for b in bin_centers], rotation=45)
+
+    # Mostrar el gráfico
+    plt.tight_layout()
+    plt.show()
+
+if __name__ == '__main__':
+    import quapy as qp
+    from sklearn.linear_model import LogisticRegression
+    data = qp.datasets.fetch_UCIBinaryDataset(qp.datasets.UCI_BINARY_DATASETS[6])
+    train, test = data.train_test
+    classifier = LogisticRegression()
+    classifier.fit(*train.Xy)
+    calibration_plot(classifier, *test.Xy)

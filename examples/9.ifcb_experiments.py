@@ -6,6 +6,18 @@ from sklearn.linear_model import LogisticRegression
 from quapy.model_selection import GridSearchQ
 from quapy.evaluation import evaluation_report
 
+"""
+This example shows a complete experiment using the IFCB Plankton dataset;
+see https://hlt-isti.github.io/QuaPy/manuals/datasets.html#ifcb-plankton-dataset
+
+Note that this dataset can be downloaded in two modes: for model selection or for evaluation.
+
+See also:
+Automatic plankton quantification using deep features
+P González, A Castaño, EE Peacock, J Díez, JJ Del Coz, HM Sosik
+Journal of Plankton Research 41 (4), 449-463
+"""
+
 
 print('Quantifying the IFCB dataset with PACC\n')
 
@@ -30,7 +42,7 @@ mod_sel = GridSearchQ(
     n_jobs=-1,
     verbose=True,
     raise_errors=True
-).fit(train)
+).fit(*train.Xy)
 
 print(f'model selection chose hyperparameters: {mod_sel.best_params_}')
 quantifier = mod_sel.best_model_
@@ -42,7 +54,7 @@ print(f'\ttraining size={len(train)}, features={train.X.shape[1]}, classes={trai
 print(f'\ttest samples={test_gen.total()}')
 
 print('training on the whole dataset before test')
-quantifier.fit(train)
+quantifier.fit(*train.Xy)
 
 print('testing...')
 report = evaluation_report(quantifier, protocol=test_gen, error_metrics=['mae'], verbose=True)

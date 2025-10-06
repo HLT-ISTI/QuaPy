@@ -4,6 +4,7 @@ from quapy.method.base import BinaryQuantifier, BaseQuantifier
 from quapy.model_selection import GridSearchQ
 from quapy.method.aggregative import AggregativeSoftQuantifier
 from quapy.protocol import APP
+import quapy.functional as F
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from time import time
@@ -30,19 +31,19 @@ class MyQuantifier(BaseQuantifier):
         self.alpha = alpha
         self.classifier = classifier
 
-    # in general, we would need to implement the method fit(self, data: LabelledCollection, fit_classifier=True,
-    # val_split=None); this would amount to:
-    def fit(self, data: LabelledCollection):
-        assert data.n_classes==2, \
+    # in general, we would need to implement the method fit(self, X, y); this would amount to:
+    def fit(self, X, y):
+        n_classes = F.num_classes_from_labels(y)
+        assert n_classes==2, \
             'this quantifier is only valid for binary problems [abort]'
-        self.classifier.fit(*data.Xy)
+        self.classifier.fit(X, y)
         return self
 
     # in general, we would need to implement the method quantify(self, instances); this would amount to:
-    def quantify(self, instances):
+    def predict(self, X):
         assert hasattr(self.classifier, 'predict_proba'), \
             'the underlying classifier is not probabilistic! [abort]'
-        posterior_probabilities = self.classifier.predict_proba(instances)
+        posterior_probabilities = self.classifier.predict_proba(X)
         positive_probabilities = posterior_probabilities[:, 1]
         crisp_decisions = positive_probabilities > self.alpha
         pos_prev = crisp_decisions.mean()
@@ -57,9 +58,11 @@ class MyQuantifier(BaseQuantifier):
 # of the method, now adhering to the AggregativeSoftQuantifier:
 
 class MyAggregativeSoftQuantifier(AggregativeSoftQuantifier, BinaryQuantifier):
+
     def __init__(self, classifier, alpha=0.5):
-        # aggregative quantifiers have an internal attribute called self.classifier
-        self.classifier = classifier
+        # aggregative quantifiers have an internal attribute called self.classifier, but this is defined
+        # within the super's init
+        super().__init__(classifier, fit_classifier=True, val_split=None)
         self.alpha = alpha
 
     # since this method is of type aggregative, we can simply implement the method aggregation_fit, which
@@ -68,7 +71,7 @@ class MyAggregativeSoftQuantifier(AggregativeSoftQuantifier, BinaryQuantifier):
     # k-fold cross validation strategy). What remains ahead is to learn an aggregation function. In our case
     # this amounts to doing... nothing, since our method was pretty basic. BinaryQuantifier also add some
     # basic functionality for checking binary consistency.
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         pass
 
     # since this method is of type aggregative, we can simply implement the method aggregate (i.e., we should
@@ -94,7 +97,7 @@ if __name__ == '__main__':
     train, test = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=5).train_test
     train, val = train.split_stratified(train_prop=0.75)  # let's create a validation set for optimizing hyperparams
 
-    def test_implementation(quantifier):
+    def try_implementation(quantifier):
         class_name = quantifier.__class__.__name__
         print(f'\ntesting implementation {class_name}...')
         # model selection
@@ -104,7 +107,7 @@ if __name__ == '__main__':
             'alpha': np.linspace(0, 1, 11),         # quantifier-dependent hyperparameter
             'classifier__C': np.logspace(-2, 2, 5)  # classifier-dependent hyperparameter
         }
-        gridsearch = GridSearchQ(quantifier, param_grid, protocol=APP(val), n_jobs=-1, verbose=False).fit(train)
+        gridsearch = GridSearchQ(quantifier, param_grid, protocol=APP(val), n_jobs=-1, verbose=True).fit(*train.Xy)
         t_modsel = time() - tinit
         print(f'\tmodel selection took {t_modsel:.2f}s', flush=True)
 
@@ -112,7 +115,7 @@ if __name__ == '__main__':
         optimized_model = gridsearch.best_model_
         mae = qp.evaluation.evaluate(
             optimized_model,
-            protocol=APP(test, repeats=5000, sanity_check=None),  # disable the check, we want to generate many tests!
+            protocol=APP(test, repeats=500, sanity_check=None),  # disable the check, we want to generate many tests!
             error_metric='mae',
             verbose=True)
 
@@ -121,11 +124,11 @@ if __name__ == '__main__':
 
     # define an instance of our custom quantifier and test it!
     quantifier = MyQuantifier(LogisticRegression(), alpha=0.5)
-    test_implementation(quantifier)
+    try_implementation(quantifier)
 
     # define an instance of our custom quantifier, with the second implementation, and test it!
     quantifier = MyAggregativeSoftQuantifier(LogisticRegression(), alpha=0.5)
-    test_implementation(quantifier)
+    try_implementation(quantifier)
 
     # the output should look like this:
     """
@@ -141,7 +144,7 @@ if __name__ == '__main__':
         evaluation took 4.66s [MAE = 0.0630]
     """
     # Note that the first implementation is much slower, both in terms of grid-search optimization and in terms of
-    # evaluation. The reason why is that QuaPy is highly optimized for aggregative quantifiers (by far, the most
+    # evaluation. The reason why, is that QuaPy is highly optimized for aggregative quantifiers (by far, the most
     # popular type of quantification methods), thus significantly speeding up model selection and test routines.
     # Furthermore, it is simpler to extend an aggregation type since QuaPy implements boilerplate functions for you.
 

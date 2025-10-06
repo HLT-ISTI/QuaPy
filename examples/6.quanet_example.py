@@ -20,14 +20,13 @@ train, test = dataset.train_test
 # train the text classifier:
 cnn_module = CNNnet(dataset.vocabulary_size, dataset.training.n_classes)
 cnn_classifier = NeuralClassifierTrainer(cnn_module, device='cuda')
-cnn_classifier.fit(*dataset.training.Xy)
 
 # train QuaNet (alternatively, we can set fit_classifier=True and let QuaNet train the classifier)
 quantifier = QuaNet(cnn_classifier, device='cuda')
-quantifier.fit(train, fit_classifier=False)
+quantifier.fit(*train.Xy)
 
 # prediction and evaluation
-estim_prevalence = quantifier.quantify(test.instances)
+estim_prevalence = quantifier.predict(test.instances)
 mae = qp.error.mae(test.prevalence(), estim_prevalence)
 
 print(f'true prevalence: {F.strprev(test.prevalence())}')

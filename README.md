@@ -13,8 +13,8 @@ for facilitating the analysis and interpretation of the experimental results.
 
 ### Last updates:
 
-* Version 0.1.9 is released! major changes can be consulted [here](CHANGE_LOG.txt).
-* The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/index.html)
+* Version 0.2.0 is released! major changes can be consulted [here](CHANGE_LOG.txt).
+* The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/modules.html)
 
 ### Installation
 
@@ -46,15 +46,15 @@ of the test set.
 ```python
 import quapy as qp
 
-dataset = qp.datasets.fetch_UCIBinaryDataset("yeast")
-training, test = dataset.train_test
+training, test = qp.datasets.fetch_UCIBinaryDataset("yeast").train_test
 
 # create an "Adjusted Classify & Count" quantifier
 model = qp.method.aggregative.ACC()
-model.fit(training)
+Xtr, ytr = training.Xy
+model.fit(Xtr, ytr)
 
-estim_prevalence = model.quantify(test.X)
-true_prevalence  = test.prevalence()
+estim_prevalence = model.predict(test.X)
+true_prevalence = test.prevalence()
 
 error = qp.error.mae(true_prevalence, estim_prevalence)
 print(f'Mean Absolute Error (MAE)={error:.3f}')
@@ -67,8 +67,7 @@ class prevalence of the training set. For this reason, any quantification model
 should be tested across many samples, even ones characterized by class prevalence 
 values different or very different from those found in the training set.
 QuaPy implements sampling procedures and evaluation protocols that automate this workflow.
-See the [documentation](https://hlt-isti.github.io/QuaPy/manuals/protocols.html) 
-and the [examples directory](https://github.com/HLT-ISTI/QuaPy/tree/master/examples) for detailed examples.
+See the [documentation](https://hlt-isti.github.io/QuaPy/build/html/) for detailed examples.
 
 ## Features
 
@@ -80,8 +79,8 @@ quantification methods based on structured output learning, HDy, QuaNet, quantif
     * 32 UCI Machine Learning datasets.
     * 11 Twitter quantification-by-sentiment datasets.
     * 3 product reviews quantification-by-sentiment datasets. 
-    * 4 tasks from LeQua 2022 competition
-    * 4 tasks from LeQua 2024 competition (_new in v0.1.9!_)
+    * 4 tasks from LeQua 2022 competition and 4 tasks from LeQua 2024 competition
+    * IFCB for Plancton quantification 
 * Native support for binary and single-label multiclass quantification scenarios.
 * Model selection functionality that minimizes quantification-oriented loss functions.
 * Visualization tools for analysing the experimental results.
@@ -102,22 +101,23 @@ In case you want to contribute improvements to quapy, please generate pull reque
   
 ## Documentation
 
-The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/). 
+The [developer API documentation](https://hlt-isti.github.io/QuaPy/build/html/modules.html) is available [here](https://hlt-isti.github.io/QuaPy/build/html/index.html). 
 
-Check out our [Manuals](https://hlt-isti.github.io/QuaPy/manuals.html), in which many examples
+Check out the [Manuals](https://hlt-isti.github.io/QuaPy/manuals.html), in which many code examples
 are provided:
 
 * [Datasets](https://hlt-isti.github.io/QuaPy/manuals/datasets.html)
 * [Evaluation](https://hlt-isti.github.io/QuaPy/manuals/evaluation.html)
-* [Explicit loss minimization](https://hlt-isti.github.io/QuaPy/manuals/explicit-loss-minimization.html)
-* [Methods](https://hlt-isti.github.io/QuaPy/manuals/methods.html)
-* [Model Selection](https://hlt-isti.github.io/QuaPy/manuals/datasets.html)
-* [Plotting](https://hlt-isti.github.io/QuaPy/manuals/plotting.html)
 * [Protocols](https://hlt-isti.github.io/QuaPy/manuals/protocols.html)
+* [Methods](https://hlt-isti.github.io/QuaPy/manuals/methods.html)
+* [SVMperf](https://hlt-isti.github.io/QuaPy/manuals/explicit-loss-minimization.html)
+* [Model Selection](https://hlt-isti.github.io/QuaPy/manuals/model-selection.html)
+* [Plotting](https://hlt-isti.github.io/QuaPy/manuals/plotting.html)
 
 ## Acknowledgments:
 
-This work has been funded by the QuaDaSh project (P2022TB5JF) "Finanziato dall’Unione europea- Next Generation EU, Missione 4 Componente 2 CUP B53D23026250001".
-
-<img src="docs/source/EUfooter.png" alt="EUcommission" width="1000"/>
 <img src="docs/source/SoBigData.png" alt="SoBigData++" width="250"/>
+
+This work has been supported by the QuaDaSh project 
+_"Finanziato dall’Unione europea---Next Generation EU, 
+Missione 4 Componente 2 CUP B53D23026250001"_.

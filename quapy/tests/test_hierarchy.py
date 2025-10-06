@@ -9,9 +9,8 @@ import inspect
 class HierarchyTestCase(unittest.TestCase):
 
     def test_aggregative(self):
-        lr = LogisticRegression()
         for m in AGGREGATIVE_METHODS:
-            self.assertEqual(isinstance(m(lr), AggregativeQuantifier), True)
+            self.assertEqual(isinstance(m(), AggregativeQuantifier), True)
 
     def test_inspect_aggregative(self):
 
@@ -22,6 +21,7 @@ class HierarchyTestCase(unittest.TestCase):
         quantifiers = [cls for cls in classes if issubclass(cls, BaseQuantifier)]
         quantifiers = [cls for cls in quantifiers if issubclass(cls, AggregativeQuantifier)]
         quantifiers = [cls for cls in quantifiers if not inspect.isabstract(cls) ]
+        quantifiers = [cls for cls in quantifiers if cls is not OneVsAllAggregative]
 
         for cls in quantifiers:
             self.assertIn(cls, AGGREGATIVE_METHODS)

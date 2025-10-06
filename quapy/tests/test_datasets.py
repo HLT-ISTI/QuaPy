@@ -15,10 +15,13 @@ class TestDatasets(unittest.TestCase):
         return PCC(LogisticRegression(C=0.001, max_iter=100))
 
     def _check_dataset(self, dataset):
+        train, test = dataset.reduce().train_test
         q = self.new_quantifier()
         print(f'testing method {q} in {dataset.name}...', end='')
-        q.fit(dataset.training)
-        estim_prevalences = q.quantify(dataset.test.instances)
+        if len(train)>500:
+            train = train.sampling(500)
+        q.fit(*dataset.training.Xy)
+        estim_prevalences = q.predict(dataset.test.instances)
         self.assertTrue(F.check_prevalence_vector(estim_prevalences))
         print(f'[done]')
 
@@ -26,7 +29,7 @@ class TestDatasets(unittest.TestCase):
         for X, p in gen():
             if vectorizer is not None:
                 X = vectorizer.transform(X)
-            estim_prevalences = q.quantify(X)
+            estim_prevalences = q.predict(X)
             self.assertTrue(F.check_prevalence_vector(estim_prevalences))
             max_samples_test -= 1
             if max_samples_test == 0:
@@ -42,7 +45,9 @@ class TestDatasets(unittest.TestCase):
             self._check_dataset(dataset)
 
     def test_twitter(self):
-        for dataset_name in TWITTER_SENTIMENT_DATASETS_TEST:
+        # all the datasets are contained in the same resource; if the first one
+        # works, there is no need to test for the rest
+        for dataset_name in TWITTER_SENTIMENT_DATASETS_TEST[:1]:
             print(f'loading dataset {dataset_name}...', end='')
             dataset = fetch_twitter(dataset_name, min_df=10)
             dataset.stats()
@@ -52,18 +57,12 @@ class TestDatasets(unittest.TestCase):
 
     def test_UCIBinaryDataset(self):
         for dataset_name in UCI_BINARY_DATASETS:
-            try:
-                print(f'loading dataset {dataset_name}...', end='')
-                dataset = fetch_UCIBinaryDataset(dataset_name)
-                dataset.stats()
-                dataset.reduce()
-                print(f'[done]')
-                self._check_dataset(dataset)
-            except FileNotFoundError as fnfe:
-                if dataset_name == 'pageblocks.5' and fnfe.args[0].find(
-                        'If this is the first time you attempt to load this dataset') > 0:
-                    print('The pageblocks.5 dataset requires some hand processing to be usable; skipping this test.')
-                    continue
+            print(f'loading dataset {dataset_name}...', end='')
+            dataset = fetch_UCIBinaryDataset(dataset_name)
+            dataset.stats()
+            dataset.reduce()
+            print(f'[done]')
+            self._check_dataset(dataset)
 
     def test_UCIMultiDataset(self):
         for dataset_name in UCI_MULTICLASS_DATASETS:
@@ -83,18 +82,18 @@ class TestDatasets(unittest.TestCase):
             return
 
         for dataset_name in LEQUA2022_VECTOR_TASKS:
-            print(f'loading dataset {dataset_name}...', end='')
+            print(f'LeQu2022: loading dataset {dataset_name}...', end='')
             train, gen_val, gen_test = fetch_lequa2022(dataset_name)
             train.stats()
             n_classes = train.n_classes
             train = train.sampling(100, *F.uniform_prevalence(n_classes))
             q = self.new_quantifier()
-            q.fit(train)
+            q.fit(*train.Xy)
             self._check_samples(gen_val, q, max_samples_test=5)
             self._check_samples(gen_test, q, max_samples_test=5)
 
         for dataset_name in LEQUA2022_TEXT_TASKS:
-            print(f'loading dataset {dataset_name}...', end='')
+            print(f'LeQu2022: loading dataset {dataset_name}...', end='')
             train, gen_val, gen_test = fetch_lequa2022(dataset_name)
             train.stats()
             n_classes = train.n_classes
@@ -102,9 +101,25 @@ class TestDatasets(unittest.TestCase):
             tfidf = TfidfVectorizer()
             train.instances = tfidf.fit_transform(train.instances)
             q = self.new_quantifier()
-            q.fit(train)
+            q.fit(*train.Xy)
             self._check_samples(gen_val, q, max_samples_test=5, vectorizer=tfidf)
             self._check_samples(gen_test, q, max_samples_test=5, vectorizer=tfidf)
+
+    def test_lequa2024(self):
+        if os.environ.get('QUAPY_TESTS_OMIT_LARGE_DATASETS'):
+            print("omitting test_lequa2024 because QUAPY_TESTS_OMIT_LARGE_DATASETS is set")
+            return
+
+        for task in LEQUA2024_TASKS:
+            print(f'LeQu2024: loading task {task}...', end='')
+            train, gen_val, gen_test = fetch_lequa2024(task, merge_T3=True)
+            train.stats()
+            n_classes = train.n_classes
+            train = train.sampling(100, *F.uniform_prevalence(n_classes))
+            q = self.new_quantifier()
+            q.fit(*train.Xy)
+            self._check_samples(gen_val, q, max_samples_test=5)
+            self._check_samples(gen_test, q, max_samples_test=5)
 
 
     def test_IFCB(self):
@@ -119,7 +134,7 @@ class TestDatasets(unittest.TestCase):
             n_classes = train.n_classes
             train = train.sampling(100, *F.uniform_prevalence(n_classes))
             q = self.new_quantifier()
-            q.fit(train)
+            q.fit(*train.Xy)
             self._check_samples(gen, q, max_samples_test=5)
 
 

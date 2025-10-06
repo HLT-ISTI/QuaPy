@@ -6,6 +6,8 @@ on:
     branches:
       - master
       - devel
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
 
@@ -28,7 +30,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        python -m pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4"
+        python -m pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@main"
         python -m pip install -e .[bayes,tests]
     - name: Test with unittest
       run: python -m unittest
@@ -47,7 +49,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip setuptools wheel "jax[cpu]"
-        python -m pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4"
+        python -m pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@main"
         python -m pip install -e .[neural,docs]
     - name: Build documentation
       run: sphinx-build -M html docs/source docs/build
@@ -66,3 +68,37 @@ jobs:
         branch: gh-pages
         directory: __gh-pages/
         github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip build twine
+      - name: Build package
+        run: python -m build
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          body: |
+            Changes in this release: 
+            - see commit history for details
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,3 +1,8 @@
+import warnings
+from sklearn.exceptions import ConvergenceWarning
+warnings.simplefilter("ignore", ConvergenceWarning)
+
+from . import confidence
 from . import base
 from . import aggregative
 from . import non_aggregative
@@ -22,7 +27,8 @@ AGGREGATIVE_METHODS = {
     aggregative.KDEyML,
     aggregative.KDEyCS,
     aggregative.KDEyHD,
-    aggregative.BayesianCC
+    # aggregative.OneVsAllAggregative,
+    confidence.BayesianCC,
 }
 
 BINARY_METHODS = {
@@ -45,7 +51,7 @@ MULTICLASS_METHODS = {
     aggregative.KDEyML,
     aggregative.KDEyCS,
     aggregative.KDEyHD,
-    aggregative.BayesianCC
+    confidence.BayesianCC
 }
 
 NON_AGGREGATIVE_METHODS = {
@@ -59,6 +65,8 @@ META_METHODS = {
 }
 
 QUANTIFICATION_METHODS = AGGREGATIVE_METHODS | NON_AGGREGATIVE_METHODS | META_METHODS
+
+
 
 
 

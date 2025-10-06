@@ -13,7 +13,7 @@ $ pip install quapy[bayesian]
 Running the script via:
 
 ```
-$ python examples/13.bayesian_quantification.py
+$ python examples/14.bayesian_quantification.py
 ```
 
 will produce a plot `bayesian_quantification.pdf`.
@@ -29,7 +29,8 @@ import quapy as qp
 
 from sklearn.ensemble import RandomForestClassifier
 
-from quapy.method.aggregative import BayesianCC, ACC, PACC
+from quapy.method.aggregative import ACC, PACC
+from method.confidence import BayesianCC
 from quapy.data import LabelledCollection, Dataset
 
 
@@ -121,18 +122,18 @@ def get_random_forest() -> RandomForestClassifier:
 def _get_estimate(estimator_class, training: LabelledCollection, test: np.ndarray) -> None:
     """Auxiliary method for running ACC and PACC."""
     estimator = estimator_class(get_random_forest())
-    estimator.fit(training)
-    return estimator.quantify(test)
+    estimator.fit(*training.Xy)
+    return estimator.predict(test)
 
 
 def train_and_plot_bayesian_quantification(ax: plt.Axes, training: LabelledCollection, test: LabelledCollection) -> None:
     """Fits Bayesian quantification and plots posterior mean as well as individual samples"""
     print('training model Bayesian CC...', end='')
     quantifier = BayesianCC(classifier=get_random_forest())
-    quantifier.fit(training)
+    quantifier.fit(*training.Xy)
 
     # Obtain mean prediction
-    mean_prediction = quantifier.quantify(test.X)
+    mean_prediction = quantifier.predict(test.X)
     mae = qp.error.mae(test.prevalence(), mean_prediction)
     x_ax = np.arange(training.n_classes)
     ax.plot(x_ax, mean_prediction, c="salmon", linewidth=2, linestyle=":", label="Bayesian")

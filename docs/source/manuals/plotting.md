@@ -2,6 +2,9 @@
 
 The module _qp.plot_ implements some basic plotting functions
 that can help analyse the performance of a quantification method.
+See the provided 
+[code example](https://github.com/HLT-ISTI/QuaPy/blob/master/examples/13.plotting.py) 
+for a full example. 
 
 All plotting functions receive as inputs the outcomes of 
 some experiments and include, for each experiment, 
@@ -77,7 +80,7 @@ def gen_data():
     method_names, true_prevs, estim_prevs, tr_prevs = [], [], [], []
 
     for method_name, model in models():
-        model.fit(train)
+        model.fit(*train.Xy)
         true_prev, estim_prev = qp.evaluation.prediction(model, APP(test, repeats=100, random_state=0))
 
         method_names.append(method_name)
@@ -171,7 +174,7 @@ def gen_data():
         training_size = 5000
         # since the problem is binary, it suffices to specify the negative prevalence, since the positive is constrained
         train_sample = train.sampling(training_size, 1-training_prevalence)
-        model.fit(train_sample)
+        model.fit(*train_sample.Xy)
         true_prev, estim_prev = qp.evaluation.prediction(model, APP(test, repeats=100, random_state=0))
         method_name = 'CC$_{'+f'{int(100*training_prevalence)}' + '\%}$'
         method_data.append((method_name, true_prev, estim_prev, train_sample.prevalence()))

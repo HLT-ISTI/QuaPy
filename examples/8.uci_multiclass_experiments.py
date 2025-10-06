@@ -1,4 +1,3 @@
-import pickle
 import os
 from time import time
 from collections import defaultdict
@@ -7,10 +6,15 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 import quapy as qp
-from quapy.method.aggregative import PACC, EMQ
+from quapy.method.aggregative import PACC, EMQ, KDEyML
 from quapy.model_selection import GridSearchQ
 from quapy.protocol import UPP
 from pathlib import Path
+
+"""
+This example is the analogous counterpart of example 7 but involving multiclass quantification problems
+using datasets from the UCI ML repository.
+"""
 
 
 SEED = 1
@@ -31,7 +35,7 @@ def wrap_hyper(classifier_hyper_grid:dict):
 METHODS = [
     ('PACC', PACC(newLR()), wrap_hyper(logreg_grid)),
     ('EMQ',  EMQ(newLR()), wrap_hyper(logreg_grid)),
-    # ('KDEy-ML',  KDEyML(newLR()), {**wrap_hyper(logreg_grid), **{'bandwidth': np.linspace(0.01, 0.2, 20)}}),
+    ('KDEy-ML',  KDEyML(newLR()), {**wrap_hyper(logreg_grid), **{'bandwidth': np.linspace(0.01, 0.2, 20)}}),
 ]
 
 
@@ -42,6 +46,7 @@ def show_results(result_path):
     pd.set_option('display.max_rows', None)
     pv = df.pivot_table(index='Dataset', columns="Method", values=["MAE", "MRAE", "t_train"], margins=True)
     print(pv)
+
 
 def load_timings(result_path):
     import pandas as pd
@@ -59,7 +64,7 @@ if __name__ == '__main__':
     qp.environ['N_JOBS'] = -1
     n_bags_val = 250
     n_bags_test = 1000
-    result_dir = f'results/ucimulti'
+    result_dir = f'results/uci_multiclass'
 
     os.makedirs(result_dir, exist_ok=True)
 
@@ -100,7 +105,7 @@ if __name__ == '__main__':
                         
                         t_init = time()
                         try:
-                            modsel.fit(train)
+                            modsel.fit(*train.Xy)
 
                             print(f'best params {modsel.best_params_}')
                             print(f'best score {modsel.best_score_}')
@@ -108,7 +113,8 @@ if __name__ == '__main__':
                             quantifier = modsel.best_model()
                         except:
                             print('something went wrong... trying to fit the default model')
-                            quantifier.fit(train)
+                            quantifier.fit(*train.Xy)
+
                         timings[method_name][dataset] = time() - t_init
                         
 

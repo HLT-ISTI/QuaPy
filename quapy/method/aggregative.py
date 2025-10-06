@@ -1,12 +1,16 @@
 from abc import ABC, abstractmethod
+from argparse import ArgumentError
 from copy import deepcopy
 from typing import Callable, Literal, Union
 import numpy as np
 from abstention.calibration import NoBiasVectorScaling, TempScaling, VectorScaling
+from numpy.f2py.crackfortran import true_intent_list
 from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.exceptions import NotFittedError
 from sklearn.metrics import confusion_matrix
-from sklearn.model_selection import cross_val_predict
+from sklearn.model_selection import cross_val_predict, train_test_split
+from sklearn.utils.validation import check_is_fitted
 
 import quapy as qp
 import quapy.functional as F
@@ -16,6 +20,9 @@ from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric
 from quapy.method import _bayesian
 
+# import warnings
+# from sklearn.exceptions import ConvergenceWarning
+# warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 
 # Abstract classes
@@ -35,20 +42,80 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
 
     The method :meth:`quantify` comes with a default implementation based on :meth:`classify`
     and :meth:`aggregate`.
+
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple `(X,y)` defining the specific set of data to use for validation. Set to
+        None when the method does not require any validation data, in order to avoid that some portion of
+        the training data be wasted.
     """
 
-    val_split_ = None
+    def __init__(self,
+                 classifier: Union[None,BaseEstimator],
+                 fit_classifier:bool=True,
+                 val_split:Union[int,float,tuple,None]=5):
 
-    @property
-    def val_split(self):
-        return self.val_split_
+        self.classifier = qp._get_classifier(classifier)
+        self.fit_classifier = fit_classifier
+        self.val_split = val_split
 
-    @val_split.setter
-    def val_split(self, val_split):
-        if isinstance(val_split, LabelledCollection):
-            print('warning: setting val_split with a LabelledCollection will be inefficient in'
-                  'model selection. Rather pass the LabelledCollection at fit time')
-        self.val_split_ = val_split
+        # basic type checks
+        assert hasattr(self.classifier, 'fit'), \
+            f'the classifier does not implement "fit"'
+
+        assert isinstance(fit_classifier, bool), \
+            f'unexpected type for {fit_classifier=}; must be True or False'
+
+        # val_split is indicated as a number of folds for cross-validation
+        if isinstance(val_split, int):
+            assert val_split > 1, \
+                (f'when {val_split=} is indicated as an integer, it represents the number of folds in a kFCV '
+                 f'and must thus be >1')
+            if val_split==5 and not fit_classifier:
+                print(f'Warning: {val_split=} will be ignored when the classifier is already trained '
+                      f'({fit_classifier=}). Parameter {self.val_split=} will be set to None. Set {val_split=} '
+                      f'to None to avoid this warning.')
+                self.val_split=None
+            if val_split!=5:
+                assert fit_classifier, (f'Parameter {val_split=} has been modified, but {fit_classifier=} '
+                                        f'indicates the classifier should not be retrained.')
+        # val_split is indicated as a fraction of validation instances
+        elif isinstance(val_split, float):
+            assert 0 < val_split < 1, \
+                (f'when {val_split=} is indicated as a float, it represents the fraction of training instances '
+                 f'to be used for validation, and must thus be in the range (0,1)')
+            assert fit_classifier, (f'when {val_split=} is indicated as a float (the fraction of training instances '
+                                    f'to be used for validation), the parameter {fit_classifier=} must be True')
+        # val_split is indicated as a validation collection (X,y)
+        elif isinstance(val_split, tuple):
+            assert len(val_split) == 2, \
+                (f'when {val_split=} is indicated as a tuple, it represents the collection (X,y) on which the '
+                 f'validation must be performed, but this seems to have different cardinality')
+        elif val_split is None:
+            pass
+        else:
+            raise ValueError(f'unexpected type for {val_split=}')
+
+        # classifier is fitted?
+        try:
+            check_is_fitted(self.classifier)
+            fitted = True
+        except NotFittedError:
+            fitted = False
+
+        # consistency checks: fit_classifier?
+        if self.fit_classifier:
+            if fitted:
+                raise RuntimeWarning(f'the classifier is already fitted, but {fit_classifier=} was requested')
+        else:
+            assert fitted, (f'{fit_classifier=} requires the classifier to be already trained, '
+                            f'but this does not seem to be')
 
     def _check_init_parameters(self):
         """
@@ -60,124 +127,89 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         """
         pass
 
-    def _check_non_empty_classes(self, data: LabelledCollection):
+    def _check_non_empty_classes(self, y):
         """
         Asserts all classes have positive instances.
 
-        :param data: LabelledCollection
+        :param labels: array-like of shape `(n_instances,)` with the label for each instance
+        :param classes: the class labels. This is needed in order to correctly compute the prevalence vector even when
+            some classes have no examples.
         :return: Nothing. May raise an exception.
         """
-        sample_prevs = data.prevalence()
-        empty_classes = np.argwhere(sample_prevs==0).flatten()
-        if len(empty_classes)>0:
-            empty_class_names = data.classes_[empty_classes]
+        sample_prevs = F.prevalence_from_labels(y, self.classes_)
+        empty_classes = np.argwhere(sample_prevs == 0).flatten()
+        if len(empty_classes) > 0:
+            empty_class_names = self.classes_[empty_classes]
             raise ValueError(f'classes {empty_class_names} have no training examples')
 
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
+    def fit(self, X, y):
         """
-        Trains the aggregative quantifier. This comes down to training a classifier and an aggregation function.
+        Trains the aggregative quantifier. This comes down to training a classifier (if requested) and an
+        aggregation function.
 
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
-        :param fit_classifier: whether to train the learner (default is True). Set to False if the
-            learner has been trained outside the quantifier.
-        :param val_split: specifies the data used for generating classifier predictions. This specification
-            can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
-            be extracted from the training set; or as an integer (default 5), indicating that the predictions
-            are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-            for `k`); or as a collection defining the specific set of data to use for validation.
-            Alternatively, this set can be specified at fit time by indicating the exact set of data
-            on which the predictions are to be generated.
+        :param X: array-like of shape `(n_samples, n_features)`, the training instances
+        :param y: array-like of shape `(n_samples,)`, the labels
         :return: self
         """
         self._check_init_parameters()
-        classif_predictions = self.classifier_fit_predict(data, fit_classifier, predict_on=val_split)
-        self.aggregation_fit(classif_predictions, data)
+        classif_predictions, labels = self.classifier_fit_predict(X, y)
+        self.aggregation_fit(classif_predictions, labels)
         return self
 
-    def classifier_fit_predict(self, data: LabelledCollection, fit_classifier=True, predict_on=None):
+    def classifier_fit_predict(self, X, y):
         """
         Trains the classifier if requested (`fit_classifier=True`) and generate the necessary predictions to
         train the aggregation function.
 
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
-        :param fit_classifier: whether to train the learner (default is True). Set to False if the
-            learner has been trained outside the quantifier.
-        :param predict_on: specifies the set on which predictions need to be issued. This parameter can
-            be specified as None (default) to indicate no prediction is needed; a float in (0, 1) to
-            indicate the proportion of instances to be used for predictions (the remainder is used for
-            training); an integer >1 to indicate that the predictions must be generated via k-fold
-            cross-validation, using this integer as k; or the data sample itself on which to generate
-            the predictions.
+        :param X: array-like of shape `(n_samples, n_features)`, the training instances
+        :param y: array-like of shape `(n_samples,)`, the labels
         """
-        assert isinstance(fit_classifier, bool), 'unexpected type for "fit_classifier", must be boolean'
+        self._check_classifier(adapt_if_necessary=self.fit_classifier)
 
-        self._check_classifier(adapt_if_necessary=(self._classifier_method() == 'predict_proba'))
+        # self._check_non_empty_classes(y)
 
-        if fit_classifier:
-            self._check_non_empty_classes(data)
-
-        if predict_on is None:
-            if not fit_classifier:
-                predict_on = data
-                if isinstance(self.val_split, LabelledCollection) and self.val_split!=predict_on:
-                    raise ValueError(f'{fit_classifier=} but a LabelledCollection was provided as val_split '
-                                     f'in __init__ that is not the same as the LabelledCollection provided in fit.')
-        if predict_on is None:
-            predict_on = self.val_split
-
-        if predict_on is None:
-            if fit_classifier:
-                self.classifier.fit(*data.Xy)
-            predictions = None
-        elif isinstance(predict_on, float):
-            if fit_classifier:
-                if not (0. < predict_on < 1.):
-                    raise ValueError(f'proportion {predict_on=} out of range, must be in (0,1)')
-                train, val = data.split_stratified(train_prop=(1 - predict_on))
-                self.classifier.fit(*train.Xy)
-                predictions = LabelledCollection(self.classify(val.X), val.y, classes=data.classes_)
+        predictions, labels = None, None
+        if isinstance(self.val_split, int):
+            assert self.fit_classifier, f'{self.__class__}: unexpected value for {self.fit_classifier=}'
+            num_folds = self.val_split
+            n_jobs = self.n_jobs if hasattr(self, 'n_jobs') else qp._get_njobs(None)
+            predictions = cross_val_predict(
+                self.classifier, X, y, cv=num_folds, n_jobs=n_jobs, method=self._classifier_method()
+            )
+            labels = y
+            self.classifier.fit(X, y)
+        elif isinstance(self.val_split, float):
+            assert self.fit_classifier, f'unexpected value for {self.fit_classifier=}'
+            train_prop = 1. - self.val_split
+            Xtr, Xval, ytr, yval = train_test_split(X, y, train_size=train_prop, stratify=y)
+            self.classifier.fit(Xtr, ytr)
+            predictions = self.classify(Xval)
+            labels = yval
+        elif isinstance(self.val_split, tuple):
+            Xval, yval = self.val_split
+            if self.fit_classifier:
+                self.classifier.fit(X, y)
+            predictions = self.classify(Xval)
+            labels = yval
+        elif self.val_split is None:
+            if self.fit_classifier:
+                self.classifier.fit(X, y)
+                predictions, labels = None, None
             else:
-                raise ValueError(f'wrong type for predict_on: since fit_classifier=False, '
-                                 f'the set on which predictions have to be issued must be '
-                                 f'explicitly indicated')
-
-        elif isinstance(predict_on, LabelledCollection):
-            if fit_classifier:
-                self.classifier.fit(*data.Xy)
-            predictions = LabelledCollection(self.classify(predict_on.X), predict_on.y, classes=predict_on.classes_)
-
-        elif isinstance(predict_on, int):
-            if fit_classifier:
-                if predict_on <= 1:
-                    raise ValueError(f'invalid value {predict_on} in fit. '
-                                     f'Specify a integer >1 for kFCV estimation.')
-                else:
-                    n_jobs = self.n_jobs if hasattr(self, 'n_jobs') else qp._get_njobs(None)
-                    predictions = cross_val_predict(
-                        self.classifier, *data.Xy, cv=predict_on, n_jobs=n_jobs, method=self._classifier_method())
-                    predictions = LabelledCollection(predictions, data.y, classes=data.classes_)
-                    self.classifier.fit(*data.Xy)
-            else:
-                raise ValueError(f'wrong type for predict_on: since fit_classifier=False, '
-                                 f'the set on which predictions have to be issued must be '
-                                 f'explicitly indicated')
-
+                predictions, labels = self.classify(X), y
         else:
-            raise ValueError(
-                f'error: param "predict_on" ({type(predict_on)}) not understood; '
-                f'use either a float indicating the split proportion, or a '
-                f'tuple (X,y) indicating the validation partition')
+            raise ValueError(f'unexpected type for {self.val_split=}')
 
-        return predictions
+        return predictions, labels
 
     @abstractmethod
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Trains the aggregation function.
 
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the predictions issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param classif_predictions: array-like with the classification predictions
+            (whatever the method :meth:`classify` returns)
+        :param labels: array-like with the true labels associated to each classifier prediction
         """
         ...
 
@@ -199,16 +231,16 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         """
         self.classifier_ = classifier
 
-    def classify(self, instances):
+    def classify(self, X):
         """
         Provides the label predictions for the given instances. The predictions should respect the format expected by
         :meth:`aggregate`, e.g., posterior probabilities for probabilistic quantifiers, or crisp predictions for
         non-probabilistic quantifiers. The default one is "decision_function".
 
-        :param instances: array-like of shape `(n_instances, n_features,)`
-        :return: np.ndarray of shape `(n_instances,)` with label predictions
+        :param X: array-like of shape `(n_samples, n_features)`, the data instances
+        :return: np.ndarray of shape `(n_instances,)` with classifier predictions
         """
-        return getattr(self.classifier, self._classifier_method())(instances)
+        return getattr(self.classifier, self._classifier_method())(X)
 
     def _classifier_method(self):
         """
@@ -223,28 +255,28 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         Guarantees that the underlying classifier implements the method required for issuing predictions, i.e.,
         the method indicated by the :meth:`_classifier_method`
 
-        :param adapt_if_necessary: if True, the method will try to comply with the required specifications
+        :param adapt_if_necessary: unused unless overridden
         """
         assert hasattr(self.classifier, self._classifier_method()), \
             f"the method does not implement the required {self._classifier_method()} method"
 
-    def quantify(self, instances):
+    def predict(self, X):
         """
         Generate class prevalence estimates for the sample's instances by aggregating the label predictions generated
         by the classifier.
 
-        :param instances: array-like
+        :param X: array-like of shape `(n_samples, n_features)`, the data instances
         :return: `np.ndarray` of shape `(n_classes)` with class prevalence estimates.
         """
-        classif_predictions = self.classify(instances)
+        classif_predictions = self.classify(X)
         return self.aggregate(classif_predictions)
 
     @abstractmethod
     def aggregate(self, classif_predictions: np.ndarray):
         """
-        Implements the aggregation of label predictions.
+        Implements the aggregation of the classifier predictions.
 
-        :param classif_predictions: `np.ndarray` of label predictions
+        :param classif_predictions: `np.ndarray` of classifier predictions
         :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.
         """
         ...
@@ -255,7 +287,7 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
         Class labels, in the same order in which class prevalence values are to be computed.
         This default implementation actually returns the class labels of the learner.
 
-        :return: array-like
+        :return: array-like, the class labels
         """
         return self.classifier.classes_
 
@@ -317,7 +349,7 @@ class AggregativeSoftQuantifier(AggregativeQuantifier, ABC):
 
 
 class BinaryAggregativeQuantifier(AggregativeQuantifier, BinaryQuantifier):
-    
+
     @property
     def pos_label(self):
         return self.classifier.classes_[1]
@@ -326,9 +358,9 @@ class BinaryAggregativeQuantifier(AggregativeQuantifier, BinaryQuantifier):
     def neg_label(self):
         return self.classifier.classes_[0]
 
-    def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
-        self._check_binary(data, self.__class__.__name__)
-        return super().fit(data, fit_classifier, val_split)
+    def fit(self, X, y):
+        self._check_binary(y, self.__class__.__name__)
+        return super().fit(X, y)
 
 
 # Methods
@@ -340,16 +372,15 @@ class CC(AggregativeCrispQuantifier):
 
     :param classifier: a sklearn's Estimator that generates a classifier
     """
+    def __init__(self, classifier: BaseEstimator = None, fit_classifier: bool = True):
+        super().__init__(classifier, fit_classifier, val_split=None)
 
-    def __init__(self, classifier: BaseEstimator=None):
-        self.classifier = qp._get_classifier(classifier)
-
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Nothing to do here!
 
-        :param classif_predictions: not used
-        :param data: not used
+        :param classif_predictions: unused
+        :param labels: unused
         """
         pass
 
@@ -357,7 +388,7 @@ class CC(AggregativeCrispQuantifier):
         """
         Computes class prevalence estimates by counting the prevalence of each of the predicted labels.
 
-        :param classif_predictions: array-like with label predictions
+        :param classif_predictions: array-like with classifier predictions
         :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.
         """
         return F.prevalence_from_labels(classif_predictions, self.classes_)
@@ -371,15 +402,15 @@ class PCC(AggregativeSoftQuantifier):
     :param classifier: a sklearn's Estimator that generates a classifier
     """
 
-    def __init__(self, classifier: BaseEstimator=None):
-        self.classifier = qp._get_classifier(classifier)
+    def __init__(self, classifier: BaseEstimator = None, fit_classifier: bool = True):
+        super().__init__(classifier, fit_classifier, val_split=None)
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Nothing to do here!
 
-        :param classif_predictions: not used
-        :param data: not used
+        :param classif_predictions: unused
+        :param labels: unused
         """
         pass
 
@@ -393,15 +424,17 @@ class ACC(AggregativeCrispQuantifier):
     the "adjusted" variant of :class:`CC`, that corrects the predictions of CC
     according to the `misclassification rates`.
 
-    :param classifier: a sklearn's Estimator that generates a classifier
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
 
     :param val_split: specifies the data used for generating classifier predictions. This specification
         can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
         be extracted from the training set; or as an integer (default 5), indicating that the predictions
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`); or as a collection defining the specific set of data to use for validation.
-        Alternatively, this set can be specified at fit time by indicating the exact set of data
-        on which the predictions are to be generated.
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
 
     :param str method: adjustment method to be used:
 
@@ -432,17 +465,18 @@ class ACC(AggregativeCrispQuantifier):
 
     :param n_jobs: number of parallel workers
     """
+
     def __init__(
             self,
-            classifier: BaseEstimator=None,
-            val_split=5,
+            classifier: BaseEstimator = None,
+            fit_classifier = True,
+            val_split = 5,
             solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
             method: Literal['inversion', 'invariant-ratio'] = 'inversion',
             norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
             n_jobs=None,
     ):
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+        super().__init__(classifier, fit_classifier, val_split)
         self.n_jobs = qp._get_njobs(n_jobs)
         self.solver = solver
         self.method = method
@@ -453,24 +487,29 @@ class ACC(AggregativeCrispQuantifier):
     NORMALIZATIONS = ['clip', 'mapsimplex', 'condsoftmax', None]
 
     @classmethod
-    def newInvariantRatioEstimation(cls, classifier: BaseEstimator, val_split=5, n_jobs=None):
+    def newInvariantRatioEstimation(cls, classifier: BaseEstimator, fit_classifier=True, val_split=5, n_jobs=None):
         """
         Constructs a quantifier that implements the Invariant Ratio Estimator of
         `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>`_. This amounts
         to setting method to 'invariant-ratio' and clipping to 'project'.
 
-        :param classifier: a sklearn's Estimator that generates a classifier
+        :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+            the one indicated in `qp.environ['DEFAULT_CLS']`
+
+        :param fit_classifier: whether to train the learner (default is True). Set to False if the
+            learner has been trained outside the quantifier.
+
         :param val_split: specifies the data used for generating classifier predictions. This specification
-        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
-        be extracted from the training set; or as an integer (default 5), indicating that the predictions
-        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`); or as a collection defining the specific set of data to use for validation.
-        Alternatively, this set can be specified at fit time by indicating the exact set of data
-        on which the predictions are to be generated.
+            can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+            be extracted from the training set; or as an integer (default 5), indicating that the predictions
+            are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+            for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+
         :param n_jobs: number of parallel workers
+
         :return: an instance of ACC configured so that it implements the Invariant Ratio Estimator
         """
-        return ACC(classifier, val_split=val_split, method='invariant-ratio', norm='mapsimplex', n_jobs=n_jobs)
+        return ACC(classifier, fit_classifier=fit_classifier, val_split=val_split, method='invariant-ratio', norm='mapsimplex', n_jobs=n_jobs)
 
     def _check_init_parameters(self):
         if self.solver not in ACC.SOLVERS:
@@ -480,16 +519,15 @@ class ACC(AggregativeCrispQuantifier):
         if self.norm not in ACC.NORMALIZATIONS:
             raise ValueError(f"unknown normalization; valid ones are {ACC.NORMALIZATIONS}")
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Estimates the misclassification rates.
-
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the label predictions issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param classif_predictions: array-like with the predicted labels
+        :param labels: array-like with the true labels associated to each predicted label
         """
-        pred_labels, true_labels = classif_predictions.Xy
-        self.cc = CC(self.classifier)
+        true_labels = labels
+        pred_labels = classif_predictions
+        self.cc = CC(self.classifier, fit_classifier=False)
         self.Pte_cond_estim_ = ACC.getPteCondEstim(self.classifier.classes_, true_labels, pred_labels)
 
     @classmethod
@@ -529,14 +567,17 @@ class PACC(AggregativeSoftQuantifier):
     `Probabilistic Adjusted Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
     the probabilistic variant of ACC that relies on the posterior probabilities returned by a probabilistic classifier.
 
-    :param classifier: a sklearn's Estimator that generates a classifier
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
 
     :param val_split: specifies the data used for generating classifier predictions. This specification
         can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
         be extracted from the training set; or as an integer (default 5), indicating that the predictions
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`). Alternatively, this set can be specified at fit time by indicating the exact set of data
-        on which the predictions are to be generated.
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
 
     :param str method: adjustment method to be used:
 
@@ -567,17 +608,18 @@ class PACC(AggregativeSoftQuantifier):
 
     :param n_jobs: number of parallel workers
     """
+
     def __init__(
             self,
-            classifier: BaseEstimator=None,
+            classifier: BaseEstimator = None,
+            fit_classifier=True,
             val_split=5,
             solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
             method: Literal['inversion', 'invariant-ratio'] = 'inversion',
             norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
             n_jobs=None
     ):
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+        super().__init__(classifier, fit_classifier, val_split)
         self.n_jobs = qp._get_njobs(n_jobs)
         self.solver = solver
         self.method = method
@@ -591,17 +633,16 @@ class PACC(AggregativeSoftQuantifier):
         if self.norm not in ACC.NORMALIZATIONS:
             raise ValueError(f"unknown normalization; valid ones are {ACC.NORMALIZATIONS}")
 
-
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Estimates the misclassification rates
 
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param classif_predictions: array-like with posterior probabilities
+        :param labels: array-like with the true labels associated to each vector of posterior probabilities
         """
-        posteriors, true_labels = classif_predictions.Xy
-        self.pcc = PCC(self.classifier)
+        posteriors = classif_predictions
+        true_labels = labels
+        self.pcc = PCC(self.classifier, fit_classifier=False)
         self.Pte_cond_estim_ = PACC.getPteCondEstim(self.classifier.classes_, true_labels, posteriors)
 
     def aggregate(self, classif_posteriors):
@@ -642,114 +683,190 @@ class EMQ(AggregativeSoftQuantifier):
     prevalence, an estimate of it obtained via k-fold cross validation (instead of the true training prevalence),
     and to recalibrate the posterior probabilities of the classifier.
 
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: specifies the data used for generating classifier predictions. This specification
-        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
-        be extracted from the training set; or as an integer, indicating that the predictions
-        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
-        for `k`, default 5); or as a collection defining the specific set of data to use for validation.
-        Alternatively, this set can be specified at fit time by indicating the exact set of data
-        on which the predictions are to be generated. This hyperparameter is only meant to be used when the
-        heuristics are to be applied, i.e., if a recalibration is required. The default value is None (meaning
-        the recalibration is not required). In case this hyperparameter is set to a value other than None, but
-        the recalibration is not required (recalib=None), a warning message will be raised.
-    :param exact_train_prev: set to True (default) for using the true training prevalence as the initial observation;
-        set to False for computing the training prevalence as an estimate of it, i.e., as the expected
-        value of the posterior probabilities of the training instances.
-    :param recalib: a string indicating the method of recalibration.
-        Available choices include "nbvs" (No-Bias Vector Scaling), "bcts" (Bias-Corrected Temperature Scaling,
-        default), "ts" (Temperature Scaling), and "vs" (Vector Scaling). Default is None (no recalibration).
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the classifier (default is True). Set to False if the
+        given classifier has already been trained.
+
+    :param val_split: specifies the data used for generating the classifier predictions on which the
+        aggregation function is to be trained. This specification can be made as float in (0, 1) indicating
+        the proportion of stratified held-out validation set to be extracted from the training set; or as
+        an integer (default 5), indicating that the predictions are to be generated in a `k`-fold
+        cross-validation manner (with this integer indicating the value for `k`); or as a tuple (X,y) defining
+        the specific set of data to use for validation. This hyperparameter is only meant to be used when
+        the heuristics are to be applied, i.e., if a calibration is required. The default value is None
+        (meaning the calibration is not required). In case this hyperparameter is set to a value other than
+        None, but the calibration is not required (calib=None), a warning message will be raised.
+
+    :param exact_train_prev: set to True (default) for using the true training prevalence as the initial
+        observation; set to False for computing the training prevalence as an estimate of it, i.e., as the
+        expected value of the posterior probabilities of the training instances.
+
+    :param calib: a string indicating the method of calibration.
+        Available choices include "nbvs" (No-Bias Vector Scaling), "bcts" (Bias-Corrected Temperature Scaling),
+        "ts" (Temperature Scaling), and "vs" (Vector Scaling). Default is None (no calibration).
+
+    :param on_calib_error: a string indicating the policy to follow in case the calibrator fails at runtime.
+        Options include "raise" (default), in which case a RuntimeException is raised; and "backup", in which
+        case the calibrator is silently skipped.
+
     :param n_jobs: number of parallel workers. Only used for recalibrating the classifier if `val_split` is set to
         an integer `k` --the number of folds.
     """
 
     MAX_ITER = 1000
     EPSILON = 1e-4
+    ON_CALIB_ERROR_VALUES = ['raise', 'backup']
+    CALIB_OPTIONS = [None, 'nbvs', 'bcts', 'ts', 'vs']
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=None, exact_train_prev=True, recalib=None, n_jobs=None):
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+    def __init__(self, classifier: BaseEstimator = None, fit_classifier=True, val_split=None, exact_train_prev=True,
+                 calib=None, on_calib_error='raise', n_jobs=None):
+
+        assert calib in EMQ.CALIB_OPTIONS, \
+            f'invalid value for {calib=}; valid ones are {EMQ.CALIB_OPTIONS}'
+        assert on_calib_error in EMQ.ON_CALIB_ERROR_VALUES, \
+            f'invalid value for {on_calib_error=}; valid ones are {EMQ.ON_CALIB_ERROR_VALUES}'
+
+        super().__init__(classifier, fit_classifier, val_split)
         self.exact_train_prev = exact_train_prev
-        self.recalib = recalib
+        self.calib = calib
+        self.on_calib_error = on_calib_error
         self.n_jobs = n_jobs
 
     @classmethod
-    def EMQ_BCTS(cls, classifier: BaseEstimator, n_jobs=None):
+    def EMQ_BCTS(cls, classifier: BaseEstimator, fit_classifier=True, val_split=5, on_calib_error="raise", n_jobs=None):
         """
         Constructs an instance of EMQ using the best configuration found in the `Alexandari et al. paper
         <http://proceedings.mlr.press/v119/alexandari20a.html>`_, i.e., one that relies on Bias-Corrected Temperature
-        Scaling (BCTS) as a recalibration function, and that uses an estimate of the training prevalence instead of
+        Scaling (BCTS) as a calibration function, and that uses an estimate of the training prevalence instead of
         the true training prevalence.
 
-        :param classifier: a sklearn's Estimator that generates a classifier
-        :param n_jobs: number of parallel workers.
+        :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+            the one indicated in `qp.environ['DEFAULT_CLS']`
+
+        :param fit_classifier: whether to train the learner (default is True). Set to False if the
+            learner has been trained outside the quantifier.
+
+        :param val_split: specifies the data used for generating classifier predictions. This specification
+            can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+            be extracted from the training set; or as an integer (default 5), indicating that the predictions
+            are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+            for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+
+        :param on_calib_error: a string indicating the policy to follow in case the calibrator fails at runtime.
+            Options include "raise" (default), in which case a RuntimeException is raised; and "backup", in which
+            case the calibrator is silently skipped.
+
+        :param n_jobs: number of parallel workers. Only used for recalibrating the classifier if `val_split` is set to
+            an integer `k` --the number of folds.
+
         :return: An instance of EMQ with BCTS
         """
-        return EMQ(classifier, val_split=5, exact_train_prev=False, recalib='bcts', n_jobs=n_jobs)
+        return EMQ(classifier, fit_classifier=fit_classifier, val_split=val_split, exact_train_prev=False,
+                   calib='bcts', on_calib_error=on_calib_error, n_jobs=n_jobs)
 
     def _check_init_parameters(self):
         if self.val_split is not None:
-            if self.exact_train_prev and self.recalib is None:
+            if self.exact_train_prev and self.calib is None:
                 raise RuntimeWarning(f'The parameter {self.val_split=} was specified for EMQ, while the parameters '
-                      f'{self.exact_train_prev=} and {self.recalib=}. This has no effect and causes an unnecessary '
-                      f'overload.')
+                                     f'{self.exact_train_prev=} and {self.calib=}. This has no effect and causes an '
+                                     f'unnecessary overload.')
         else:
-            if self.recalib is not None:
-                print(f'[warning] The parameter {self.recalib=} requires the val_split be different from None. '
+            if self.calib is not None:
+                print(f'[warning] The parameter {self.calib=} requires the val_split be different from None. '
                       f'This parameter will be set to 5. To avoid this warning, set this value to a float value '
                       f'indicating the proportion of training data to be used as validation, or to an integer '
                       f'indicating the number of folds for kFCV.')
-                self.val_split=5
+                self.val_split = 5
 
-    def classify(self, instances):
+    def classify(self, X):
         """
-        Provides the posterior probabilities for the given instances. If the classifier was required
-        to be recalibrated, then these posteriors are recalibrated accordingly.
+        Provides the posterior probabilities for the given instances. The calibration function, if required,
+        has no effect in this step, and is only involved in the aggregate method.
 
-        :param instances: array-like of shape `(n_instances, n_dimensions,)`
+        :param X: array-like of shape `(n_instances, n_dimensions,)`
         :return: np.ndarray of shape `(n_instances, n_classes,)` with posterior probabilities
         """
-        posteriors = self.classifier.predict_proba(instances)
-        if hasattr(self, 'calibration_function') and self.calibration_function is not None:
-            posteriors = self.calibration_function(posteriors)
-        return posteriors
+        return self.classifier.predict_proba(X)
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def classifier_fit_predict(self, X, y):
+        classif_predictions = super().classifier_fit_predict(X, y)
+        self.train_prevalence = F.prevalence_from_labels(y, classes=self.classes_)
+        return classif_predictions
+
+    def _fit_calibration(self, calibrator, P, y):
+        n_classes = len(self.classes_)
+
+        if not np.issubdtype(y.dtype, np.number):
+            y = np.searchsorted(self.classes_, y)
+
+        try:
+            self.calibration_function = calibrator(P, np.eye(n_classes)[y], posterior_supplied=True)
+        except Exception as e:
+            if self.on_calib_error == 'raise':
+                raise RuntimeError(f'calibration {self.calib} failed at fit time: {e}')
+            elif self.on_calib_error == 'backup':
+                self.calibration_function = lambda P: P
+
+    def _calibrate_if_requested(self, uncalib_posteriors):
+        if hasattr(self, 'calibration_function') and self.calibration_function is not None:
+            try:
+                calib_posteriors = self.calibration_function(uncalib_posteriors)
+            except Exception as e:
+                if self.on_calib_error == 'raise':
+                    raise RuntimeError(f'calibration {self.calib} failed at predict time: {e}')
+                elif self.on_calib_error == 'backup':
+                    calib_posteriors = uncalib_posteriors
+                else:
+                    raise ValueError(f'unexpected {self.on_calib_error=}; '
+                                     f'valid options are {EMQ.ON_CALIB_ERROR_VALUES}')
+            return calib_posteriors
+        return uncalib_posteriors
+
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Trains the aggregation function of EMQ. This comes down to recalibrating the posterior probabilities
         ir requested.
 
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param classif_predictions: array-like with the raw (i.e., uncalibrated) posterior probabilities
+            returned by the classifier
+        :param labels: array-like with the true labels associated to each classifier prediction
         """
-        if self.recalib is not None:
-            P, y = classif_predictions.Xy
-            if self.recalib == 'nbvs':
-                calibrator = NoBiasVectorScaling()
-            elif self.recalib == 'bcts':
-                calibrator = TempScaling(bias_positions='all')
-            elif self.recalib == 'ts':
-                calibrator = TempScaling()
-            elif self.recalib == 'vs':
-                calibrator = VectorScaling()
-            else:
-                raise ValueError('invalid param argument for recalibration method; available ones are '
-                                 '"nbvs", "bcts", "ts", and "vs".')
+        P = classif_predictions
+        y = labels
 
-            if not np.issubdtype(y.dtype, np.number):
-                y = np.searchsorted(data.classes_, y)
-            self.calibration_function = calibrator(P, np.eye(data.n_classes)[y], posterior_supplied=True)
+        requires_predictions = (self.calib is not None) or (not self.exact_train_prev)
+        if P is None and requires_predictions:
+            # classifier predictions were not generated because val_split=None
+            raise ArgumentError(self.val_split, self.__class__.__name__ +
+                                ": Classifier predictions for the aggregative fit were not generated because "
+                                "val_split=None. This usually happens when you enable calibrations or heuristics "
+                                "during model selection but left val_split set to its default value (None). "
+                                "Please provide one of the following values for val_split: (i) an integer >1 "
+                                "(e.g. val_split=5) for k-fold cross-validation; (ii) a float in (0,1) (e.g. "
+                                "val_split=0.3) for a proportion split; or (iii) a tuple (X, y) with explicit "
+                                "validation data")
 
-        if self.exact_train_prev:
-            self.train_prevalence = data.prevalence()
-        else:
-            train_posteriors = classif_predictions.X
-            if self.recalib is not None:
-                train_posteriors = self.calibration_function(train_posteriors)
-            self.train_prevalence = F.prevalence_from_probabilities(train_posteriors)
+        if self.calib is not None:
+            calibrator = {
+                'nbvs': NoBiasVectorScaling(),
+                'bcts': TempScaling(bias_positions='all'),
+                'ts': TempScaling(),
+                'vs': VectorScaling()
+            }.get(self.calib, None)
+
+            if calibrator is None:
+                raise ValueError(f'invalid value for {self.calib=}; valid ones are {EMQ.CALIB_OPTIONS}')
+
+            self._fit_calibration(calibrator, P, y)
+
+        if not self.exact_train_prev:
+            P = self._calibrate_if_requested(P)
+            self.train_prevalence = F.prevalence_from_probabilities(P)
 
     def aggregate(self, classif_posteriors, epsilon=EPSILON):
+        classif_posteriors = self._calibrate_if_requested(classif_posteriors)
         priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon)
         return priors
 
@@ -762,6 +879,7 @@ class EMQ(AggregativeSoftQuantifier):
         :return: np.ndarray of shape `(n_instances, n_classes)`
         """
         classif_posteriors = self.classify(instances)
+        classif_posteriors = self._calibrate_if_requested(classif_posteriors)
         priors, posteriors = self.EM(self.train_prevalence, classif_posteriors, epsilon)
         return posteriors
 
@@ -809,99 +927,6 @@ class EMQ(AggregativeSoftQuantifier):
         return qs, ps
 
 
-class BayesianCC(AggregativeCrispQuantifier):
-    """
-    `Bayesian quantification <https://arxiv.org/abs/2302.09159>`_ method,
-    which is a variant of :class:`ACC` that calculates the posterior probability distribution
-    over the prevalence vectors, rather than providing a point estimate obtained
-    by matrix inversion.
-
-    Can be used to diagnose degeneracy in the predictions visible when the confusion
-    matrix has high condition number or to quantify uncertainty around the point estimate.
-
-    This method relies on extra dependencies, which have to be installed via:
-    `$ pip install quapy[bayes]`
-
-    :param classifier: a sklearn's Estimator that generates a classifier
-    :param val_split: a float in (0, 1) indicating the proportion of the training data to be used,
-        as a stratified held-out validation set, for generating classifier predictions.
-    :param num_warmup: number of warmup iterations for the MCMC sampler (default 500)
-    :param num_samples: number of samples to draw from the posterior (default 1000)
-    :param mcmc_seed: random seed for the MCMC sampler (default 0)
-    """
-    def __init__(self,
-                 classifier: BaseEstimator=None,
-                 val_split: float = 0.75,
-                 num_warmup: int = 500,
-                 num_samples: int = 1_000,
-                 mcmc_seed: int = 0):
-
-        if num_warmup <= 0:
-            raise ValueError(f'parameter {num_warmup=} must be a positive integer')
-        if num_samples <= 0:
-            raise ValueError(f'parameter {num_samples=} must be a positive integer')
-
-        if (not isinstance(val_split, float)) or val_split <= 0 or val_split >= 1:
-            raise ValueError(f'val_split must be a float in (0, 1), got {val_split}')
-
-        if _bayesian.DEPENDENCIES_INSTALLED is False:
-            raise ImportError("Auxiliary dependencies are required. Run `$ pip install quapy[bayes]` to install them.")
-
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
-        self.num_warmup = num_warmup
-        self.num_samples = num_samples
-        self.mcmc_seed = mcmc_seed
-
-        # Array of shape (n_classes, n_predicted_classes,) where entry (y, c) is the number of instances
-        # labeled as class y and predicted as class c.
-        # By default, this array is set to None and later defined as part of the `aggregation_fit` phase
-        self._n_and_c_labeled = None
-
-        # Dictionary with posterior samples, set when `aggregate` is provided.
-        self._samples = None
-
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        """
-        Estimates the misclassification rates.
-
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the label predictions issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
-        """
-        pred_labels, true_labels = classif_predictions.Xy
-        self._n_and_c_labeled = confusion_matrix(y_true=true_labels, y_pred=pred_labels, labels=self.classifier.classes_)
-
-    def sample_from_posterior(self, classif_predictions):
-        if self._n_and_c_labeled is None:
-            raise ValueError("aggregation_fit must be called before sample_from_posterior")
-
-        n_c_unlabeled = F.counts_from_labels(classif_predictions, self.classifier.classes_)
-
-        self._samples = _bayesian.sample_posterior(
-            n_c_unlabeled=n_c_unlabeled,
-            n_y_and_c_labeled=self._n_and_c_labeled,
-            num_warmup=self.num_warmup,
-            num_samples=self.num_samples,
-            seed=self.mcmc_seed,
-        )
-        return self._samples
-
-    def get_prevalence_samples(self):
-        if self._samples is None:
-            raise ValueError("sample_from_posterior must be called before get_prevalence_samples")
-        return self._samples[_bayesian.P_TEST_Y]
-
-    def get_conditional_probability_samples(self):
-        if self._samples is None:
-            raise ValueError("sample_from_posterior must be called before get_conditional_probability_samples")
-        return self._samples[_bayesian.P_C_COND_Y]
-
-    def aggregate(self, classif_predictions):
-        samples = self.sample_from_posterior(classif_predictions)[_bayesian.P_TEST_Y]
-        return np.asarray(samples.mean(axis=0), dtype=float)
-
-
 class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     """
     `Hellinger Distance y <https://www.sciencedirect.com/science/article/pii/S0020025512004069>`_ (HDy).
@@ -912,24 +937,30 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     class-conditional distributions of the posterior probabilities returned for the positive and negative validation
     examples, respectively. The parameters of the mixture thus represent the estimates of the class prevalence values.
 
-    :param classifier: a sklearn's Estimator that generates a binary classifier
-    :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
-        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself), or an integer indicating the number of folds (default 5)..
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5):
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+    def __init__(self, classifier: BaseEstimator = None, fit_classifier=True, val_split=5):
+        super().__init__(classifier, fit_classifier, val_split)
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Trains the aggregation function of HDy.
 
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param classif_predictions: array-like with the posterior probabilities returned by the classifier
+        :param labels: array-like with the true labels associated to each posterior
         """
-        P, y = classif_predictions.Xy
+        P, y = classif_predictions, labels
         Px = P[:, self.pos_label]  # takes only the P(y=+1|x)
         self.Pxy1 = Px[y == self.pos_label]
         self.Pxy0 = Px[y == self.neg_label]
@@ -983,19 +1014,31 @@ class DyS(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     minimizes the distance between distributions.
     Details for the ternary search have been got from <https://dl.acm.org/doi/pdf/10.1145/3219819.3220059>
 
-    :param classifier: a sklearn's Estimator that generates a binary classifier
-    :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
-        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself), or an integer indicating the number of folds (default 5)..
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+
     :param n_bins: an int with the number of bins to use to compute the histograms.
+
     :param divergence: a str indicating the name of divergence (currently supported ones are "HD" or "topsoe"), or a
         callable function computes the divergence between two distributions (two equally sized arrays).
+
     :param tol: a float with the tolerance for the ternary search algorithm.
+
     :param n_jobs: number of parallel workers.
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5, n_bins=8, divergence: Union[str, Callable]= 'HD', tol=1e-05, n_jobs=None):
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+    def __init__(self, classifier: BaseEstimator = None, fit_classifier=True, val_split=5, n_bins=8,
+                 divergence: Union[str, Callable] = 'HD', tol=1e-05, n_jobs=None):
+        super().__init__(classifier, fit_classifier, val_split)
         self.tol = tol
         self.divergence = divergence
         self.n_bins = n_bins
@@ -1017,15 +1060,14 @@ class DyS(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         # Left and right are the current bounds; the maximum is between them
         return (left + right) / 2
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Trains the aggregation function of DyS.
 
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param classif_predictions: array-like with the posterior probabilities returned by the classifier
+        :param labels: array-like with the true labels associated to each posterior
         """
-        Px, y = classif_predictions.Xy
+        Px, y = classif_predictions, labels
         Px = Px[:, self.pos_label]  # takes only the P(y=+1|x)
         self.Pxy1 = Px[y == self.pos_label]
         self.Pxy0 = Px[y == self.neg_label]
@@ -1042,7 +1084,7 @@ class DyS(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         def distribution_distance(prev):
             Px_train = prev * self.Pxy1_density + (1 - prev) * self.Pxy0_density
             return divergence(Px_train, Px_test)
-            
+
         class1_prev = self._ternary_search(f=distribution_distance, left=0, right=1, tol=self.tol)
         return F.as_binary_prevalence(class1_prev)
 
@@ -1053,36 +1095,42 @@ class SMM(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     SMM is a simplification of matching distribution methods where the representation of the examples
     is created using the mean instead of a histogram (conceptually equivalent to PACC).
 
-    :param classifier: a sklearn's Estimator that generates a binary classifier.
-    :param val_split: a float in range (0,1) indicating the proportion of data to be used as a stratified held-out
-        validation distribution, or a :class:`quapy.data.base.LabelledCollection` (the split itself), or an integer indicating the number of folds (default 5)..
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5):
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
-      
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def __init__(self, classifier: BaseEstimator = None, fit_classifier=True, val_split=5):
+        super().__init__(classifier, fit_classifier, val_split)
+
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Trains the aggregation function of SMM.
 
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param classif_predictions: array-like with the posterior probabilities returned by the classifier
+        :param labels: array-like with the true labels associated to each posterior
         """
-        Px, y = classif_predictions.Xy
+        Px, y = classif_predictions, labels
         Px = Px[:, self.pos_label]  # takes only the P(y=+1|x)
         self.Pxy1 = Px[y == self.pos_label]
         self.Pxy0 = Px[y == self.neg_label]
-        self.Pxy1_mean = np.mean(self.Pxy1)  # equiv. TPR 
+        self.Pxy1_mean = np.mean(self.Pxy1)  # equiv. TPR
         self.Pxy0_mean = np.mean(self.Pxy0)  # equiv. FPR
         return self
 
     def aggregate(self, classif_posteriors):
         Px = classif_posteriors[:, self.pos_label]  # takes only the P(y=+1|x)
         Px_mean = np.mean(Px)
-     
-        class1_prev = (Px_mean - self.Pxy0_mean)/(self.Pxy1_mean - self.Pxy0_mean)
+
+        class1_prev = (Px_mean - self.Pxy0_mean) / (self.Pxy1_mean - self.Pxy0_mean)
         return F.as_binary_prevalence(class1_prev, clip_if_necessary=True)
 
 
@@ -1092,25 +1140,32 @@ class DMy(AggregativeSoftQuantifier):
     probabilities. This implementation takes the number of bins, the divergence, and the possibility to work on CDF
     as hyperparameters.
 
-    :param classifier: a `sklearn`'s Estimator that generates a probabilistic classifier
-    :param val_split: indicates the proportion of data to be used as a stratified held-out validation set to model the
-        validation distribution.
-        This parameter can be indicated as a real value (between 0 and 1), representing a proportion of
-        validation data, or as an integer, indicating that the validation distribution should be estimated via
-        `k`-fold cross validation (this integer stands for the number of folds `k`, defaults 5), or as a
-        :class:`quapy.data.base.LabelledCollection` (the split itself).
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+
     :param nbins: number of bins used to discretize the distributions (default 8)
+
     :param divergence: a string representing a divergence measure (currently, "HD" and "topsoe" are implemented)
         or a callable function taking two ndarrays of the same dimension as input (default "HD", meaning Hellinger
         Distance)
+
     :param cdf: whether to use CDF instead of PDF (default False)
+
     :param n_jobs: number of parallel workers (default None)
     """
 
-    def __init__(self, classifier: BaseEstimator=None, val_split=5, nbins=8, divergence: Union[str, Callable]='HD',
-                 cdf=False, search='optim_minimize', n_jobs=None):
-        self.classifier = qp._get_classifier(classifier)
-        self.val_split = val_split
+    def __init__(self, classifier: BaseEstimator = None, fit_classifier=True, val_split=5, nbins=8,
+                 divergence: Union[str, Callable] = 'HD', cdf=False, search='optim_minimize', n_jobs=None):
+        super().__init__(classifier, fit_classifier, val_split)
         self.nbins = nbins
         self.divergence = divergence
         self.cdf = cdf
@@ -1136,12 +1191,12 @@ class DMy(AggregativeSoftQuantifier):
             histograms.append(hist)
 
         counts = np.vstack(histograms)
-        distributions = counts/counts.sum(axis=1)[:,np.newaxis]
+        distributions = counts / counts.sum(axis=1)[:, np.newaxis]
         if self.cdf:
             distributions = np.cumsum(distributions, axis=1)
         return distributions
 
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
         """
         Trains the aggregation function of a distribution matching method. This comes down to generating the
         validation distributions out of the training data.
@@ -1151,16 +1206,15 @@ class DMy(AggregativeSoftQuantifier):
         distribution of posterior probabilities `P(Y=j|X=x)` for training data labelled with class `i`, and `dij[k]`
         is the fraction of instances with a value in the `k`-th bin.
 
-        :param classif_predictions: a :class:`quapy.data.base.LabelledCollection` containing,
-            as instances, the posterior probabilities issued by the classifier and, as labels, the true labels
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param classif_predictions: array-like with the posterior probabilities returned by the classifier
+        :param labels: array-like with the true labels associated to each posterior
         """
-        posteriors, true_labels = classif_predictions.Xy
+        posteriors, true_labels = classif_predictions, labels
         n_classes = len(self.classifier.classes_)
 
         self.validation_distribution = qp.util.parallel(
             func=self._get_distributions,
-            args=[posteriors[true_labels==cat] for cat in range(n_classes)],
+            args=[posteriors[true_labels == cat] for cat in range(n_classes)],
             n_jobs=self.n_jobs,
             backend='threading'
         )
@@ -1179,14 +1233,14 @@ class DMy(AggregativeSoftQuantifier):
         test_distribution = self._get_distributions(posteriors)
         divergence = get_divergence(self.divergence)
         n_classes, n_channels, nbins = self.validation_distribution.shape
+
         def loss(prev):
             prev = np.expand_dims(prev, axis=0)
-            mixture_distribution = (prev @ self.validation_distribution.reshape(n_classes,-1)).reshape(n_channels, -1)
+            mixture_distribution = (prev @ self.validation_distribution.reshape(n_classes, -1)).reshape(n_channels, -1)
             divs = [divergence(test_distribution[ch], mixture_distribution[ch]) for ch in range(n_channels)]
             return np.mean(divs)
 
         return F.argmin_prevalence(loss, n_classes, method=self.search)
-
 
 
 def newELM(svmperf_base=None, loss='01', C=1):
@@ -1241,6 +1295,7 @@ def newSVMQ(svmperf_base=None, C=1):
     """
     return newELM(svmperf_base, loss='q', C=C)
 
+
 def newSVMKLD(svmperf_base=None, C=1):
     """
     SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
@@ -1291,6 +1346,7 @@ def newSVMKLD(svmperf_base=None, C=1):
     """
     return newELM(svmperf_base, loss='nkld', C=C)
 
+
 def newSVMAE(svmperf_base=None, C=1):
     """
     SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Absolute Error as first used by
@@ -1314,6 +1370,7 @@ def newSVMAE(svmperf_base=None, C=1):
         underlying classifier
     """
     return newELM(svmperf_base, loss='mae', C=C)
+
 
 def newSVMRAE(svmperf_base=None, C=1):
     """
@@ -1349,38 +1406,40 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
     `Gao and Sebastiani, 2016 <https://link.springer.com/content/pdf/10.1007/s13278-016-0327-z.pdf>`_.
 
     :param binary_quantifier: a quantifier (binary) that will be employed to work on multiclass model in a
-        one-vs-all manner
+        one-vs-all manner (default PACC(LogitsticRegression()))
     :param n_jobs: number of parallel workers
     :param parallel_backend: the parallel backend for joblib (default "loky"); this is helpful for some quantifiers
         (e.g., ELM-based ones) that cannot be run with multiprocessing, since the temp dir they create during fit will
         is removed and no longer available at predict time.
     """
 
-    def __init__(self, binary_quantifier, n_jobs=None, parallel_backend='multiprocessing'):
+    def __init__(self, binary_quantifier=None, n_jobs=None, parallel_backend='multiprocessing'):
+        if binary_quantifier is None:
+            binary_quantifier = PACC()
         assert isinstance(binary_quantifier, BaseQuantifier), \
-            f'{self.binary_quantifier} does not seem to be a Quantifier'
+            f'{binary_quantifier} does not seem to be a Quantifier'
         assert isinstance(binary_quantifier, AggregativeQuantifier), \
-            f'{self.binary_quantifier} does not seem to be of type Aggregative'
+            f'{binary_quantifier} does not seem to be of type Aggregative'
         self.binary_quantifier = binary_quantifier
         self.n_jobs = qp._get_njobs(n_jobs)
         self.parallel_backend = parallel_backend
 
-    def classify(self, instances):
+    def classify(self, X):
         """
         If the base quantifier is not probabilistic, returns a matrix of shape `(n,m,)` with `n` the number of
         instances and `m` the number of classes. The entry `(i,j)` is a binary value indicating whether instance
-        `i `belongs to class `j`. The binary classifications are independent of each other, meaning that an instance
+        `i` belongs to class `j`. The binary classifications are independent of each other, meaning that an instance
         can end up be attributed to 0, 1, or more classes.
         If the base quantifier is probabilistic, returns a matrix of shape `(n,m,2)` with `n` the number of instances
         and `m` the number of classes. The entry `(i,j,1)` (resp. `(i,j,0)`) is a value in [0,1] indicating the
         posterior probability that instance `i` belongs (resp. does not belong) to class `j`. The posterior
         probabilities are independent of each other, meaning that, in general, they do not sum up to one.
 
-        :param instances: array-like
+        :param X: array-like
         :return: `np.ndarray`
         """
 
-        classif_predictions = self._parallel(self._delayed_binary_classification, instances)
+        classif_predictions = self._parallel(self._delayed_binary_classification, X)
         if isinstance(self.binary_quantifier, AggregativeSoftQuantifier):
             return np.swapaxes(classif_predictions, 0, 1)
         else:
@@ -1390,12 +1449,20 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
         prevalences = self._parallel(self._delayed_binary_aggregate, classif_predictions)
         return F.normalize_prevalence(prevalences)
 
+    def aggregation_fit(self, classif_predictions, labels):
+        self._parallel(self._delayed_binary_aggregate_fit(c, classif_predictions, labels))
+        return self
+
     def _delayed_binary_classification(self, c, X):
         return self.dict_binary_quantifiers[c].classify(X)
 
     def _delayed_binary_aggregate(self, c, classif_predictions):
         # the estimation for the positive class prevalence
         return self.dict_binary_quantifiers[c].aggregate(classif_predictions[:, c])[1]
+
+    def _delayed_binary_aggregate_fit(self, c, classif_predictions, labels):
+        # trains the aggregation function of the cth quantifier
+        return self.dict_binary_quantifiers[c].aggregate_fit(classif_predictions[:, c], labels)
 
 
 class AggregativeMedianEstimator(BinaryQuantifier):
@@ -1408,8 +1475,9 @@ class AggregativeMedianEstimator(BinaryQuantifier):
     :param base_quantifier: the base, binary quantifier
     :param random_state: a seed to be set before fitting any base quantifier (default None)
     :param param_grid: the grid or parameters towards which the median will be computed
-    :param n_jobs: number of parllel workes
+    :param n_jobs: number of parallel workers
     """
+
     def __init__(self, base_quantifier: AggregativeQuantifier, param_grid: dict, random_state=None, n_jobs=None):
         self.base_quantifier = base_quantifier
         self.param_grid = param_grid
@@ -1424,33 +1492,32 @@ class AggregativeMedianEstimator(BinaryQuantifier):
 
     def _delayed_fit(self, args):
         with qp.util.temp_seed(self.random_state):
-            params, training = args
+            params, X, y = args
             model = deepcopy(self.base_quantifier)
             model.set_params(**params)
-            model.fit(training)
+            model.fit(X, y)
             return model
 
     def _delayed_fit_classifier(self, args):
         with qp.util.temp_seed(self.random_state):
-            cls_params, training, kwargs = args
+            cls_params, X, y = args
             model = deepcopy(self.base_quantifier)
             model.set_params(**cls_params)
-            predictions = model.classifier_fit_predict(training, **kwargs)
-            return (model, predictions)
+            predictions, labels = model.classifier_fit_predict(X, y)
+            return (model, predictions, labels)
 
     def _delayed_fit_aggregation(self, args):
         with qp.util.temp_seed(self.random_state):
-            ((model, predictions), q_params), training = args
+            ((model, predictions, y), q_params) = args
             model = deepcopy(model)
             model.set_params(**q_params)
-            model.aggregation_fit(predictions, training)
+            model.aggregation_fit(predictions, y)
             return model
 
-
-    def fit(self, training: LabelledCollection, **kwargs):
+    def fit(self, X, y):
         import itertools
 
-        self._check_binary(training, self.__class__.__name__)
+        self._check_binary(y, self.__class__.__name__)
 
         if isinstance(self.base_quantifier, AggregativeQuantifier):
             cls_configs, q_configs = qp.model_selection.group_params(self.param_grid)
@@ -1458,7 +1525,7 @@ class AggregativeMedianEstimator(BinaryQuantifier):
             if len(cls_configs) > 1:
                 models_preds = qp.util.parallel(
                     self._delayed_fit_classifier,
-                    ((params, training, kwargs) for params in cls_configs),
+                    ((params, X, y) for params in cls_configs),
                     seed=qp.environ.get('_R_SEED', None),
                     n_jobs=self.n_jobs,
                     asarray=False,
@@ -1467,12 +1534,12 @@ class AggregativeMedianEstimator(BinaryQuantifier):
             else:
                 model = self.base_quantifier
                 model.set_params(**cls_configs[0])
-                predictions = model.classifier_fit_predict(training, **kwargs)
-                models_preds = [(model, predictions)]
+                predictions, labels = model.classifier_fit_predict(X, y)
+                models_preds = [(model, predictions, labels)]
 
             self.models = qp.util.parallel(
                 self._delayed_fit_aggregation,
-                ((setup, training) for setup in itertools.product(models_preds, q_configs)),
+                itertools.product(models_preds, q_configs),
                 seed=qp.environ.get('_R_SEED', None),
                 n_jobs=self.n_jobs,
                 backend='threading'
@@ -1481,7 +1548,7 @@ class AggregativeMedianEstimator(BinaryQuantifier):
             configs = qp.model_selection.expand_grid(self.param_grid)
             self.models = qp.util.parallel(
                 self._delayed_fit,
-                ((params, training) for params in configs),
+                ((params, X, y) for params in configs),
                 seed=qp.environ.get('_R_SEED', None),
                 n_jobs=self.n_jobs,
                 backend='threading'
@@ -1490,9 +1557,9 @@ class AggregativeMedianEstimator(BinaryQuantifier):
 
     def _delayed_predict(self, args):
         model, instances = args
-        return model.quantify(instances)
+        return model.predict(instances)
 
-    def quantify(self, instances):
+    def predict(self, instances):
         prev_preds = qp.util.parallel(
             self._delayed_predict,
             ((model, instances) for model in self.models),
@@ -1503,18 +1570,17 @@ class AggregativeMedianEstimator(BinaryQuantifier):
         return np.median(prev_preds, axis=0)
 
 
-#---------------------------------------------------------------
+# ---------------------------------------------------------------
 # imports
-#---------------------------------------------------------------
+# ---------------------------------------------------------------
 
 from . import _threshold_optim
 
 T50 = _threshold_optim.T50
 MAX = _threshold_optim.MAX
-X   = _threshold_optim.X
-MS  = _threshold_optim.MS
+X = _threshold_optim.X
+MS = _threshold_optim.MS
 MS2 = _threshold_optim.MS2
-
 
 from . import _kdey
 
@@ -1522,9 +1588,9 @@ KDEyML = _kdey.KDEyML
 KDEyHD = _kdey.KDEyHD
 KDEyCS = _kdey.KDEyCS
 
-#---------------------------------------------------------------
+# ---------------------------------------------------------------
 # aliases
-#---------------------------------------------------------------
+# ---------------------------------------------------------------
 
 ClassifyAndCount = CC
 AdjustedClassifyAndCount = ACC

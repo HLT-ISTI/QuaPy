@@ -14,29 +14,39 @@ import numpy as np
 class BaseQuantifier(BaseEstimator):
     """
     Abstract Quantifier. A quantifier is defined as an object of a class that implements the method :meth:`fit` on
-    :class:`quapy.data.base.LabelledCollection`, the method :meth:`quantify`, and the :meth:`set_params` and
+    a pair X, y, the method :meth:`predict`, and the :meth:`set_params` and
     :meth:`get_params` for model selection (see :meth:`quapy.model_selection.GridSearchQ`)
     """
 
     @abstractmethod
-    def fit(self, data: LabelledCollection):
+    def fit(self, X, y):
         """
-        Trains a quantifier.
+        Generates a quantifier.
 
-        :param data: a :class:`quapy.data.base.LabelledCollection` consisting of the training data
+        :param X: array-like, the training instances
+        :param y: array-like, the labels
         :return: self
         """
         ...
 
     @abstractmethod
-    def quantify(self, instances):
+    def predict(self, X):
         """
         Generate class prevalence estimates for the sample's instances
 
-        :param instances: array-like
+        :param X: array-like, the test instances
         :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.
         """
         ...
+
+    def quantify(self, X):
+        """
+        Alias to :meth:`predict`, for old compatibility
+
+        :param X: array-like
+        :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.
+        """
+        return self.predict(X)
 
 
 class BinaryQuantifier(BaseQuantifier):
@@ -45,8 +55,9 @@ class BinaryQuantifier(BaseQuantifier):
     (typically, to be interpreted as one class and its complement).
     """
 
-    def _check_binary(self, data: LabelledCollection, quantifier_name):
-        assert data.binary, f'{quantifier_name} works only on problems of binary classification. ' \
+    def _check_binary(self, y, quantifier_name):
+        n_classes = len(set(y))
+        assert n_classes==2, f'{quantifier_name} works only on problems of binary classification. ' \
                             f'Use the class OneVsAll to enable {quantifier_name} work on single-label data.'
 
 
@@ -66,7 +77,7 @@ def newOneVsAll(binary_quantifier: BaseQuantifier, n_jobs=None):
 class OneVsAllGeneric(OneVsAll, BaseQuantifier):
     """
     Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary
-    quantifier for each class, and then l1-normalizes the outputs so that the class prevelence values sum up to 1.
+    quantifier for each class, and then l1-normalizes the outputs so that the class prevalence values sum up to 1.
     """
 
     def __init__(self, binary_quantifier: BaseQuantifier, n_jobs=None):
@@ -78,32 +89,32 @@ class OneVsAllGeneric(OneVsAll, BaseQuantifier):
         self.binary_quantifier = binary_quantifier
         self.n_jobs = qp._get_njobs(n_jobs)
 
-    def fit(self, data: LabelledCollection, fit_classifier=True):
-        assert not data.binary, f'{self.__class__.__name__} expect non-binary data'
-        assert fit_classifier == True, 'fit_classifier must be True'
+    def fit(self, X, y):
+        self.classes = sorted(np.unique(y))
+        assert len(self.classes)!=2, f'{self.__class__.__name__} expect non-binary data'
 
-        self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in data.classes_}
-        self._parallel(self._delayed_binary_fit, data)
+        self.dict_binary_quantifiers = {c: deepcopy(self.binary_quantifier) for c in self.classes}
+        self._parallel(self._delayed_binary_fit, X, y)
         return self
 
     def _parallel(self, func, *args, **kwargs):
         return np.asarray(
             Parallel(n_jobs=self.n_jobs, backend='threading')(
-                delayed(func)(c, *args, **kwargs) for c in self.classes_
+                delayed(func)(c, *args, **kwargs) for c in self.classes
             )
         )
 
-    def quantify(self, instances):
-        prevalences = self._parallel(self._delayed_binary_predict, instances)
+    def predict(self, X):
+        prevalences = self._parallel(self._delayed_binary_predict, X)
         return qp.functional.normalize_prevalence(prevalences)
 
-    @property
-    def classes_(self):
-        return sorted(self.dict_binary_quantifiers.keys())
+    # @property
+    # def classes_(self):
+    #     return sorted(self.dict_binary_quantifiers.keys())
 
     def _delayed_binary_predict(self, c, X):
-        return self.dict_binary_quantifiers[c].quantify(X)[1]
+        return self.dict_binary_quantifiers[c].predict(X)[1]
 
-    def _delayed_binary_fit(self, c, data):
-        bindata = LabelledCollection(data.instances, data.labels == c, classes=[False, True])
-        self.dict_binary_quantifiers[c].fit(bindata)
+    def _delayed_binary_fit(self, c, X, y):
+        bindata = LabelledCollection(X, y == c, classes=[False, True])
+        self.dict_binary_quantifiers[c].fit(*bindata.Xy)

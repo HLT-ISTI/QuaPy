@@ -10,24 +10,27 @@ from quapy.method import AGGREGATIVE_METHODS, BINARY_METHODS, NON_AGGREGATIVE_ME
 from quapy.functional import check_prevalence_vector
 
 # a random selection of composed methods to test the qunfold integration
+from quapy.method.composable import check_compatible_qunfold_version
+
 from quapy.method.composable import (
     ComposableQuantifier,
     LeastSquaresLoss,
     HellingerSurrogateLoss,
-    ClassTransformer,
-    HistogramTransformer,
-    CVClassifier,
+    ClassRepresentation,
+    HistogramRepresentation,
+    CVClassifier
 )
+
 COMPOSABLE_METHODS = [
     ComposableQuantifier( # ACC
         LeastSquaresLoss(),
-        ClassTransformer(CVClassifier(LogisticRegression()))
+        ClassRepresentation(CVClassifier(LogisticRegression()))
     ),
     ComposableQuantifier( # HDy
         HellingerSurrogateLoss(),
-        HistogramTransformer(
+        HistogramRepresentation(
             3, # 3 bins per class
-            preprocessor = ClassTransformer(CVClassifier(LogisticRegression()))
+            preprocessor = ClassRepresentation(CVClassifier(LogisticRegression()))
         )
     ),
 ]
@@ -48,10 +51,10 @@ class TestMethods(unittest.TestCase):
                     print(f'skipping the test of binary model {model.__name__} on multiclass dataset {dataset.name}')
                     continue
 
-                q = model(learner)
+                q = model(learner, fit_classifier=False)
                 print('testing', q)
-                q.fit(dataset.training, fit_classifier=False)
-                estim_prevalences = q.quantify(dataset.test.X)
+                q.fit(*dataset.training.Xy)
+                estim_prevalences = q.predict(dataset.test.X)
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_non_aggregative(self):
@@ -64,12 +67,11 @@ class TestMethods(unittest.TestCase):
 
                 q = model()
                 print(f'testing {q} on dataset {dataset.name}')
-                q.fit(dataset.training)
-                estim_prevalences = q.quantify(dataset.test.X)
+                q.fit(*dataset.training.Xy)
+                estim_prevalences = q.predict(dataset.test.X)
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_ensembles(self):
-
         qp.environ['SAMPLE_SIZE'] = 10
 
         base_quantifier = ACC(LogisticRegression())
@@ -80,8 +82,8 @@ class TestMethods(unittest.TestCase):
 
             print(f'testing {base_quantifier} on dataset {dataset.name} with {policy=}')
             ensemble = Ensemble(quantifier=base_quantifier, size=3, policy=policy, n_jobs=-1)
-            ensemble.fit(dataset.training)
-            estim_prevalences = ensemble.quantify(dataset.test.instances)
+            ensemble.fit(*dataset.training.Xy)
+            estim_prevalences = ensemble.predict(dataset.test.instances)
             self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_quanet(self):
@@ -106,17 +108,22 @@ class TestMethods(unittest.TestCase):
         from quapy.method.meta import QuaNet
         model = QuaNet(learner, device='cpu', n_epochs=2, tr_iter_per_poch=10, va_iter_per_poch=10, patience=2)
 
-        model.fit(dataset.training)
-        estim_prevalences = model.quantify(dataset.test.instances)
+        model.fit(*dataset.training.Xy)
+        estim_prevalences = model.predict(dataset.test.instances)
         self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_composable(self):
-        for dataset in TestMethods.datasets:
-            for q in COMPOSABLE_METHODS:
-                print('testing', q)
-                q.fit(dataset.training)
-                estim_prevalences = q.quantify(dataset.test.X)
-                self.assertTrue(check_prevalence_vector(estim_prevalences))
+        if check_compatible_qunfold_version():
+            for dataset in TestMethods.datasets:
+                for q in COMPOSABLE_METHODS:
+                    print('testing', q)
+                    q.fit(*dataset.training.Xy)
+                    estim_prevalences = q.predict(dataset.test.X)
+                    print(estim_prevalences)
+                    self.assertTrue(check_prevalence_vector(estim_prevalences))
+        else:
+            from quapy.method.composable import __old_version_message
+            print(__old_version_message)
 
 
 if __name__ == '__main__':
