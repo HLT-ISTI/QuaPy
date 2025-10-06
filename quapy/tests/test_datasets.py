@@ -15,8 +15,11 @@ class TestDatasets(unittest.TestCase):
         return PCC(LogisticRegression(C=0.001, max_iter=100))
 
     def _check_dataset(self, dataset):
+        train, test = dataset.reduce().train_test
         q = self.new_quantifier()
         print(f'testing method {q} in {dataset.name}...', end='')
+        if len(train)>500:
+            train = train.sampling(500)
         q.fit(*dataset.training.Xy)
         estim_prevalences = q.predict(dataset.test.instances)
         self.assertTrue(F.check_prevalence_vector(estim_prevalences))
@@ -42,7 +45,9 @@ class TestDatasets(unittest.TestCase):
             self._check_dataset(dataset)
 
     def test_twitter(self):
-        for dataset_name in TWITTER_SENTIMENT_DATASETS_TEST:
+        # all the datasets are contained in the same resource; if the first one
+        # works, there is no need to test for the rest
+        for dataset_name in TWITTER_SENTIMENT_DATASETS_TEST[:1]:
             print(f'loading dataset {dataset_name}...', end='')
             dataset = fetch_twitter(dataset_name, min_df=10)
             dataset.stats()
@@ -129,7 +134,7 @@ class TestDatasets(unittest.TestCase):
             n_classes = train.n_classes
             train = train.sampling(100, *F.uniform_prevalence(n_classes))
             q = self.new_quantifier()
-            q.fit(train)
+            q.fit(*train.Xy)
             self._check_samples(gen, q, max_samples_test=5)
 
 

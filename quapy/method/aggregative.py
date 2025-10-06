@@ -1406,18 +1406,20 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
     `Gao and Sebastiani, 2016 <https://link.springer.com/content/pdf/10.1007/s13278-016-0327-z.pdf>`_.
 
     :param binary_quantifier: a quantifier (binary) that will be employed to work on multiclass model in a
-        one-vs-all manner
+        one-vs-all manner (default PACC(LogitsticRegression()))
     :param n_jobs: number of parallel workers
     :param parallel_backend: the parallel backend for joblib (default "loky"); this is helpful for some quantifiers
         (e.g., ELM-based ones) that cannot be run with multiprocessing, since the temp dir they create during fit will
         is removed and no longer available at predict time.
     """
 
-    def __init__(self, binary_quantifier, n_jobs=None, parallel_backend='multiprocessing'):
+    def __init__(self, binary_quantifier=None, n_jobs=None, parallel_backend='multiprocessing'):
+        if binary_quantifier is None:
+            binary_quantifier = PACC()
         assert isinstance(binary_quantifier, BaseQuantifier), \
-            f'{self.binary_quantifier} does not seem to be a Quantifier'
+            f'{binary_quantifier} does not seem to be a Quantifier'
         assert isinstance(binary_quantifier, AggregativeQuantifier), \
-            f'{self.binary_quantifier} does not seem to be of type Aggregative'
+            f'{binary_quantifier} does not seem to be of type Aggregative'
         self.binary_quantifier = binary_quantifier
         self.n_jobs = qp._get_njobs(n_jobs)
         self.parallel_backend = parallel_backend

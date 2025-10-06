@@ -22,6 +22,7 @@ data = qp.data.preprocessing.text2tfidf(
     min_df = 5,
 )
 training, testing = data.train_test
+Xtr, ytr = training.Xy
 
 # We start by recovering PACC from its building blocks, a LeastSquaresLoss and
 # a probabilistic ClassRepresentation. A 5-fold cross-validation is implemented
@@ -46,7 +47,7 @@ pacc = ComposableQuantifier(
 # Let's evaluate this quantifier.
 
 print(f"Evaluating PACC: {pacc}")
-pacc.fit(training)
+pacc.fit(Xtr, ytr)
 app = qp.protocol.APP(testing, sample_size=100, n_prevalences=21, repeats=1)
 absolute_errors = qp.evaluation.evaluate(
     model = pacc,
@@ -70,7 +71,7 @@ model = ComposableQuantifier(
 )
 
 print(f"Evaluating {model}")
-model.fit(training)
+model.fit(Xtr, ytr)
 absolute_errors = qp.evaluation.evaluate(
     model = model,
     protocol = app, # use the same protocol for evaluation
@@ -125,7 +126,7 @@ grid_search = qp.model_selection.GridSearchQ(
     error = "mae",
     refit = False,
     verbose = True,
-).fit(training)
+).fit(Xtr, ytr)
 print(
     f"Best hyper-parameters = {grid_search.best_params_}",
     f"Best MAE = {grid_search.best_score_}",

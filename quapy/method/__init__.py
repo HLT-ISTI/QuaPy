@@ -27,7 +27,8 @@ AGGREGATIVE_METHODS = {
     aggregative.KDEyML,
     aggregative.KDEyCS,
     aggregative.KDEyHD,
-    confidence.BayesianCC
+    # aggregative.OneVsAllAggregative,
+    confidence.BayesianCC,
 }
 
 BINARY_METHODS = {

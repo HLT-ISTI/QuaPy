@@ -4,6 +4,7 @@ import unittest
 from sklearn.linear_model import LogisticRegression
 
 import quapy as qp
+from method.aggregative import OneVsAllAggregative
 from quapy.method.aggregative import ACC
 from quapy.method.meta import Ensemble
 from quapy.method import AGGREGATIVE_METHODS, BINARY_METHODS, NON_AGGREGATIVE_METHODS
@@ -16,21 +17,21 @@ from quapy.method.composable import (
     ComposableQuantifier,
     LeastSquaresLoss,
     HellingerSurrogateLoss,
-    ClassTransformer,
-    HistogramTransformer,
+    ClassRepresentation,
+    HistogramRepresentation,
     CVClassifier
 )
 
 COMPOSABLE_METHODS = [
     ComposableQuantifier( # ACC
         LeastSquaresLoss(),
-        ClassTransformer(CVClassifier(LogisticRegression()))
+        ClassRepresentation(CVClassifier(LogisticRegression()))
     ),
     ComposableQuantifier( # HDy
         HellingerSurrogateLoss(),
-        HistogramTransformer(
+        HistogramRepresentation(
             3, # 3 bins per class
-            preprocessor = ClassTransformer(CVClassifier(LogisticRegression()))
+            preprocessor = ClassRepresentation(CVClassifier(LogisticRegression()))
         )
     ),
 ]
@@ -113,7 +114,6 @@ class TestMethods(unittest.TestCase):
         self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_composable(self):
-        from packaging.version import Version
         if check_compatible_qunfold_version():
             for dataset in TestMethods.datasets:
                 for q in COMPOSABLE_METHODS:

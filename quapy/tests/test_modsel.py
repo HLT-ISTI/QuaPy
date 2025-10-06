@@ -39,31 +39,30 @@ class ModselTestCase(unittest.TestCase):
         obtains the same optimal parameters
         """
 
-        q = PACC(LogisticRegression(random_state=1, max_iter=500))
+        q = PACC(LogisticRegression(random_state=1, max_iter=3000))
 
-        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=50).reduce(n_train=500, random_state=1)
+        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=50)
         training, validation = data.training.split_stratified(0.7, random_state=1)
 
-        param_grid = {'classifier__C': np.logspace(-3,3,7)}
+        param_grid = {'classifier__C': np.logspace(-3,3,7), 'classifier__class_weight': ['balanced', None]}
         app = APP(validation, sample_size=100, random_state=1)
 
-        print('starting model selection in sequential exploration')
-        tinit = time.time()
-        modsel = GridSearchQ(
-            q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=1, verbose=True
-        ).fit(*training.Xy)
-        tend_seq = time.time()-tinit
-        best_c_seq = modsel.best_params_['classifier__C']
-        print(f'[done] took {tend_seq:.2f}s best C = {best_c_seq}')
+        def do_gridsearch(n_jobs):
+            print('starting model selection in sequential exploration')
+            t_init = time.time()
+            modsel = GridSearchQ(
+                q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=n_jobs, verbose=True
+            ).fit(*training.Xy)
+            t_end = time.time()-t_init
+            best_c = modsel.best_params_['classifier__C']
+            print(f'[done] took {t_end:.2f}s best C = {best_c}')
+            return t_end, best_c
 
-        print('starting model selection in parallel exploration')
-        tinit = time.time()
-        modsel = GridSearchQ(
-            q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=-1, verbose=True
-        ).fit(*training.Xy)
-        tend_par = time.time() - tinit
-        best_c_par = modsel.best_params_['classifier__C']
-        print(f'[done] took {tend_par:.2f}s best C = {best_c_par}')
+        tend_seq, best_c_seq = do_gridsearch(n_jobs=1)
+        tend_par, best_c_par = do_gridsearch(n_jobs=-1)
+
+        print(tend_seq, best_c_seq)
+        print(tend_par, best_c_par)
 
         self.assertEqual(best_c_seq, best_c_par)
         self.assertLess(tend_par, tend_seq)
