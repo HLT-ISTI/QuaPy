@@ -1,8 +1,6 @@
 Change Log 0.2.0
 -----------------
 
-CLEAN TODO-FILE
-
 - Base code Refactor:
     - Removing coupling between LabelledCollection and quantification methods; the fit interface changes:
         def fit(data:LabelledCollection): -> def fit(X, y):
