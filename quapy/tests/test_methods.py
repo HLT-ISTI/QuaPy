@@ -4,7 +4,6 @@ import unittest
 from sklearn.linear_model import LogisticRegression
 
 import quapy as qp
-from method.aggregative import OneVsAllAggregative
 from quapy.method.aggregative import ACC
 from quapy.method.meta import Ensemble
 from quapy.method import AGGREGATIVE_METHODS, BINARY_METHODS, NON_AGGREGATIVE_METHODS
