@@ -14,7 +14,8 @@ for facilitating the analysis and interpretation of the experimental results.
 ### Last updates:
 
 * Version 0.2.0 is released! major changes can be consulted [here](CHANGE_LOG.txt).
-* The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/build/html/modules.html)
+* The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/index.html)
+* Manuals are available [here](https://hlt-isti.github.io/QuaPy/manuals.html)
 
 ### Installation
 
@@ -101,7 +102,7 @@ In case you want to contribute improvements to quapy, please generate pull reque
   
 ## Documentation
 
-The [developer API documentation](https://hlt-isti.github.io/QuaPy/build/html/modules.html) is available [here](https://hlt-isti.github.io/QuaPy/build/html/index.html). 
+Check out the [developer API documentation here](https://hlt-isti.github.io/QuaPy/index.html). 
 
 Check out the [Manuals](https://hlt-isti.github.io/QuaPy/manuals.html), in which many code examples
 are provided:
