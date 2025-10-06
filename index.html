@@ -93,15 +93,15 @@
 <p>The following script fetches a dataset of tweets, trains, applies, and evaluates a quantifier based on the <em>Adjusted Classify &amp; Count</em> quantification method, using, as the evaluation measure, the <em>Mean Absolute Error</em> (MAE) between the predicted and the true class prevalence values of the test set:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s2">&quot;yeast&quot;</span><span class="p">)</span>
-<span class="n">training</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">training</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s2">&quot;yeast&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="c1"># create an &quot;Adjusted Classify &amp; Count&quot; quantifier</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">ACC</span><span class="p">()</span>
-<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+<span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span> <span class="o">=</span> <span class="n">training</span><span class="o">.</span><span class="n">Xy</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>
 
-<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
-<span class="n">true_prevalence</span>  <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+<span class="n">true_prevalence</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
 
 <span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mae</span><span class="p">(</span><span class="n">true_prevalence</span><span class="p">,</span> <span class="n">estim_prevalence</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mean Absolute Error (MAE)=</span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -166,17 +166,17 @@
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p>Implementation of many popular quantification methods (Classify-&amp;-Count and its variants, Expectation Maximization, quantification methods based on structured output learning, HDy, QuaNet, quantification ensembles, among others).</p></li>
+<li><p>Implementation of many popular quantification methods (Classify-&amp;-Count and its variants, Expectation Maximization,
+quantification methods based on structured output learning, HDy, QuaNet, quantification ensembles, among others).</p></li>
 <li><p>Versatile functionality for performing evaluation based on sampling generation protocols (e.g., APP, NPP, etc.).</p></li>
 <li><p>Implementation of most commonly used evaluation metrics (e.g., AE, RAE, NAE, NRAE, SE, KLD, NKLD, etc.).</p></li>
 <li><p>Datasets frequently used in quantification (textual and numeric), including:</p>
 <ul>
-<li><p>32 UCI Machine Learning binary datasets.</p></li>
-<li><p>5 UCI Machine Learning multiclass datasets (new in v0.1.8!).</p></li>
+<li><p>32 UCI Machine Learning datasets.</p></li>
 <li><p>11 Twitter quantification-by-sentiment datasets.</p></li>
 <li><p>3 product reviews quantification-by-sentiment datasets.</p></li>
-<li><p>4 tasks from LeQua competition (new in v0.1.7!)</p></li>
-<li><p>IFCB dataset of plankton water samples (new in v0.1.8!).</p></li>
+<li><p>4 tasks from LeQua 2022 competition and 4 tasks from LeQua 2024 competition</p></li>
+<li><p>IFCB for Plancton quantification</p></li>
 </ul>
 </li>
 <li><p>Native support for binary and single-label multiclass quantification scenarios.</p></li>
@@ -205,6 +205,9 @@
 <h2>Acknowledgments<a class="headerlink" href="#acknowledgments" title="Link to this heading"></a></h2>
 <a class="reference internal image-reference" href="_images/SoBigData.png"><img alt="SoBigData++" src="_images/SoBigData.png" style="width: 250px;" />
 </a>
+<p>This work has been supported by the QuaDaSh project
+<em>“Finanziato dall’Unione europea—Next Generation EU,
+Missione 4 Componente 2 CUP B53D23026250001”</em>.</p>
 </section>
 </section>
 
