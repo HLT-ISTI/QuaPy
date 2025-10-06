@@ -52,6 +52,14 @@ quapy.method.non\_aggregative module
    :undoc-members:
    :show-inheritance:
 
+quapy.method.composable module
+------------------------------
+
+.. automodule:: quapy.method.composable
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

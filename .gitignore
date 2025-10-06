@@ -69,6 +69,9 @@ instance/
 # Scrapy stuff:
 .scrapy
 
+# vscode config:
+.vscode/
+
 # Sphinx documentation
 docs/_build/doctest
 docs/_build/doctrees
@@ -85,6 +88,11 @@ ipython_config.py
 
 # pyenv
 .python-version
+
+# poetry
+poetry.toml
+pyproject.toml 
+poetry.lock
 
 # pipenv
 #   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
@@ -160,3 +168,4 @@ TweetSentQuant
 
 
 *.png
+.idea

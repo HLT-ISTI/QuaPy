@@ -158,8 +158,8 @@ def kld(prevs, prevs_hat, eps=None):
     :return: Kullback-Leibler divergence between the two distributions
     """
     eps = __check_eps(eps)
-    smooth_prevs = prevs + eps
-    smooth_prevs_hat = prevs_hat + eps
+    smooth_prevs = smooth(prevs, eps)
+    smooth_prevs_hat = smooth(prevs_hat, eps)
     return (smooth_prevs*np.log(smooth_prevs/smooth_prevs_hat)).sum(axis=-1)
 
 
@@ -285,6 +285,36 @@ def mnrae(prevs, prevs_hat, eps=None):
     return nrae(prevs, prevs_hat, eps).mean()
 
 
+def nmd(prevs, prevs_hat):
+    """
+    Computes the Normalized Match Distance; which is the Normalized Distance multiplied by the factor
+    `1/(n-1)` to guarantee the measure ranges between 0 (best prediction) and 1 (worst prediction).
+
+    :param prevs: array-like of shape `(n_classes,)` or `(n_instances, n_classes)`  with the true prevalence values
+    :param prevs_hat: array-like of shape `(n_classes,)` or `(n_instances, n_classes)` with the predicted prevalence values
+    :return: float in [0,1]
+    """
+    n = prevs.shape[-1]
+    return (1./(n-1))*np.mean(match_distance(prevs, prevs_hat))
+
+
+def md(prevs, prevs_hat, ERROR_TOL=1E-3):
+    """
+    Computes the Match Distance, under the assumption that the cost in mistaking class i with class i+1 is 1 in
+    all cases.
+
+    :param prevs: array-like of shape `(n_classes,)` or `(n_instances, n_classes)`  with the true prevalence values
+    :param prevs_hat: array-like of shape `(n_classes,)` or `(n_instances, n_classes)` with the predicted prevalence values
+    :return: float
+    """
+    P = np.cumsum(prevs, axis=-1)
+    P_hat = np.cumsum(prevs_hat, axis=-1)
+    assert np.all(np.isclose(P_hat[..., -1], 1.0, rtol=ERROR_TOL)), \
+        'arg error in match_distance: the array does not represent a valid distribution'
+    distances = np.abs(P-P_hat)
+    return distances[..., :-1].sum(axis=-1)
+
+
 def smooth(prevs, eps):
     """ Smooths a prevalence distribution with :math:`\\epsilon` (`eps`) as:
     :math:`\\underline{p}(y)=\\frac{\\epsilon+p(y)}{\\epsilon|\\mathcal{Y}|+
@@ -328,3 +358,5 @@ normalized_absolute_error = nae
 normalized_relative_absolute_error = nrae
 mean_normalized_absolute_error = mnae
 mean_normalized_relative_absolute_error = mnrae
+normalized_match_distance = nmd
+match_distance = md

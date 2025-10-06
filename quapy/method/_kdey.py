@@ -24,12 +24,14 @@ class KDEBase:
         Checks that the bandwidth parameter is correct
 
         :param bandwidth: either a string (see BANDWIDTH_METHOD) or a float
-        :return: nothing, but raises an exception for invalid values
+        :return: the bandwidth if the check is passed, or raises an exception for invalid values
         """
         assert bandwidth in KDEBase.BANDWIDTH_METHOD or isinstance(bandwidth, float), \
             f'invalid bandwidth, valid ones are {KDEBase.BANDWIDTH_METHOD} or float values'
         if isinstance(bandwidth, float):
-            assert 0 < bandwidth < 1,  "the bandwith for KDEy should be in (0,1), since this method models the unit simplex"
+            assert 0 < bandwidth < 1,  \
+                "the bandwith for KDEy should be in (0,1), since this method models the unit simplex"
+        return bandwidth
 
     def get_kde_function(self, X, bandwidth):
         """
@@ -52,7 +54,7 @@ class KDEBase:
         """
         return np.exp(kde.score_samples(X))
 
-    def get_mixture_components(self, X, y, n_classes, bandwidth):
+    def get_mixture_components(self, X, y, classes, bandwidth):
         """
         Returns an array containing the mixture components, i.e., the KDE functions for each class.
 
@@ -62,8 +64,13 @@ class KDEBase:
         :param bandwidth: float, the bandwidth of the kernel
         :return: a list of KernelDensity objects, each fitted with the corresponding class-specific covariates
         """
-        return [self.get_kde_function(X[y == cat], bandwidth) for cat in range(n_classes)]
-
+        class_cond_X = []
+        for cat in classes:
+            selX = X[y==cat]
+            if selX.size==0:
+                selX = [F.uniform_prevalence(len(classes))]
+            class_cond_X.append(selX)
+        return [self.get_kde_function(X_cond_yi, bandwidth) for X_cond_yi in class_cond_X]
 
 
 class KDEyML(AggregativeSoftQuantifier, KDEBase):
@@ -101,20 +108,17 @@ class KDEyML(AggregativeSoftQuantifier, KDEBase):
         Alternatively, this set can be specified at fit time by indicating the exact set of data
         on which the predictions are to be generated.
     :param bandwidth: float, the bandwidth of the Kernel
-    :param n_jobs: number of parallel workers
     :param random_state: a seed to be set before fitting any base quantifier (default None)
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=10, bandwidth=0.1, n_jobs=None, random_state=None):
-        self._check_bandwidth(bandwidth)
-        self.classifier = classifier
+    def __init__(self, classifier: BaseEstimator=None, val_split=5, bandwidth=0.1, random_state=None):
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
-        self.bandwidth = bandwidth
-        self.n_jobs = n_jobs
+        self.bandwidth = KDEBase._check_bandwidth(bandwidth)
         self.random_state=random_state
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        self.mix_densities = self.get_mixture_components(*classif_predictions.Xy, data.n_classes, self.bandwidth)
+        self.mix_densities = self.get_mixture_components(*classif_predictions.Xy, data.classes_, self.bandwidth)
         return self
 
     def aggregate(self, posteriors: np.ndarray):
@@ -125,17 +129,17 @@ class KDEyML(AggregativeSoftQuantifier, KDEBase):
         :param posteriors: instances in the sample converted into posterior probabilities
         :return: a vector of class prevalence estimates
         """
-        np.random.RandomState(self.random_state)
-        epsilon = 1e-10
-        n_classes = len(self.mix_densities)
-        test_densities = [self.pdf(kde_i, posteriors) for kde_i in self.mix_densities]
+        with qp.util.temp_seed(self.random_state):
+            epsilon = 1e-10
+            n_classes = len(self.mix_densities)
+            test_densities = [self.pdf(kde_i, posteriors) for kde_i in self.mix_densities]
 
-        def neg_loglikelihood(prev):
-            test_mixture_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, test_densities))
-            test_loglikelihood = np.log(test_mixture_likelihood + epsilon)
-            return  -np.sum(test_loglikelihood)
+            def neg_loglikelihood(prev):
+                test_mixture_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, test_densities))
+                test_loglikelihood = np.log(test_mixture_likelihood + epsilon)
+                return  -np.sum(test_loglikelihood)
 
-        return F.optim_minimize(neg_loglikelihood, n_classes)
+            return F.optim_minimize(neg_loglikelihood, n_classes)
 
 
 class KDEyHD(AggregativeSoftQuantifier, KDEBase):
@@ -178,25 +182,22 @@ class KDEyHD(AggregativeSoftQuantifier, KDEBase):
         Alternatively, this set can be specified at fit time by indicating the exact set of data
         on which the predictions are to be generated.
     :param bandwidth: float, the bandwidth of the Kernel
-    :param n_jobs: number of parallel workers
     :param random_state: a seed to be set before fitting any base quantifier (default None)
     :param montecarlo_trials: number of Monte Carlo trials (default 10000)
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=10, divergence: str='HD',
-                 bandwidth=0.1, n_jobs=None, random_state=None, montecarlo_trials=10000):
+    def __init__(self, classifier: BaseEstimator=None, val_split=5, divergence: str='HD',
+                 bandwidth=0.1, random_state=None, montecarlo_trials=10000):
         
-        self._check_bandwidth(bandwidth)
-        self.classifier = classifier
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
         self.divergence = divergence
-        self.bandwidth = bandwidth
-        self.n_jobs = n_jobs
+        self.bandwidth = KDEBase._check_bandwidth(bandwidth)
         self.random_state=random_state
         self.montecarlo_trials = montecarlo_trials
 
     def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
-        self.mix_densities = self.get_mixture_components(*classif_predictions.Xy, data.n_classes, self.bandwidth)
+        self.mix_densities = self.get_mixture_components(*classif_predictions.Xy, data.classes_, self.bandwidth)
 
         N = self.montecarlo_trials
         rs = self.random_state
@@ -273,15 +274,12 @@ class KDEyCS(AggregativeSoftQuantifier):
         Alternatively, this set can be specified at fit time by indicating the exact set of data
         on which the predictions are to be generated.
     :param bandwidth: float, the bandwidth of the Kernel
-    :param n_jobs: number of parallel workers
     """
 
-    def __init__(self, classifier: BaseEstimator, val_split=10, bandwidth=0.1, n_jobs=None):
-        KDEBase._check_bandwidth(bandwidth)
-        self.classifier = classifier
+    def __init__(self, classifier: BaseEstimator=None, val_split=5, bandwidth=0.1):
+        self.classifier = qp._get_classifier(classifier)
         self.val_split = val_split
-        self.bandwidth = bandwidth
-        self.n_jobs = n_jobs
+        self.bandwidth = KDEBase._check_bandwidth(bandwidth)
 
     def gram_matrix_mix_sum(self, X, Y=None):
         # this adapts the output of the rbf_kernel function (pairwise evaluations of Gaussian kernels k(x,y))
@@ -350,7 +348,7 @@ class KDEyCS(AggregativeSoftQuantifier):
             # called \overline{r} in the paper
             alpha_ratio = alpha * self.counts_inv
 
-            # recal that tr_te_sums already accounts for the constant terms (1/Li)*(1/M)
+            # recall that tr_te_sums already accounts for the constant terms (1/Li)*(1/M)
             partA = -np.log((alpha_ratio @ tr_te_sums) * Minv)
             partB = 0.5 * np.log(alpha_ratio @ tr_tr_sums @ alpha_ratio)
             return partA + partB #+ partC

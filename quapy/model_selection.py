@@ -25,6 +25,7 @@ class Status(Enum):
 
 
 class ConfigStatus:
+
     def __init__(self, params, status, msg=''):
         self.params = params
         self.status = status
@@ -327,7 +328,7 @@ class GridSearchQ(BaseQuantifier):
             if self.raise_errors:
                 raise exception
             else:
-                return ConfigStatus(params, status)
+                return ConfigStatus(params, status, msg=str(exception))
 
         try:
             with timeout(self.timeout):

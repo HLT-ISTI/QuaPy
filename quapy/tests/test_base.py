@@ -1,5 +1,11 @@
-import pytest
+import unittest
 
-def test_import():
-    import quapy as qp
-    assert qp.__version__ is not None
+
+class ImportTest(unittest.TestCase):
+    def test_import(self):
+        import quapy as qp
+        self.assertIsNotNone(qp.__version__)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -90,12 +90,17 @@ def standardize(dataset: Dataset, inplace=False):
         :class:`quapy.data.base.Dataset` is to be returned
     :return: an instance of :class:`quapy.data.base.Dataset`
     """
-    s = StandardScaler(copy=not inplace)
-    training = s.fit_transform(dataset.training.instances)
-    test = s.transform(dataset.test.instances)
+    s = StandardScaler()
+    train, test = dataset.train_test
+    std_train_X = s.fit_transform(train.X)
+    std_test_X = s.transform(test.X)
     if inplace:
+        dataset.training.instances = std_train_X
+        dataset.test.instances = std_test_X
         return dataset
     else:
+        training = LabelledCollection(std_train_X, train.labels, classes=train.classes_)
+        test = LabelledCollection(std_test_X, test.labels, classes=test.classes_)
         return Dataset(training, test, dataset.vocabulary, dataset.name)
 
 

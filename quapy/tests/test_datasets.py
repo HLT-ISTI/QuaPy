@@ -1,61 +1,127 @@
-import pytest
+import os
+import unittest
 
-from quapy.data.datasets import REVIEWS_SENTIMENT_DATASETS, TWITTER_SENTIMENT_DATASETS_TEST, \
-    TWITTER_SENTIMENT_DATASETS_TRAIN, UCI_BINARY_DATASETS, LEQUA2022_TASKS, UCI_MULTICLASS_DATASETS,\
-    fetch_reviews, fetch_twitter, fetch_UCIBinaryDataset, fetch_lequa2022, fetch_UCIMulticlassLabelledCollection
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
 
-
-@pytest.mark.parametrize('dataset_name', REVIEWS_SENTIMENT_DATASETS)
-def test_fetch_reviews(dataset_name):
-    dataset = fetch_reviews(dataset_name)
-    print(f'Dataset {dataset_name}')
-    print('Training set stats')
-    dataset.training.stats()
-    print('Test set stats')
-    dataset.test.stats()
+import quapy.functional as F
+from quapy.method.aggregative import PCC
+from quapy.data.datasets import *
 
 
-@pytest.mark.parametrize('dataset_name', TWITTER_SENTIMENT_DATASETS_TEST + TWITTER_SENTIMENT_DATASETS_TRAIN)
-def test_fetch_twitter(dataset_name):
-    try:
-        dataset = fetch_twitter(dataset_name)
-    except ValueError as ve:
-        if dataset_name == 'semeval' and ve.args[0].startswith(
-                'dataset "semeval" can only be used for model selection.'):
-            dataset = fetch_twitter(dataset_name, for_model_selection=True)
-    print(f'Dataset {dataset_name}')
-    print('Training set stats')
-    dataset.training.stats()
-    print('Test set stats')
+class TestDatasets(unittest.TestCase):
 
+    def new_quantifier(self):
+        return PCC(LogisticRegression(C=0.001, max_iter=100))
 
-@pytest.mark.parametrize('dataset_name', UCI_BINARY_DATASETS)
-def test_fetch_UCIDataset(dataset_name):
-    try:
-        dataset = fetch_UCIBinaryDataset(dataset_name)
-    except FileNotFoundError as fnfe:
-        if dataset_name == 'pageblocks.5' and fnfe.args[0].find(
-                'If this is the first time you attempt to load this dataset') > 0:
-            print('The pageblocks.5 dataset requires some hand processing to be usable, skipping this test.')
+    def _check_dataset(self, dataset):
+        q = self.new_quantifier()
+        print(f'testing method {q} in {dataset.name}...', end='')
+        q.fit(dataset.training)
+        estim_prevalences = q.quantify(dataset.test.instances)
+        self.assertTrue(F.check_prevalence_vector(estim_prevalences))
+        print(f'[done]')
+
+    def _check_samples(self, gen, q, max_samples_test=5, vectorizer=None):
+        for X, p in gen():
+            if vectorizer is not None:
+                X = vectorizer.transform(X)
+            estim_prevalences = q.quantify(X)
+            self.assertTrue(F.check_prevalence_vector(estim_prevalences))
+            max_samples_test -= 1
+            if max_samples_test == 0:
+                break
+
+    def test_reviews(self):
+        for dataset_name in REVIEWS_SENTIMENT_DATASETS:
+            print(f'loading dataset {dataset_name}...', end='')
+            dataset = fetch_reviews(dataset_name, tfidf=True, min_df=10)
+            dataset.stats()
+            dataset.reduce()
+            print(f'[done]')
+            self._check_dataset(dataset)
+
+    def test_twitter(self):
+        for dataset_name in TWITTER_SENTIMENT_DATASETS_TEST:
+            print(f'loading dataset {dataset_name}...', end='')
+            dataset = fetch_twitter(dataset_name, min_df=10)
+            dataset.stats()
+            dataset.reduce()
+            print(f'[done]')
+            self._check_dataset(dataset)
+
+    def test_UCIBinaryDataset(self):
+        for dataset_name in UCI_BINARY_DATASETS:
+            try:
+                print(f'loading dataset {dataset_name}...', end='')
+                dataset = fetch_UCIBinaryDataset(dataset_name)
+                dataset.stats()
+                dataset.reduce()
+                print(f'[done]')
+                self._check_dataset(dataset)
+            except FileNotFoundError as fnfe:
+                if dataset_name == 'pageblocks.5' and fnfe.args[0].find(
+                        'If this is the first time you attempt to load this dataset') > 0:
+                    print('The pageblocks.5 dataset requires some hand processing to be usable; skipping this test.')
+                    continue
+
+    def test_UCIMultiDataset(self):
+        for dataset_name in UCI_MULTICLASS_DATASETS:
+            print(f'loading dataset {dataset_name}...', end='')
+            dataset = fetch_UCIMulticlassDataset(dataset_name)
+            dataset.stats()
+            n_classes = dataset.n_classes
+            uniform_prev = F.uniform_prevalence(n_classes)
+            dataset.training = dataset.training.sampling(100, *uniform_prev)
+            dataset.test = dataset.test.sampling(100, *uniform_prev)
+            print(f'[done]')
+            self._check_dataset(dataset)
+
+    def test_lequa2022(self):
+        if os.environ.get('QUAPY_TESTS_OMIT_LARGE_DATASETS'):
+            print("omitting test_lequa2022 because QUAPY_TESTS_OMIT_LARGE_DATASETS is set")
             return
-    print(f'Dataset {dataset_name}')
-    print('Training set stats')
-    dataset.training.stats()
-    print('Test set stats')
+
+        for dataset_name in LEQUA2022_VECTOR_TASKS:
+            print(f'loading dataset {dataset_name}...', end='')
+            train, gen_val, gen_test = fetch_lequa2022(dataset_name)
+            train.stats()
+            n_classes = train.n_classes
+            train = train.sampling(100, *F.uniform_prevalence(n_classes))
+            q = self.new_quantifier()
+            q.fit(train)
+            self._check_samples(gen_val, q, max_samples_test=5)
+            self._check_samples(gen_test, q, max_samples_test=5)
+
+        for dataset_name in LEQUA2022_TEXT_TASKS:
+            print(f'loading dataset {dataset_name}...', end='')
+            train, gen_val, gen_test = fetch_lequa2022(dataset_name)
+            train.stats()
+            n_classes = train.n_classes
+            train = train.sampling(100, *F.uniform_prevalence(n_classes))
+            tfidf = TfidfVectorizer()
+            train.instances = tfidf.fit_transform(train.instances)
+            q = self.new_quantifier()
+            q.fit(train)
+            self._check_samples(gen_val, q, max_samples_test=5, vectorizer=tfidf)
+            self._check_samples(gen_test, q, max_samples_test=5, vectorizer=tfidf)
 
 
-@pytest.mark.parametrize('dataset_name', UCI_MULTICLASS_DATASETS)
-def test_fetch_UCIMultiDataset(dataset_name):
-    dataset = fetch_UCIMulticlassLabelledCollection(dataset_name)
-    print(f'Dataset {dataset_name}')
-    print('Training set stats')
-    dataset.stats()
-    print('Test set stats')
+    def test_IFCB(self):
+        if os.environ.get('QUAPY_TESTS_OMIT_LARGE_DATASETS'):
+            print("omitting test_IFCB because QUAPY_TESTS_OMIT_LARGE_DATASETS is set")
+            return
+
+        print(f'loading dataset IFCB.')
+        for mod_sel in [False, True]:
+            train, gen = fetch_IFCB(single_sample_train=True, for_model_selection=mod_sel)
+            train.stats()
+            n_classes = train.n_classes
+            train = train.sampling(100, *F.uniform_prevalence(n_classes))
+            q = self.new_quantifier()
+            q.fit(train)
+            self._check_samples(gen, q, max_samples_test=5)
 
 
-@pytest.mark.parametrize('dataset_name', LEQUA2022_TASKS)
-def test_fetch_lequa2022(dataset_name):
-    train, gen_val, gen_test = fetch_lequa2022(dataset_name)
-    print(train.stats())
-    print('Val:', gen_val.total())
-    print('Test:', gen_test.total())
+if __name__ == '__main__':
+    unittest.main()

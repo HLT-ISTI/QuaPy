@@ -113,7 +113,7 @@ setup(
 
     python_requires='>=3.8, <4',
 
-    install_requires=['scikit-learn', 'pandas', 'tqdm', 'matplotlib', 'joblib', 'xlrd', 'abstention', 'ucimlrepo'],
+    install_requires=['scikit-learn', 'pandas', 'tqdm', 'matplotlib', 'joblib', 'xlrd', 'abstention', 'ucimlrepo', 'certifi'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -123,10 +123,12 @@ setup(
     #
     # Similar to `install_requires` above, these must be valid existing
     # projects.
-    # extras_require={  # Optional
-    #     'dev': ['check-manifest'],
-    #     'test': ['coverage'],
-    # },
+    extras_require={  # Optional
+       'bayes': ['jax', 'jaxlib', 'numpyro'],
+       'neural': ['torch'],
+       'tests': ['certifi'],
+       'docs' : ['sphinx-rtd-theme', 'myst-parser'],
+    },
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.
@@ -158,7 +160,7 @@ setup(
         'Contributors': 'https://github.com/HLT-ISTI/QuaPy/graphs/contributors',
         'Bug Reports': 'https://github.com/HLT-ISTI/QuaPy/issues',
         'Wiki': 'https://github.com/HLT-ISTI/QuaPy/wiki',
-        'Documentation': 'https://hlt-isti.github.io/QuaPy/build/html/index.html',
+        'Documentation': 'https://hlt-isti.github.io/QuaPy/',
         'Source': 'https://github.com/HLT-ISTI/QuaPy/',
     },
 )

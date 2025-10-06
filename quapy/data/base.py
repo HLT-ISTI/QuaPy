@@ -108,8 +108,7 @@ class LabelledCollection:
         """
         Returns an index to be used to extract a random sample of desired size and desired prevalence values. If the
         prevalence values are not specified, then returns the index of a uniform sampling.
-        For each class, the sampling is drawn with replacement if the requested prevalence is larger than
-        the actual prevalence of the class, or without replacement otherwise.
+        For each class, the sampling is drawn with replacement.
 
         :param size: integer, the requested size
         :param prevs: the prevalence for each class; the prevalence value for the last class can be lead empty since
@@ -124,7 +123,7 @@ class LabelledCollection:
         if len(prevs) == self.n_classes - 1:
             prevs = prevs + (1 - sum(prevs),)
         assert len(prevs) == self.n_classes, 'unexpected number of prevalences'
-        assert sum(prevs) == 1, f'prevalences ({prevs}) wrong range (sum={sum(prevs)})'
+        assert np.isclose(sum(prevs), 1), f'prevalences ({prevs}) wrong range (sum={sum(prevs)})'
 
         # Decide how many instances should be taken for each class in order to satisfy the requested prevalence
         # accurately, and the number of instances in the sample (exactly). If int(size * prevs[i]) (which is
@@ -153,7 +152,7 @@ class LabelledCollection:
             for class_, n_requested in n_requests.items():
                 n_candidates = len(self.index[class_])
                 index_sample = self.index[class_][
-                    np.random.choice(n_candidates, size=n_requested, replace=(n_requested > n_candidates))
+                    np.random.choice(n_candidates, size=n_requested, replace=True)
                 ] if n_requested > 0 else []
 
                 indexes_sample.append(index_sample)
@@ -168,8 +167,7 @@ class LabelledCollection:
     def uniform_sampling_index(self, size, random_state=None):
         """
         Returns an index to be used to extract a uniform sample of desired size. The sampling is drawn
-        with replacement if the requested size is greater than the number of instances, or without replacement
-        otherwise.
+        with replacement.
 
         :param size: integer, the size of the uniform sample
         :param random_state: if specified, guarantees reproducibility of the split.
@@ -179,13 +177,12 @@ class LabelledCollection:
             ng = RandomState(seed=random_state)
         else:
             ng = np.random
-        return ng.choice(len(self), size, replace=size > len(self))
+        return ng.choice(len(self), size, replace=True)
 
     def sampling(self, size, *prevs, shuffle=True, random_state=None):
         """
         Return a random sample (an instance of :class:`LabelledCollection`) of desired size and desired prevalence
-        values. For each class, the sampling is drawn without replacement if the requested prevalence is larger than
-        the actual prevalence of the class, or with replacement otherwise.
+        values. For each class, the sampling is drawn with replacement.
 
         :param size: integer, the requested size
         :param prevs: the prevalence for each class; the prevalence value for the last class can be lead empty since
@@ -202,8 +199,7 @@ class LabelledCollection:
     def uniform_sampling(self, size, random_state=None):
         """
         Returns a uniform sample (an instance of :class:`LabelledCollection`) of desired size. The sampling is drawn
-        with replacement if the requested size is greater than the number of instances, or without replacement
-        otherwise.
+        with replacement.
 
         :param size: integer, the requested size
         :param random_state: if specified, guarantees reproducibility of the split.
@@ -553,7 +549,7 @@ class Dataset:
             yield Dataset(train, test, name=f'fold {(i % nfolds) + 1}/{nfolds} (round={(i // nfolds) + 1})')
 
 
-    def reduce(self, n_train=100, n_test=100):
+    def reduce(self, n_train=100, n_test=100, random_state=None):
         """
         Reduce the number of instances in place for quick experiments. Preserves the prevalence of each set.
 
@@ -561,6 +557,14 @@ class Dataset:
         :param n_test: number of test documents to keep (default 100)
         :return: self
         """
-        self.training = self.training.sampling(n_train, *self.training.prevalence())
-        self.test = self.test.sampling(n_test, *self.test.prevalence())
+        self.training = self.training.sampling(
+            n_train,
+            *self.training.prevalence(),
+            random_state = random_state
+        )
+        self.test = self.test.sampling(
+            n_test,
+            *self.test.prevalence(),
+            random_state = random_state
+        )
         return self

@@ -10,8 +10,15 @@ import pathlib
 import sys
 from os.path import join
 quapy_path = join(pathlib.Path(__file__).parents[2].resolve().as_posix(), 'quapy')
+wiki_path = join(pathlib.Path(__file__).parents[0].resolve().as_posix(), 'wiki')
+source_path = pathlib.Path(__file__).parents[2].resolve().as_posix()
 print(f'quapy path={quapy_path}')
+print(f'quapy source path={source_path}')
 sys.path.insert(0, quapy_path)
+sys.path.insert(0, wiki_path)
+sys.path.insert(0, source_path)
+
+print(sys.path)
 
 
 project = 'QuaPy: A Python-based open-source framework for quantification'
@@ -28,13 +35,20 @@ release = quapy.__version__
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    'sphinx.ext.autosectionlabel',
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'sphinx.ext.intersphinx',
+    'myst_parser',
 ]
+
+autosectionlabel_prefix_document = True
+
+source_suffix = ['.rst', '.md']
 
 templates_path = ['_templates']
 
@@ -50,6 +64,10 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'sphinx_rtd_theme'
 # html_theme = 'furo'
 # need to be installed: pip install furo (not working...)
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
+# intersphinx configuration
+intersphinx_mapping = {
+    "sklearn": ("https://scikit-learn.org/stable/", None),
+}
 

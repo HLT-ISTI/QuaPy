@@ -6,6 +6,9 @@ import pickle
 import urllib
 from pathlib import Path
 from contextlib import ExitStack
+
+import pandas as pd
+
 import quapy as qp
 
 import numpy as np
@@ -56,6 +59,7 @@ def parallel(func, args, n_jobs, seed=None, asarray=True, backend='loky'):
     :param seed: the numeric seed
     :param asarray: set to True to return a np.ndarray instead of a list
     :param backend: indicates the backend used for handling parallel works
+    :param open_args: if True, then the delayed function is called on *args_i, instead of on args_i
     """
     def func_dec(environ, seed, *args):
         qp.environ = environ.copy()
@@ -73,6 +77,40 @@ def parallel(func, args, n_jobs, seed=None, asarray=True, backend='loky'):
         out = np.asarray(out)
     return out
 
+
+def parallel_unpack(func, args, n_jobs, seed=None, asarray=True, backend='loky'):
+    """
+    A wrapper of multiprocessing:
+
+    >>> Parallel(n_jobs=n_jobs)(
+    >>>      delayed(func)(*args_i) for args_i in args
+    >>> )
+
+    that takes the `quapy.environ` variable as input silently.
+    Seeds the child processes to ensure reproducibility when n_jobs>1.
+
+    :param func: callable
+    :param args: args of func
+    :param seed: the numeric seed
+    :param asarray: set to True to return a np.ndarray instead of a list
+    :param backend: indicates the backend used for handling parallel works
+    """
+
+    def func_dec(environ, seed, *args):
+        qp.environ = environ.copy()
+        qp.environ['N_JOBS'] = 1
+        # set a context with a temporal seed to ensure results are reproducibles in parallel
+        with ExitStack() as stack:
+            if seed is not None:
+                stack.enter_context(qp.util.temp_seed(seed))
+            return func(*args)
+
+    out = Parallel(n_jobs=n_jobs, backend=backend)(
+        delayed(func_dec)(qp.environ, None if seed is None else seed + i, *args_i) for i, args_i in enumerate(args)
+    )
+    if asarray:
+        out = np.asarray(out)
+    return out
 
 @contextlib.contextmanager
 def temp_seed(random_state):
@@ -193,12 +231,14 @@ def pickled_resource(pickle_path:str, generation_func:callable, *args):
         return generation_func(*args)
     else:
         if os.path.exists(pickle_path):
-            return pickle.load(open(pickle_path, 'rb'))
+            with open(pickle_path, 'rb') as fin:
+                instance = pickle.load(fin)
         else:
             instance = generation_func(*args)
             os.makedirs(str(Path(pickle_path).parent), exist_ok=True)
-            pickle.dump(instance, open(pickle_path, 'wb'), pickle.HIGHEST_PROTOCOL)
-            return instance
+            with open(pickle_path, 'wb') as foo:
+                pickle.dump(instance, foo, pickle.HIGHEST_PROTOCOL)
+        return instance
 
 
 def _check_sample_size(sample_size):
@@ -209,6 +249,28 @@ def _check_sample_size(sample_size):
     assert isinstance(sample_size, int) and sample_size > 0, \
         'error: sample_size is not a positive integer'
     return sample_size
+
+
+def load_report(path, as_dict=False):
+    def str2prev_arr(strprev):
+        within = strprev.strip('[]').split()
+        float_list = [float(p) for p in within]
+        float_list[-1] = 1. - sum(float_list[:-1])
+        return np.asarray(float_list)
+
+    df = pd.read_csv(path, index_col=0)
+    df['true-prev'] = df['true-prev'].apply(str2prev_arr)
+    df['estim-prev'] = df['estim-prev'].apply(str2prev_arr)
+    if as_dict:
+        d = {}
+        for col in df.columns.values:
+            vals = df[col].values
+            if col in ['true-prev', 'estim-prev']:
+                vals = np.vstack(vals)
+            d[col] = vals
+        return d
+    else:
+        return df
 
 
 class EarlyStop:

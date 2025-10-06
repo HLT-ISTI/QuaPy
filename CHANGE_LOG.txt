@@ -1,3 +1,48 @@
+Change Log 0.1.9
+----------------
+
+- Added LeQua 2024 datasets and normalized match distance to qp.error
+
+- Improved data loaders for UCI binary and UCI multiclass datasets (thanks to Lorenzo Volpi!); these datasets
+    can be loaded with standardised covariates (default)
+
+- Added a default classifier for aggregative quantifiers, which now can be instantiated without specifying
+    the classifier. The default classifier can be accessed in qp.environ['DEFAULT_CLS'] and is assigned to
+    sklearn.linear_model.LogisticRegression(max_iter=3000). If the classifier is not specified, then a clone
+    of said classifier is returned. E.g.:
+    > pacc = PACC()
+    is equivalent to:
+    > pacc = PACC(classifier=LogisticRegression(max_iter=3000))
+
+- Improved error loging in model selection. In v0.1.8 only Status.INVALID was reported; in v0.1.9 it is
+    now accompanied by a textual description of the error
+
+- The number of parallel workers can now be set via an environment variable by running, e.g.:
+    > N_JOBS=10 python3 your_script.py
+    which has the same effect as writing the following code at the beginning of your_script.py:
+    > import quapy as qp
+    > qp.environ["N_JOBS"] = 10
+
+- Some examples have been added to the ./examples/ dir, which now contains numbered examples from basics (0)
+    to advanced topics (higher numbers)
+
+- Moved the wiki documents to the ./docs/ folder so that they become editable via PR for the community
+
+- Added Composable methods from Mirko Bunse's qunfold library! (thanks to Mirko Bunse!)
+
+- Added Continuous Integration with GitHub Actions (thanks to Mirko Bunse!)
+
+- Added Bayesian CC method (thanks to Pawel Czyz!). The method is described in detail in the paper
+    Ziegler, Albert, and Paweł Czyż. "Bayesian Quantification with Black-Box Estimators."
+    arXiv preprint arXiv:2302.09159 (2023).
+
+- Removed binary UCI datasets {acute.a, acute.b, balance.2} from the list qp.data.datasets.UCI_BINARY_DATASETS
+    (the datasets are still loadable from the fetch_UCIBinaryLabelledCollection and fetch_UCIBinaryDataset
+    functions, though). The reason is that these datasets tend to yield results (for all methods) that are
+    one or two orders of magnitude greater than for other datasets, and this has a disproportionate impact in
+    methods average (I suspect there is something wrong in those datasets).
+
+
 Change Log 0.1.8
 ----------------
 
