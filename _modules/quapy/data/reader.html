@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>quapy.data.reader &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+  <title>quapy.data.reader &mdash; QuaPy: A Python-based open-source framework for quantification 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../../../_static/documentation_options.js?v=938c9ccc"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -74,14 +74,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for quapy.data.reader</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">dok_matrix</span>
-<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">dok_matrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 
 
 <div class="viewcode-block" id="from_text">
 <a class="viewcode-back" href="../../../quapy.data.html#quapy.data.reader.from_text">[docs]</a>
-<span class="k">def</span> <span class="nf">from_text</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">class2int</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_text</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">class2int</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads a labelled colletion of documents.</span>
 <span class="sd">    File fomart &lt;0 or 1&gt;\t&lt;document&gt;\n</span>
@@ -115,7 +115,7 @@
 
 <div class="viewcode-block" id="from_sparse">
 <a class="viewcode-back" href="../../../quapy.data.html#quapy.data.reader.from_sparse">[docs]</a>
-<span class="k">def</span> <span class="nf">from_sparse</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_sparse</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads a labelled collection of real-valued instances expressed in sparse format</span>
 <span class="sd">    File format &lt;-1 or 0 or 1&gt;[\s col(int):val(float)]\n</span>
@@ -124,7 +124,7 @@
 <span class="sd">    :return: a `csr_matrix` containing the instances (rows), and a ndarray containing the labels</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">split_col_val</span><span class="p">(</span><span class="n">col_val</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">split_col_val</span><span class="p">(</span><span class="n">col_val</span><span class="p">):</span>
         <span class="n">col</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">col_val</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
         <span class="n">col</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">col</span><span class="p">,</span> <span class="n">val</span>
@@ -152,7 +152,7 @@
 
 <div class="viewcode-block" id="from_csv">
 <a class="viewcode-back" href="../../../quapy.data.html#quapy.data.reader.from_csv">[docs]</a>
-<span class="k">def</span> <span class="nf">from_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reads a csv file in which columns are separated by &#39;,&#39;.</span>
 <span class="sd">    File format &lt;label&gt;,&lt;feat1&gt;,&lt;feat2&gt;,...,&lt;featn&gt;\n</span>
@@ -175,7 +175,7 @@
 
 <div class="viewcode-block" id="reindex_labels">
 <a class="viewcode-back" href="../../../quapy.data.html#quapy.data.reader.reindex_labels">[docs]</a>
-<span class="k">def</span> <span class="nf">reindex_labels</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">reindex_labels</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Re-indexes a list of labels as a list of indexes, and returns the classnames corresponding to the indexes.</span>
 <span class="sd">    E.g.:</span>
@@ -198,7 +198,7 @@
 
 <div class="viewcode-block" id="binarize">
 <a class="viewcode-back" href="../../../quapy.data.html#quapy.data.reader.binarize">[docs]</a>
-<span class="k">def</span> <span class="nf">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">binarize</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pos_class</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Binarizes a categorical array-like collection of labels towards the positive class `pos_class`. E.g.,:</span>
 

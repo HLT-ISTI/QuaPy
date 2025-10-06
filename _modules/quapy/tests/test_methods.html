@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.tests.test_methods &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=22607128"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">quapy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.tests.test_methods</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.tests.test_methods</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
+
+<span class="kn">import</span> <span class="nn">method.aggregative</span>
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchQ</span>
+<span class="kn">from</span> <span class="nn">quapy.method.base</span> <span class="kn">import</span> <span class="n">BinaryQuantifier</span>
+<span class="kn">from</span> <span class="nn">quapy.data</span> <span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">LabelledCollection</span>
+<span class="kn">from</span> <span class="nn">quapy.method</span> <span class="kn">import</span> <span class="n">AGGREGATIVE_METHODS</span><span class="p">,</span> <span class="n">NON_AGGREGATIVE_METHODS</span>
+<span class="kn">from</span> <span class="nn">quapy.method.meta</span> <span class="kn">import</span> <span class="n">Ensemble</span>
+<span class="kn">from</span> <span class="nn">quapy.protocol</span> <span class="kn">import</span> <span class="n">APP</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">DMy</span>
+<span class="kn">from</span> <span class="nn">quapy.method.meta</span> <span class="kn">import</span> <span class="n">MedianEstimator</span>
+
+<span class="c1"># datasets = [pytest.param(qp.datasets.fetch_twitter(&#39;hcr&#39;, pickle=True), id=&#39;hcr&#39;),</span>
+<span class="c1">#             pytest.param(qp.datasets.fetch_UCIDataset(&#39;ionosphere&#39;), id=&#39;ionosphere&#39;)]</span>
+
+<span class="n">tinydatasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">pytest</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reduce</span><span class="p">(),</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;tiny_hcr&#39;</span><span class="p">),</span>
+                <span class="n">pytest</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;ionosphere&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reduce</span><span class="p">(),</span> <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;tiny_ionosphere&#39;</span><span class="p">)]</span>
+
+<span class="n">learners</span> <span class="o">=</span> <span class="p">[</span><span class="n">LogisticRegression</span><span class="p">,</span> <span class="n">LinearSVC</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="test_aggregative_methods">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_methods.test_aggregative_methods">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="n">tinydatasets</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;aggregative_method&#39;</span><span class="p">,</span> <span class="n">AGGREGATIVE_METHODS</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;learner&#39;</span><span class="p">,</span> <span class="n">learners</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_aggregative_methods</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">aggregative_method</span><span class="p">,</span> <span class="n">learner</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">aggregative_method</span><span class="p">(</span><span class="n">learner</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">BinaryQuantifier</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dataset</span><span class="o">.</span><span class="n">binary</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;skipping the test of binary model </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="p">)</span><span class="si">}</span><span class="s1"> on non-binary dataset </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+
+    <span class="n">estim_prevalences</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+
+    <span class="n">true_prevalences</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mae</span><span class="p">(</span><span class="n">true_prevalences</span><span class="p">,</span> <span class="n">estim_prevalences</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span></div>
+
+
+
+<div class="viewcode-block" id="test_non_aggregative_methods">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_methods.test_non_aggregative_methods">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="n">tinydatasets</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;non_aggregative_method&#39;</span><span class="p">,</span> <span class="n">NON_AGGREGATIVE_METHODS</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_non_aggregative_methods</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">non_aggregative_method</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">non_aggregative_method</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">BinaryQuantifier</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dataset</span><span class="o">.</span><span class="n">binary</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;skipping the test of binary model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> on non-binary dataset </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+
+    <span class="n">estim_prevalences</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+
+    <span class="n">true_prevalences</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mae</span><span class="p">(</span><span class="n">true_prevalences</span><span class="p">,</span> <span class="n">estim_prevalences</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span></div>
+
+
+
+<div class="viewcode-block" id="test_ensemble_method">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_methods.test_ensemble_method">[docs]</a>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;base_method&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">ACC</span><span class="p">,</span> <span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">PACC</span><span class="p">])</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;learner&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">LogisticRegression</span><span class="p">])</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="n">tinydatasets</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s1">&#39;policy&#39;</span><span class="p">,</span> <span class="n">Ensemble</span><span class="o">.</span><span class="n">VALID_POLICIES</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_ensemble_method</span><span class="p">(</span><span class="n">base_method</span><span class="p">,</span> <span class="n">learner</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">policy</span><span class="p">):</span>
+
+    <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span>
+
+    <span class="n">base_quantifier</span><span class="o">=</span><span class="n">base_method</span><span class="p">(</span><span class="n">learner</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">dataset</span><span class="o">.</span><span class="n">binary</span> <span class="ow">and</span> <span class="n">policy</span><span class="o">==</span><span class="s1">&#39;ds&#39;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;skipping the test of binary policy ds on non-binary dataset </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">quantifier</span><span class="o">=</span><span class="n">base_quantifier</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="n">policy</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+
+    <span class="n">estim_prevalences</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+
+    <span class="n">true_prevalences</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mae</span><span class="p">(</span><span class="n">true_prevalences</span><span class="p">,</span> <span class="n">estim_prevalences</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span></div>
+
+
+
+<div class="viewcode-block" id="test_quanet_method">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_methods.test_quanet_method">[docs]</a>
+<span class="k">def</span> <span class="nf">test_quanet_method</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">quapy.classification.neural</span>
+    <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;skipping QuaNet test due to missing torch package&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+
+    <span class="c1"># load the kindle dataset as text, and convert words to numerical indexes</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="kn">from</span> <span class="nn">quapy.classification.neural</span> <span class="kn">import</span> <span class="n">CNNnet</span>
+    <span class="n">cnn</span> <span class="o">=</span> <span class="n">CNNnet</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">n_classes</span><span class="p">)</span>
+
+    <span class="kn">from</span> <span class="nn">quapy.classification.neural</span> <span class="kn">import</span> <span class="n">NeuralClassifierTrainer</span>
+    <span class="n">learner</span> <span class="o">=</span> <span class="n">NeuralClassifierTrainer</span><span class="p">(</span><span class="n">cnn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+
+    <span class="kn">from</span> <span class="nn">quapy.method.meta</span> <span class="kn">import</span> <span class="n">QuaNet</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">QuaNet</span><span class="p">(</span><span class="n">learner</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">BinaryQuantifier</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">dataset</span><span class="o">.</span><span class="n">binary</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;skipping the test of binary model </span><span class="si">{</span><span class="n">model</span><span class="si">}</span><span class="s1"> on non-binary dataset </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+
+    <span class="n">estim_prevalences</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+
+    <span class="n">true_prevalences</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mae</span><span class="p">(</span><span class="n">true_prevalences</span><span class="p">,</span> <span class="n">estim_prevalences</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span></div>
+
+
+
+<div class="viewcode-block" id="test_str_label_names">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_methods.test_str_label_names">[docs]</a>
+<span class="k">def</span> <span class="nf">test_str_label_names</span><span class="p">():</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">CC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;imdb&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="o">*</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()),</span>
+                      <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">))</span>
+    <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">text2tfidf</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+
+    <span class="n">int_estim_prevalences</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+    <span class="n">true_prevalences</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mae</span><span class="p">(</span><span class="n">true_prevalences</span><span class="p">,</span> <span class="n">int_estim_prevalences</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+
+    <span class="n">dataset_str</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">LabelledCollection</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span>
+                                             <span class="p">[</span><span class="s1">&#39;one&#39;</span> <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;zero&#39;</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">labels</span><span class="p">]),</span>
+                          <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">,</span>
+                                             <span class="p">[</span><span class="s1">&#39;one&#39;</span> <span class="k">if</span> <span class="n">label</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;zero&#39;</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">labels</span><span class="p">]))</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">dataset_str</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">classes_</span> <span class="o">==</span> <span class="n">dataset_str</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">classes_</span><span class="p">),</span> <span class="s1">&#39;wrong indexation&#39;</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset_str</span><span class="o">.</span><span class="n">training</span><span class="p">)</span>
+
+    <span class="n">str_estim_prevalences</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset_str</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+    <span class="n">true_prevalences</span> <span class="o">=</span> <span class="n">dataset_str</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+
+    <span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mae</span><span class="p">(</span><span class="n">true_prevalences</span><span class="p">,</span> <span class="n">str_estim_prevalences</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">true_prevalences</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">int_estim_prevalences</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">str_estim_prevalences</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">int_estim_prevalences</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                      <span class="n">str_estim_prevalences</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;one&#39;</span><span class="p">)])</span></div>
+
+
+<span class="c1"># helper</span>
+<span class="k">def</span> <span class="nf">__fit_test</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">):</span>
+    <span class="n">quantifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+    <span class="n">test_samples</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+    <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">prediction</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">test_samples</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mae</span><span class="p">(</span><span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">),</span> <span class="n">estim_prevs</span>
+
+
+<div class="viewcode-block" id="test_median_meta">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_methods.test_median_meta">[docs]</a>
+<span class="k">def</span> <span class="nf">test_median_meta</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This test compares the performance of the MedianQuantifier with respect to computing the median of the predictions</span>
+<span class="sd">    of a differently parameterized quantifier. We use the DistributionMatching base quantifier and the median is</span>
+<span class="sd">    computed across different values of nbins</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+
+    <span class="c1"># grid of values</span>
+    <span class="n">nbins_grid</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="s1">&#39;kindle&#39;</span>
+    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+    <span class="n">prevs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">nbins</span> <span class="ow">in</span> <span class="n">nbins_grid</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">DMy</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">nbins</span><span class="o">=</span><span class="n">nbins</span><span class="p">)</span>
+            <span class="n">mae</span><span class="p">,</span> <span class="n">estim_prevs</span> <span class="o">=</span> <span class="n">__fit_test</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+            <span class="n">prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estim_prevs</span><span class="p">)</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mae</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1"> DistributionMatching(nbins=</span><span class="si">{</span><span class="n">nbins</span><span class="si">}</span><span class="s1">) got MAE </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">prevs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs</span><span class="p">)</span>
+    <span class="n">mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">MAE=</span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">q</span> <span class="o">=</span> <span class="n">DMy</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">MedianEstimator</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="n">nbins_grid</span><span class="p">},</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">median_mae</span><span class="p">,</span> <span class="n">prev</span> <span class="o">=</span> <span class="n">__fit_test</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">MAE=</span><span class="si">{</span><span class="n">median_mae</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_almost_equal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">prev</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">median_mae</span> <span class="o">&lt;</span> <span class="n">mae</span><span class="p">,</span> <span class="s1">&#39;the median-based quantifier provided a higher error...&#39;</span></div>
+
+
+
+<div class="viewcode-block" id="test_median_meta_modsel">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_methods.test_median_meta_modsel">[docs]</a>
+<span class="k">def</span> <span class="nf">test_median_meta_modsel</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This test checks the median-meta quantifier with model selection</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="s1">&#39;kindle&#39;</span>
+    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+    <span class="n">train</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">nbins_grid</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">]</span>
+
+    <span class="n">q</span> <span class="o">=</span> <span class="n">DMy</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">MedianEstimator</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="n">nbins_grid</span><span class="p">},</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">median_mae</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">__fit_test</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">MAE=</span><span class="si">{</span><span class="n">median_mae</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">q</span> <span class="o">=</span> <span class="n">DMy</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
+    <span class="n">lr_params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)}</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">MedianEstimator</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="n">nbins_grid</span><span class="p">},</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">GridSearchQ</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">lr_params</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">APP</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">optimized_median_ave</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">__fit_test</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">MAE=</span><span class="si">{</span><span class="n">optimized_median_ave</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">optimized_median_ave</span> <span class="o">&lt;</span> <span class="n">median_mae</span><span class="p">,</span> <span class="s2">&quot;the optimized method yielded worse performance...&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

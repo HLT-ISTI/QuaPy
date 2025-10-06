@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2. Evaluation &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+  <title>2. Evaluation &mdash; QuaPy: A Python-based open-source framework for quantification 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../_static/documentation_options.js?v=938c9ccc"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -117,7 +117,7 @@ the estimations produced by some method.</p>
 <p>Some error functions, e.g., <em>mrae</em>, <em>mkld</em>, and <em>mnkld</em>, are
 smoothed for numerical stability. In those cases, there is a
 third argument, e.g.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mrae</span><span class="p">(</span><span class="n">true_prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="o">...</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">mrae</span><span class="p">(</span><span class="n">true_prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span> <span class="o">...</span>
 </pre></div>
 </div>
 <p>indicating the value for the smoothing parameter epsilon.
@@ -128,17 +128,17 @@ variable <em>SAMPLE_SIZE</em> once, and omit this argument
 thereafter (recommended);
 e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># once for all</span>
-<span class="n">true_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>  <span class="c1"># let&#39;s assume 3 classes</span>
-<span class="n">estim_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">])</span>
+<span class="n">true_prev</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>  <span class="c1"># let&#39;s assume 3 classes</span>
+<span class="n">estim_prev</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
 <span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mrae</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mrae(</span><span class="si">{</span><span class="n">true_prev</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">estim_prev</span><span class="si">}</span><span class="s1">) = </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>will print:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mrae</span><span class="p">([</span><span class="mf">0.500</span><span class="p">,</span> <span class="mf">0.300</span><span class="p">,</span> <span class="mf">0.200</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.100</span><span class="p">,</span> <span class="mf">0.300</span><span class="p">,</span> <span class="mf">0.600</span><span class="p">])</span> <span class="o">=</span> <span class="mf">0.914</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mrae</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">])</span> <span class="o">=</span> <span class="mf">0.914</span>
 </pre></div>
 </div>
-<p>Finally, it is possible to instantiate QuaPy’s quantification
+<p>It is also possible to instantiate QuaPy’s quantification
 error functions from strings using, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">error_function</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="s1">&#39;mse&#39;</span><span class="p">)</span>
 <span class="n">error</span> <span class="o">=</span> <span class="n">error_function</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">)</span>
@@ -163,7 +163,7 @@ simply call <em>prot</em>. Let also assume our model is called
 </pre></div>
 </div>
 <p>It is often desirable to evaluate our system using more than one
-single evaluatio measure. In this case, it is convenient to generate
+single evaluation measure. In this case, it is convenient to generate
 a <em>report</em>. A report in QuaPy is a dataframe accounting for all the
 true prevalence values with their corresponding prevalence values
 as estimated by the quantifier, along with the error each has given
@@ -178,7 +178,7 @@ and compute the averaged values, e.g.:</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Averaged values:&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">numeric_only</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>This will produce an output like:</p>
@@ -210,12 +210,13 @@ and compute the averaged values, e.g.:</p>
 </pre></div>
 </div>
 <p>All the evaluation functions implement specific optimizations for speeding-up
-the evaluation of aggregative quantifiers (i.e., of instances of <em>AggregativeQuantifier</em>).
-The optimization comes down to generating classification predictions (either crisp or soft)
+the evaluation of aggregative quantifiers (i.e., of instances of <em>AggregativeQuantifier</em>).</p>
+<p>The optimization comes down to generating classification predictions (either crisp or soft)
 only once for the entire test set, and then applying the sampling procedure to the
 predictions, instead of generating samples of instances and then computing the
 classification predictions every time. This is only possible when the protocol
-is an instance of <em>OnLabelledCollectionProtocol</em>. The optimization is only
+is an instance of <em>OnLabelledCollectionProtocol</em>.</p>
+<p>The optimization is only
 carried out when the number of classification predictions thus generated would be
 smaller than the number of predictions required for the entire protocol; e.g.,
 if the original dataset contains 1M instances, but the protocol is such that it would
@@ -226,7 +227,7 @@ precompute all the predictions irrespectively of the number of instances and num
 Finally, this can be deactivated by setting <em>aggr_speedup=False</em>. Note that this optimization
 is not only applied for the final evaluation, but also for the internal evaluations carried
 out during <em>model selection</em>. Since these are typically many, the heuristic can help reduce the
-execution time a lot.</p>
+execution time significatively.</p>
 </section>
 </section>
 

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>quapy.tests.test_replicability &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=92fd9be5" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=22607128"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            QuaPy: A Python-based open-source framework for quantification
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">quapy</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">quapy.tests.test_replicability</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for quapy.tests.test_replicability</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">from</span> <span class="nn">quapy.data</span> <span class="kn">import</span> <span class="n">LabelledCollection</span>
+<span class="kn">from</span> <span class="nn">quapy.functional</span> <span class="kn">import</span> <span class="n">strprev</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">quapy.method.aggregative</span> <span class="kn">import</span> <span class="n">PACC</span>
+<span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
+
+
+<div class="viewcode-block" id="MyTestCase">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_replicability.MyTestCase">[docs]</a>
+<span class="k">class</span> <span class="nc">MyTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+<div class="viewcode-block" id="MyTestCase.test_prediction_replicability">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_replicability.MyTestCase.test_prediction_replicability">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_prediction_replicability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;yeast&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+            <span class="n">pacc</span> <span class="o">=</span> <span class="n">PACC</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+            <span class="n">prev</span> <span class="o">=</span> <span class="n">pacc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">str_prev1</span> <span class="o">=</span> <span class="n">strprev</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+            <span class="n">pacc</span> <span class="o">=</span> <span class="n">PACC</span><span class="p">(</span><span class="n">lr</span><span class="p">)</span>
+            <span class="n">prev2</span> <span class="o">=</span> <span class="n">pacc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="p">)</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+            <span class="n">str_prev2</span> <span class="o">=</span> <span class="n">strprev</span><span class="p">(</span><span class="n">prev2</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">str_prev1</span><span class="p">,</span> <span class="n">str_prev2</span><span class="p">)</span>  <span class="c1"># add assertion here</span></div>
+
+
+
+<div class="viewcode-block" id="MyTestCase.test_samping_replicability">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_replicability.MyTestCase.test_samping_replicability">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_samping_replicability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">equal_collections</span><span class="p">(</span><span class="n">c1</span><span class="p">,</span> <span class="n">c2</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">c1</span><span class="o">.</span><span class="n">Xtr</span> <span class="o">==</span> <span class="n">c2</span><span class="o">.</span><span class="n">Xtr</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">c1</span><span class="o">.</span><span class="n">ytr</span> <span class="o">==</span> <span class="n">c2</span><span class="o">.</span><span class="n">ytr</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">c1</span><span class="o">.</span><span class="n">classes_</span> <span class="o">==</span> <span class="n">c2</span><span class="o">.</span><span class="n">classes_</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">instances</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="n">sample1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">sample2</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">equal_collections</span><span class="p">(</span><span class="n">sample1</span><span class="p">,</span> <span class="n">sample2</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">sample1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">sample2</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">equal_collections</span><span class="p">(</span><span class="n">sample1</span><span class="p">,</span> <span class="n">sample2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">sample1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">sample2</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">equal_collections</span><span class="p">(</span><span class="n">sample1</span><span class="p">,</span> <span class="n">sample2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">sample1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">sample2</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+        <span class="n">equal_collections</span><span class="p">(</span><span class="n">sample1</span><span class="p">,</span> <span class="n">sample2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">sample1</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">sample2</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">equal_collections</span><span class="p">(</span><span class="n">sample1</span><span class="p">,</span> <span class="n">sample2</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">sample1_tr</span><span class="p">,</span> <span class="n">sample1_te</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">train_prop</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">sample2_tr</span><span class="p">,</span> <span class="n">sample2_te</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">train_prop</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">equal_collections</span><span class="p">(</span><span class="n">sample1_tr</span><span class="p">,</span> <span class="n">sample2_tr</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">equal_collections</span><span class="p">(</span><span class="n">sample1_te</span><span class="p">,</span> <span class="n">sample2_te</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">sample1_tr</span><span class="p">,</span> <span class="n">sample1_te</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">train_prop</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">sample2_tr</span><span class="p">,</span> <span class="n">sample2_te</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">train_prop</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+        <span class="n">equal_collections</span><span class="p">(</span><span class="n">sample1_tr</span><span class="p">,</span> <span class="n">sample2_tr</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">equal_collections</span><span class="p">(</span><span class="n">sample1_te</span><span class="p">,</span> <span class="n">sample2_te</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="MyTestCase.test_parallel_replicability">
+<a class="viewcode-back" href="../../../quapy.tests.html#quapy.tests.test_replicability.MyTestCase.test_parallel_replicability">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_parallel_replicability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+
+        <span class="n">test</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>
+
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="n">pacc</span> <span class="o">=</span> <span class="n">PACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">pacc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">prev1</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">(</span><span class="n">pacc</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">pacc</span> <span class="o">=</span> <span class="n">PACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">pacc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">prev2</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">(</span><span class="n">pacc</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">pacc</span> <span class="o">=</span> <span class="n">PACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">pacc</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">prev3</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">(</span><span class="n">pacc</span><span class="o">.</span><span class="n">quantify</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">))</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="n">prev1</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">prev2</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">prev3</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertNotEqual</span><span class="p">(</span><span class="n">prev1</span><span class="p">,</span> <span class="n">prev2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">prev2</span><span class="p">,</span> <span class="n">prev3</span><span class="p">)</span></div>
+</div>
+
+
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

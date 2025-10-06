@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>quapy.method.non_aggregative &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+  <title>quapy.method.non_aggregative &mdash; QuaPy: A Python-based open-source framework for quantification 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../../../_static/documentation_options.js?v=938c9ccc"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -74,19 +74,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for quapy.method.non_aggregative</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_extraction.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">CountVectorizer</span>
 
-<span class="kn">from</span> <span class="nn">quapy.functional</span> <span class="kn">import</span> <span class="n">get_divergence</span>
-<span class="kn">from</span> <span class="nn">quapy.data</span> <span class="kn">import</span> <span class="n">LabelledCollection</span>
-<span class="kn">from</span> <span class="nn">quapy.method.base</span> <span class="kn">import</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">BinaryQuantifier</span>
-<span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_divergence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">LabelledCollection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">BinaryQuantifier</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">quapy.functional</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">F</span>
 
 
 <div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation">[docs]</a>
-<span class="k">class</span> <span class="nc">MaximumLikelihoodPrevalenceEstimation</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MaximumLikelihoodPrevalenceEstimation</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The `Maximum Likelihood Prevalence Estimation` (MLPE) method is a lazy method that assumes there is no prior</span>
 <span class="sd">    probability shift between training and test instances (put it other way, that the i.i.d. assumpion holds).</span>
@@ -95,29 +95,31 @@
 <span class="sd">    any quantification method should beat.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation.fit">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the training prevalence and stores it.</span>
 
-<span class="sd">        :param data: the training sample</span>
+<span class="sd">        :param X: array-like of shape `(n_samples, n_features)`, the training instances</span>
+<span class="sd">        :param y: array-like of shape `(n_samples,)`, the labels</span>
 <span class="sd">        :return: self</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">estimated_prevalence</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">classes_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="o">=</span><span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimated_prevalence</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">prevalence_from_labels</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
-<div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation.quantify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.quantify">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation.predict">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.predict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Ignores the input instances and returns, as the class prevalence estimantes, the training prevalence.</span>
 
-<span class="sd">        :param instances: array-like (ignored)</span>
+<span class="sd">        :param X: array-like (ignored)</span>
 <span class="sd">        :return: the class prevalence seen during training</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimated_prevalence</span></div>
@@ -127,7 +129,7 @@
 
 <div class="viewcode-block" id="DMx">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx">[docs]</a>
-<span class="k">class</span> <span class="nc">DMx</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DMx</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generic Distribution Matching quantifier for binary or multiclass quantification based on the space of covariates.</span>
 <span class="sd">    This implementation takes the number of bins, the divergence, and the possibility to work on CDF as hyperparameters.</span>
@@ -140,7 +142,7 @@
 <span class="sd">    :param n_jobs: number of parallel workers (default None)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">divergence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span> <span class="n">cdf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">search</span><span class="o">=</span><span class="s1">&#39;optim_minimize&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">divergence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span> <span class="n">cdf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">search</span><span class="o">=</span><span class="s1">&#39;optim_minimize&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nbins</span> <span class="o">=</span> <span class="n">nbins</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">divergence</span> <span class="o">=</span> <span class="n">divergence</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cdf</span> <span class="o">=</span> <span class="n">cdf</span>
@@ -150,7 +152,7 @@
 <div class="viewcode-block" id="DMx.HDx">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.HDx">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">HDx</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">HDx</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        `Hellinger Distance x &lt;https://www.sciencedirect.com/science/article/pii/S0020025512004069&gt;`_ (HDx).</span>
 <span class="sd">        HDx is a method for training binary quantifiers, that models quantification as the problem of</span>
@@ -166,7 +168,7 @@
 <span class="sd">        :return: an instance of this class setup to mimick the performance of the HDx as originally proposed by</span>
 <span class="sd">            González-Castro, Alaiz-Rodríguez, Alegre (2013)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span> <span class="nn">quapy.method.meta</span> <span class="kn">import</span> <span class="n">MedianEstimator</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.meta</span><span class="w"> </span><span class="kn">import</span> <span class="n">MedianEstimator</span>
 
         <span class="n">dmx</span> <span class="o">=</span> <span class="n">DMx</span><span class="p">(</span><span class="n">divergence</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span> <span class="n">cdf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">search</span><span class="o">=</span><span class="s1">&#39;linear_search&#39;</span><span class="p">)</span>
         <span class="n">nbins</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)}</span>
@@ -174,7 +176,7 @@
         <span class="k">return</span> <span class="n">hdx</span></div>
 
 
-    <span class="k">def</span> <span class="nf">__get_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__get_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 
         <span class="n">histograms</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">feat_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nfeats</span><span class="p">):</span>
@@ -192,7 +194,7 @@
 
 <div class="viewcode-block" id="DMx.fit">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates the validation distributions out of the training data (covariates).</span>
 <span class="sd">        The validation distributions have shape `(n, nfeats, nbins)`, with `n` the number of classes, `nfeats`</span>
@@ -201,39 +203,39 @@
 <span class="sd">        training data labelled with class `i`; while `dij = di[j]` is the discrete distribution for feature j in</span>
 <span class="sd">        training data labelled with class `i`, and `dij[k]` is the fraction of instances with a value in the `k`-th bin.</span>
 
-<span class="sd">        :param data: the training set</span>
+<span class="sd">        :param X: array-like of shape `(n_samples, n_features)`, the training instances</span>
+<span class="sd">        :param y: array-like of shape `(n_samples,)`, the labels</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Xy</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">nfeats</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">feat_ranges</span> <span class="o">=</span> <span class="n">_get_features_range</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">validation_distribution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
-            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_distributions</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">y</span><span class="o">==</span><span class="n">cat</span><span class="p">])</span> <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">n_classes</span><span class="p">)]</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__get_distributions</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">y</span><span class="o">==</span><span class="n">cat</span><span class="p">])</span> <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">)]</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
-<div class="viewcode-block" id="DMx.quantify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.quantify">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+<div class="viewcode-block" id="DMx.predict">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.predict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution</span>
 <span class="sd">        (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.</span>
 <span class="sd">        The matching is computed as the average dissimilarity (in terms of the dissimilarity measure of choice)</span>
 <span class="sd">        between all feature-specific discrete distributions.</span>
 
-<span class="sd">        :param instances: instances in the sample</span>
+<span class="sd">        :param X: instances in the sample</span>
 <span class="sd">        :return: a vector of class prevalence estimates</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">assert</span> <span class="n">instances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nfeats</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;wrong shape; expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nfeats</span><span class="si">}</span><span class="s1">, found </span><span class="si">{</span><span class="n">instances</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">assert</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nfeats</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;wrong shape; expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nfeats</span><span class="si">}</span><span class="s1">, found </span><span class="si">{</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span>
 
-        <span class="n">test_distribution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_distributions</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+        <span class="n">test_distribution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_distributions</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">divergence</span> <span class="o">=</span> <span class="n">get_divergence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">divergence</span><span class="p">)</span>
         <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_feats</span><span class="p">,</span> <span class="n">nbins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_distribution</span><span class="o">.</span><span class="n">shape</span>
-        <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">loss</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
             <span class="n">prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">mixture_distribution</span> <span class="o">=</span> <span class="p">(</span><span class="n">prev</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_distribution</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_feats</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">divs</span> <span class="o">=</span> <span class="p">[</span><span class="n">divergence</span><span class="p">(</span><span class="n">test_distribution</span><span class="p">[</span><span class="n">feat</span><span class="p">],</span> <span class="n">mixture_distribution</span><span class="p">[</span><span class="n">feat</span><span class="p">])</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_feats</span><span class="p">)]</span>
@@ -244,68 +246,56 @@
 
 
 
-<div class="viewcode-block" id="ReadMe">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.ReadMe">[docs]</a>
-<span class="k">class</span> <span class="nc">ReadMe</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bootstrap_trials</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">bootstrap_range</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">bagging_trials</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">bagging_range</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="o">**</span><span class="n">vectorizer_kwargs</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;under development ...&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bootstrap_trials</span> <span class="o">=</span> <span class="n">bootstrap_trials</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bootstrap_range</span> <span class="o">=</span> <span class="n">bootstrap_range</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bagging_trials</span> <span class="o">=</span> <span class="n">bagging_trials</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bagging_range</span> <span class="o">=</span> <span class="n">bagging_range</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer_kwargs</span> <span class="o">=</span> <span class="n">vectorizer_kwargs</span>
-
-<div class="viewcode-block" id="ReadMe.fit">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.ReadMe.fit">[docs]</a>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">):</span>
-        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Xy</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">vectorizer_kwargs</span><span class="p">)</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">class_conditional_X</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">X</span><span class="p">[</span><span class="n">y</span><span class="o">==</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">classes_</span><span class="p">)}</span></div>
-
-
-<div class="viewcode-block" id="ReadMe.quantify">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.ReadMe.quantify">[docs]</a>
-    <span class="k">def</span> <span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
-
-        <span class="c1"># number of features</span>
-        <span class="n">num_docs</span><span class="p">,</span> <span class="n">num_feats</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
-
-        <span class="c1"># bootstrap</span>
-        <span class="n">p_boots</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bootstrap_trials</span><span class="p">):</span>
-            <span class="n">docs_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">num_docs</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bootstra_range</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="n">class_conditional_X</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">X</span><span class="p">[</span><span class="n">docs_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">X</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">class_conditional_X</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-            <span class="n">Xboot</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">docs_idx</span><span class="p">]</span>
-
-            <span class="c1"># bagging</span>
-            <span class="n">p_bags</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bagging_trials</span><span class="p">):</span>
-                <span class="n">feat_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">num_feats</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bagging_range</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-                <span class="n">class_conditional_Xbag</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">X</span><span class="p">[:,</span> <span class="n">feat_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">class_conditional_X</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-                <span class="n">Xbag</span> <span class="o">=</span> <span class="n">Xboot</span><span class="p">[:,</span><span class="n">feat_idx</span><span class="p">]</span>
-                <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">std_constrained_linear_ls</span><span class="p">(</span><span class="n">Xbag</span><span class="p">,</span> <span class="n">class_conditional_Xbag</span><span class="p">)</span>
-                <span class="n">p_bags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
-            <span class="n">p_boots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">p_bags</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-
-        <span class="n">p_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">p_boots</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">p_std</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">p_bags</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">p_mean</span></div>
+<span class="c1"># class ReadMe(BaseQuantifier):</span>
+<span class="c1">#</span>
+<span class="c1">#     def __init__(self, bootstrap_trials=100, bootstrap_range=100, bagging_trials=100, bagging_range=25, **vectorizer_kwargs):</span>
+<span class="c1">#         raise NotImplementedError(&#39;under development ...&#39;)</span>
+<span class="c1">#         self.bootstrap_trials = bootstrap_trials</span>
+<span class="c1">#         self.bootstrap_range = bootstrap_range</span>
+<span class="c1">#         self.bagging_trials = bagging_trials</span>
+<span class="c1">#         self.bagging_range = bagging_range</span>
+<span class="c1">#         self.vectorizer_kwargs = vectorizer_kwargs</span>
+<span class="c1">#</span>
+<span class="c1">#     def fit(self, data: LabelledCollection):</span>
+<span class="c1">#         X, y = data.Xy</span>
+<span class="c1">#         self.vectorizer = CountVectorizer(binary=True, **self.vectorizer_kwargs)</span>
+<span class="c1">#         X = self.vectorizer.fit_transform(X)</span>
+<span class="c1">#         self.class_conditional_X = {i: X[y==i] for i in range(data.classes_)}</span>
+<span class="c1">#</span>
+<span class="c1">#     def predict(self, X):</span>
+<span class="c1">#         X = self.vectorizer.transform(X)</span>
+<span class="c1">#</span>
+<span class="c1">#         # number of features</span>
+<span class="c1">#         num_docs, num_feats = X.shape</span>
+<span class="c1">#</span>
+<span class="c1">#         # bootstrap</span>
+<span class="c1">#         p_boots = []</span>
+<span class="c1">#         for _ in range(self.bootstrap_trials):</span>
+<span class="c1">#             docs_idx = np.random.choice(num_docs, size=self.bootstra_range, replace=False)</span>
+<span class="c1">#             class_conditional_X = {i: X[docs_idx] for i, X in self.class_conditional_X.items()}</span>
+<span class="c1">#             Xboot = X[docs_idx]</span>
+<span class="c1">#</span>
+<span class="c1">#             # bagging</span>
+<span class="c1">#             p_bags = []</span>
+<span class="c1">#             for _ in range(self.bagging_trials):</span>
+<span class="c1">#                 feat_idx = np.random.choice(num_feats, size=self.bagging_range, replace=False)</span>
+<span class="c1">#                 class_conditional_Xbag = {i: X[:, feat_idx] for i, X in class_conditional_X.items()}</span>
+<span class="c1">#                 Xbag = Xboot[:,feat_idx]</span>
+<span class="c1">#                 p = self.std_constrained_linear_ls(Xbag, class_conditional_Xbag)</span>
+<span class="c1">#                 p_bags.append(p)</span>
+<span class="c1">#             p_boots.append(np.mean(p_bags, axis=0))</span>
+<span class="c1">#</span>
+<span class="c1">#         p_mean = np.mean(p_boots, axis=0)</span>
+<span class="c1">#         p_std  = np.std(p_bags, axis=0)</span>
+<span class="c1">#</span>
+<span class="c1">#         return p_mean</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1">#     def std_constrained_linear_ls(self, X, class_cond_X: dict):</span>
+<span class="c1">#         pass</span>
 
 
-
-<div class="viewcode-block" id="ReadMe.std_constrained_linear_ls">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.ReadMe.std_constrained_linear_ls">[docs]</a>
-    <span class="k">def</span> <span class="nf">std_constrained_linear_ls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">class_cond_X</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">pass</span></div>
-</div>
-
-
-
-<span class="k">def</span> <span class="nf">_get_features_range</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_features_range</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
     <span class="n">feat_ranges</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">ncols</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">col_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">):</span>

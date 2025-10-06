@@ -340,10 +340,10 @@ and a set of test samples (for evaluation). QuaPy returns this data as a Labelle
 (training) and two generation protocols (for validation and test samples), as follows:
 
 ```python
-training, val_generator, test_generator = fetch_lequa2022(task=task)
+training, val_generator, test_generator = qp.datasets.fetch_lequa2022(task=task)
 ```
 
-See the `lequa2022_experiments.py` in the examples folder for further details on how to
+See the `5a.lequa2022_experiments.py` in the examples folder for further details on how to
 carry out experiments using these datasets.  
 
 The datasets are downloaded only once, and stored for fast reuse.
@@ -364,6 +364,53 @@ For further details on the datasets, we refer to the original
 Esuli, A., Moreo, A., Sebastiani, F., & Sperduti, G. (2022).
 A Detailed Overview of LeQua@ CLEF 2022: Learning to Quantify.
 ```
+
+## LeQua 2024 Datasets
+
+QuaPy also provides the datasets used for the [LeQua 2024 competition](https://lequa2024.github.io/). 
+In brief, there are 4 tasks:
+* T1: binary quantification (by sentiment)
+* T2: multiclass quantification (28 classes, merchandise products)
+* T3: ordinal quantification (5-stars sentiment ratings)
+* T4: binary sentiment quantification under a combination of covariate shift and prior shift
+
+In all cases, the covariate space has 256 dimensions (extracted using the `ELECTRA-Small` model).
+
+Every task consists of a training set, a set of validation samples (for model selection)
+and a set of test samples (for evaluation). QuaPy returns this data as a LabelledCollection
+(training bags) and sampling generation protocols (for validation and test bags). 
+T3 also offers the possibility to obtain a series of training bags (in form of a 
+sampling generation protocol) instead of one single training bag. Use it as follows:
+
+```python
+training, val_generator, test_generator = qp.datasets.fetch_lequa2024(task=task)
+```
+
+See the `5b.lequa2024_experiments.py` in the examples folder for further details on how to
+carry out experiments using these datasets.  
+
+The datasets are downloaded only once, and stored for fast reuse.
+
+Some statistics are summarized below:
+
+| Dataset | classes | train size  | validation samples | test samples | docs by sample |   type   |
+|---------|:-------:|:-----------:|:------------------:|:------------:|:--------------:|:--------:| 
+| T1      |    2    |    5000     |        1000        |     5000     |      250       |  vector  | 
+| T2      |   28    |    20000    |        1000        |     5000     |      1000      |  vector  |
+| T3      |    5    | 100 samples |        1000        |     5000     |      200       |   vector   |
+| T4      |    2    |    5000     |        1000        |     5000     |      250       |   vector   |
+
+For further details on the datasets or the competition, we refer to 
+[the official site](https://lequa2024.github.io/data/) and
+[the overview paper](http://nmis.isti.cnr.it/sebastiani/Publications/LQ2024.pdf).
+
+```
+Esuli, A., Moreo, A., Sebastiani, F., & Sperduti, G. (2022).
+An Overview of LeQua 2024, the 2nd International Data Challenge on Learning to Quantify,
+Proceedings of the 4th International Workshop on Learning to Quantify (LQ 2024), 
+ECML-PKDD 2024, Vilnius, Lithuania.
+```
+
 
 ## IFCB Plankton dataset
 
@@ -402,12 +449,20 @@ train, test_gen = qp.datasets.fetch_IFCB(for_model_selection=False, single_sampl
 # ... train and evaluation
 ```
 
+See also [Automatic plankton quantification using deep features
+P González, A Castaño, EE Peacock, J Díez, JJ Del Coz, HM Sosik
+Journal of Plankton Research 41 (4), 449-463](https://par.nsf.gov/servlets/purl/10172325).
+
 
 
 ## Adding Custom Datasets
 
+It is straightforward to import your own datasets into QuaPy. 
+I what follows, there are some code snippets for doing so; see also the example
+[3.custom_collection.py](https://github.com/HLT-ISTI/QuaPy/blob/master/examples/3.custom_collection.py).
+
 QuaPy provides data loaders for simple formats dealing with 
-text, following the format:
+text; for example, use `qp.data.reader.from_text` for the following the format:
 
 ```
 class-id \t first document's pre-processed text \n
@@ -415,12 +470,15 @@ class-id \t second document's pre-processed text \n
 ...
 ```
 
-and sparse representations of the form:
+or `qp.data.reader.from_sparse` for sparse representations of the form:
 
 ```
 {-1, 0, or +1} col(int):val(float) col(int):val(float) ... \n
 ...
 ```
+
+both functions return a tuple `X, y` containing a list of strings and the corresponding 
+labels, respectively.
 
 The code in charge in loading a LabelledCollection is:
 
@@ -430,12 +488,13 @@ def load(cls, path:str, loader_func:callable):
     return LabelledCollection(*loader_func(path))
 ```
 
-indicating that any _loader_func_ (e.g., a user-defined one) which 
+indicating that any `loader_func` (e.g., `from_text`, `from_sparse`, `from_csv`, or a user-defined one) which 
 returns valid arguments for initializing a _LabelledCollection_ object will allow
-to load any collection. In particular, the _LabelledCollection_ receives as 
-arguments the instances (as an iterable) and the labels (as an iterable) and,
-additionally, the number of classes can be specified (it would otherwise be
-inferred from the labels, but that requires at least one positive example for
+to load any collection. More specifically, the _LabelledCollection_ receives as 
+arguments the _instances_ (iterable) and the _labels_ (iterable) and,
+optionally, the number of classes (it would be
+inferred from the labels if not indicated, but this requires at least one 
+positive example for
 all classes to be present in the collection).
 
 The same _loader_func_ can be passed to a Dataset, along with two 
@@ -448,20 +507,23 @@ import quapy as qp
 train_path = '../my_data/train.dat'
 test_path = '../my_data/test.dat'
 
-def my_custom_loader(path):
+def my_custom_loader(path, **custom_kwargs):
     with open(path, 'rb') as fin:
         ...
     return instances, labels
 
-data = qp.data.Dataset.load(train_path, test_path, my_custom_loader)
+data = qp.data.Dataset.load(train_path, test_path, my_custom_loader, **custom_kwargs)
 ```
 
 ### Data Processing
 
-QuaPy implements a number of preprocessing functions in the package _qp.data.preprocessing_, including:
+QuaPy implements a number of preprocessing functions in the package `qp.data.preprocessing`, including:
 
 * _text2tfidf_: tfidf vectorization 
 * _reduce_columns_: reducing the number of columns based on term frequency
 * _standardize_: transforms the column values into z-scores (i.e., subtract the mean and normalizes by the standard deviation, so
 that the column values have zero mean and unit variance).
-* _index_: transforms textual tokens into lists of numeric ids) 
+* _index_: transforms textual tokens into lists of numeric ids
+
+These functions are applied to `Dataset` objects, and offer the possibility to apply the transformation
+inline (thus modifying the original dataset), or to return a modified copy.

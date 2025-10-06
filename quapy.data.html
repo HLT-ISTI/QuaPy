@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>quapy.data package &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+  <title>quapy.data package &mdash; QuaPy: A Python-based open-source framework for quantification 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8618f531"></script>
+      <script src="_static/documentation_options.js?v=938c9ccc"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -111,7 +111,7 @@
 <span id="quapy-data-base-module"></span><h2>quapy.data.base module<a class="headerlink" href="#module-quapy.data.base" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.data.base.Dataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.data.base.</span></span><span class="sig-name descname"><span class="pre">Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">vocabulary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#Dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.Dataset" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.data.base.</span></span><span class="sig-name descname"><span class="pre">Dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">training</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">test</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">vocabulary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#Dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.Dataset" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Abstraction of training and test <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> objects.</p>
 <dl class="field-list simple">
@@ -126,7 +126,7 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.Dataset.SplitStratified">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SplitStratified</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.6</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#Dataset.SplitStratified"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.Dataset.SplitStratified" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SplitStratified</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">collection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.6</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#Dataset.SplitStratified"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.Dataset.SplitStratified" title="Link to this definition"></a></dt>
 <dd><p>Generates a <a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> from a stratified split of a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> instance.
 See <a class="reference internal" href="#quapy.data.base.LabelledCollection.split_stratified" title="quapy.data.base.LabelledCollection.split_stratified"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LabelledCollection.split_stratified()</span></code></a></p>
 <dl class="field-list simple">
@@ -144,7 +144,7 @@ See <a class="reference internal" href="#quapy.data.base.LabelledCollection.spli
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.Dataset.binary">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#quapy.data.base.Dataset.binary" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#quapy.data.base.Dataset.binary" title="Link to this definition"></a></dt>
 <dd><p>Returns True if the training collection is labelled according to two classes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -155,7 +155,7 @@ See <a class="reference internal" href="#quapy.data.base.LabelledCollection.spli
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.Dataset.classes_">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.data.base.Dataset.classes_" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.data.base.Dataset.classes_" title="Link to this definition"></a></dt>
 <dd><p>The classes according to which the training collection is labelled</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -166,7 +166,7 @@ See <a class="reference internal" href="#quapy.data.base.LabelledCollection.spli
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.Dataset.kFCV">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kFCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfolds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrepeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#Dataset.kFCV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.Dataset.kFCV" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kFCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">nfolds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrepeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#Dataset.kFCV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.Dataset.kFCV" title="Link to this definition"></a></dt>
 <dd><p>Generator of stratified folds to be used in k-fold cross validation. This function is only a wrapper around
 <a class="reference internal" href="#quapy.data.base.LabelledCollection.kFCV" title="quapy.data.base.LabelledCollection.kFCV"><code class="xref py py-meth docutils literal notranslate"><span class="pre">LabelledCollection.kFCV()</span></code></a> that returns <a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> instances made of training and test folds.</p>
 <dl class="field-list simple">
@@ -185,7 +185,7 @@ See <a class="reference internal" href="#quapy.data.base.LabelledCollection.spli
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.Dataset.load">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">loader_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#Dataset.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.Dataset.load" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">train_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">loader_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#Dataset.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.Dataset.load" title="Link to this definition"></a></dt>
 <dd><p>Loads a training and a test labelled set of data and convert it into a <a class="reference internal" href="#quapy.data.base.Dataset" title="quapy.data.base.Dataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> instance.
 The function in charge of reading the instances must be specified. This function can be a custom one, or any of
 the reading functions defined in <a class="reference internal" href="#module-quapy.data.reader" title="quapy.data.reader"><code class="xref py py-mod docutils literal notranslate"><span class="pre">quapy.data.reader</span></code></a> module.</p>
@@ -209,7 +209,7 @@ See <a class="reference internal" href="#quapy.data.base.LabelledCollection.load
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.Dataset.n_classes">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_classes</span></span><a class="headerlink" href="#quapy.data.base.Dataset.n_classes" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_classes</span></span><a class="headerlink" href="#quapy.data.base.Dataset.n_classes" title="Link to this definition"></a></dt>
 <dd><p>The number of classes according to which the training collection is labelled</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -260,7 +260,7 @@ the collection), <cite>prevs</cite> (the prevalence values for each class)</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.Dataset.train_test">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_test</span></span><a class="headerlink" href="#quapy.data.base.Dataset.train_test" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">train_test</span></span><a class="headerlink" href="#quapy.data.base.Dataset.train_test" title="Link to this definition"></a></dt>
 <dd><p>Alias to <cite>self.training</cite> and <cite>self.test</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -274,7 +274,7 @@ the collection), <cite>prevs</cite> (the prevalence values for each class)</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.Dataset.vocabulary_size">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vocabulary_size</span></span><a class="headerlink" href="#quapy.data.base.Dataset.vocabulary_size" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vocabulary_size</span></span><a class="headerlink" href="#quapy.data.base.Dataset.vocabulary_size" title="Link to this definition"></a></dt>
 <dd><p>If the dataset is textual, and the vocabulary was indicated, returns the size of the vocabulary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -287,7 +287,7 @@ the collection), <cite>prevs</cite> (the prevalence values for each class)</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.data.base.</span></span><span class="sig-name descname"><span class="pre">LabelledCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#LabelledCollection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.LabelledCollection" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.data.base.</span></span><span class="sig-name descname"><span class="pre">LabelledCollection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instances</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#LabelledCollection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.LabelledCollection" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A LabelledCollection is a set of objects each with a label attached to each of them.
 This class implements several sampling routines and other utilities.</p>
@@ -304,7 +304,7 @@ from the labels. The classes must be indicated in cases in which some of the lab
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.X">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.X" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">X</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.X" title="Link to this definition"></a></dt>
 <dd><p>An alias to self.instances</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -315,7 +315,7 @@ from the labels. The classes must be indicated in cases in which some of the lab
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.Xp">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Xp</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.Xp" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Xp</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.Xp" title="Link to this definition"></a></dt>
 <dd><p>Gets the instances and the true prevalence. This is useful when implementing evaluation protocols from
 a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> object.</p>
 <dl class="field-list simple">
@@ -327,7 +327,7 @@ a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.Xy">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Xy</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.Xy" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Xy</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.Xy" title="Link to this definition"></a></dt>
 <dd><p>Gets the instances and labels. This is useful when working with <cite>sklearn</cite> estimators, e.g.:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">svm</span> <span class="o">=</span> <span class="n">LinearSVC</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">my_collection</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
 </pre></div>
@@ -341,11 +341,22 @@ a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.binary">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.binary" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">binary</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.binary" title="Link to this definition"></a></dt>
 <dd><p>Returns True if the number of classes is 2</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.classes">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">classes</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.classes" title="Link to this definition"></a></dt>
+<dd><p>Gets an array-like with the classes used in this collection</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array-like</p>
 </dd>
 </dl>
 </dd></dl>
@@ -364,7 +375,7 @@ as listed by <cite>self.classes_</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.join">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#LabelledCollection.join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.LabelledCollection.join" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><span class="pre">LabelledCollection</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#LabelledCollection.join"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.LabelledCollection.join" title="Link to this definition"></a></dt>
 <dd><p>Returns a new <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> as the union of the collections given in input.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -396,7 +407,7 @@ as listed by <cite>self.classes_</cite></p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.load">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">loader_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#LabelledCollection.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.LabelledCollection.load" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loader_func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">loader_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#LabelledCollection.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.LabelledCollection.load" title="Link to this definition"></a></dt>
 <dd><p>Loads a labelled set of data and convert it into a <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">LabelledCollection</span></code></a> instance. The function in charge
 of reading the instances must be specified. This function can be a custom one, or any of the reading functions
 defined in <a class="reference internal" href="#module-quapy.data.reader" title="quapy.data.reader"><code class="xref py py-mod docutils literal notranslate"><span class="pre">quapy.data.reader</span></code></a> module.</p>
@@ -419,7 +430,7 @@ these arguments are used to call <cite>loader_func(path, **loader_kwargs)</cite>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.n_classes">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_classes</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.n_classes" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_classes</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.n_classes" title="Link to this definition"></a></dt>
 <dd><p>The number of classes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -429,8 +440,19 @@ these arguments are used to call <cite>loader_func(path, **loader_kwargs)</cite>
 </dd></dl>
 
 <dl class="py property">
+<dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.n_instances">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_instances</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.n_instances" title="Link to this definition"></a></dt>
+<dd><p>The number of instances</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>integer</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.p">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">p</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.p" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">p</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.p" title="Link to this definition"></a></dt>
 <dd><p>An alias to self.prevalence()</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -614,7 +636,7 @@ with replacement.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.y">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.y" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#quapy.data.base.LabelledCollection.y" title="Link to this definition"></a></dt>
 <dd><p>An alias to self.labels</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -707,7 +729,7 @@ Information Fusion, 45, 1-15.</a>.
 The datasets do not come with a predefined train-test split, and so Pérez-Gállego et al. adopted a 5FCVx2 evaluation
 protocol, meaning that each collection was used to generate two rounds (hence the x2) of 5 fold cross validation.
 This can be reproduced by using <a class="reference internal" href="#quapy.data.base.Dataset.kFCV" title="quapy.data.base.Dataset.kFCV"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.data.base.Dataset.kFCV()</span></code></a>, e.g.:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">collection</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="s2">&quot;yeast&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">kFCV</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">nfolds</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">nrepeats</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
@@ -739,7 +761,7 @@ This can be reproduced by using <a class="reference internal" href="#quapy.data.
 - It is suited for classification
 - It has more than two classes
 - It is available for Python import (requires ucimlrepo package)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s2">&quot;dry-bean&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_test</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
@@ -782,7 +804,7 @@ training portion of the data.</p></li>
 - It is suited for classification
 - It has more than two classes
 - It is available for Python import (requires ucimlrepo package)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">collection</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s2">&quot;dry-bean&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">Xy</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
@@ -811,7 +833,7 @@ are discarded (deafult is 100)</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.data.datasets.fetch_lequa2022">
 <span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_lequa2022</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/datasets.html#fetch_lequa2022"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.datasets.fetch_lequa2022" title="Link to this definition"></a></dt>
-<dd><p>Loads the official datasets provided for the <a class="reference external" href="https://lequa2022.github.io/index">LeQua</a> competition.
+<dd><p>Loads the official datasets provided for the <a class="reference external" href="https://lequa2022.github.io/index">LeQua 2022</a> competition.
 In brief, there are 4 tasks (T1A, T1B, T2A, T2B) having to do with text quantification
 problems. Tasks T1A and T1B provide documents in vector form, while T2A and T2B provide raw documents instead.
 Tasks T1A and T2A are binary sentiment quantification problems, while T2A and T2B are multiclass quantification
@@ -833,7 +855,7 @@ datasets.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>a tuple <cite>(train, val_gen, test_gen)</cite> where <cite>train</cite> is an instance of
 <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a>, <cite>val_gen</cite> and <cite>test_gen</cite> are instances of
-<code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data._lequa2022.SamplesFromDir</span></code>, a subclass of <a class="reference internal" href="quapy.html#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.protocol.AbstractProtocol</span></code></a>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data._lequa.SamplesFromDir</span></code>, a subclass of <a class="reference internal" href="quapy.html#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.protocol.AbstractProtocol</span></code></a>,
 that return a series of samples stored in a directory which are labelled by prevalence.</p>
 </dd>
 </dl>
@@ -842,7 +864,39 @@ that return a series of samples stored in a directory which are labelled by prev
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.data.datasets.fetch_lequa2024">
 <span class="sig-prename descclassname"><span class="pre">quapy.data.datasets.</span></span><span class="sig-name descname"><span class="pre">fetch_lequa2024</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_T3</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/datasets.html#fetch_lequa2024"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.datasets.fetch_lequa2024" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Loads the official datasets provided for the <a class="reference external" href="https://lequa2024.github.io/index">LeQua 2024</a> competition.
+LeQua 2024 defines four tasks (T1, T2, T3, T4) related to the problem of quantification;
+all tasks are affected by some type of dataset shift. Tasks T1 and T2 are akin to tasks T1A and T1B of LeQua 2022,
+while T3 and T4 are new tasks introduced in LeQua 2024.</p>
+<ul class="simple">
+<li><p>Task T1 evaluates binary quantifiers under prior probability shift (akin to T1A of LeQua 2022).</p></li>
+<li><p>Task T2 evaluates single-label multi-class quantifiers (for n &gt; 2 classes) under prior probability shift (akin to T1B of LeQua 2022).</p></li>
+<li><p>Task T3 evaluates ordinal quantifiers, where the classes are totally ordered.</p></li>
+<li><p>Task T4 also evaluates binary quantifiers, but under some mix of covariate shift and prior probability shift.</p></li>
+</ul>
+<p>For a broader discussion, we refer to the <a class="reference external" href="https://lequa2024.github.io/tasks/">online official documentation</a></p>
+<p>The datasets are downloaded only once, and stored locally for future reuse.</p>
+<p>See <cite>4b.lequa2024_experiments.py</cite> provided in the example folder, which can serve as a guide on how to use these
+datasets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>task</strong> – a string representing the task name; valid ones are T1, T2, T3, and T4</p></li>
+<li><p><strong>data_home</strong> – specify the quapy home directory where collections will be dumped (leave empty to use the default
+~/quapy_data/ directory)</p></li>
+<li><p><strong>merge_T3</strong> – bool, if False (default), returns a generator of training collections, corresponding to natural
+groups of reviews; if True, returns one single <a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a> representing the
+entire training set, as a concatenation of all the training collections</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a tuple <cite>(train, val_gen, test_gen)</cite> where <cite>train</cite> is an instance of
+<a class="reference internal" href="#quapy.data.base.LabelledCollection" title="quapy.data.base.LabelledCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data.base.LabelledCollection</span></code></a>, <cite>val_gen</cite> and <cite>test_gen</cite> are instances of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.data._lequa.SamplesFromDir</span></code>, a subclass of <a class="reference internal" href="quapy.html#quapy.protocol.AbstractProtocol" title="quapy.protocol.AbstractProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.protocol.AbstractProtocol</span></code></a>,
+that return a series of samples stored in a directory which are labelled by prevalence.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="quapy.data.datasets.fetch_reviews">
@@ -906,7 +960,7 @@ faster subsequent invokations</p></li>
 <span id="quapy-data-preprocessing-module"></span><h2>quapy.data.preprocessing module<a class="headerlink" href="#module-quapy.data.preprocessing" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="quapy.data.preprocessing.IndexTransformer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.data.preprocessing.</span></span><span class="sig-name descname"><span class="pre">IndexTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/preprocessing.html#IndexTransformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.preprocessing.IndexTransformer" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">quapy.data.preprocessing.</span></span><span class="sig-name descname"><span class="pre">IndexTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/preprocessing.html#IndexTransformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.preprocessing.IndexTransformer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class implements a sklearn’s-style transformer that indexes text as numerical ids for the tokens it
 contains, and that would be generated by sklearn’s

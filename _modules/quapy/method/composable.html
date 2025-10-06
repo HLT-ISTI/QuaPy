@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>quapy.method.composable &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+  <title>quapy.method.composable &mdash; QuaPy: A Python-based open-source framework for quantification 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../../../_static/documentation_options.js?v=938c9ccc"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/js/theme.js"></script>
@@ -76,20 +76,29 @@
   <h1>Source code for quapy.method.composable</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;This module allows the composition of quantification methods from loss functions and feature transformations. This functionality is realized through an integration of the qunfold package: https://github.com/mirkobunse/qunfold.&quot;&quot;&quot;</span>
 
-<span class="n">_import_error_message</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;qunfold, the back-end of quapy.method.composable, is not properly installed.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">packaging.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">Version</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseQuantifier</span>
+
+<span class="c1"># what to display when an ImportError is thrown</span>
+<span class="n">_IMPORT_ERROR_MESSAGE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;qunfold, the back-end of quapy.method.composable, is not properly installed.</span>
 
 <span class="s2">To fix this error, call:</span>
 
 <span class="s2">    pip install --upgrade pip setuptools wheel</span>
 <span class="s2">    pip install &quot;jax[cpu]&quot;</span>
-<span class="s2">    pip install &quot;qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4&quot;</span>
+<span class="s2">    pip install &quot;qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.5&quot;</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
+<span class="c1"># try to import members of qunfold as members of this module</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">qunfold</span>
-    <span class="kn">from</span> <span class="nn">qunfold.quapy</span> <span class="kn">import</span> <span class="n">QuaPyWrapper</span>
-    <span class="kn">from</span> <span class="nn">qunfold.sklearn</span> <span class="kn">import</span> <span class="n">CVClassifier</span>
-    <span class="kn">from</span> <span class="nn">qunfold</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">qunfold</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">qunfold.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMixin</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">qunfold.methods</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractMethod</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">qunfold.sklearn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CVClassifier</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">qunfold</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">LinearMethod</span><span class="p">,</span> <span class="c1"># methods</span>
         <span class="n">LeastSquaresLoss</span><span class="p">,</span> <span class="c1"># losses</span>
         <span class="n">BlobelLoss</span><span class="p">,</span>
         <span class="n">EnergyLoss</span><span class="p">,</span>
@@ -97,48 +106,112 @@
         <span class="n">CombinedLoss</span><span class="p">,</span>
         <span class="n">TikhonovRegularization</span><span class="p">,</span>
         <span class="n">TikhonovRegularized</span><span class="p">,</span>
-        <span class="n">ClassTransformer</span><span class="p">,</span> <span class="c1"># transformers</span>
-        <span class="n">HistogramTransformer</span><span class="p">,</span>
-        <span class="n">DistanceTransformer</span><span class="p">,</span>
-        <span class="n">KernelTransformer</span><span class="p">,</span>
-        <span class="n">EnergyKernelTransformer</span><span class="p">,</span>
-        <span class="n">LaplacianKernelTransformer</span><span class="p">,</span>
-        <span class="n">GaussianKernelTransformer</span><span class="p">,</span>
-        <span class="n">GaussianRFFKernelTransformer</span><span class="p">,</span>
+        <span class="n">ClassRepresentation</span><span class="p">,</span> <span class="c1"># representations</span>
+        <span class="n">HistogramRepresentation</span><span class="p">,</span>
+        <span class="n">DistanceRepresentation</span><span class="p">,</span>
+        <span class="n">KernelRepresentation</span><span class="p">,</span>
+        <span class="n">EnergyKernelRepresentation</span><span class="p">,</span>
+        <span class="n">LaplacianKernelRepresentation</span><span class="p">,</span>
+        <span class="n">GaussianKernelRepresentation</span><span class="p">,</span>
+        <span class="n">GaussianRFFKernelRepresentation</span><span class="p">,</span>
     <span class="p">)</span>
-
-    <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="c1"># control public members, e.g., for auto-documentation in sphinx; omit QuaPyWrapper</span>
-        <span class="s2">&quot;ComposableQuantifier&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;CVClassifier&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;LeastSquaresLoss&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;BlobelLoss&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;EnergyLoss&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;HellingerSurrogateLoss&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;CombinedLoss&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;TikhonovRegularization&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;TikhonovRegularized&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ClassTransformer&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;HistogramTransformer&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;DistanceTransformer&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;KernelTransformer&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;EnergyKernelTransformer&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;LaplacianKernelTransformer&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;GaussianKernelTransformer&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;GaussianRFFKernelTransformer&quot;</span><span class="p">,</span>
-    <span class="p">]</span>
 <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">_import_error_message</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">_IMPORT_ERROR_MESSAGE</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="c1"># control public members, e.g., for auto-documentation in sphinx</span>
+    <span class="s2">&quot;QUnfoldWrapper&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ComposableQuantifier&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CVClassifier&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LeastSquaresLoss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BlobelLoss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EnergyLoss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HellingerSurrogateLoss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CombinedLoss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TikhonovRegularization&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TikhonovRegularized&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ClassRepresentation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HistogramRepresentation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DistanceRepresentation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;KernelRepresentation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EnergyKernelRepresentation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LaplacianKernelRepresentation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GaussianKernelRepresentation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GaussianRFFKernelRepresentation&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_compatible_qunfold_version</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">version_str</span> <span class="o">=</span> <span class="n">qunfold</span><span class="o">.</span><span class="n">__version__</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="c1"># versions of qunfold &lt;= 0.1.4 did not declare __version__ in the __init__.py but only in the setup.py</span>
+        <span class="n">version_str</span> <span class="o">=</span> <span class="s2">&quot;0.1.4&quot;</span>
+
+    <span class="n">installed_ver</span> <span class="o">=</span> <span class="n">Version</span><span class="p">(</span><span class="n">version_str</span><span class="p">)</span>
+    <span class="n">required_ver</span> <span class="o">=</span> <span class="n">Version</span><span class="p">(</span><span class="s2">&quot;0.1.5&quot;</span><span class="p">)</span>
+    <span class="n">compatible</span> <span class="o">=</span> <span class="n">installed_ver</span><span class="o">.</span><span class="n">base_version</span> <span class="o">==</span> <span class="n">required_ver</span><span class="o">.</span><span class="n">base_version</span> <span class="ow">or</span> <span class="n">installed_ver</span><span class="o">&gt;=</span><span class="n">required_ver</span>
+    <span class="k">return</span> <span class="n">compatible</span>
+
+
+<div class="viewcode-block" id="QUnfoldWrapper">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.composable.QUnfoldWrapper">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">QUnfoldWrapper</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">,</span><span class="n">BaseMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A thin wrapper for using qunfold methods in QuaPy.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      _method: An instance of `qunfold.methods.AbstractMethod` to wrap.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">      Here, we wrap an instance of ACC to perform a grid search with QuaPy.</span>
+
+<span class="sd">        &gt;&gt;&gt; from qunfold import ACC</span>
+<span class="sd">        &gt;&gt;&gt; qunfold_method = QUnfoldWrapper(ACC(RandomForestClassifier(obb_score=True)))</span>
+<span class="sd">        &gt;&gt;&gt; quapy.model_selection.GridSearchQ(</span>
+<span class="sd">        &gt;&gt;&gt;     model = qunfold_method,</span>
+<span class="sd">        &gt;&gt;&gt;     param_grid = { # try both splitting criteria</span>
+<span class="sd">        &gt;&gt;&gt;         &quot;representation__classifier__estimator__criterion&quot;: [&quot;gini&quot;, &quot;entropy&quot;],</span>
+<span class="sd">        &gt;&gt;&gt;     },</span>
+<span class="sd">        &gt;&gt;&gt;     # ...</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_method</span><span class="p">:</span> <span class="n">AbstractMethod</span>
+<div class="viewcode-block" id="QUnfoldWrapper.fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.composable.QUnfoldWrapper.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="c1"># data is a qp.LabelledCollection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="QUnfoldWrapper.predict">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.composable.QUnfoldWrapper.predict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="QUnfoldWrapper.set_params">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.composable.QUnfoldWrapper.set_params">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="QUnfoldWrapper.get_params">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.composable.QUnfoldWrapper.get_params">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="o">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">deep</span><span class="p">)</span></div>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
+
 
 <div class="viewcode-block" id="ComposableQuantifier">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.composable.ComposableQuantifier">[docs]</a>
-<span class="k">def</span> <span class="nf">ComposableQuantifier</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">transformer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ComposableQuantifier</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">representation</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A generic quantification / unfolding method that solves a linear system of equations.</span>
 
 <span class="sd">    This class represents any quantifier that can be described in terms of a loss function, a feature transformation, and a regularization term. In this implementation, the loss is minimized through unconstrained second-order minimization. Valid probability estimates are ensured through a soft-max trick by Bunse (2022).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        loss: An instance of a loss class from `quapy.methods.composable`.</span>
-<span class="sd">        transformer: An instance of a transformer class from `quapy.methods.composable`.</span>
+<span class="sd">        representation: An instance of a representation class from `quapy.methods.composable`.</span>
 <span class="sd">        solver (optional): The `method` argument in `scipy.optimize.minimize`. Defaults to `&quot;trust-ncg&quot;`.</span>
 <span class="sd">        solver_options (optional): The `options` argument in `scipy.optimize.minimize`. Defaults to `{&quot;gtol&quot;: 1e-8, &quot;maxiter&quot;: 1000}`.</span>
 <span class="sd">        seed (optional): A random number generator seed from which a numpy RandomState is created. Defaults to `None`.</span>
@@ -150,12 +223,12 @@
 <span class="sd">            &gt;&gt;&gt;     ComposableQuantifier,</span>
 <span class="sd">            &gt;&gt;&gt;     TikhonovRegularized,</span>
 <span class="sd">            &gt;&gt;&gt;     LeastSquaresLoss,</span>
-<span class="sd">            &gt;&gt;&gt;     ClassTransformer,</span>
+<span class="sd">            &gt;&gt;&gt;     ClassRepresentation,</span>
 <span class="sd">            &gt;&gt;&gt; )</span>
 <span class="sd">            &gt;&gt;&gt; from sklearn.ensemble import RandomForestClassifier</span>
 <span class="sd">            &gt;&gt;&gt; o_acc = ComposableQuantifier(</span>
 <span class="sd">            &gt;&gt;&gt;     TikhonovRegularized(LeastSquaresLoss(), 0.01),</span>
-<span class="sd">            &gt;&gt;&gt;     ClassTransformer(RandomForestClassifier(oob_score=True))</span>
+<span class="sd">            &gt;&gt;&gt;     ClassRepresentation(RandomForestClassifier(oob_score=True))</span>
 <span class="sd">            &gt;&gt;&gt; )</span>
 
 <span class="sd">        Here, we perform hyper-parameter optimization with the ordinal ACC.</span>
@@ -163,21 +236,21 @@
 <span class="sd">            &gt;&gt;&gt; quapy.model_selection.GridSearchQ(</span>
 <span class="sd">            &gt;&gt;&gt;     model = o_acc,</span>
 <span class="sd">            &gt;&gt;&gt;     param_grid = { # try both splitting criteria</span>
-<span class="sd">            &gt;&gt;&gt;         &quot;transformer__classifier__estimator__criterion&quot;: [&quot;gini&quot;, &quot;entropy&quot;],</span>
+<span class="sd">            &gt;&gt;&gt;         &quot;representation__classifier__estimator__criterion&quot;: [&quot;gini&quot;, &quot;entropy&quot;],</span>
 <span class="sd">            &gt;&gt;&gt;     },</span>
 <span class="sd">            &gt;&gt;&gt;     # ...</span>
 <span class="sd">            &gt;&gt;&gt; )</span>
-<span class="sd">        </span>
+
 <span class="sd">        To use a classifier that does not provide the `oob_score` argument, such as logistic regression, you have to configure a cross validation of this classifier. Here, we employ 10 cross validation folds. 5 folds are the default.</span>
 
 <span class="sd">            &gt;&gt;&gt; from quapy.method.composable import CVClassifier</span>
 <span class="sd">            &gt;&gt;&gt; from sklearn.linear_model import LogisticRegression</span>
 <span class="sd">            &gt;&gt;&gt; acc_lr = ComposableQuantifier(</span>
 <span class="sd">            &gt;&gt;&gt;     LeastSquaresLoss(),</span>
-<span class="sd">            &gt;&gt;&gt;     ClassTransformer(CVClassifier(LogisticRegression(), 10))</span>
+<span class="sd">            &gt;&gt;&gt;     ClassRepresentation(CVClassifier(LogisticRegression(), 10))</span>
 <span class="sd">            &gt;&gt;&gt; )</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">QuaPyWrapper</span><span class="p">(</span><span class="n">qunfold</span><span class="o">.</span><span class="n">GenericMethod</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">transformer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">QUnfoldWrapper</span><span class="p">(</span><span class="n">LinearMethod</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">representation</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
 
 </pre></div>
 

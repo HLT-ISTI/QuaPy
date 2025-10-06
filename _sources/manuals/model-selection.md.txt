@@ -87,7 +87,7 @@ model = qp.model_selection.GridSearchQ(
     error='mae',  # the error to optimize is the MAE (a quantification-oriented loss)
     refit=True,  # retrain on the whole labelled set once done
     verbose=True  # show information as the process goes on
-).fit(training)
+).fit(*training.Xy)
 
 print(f'model selection ended: best hyper-parameters={model.best_params_}')
 model = model.best_model_
@@ -133,7 +133,7 @@ learner = GridSearchCV(
     LogisticRegression(),
     param_grid={'C': np.logspace(-4, 5, 10), 'class_weight': ['balanced', None]},
     cv=5)
-model = DistributionMatching(learner).fit(dataset.train)
+model = DistributionMatching(learner).fit(*dataset.train.Xy)
 ```
 
 However, this is conceptually flawed, since the model should be

@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1. Datasets &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.9 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+  <title>1. Datasets &mdash; QuaPy: A Python-based open-source framework for quantification 0.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=8618f531"></script>
+      <script src="../_static/documentation_options.js?v=938c9ccc"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -56,9 +56,10 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#lequa-2022-datasets">1.4. LeQua 2022 Datasets</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ifcb-plankton-dataset">1.5. IFCB Plankton dataset</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#adding-custom-datasets">1.6. Adding Custom Datasets</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#data-processing">1.6.1. Data Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lequa-2024-datasets">1.5. LeQua 2024 Datasets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ifcb-plankton-dataset">1.6. IFCB Plankton dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-custom-datasets">1.7. Adding Custom Datasets</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#data-processing">1.7.1. Data Processing</a></li>
 </ul>
 </li>
 </ul>
@@ -112,8 +113,8 @@ one playing the role of the training set, another the test set.
 instances and labels. This class handles most of the sampling functionality in QuaPy.
 Take a look at the following code:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
-<span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">quapy.functional</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">F</span>
 
 <span class="n">instances</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;1st positive document&#39;</span><span class="p">,</span> <span class="s1">&#39;2nd positive document&#39;</span><span class="p">,</span>
@@ -168,7 +169,7 @@ for <a class="reference internal" href="evaluation.html"><span class="doc std st
 <p>Three datasets of reviews about Kindle devices, Harry Potter’s series, and
 the well-known IMDb movie reviews can be fetched using a unified interface.
 For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -231,7 +232,7 @@ in tf-idf format. Each dataset presents two splits: a train/val
 split for model selection purposes, and a train+val/test split
 for model evaluation. The following code exemplifies how to load
 a twitter dataset for model selection.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;gasp&#39;</span><span class="p">,</span> <span class="n">for_model_selection</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -385,7 +386,7 @@ used in:</p>
 <p>The list does not exactly coincide with that used in Pérez-Gállego et al. 2017
 since we were unable to find the datasets with ids “diabetes” and “phoneme”.</p>
 <p>These dataset can be loaded by calling, e.g.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;yeast&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
@@ -399,7 +400,7 @@ and some papers submit the entire collection to a kFCV validation.
 In order to accommodate with these practices, one could first instantiate
 the entire collection, and then creating a generator that will return one
 training+test dataset at a time, following a kFCV protocol:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 
 <span class="n">collection</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="s2">&quot;yeast&quot;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">kFCV</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">nfolds</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">nrepeats</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
@@ -670,13 +671,13 @@ and this has a disproportionate impact in the average performance.</p></li>
 <h3><span class="section-number">1.3.2. </span>Multiclass datasets<a class="headerlink" href="#multiclass-datasets" title="Link to this heading"></a></h3>
 <p>A collection of 24 multiclass datasets from the <a class="reference external" href="https://archive.ics.uci.edu/ml/datasets.php">UCI Machine Learning repository</a>.
 Some of the datasets were first used in <a class="reference external" href="https://arxiv.org/abs/2401.00490">this paper</a> and can be instantiated as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>A dataset can be instantiated filtering classes with a minimum number of instances using the <code class="docutils literal notranslate"><span class="pre">min_class_support</span></code> parameter
 (default: <code class="docutils literal notranslate"><span class="pre">100</span></code>) as folows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span> <span class="n">min_class_support</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -897,10 +898,10 @@ values of 28 different merchandise products.</p>
 <p>Every task consists of a training set, a set of validation samples (for model selection)
 and a set of test samples (for evaluation). QuaPy returns this data as a LabelledCollection
 (training) and two generation protocols (for validation and test samples), as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">training</span><span class="p">,</span> <span class="n">val_generator</span><span class="p">,</span> <span class="n">test_generator</span> <span class="o">=</span> <span class="n">fetch_lequa2022</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">training</span><span class="p">,</span> <span class="n">val_generator</span><span class="p">,</span> <span class="n">test_generator</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_lequa2022</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>See the <code class="docutils literal notranslate"><span class="pre">lequa2022_experiments.py</span></code> in the examples folder for further details on how to
+<p>See the <code class="docutils literal notranslate"><span class="pre">5a.lequa2022_experiments.py</span></code> in the examples folder for further details on how to
 carry out experiments using these datasets.</p>
 <p>The datasets are downloaded only once, and stored for fast reuse.</p>
 <p>Some statistics are summarized below:</p>
@@ -957,8 +958,87 @@ carry out experiments using these datasets.</p>
 </pre></div>
 </div>
 </section>
+<section id="lequa-2024-datasets">
+<h2><span class="section-number">1.5. </span>LeQua 2024 Datasets<a class="headerlink" href="#lequa-2024-datasets" title="Link to this heading"></a></h2>
+<p>QuaPy also provides the datasets used for the <a class="reference external" href="https://lequa2024.github.io/">LeQua 2024 competition</a>.
+In brief, there are 4 tasks:</p>
+<ul class="simple">
+<li><p>T1: binary quantification (by sentiment)</p></li>
+<li><p>T2: multiclass quantification (28 classes, merchandise products)</p></li>
+<li><p>T3: ordinal quantification (5-stars sentiment ratings)</p></li>
+<li><p>T4: binary sentiment quantification under a combination of covariate shift and prior shift</p></li>
+</ul>
+<p>In all cases, the covariate space has 256 dimensions (extracted using the <code class="docutils literal notranslate"><span class="pre">ELECTRA-Small</span></code> model).</p>
+<p>Every task consists of a training set, a set of validation samples (for model selection)
+and a set of test samples (for evaluation). QuaPy returns this data as a LabelledCollection
+(training bags) and sampling generation protocols (for validation and test bags).
+T3 also offers the possibility to obtain a series of training bags (in form of a
+sampling generation protocol) instead of one single training bag. Use it as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">training</span><span class="p">,</span> <span class="n">val_generator</span><span class="p">,</span> <span class="n">test_generator</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_lequa2024</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See the <code class="docutils literal notranslate"><span class="pre">5b.lequa2024_experiments.py</span></code> in the examples folder for further details on how to
+carry out experiments using these datasets.</p>
+<p>The datasets are downloaded only once, and stored for fast reuse.</p>
+<p>Some statistics are summarized below:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dataset</p></th>
+<th class="head text-center"><p>classes</p></th>
+<th class="head text-center"><p>train size</p></th>
+<th class="head text-center"><p>validation samples</p></th>
+<th class="head text-center"><p>test samples</p></th>
+<th class="head text-center"><p>docs by sample</p></th>
+<th class="head text-center"><p>type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>T1</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>250</p></td>
+<td class="text-center"><p>vector</p></td>
+</tr>
+<tr class="row-odd"><td><p>T2</p></td>
+<td class="text-center"><p>28</p></td>
+<td class="text-center"><p>20000</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>vector</p></td>
+</tr>
+<tr class="row-even"><td><p>T3</p></td>
+<td class="text-center"><p>5</p></td>
+<td class="text-center"><p>100 samples</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>200</p></td>
+<td class="text-center"><p>vector</p></td>
+</tr>
+<tr class="row-odd"><td><p>T4</p></td>
+<td class="text-center"><p>2</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>1000</p></td>
+<td class="text-center"><p>5000</p></td>
+<td class="text-center"><p>250</p></td>
+<td class="text-center"><p>vector</p></td>
+</tr>
+</tbody>
+</table>
+<p>For further details on the datasets or the competition, we refer to
+<a class="reference external" href="https://lequa2024.github.io/data/">the official site</a> and
+<a class="reference external" href="http://nmis.isti.cnr.it/sebastiani/Publications/LQ2024.pdf">the overview paper</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Esuli</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="n">Moreo</span><span class="p">,</span> <span class="n">A</span><span class="o">.</span><span class="p">,</span> <span class="n">Sebastiani</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="p">,</span> <span class="o">&amp;</span> <span class="n">Sperduti</span><span class="p">,</span> <span class="n">G</span><span class="o">.</span> <span class="p">(</span><span class="mi">2022</span><span class="p">)</span><span class="o">.</span>
+<span class="n">An</span> <span class="n">Overview</span> <span class="n">of</span> <span class="n">LeQua</span> <span class="mi">2024</span><span class="p">,</span> <span class="n">the</span> <span class="mi">2</span><span class="n">nd</span> <span class="n">International</span> <span class="n">Data</span> <span class="n">Challenge</span> <span class="n">on</span> <span class="n">Learning</span> <span class="n">to</span> <span class="n">Quantify</span><span class="p">,</span>
+<span class="n">Proceedings</span> <span class="n">of</span> <span class="n">the</span> <span class="mi">4</span><span class="n">th</span> <span class="n">International</span> <span class="n">Workshop</span> <span class="n">on</span> <span class="n">Learning</span> <span class="n">to</span> <span class="n">Quantify</span> <span class="p">(</span><span class="n">LQ</span> <span class="mi">2024</span><span class="p">),</span> 
+<span class="n">ECML</span><span class="o">-</span><span class="n">PKDD</span> <span class="mi">2024</span><span class="p">,</span> <span class="n">Vilnius</span><span class="p">,</span> <span class="n">Lithuania</span><span class="o">.</span>
+</pre></div>
+</div>
+</section>
 <section id="ifcb-plankton-dataset">
-<h2><span class="section-number">1.5. </span>IFCB Plankton dataset<a class="headerlink" href="#ifcb-plankton-dataset" title="Link to this heading"></a></h2>
+<h2><span class="section-number">1.6. </span>IFCB Plankton dataset<a class="headerlink" href="#ifcb-plankton-dataset" title="Link to this heading"></a></h2>
 <p>IFCB is a dataset of plankton species in water samples hosted in <code class="docutils literal notranslate"><span class="pre">Zenodo</span> <span class="pre">&lt;https://zenodo.org/records/10036244&gt;</span></code><em>.
 This dataset is based on the data available publicly at <code class="docutils literal notranslate"><span class="pre">WHOI-Plankton</span> <span class="pre">repo</span> <span class="pre">&lt;https://github.com/hsosik/WHOI-Plankton&gt;</span></code></em>
 and in the scripts for the processing are available at <code class="docutils literal notranslate"><span class="pre">P.</span> <span class="pre">González's</span> <span class="pre">repo</span> <span class="pre">&lt;https://github.com/pglez82/IFCB_Zenodo&gt;</span></code>_.</p>
@@ -1014,60 +1094,71 @@ or as a single training set (<code class="docutils literal notranslate"><span cl
 <span class="c1"># ... train and evaluation</span>
 </pre></div>
 </div>
+<p>See also <a class="reference external" href="https://par.nsf.gov/servlets/purl/10172325">Automatic plankton quantification using deep features
+P González, A Castaño, EE Peacock, J Díez, JJ Del Coz, HM Sosik
+Journal of Plankton Research 41 (4), 449-463</a>.</p>
 </section>
 <section id="adding-custom-datasets">
-<h2><span class="section-number">1.6. </span>Adding Custom Datasets<a class="headerlink" href="#adding-custom-datasets" title="Link to this heading"></a></h2>
+<h2><span class="section-number">1.7. </span>Adding Custom Datasets<a class="headerlink" href="#adding-custom-datasets" title="Link to this heading"></a></h2>
+<p>It is straightforward to import your own datasets into QuaPy.
+I what follows, there are some code snippets for doing so; see also the example
+<a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/examples/3.custom_collection.py">3.custom_collection.py</a>.</p>
 <p>QuaPy provides data loaders for simple formats dealing with
-text, following the format:</p>
+text; for example, use <code class="docutils literal notranslate"><span class="pre">qp.data.reader.from_text</span></code> for the following the format:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">class</span><span class="o">-</span><span class="nb">id</span> \<span class="n">t</span> <span class="n">first</span> <span class="n">document</span><span class="s1">&#39;s pre-processed text </span><span class="se">\n</span>
 <span class="n">class</span><span class="o">-</span><span class="nb">id</span> \<span class="n">t</span> <span class="n">second</span> <span class="n">document</span><span class="s1">&#39;s pre-processed text </span><span class="se">\n</span>
 <span class="o">...</span>
 </pre></div>
 </div>
-<p>and sparse representations of the form:</p>
+<p>or <code class="docutils literal notranslate"><span class="pre">qp.data.reader.from_sparse</span></code> for sparse representations of the form:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="ow">or</span> <span class="o">+</span><span class="mi">1</span><span class="p">}</span> <span class="n">col</span><span class="p">(</span><span class="nb">int</span><span class="p">):</span><span class="n">val</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="n">col</span><span class="p">(</span><span class="nb">int</span><span class="p">):</span><span class="n">val</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">...</span> \<span class="n">n</span>
 <span class="o">...</span>
 </pre></div>
 </div>
+<p>both functions return a tuple <code class="docutils literal notranslate"><span class="pre">X,</span> <span class="pre">y</span></code> containing a list of strings and the corresponding
+labels, respectively.</p>
 <p>The code in charge in loading a LabelledCollection is:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
-<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">loader_func</span><span class="p">:</span><span class="nb">callable</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">loader_func</span><span class="p">:</span><span class="nb">callable</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="o">*</span><span class="n">loader_func</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>indicating that any <em>loader_func</em> (e.g., a user-defined one) which
+<p>indicating that any <code class="docutils literal notranslate"><span class="pre">loader_func</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">from_text</span></code>, <code class="docutils literal notranslate"><span class="pre">from_sparse</span></code>, <code class="docutils literal notranslate"><span class="pre">from_csv</span></code>, or a user-defined one) which
 returns valid arguments for initializing a <em>LabelledCollection</em> object will allow
-to load any collection. In particular, the <em>LabelledCollection</em> receives as
-arguments the instances (as an iterable) and the labels (as an iterable) and,
-additionally, the number of classes can be specified (it would otherwise be
-inferred from the labels, but that requires at least one positive example for
+to load any collection. More specifically, the <em>LabelledCollection</em> receives as
+arguments the <em>instances</em> (iterable) and the <em>labels</em> (iterable) and,
+optionally, the number of classes (it would be
+inferred from the labels if not indicated, but this requires at least one
+positive example for
 all classes to be present in the collection).</p>
 <p>The same <em>loader_func</em> can be passed to a Dataset, along with two
 paths, in order to create a training and test pair of <em>LabelledCollection</em>,
 e.g.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 
 <span class="n">train_path</span> <span class="o">=</span> <span class="s1">&#39;../my_data/train.dat&#39;</span>
 <span class="n">test_path</span> <span class="o">=</span> <span class="s1">&#39;../my_data/test.dat&#39;</span>
 
-<span class="k">def</span> <span class="nf">my_custom_loader</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_custom_loader</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">custom_kwargs</span><span class="p">):</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
         <span class="o">...</span>
     <span class="k">return</span> <span class="n">instances</span><span class="p">,</span> <span class="n">labels</span>
 
-<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">train_path</span><span class="p">,</span> <span class="n">test_path</span><span class="p">,</span> <span class="n">my_custom_loader</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">train_path</span><span class="p">,</span> <span class="n">test_path</span><span class="p">,</span> <span class="n">my_custom_loader</span><span class="p">,</span> <span class="o">**</span><span class="n">custom_kwargs</span><span class="p">)</span>
 </pre></div>
 </div>
 <section id="data-processing">
-<h3><span class="section-number">1.6.1. </span>Data Processing<a class="headerlink" href="#data-processing" title="Link to this heading"></a></h3>
-<p>QuaPy implements a number of preprocessing functions in the package <em>qp.data.preprocessing</em>, including:</p>
+<h3><span class="section-number">1.7.1. </span>Data Processing<a class="headerlink" href="#data-processing" title="Link to this heading"></a></h3>
+<p>QuaPy implements a number of preprocessing functions in the package <code class="docutils literal notranslate"><span class="pre">qp.data.preprocessing</span></code>, including:</p>
 <ul class="simple">
 <li><p><em>text2tfidf</em>: tfidf vectorization</p></li>
 <li><p><em>reduce_columns</em>: reducing the number of columns based on term frequency</p></li>
 <li><p><em>standardize</em>: transforms the column values into z-scores (i.e., subtract the mean and normalizes by the standard deviation, so
 that the column values have zero mean and unit variance).</p></li>
-<li><p><em>index</em>: transforms textual tokens into lists of numeric ids)</p></li>
+<li><p><em>index</em>: transforms textual tokens into lists of numeric ids</p></li>
 </ul>
+<p>These functions are applied to <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> objects, and offer the possibility to apply the transformation
+inline (thus modifying the original dataset), or to return a modified copy.</p>
 </section>
 </section>
 </section>
