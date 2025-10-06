@@ -68,7 +68,7 @@ class prevalence of the training set. For this reason, any quantification model
 should be tested across many samples, even ones characterized by class prevalence 
 values different or very different from those found in the training set.
 QuaPy implements sampling procedures and evaluation protocols that automate this workflow.
-See the [documentation](https://hlt-isti.github.io/QuaPy/build/html/) for detailed examples.
+See the [documentation](https://hlt-isti.github.io/QuaPy/manuals.html) for detailed examples.
 
 ## Features
 

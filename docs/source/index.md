@@ -25,15 +25,15 @@ The following script fetches a dataset of tweets, trains, applies, and evaluates
 ```python
 import quapy as qp
 
-dataset = qp.datasets.fetch_UCIBinaryDataset("yeast")
-training, test = dataset.train_test
+training, test = qp.datasets.fetch_UCIBinaryDataset("yeast").train_test
 
 # create an "Adjusted Classify & Count" quantifier
 model = qp.method.aggregative.ACC()
-model.fit(training)
+Xtr, ytr = training.Xy
+model.fit(Xtr, ytr)
 
-estim_prevalence = model.quantify(test.X)
-true_prevalence  = test.prevalence()
+estim_prevalence = model.predict(test.X)
+true_prevalence = test.prevalence()
 
 error = qp.error.mae(true_prevalence, estim_prevalence)
 print(f'Mean Absolute Error (MAE)={error:.3f}')
@@ -59,19 +59,19 @@ API <quapy>
 
 ## Features
 
-- Implementation of many popular quantification methods (Classify-&-Count and its variants, Expectation Maximization, quantification methods based on structured output learning, HDy, QuaNet, quantification ensembles, among others).
-- Versatile functionality for performing evaluation based on sampling generation protocols (e.g., APP, NPP, etc.).
-- Implementation of most commonly used evaluation metrics (e.g., AE, RAE, NAE, NRAE, SE, KLD, NKLD, etc.).
-- Datasets frequently used in quantification (textual and numeric), including:
-    - 32 UCI Machine Learning binary datasets.
-    - 5 UCI Machine Learning multiclass datasets (new in v0.1.8!).
-    - 11 Twitter quantification-by-sentiment datasets.
-    - 3 product reviews quantification-by-sentiment datasets.
-    - 4 tasks from LeQua competition (new in v0.1.7!)
-    - IFCB dataset of plankton water samples (new in v0.1.8!).
-- Native support for binary and single-label multiclass quantification scenarios.
-- Model selection functionality that minimizes quantification-oriented loss functions.
-- Visualization tools for analysing the experimental results.
+* Implementation of many popular quantification methods (Classify-&-Count and its variants, Expectation Maximization,
+quantification methods based on structured output learning, HDy, QuaNet, quantification ensembles, among others).
+* Versatile functionality for performing evaluation based on sampling generation protocols (e.g., APP, NPP, etc.).
+* Implementation of most commonly used evaluation metrics (e.g., AE, RAE, NAE, NRAE, SE, KLD, NKLD, etc.).
+* Datasets frequently used in quantification (textual and numeric), including:
+    * 32 UCI Machine Learning datasets.
+    * 11 Twitter quantification-by-sentiment datasets.
+    * 3 product reviews quantification-by-sentiment datasets. 
+    * 4 tasks from LeQua 2022 competition and 4 tasks from LeQua 2024 competition
+    * IFCB for Plancton quantification 
+* Native support for binary and single-label multiclass quantification scenarios.
+* Model selection functionality that minimizes quantification-oriented loss functions.
+* Visualization tools for analysing the experimental results.
 
 ## Citing QuaPy
 
@@ -97,3 +97,7 @@ In case you want to contribute improvements to quapy, please generate pull reque
 :width: 250px
 :alt: SoBigData++
 ```
+
+This work has been supported by the QuaDaSh project 
+_"Finanziato dall’Unione europea---Next Generation EU, 
+Missione 4 Componente 2 CUP B53D23026250001"_.
