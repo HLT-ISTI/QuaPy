@@ -63,7 +63,7 @@ def prediction(
         protocol_with_predictions = protocol.on_preclassified_instances(pre_classified)
         return __prediction_helper(model.aggregate, protocol_with_predictions, verbose)
     else:
-        return __prediction_helper(model.quantify, protocol, verbose)
+        return __prediction_helper(model.predict, protocol, verbose)
 
 
 def __prediction_helper(quantification_fn, protocol: AbstractProtocol, verbose=False):

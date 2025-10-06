@@ -32,8 +32,8 @@ dataset = qp.datasets.fetch_twitter('semeval16')
 model = qp.method.aggregative.ACC(LogisticRegression())
 model.fit(dataset.training)
 
-estim_prevalence = model.quantify(dataset.test.instances)
-true_prevalence  = dataset.test.prevalence()
+estim_prevalence = model.predict(dataset.test.instances)
+true_prevalence = dataset.test.prevalence()
 
 error = qp.error.mae(true_prevalence, estim_prevalence)
 

@@ -1,7 +1,7 @@
 # Quantification Methods
 
 Quantification methods can be categorized as belonging to
-`aggregative` and `non-aggregative` groups. 
+`aggregative`, `non-aggregative`, and `meta-learning` groups. 
 Most methods included in QuaPy at the moment are of type `aggregative`
 (though we plan to add many more methods in the near future), i.e.,
 are methods characterized by the fact that
@@ -12,21 +12,17 @@ Any quantifier in QuaPy shoud extend the class `BaseQuantifier`,
 and implement some abstract methods:
 ```python
     @abstractmethod
-    def fit(self, data: LabelledCollection): ...
+    def fit(self, X, y): ...
 
     @abstractmethod
-    def quantify(self, instances): ...
+    def predict(self, X): ...
 ```
 The meaning of those functions should be familiar to those
 used to work with scikit-learn since the class structure of QuaPy
 is directly inspired by scikit-learn's _Estimators_. Functions
-`fit` and `quantify` are used to train the model and to provide
-class estimations (the reason why
-scikit-learn' structure has not been adopted _as is_ in QuaPy responds to 
-the fact that scikit-learn's `predict` function is expected to return
-one output for each input element --e.g., a predicted label for each
-instance in a sample-- while in quantification the output for a sample
-is one single array of class prevalences).
+`fit` and `predict` (for which there is an alias `quantify`) 
+are used to train the model and to provide
+class estimations.
 Quantifiers also extend from scikit-learn's `BaseEstimator`, in order
 to simplify the use of `set_params` and `get_params` used in 
 [model selection](./model-selection).
@@ -40,21 +36,26 @@ The methods that any `aggregative` quantifier must implement are:
 
 ```python
     @abstractmethod
-    def aggregation_fit(self, classif_predictions: LabelledCollection, data: LabelledCollection):
+    def aggregation_fit(self, classif_predictions, labels):
 
     @abstractmethod
-    def aggregate(self, classif_predictions:np.ndarray): ...
+    def aggregate(self, classif_predictions): ...
 ```
 
-These two functions replace the `fit` and `quantify` methods, since those
-come with default implementations. The `fit` function is provided and amounts to: 
+The argument `classif_predictions` is whatever the method `classify` returns. 
+QuaPy comes with default implementations that cover most common cases, but you can
+override `classify` in case your method requires further or different information to work.
+
+These two functions replace the `fit` and `predict` methods, which
+come with default implementations. For instance, the `fit` function is 
+provided and amounts to: 
 
 ```python
-def fit(self, data: LabelledCollection, fit_classifier=True, val_split=None):
-    self._check_init_parameters()
-    classif_predictions = self.classifier_fit_predict(data, fit_classifier, predict_on=val_split)
-    self.aggregation_fit(classif_predictions, data)
-    return self
+    def fit(self, X, y):
+        self._check_init_parameters()
+        classif_predictions, labels = self.classifier_fit_predict(X, y)
+        self.aggregation_fit(classif_predictions, labels)
+        return self
 ```
 
 Note that this function fits the classifier, and generates the predictions. This is assumed
@@ -72,11 +73,11 @@ overriden (if needed) and allows the method to quickly raise any exception based
 found in the `__init__` arguments, thus avoiding to break after training the classifier and generating
 predictions.
 
-Similarly, the function `quantify` is provided, and amounts to:
+Similarly, the function `predict` (alias `quantify`) is provided, and amounts to:
 
 ```python
-def quantify(self, instances):
-    classif_predictions = self.classify(instances)
+def predict(self, X):
+    classif_predictions = self.classify(X)
     return self.aggregate(classif_predictions)
 ```
 
@@ -84,12 +85,14 @@ in which only the function `aggregate` is required to be overriden in most cases
 
 Aggregative quantifiers are expected to maintain a classifier (which is
 accessed through the `@property` `classifier`). This classifier is
-given as input to the quantifier, and can be already fit
-on external data (in which case, the `fit_learner` argument should
-be set to False), or be fit by the quantifier's fit (default).
+given as input to the quantifier, and will be trained by the quantifier's fit (default).
+Alternatively, the classifier can be already fit on external data; in this case, the `fit_learner` 
+argument in the `__init__` should be set to False (see [4.using_pretrained_classifier.py](https://github.com/HLT-ISTI/QuaPy/blob/master/examples/4.using_pretrained_classifier.py)
+for a full code example).
 
-The above patterns (in training: fit the classifier, then fit the aggregation; 
-in test: classify, then aggregate) allows QuaPy to optimize many internal procedures.
+The above patterns (in training: (i) fit the classifier, then (ii) fit the aggregation; 
+in test: (i) classify, then (ii) aggregate) allows QuaPy to optimize many internal procedures, 
+on the grounds that steps (i) are slower than steps (ii). 
 In particular, the model selection routing takes advantage of this two-step process
 and generates classifiers only for the valid combinations of hyperparameters of the 
 classifier, and then _clones_ these classifiers and explores the combinations
@@ -124,6 +127,7 @@ import quapy.functional as F
 from sklearn.svm import LinearSVC
 
 training, test = qp.datasets.fetch_twitter('hcr', pickle=True).train_test
+Xtr, ytr = training.Xy
 
 # instantiate a classifier learner, in this case a SVM
 svm = LinearSVC()
@@ -131,8 +135,8 @@ svm = LinearSVC()
 # instantiate a Classify & Count with the SVM
 # (an alias is available in qp.method.aggregative.ClassifyAndCount)
 model = qp.method.aggregative.CC(svm)
-model.fit(training)
-estim_prevalence = model.quantify(test.instances)
+model.fit(Xtr, ytr)
+estim_prevalence = model.predict(test.instances)
 ```
 
 The same code could be used to instantiate an ACC, by simply replacing
@@ -153,26 +157,14 @@ predictions. This parameters can also be set with an integer,
 indicating that the parameters should be estimated by means of
 _k_-fold cross-validation, for which the integer indicates the
 number _k_ of folds (the default value is 5). Finally, `val_split` can be set to a 
-specific held-out validation set (i.e., an instance of `LabelledCollection`).
-
-The specification of `val_split` can be
-postponed to the invokation of the fit method (if `val_split` was also
-set in the constructor, the one specified at fit time would prevail), 
-e.g.:
-
-```python
-model = qp.method.aggregative.ACC(svm)
-# perform 5-fold cross validation for estimating ACC's parameters
-# (overrides the default val_split=0.4 in the constructor)
-model.fit(training, val_split=5)
-```
+specific held-out validation set (i.e., an tuple `(X,y)`).
 
 The following code illustrates the case in which PCC is used:
 
 ```python
 model = qp.method.aggregative.PCC(svm)
-model.fit(training)
-estim_prevalence = model.quantify(test.instances)
+model.fit(Xtr, ytr)
+estim_prevalence = model.predict(Xte)
 print('classifier:', model.classifier)
 ```
 In this case, QuaPy will print:
@@ -185,11 +177,11 @@ is not a probabilistic classifier (i.e., it does not implement the
 `predict_proba` method) and so, the classifier will be converted to
 a probabilistic one through [calibration](https://scikit-learn.org/stable/modules/calibration.html).
 As a result, the classifier that is printed in the second line points
-to a `CalibratedClassifier` instance. Note that calibration can only
-be applied to hard classifiers when `fit_learner=True`; an exception 
+to a `CalibratedClassifierCV` instance. Note that calibration can only
+be applied to hard classifiers if `fit_learner=True`; an exception 
 will be raised otherwise.
 
-Lastly, everything we said aboud ACC and PCC
+Lastly, everything we said about ACC and PCC
 applies to PACC as well.
 
 _New in v0.1.9_: quantifiers ACC and PACC now have three additional arguments: `method`, `solver` and `norm`:
@@ -259,22 +251,28 @@ An example of use can be found below:
 import quapy as qp
 from sklearn.linear_model import LogisticRegression
 
-dataset = qp.datasets.fetch_twitter('hcr', pickle=True)
+train, test = qp.datasets.fetch_twitter('hcr', pickle=True).train_test
 
 model = qp.method.aggregative.EMQ(LogisticRegression())
-model.fit(dataset.training)
-estim_prevalence = model.quantify(dataset.test.instances)
+model.fit(*train.Xy)
+estim_prevalence = model.predict(test.X)
 ```
 
-_New in v0.1.7_: EMQ now accepts two new parameters in the construction method, namely
-`exact_train_prev` which allows to use the true training prevalence as the departing
-prevalence estimation (default behaviour), or instead an approximation of it as 
+EMQ accepts additional parameters in the construction method:
+* `exact_train_prev`: set to True for using the true training prevalence as the departing
+prevalence estimation (default behaviour), or to False for using an approximation of it as
 suggested by [Alexandari et al. (2020)](http://proceedings.mlr.press/v119/alexandari20a.html) 
-(by setting `exact_train_prev=False`).
-The other parameter is `recalib` which allows to indicate a calibration method, among those
+* `calib`: allows to indicate a calibration method, among those
 proposed by [Alexandari et al. (2020)](http://proceedings.mlr.press/v119/alexandari20a.html),
-including the Bias-Corrected Temperature Scaling, Vector Scaling, etc.
-See the API documentation for further details. 
+including the Bias-Corrected Temperature Scaling 
+(`bcts`), Vector Scaling (`bcts`), No-Bias Temperature Scaling (`nbvs`), 
+or Temperature Scaling (`ts`); default is `None` (no calibration).
+* `on_calib_error`: indicates the policy to follow in case the calibrator fails at runtime.
+        Options include `raise` (default), in which case a RuntimeException is raised; and `backup`, in which
+        case the calibrator is silently skipped.
+
+You can use the class method `EMQ_BCTS` to effortlessly instantiate EMQ with the best performing
+heuristics found by [Alexandari et al. (2020)](http://proceedings.mlr.press/v119/alexandari20a.html). See the API documentation for further details. 
 
 
 ### Hellinger Distance y (HDy)
@@ -289,16 +287,16 @@ This method works with a probabilistic classifier (hard classifiers
 can be used as well and will be calibrated) and requires a validation
 set to estimate parameter for the mixture model. Just like 
 ACC and PACC, this quantifier receives a `val_split` argument
-in the constructor (or in the fit method, in which case the previous
-value is overridden) that can either be a float indicating the proportion
+in the constructor that can either be a float indicating the proportion
 of training data to be taken as the validation set (in a random
-stratified split), or a validation set (i.e., an instance of 
-`LabelledCollection`) itself. 
+stratified split), or the validation set itself (i.e., an tuple
+`(X,y)`). 
 
 HDy was proposed as a binary classifier and the implementation
 provided in QuaPy accepts only binary datasets. 
  
-The following code shows an example of use:   
+The following code shows an example of use:
+
 ```python
 import quapy as qp
 from sklearn.linear_model import LogisticRegression
@@ -308,11 +306,11 @@ dataset = qp.datasets.fetch_reviews('hp', pickle=True)
 qp.data.preprocessing.text2tfidf(dataset, min_df=5, inplace=True)
 
 model = qp.method.aggregative.HDy(LogisticRegression())
-model.fit(dataset.training)
-estim_prevalence = model.quantify(dataset.test.instances)
+model.fit(*dataset.training.Xy)
+estim_prevalence = model.predict(dataset.test.X)
 ```
 
-_New in v0.1.7:_ QuaPy now provides an implementation of the generalized
+QuaPy also provides an implementation of the generalized
 "Distribution Matching" approaches for multiclass, inspired by the framework
 of [Firat (2016)](https://arxiv.org/abs/1606.00868). One can instantiate
 a variant of HDy for multiclass quantification as follows:
@@ -321,17 +319,22 @@ a variant of HDy for multiclass quantification as follows:
 mutliclassHDy = qp.method.aggregative.DMy(classifier=LogisticRegression(), divergence='HD', cdf=False)
 ``` 
 
-_New in v0.1.7:_ QuaPy now provides an implementation of the "DyS"
+QuaPy also provides an implementation of the "DyS"
 framework proposed by [Maletzke et al (2020)](https://ojs.aaai.org/index.php/AAAI/article/view/4376)
 and the "SMM" method proposed by [Hassan et al (2019)](https://ieeexplore.ieee.org/document/9260028)
 (thanks to _Pablo González_ for the contributions!)
 
 ### Threshold Optimization methods
 
-_New in v0.1.7:_ QuaPy now implements Forman's threshold optimization methods;
+QuaPy implements Forman's threshold optimization methods;
 see, e.g., [(Forman 2006)](https://dl.acm.org/doi/abs/10.1145/1150402.1150423) 
 and [(Forman 2008)](https://link.springer.com/article/10.1007/s10618-008-0097-y).
-These include: T50, MAX, X, Median Sweep (MS), and its variant MS2.
+These include: `T50`, `MAX`, `X`, Median Sweep (`MS`), and its variant `MS2`.
+
+These methods are binary-only and implement different heuristics for 
+improving the stability of the denominator of the ACC adjustment (`tpr-fpr`).
+The methods are called "threshold" since said heuristics have to do
+with different choices of the underlying classifier's threshold.
 
 ### Explicit Loss Minimization
 
@@ -411,19 +414,21 @@ qp.environ['SVMPERF_HOME'] = '../svm_perf_quantification'
 
 model = newOneVsAll(SVMQ(), n_jobs=-1)  # run them on parallel
 model.fit(dataset.training)
-estim_prevalence = model.quantify(dataset.test.instances)
+estim_prevalence = model.predict(dataset.test.instances)
 ```
 
-Check the examples on [explicit_loss_minimization](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/5.explicit_loss_minimization.py)
+Check the examples on [explicit loss minimization](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/17.explicit_loss_minimization.py)
 and on [one versus all quantification](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/10.one_vs_all.py) for more details.
+**Note** that the _one versus all_ approach is considered inappropriate under prior probability shift, though. 
 
 ### Kernel Density Estimation methods (KDEy)
 
-_New in v0.1.8_: QuaPy now provides implementations for the three variants
+QuaPy provides implementations for the three variants
 of KDE-based methods proposed in 
-_[Moreo, A., González, P. and del Coz, J.J., 2023. 
+_[Moreo, A., González, P. and del Coz, J.J.. 
 Kernel Density Estimation for Multiclass Quantification. 
-arXiv preprint arXiv:2401.00490](https://arxiv.org/abs/2401.00490)_. 
+Machine Learning. Vol 114 (92), 2025](https://link.springer.com/article/10.1007/s10994-024-06726-5)_
+(a [preprint](https://arxiv.org/abs/2401.00490) is available online). 
 The variants differ in the divergence metric to be minimized:
 
 - KDEy-HD: minimizes the (squared) Hellinger Distance and solves the problem via a Monte Carlo approach
@@ -434,30 +439,42 @@ These methods are specifically devised for multiclass problems (although they ca
 binary problems too). 
 
 All KDE-based methods depend on the hyperparameter `bandwidth` of the kernel. Typical values
-that can be explored in model selection range in [0.01, 0.25]. The methods' performance
-vary smoothing with smooth variations of this hyperparameter.
+that can be explored in model selection range in [0.01, 0.25]. Previous experiments reveal the methods' performance
+varies smoothly at small variations of this hyperparameter.
 
 
 ## Composable Methods
 
-The [](quapy.method.composable) module allows the composition of quantification methods from loss functions and feature transformations. Any composed method solves a linear system of equations by minimizing the loss after transforming the data. Methods of this kind include ACC, PACC, HDx, HDy, and many other well-known methods, as well as an unlimited number of re-combinations of their building blocks.
+The `quapy.method.composable` module integrates [qunfold](https://github.com/mirkobunse/qunfold) allows the composition
+of quantification methods from loss functions and feature transformations (thanks to Mirko Bunse for the integration!). 
+
+Any composed method solves a linear system of equations by minimizing the loss after transforming the data. Methods of this kind include ACC, PACC, HDx, HDy, and many other well-known methods, as well as an unlimited number of re-combinations of their building blocks.
 
 ### Installation
 
 ```sh
 pip install --upgrade pip setuptools wheel
 pip install "jax[cpu]"
-pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.4"
+pip install "qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.5"
 ```
+
+**Note:** since version 0.2.0, QuaPy is only compatible with qunfold >=0.1.5. 
 
 ### Basics
 
 The composition of a method is implemented through the [](quapy.method.composable.ComposableQuantifier) class. Its documentation also features an example to get you started in composing your own methods.
 
 ```python
+from quapy.method.composable import (
+    ComposableQuantifier,
+    TikhonovRegularized,
+    LeastSquaresLoss,
+    ClassRepresentation,
+)
+
 ComposableQuantifier( # ordinal ACC, as proposed by Bunse et al., 2022
-  TikhonovRegularized(LeastSquaresLoss(), 0.01),
-  ClassTransformer(RandomForestClassifier(oob_score=True))
+    TikhonovRegularized(LeastSquaresLoss(), 0.01),
+    ClassRepresentation(RandomForestClassifier(oob_score=True))
 )
 ```
 
@@ -484,16 +501,16 @@ You can use the [](quapy.method.composable.CombinedLoss) to create arbitrary, we
 
 ### Feature transformations
 
-- [](quapy.method.composable.ClassTransformer)
-- [](quapy.method.composable.DistanceTransformer)
-- [](quapy.method.composable.HistogramTransformer)
-- [](quapy.method.composable.EnergyKernelTransformer)
-- [](quapy.method.composable.GaussianKernelTransformer)
-- [](quapy.method.composable.LaplacianKernelTransformer)
-- [](quapy.method.composable.GaussianRFFKernelTransformer)
+- [](quapy.method.composable.ClassRepresentation)
+- [](quapy.method.composable.DistanceRepresentation)
+- [](quapy.method.composable.HistogramRepresentation)
+- [](quapy.method.composable.EnergyKernelRepresentation)
+- [](quapy.method.composable.GaussianKernelRepresentation)
+- [](quapy.method.composable.LaplacianKernelRepresentation)
+- [](quapy.method.composable.GaussianRFFKernelRepresentation)
 
 ```{hint}
-The [](quapy.method.composable.ClassTransformer) requires the classifier to have a property `oob_score==True` and to produce a property `oob_decision_function` during fitting. In [scikit-learn](https://scikit-learn.org/), this requirement is fulfilled by any bagging classifier, such as random forests. Any other classifier needs to be cross-validated through the [](quapy.method.composable.CVClassifier).
+The [](quapy.method.composable.ClassRepresentation) requires the classifier to have a property `oob_score==True` and to produce a property `oob_decision_function` during fitting. In [scikit-learn](https://scikit-learn.org/), this requirement is fulfilled by any bagging classifier, such as random forests. Any other classifier needs to be cross-validated through the [](quapy.method.composable.CVClassifier).
 ```
 
 
@@ -528,10 +545,11 @@ from quapy.method.meta import Ensemble
 from sklearn.linear_model import LogisticRegression
 
 dataset = qp.datasets.fetch_UCIBinaryDataset('haberman')
+train, test = dataset.train_test
 
 model = Ensemble(quantifier=ACC(LogisticRegression()), size=30, policy='ave', n_jobs=-1)
-model.fit(dataset.training)
-estim_prevalence = model.quantify(dataset.test.instances)
+model.fit(*train.Xy)
+estim_prevalence = model.predict(test.X)
 ```
 
 Other aggregation policies implemented in QuaPy include:
@@ -578,13 +596,13 @@ learner = NeuralClassifierTrainer(cnn, device='cuda')
 
 # train QuaNet
 model = QuaNet(learner, device='cuda')
-model.fit(dataset.training)
-estim_prevalence = model.quantify(dataset.test.instances)
+model.fit(*dataset.training.Xy)
+estim_prevalence = model.predict(dataset.test.X)
 ```
 
 ## Confidence Regions for Class Prevalence Estimation
 
-_(New in v0.1.10!)_ Some quantification methods go beyond providing a single point estimate of class prevalence values and also produce confidence regions, which characterize the uncertainty around the point estimate. In QuaPy, two such methods are currently implemented:
+_(New in v0.2.0!)_ Some quantification methods go beyond providing a single point estimate of class prevalence values and also produce confidence regions, which characterize the uncertainty around the point estimate. In QuaPy, two such methods are currently implemented:
 
 * Aggregative Bootstrap: The Aggregative Bootstrap method extends any aggregative quantifier by generating confidence regions for class prevalence estimates through bootstrapping. Key features of this method include:
 
@@ -592,9 +610,9 @@ _(New in v0.1.10!)_ Some quantification methods go beyond providing a single poi
 During training, bootstrap repetitions are performed only after training the classifier once. These repetitions are used to train multiple aggregation functions.
 During inference, bootstrap is applied over pre-classified test instances.
   * General Applicability: Aggregative Bootstrap can be applied to any aggregative quantifier.
-  For further information, check the [example](https://github.com/HLT-ISTI/QuaPy/tree/master/examples) provided.
+  For further information, check the [example](https://github.com/HLT-ISTI/QuaPy/tree/master/examples/16.confidence_regions.py) provided.
 
-* BayesianCC: is a Bayesian variant of the Adjusted Classify & Count (ACC) quantifier (see more details in [Aggregative Quantifiers](#bayesiancc)).
+* BayesianCC: is a Bayesian variant of the Adjusted Classify & Count (ACC) quantifier; see more details in the [example](https://github.com/HLT-ISTI/QuaPy/tree/master/examples/14.bayesian_quantification.py) provided.
 
 Confidence regions are constructed around a point estimate, which is typically computed as the mean value of a set of samples.
 The confidence region can be instantiated in three ways:

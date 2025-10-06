@@ -114,7 +114,8 @@ def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle
     """
     Loads a Reviews dataset as a Dataset instance, as used in
     `Esuli, A., Moreo, A., and Sebastiani, F. "A recurrent neural network for sentiment quantification."
-    Proceedings of the 27th ACM International Conference on Information and Knowledge Management. 2018. <https://dl.acm.org/doi/abs/10.1145/3269206.3269287>`_.
+    Proceedings of the 27th ACM International Conference on Information and Knowledge Management. 2018.
+    <https://dl.acm.org/doi/abs/10.1145/3269206.3269287>`_.
     The list of valid dataset names can be accessed in `quapy.data.datasets.REVIEWS_SENTIMENT_DATASETS`
 
     :param dataset_name: the name of the dataset: valid ones are 'hp', 'kindle', 'imdb'
@@ -548,25 +549,20 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, standardize=
         """
         if name == "acute.a":
             X, y = data["X"], data["y"][:, 0]
-            # X, y = Xy[:, :-2], Xy[:, -2]
         elif name == "acute.b":
             X, y = data["X"], data["y"][:, 1]
-            # X, y = Xy[:, :-2], Xy[:, -1]
         elif name == "wine-q-red":
             X, y, color = data["X"], data["y"], data["color"]
-            # X, y, color = Xy[:, :-2], Xy[:, -2], Xy[:, -1]
             red_idx = color == "red"
             X, y = X[red_idx, :], y[red_idx]
             y = (y > 5).astype(int)
         elif name == "wine-q-white":
             X, y, color = data["X"], data["y"], data["color"]
-            # X, y, color = Xy[:, :-2], Xy[:, -2], Xy[:, -1]
             white_idx = color == "white"
             X, y = X[white_idx, :], y[white_idx]
             y = (y > 5).astype(int)
         else:
             X, y = data["X"], data["y"]
-            # X, y = Xy[:, :-1], Xy[:, -1]
 
         y = binarize(y, pos_class=pos_class[name])
 
@@ -797,7 +793,7 @@ def _array_replace(arr, repl={"yes": 1, "no": 0}):
 
 def fetch_lequa2022(task, data_home=None):
     """
-    Loads the official datasets provided for the `LeQua <https://lequa2022.github.io/index>`_ competition.
+    Loads the official datasets provided for the `LeQua 2022 <https://lequa2022.github.io/index>`_ competition.
     In brief, there are 4 tasks (T1A, T1B, T2A, T2B) having to do with text quantification
     problems. Tasks T1A and T1B provide documents in vector form, while T2A and T2B provide raw documents instead.
     Tasks T1A and T2A are binary sentiment quantification problems, while T2A and T2B are multiclass quantification
@@ -817,7 +813,7 @@ def fetch_lequa2022(task, data_home=None):
         ~/quay_data/ directory)
     :return: a tuple `(train, val_gen, test_gen)` where `train` is an instance of
         :class:`quapy.data.base.LabelledCollection`, `val_gen` and `test_gen` are instances of
-        :class:`quapy.data._lequa2022.SamplesFromDir`, a subclass of :class:`quapy.protocol.AbstractProtocol`,
+        :class:`quapy.data._lequa.SamplesFromDir`, a subclass of :class:`quapy.protocol.AbstractProtocol`,
         that return a series of samples stored in a directory which are labelled by prevalence.
     """
 
@@ -839,7 +835,9 @@ def fetch_lequa2022(task, data_home=None):
         tmp_path = join(lequa_dir, task + '_tmp.zip')
         download_file_if_not_exists(url, tmp_path)
         with zipfile.ZipFile(tmp_path) as file:
+            print(f'Unzipping {tmp_path}...', end='')
             file.extractall(unzipped_path)
+            print(f'[done]')
         os.remove(tmp_path)
 
     if not os.path.exists(join(lequa_dir, task)):
@@ -867,6 +865,35 @@ def fetch_lequa2022(task, data_home=None):
 
 
 def fetch_lequa2024(task, data_home=None, merge_T3=False):
+    """
+    Loads the official datasets provided for the `LeQua 2024 <https://lequa2024.github.io/index>`_ competition.
+    LeQua 2024 defines four tasks (T1, T2, T3, T4) related to the problem of quantification;
+    all tasks are affected by some type of dataset shift. Tasks T1 and T2 are akin to tasks T1A and T1B of LeQua 2022,
+    while T3 and T4 are new tasks introduced in LeQua 2024.
+
+    - Task T1 evaluates binary quantifiers under prior probability shift (akin to T1A of LeQua 2022).
+    - Task T2 evaluates single-label multi-class quantifiers (for n > 2 classes) under prior probability shift (akin to T1B of LeQua 2022).
+    - Task T3 evaluates ordinal quantifiers, where the classes are totally ordered.
+    - Task T4 also evaluates binary quantifiers, but under some mix of covariate shift and prior probability shift.
+
+    For a broader discussion, we refer to the `online official documentation <https://lequa2024.github.io/tasks/>`_
+
+    The datasets are downloaded only once, and stored locally for future reuse.
+
+    See `4b.lequa2024_experiments.py` provided in the example folder, which can serve as a guide on how to use these
+    datasets.
+
+    :param task: a string representing the task name; valid ones are T1, T2, T3, and T4
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quapy_data/ directory)
+    :param merge_T3: bool, if False (default), returns a generator of training collections, corresponding to natural
+        groups of reviews; if True, returns one single :class:`quapy.data.base.LabelledCollection` representing the
+        entire training set, as a concatenation of all the training collections
+    :return: a tuple `(train, val_gen, test_gen)` where `train` is an instance of
+        :class:`quapy.data.base.LabelledCollection`, `val_gen` and `test_gen` are instances of
+        :class:`quapy.data._lequa.SamplesFromDir`, a subclass of :class:`quapy.protocol.AbstractProtocol`,
+        that return a series of samples stored in a directory which are labelled by prevalence.
+    """
 
     from quapy.data._lequa import load_vector_documents_2024, SamplesFromDir, LabelledCollectionsFromDir
 
@@ -909,11 +936,7 @@ def fetch_lequa2024(task, data_home=None, merge_T3=False):
     test_true_prev_path = join(lequa_dir, task, 'public', 'test_prevalences.txt')
     test_gen = SamplesFromDir(test_samples_path, test_true_prev_path, load_fn=load_fn)
 
-    if task != 'T3':
-        tr_path = join(lequa_dir, task, 'public', 'training_data.txt')
-        train = LabelledCollection.load(tr_path, loader_func=load_fn)
-        return train, val_gen, test_gen
-    else:
+    if task == 'T3':
         training_samples_path = join(lequa_dir, task, 'public', 'training_samples')
         training_true_prev_path = join(lequa_dir, task, 'public', 'training_prevalences.txt')
         train_gen = LabelledCollectionsFromDir(training_samples_path, training_true_prev_path, load_fn=load_fn)
@@ -922,7 +945,10 @@ def fetch_lequa2024(task, data_home=None, merge_T3=False):
             return train, val_gen, test_gen
         else:
             return train_gen, val_gen, test_gen
-
+    else:
+        tr_path = join(lequa_dir, task, 'public', 'training_data.txt')
+        train = LabelledCollection.load(tr_path, loader_func=load_fn)
+        return train, val_gen, test_gen
 
 
 def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=None):

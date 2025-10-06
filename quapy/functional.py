@@ -8,6 +8,29 @@ import numpy as np
 
 
 # ------------------------------------------------------------------------------------------
+# General utils
+# ------------------------------------------------------------------------------------------
+
+def classes_from_labels(labels):
+    """
+    Obtains a np.ndarray with the (sorted) classes
+    :param labels: array-like with the instances' labels
+    :return: a sorted np.ndarray with the class labels
+    """
+    classes = np.unique(labels)
+    classes.sort()
+    return classes
+
+
+def num_classes_from_labels(labels):
+    """
+    Obtains the number of classes from an array-like of instance's labels
+    :param labels: array-like with the instances' labels
+    :return: int, the number of classes
+    """
+    return len(classes_from_labels(labels))
+
+# ------------------------------------------------------------------------------------------
 # Counter utils
 # ------------------------------------------------------------------------------------------
 

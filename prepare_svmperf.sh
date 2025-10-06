@@ -11,13 +11,5 @@ rm $FILE
 patch -s -p0 < svm-perf-quantification-ext.patch
 mv svm_perf svm_perf_quantification
 cd svm_perf_quantification
-make
-
-
-
-
-
-
-
-
+make CFLAGS="-O3 -Wall -Wno-unused-result -fcommon"
 

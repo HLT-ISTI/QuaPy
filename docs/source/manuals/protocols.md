@@ -1,7 +1,5 @@
 # Protocols
 
-_New in v0.1.7!_
-
 Quantification methods are expected to behave robustly in the presence of 
 shift. For this reason, quantification methods need to be confronted with
 samples exhibiting widely varying amounts of shift. 
@@ -106,15 +104,16 @@ train, test = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=5).train_test
 
 # model selection
 train, val = train.split_stratified(train_prop=0.75)
+Xtr, ytr = train.Xy
 quantifier = qp.model_selection.GridSearchQ(
     quantifier, 
     param_grid={'classifier__C': np.logspace(-2, 2, 5)}, 
     protocol=APP(val)  # <- this is the protocol we use for generating validation samples
-).fit(train)
+).fit(Xtr, ytr)
 
 # default values are n_prevalences=21, repeats=10, random_state=0; this is equialent to:
 # val_app = APP(val, n_prevalences=21, repeats=10, random_state=0)
-# quantifier = GridSearchQ(quantifier, param_grid, protocol=val_app).fit(train)
+# quantifier = GridSearchQ(quantifier, param_grid, protocol=val_app).fit(Xtr, ytr)
 
 # evaluation with APP
 mae = qp.evaluation.evaluate(quantifier, protocol=APP(test), error_metric='mae')
