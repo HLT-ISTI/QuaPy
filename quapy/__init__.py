@@ -13,7 +13,7 @@ from . import model_selection
 from . import classification
 import os
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 
 def _default_cls():

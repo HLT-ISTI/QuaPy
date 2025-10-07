@@ -1,7 +1,10 @@
-Change Log 0.2.0
+Change Log 0.2.1
 -----------------
 
-CLEAN TODO-FILE
+...
+
+Change Log 0.2.0
+-----------------
 
 - Base code Refactor:
     - Removing coupling between LabelledCollection and quantification methods; the fit interface changes:
