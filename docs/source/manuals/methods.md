@@ -604,7 +604,10 @@ estim_prevalence = model.predict(dataset.test.X)
 
 _(New in v0.2.0!)_ Some quantification methods go beyond providing a single point estimate of class prevalence values and also produce confidence regions, which characterize the uncertainty around the point estimate. In QuaPy, two such methods are currently implemented:
 
-* Aggregative Bootstrap: The Aggregative Bootstrap method extends any aggregative quantifier by generating confidence regions for class prevalence estimates through bootstrapping. Key features of this method include:
+* Aggregative Bootstrap: The Aggregative Bootstrap method extends any aggregative quantifier by generating confidence regions for class prevalence estimates through bootstrapping. The method is described in the paper [Moreo, A., Salvati, N.
+    An Efficient Method for Deriving Confidence Intervals in Aggregative Quantification.
+    Learning to Quantify: Methods and Applications (LQ 2025), co-located at ECML-PKDD 2025.
+    pp 12-33, Porto (Portugal)](https://lq-2025.github.io/proceedings/CompleteVolume.pdf). Key features of this method include:
 
     * Optimized Computation: The bootstrap is applied to pre-classified instances, significantly speeding up training and inference.
 During training, bootstrap repetitions are performed only after training the classifier once. These repetitions are used to train multiple aggregation functions.

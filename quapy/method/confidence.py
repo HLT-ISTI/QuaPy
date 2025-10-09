@@ -339,6 +339,12 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
 
     During inference, the bootstrap repetitions are applied to the pre-classified test instances.
 
+    See
+    `Moreo, A., Salvati, N.
+    An Efficient Method for Deriving Confidence Intervals in Aggregative Quantification.
+    Learning to Quantify: Methods and Applications (LQ 2025), co-located at ECML-PKDD 2025.
+    pp 12-33 <https://lq-2025.github.io/proceedings/CompleteVolume.pdf>`_
+
     :param quantifier: an aggregative quantifier
     :para n_train_samples: int, the number of training resamplings (defaults to 1, set to > 1 to activate a
         model-based bootstrap approach)
@@ -437,7 +443,7 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
 
 class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
     """
-    `Bayesian quantification <https://arxiv.org/abs/2302.09159>`_ method,
+    `Bayesian quantification <https://arxiv.org/abs/2302.09159>`_ method (by Albert Ziegler and Paweł Czyż),
     which is a variant of :class:`ACC` that calculates the posterior probability distribution
     over the prevalence vectors, rather than providing a point estimate obtained
     by matrix inversion.
