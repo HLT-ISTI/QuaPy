@@ -60,6 +60,14 @@ quapy.method.composable module
    :undoc-members:
    :show-inheritance:
 
+quapy.method.confidence module
+------------------------------
+
+.. automodule:: quapy.method.confidence
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
