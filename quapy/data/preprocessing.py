@@ -10,6 +10,36 @@ from quapy.util import map_parallel
 from .base import LabelledCollection
 
 
+def instance_transformation(dataset:Dataset, transformer, inplace=False):
+    """
+    Transforms a :class:`quapy.data.base.Dataset` applying the `fit_transform` and `transform` functions
+    of a (sklearn's) transformer.
+
+    :param dataset: a :class:`quapy.data.base.Dataset` where the instances of training and test collections are
+        lists of str
+    :param transformer: TransformerMixin implementing `fit_transform` and `transform` functions
+    :param inplace: whether or not to apply the transformation inplace (True), or to a new copy (False, default)
+    :return: a new :class:`quapy.data.base.Dataset` with transformed instances (if inplace=False) or a reference to the
+        current Dataset (if inplace=True) where the instances have been transformed
+    """
+    training_transformed = transformer.fit_transform(dataset.training.instances)
+    test_transformed = transformer.transform(dataset.test.instances)
+
+    if inplace:
+        dataset.training = LabelledCollection(training_transformed, dataset.training.labels, dataset.classes_)
+        dataset.test = LabelledCollection(test_transformed, dataset.test.labels, dataset.classes_)
+        if hasattr(transformer, 'vocabulary_'):
+            dataset.vocabulary = transformer.vocabulary_
+        return dataset
+    else:
+        training = LabelledCollection(training_transformed, dataset.training.labels.copy(), dataset.classes_)
+        test = LabelledCollection(test_transformed, dataset.test.labels.copy(), dataset.classes_)
+        if hasattr(transformer, 'vocabulary_'):
+            return Dataset(training, test, transformer.vocabulary_)
+        else:
+            return Dataset(training, test)
+
+
 def text2tfidf(dataset:Dataset, min_df=3, sublinear_tf=True, inplace=False, **kwargs):
     """
     Transforms a :class:`quapy.data.base.Dataset` of textual instances into a :class:`quapy.data.base.Dataset` of
@@ -29,18 +59,7 @@ def text2tfidf(dataset:Dataset, min_df=3, sublinear_tf=True, inplace=False, **kw
     __check_type(dataset.test.instances, np.ndarray, str)
 
     vectorizer = TfidfVectorizer(min_df=min_df, sublinear_tf=sublinear_tf, **kwargs)
-    training_documents = vectorizer.fit_transform(dataset.training.instances)
-    test_documents = vectorizer.transform(dataset.test.instances)
-
-    if inplace:
-        dataset.training = LabelledCollection(training_documents, dataset.training.labels, dataset.classes_)
-        dataset.test = LabelledCollection(test_documents, dataset.test.labels, dataset.classes_)
-        dataset.vocabulary = vectorizer.vocabulary_
-        return dataset
-    else:
-        training = LabelledCollection(training_documents, dataset.training.labels.copy(), dataset.classes_)
-        test = LabelledCollection(test_documents, dataset.test.labels.copy(), dataset.classes_)
-        return Dataset(training, test, vectorizer.vocabulary_)
+    return instance_transformation(dataset, vectorizer, inplace)
 
 
 def reduce_columns(dataset: Dataset, min_df=5, inplace=False):

@@ -88,17 +88,29 @@ class WithConfidenceABC(ABC):
     METHODS = ['intervals', 'ellipse', 'ellipse-clr']
 
     @abstractmethod
-    def quantify_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
+    def predict_conf(self, instances, confidence_level=0.95) -> (np.ndarray, ConfidenceRegionABC):
         """
-        Adds the method `quantify_conf` to the interface. This method returns not only the point-estimate, but
+        Adds the method `predict_conf` to the interface. This method returns not only the point-estimate, but
         also the confidence region around it.
 
         :param instances: a np.ndarray of shape (n_instances, n_features,)
-        :confidence_level: float in (0, 1)
+        :param confidence_level: float in (0, 1), default is 0.95
         :return: a tuple (`point_estimate`, `conf_region`), where `point_estimate` is a np.ndarray of shape
             (n_classes,) and  `conf_region` is an object from :class:`ConfidenceRegionABC`
         """
         ...
+
+    def quantify_conf(self, instances, confidence_level=0.95) -> (np.ndarray, ConfidenceRegionABC):
+        """
+        Alias to `predict_conf`. This method returns not only the point-estimate, but
+        also the confidence region around it.
+
+        :param instances: a np.ndarray of shape (n_instances, n_features,)
+        :param confidence_level: float in (0, 1), default is 0.95
+        :return: a tuple (`point_estimate`, `conf_region`), where `point_estimate` is a np.ndarray of shape
+            (n_classes,) and  `conf_region` is an object from :class:`ConfidenceRegionABC`
+        """
+        return self.predict_conf(instances=instances, confidence_level=confidence_level)
 
     @classmethod
     def construct_region(cls, prev_estims, confidence_level=0.95, method='intervals'):
@@ -227,6 +239,7 @@ class ConfidenceEllipseCLR(ConfidenceRegionABC):
     """
 
     def __init__(self, X, confidence_level=0.95):
+        X = np.asarray(X)
         self.clr = CLRtransformation()
         Z = self.clr(X)
         self.mean_ = np.mean(X, axis=0)
@@ -296,6 +309,9 @@ class ConfidenceIntervals(ConfidenceRegionABC):
         proportion = within_all_intervals.mean()
 
         return proportion
+
+    def __repr__(self):
+        return '['+', '.join(f'({low:.4f}, {high:.4f})' for (low,high) in zip(self.I_low, self.I_high))+']'
 
 
 class CLRtransformation:
@@ -429,7 +445,7 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
         self.aggregation_fit(classif_predictions, labels)
         return self
 
-    def quantify_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
+    def predict_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
         predictions = self.quantifier.classify(instances)
         return self.aggregate_conf(predictions, confidence_level=confidence_level)
 
@@ -549,7 +565,7 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
         samples = self.sample_from_posterior(classif_predictions)[_bayesian.P_TEST_Y]
         return np.asarray(samples.mean(axis=0), dtype=float)
 
-    def quantify_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
+    def predict_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
         classif_predictions = self.classify(instances)
         point_estimate = self.aggregate(classif_predictions)
         samples = self.get_prevalence_samples()  # available after calling "aggregate" function

@@ -1,11 +1,14 @@
 from typing import Union, Callable
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.utils import resample
+from sklearn.preprocessing import normalize
 
+from method.confidence import WithConfidenceABC, ConfidenceRegionABC
 from quapy.functional import get_divergence
-from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier
 import quapy.functional as F
+from scipy.optimize import lsq_linear
 
 
 class MaximumLikelihoodPrevalenceEstimation(BaseQuantifier):
@@ -149,53 +152,89 @@ class DMx(BaseQuantifier):
         return F.argmin_prevalence(loss, n_classes, method=self.search)
 
 
-# class ReadMe(BaseQuantifier):
-#
-#     def __init__(self, bootstrap_trials=100, bootstrap_range=100, bagging_trials=100, bagging_range=25, **vectorizer_kwargs):
-#         raise NotImplementedError('under development ...')
-#         self.bootstrap_trials = bootstrap_trials
-#         self.bootstrap_range = bootstrap_range
-#         self.bagging_trials = bagging_trials
-#         self.bagging_range = bagging_range
-#         self.vectorizer_kwargs = vectorizer_kwargs
-#
-#     def fit(self, data: LabelledCollection):
-#         X, y = data.Xy
-#         self.vectorizer = CountVectorizer(binary=True, **self.vectorizer_kwargs)
-#         X = self.vectorizer.fit_transform(X)
-#         self.class_conditional_X = {i: X[y==i] for i in range(data.classes_)}
-#
-#     def predict(self, X):
-#         X = self.vectorizer.transform(X)
-#
-#         # number of features
-#         num_docs, num_feats = X.shape
-#
-#         # bootstrap
-#         p_boots = []
-#         for _ in range(self.bootstrap_trials):
-#             docs_idx = np.random.choice(num_docs, size=self.bootstra_range, replace=False)
-#             class_conditional_X = {i: X[docs_idx] for i, X in self.class_conditional_X.items()}
-#             Xboot = X[docs_idx]
-#
-#             # bagging
-#             p_bags = []
-#             for _ in range(self.bagging_trials):
-#                 feat_idx = np.random.choice(num_feats, size=self.bagging_range, replace=False)
-#                 class_conditional_Xbag = {i: X[:, feat_idx] for i, X in class_conditional_X.items()}
-#                 Xbag = Xboot[:,feat_idx]
-#                 p = self.std_constrained_linear_ls(Xbag, class_conditional_Xbag)
-#                 p_bags.append(p)
-#             p_boots.append(np.mean(p_bags, axis=0))
-#
-#         p_mean = np.mean(p_boots, axis=0)
-#         p_std  = np.std(p_bags, axis=0)
-#
-#         return p_mean
-#
-#
-#     def std_constrained_linear_ls(self, X, class_cond_X: dict):
-#         pass
+class ReadMe(BaseQuantifier, WithConfidenceABC):
+
+    def __init__(self,
+                 bootstrap_trials=100,
+                 bagging_trials=100,
+                 bagging_range=250,
+                 confidence_level=0.95,
+                 region='intervals',
+                 random_state=None,
+                 verbose=False):
+        self.bootstrap_trials = bootstrap_trials
+        self.bagging_trials = bagging_trials
+        self.bagging_range = bagging_range
+        self.confidence_level = confidence_level
+        self.region = region
+        self.random_state = random_state
+        self.verbose = verbose
+
+    def fit(self, X, y):
+        self.rng = np.random.default_rng(self.random_state)
+        self.classes_ = np.unique(y)
+        n_features = X.shape[1]
+
+        if self.bagging_range is None:
+            self.bagging_range = int(np.sqrt(n_features))
+
+        Xsize = X.shape[0]
+
+        # Bootstrap loop
+        self.Xboots, self.yboots = [], []
+        for _ in range(self.bootstrap_trials):
+            idx = self.rng.choice(Xsize, size=Xsize, replace=True)
+            self.Xboots.append(X[idx])
+            self.yboots.append(y[idx])
+
+        return self
+
+    def predict_conf(self, X, confidence_level=0.95) -> (np.ndarray, ConfidenceRegionABC):
+        from tqdm import tqdm
+        n_features = X.shape[1]
+
+        boots_prevalences = []
+
+        for Xboots, yboots in tqdm(
+                zip(self.Xboots, self.yboots),
+                desc='bootstrap predictions', total=self.bootstrap_trials, disable=not self.verbose
+        ):
+            bagging_estimates = []
+            for _ in range(self.bagging_trials):
+                feat_idx = self.rng.choice(n_features, size=self.bagging_range, replace=False)
+                Xboots_bagging = Xboots[:, feat_idx]
+                X_boots_bagging = X[:, feat_idx]
+                bagging_prev = self._quantify_iteration(Xboots_bagging, yboots, X_boots_bagging)
+                bagging_estimates.append(bagging_prev)
+
+            boots_prevalences.append(np.mean(bagging_estimates, axis=0))
+
+        conf = WithConfidenceABC.construct_region(boots_prevalences, confidence_level, method=self.region)
+        prev_estim = conf.point_estimate()
+
+        return prev_estim, conf
+
+
+    def predict(self, X):
+        prev_estim, _ = self.predict_conf(X)
+        return prev_estim
+
+
+    def _quantify_iteration(self, Xtr, ytr, Xte):
+        """Single ReadMe estimate."""
+        n_classes = len(self.classes_)
+        PX_given_Y = np.zeros((n_classes, Xtr.shape[1]))
+        for i, c in enumerate(self.classes_):
+            PX_given_Y[i] = Xtr[ytr == c].sum(axis=0)
+        PX_given_Y = normalize(PX_given_Y, norm='l1', axis=1)
+
+        PX = np.asarray(Xte.sum(axis=0))
+        PX = normalize(PX, norm='l1', axis=1)
+
+        res = lsq_linear(A=PX_given_Y.T, b=PX.ravel(), bounds=(0, 1))
+        pY = np.maximum(res.x, 0)
+        return pY / pY.sum()
+
 
 
 def _get_features_range(X):
