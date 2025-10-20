@@ -153,6 +153,30 @@ class DMx(BaseQuantifier):
 
 
 class ReadMe(BaseQuantifier, WithConfidenceABC):
+    """
+    ReadMe is a non-aggregative quantification system proposed by
+    `Daniel Hopkins and Gary King, 2007. A method of automated nonparametric content analysis for
+    social science. American Journal of Political Science, 54(1):229–247.
+    <https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-5907.2009.00428.x>`_.
+    The idea is to estimate `Q(Y=i)` directly from:
+
+    :math:`Q(X)=\\sum_{i=1} Q(X|Y=i) Q(Y=i)`
+
+    via least-squares regression, i.e., without incurring the cost of computing posterior probabilities.
+    However, this poses a very difficult representation in which the vector `Q(X)` and the matrix `Q(X|Y=i)`
+    can be of very high dimensions. In order to render the problem tracktable, ReadMe performs bagging in
+    the feature space. ReadMe also combines bagging with bootstrap in order to derive confidence intervals
+    around point estimations.
+
+    :param bootstrap_trials: int, number of bootstrap trials (default 100)
+    :param bagging_trials: int, number of bagging trials (default 100)
+    :param bagging_range: int, number of features to keep for each bagging trial (default 250)
+    :param confidence_level: float, a value in (0,1) reflecting the desired confidence level (default 0.95)
+    :param region: str in 'intervals', 'ellipse', 'ellipse-clr'; indicates the preferred method for
+        defining the confidence region (see :class:`WithConfidenceABC`)
+    :param random_state: int or None, allows replicability (default None)
+    :param verbose: bool, whether to display information during the process (default False)
+    """
 
     def __init__(self,
                  bootstrap_trials=100,

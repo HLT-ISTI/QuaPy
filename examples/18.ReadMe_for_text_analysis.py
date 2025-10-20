@@ -16,8 +16,8 @@ for test_prev in [[0.25, 0.75], [0.5, 0.5], [0.75, 0.25]]:
     prev_estim, conf = readme.predict_conf(sample.X)
     err = qp.error.mae(sample.prevalence(), prev_estim)
     print(f'true-prevalence={F.strprev(sample.prevalence())},\n'
-          f'predicted-prevalence={F.strprev(prev_estim)},\n'
+          f'predicted-prevalence={F.strprev(prev_estim)}, with confidence intervals {conf},\n'
           f'MAE={err:.4f}')
-    print(conf)
+
 
 
