@@ -22,8 +22,8 @@ def instance_transformation(dataset:Dataset, transformer, inplace=False):
     :return: a new :class:`quapy.data.base.Dataset` with transformed instances (if inplace=False) or a reference to the
         current Dataset (if inplace=True) where the instances have been transformed
     """
-    training_transformed = transformer.fit_transform(dataset.training.instances)
-    test_transformed = transformer.transform(dataset.test.instances)
+    training_transformed = transformer.fit_transform(*dataset.training.Xy)
+    test_transformed = transformer.transform(dataset.test.X)
 
     if inplace:
         dataset.training = LabelledCollection(training_transformed, dataset.training.labels, dataset.classes_)
