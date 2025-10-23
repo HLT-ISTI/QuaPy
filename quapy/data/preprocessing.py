@@ -24,6 +24,7 @@ def instance_transformation(dataset:Dataset, transformer, inplace=False):
     """
     training_transformed = transformer.fit_transform(*dataset.training.Xy)
     test_transformed = transformer.transform(dataset.test.X)
+    orig_name = dataset.name
 
     if inplace:
         dataset.training = LabelledCollection(training_transformed, dataset.training.labels, dataset.classes_)
@@ -34,10 +35,10 @@ def instance_transformation(dataset:Dataset, transformer, inplace=False):
     else:
         training = LabelledCollection(training_transformed, dataset.training.labels.copy(), dataset.classes_)
         test = LabelledCollection(test_transformed, dataset.test.labels.copy(), dataset.classes_)
+        vocab = None
         if hasattr(transformer, 'vocabulary_'):
-            return Dataset(training, test, transformer.vocabulary_)
-        else:
-            return Dataset(training, test)
+            vocab = transformer.vocabulary_
+        return Dataset(training, test, vocabulary=vocab, name=orig_name)
 
 
 def text2tfidf(dataset:Dataset, min_df=3, sublinear_tf=True, inplace=False, **kwargs):
