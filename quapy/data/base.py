@@ -33,7 +33,6 @@ class LabelledCollection:
         else:
             self.instances = np.asarray(instances)
         self.labels = np.asarray(labels)
-        n_docs = len(self)
         if classes is None:
             self.classes_ = F.classes_from_labels(self.labels)
         else:
@@ -41,7 +40,13 @@ class LabelledCollection:
             self.classes_.sort()
             if len(set(self.labels).difference(set(classes))) > 0:
                 raise ValueError(f'labels ({set(self.labels)}) contain values not included in classes_ ({set(classes)})')
-        self.index = {class_: np.arange(n_docs)[self.labels == class_] for class_ in self.classes_}
+        self._index = None
+
+    @property
+    def index(self):
+        if self._index is None:
+            self._index = {class_: np.arange(len(self))[self.labels == class_] for class_ in self.classes_}
+        return self._index
 
     @classmethod
     def load(cls, path: str, loader_func: callable, classes=None, **loader_kwargs):

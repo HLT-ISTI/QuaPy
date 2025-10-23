@@ -3,6 +3,7 @@ Change Log 0.2.1
 
 - Improved documentation of confidence regions.
 - Added ReadMe method by Daniel Hopkins and Gary King
+- Internal index in LabelledCollection is now "lazy", and is only constructed if required.
 
 Change Log 0.2.0
 -----------------

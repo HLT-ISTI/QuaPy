@@ -7,7 +7,7 @@ import numpy as np
 
 from experimental_non_aggregative.custom_vectorizers import *
 from protocol import APP
-from quapy.method.aggregative import _get_divergence, HDy, DistributionMatching
+from quapy.method.aggregative import HDy, DistributionMatchingY
 from quapy.method.base import BaseQuantifier
 from scipy import optimize
 import pandas as pd
@@ -30,28 +30,30 @@ class DxS(BaseQuantifier):
     #     return np.asarray(instances.sum(axis=0) / instances.sum()).flatten()
 
     def __as_distribution(self, instances):
-        dist = instances.sum(axis=0) / instances.sum()
+        dist = instances.mean(axis=0)
         return np.asarray(dist).flatten()
 
-    def fit(self, data: LabelledCollection):
+    def fit(self, text_instances, labels):
 
-        text_instances, labels = data.Xy
+        classes = np.unique(labels)
 
         if self.vectorizer is not None:
             text_instances = self.vectorizer.fit_transform(text_instances, y=labels)
 
         distributions = []
-        for class_i in data.classes_:
+        for class_i in classes:
             distributions.append(self.__as_distribution(text_instances[labels == class_i]))
+
         self.validation_distribution = np.asarray(distributions)
+
         return self
 
-    def quantify(self, text_instances):
+    def predict(self, text_instances):
         if self.vectorizer is not None:
             text_instances = self.vectorizer.transform(text_instances)
 
         test_distribution = self.__as_distribution(text_instances)
-        divergence = _get_divergence(self.divergence)
+        divergence = qp.functional.get_divergence(self.divergence)
         n_classes, n_feats = self.validation_distribution.shape
 
         def match(prev):
@@ -121,10 +123,10 @@ if __name__ == '__main__':
             hdy = HDy(LogisticRegression())
             yield data, hdy, 'HDy'
 
-            dm = DistributionMatching(LogisticRegression(), divergence=div, nbins=5)
+            dm = DistributionMatchingY(LogisticRegression(), divergence=div, nbins=5)
             yield data, dm, 'DM-5b'
 
-            dm = DistributionMatching(LogisticRegression(), divergence=div, nbins=10)
+            dm = DistributionMatchingY(LogisticRegression(), divergence=div, nbins=10)
             yield data, dm, 'DM-10b'
 
 
@@ -132,9 +134,9 @@ if __name__ == '__main__':
     with open(result_path, 'wt') as csv:
         csv.write(f'Method\tDataset\tMAE\tMRAE\n')
         for data, quantifier, quant_name in gen_methods():
-            quantifier.fit(data.training)
+            quantifier.fit(*data.training.Xy)
             report = qp.evaluation.evaluation_report(quantifier, APP(data.test, repeats=repeats), error_metrics=['mae','mrae'], verbose=True)
-            means = report.mean()
+            means = report.mean(numeric_only=True)
             csv.write(f'{quant_name}\t{data.name}\t{means["mae"]:.5f}\t{means["mrae"]:.5f}\n')
 
     df = pd.read_csv(result_path, sep='\t')
