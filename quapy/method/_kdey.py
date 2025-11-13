@@ -134,7 +134,8 @@ class KDEyML(AggregativeSoftQuantifier, KDEBase):
             test_densities = [self.pdf(kde_i, posteriors) for kde_i in self.mix_densities]
 
             def neg_loglikelihood(prev):
-                test_mixture_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, test_densities))
+                # test_mixture_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, test_densities))
+                test_mixture_likelihood = prev @ test_densities
                 test_loglikelihood = np.log(test_mixture_likelihood + epsilon)
                 return  -np.sum(test_loglikelihood)
 
