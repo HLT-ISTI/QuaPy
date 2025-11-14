@@ -29,6 +29,7 @@ AGGREGATIVE_METHODS = {
     aggregative.KDEyHD,
     # aggregative.OneVsAllAggregative,
     confidence.BayesianCC,
+    confidence.PQ,
 }
 
 BINARY_METHODS = {
@@ -40,6 +41,7 @@ BINARY_METHODS = {
     aggregative.MAX,
     aggregative.MS,
     aggregative.MS2,
+    confidence.PQ,
 }
 
 MULTICLASS_METHODS = {
