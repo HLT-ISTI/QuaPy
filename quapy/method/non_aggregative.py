@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.utils import resample
 from sklearn.preprocessing import normalize
 
-from method.confidence import WithConfidenceABC, ConfidenceRegionABC
+from quapy.method.confidence import WithConfidenceABC, ConfidenceRegionABC
 from quapy.functional import get_divergence
 from quapy.method.base import BaseQuantifier, BinaryQuantifier
 import quapy.functional as F
