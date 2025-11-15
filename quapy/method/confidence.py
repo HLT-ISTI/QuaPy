@@ -13,6 +13,7 @@ from abc import ABC, abstractmethod
 from scipy.special import softmax, factorial
 import copy
 from functools import lru_cache
+from pathlib import Path
 
 """
 This module provides implementation of different types of confidence regions, and the implementation of Bootstrap
@@ -613,7 +614,7 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         if num_samples <= 0:
             raise ValueError(f'parameter {num_samples=} must be a positive integer')
 
-        if _bayesian.DEPENDENCIES_INSTALLED is False:
+        if not _bayesian.DEPENDENCIES_INSTALLED:
             raise ImportError("Auxiliary dependencies are required. "
                               "Run `$ pip install quapy[bayes]` to install them.")
 
@@ -624,7 +625,9 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         self.num_samples = num_samples
         self.region = region
         self.stan_seed = stan_seed
-        with open('quapy/method/stan/pq.stan', 'r') as f:
+        # with open('quapy/method/stan/pq.stan', 'r') as f:
+        stan_path = Path(__file__).resolve().parent / "stan" / "pq.stan"
+        with stan_path.open("r") as f:
             self.stan_code = str(f.read())
 
     def aggregation_fit(self, classif_predictions, labels):
@@ -649,24 +652,17 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         self.pos_hist = np.bincount(bin_indices[pos_mask], minlength=self.n_bins)
         self.neg_hist = np.bincount(bin_indices[neg_mask], minlength=self.n_bins)
 
-
     def aggregate(self, classif_predictions):
         Px_test = classif_predictions[:, self.pos_label]
         test_hist, _ = np.histogram(Px_test, bins=self.bin_limits)
-        self.prev_distribution = _bayesian.pq_stan(self.stan_code, 
-                                                            self.n_bins, 
-                                                            self.pos_hist, 
-                                                            self.neg_hist, 
-                                                            test_hist, 
-                                                            self.num_samples, 
-                                                            self.num_warmup, 
-                                                            self.stan_seed)
+        self.prev_distribution = _bayesian.pq_stan(
+            self.stan_code, self.n_bins, self.pos_hist, self.neg_hist, test_hist,
+            self.num_samples, self.num_warmup, self.stan_seed
+        )
         return F.as_binary_prevalence(self.prev_distribution.mean())
-        
 
     def predict_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
-        classif_predictions = self.classify(instances)
-        point_estimate = self.aggregate(classif_predictions)
+        point_estimate = self.predict(instances)
         samples = self.prev_distribution
         region = WithConfidenceABC.construct_region(samples, confidence_level=confidence_level, method=self.region)
         return point_estimate, region

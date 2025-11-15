@@ -36,3 +36,4 @@ generated quantities {
   real<lower=0,upper=1> prev;
   prev = sum( binomial_rng(test, 1 / ( 1 + (p_neg./p_pos) *(1-prev_prior)/prev_prior ) ) ) / n_test;
 }
+
