@@ -624,8 +624,7 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         self.num_samples = num_samples
         self.region = region
         self.stan_seed = stan_seed
-        with open('quapy/method/stan/pq.stan', 'r') as f:
-            self.stan_code = str(f.read())
+        self.stan_code = _bayesian.load_stan_file()
 
     def aggregation_fit(self, classif_predictions, labels):
         y_pred = classif_predictions[:, self.pos_label]

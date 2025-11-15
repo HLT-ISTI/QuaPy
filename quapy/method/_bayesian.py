@@ -2,6 +2,7 @@
 Utility functions for `Bayesian quantification <https://arxiv.org/abs/2302.09159>`_ methods.
 """
 import numpy as np
+import importlib.resources
 
 try:
     import jax
@@ -81,6 +82,9 @@ def sample_posterior(
     return mcmc.get_samples()
 
 
+
+def load_stan_file():
+    return importlib.resources.files('quapy.method').joinpath('stan/pq.stan').read_text(encoding='utf-8')
 
 def pq_stan(stan_code, n_bins, pos_hist, neg_hist, test_hist, number_of_samples, num_warmup, stan_seed):
     """
