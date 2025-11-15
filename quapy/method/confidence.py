@@ -5,9 +5,8 @@ from sklearn.metrics import confusion_matrix
 import quapy as qp
 import quapy.functional as F
 from quapy.method import _bayesian
-from quapy.method.aggregative import AggregativeCrispQuantifier
 from quapy.data import LabelledCollection
-from quapy.method.aggregative import AggregativeQuantifier
+from quapy.method.aggregative import AggregativeQuantifier, AggregativeCrispQuantifier, AggregativeSoftQuantifier, BinaryAggregativeQuantifier
 from scipy.stats import chi2
 from sklearn.utils import resample
 from abc import ABC, abstractmethod
@@ -571,3 +570,104 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
         samples = self.get_prevalence_samples()  # available after calling "aggregate" function
         region = WithConfidenceABC.construct_region(samples, confidence_level=self.confidence_level, method=self.region)
         return point_estimate, region
+    
+
+class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
+    """
+    `Precise Quantifier: Bayesian distribution matching quantifier <https://arxiv.org/abs/2507.06061>,
+    which is a variant of :class:`HDy` that calculates the posterior probability distribution
+    over the prevalence vectors, rather than providing a point estimate.
+
+    This method relies on extra dependencies, which have to be installed via:
+    `$ pip install quapy[bayes]`
+
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+    :param val_split:  specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple `(X,y)` defining the specific set of data to use for validation. Set to
+        None when the method does not require any validation data, in order to avoid that some portion of
+        the training data be wasted.
+    :param num_warmup: number of warmup iterations for the STAN sampler (default 500)
+    :param num_samples: number of samples to draw from the posterior (default 1000)
+    :param stan_seed: random seed for the STAN sampler (default 0)
+    :param region: string, set to `intervals` for constructing confidence intervals (default), or to
+        `ellipse` for constructing an ellipse in the probability simplex, or to `ellipse-clr` for
+        constructing an ellipse in the Centered-Log Ratio (CLR) unconstrained space.
+    """
+    def __init__(self,
+                 classifier: BaseEstimator=None,
+                 fit_classifier=True,
+                 val_split: int = 5,
+                 n_bins: int = 4,
+                 fixed_bins: bool = False,
+                 num_warmup: int = 500,
+                 num_samples: int = 1_000,
+                 stan_seed: int = 0,
+                 region: str = 'intervals'):
+
+        if num_warmup <= 0:
+            raise ValueError(f'parameter {num_warmup=} must be a positive integer')
+        if num_samples <= 0:
+            raise ValueError(f'parameter {num_samples=} must be a positive integer')
+
+        if _bayesian.DEPENDENCIES_INSTALLED is False:
+            raise ImportError("Auxiliary dependencies are required. "
+                              "Run `$ pip install quapy[bayes]` to install them.")
+
+        super().__init__(classifier, fit_classifier, val_split)
+        self.n_bins = n_bins
+        self.fixed_bins = fixed_bins
+        self.num_warmup = num_warmup
+        self.num_samples = num_samples
+        self.region = region
+        self.stan_seed = stan_seed
+        with open('quapy/method/stan/pq.stan', 'r') as f:
+            self.stan_code = str(f.read())
+
+    def aggregation_fit(self, classif_predictions, labels):
+        y_pred = classif_predictions[:, self.pos_label]
+
+        # Compute bin limits
+        if self.fixed_bins:
+            # Uniform bins in [0,1]
+            self.bin_limits = np.linspace(0, 1, self.n_bins + 1)
+        else:
+            # Quantile bins
+            self.bin_limits = np.quantile(y_pred, np.linspace(0, 1, self.n_bins + 1))
+
+        # Assign each prediction to a bin
+        bin_indices = np.digitize(y_pred, self.bin_limits[1:-1], right=True)
+
+        # Positive and negative masks
+        pos_mask = (labels == self.pos_label)
+        neg_mask = ~pos_mask
+
+        # Count positives and negatives per bin
+        self.pos_hist = np.bincount(bin_indices[pos_mask], minlength=self.n_bins)
+        self.neg_hist = np.bincount(bin_indices[neg_mask], minlength=self.n_bins)
+
+
+    def aggregate(self, classif_predictions):
+        Px_test = classif_predictions[:, self.pos_label]
+        test_hist, _ = np.histogram(Px_test, bins=self.bin_limits)
+        self.prev_distribution = _bayesian.pq_stan(self.stan_code, 
+                                                            self.n_bins, 
+                                                            self.pos_hist, 
+                                                            self.neg_hist, 
+                                                            test_hist, 
+                                                            self.num_samples, 
+                                                            self.num_warmup, 
+                                                            self.stan_seed)
+        return F.as_binary_prevalence(self.prev_distribution.mean())
+        
+
+    def predict_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
+        classif_predictions = self.classify(instances)
+        point_estimate = self.aggregate(classif_predictions)
+        samples = self.prev_distribution
+        region = WithConfidenceABC.construct_region(samples, confidence_level=confidence_level, method=self.region)
+        return point_estimate, region
+
