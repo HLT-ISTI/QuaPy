@@ -2,12 +2,14 @@
 Utility functions for `Bayesian quantification <https://arxiv.org/abs/2302.09159>`_ methods.
 """
 import numpy as np
+import importlib.resources
 
 try:
     import jax
     import jax.numpy as jnp
     import numpyro
     import numpyro.distributions as dist
+    import stan
 
     DEPENDENCIES_INSTALLED = True
 except ImportError:
@@ -15,6 +17,7 @@ except ImportError:
     jnp = None
     numpyro = None
     dist = None
+    stan = None
 
     DEPENDENCIES_INSTALLED = False
 
@@ -77,3 +80,56 @@ def sample_posterior(
     rng_key = jax.random.PRNGKey(seed)
     mcmc.run(rng_key, n_c_unlabeled=n_c_unlabeled, n_y_and_c_labeled=n_y_and_c_labeled)
     return mcmc.get_samples()
+
+
+
+def load_stan_file():
+    return importlib.resources.files('quapy.method').joinpath('stan/pq.stan').read_text(encoding='utf-8')
+
+def pq_stan(stan_code, n_bins, pos_hist, neg_hist, test_hist, number_of_samples, num_warmup, stan_seed):
+    """
+    Perform Bayesian prevalence estimation using a Stan model for probabilistic quantification.
+
+    This function builds and samples from a Stan model that implements a bin-based Bayesian
+    quantifier. It uses the class-conditional histograms of the classifier
+    outputs for positive and negative examples, along with the test histogram, to estimate
+    the posterior distribution of prevalence in the test set.
+
+    Parameters
+    ----------
+    stan_code : str
+        The Stan model code as a string. 
+    n_bins : int
+        Number of bins used to build the histograms for positive and negative examples.
+    pos_hist : array-like of shape (n_bins,)
+        Histogram counts of the classifier outputs for the positive class.
+    neg_hist : array-like of shape (n_bins,)
+        Histogram counts of the classifier outputs for the negative class.
+    test_hist : array-like of shape (n_bins,)
+        Histogram counts of the classifier outputs for the test set, binned using the same bins.
+    number_of_samples : int
+        Number of post-warmup samples to draw from the Stan posterior.
+    num_warmup : int
+        Number of warmup iterations for the sampler.
+    stan_seed : int
+        Random seed for Stan model compilation and sampling, ensuring reproducibility.
+
+    Returns
+    -------
+    prev_samples : numpy.ndarray
+        An array of posterior samples of the prevalence (`prev`) in the test set.
+        Each element corresponds to one draw from the posterior distribution.
+    """
+
+    stan_data = {
+            'n_bucket': n_bins,
+            'train_neg': neg_hist.tolist(),
+            'train_pos': pos_hist.tolist(),
+            'test': test_hist.tolist(),
+            'posterior': 1
+        }
+
+    stan_model = stan.build(stan_code, data=stan_data, random_seed=stan_seed)
+    fit = stan_model.sample(num_chains=1, num_samples=number_of_samples,num_warmup=num_warmup)
+
+    return fit['prev']
