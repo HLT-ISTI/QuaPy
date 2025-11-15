@@ -111,6 +111,12 @@ setup(
     #
     packages=find_packages(include=['quapy', 'quapy.*']),  # Required
 
+    package_data={
+        # For the 'quapy.method' package, include all files
+        # in the 'stan' subdirectory that end with .stan
+        'quapy.method': ['stan/*.stan']
+    },
+
     python_requires='>=3.8, <4',
 
     install_requires=['scikit-learn', 'pandas', 'tqdm', 'matplotlib', 'joblib', 'xlrd', 'abstention', 'ucimlrepo', 'certifi'],

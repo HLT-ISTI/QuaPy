@@ -13,7 +13,6 @@ from abc import ABC, abstractmethod
 from scipy.special import softmax, factorial
 import copy
 from functools import lru_cache
-from pathlib import Path
 
 """
 This module provides implementation of different types of confidence regions, and the implementation of Bootstrap
@@ -625,10 +624,7 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         self.num_samples = num_samples
         self.region = region
         self.stan_seed = stan_seed
-        # with open('quapy/method/stan/pq.stan', 'r') as f:
-        stan_path = Path(__file__).resolve().parent / "stan" / "pq.stan"
-        with stan_path.open("r") as f:
-            self.stan_code = str(f.read())
+        self.stan_code = _bayesian.load_stan_file()
 
     def aggregation_fit(self, classif_predictions, labels):
         y_pred = classif_predictions[:, self.pos_label]
@@ -662,7 +658,8 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         return F.as_binary_prevalence(self.prev_distribution.mean())
 
     def predict_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
-        point_estimate = self.predict(instances)
+        classif_predictions = self.classify(instances)
+        point_estimate = self.aggregate(classif_predictions)
         samples = self.prev_distribution
         region = WithConfidenceABC.construct_region(samples, confidence_level=confidence_level, method=self.region)
         return point_estimate, region
