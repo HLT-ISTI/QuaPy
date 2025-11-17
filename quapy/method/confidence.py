@@ -80,6 +80,12 @@ class ConfidenceRegionABC(ABC):
         proportion = np.clip(self.coverage(uniform_simplex), 0., 1.)
         return proportion
 
+    @property
+    @abstractmethod
+    def samples(self):
+        """ Returns internal samples """
+        ...
+
 
 class WithConfidenceABC(ABC):
     """
@@ -185,30 +191,35 @@ class ConfidenceEllipseSimplex(ConfidenceRegionABC):
     """
     Instantiates a Confidence Ellipse in the probability simplex.
 
-    :param X: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     """
 
-    def __init__(self, X, confidence_level=0.95):
+    def __init__(self, samples, confidence_level=0.95):
 
         assert 0. < confidence_level < 1., f'{confidence_level=} must be in range(0,1)'
 
-        X = np.asarray(X)
+        samples = np.asarray(samples)
 
-        self.mean_ = X.mean(axis=0)
-        self.cov_ = np.cov(X, rowvar=False, ddof=1)
+        self.mean_ = samples.mean(axis=0)
+        self.cov_ = np.cov(samples, rowvar=False, ddof=1)
 
         try:
             self.precision_matrix_ = np.linalg.inv(self.cov_)
         except:
             self.precision_matrix_ = None
 
-        self.dim = X.shape[-1]
+        self.dim = samples.shape[-1]
         self.ddof = self.dim - 1
 
         # critical chi-square value
         self.confidence_level = confidence_level
         self.chi2_critical_ = chi2.ppf(confidence_level, df=self.ddof)
+        self._samples = samples
+
+    @property
+    def samples(self):
+        return self._samples
 
     def point_estimate(self):
         """
@@ -234,16 +245,21 @@ class ConfidenceEllipseCLR(ConfidenceRegionABC):
     """
     Instantiates a Confidence Ellipse in the Centered-Log Ratio (CLR) space.
 
-    :param X: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     """
 
-    def __init__(self, X, confidence_level=0.95):
-        X = np.asarray(X)
+    def __init__(self, samples, confidence_level=0.95):
+        samples = np.asarray(samples)
         self.clr = CLRtransformation()
-        Z = self.clr(X)
-        self.mean_ = np.mean(X, axis=0)
+        Z = self.clr(samples)
+        self.mean_ = np.mean(samples, axis=0)
         self.conf_region_clr = ConfidenceEllipseSimplex(Z, confidence_level=confidence_level)
+        self._samples = samples
+
+    @property
+    def samples(self):
+        return self._samples
 
     def point_estimate(self):
         """
@@ -273,19 +289,24 @@ class ConfidenceIntervals(ConfidenceRegionABC):
     """
     Instantiates a region based on (independent) Confidence Intervals.
 
-    :param X: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     """
-    def __init__(self, X, confidence_level=0.95):
+    def __init__(self, samples, confidence_level=0.95):
         assert 0 < confidence_level < 1, f'{confidence_level=} must be in range(0,1)'
 
-        X = np.asarray(X)
+        samples = np.asarray(samples)
 
-        self.means_ = X.mean(axis=0)
+        self.means_ = samples.mean(axis=0)
         alpha = 1-confidence_level
         low_perc = (alpha/2.)*100
         high_perc = (1-alpha/2.)*100
-        self.I_low, self.I_high = np.percentile(X, q=[low_perc, high_perc], axis=0)
+        self.I_low, self.I_high = np.percentile(samples, q=[low_perc, high_perc], axis=0)
+        self._samples = samples
+
+    @property
+    def samples(self):
+        return self._samples
 
     def point_estimate(self):
         """
