@@ -111,6 +111,12 @@ setup(
     #
     packages=find_packages(include=['quapy', 'quapy.*']),  # Required
 
+    package_data={
+        # For the 'quapy.method' package, include all files
+        # in the 'stan' subdirectory that end with .stan
+        'quapy.method': ['stan/*.stan']
+    },
+
     python_requires='>=3.8, <4',
 
     install_requires=['scikit-learn', 'pandas', 'tqdm', 'matplotlib', 'joblib', 'xlrd', 'abstention', 'ucimlrepo', 'certifi'],
@@ -124,7 +130,7 @@ setup(
     # Similar to `install_requires` above, these must be valid existing
     # projects.
     extras_require={  # Optional
-       'bayes': ['jax', 'jaxlib', 'numpyro'],
+       'bayes': ['jax', 'jaxlib', 'numpyro', 'pystan'],
        'neural': ['torch'],
        'tests': ['certifi'],
        'docs' : ['sphinx-rtd-theme', 'myst-parser'],

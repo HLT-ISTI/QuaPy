@@ -44,7 +44,7 @@ class LabelledCollection:
 
     @property
     def index(self):
-        if self._index is None:
+        if not hasattr(self, '_index') or self._index is None:
             self._index = {class_: np.arange(len(self))[self.labels == class_] for class_ in self.classes_}
         return self._index
 
