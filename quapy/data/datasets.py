@@ -758,7 +758,7 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         # restrict classes to only those with at least min_ipc instances
         classes = classes[data.counts() >= min_ipc]
         # filter X and y keeping only datapoints belonging to valid classes
-        filter_idx = np.in1d(data.y, classes)
+        filter_idx = np.isin(data.y, classes)
         X, y = data.X[filter_idx], data.y[filter_idx]
         # map classes to range(len(classes))
         y = np.searchsorted(classes, y)
