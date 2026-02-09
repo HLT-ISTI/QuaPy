@@ -402,8 +402,8 @@ class PCC(AggregativeSoftQuantifier):
     :param classifier: a sklearn's Estimator that generates a classifier
     """
 
-    def __init__(self, classifier: BaseEstimator = None, fit_classifier: bool = True):
-        super().__init__(classifier, fit_classifier, val_split=None)
+    def __init__(self, classifier: BaseEstimator = None, fit_classifier: bool = True, val_split=None):
+        super().__init__(classifier, fit_classifier, val_split=val_split)
 
     def aggregation_fit(self, classif_predictions, labels):
         """
