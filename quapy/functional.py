@@ -277,7 +277,7 @@ def l1_norm(prevalences: ArrayLike) -> np.ndarray:
     """
     n_classes = prevalences.shape[-1]
     accum = prevalences.sum(axis=-1, keepdims=True)
-    prevalences = np.true_divide(prevalences, accum, where=accum > 0)
+    prevalences = np.true_divide(prevalences, accum, where=accum > 0, out=None)
     allzeros = accum.flatten() == 0
     if any(allzeros):
         if prevalences.ndim == 1:
