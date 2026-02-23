@@ -486,7 +486,7 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, standardize=
         # fall back to direct download when needed
         if group == "german":
             with download_tmp_file("statlog/german", "german.data-numeric") as tmp:
-                df = pd.read_csv(tmp, header=None, delim_whitespace=True)
+                df = pd.read_csv(tmp, header=None, sep="\\s+")
             X, y = df.iloc[:, 0:24].astype(float).values, df[24].astype(int).values
         elif group == "ctg":
             with download_tmp_file("00193", "CTG.xls") as tmp:
@@ -500,7 +500,7 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, standardize=
             y = df["NSP"].astype(int).values
         elif group == "semeion":
             with download_tmp_file("semeion", "semeion.data") as tmp:
-                df = pd.read_csv(tmp, header=None, sep='\s+')
+                df = pd.read_csv(tmp, header=None, sep="\\s+")
             X = df.iloc[:, 0:256].astype(float).values
             y = df[263].values  # 263 stands for digit 8 (labels are one-hot vectors from col 256-266)
         else:
