@@ -99,6 +99,9 @@ class SamplesFromDir(AbstractProtocol):
             sample, _ = self.load_fn(os.path.join(self.path_dir, f'{id}.txt'))
             yield sample, prevalence
 
+    def total(self):
+        return len(self.true_prevs)
+
 
 class LabelledCollectionsFromDir(AbstractProtocol):
 
@@ -112,6 +115,10 @@ class LabelledCollectionsFromDir(AbstractProtocol):
             collection_path = os.path.join(self.path_dir, f'{id}.txt')
             lc = LabelledCollection.load(path=collection_path, loader_func=self.load_fn)
             yield lc
+
+    def total(self):
+        return len(self.true_prevs)
+
 
 
 class ResultSubmission:
