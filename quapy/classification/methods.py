@@ -1,3 +1,4 @@
+import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.decomposition import TruncatedSVD
 from sklearn.linear_model import LogisticRegression
@@ -95,3 +96,23 @@ class LowRankLogisticRegression(BaseEstimator):
         if self.pca is None:
             return X
         return self.pca.transform(X)
+
+
+class MockClassifierFromPosteriors(BaseEstimator):
+    """
+    Mock classifier that bypasses classifier training when the input instances
+    are already posterior probabilities produced by a pretrained probabilistic
+    classifier.
+
+    :param X: arrays of shape `(n_samples, n_classes)` are interpreted as posterior probabilities
+    """
+
+    def fit(self, X, y):
+        self.classes_ = np.sort(np.unique(y))
+        return self
+
+    def predict(self, X):
+        return np.argmax(X, axis=1)
+
+    def predict_proba(self, X):
+        return X

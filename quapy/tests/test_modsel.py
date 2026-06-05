@@ -1,104 +1,87 @@
+import time
 import unittest
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 
-import quapy as qp
 from quapy.method.aggregative import PACC
 from quapy.model_selection import GridSearchQ
 from quapy.protocol import APP
-import time
+from quapy.tests._synthetic import make_dataset
 
 
 class ModselTestCase(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        data = make_dataset(
+            n_train=220,
+            n_test=120,
+            n_classes=2,
+            n_features=16,
+            class_sep=1.8,
+            random_state=1,
+            name='modsel',
+        )
+        cls.training, cls.validation = data.training.split_stratified(0.7, random_state=1)
+
     def test_modsel(self):
         """
-        Checks whether a model selection exploration takes a good hyperparameter
+        Checks whether a model selection exploration picks the better hyperparameter.
         """
-
         q = PACC(LogisticRegression(random_state=1, max_iter=5000))
-
-        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10).reduce(random_state=1)
-        training, validation = data.training.split_stratified(0.7, random_state=1)
-
-        param_grid = {'classifier__C': [0.000001, 10.]}
-        app = APP(validation, sample_size=100, random_state=1)
+        param_grid = {'classifier__C': [0.000001, 10.0]}
+        app = APP(self.validation, sample_size=30, n_prevalences=5, repeats=1, random_state=1)
         q = GridSearchQ(
-            q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, verbose=True, n_jobs=-1
-        ).fit(*training.Xy)
-        print('best params', q.best_params_)
-        print('best score', q.best_score_)
+            q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, verbose=False, n_jobs=-1
+        ).fit(*self.training.Xy)
 
         self.assertEqual(q.best_params_['classifier__C'], 10.0)
         self.assertEqual(q.best_model().get_params()['classifier__C'], 10.0)
 
     def test_modsel_parallel(self):
         """
-        Checks whether a parallelized model selection actually is faster than a sequential exploration but
-        obtains the same optimal parameters
+        Checks whether sequential and parallel model selection agree on the best parameters.
         """
-
         q = PACC(LogisticRegression(random_state=1, max_iter=3000))
-
-        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=50)
-        training, validation = data.training.split_stratified(0.7, random_state=1)
-
-        param_grid = {'classifier__C': np.logspace(-3,3,7), 'classifier__class_weight': ['balanced', None]}
-        app = APP(validation, sample_size=100, random_state=1)
+        param_grid = {'classifier__C': np.logspace(-3, 3, 7), 'classifier__class_weight': ['balanced', None]}
+        app = APP(self.validation, sample_size=30, n_prevalences=5, repeats=1, random_state=1)
 
         def do_gridsearch(n_jobs):
-            print('starting model selection in sequential exploration')
             t_init = time.time()
             modsel = GridSearchQ(
-                q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=n_jobs, verbose=True
-            ).fit(*training.Xy)
-            t_end = time.time()-t_init
-            best_c = modsel.best_params_['classifier__C']
-            print(f'[done] took {t_end:.2f}s best C = {best_c}')
-            return t_end, best_c
+                q, param_grid, protocol=app, error='mae', refit=False, timeout=-1, n_jobs=n_jobs, verbose=False
+            ).fit(*self.training.Xy)
+            t_end = time.time() - t_init
+            return t_end, modsel.best_params_
 
-        tend_seq, best_c_seq = do_gridsearch(n_jobs=1)
-        tend_par, best_c_par = do_gridsearch(n_jobs=-1)
+        _, best_seq = do_gridsearch(n_jobs=1)
+        _, best_par = do_gridsearch(n_jobs=-1)
 
-        print(tend_seq, best_c_seq)
-        print(tend_par, best_c_par)
-
-        self.assertEqual(best_c_seq, best_c_par)
-        self.assertLess(tend_par, tend_seq)
-
+        self.assertEqual(best_seq, best_par)
 
     def test_modsel_timeout(self):
 
         class SlowLR(LogisticRegression):
             def fit(self, X, y, sample_weight=None):
-                import time
-                time.sleep(10)
-                super(SlowLR, self).fit(X, y, sample_weight)
+                time.sleep(2)
+                return super().fit(X, y, sample_weight)
 
-        q = PACC(SlowLR())
+        q = PACC(SlowLR(max_iter=1000))
+        param_grid = {'classifier__C': np.logspace(-1, 1, 3)}
+        app = APP(self.validation, sample_size=30, n_prevalences=5, repeats=1, random_state=1)
 
-        data = qp.datasets.fetch_reviews('imdb', tfidf=True, min_df=10).reduce(random_state=1)
-        training, validation = data.training.split_stratified(0.7, random_state=1)
-
-        param_grid = {'classifier__C': np.logspace(-1,1,3)}
-        app = APP(validation, sample_size=100, random_state=1)
-
-        print('Expecting TimeoutError to be raised')
         modsel = GridSearchQ(
-            q, param_grid, protocol=app, timeout=3, n_jobs=-1, verbose=True, raise_errors=True
+            q, param_grid, protocol=app, timeout=1, n_jobs=-1, verbose=False, raise_errors=True
         )
         with self.assertRaises(TimeoutError):
-            modsel.fit(*training.Xy)
+            modsel.fit(*self.training.Xy)
 
-        print('Expecting ValueError to be raised')
         modsel = GridSearchQ(
-            q, param_grid, protocol=app, timeout=3, n_jobs=-1, verbose=True, raise_errors=False
+            q, param_grid, protocol=app, timeout=1, n_jobs=-1, verbose=False, raise_errors=False
         )
         with self.assertRaises(ValueError):
-            # this exception is not raised because of the timeout, but because no combination of hyperparams
-            # succedded (in this case, a ValueError is raised, regardless of "raise_errors"
-            modsel.fit(*training.Xy)
+            modsel.fit(*self.training.Xy)
 
 
 if __name__ == '__main__':

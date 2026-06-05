@@ -3,13 +3,23 @@ from contextlib import contextmanager
 import zipfile
 from os.path import join
 import pandas as pd
-from ucimlrepo import fetch_ucirepo
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
 from quapy.data.preprocessing import standardize as standardizer
 from quapy.data.reader import *
 from quapy.util import download_file_if_not_exists, download_file, get_quapy_home, pickled_resource
 from sklearn.preprocessing import StandardScaler
+
+
+def _fetch_ucirepo(*args, **kwargs):
+    try:
+        from ucimlrepo import fetch_ucirepo
+    except ImportError as exc:
+        raise ImportError(
+            "UCI dataset fetching requires the optional 'ucimlrepo' package. "
+            "Install it to use fetch_UCIBinaryDataset or fetch_UCIMulticlassDataset."
+        ) from exc
+    return fetch_ucirepo(*args, **kwargs)
 
 
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
@@ -486,7 +496,7 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, standardize=
         # fall back to direct download when needed
         if group == "german":
             with download_tmp_file("statlog/german", "german.data-numeric") as tmp:
-                df = pd.read_csv(tmp, header=None, sep="\\s+")
+                df = pd.read_csv(tmp, header=None, delim_whitespace=True)
             X, y = df.iloc[:, 0:24].astype(float).values, df[24].astype(int).values
         elif group == "ctg":
             with download_tmp_file("00193", "CTG.xls") as tmp:
@@ -500,11 +510,11 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, standardize=
             y = df["NSP"].astype(int).values
         elif group == "semeion":
             with download_tmp_file("semeion", "semeion.data") as tmp:
-                df = pd.read_csv(tmp, header=None, sep="\\s+")
+                df = pd.read_csv(tmp, header=None, sep='\\s+')
             X = df.iloc[:, 0:256].astype(float).values
             y = df[263].values  # 263 stands for digit 8 (labels are one-hot vectors from col 256-266)
         else:
-            df = fetch_ucirepo(id=id)
+            df = _fetch_ucirepo(id=id)
             X, y = df.data.features.to_numpy(), df.data.targets.to_numpy().squeeze()
 
         # transform data when needed before returning (returned data will be pickled)
@@ -616,8 +626,8 @@ def fetch_UCIMulticlassDataset(
         are taken for training, and the rest (irrespective of `min_test_split`) is taken for test.
     :param max_train_instances: maximum number of instances to keep for training (defaults to 25000);
         set to -1 or None to avoid this check
-    :param min_class_support: minimum number of istances per class. Classes with fewer instances
-        are discarded (deafult is 100)
+    :param min_class_support: integer or float, the minimum number or proportion of istances per class.
+        Classes with fewer instances are discarded (deafult is 100).
     :param standardize: indicates whether the covariates should be standardized or not (default is True). If requested,
         standardization applies after the LabelledCollection is split, that is, the mean an std are computed only on the
         training portion of the data.
@@ -673,6 +683,11 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         f'Name {dataset_name} does not match any known dataset from the ' \
         f'UCI Machine Learning datasets repository (multiclass). ' \
         f'Valid ones are {UCI_MULTICLASS_DATASETS}'
+
+    assert (min_class_support is None or
+            ((isinstance(min_class_support, int) and min_class_support >= 0) or
+             (isinstance(min_class_support, float) and 0. <= min_class_support < 1.))), \
+        f'invalid value for {min_class_support=}; expected non negative integer or float in [0,1)'
     
     if data_home is None:
         data_home = get_quapy_home()
@@ -739,24 +754,41 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
 
     file = join(data_home, 'uci_multiclass', dataset_name+'.pkl')
     
+    def dummify_categorical_features(df_features, dataset_id):
+        categorical_features = {
+            158: ["S1", "C1", "S2", "C2", "S3", "C3", "S4", "C4", "S5", "C5"],  # poker_hand
+        }
+
+        categorical = categorical_features.get(dataset_id, [])
+
+        X = df_features.copy()
+        if categorical:
+            X[categorical] = X[categorical].astype("category")
+            X = pd.get_dummies(X, columns=categorical, drop_first=True)
+
+        return X
+
     def download(id, name):
-        df = fetch_ucirepo(id=id)
+        df = _fetch_ucirepo(id=id)
 
-        df.data.features = pd.get_dummies(df.data.features, drop_first=True)
-        X, y = df.data.features.to_numpy(dtype=np.float64), df.data.targets.to_numpy().squeeze()
+        X_df = dummify_categorical_features(df.data.features, id)
+        X = X_df.to_numpy(dtype=np.float64)
+        y = df.data.targets.to_numpy().squeeze()
 
-        assert y.ndim == 1, 'more than one y'
+        assert y.ndim == 1, f'error: the dataset {id=} {name=} has more than one target variable'
 
         classes = np.sort(np.unique(y))
         y = np.searchsorted(classes, y)
         return LabelledCollection(X, y)
 
-    def filter_classes(data: LabelledCollection, min_ipc):
-        if min_ipc is None:
-            min_ipc = 0
+    def filter_classes(data: LabelledCollection, min_class_support):
+        if min_class_support is None or min_class_support == 0.:
+            return data
+        if isinstance(min_class_support, float):
+            min_class_support = int(len(data) * min_class_support)
         classes = data.classes_
-        # restrict classes to only those with at least min_ipc instances
-        classes = classes[data.counts() >= min_ipc]
+        # restrict classes to only those with at least min_class_support instances
+        classes = classes[data.counts() >= min_class_support]
         # filter X and y keeping only datapoints belonging to valid classes
         filter_idx = np.isin(data.y, classes)
         X, y = data.X[filter_idx], data.y[filter_idx]

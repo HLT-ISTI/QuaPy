@@ -1,11 +1,12 @@
 import numpy as np
+from numbers import Real
 from sklearn.base import BaseEstimator
 from sklearn.neighbors import KernelDensity
 
 import quapy as qp
 from quapy.method.aggregative import AggregativeSoftQuantifier
 import quapy.functional as F
-
+from scipy.special import logsumexp
 from sklearn.metrics.pairwise import rbf_kernel
 
 
@@ -15,44 +16,57 @@ class KDEBase:
     """
 
     BANDWIDTH_METHOD = ['scott', 'silverman']
+    KERNELS = ['gaussian', 'aitchison', 'ilr']
 
     @classmethod
-    def _check_bandwidth(cls, bandwidth):
+    def _check_bandwidth(cls, bandwidth, kernel):
         """
         Checks that the bandwidth parameter is correct
 
         :param bandwidth: either a string (see BANDWIDTH_METHOD) or a float
         :return: the bandwidth if the check is passed, or raises an exception for invalid values
         """
-        assert bandwidth in KDEBase.BANDWIDTH_METHOD or isinstance(bandwidth, float), \
+        assert bandwidth in KDEBase.BANDWIDTH_METHOD or isinstance(bandwidth, Real), \
             f'invalid bandwidth, valid ones are {KDEBase.BANDWIDTH_METHOD} or float values'
-        if isinstance(bandwidth, float):
-            assert 0 < bandwidth < 1,  \
-                "the bandwith for KDEy should be in (0,1), since this method models the unit simplex"
+        if isinstance(bandwidth, Real):
+            bandwidth = float(bandwidth)
         return bandwidth
 
-    def get_kde_function(self, X, bandwidth):
+    @classmethod
+    def _check_kernel(cls, kernel):
+        assert kernel in KDEBase.KERNELS, f'unknown {kernel=}'
+        return kernel
+
+    def get_kde_function(self, X, bandwidth, kernel):
         """
         Wraps the KDE function from scikit-learn.
 
         :param X: data for which the density function is to be estimated
         :param bandwidth: the bandwidth of the kernel
+        :param kernel: the kernel family
         :return: a scikit-learn's KernelDensity object
         """
+        X = self.transform_posteriors(X, kernel)
+        bandwidth = self.effective_bandwidth(bandwidth, kernel)
         return KernelDensity(bandwidth=bandwidth).fit(X)
 
-    def pdf(self, kde, X):
+    def pdf(self, kde, X, kernel, log_densities=False):
         """
         Wraps the density evalution of scikit-learn's KDE. Scikit-learn returns log-scores (s), so this
         function returns :math:`e^{s}`
 
         :param kde: a previously fit KDE function
         :param X: the data for which the density is to be estimated
+        :param kernel: the kernel family
         :return: np.ndarray with the densities
         """
-        return np.exp(kde.score_samples(X))
+        X = self.transform_posteriors(X, kernel)
+        log_density = kde.score_samples(X)
+        if log_densities:
+            return log_density
+        return np.exp(log_density)
 
-    def get_mixture_components(self, X, y, classes, bandwidth):
+    def get_mixture_components(self, X, y, classes, bandwidth, kernel):
         """
         Returns an array containing the mixture components, i.e., the KDE functions for each class.
 
@@ -60,15 +74,50 @@ class KDEBase:
         :param y: the class labels
         :param n_classes: integer, the number of classes
         :param bandwidth: float, the bandwidth of the kernel
+        :param kernel: the kernel family
         :return: a list of KernelDensity objects, each fitted with the corresponding class-specific covariates
         """
         class_cond_X = []
         for cat in classes:
             selX = X[y==cat]
             if selX.size==0:
-                selX = [F.uniform_prevalence(len(classes))]
+                raise ValueError(f'empty class {cat}')
             class_cond_X.append(selX)
-        return [self.get_kde_function(X_cond_yi, bandwidth) for X_cond_yi in class_cond_X]
+        return [self.get_kde_function(X_cond_yi, bandwidth, kernel) for X_cond_yi in class_cond_X]
+
+    def transform_posteriors(self, X, kernel):
+        if kernel in {'aitchison', 'ilr'}:
+            X = self.shrink_posteriors(X)
+        if kernel == 'aitchison':
+            return self.clr_transform(X)
+        if kernel == 'ilr':
+            return self.ilr_transform(X)
+        return X
+
+    def shrink_posteriors(self, X):
+        shrinkage = getattr(self, 'shrinkage', 0.0)
+        if shrinkage <= 0:
+            return X
+        X = np.asarray(X)
+        n_classes = X.shape[-1]
+        uniform = np.full(n_classes, 1.0 / n_classes, dtype=X.dtype)
+        return (1.0 - shrinkage) * X + shrinkage * uniform
+
+    def effective_bandwidth(self, bandwidth, kernel):
+        shrinkage = getattr(self, 'shrinkage', 0.0)
+        if shrinkage > 0 and kernel in {'aitchison', 'ilr'} and isinstance(bandwidth, Real):
+            return (1.0 - shrinkage) * float(bandwidth)
+        return bandwidth
+
+    def clr_transform(self, X):
+        if not hasattr(self, 'clr'):
+            self.clr = F.CLRtransformation()
+        return self.clr(X)
+
+    def ilr_transform(self, X):
+        if not hasattr(self, 'ilr'):
+            self.ilr = F.ILRtransformation()
+        return self.ilr(X)
 
 
 class KDEyML(AggregativeSoftQuantifier, KDEBase):
@@ -107,17 +156,31 @@ class KDEyML(AggregativeSoftQuantifier, KDEBase):
         are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
         for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
     :param bandwidth: float, the bandwidth of the Kernel
+    :param kernel: kernel of KDE, valid ones are in KDEBase.KERNELS
+    :param shrinkage: amount of shrinkage towards the uniform distribution to apply before
+        Aitchison/ILR transformations. Must be in ``[0,1)``.
     :param random_state: a seed to be set before fitting any base quantifier (default None)
     """
 
     def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=5, bandwidth=0.1,
-                 random_state=None):
+                 kernel='gaussian', shrinkage=0.0, random_state=None):
         super().__init__(classifier, fit_classifier, val_split)
-        self.bandwidth = KDEBase._check_bandwidth(bandwidth)
+        self.bandwidth = KDEBase._check_bandwidth(bandwidth, kernel)
+        self.kernel = self._check_kernel(kernel)
+        assert 0 <= shrinkage < 1, 'shrinkage must be in [0,1)'
+        assert self.kernel != 'gaussian' or shrinkage == 0, \
+            'shrinkage is only supported for Aitchison/ILR kernels'
+        self.shrinkage = float(shrinkage)
         self.random_state=random_state
 
     def aggregation_fit(self, classif_predictions, labels):
-        self.mix_densities = self.get_mixture_components(classif_predictions, labels, self.classes_, self.bandwidth)
+        self.mix_densities = self.get_mixture_components(
+            classif_predictions,
+            labels,
+            self.classes_,
+            self.bandwidth,
+            self.kernel,
+        )
         return self
 
     def aggregate(self, posteriors: np.ndarray):
@@ -129,15 +192,25 @@ class KDEyML(AggregativeSoftQuantifier, KDEBase):
         :return: a vector of class prevalence estimates
         """
         with qp.util.temp_seed(self.random_state):
-            epsilon = 1e-10
+            epsilon = 1e-12
             n_classes = len(self.mix_densities)
-            test_densities = [self.pdf(kde_i, posteriors) for kde_i in self.mix_densities]
+            if (self.kernel != 'gaussian' and n_classes >= 20) or n_classes >= 30:
+                test_log_densities = [
+                    self.pdf(kde_i, posteriors, self.kernel, log_densities=True)
+                    for kde_i in self.mix_densities
+                ]
 
-            def neg_loglikelihood(prev):
-                # test_mixture_likelihood = sum(prev_i * dens_i for prev_i, dens_i in zip (prev, test_densities))
-                test_mixture_likelihood = prev @ test_densities
-                test_loglikelihood = np.log(test_mixture_likelihood + epsilon)
-                return  -np.sum(test_loglikelihood)
+                def neg_loglikelihood(prev):
+                    prev = qp.error.smooth(prev, eps=epsilon)
+                    test_loglikelihood = logsumexp(np.log(prev)[:, None] + test_log_densities, axis=0)
+                    return -np.sum(test_loglikelihood)
+            else:
+                test_densities = [self.pdf(kde_i, posteriors, self.kernel) for kde_i in self.mix_densities]
+
+                def neg_loglikelihood(prev):
+                    test_mixture_likelihood = prev @ test_densities
+                    test_loglikelihood = np.log(test_mixture_likelihood + epsilon)
+                    return -np.sum(test_loglikelihood)
 
             return F.optim_minimize(neg_loglikelihood, n_classes)
 
@@ -192,18 +265,22 @@ class KDEyHD(AggregativeSoftQuantifier, KDEBase):
 
         super().__init__(classifier, fit_classifier, val_split)
         self.divergence = divergence
-        self.bandwidth = KDEBase._check_bandwidth(bandwidth)
+        self.bandwidth = KDEBase._check_bandwidth(bandwidth, kernel='gaussian')
         self.random_state=random_state
         self.montecarlo_trials = montecarlo_trials
 
     def aggregation_fit(self, classif_predictions, labels):
-        self.mix_densities = self.get_mixture_components(classif_predictions, labels, self.classes_, self.bandwidth)
+        self.mix_densities = self.get_mixture_components(
+            classif_predictions, labels, self.classes_, self.bandwidth, 'gaussian'
+        )
 
         N = self.montecarlo_trials
         rs = self.random_state
         n = len(self.classes_)
         self.reference_samples = np.vstack([kde_i.sample(N//n, random_state=rs) for kde_i in self.mix_densities])
-        self.reference_classwise_densities = np.asarray([self.pdf(kde_j, self.reference_samples) for kde_j in self.mix_densities])
+        self.reference_classwise_densities = np.asarray(
+            [self.pdf(kde_j, self.reference_samples, 'gaussian') for kde_j in self.mix_densities]
+        )
         self.reference_density = np.mean(self.reference_classwise_densities, axis=0)  # equiv. to (uniform @ self.reference_classwise_densities)
 
         return self
@@ -213,8 +290,8 @@ class KDEyHD(AggregativeSoftQuantifier, KDEBase):
         # apply importance sampling (IS). In this version we compute D(p_alpha||q) with IS
         n_classes = len(self.mix_densities)
 
-        test_kde = self.get_kde_function(posteriors, self.bandwidth)
-        test_densities = self.pdf(test_kde, self.reference_samples)
+        test_kde = self.get_kde_function(posteriors, self.bandwidth, 'gaussian')
+        test_densities = self.pdf(test_kde, self.reference_samples, 'gaussian')
 
         def f_squared_hellinger(u):
             return (np.sqrt(u)-1)**2
@@ -279,7 +356,7 @@ class KDEyCS(AggregativeSoftQuantifier):
 
     def __init__(self, classifier: BaseEstimator=None, fit_classifier=True, val_split=5, bandwidth=0.1):
         super().__init__(classifier, fit_classifier, val_split)
-        self.bandwidth = KDEBase._check_bandwidth(bandwidth)
+        self.bandwidth = KDEBase._check_bandwidth(bandwidth, kernel='gaussian')
 
     def gram_matrix_mix_sum(self, X, Y=None):
         # this adapts the output of the rbf_kernel function (pairwise evaluations of Gaussian kernels k(x,y))
@@ -354,4 +431,3 @@ class KDEyCS(AggregativeSoftQuantifier):
             return partA + partB #+ partC
 
         return F.optim_minimize(divergence, n)
-

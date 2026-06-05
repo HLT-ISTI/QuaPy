@@ -1,10 +1,14 @@
 import warnings
+from abc import ABC, abstractmethod
 from collections import defaultdict
+from functools import lru_cache
 from typing import Literal, Union, Callable
 from numpy.typing import ArrayLike
 
 import scipy
 import numpy as np
+
+import quapy as qp
 
 
 # ------------------------------------------------------------------------------------------
@@ -649,3 +653,105 @@ def solve_adjustment(
         raise ValueError(f'unknown {solver=}')
 
 
+# ------------------------------------------------------------------------------------------
+# Transformations from Compositional analysis
+# ------------------------------------------------------------------------------------------
+
+class CompositionalTransformation(ABC):
+    """
+    Abstract class of transformations for compositional data.
+    """
+
+    EPSILON = 1e-12
+
+    @abstractmethod
+    def __call__(self, X):
+        ...
+
+    @abstractmethod
+    def inverse(self, Z):
+        ...
+
+
+class CLRtransformation(CompositionalTransformation):
+    """
+    Centered log-ratio (CLR) transformation.
+    """
+
+    def __call__(self, X):
+        X = np.asarray(X)
+        X = qp.error.smooth(X, self.EPSILON)
+        geometric_mean = np.exp(np.mean(np.log(X), axis=-1, keepdims=True))
+        return np.log(X / geometric_mean)
+
+    def inverse(self, Z):
+        return scipy.special.softmax(Z, axis=-1)
+
+
+class ILRtransformation(CompositionalTransformation):
+    """
+    Isometric log-ratio (ILR) transformation.
+    """
+
+    def __call__(self, X):
+        X = np.asarray(X)
+        X = qp.error.smooth(X, self.EPSILON)
+        basis = self.get_V(X.shape[-1])
+        return np.log(X) @ basis.T
+
+    def inverse(self, Z):
+        Z = np.asarray(Z)
+        basis = self.get_V(Z.shape[-1] + 1)
+        logp = Z @ basis
+        p = np.exp(logp)
+        return p / np.sum(p, axis=-1, keepdims=True)
+
+    @lru_cache(maxsize=None)
+    def get_V(self, k):
+        helmert = np.zeros((k, k))
+        for i in range(1, k):
+            helmert[i, :i] = 1
+            helmert[i, i] = -i
+            helmert[i] = helmert[i] / np.sqrt(i * (i + 1))
+        return helmert[1:, :]
+
+
+def normalized_entropy(p):
+    """
+    Computes the normalized Shannon entropy of a prevalence vector.
+
+    :param p: array-like prevalence vector summing to 1
+    :return: float in [0,1]
+    """
+    p = np.asarray(p)
+    entropy = scipy.stats.entropy(p)
+    max_entropy = np.log(len(p))
+    return np.clip(entropy / max_entropy, 0, 1)
+
+
+def antagonistic_prevalence(p, strength=1):
+    """
+    Reflects a prevalence vector in ILR space and maps it back to the simplex.
+
+    :param p: array-like prevalence vector
+    :param strength: reflection strength in ILR space
+    :return: prevalence vector in the simplex
+    """
+    ilr = ILRtransformation()
+    z = ilr(p)
+    z_ant = -strength * z
+    return ilr.inverse(z_ant)
+
+
+def in_simplex(x, atol=1e-8):
+    """
+    Checks whether points lie in the probability simplex.
+
+    :param x: array-like of shape `(n_classes,)` or `(n_points, n_classes)`
+    :param atol: numerical tolerance for the unit-sum check
+    :return: boolean or boolean array
+    """
+    x = np.asarray(x)
+    non_negative = np.all(x >= 0, axis=-1)
+    sum_to_one = np.isclose(x.sum(axis=-1), 1.0, atol=atol)
+    return non_negative & sum_to_one

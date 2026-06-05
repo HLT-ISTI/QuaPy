@@ -1,23 +1,33 @@
+from numbers import Number
+from typing import Iterable
+
 import numpy as np
+from joblib import Parallel, delayed
 from sklearn.base import BaseEstimator
 from sklearn.metrics import confusion_matrix
 
 import quapy as qp
 import quapy.functional as F
-from quapy.method import _bayesian
+from quapy.functional import CompositionalTransformation, CLRtransformation, ILRtransformation
 from quapy.data import LabelledCollection
 from quapy.method.aggregative import AggregativeQuantifier, AggregativeCrispQuantifier, AggregativeSoftQuantifier, BinaryAggregativeQuantifier
 from scipy.stats import chi2
 from sklearn.utils import resample
 from abc import ABC, abstractmethod
-from scipy.special import softmax, factorial
+from scipy.special import factorial
 import copy
 from functools import lru_cache
+from tqdm import tqdm
 
 """
 This module provides implementation of different types of confidence regions, and the implementation of Bootstrap
 for AggregativeQuantifiers.
 """
+
+
+def _get_bayesian_module():
+    from quapy.method import _bayesian
+    return _bayesian
 
 class ConfidenceRegionABC(ABC):
     """
@@ -85,12 +95,58 @@ class ConfidenceRegionABC(ABC):
         """ Returns internal samples """
         ...
 
+    def __contains__(self, p):
+        """
+        Overloads in operator, checks if `p` is contained in the region
+
+        :param p: array-like
+        :return: boolean
+        """
+        p = np.asarray(p)
+        assert p.ndim==1, f'unexpected shape for point parameter'
+        return self.coverage(p)==1.
+
+    def closest_point_in_region(self, p, tol=1e-6, max_iter=30):
+        """
+        Finds the closes point to p that belongs to the region. Assumes the region is convex.
+
+        :param p: array-like, the point
+        :param tol: float, error tolerance
+        :param max_iter: int, max number of iterations
+        :returns: array-like, the closes point to p in the segment between p and the center of the region, that
+            belongs to the region
+        """
+        p = np.asarray(p, dtype=float)
+
+        # if p in region, returns p itself
+        if p in self:
+            return p.copy()
+
+        # center of the region
+        c = self.point_estimate()
+
+        # binary search in [0,1], interpolation parameter
+        # low=closest to p, high=closest to c
+        low, high = 0.0, 1.0
+        for _ in range(max_iter):
+            mid = 0.5 * (low + high)
+            x = p*(1-mid) + c*mid
+            if x in self:
+                high = mid
+            else:
+                low = mid
+            if high - low < tol:
+                break
+
+        in_boundary = p*(1-high) + c*high
+        return in_boundary
+
 
 class WithConfidenceABC(ABC):
     """
     Abstract class for confidence regions.
     """
-    METHODS = ['intervals', 'ellipse', 'ellipse-clr']
+    REGION_TYPE = ['intervals', 'ellipse', 'ellipse-clr', 'ellipse-ilr']
 
     @abstractmethod
     def predict_conf(self, instances, confidence_level=0.95) -> (np.ndarray, ConfidenceRegionABC):
@@ -118,7 +174,7 @@ class WithConfidenceABC(ABC):
         return self.predict_conf(instances=instances, confidence_level=confidence_level)
 
     @classmethod
-    def construct_region(cls, prev_estims, confidence_level=0.95, method='intervals'):
+    def construct_region(cls, prev_estims, confidence_level=0.95, method='intervals')->ConfidenceRegionABC:
         """
         Construct a confidence region given many prevalence estimations.
 
@@ -136,6 +192,8 @@ class WithConfidenceABC(ABC):
             region = ConfidenceEllipseSimplex(prev_estims, confidence_level=confidence_level)
         elif method == 'ellipse-clr':
             region = ConfidenceEllipseCLR(prev_estims, confidence_level=confidence_level)
+        elif method == 'ellipse-ilr':
+            region = ConfidenceEllipseILR(prev_estims, confidence_level=confidence_level)
 
         if region is None:
             raise NotImplementedError(f'unknown method {method}')
@@ -153,7 +211,7 @@ def simplex_volume(n):
     return 1 / factorial(n)
 
 
-def within_ellipse_prop(values, mean, prec_matrix, chi2_critical):
+def within_ellipse_prop__(values, mean, prec_matrix, chi2_critical):
     """
     Checks the proportion of values that belong to the ellipse with center `mean` and precision matrix `prec_matrix`
     at a distance `chi2_critical`.
@@ -186,102 +244,91 @@ def within_ellipse_prop(values, mean, prec_matrix, chi2_critical):
     return within_elipse * 1.0
 
 
-class ConfidenceEllipseSimplex(ConfidenceRegionABC):
+def within_ellipse_prop(values, mean, prec_matrix, chi2_critical):
     """
-    Instantiates a Confidence Ellipse in the probability simplex.
+        Checks the proportion of values that belong to the ellipse with center `mean` and precision matrix `prec_matrix`
+        at a distance `chi2_critical`.
 
-    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
-    :param confidence_level: float, the confidence level (default 0.95)
+        :param values: a np.ndarray of shape (n_dim,) or (n_values, n_dim,)
+        :param mean: a np.ndarray of shape (n_dim,) with the center of the ellipse
+        :param prec_matrix: a np.ndarray with the precision matrix (inverse of the
+            covariance matrix) of the ellipse. If this inverse cannot be computed
+            then None must be passed
+        :param chi2_critical: float, the chi2 critical value
+
+        :return: float in [0,1], the fraction of values that are contained in the ellipse
+            defined by the mean (center), the precision matrix (shape), and the chi2_critical value (distance).
+            If `values` is only one value, then either 0. (not contained) or 1. (contained) is returned.
+        """
+    if prec_matrix is None:
+        return 0.
+
+    values = np.atleast_2d(values)
+    diff = values - mean
+    d_M_squared = np.sum(diff @ prec_matrix * diff, axis=-1)
+    within_ellipse = d_M_squared <= chi2_critical
+
+    if len(within_ellipse) == 1:
+        return float(within_ellipse[0])
+    else:
+        return float(np.mean(within_ellipse))
+
+
+def closest_point_on_ellipsoid(p, mean, cov, chi2_critical, tol=1e-9, max_iter=100):
     """
-
-    def __init__(self, samples, confidence_level=0.95):
-
-        assert 0. < confidence_level < 1., f'{confidence_level=} must be in range(0,1)'
-
-        samples = np.asarray(samples)
-
-        self.mean_ = samples.mean(axis=0)
-        self.cov_ = np.cov(samples, rowvar=False, ddof=1)
-
-        try:
-            self.precision_matrix_ = np.linalg.inv(self.cov_)
-        except:
-            self.precision_matrix_ = None
-
-        self.dim = samples.shape[-1]
-        self.ddof = self.dim - 1
-
-        # critical chi-square value
-        self.confidence_level = confidence_level
-        self.chi2_critical_ = chi2.ppf(confidence_level, df=self.ddof)
-        self._samples = samples
-
-    @property
-    def samples(self):
-        return self._samples
-
-    def point_estimate(self):
-        """
-        Returns the point estimate, the center of the ellipse.
-
-        :return: np.ndarray of shape (n_classes,)
-        """
-        return self.mean_
-
-    def coverage(self, true_value):
-        """
-        Checks whether a value, or a sets of values, are contained in the confidence region. The method computes the
-        fraction of these that are contained in the region, if more than one value is passed. If only one value is
-        passed, then it either returns 1.0 or 0.0, for indicating the value is in the region or not, respectively.
-
-        :param true_value: a np.ndarray of shape (n_classes,) or shape (n_values, n_classes,)
-        :return: float in [0,1]
-        """
-        return within_ellipse_prop(true_value, self.mean_, self.precision_matrix_, self.chi2_critical_)
-
-
-class ConfidenceEllipseCLR(ConfidenceRegionABC):
-    """
-    Instantiates a Confidence Ellipse in the Centered-Log Ratio (CLR) space.
-
-    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
-    :param confidence_level: float, the confidence level (default 0.95)
+    Computes the closest point on the ellipsoid defined by:
+        (x - mean)^T cov^{-1} (x - mean) = chi2_critical
     """
 
-    def __init__(self, samples, confidence_level=0.95):
-        samples = np.asarray(samples)
-        self.clr = CLRtransformation()
-        Z = self.clr(samples)
-        self.mean_ = np.mean(samples, axis=0)
-        self.conf_region_clr = ConfidenceEllipseSimplex(Z, confidence_level=confidence_level)
-        self._samples = samples
+    p = np.asarray(p)
+    mean = np.asarray(mean)
+    Sigma = np.asarray(cov)
 
-    @property
-    def samples(self):
-        return self._samples
+    # Precompute precision matrix
+    P = np.linalg.pinv(Sigma)
+    d = P.shape[0]
 
-    def point_estimate(self):
-        """
-        Returns the point estimate, the center of the ellipse.
+    # Define v = p - mean
+    v = p - mean
 
-        :return: np.ndarray of shape (n_classes,)
-        """
-        # The inverse of the CLR does not coincide with the true mean, because the geometric mean
-        # requires smoothing the prevalence vectors and this affects the softmax (inverse);
-        # return self.clr.inverse(self.mean_) # <- does not coincide
-        return self.mean_
+    # If p is inside the ellipsoid, return p itself
+    M_dist = v @ P @ v
+    if M_dist <= chi2_critical:
+        return p.copy()
 
-    def coverage(self, true_value):
-        """
-        Checks whether a value, or a sets of values, are contained in the confidence region. The method computes the
-        fraction of these that are contained in the region, if more than one value is passed. If only one value is
-        passed, then it either returns 1.0 or 0.0, for indicating the value is in the region or not, respectively.
+    # Function to compute x(lambda)
+    def x_lambda(lmbda):
+        A = np.eye(d) + lmbda * P
+        return mean + np.linalg.solve(A, v)
 
-        :param true_value: a np.ndarray of shape (n_classes,) or shape (n_values, n_classes,)
-        :return: float in [0,1]
-        """
-        transformed_values = self.clr(true_value)
-        return self.conf_region_clr.coverage(transformed_values)
+    # Function whose root we want: f(lambda) = Mahalanobis distance - chi2
+    def f(lmbda):
+        x = x_lambda(lmbda)
+        diff = x - mean
+        return diff @ P @ diff - chi2_critical
+
+    # Bisection search over lambda >= 0
+    l_low, l_high = 0.0, 1.0
+
+    # Increase high until f(high) < 0
+    while f(l_high) > 0:
+        l_high *= 2
+        if l_high > 1e12:
+            raise RuntimeError("Failed to bracket the root.")
+
+    # Bisection
+    for _ in range(max_iter):
+        l_mid = 0.5 * (l_low + l_high)
+        fm = f(l_mid)
+        if abs(fm) < tol:
+            break
+        if fm > 0:
+            l_low = l_mid
+        else:
+            l_high = l_mid
+
+    l_opt = l_mid
+    return x_lambda(l_opt)
 
 
 class ConfidenceIntervals(ConfidenceRegionABC):
@@ -290,18 +337,30 @@ class ConfidenceIntervals(ConfidenceRegionABC):
 
     :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
+    :param bonferroni_correction: bool (default False), if True, a Bonferroni correction
+        is applied to the significance level (`alpha`) before computing confidence intervals.
+        The correction consists of replacing `alpha` with `alpha/n_classes`. When
+        `n_classes=2` the correction is not applied because there is only one verification test
+        since the other class is constrained. This is not necessarily true for n_classes>2.
     """
-    def __init__(self, samples, confidence_level=0.95):
+    def __init__(self, samples, confidence_level=0.95, bonferroni_correction=False):
         assert 0 < confidence_level < 1, f'{confidence_level=} must be in range(0,1)'
+        assert samples.ndim == 2, 'unexpected shape; must be (n_bootstrap_samples, n_classes)'
 
         samples = np.asarray(samples)
 
         self.means_ = samples.mean(axis=0)
+        self.confidence_level = confidence_level
         alpha = 1-confidence_level
+        if bonferroni_correction:
+            n_classes = samples.shape[-1]
+            if n_classes>2:
+                alpha = alpha/n_classes
         low_perc = (alpha/2.)*100
         high_perc = (1-alpha/2.)*100
         self.I_low, self.I_high = np.percentile(samples, q=[low_perc, high_perc], axis=0)
         self._samples = samples
+        self.alpha = alpha
 
     @property
     def samples(self):
@@ -330,36 +389,278 @@ class ConfidenceIntervals(ConfidenceRegionABC):
 
         return proportion
 
+    def coverage_soft(self, true_value):
+        within_intervals = np.logical_and(self.I_low <= true_value, true_value <= self.I_high)
+        return np.mean(within_intervals.astype(float))
+
     def __repr__(self):
         return '['+', '.join(f'({low:.4f}, {high:.4f})' for (low,high) in zip(self.I_low, self.I_high))+']'
 
+    @property
+    def n_dim(self):
+        return len(self.I_low)
 
-class CLRtransformation:
+    def winkler_scores(self, true_prev, alpha=None, add_ae=False):
+        true_prev = np.asarray(true_prev)
+        assert true_prev.ndim == 1, 'unexpected dimensionality for true_prev'
+        assert len(true_prev)==self.n_dim, \
+            f'unexpected number of dimensions; found {true_prev.ndim}, expected {self.n_dim}'
+
+        def winkler_score(low, high, true_val, alpha, center):
+            amp = high-low
+            scale_cost = 2./alpha
+            cost = np.max([0, low-true_val], axis=0) + np.max([0, true_val-high], axis=0)
+            err = 0
+            if add_ae:
+                err = abs(true_val - center)
+            return amp + scale_cost*cost + err
+
+        alpha = alpha or self.alpha
+        return np.asarray(
+            [winkler_score(low_i, high_i, true_v, alpha, center)
+                for (low_i, high_i, true_v, center) in zip(self.I_low, self.I_high, true_prev, self.point_estimate())]
+        )
+
+    def mean_winkler_score(self, true_prev, alpha=None, add_ae=False):
+        return np.mean(self.winkler_scores(true_prev, alpha=alpha, add_ae=add_ae))
+
+
+
+class ConfidenceEllipseSimplex(ConfidenceRegionABC):
     """
-    Centered log-ratio, from component analysis
+    Instantiates a Confidence Ellipse in the probability simplex.
+
+    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param confidence_level: float, the confidence level (default 0.95)
     """
-    def __call__(self, X, epsilon=1e-6):
-        """
-        Applies the CLR function to X thus mapping the instances, which are contained in `\\mathcal{R}^{n}` but
-        actually lie on a `\\mathcal{R}^{n-1}` simplex, onto an unrestricted space in :math:`\\mathcal{R}^{n}`
 
-        :param X: np.ndarray of (n_instances, n_dimensions) to be transformed
-        :param epsilon: small float for prevalence smoothing
-        :return: np.ndarray of (n_instances, n_dimensions), the CLR-transformed points
-        """
-        X = np.asarray(X)
-        X = qp.error.smooth(X, epsilon)
-        G = np.exp(np.mean(np.log(X), axis=-1, keepdims=True))  # geometric mean
-        return np.log(X / G)
+    def __init__(self, samples, confidence_level=0.95):
 
-    def inverse(self, X):
-        """
-        Inverse function. However, clr.inverse(clr(X)) does not exactly coincide with X due to smoothing.
+        assert 0. < confidence_level < 1., f'{confidence_level=} must be in range(0,1)'
 
-        :param X: np.ndarray of (n_instances, n_dimensions) to be transformed
-        :return: np.ndarray of (n_instances, n_dimensions), the CLR-transformed points
+        samples = np.asarray(samples)
+
+        self.confidence_level = confidence_level
+        self.mean_ = samples.mean(axis=0)
+        self.cov_ = np.cov(samples, rowvar=False, ddof=1)
+
+        try:
+            self.precision_matrix_ = np.linalg.pinv(self.cov_)
+        except:
+            self.precision_matrix_ = None
+
+        self.dim = samples.shape[-1]
+        self.ddof = self.dim - 1
+
+        # critical chi-square value
+        self.confidence_level = confidence_level
+        self.chi2_critical_ = chi2.ppf(confidence_level, df=self.ddof)
+        self._samples = samples
+        self.alpha = 1.-confidence_level
+
+    @property
+    def samples(self):
+        return self._samples
+
+    def point_estimate(self):
         """
-        return softmax(X, axis=-1)
+        Returns the point estimate, the center of the ellipse.
+
+        :return: np.ndarray of shape (n_classes,)
+        """
+        return self.mean_
+
+    def coverage(self, true_value):
+        """
+        Checks whether a value, or a sets of values, are contained in the confidence region. The method computes the
+        fraction of these that are contained in the region, if more than one value is passed. If only one value is
+        passed, then it either returns 1.0 or 0.0, for indicating the value is in the region or not, respectively.
+
+        :param true_value: a np.ndarray of shape (n_classes,) or shape (n_values, n_classes,)
+        :return: float in [0,1]
+        """
+        return within_ellipse_prop(true_value, self.mean_, self.precision_matrix_, self.chi2_critical_)
+
+    def closest_point_in_region(self, p, tol=1e-6, max_iter=30):
+        return closest_point_on_ellipsoid(
+            p,
+            mean=self.mean_,
+            cov=self.cov_,
+            chi2_critical=self.chi2_critical_
+        )
+
+
+class ConfidenceEllipseTransformed(ConfidenceRegionABC):
+    """
+    Instantiates a Confidence Ellipse in a transformed space.
+
+    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param confidence_level: float, the confidence level (default 0.95)
+    """
+
+    def __init__(self, samples, transformation: CompositionalTransformation, confidence_level=0.95):
+        samples = np.asarray(samples)
+        self.transformation = transformation
+        self.confidence_level = confidence_level
+        Z = self.transformation(samples)
+        self.mean_ = np.mean(samples, axis=0)
+        # self.mean_ = self.transformation.inverse(np.mean(Z, axis=0))
+        self.conf_region_z = ConfidenceEllipseSimplex(Z, confidence_level=confidence_level)
+        self._samples = samples
+        self.alpha = 1.-confidence_level
+
+    @property
+    def samples(self):
+        return self._samples
+
+    def point_estimate(self):
+        """
+        Returns the point estimate, the center of the ellipse.
+
+        :return: np.ndarray of shape (n_classes,)
+        """
+        # The inverse of the CLR does not coincide with the true mean, because the geometric mean
+        # requires smoothing the prevalence vectors and this affects the softmax (inverse);
+        # return self.clr.inverse(self.mean_) # <- does not coincide
+        return self.mean_
+
+    def coverage(self, true_value):
+        """
+        Checks whether a value, or a sets of values, are contained in the confidence region. The method computes the
+        fraction of these that are contained in the region, if more than one value is passed. If only one value is
+        passed, then it either returns 1.0 or 0.0, for indicating the value is in the region or not, respectively.
+
+        :param true_value: a np.ndarray of shape (n_classes,) or shape (n_values, n_classes,)
+        :return: float in [0,1]
+        """
+        transformed_values = self.transformation(true_value)
+        return self.conf_region_z.coverage(transformed_values)
+
+    def closest_point_in_region(self, p, tol=1e-6, max_iter=30):
+        p_prime = self.transformation(p)
+        b_prime = self.conf_region_z.closest_point_in_region(p_prime, tol=tol, max_iter=max_iter)
+        b = self.transformation.inverse(b_prime)
+        return b
+
+
+class ConfidenceEllipseCLR(ConfidenceEllipseTransformed):
+    """
+    Instantiates a Confidence Ellipse in the Centered-Log Ratio (CLR) space.
+
+    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param confidence_level: float, the confidence level (default 0.95)
+    """
+    def __init__(self, samples, confidence_level=0.95):
+        super().__init__(samples, CLRtransformation(), confidence_level=confidence_level)
+
+
+class ConfidenceEllipseILR(ConfidenceEllipseTransformed):
+    """
+    Instantiates a Confidence Ellipse in the Isometric-Log Ratio (CLR) space.
+
+    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param confidence_level: float, the confidence level (default 0.95)
+    """
+    def __init__(self, samples, confidence_level=0.95):
+        super().__init__(samples, ILRtransformation(), confidence_level=confidence_level)
+
+
+
+class ConfidenceIntervalsTransformed(ConfidenceRegionABC):
+    """
+    Instantiates a Confidence Interval region in a transformed space.
+
+    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param confidence_level: float, the confidence level (default 0.95)
+    :param bonferroni_correction: bool (default False), if True, a Bonferroni correction
+        is applied to the significance level (`alpha`) before computing confidence intervals.
+        The correction consists of replacing `alpha` with `alpha/n_classes`. When
+        `n_classes=2` the correction is not applied because there is only one verification test
+        since the other class is constrained. This is not necessarily true for n_classes>2.
+    """
+
+    def __init__(self, samples, transformation: CompositionalTransformation, confidence_level=0.95, bonferroni_correction=False):
+        samples = np.asarray(samples)
+        self.transformation = transformation
+        self.confidence_level = confidence_level
+        Z = self.transformation(samples)
+        self.mean_ = np.mean(samples, axis=0)
+        # self.mean_ = self.transformation.inverse(np.mean(Z, axis=0))
+        self.conf_region_z = ConfidenceIntervals(Z, confidence_level=confidence_level, bonferroni_correction=bonferroni_correction)
+        self._samples = samples
+        self.alpha = 1.-confidence_level
+
+    @property
+    def samples(self):
+        return self._samples
+
+    def point_estimate(self):
+        """
+        Returns the point estimate, the center of the ellipse.
+
+        :return: np.ndarray of shape (n_classes,)
+        """
+        # The inverse of the CLR does not coincide with the true mean, because the geometric mean
+        # requires smoothing the prevalence vectors and this affects the softmax (inverse);
+        # return self.clr.inverse(self.mean_) # <- does not coincide
+        return self.mean_
+
+    def coverage(self, true_value):
+        """
+        Checks whether a value, or a sets of values, are contained in the confidence region. The method computes the
+        fraction of these that are contained in the region, if more than one value is passed. If only one value is
+        passed, then it either returns 1.0 or 0.0, for indicating the value is in the region or not, respectively.
+
+        :param true_value: a np.ndarray of shape (n_classes,) or shape (n_values, n_classes,)
+        :return: float in [0,1]
+        """
+        transformed_values = self.transformation(true_value)
+        return self.conf_region_z.coverage(transformed_values)
+
+    def coverage_soft(self, true_value):
+        transformed_values = self.transformation(true_value)
+        return self.conf_region_z.coverage_soft(transformed_values)
+
+    def winkler_scores(self, true_prev, alpha=None, add_ae=False):
+        transformed_values = self.transformation(true_prev)
+        return self.conf_region_z.winkler_scores(transformed_values, alpha=alpha, add_ae=add_ae)
+
+    def mean_winkler_score(self, true_prev, alpha=None, add_ae=False):
+        transformed_values = self.transformation(true_prev)
+        return self.conf_region_z.mean_winkler_score(transformed_values, alpha=alpha, add_ae=add_ae)
+
+
+class ConfidenceIntervalsCLR(ConfidenceIntervalsTransformed):
+    """
+    Instantiates a Confidence Intervals in the Centered-Log Ratio (CLR) space.
+
+    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param confidence_level: float, the confidence level (default 0.95)
+    :param bonferroni_correction: bool (default False), if True, a Bonferroni correction
+        is applied to the significance level (`alpha`) before computing confidence intervals.
+        The correction consists of replacing `alpha` with `alpha/n_classes`. When
+        `n_classes=2` the correction is not applied because there is only one verification test
+        since the other class is constrained. This is not necessarily true for n_classes>2.
+    """
+    def __init__(self, samples, confidence_level=0.95, bonferroni_correction=False):
+        super().__init__(samples, CLRtransformation(), confidence_level=confidence_level, bonferroni_correction=bonferroni_correction)
+
+
+class ConfidenceIntervalsILR(ConfidenceIntervalsTransformed):
+    """
+    Instantiates a Confidence Intervals in the Isometric-Log Ratio (CLR) space.
+
+    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param confidence_level: float, the confidence level (default 0.95)
+    :param bonferroni_correction: bool (default False), if True, a Bonferroni correction
+        is applied to the significance level (`alpha`) before computing confidence intervals.
+        The correction consists of replacing `alpha` with `alpha/n_classes`. When
+        `n_classes=2` the correction is not applied because there is only one verification test
+        since the other class is constrained. This is not necessarily true for n_classes>2.
+    """
+    def __init__(self, samples, confidence_level=0.95, bonferroni_correction=False):
+        super().__init__(samples, ILRtransformation(), confidence_level=confidence_level, bonferroni_correction=bonferroni_correction)
+
 
 
 class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
@@ -399,7 +700,8 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
                  n_test_samples=500,
                  confidence_level=0.95,
                  region='intervals',
-                 random_state=None):
+                 random_state=None,
+                 verbose=False):
 
         assert isinstance(quantifier, AggregativeQuantifier), \
             f'base quantifier does not seem to be an instance of {AggregativeQuantifier.__name__}'
@@ -416,32 +718,45 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
         self.confidence_level = confidence_level
         self.region = region
         self.random_state = random_state
+        self.verbose = verbose
 
     def aggregation_fit(self, classif_predictions, labels):
-        data = LabelledCollection(classif_predictions, labels, classes=self.classes_)
+
         self.quantifiers = []
         if self.n_train_samples==1:
             self.quantifier.aggregation_fit(classif_predictions, labels)
             self.quantifiers.append(self.quantifier)
         else:
-            # model-based bootstrap (only on the aggregative part)
-            n_examples = len(data)
-            full_index = np.arange(n_examples)
-            with qp.util.temp_seed(self.random_state):
-                for i in range(self.n_train_samples):
-                    quantifier = copy.deepcopy(self.quantifier)
-                    index = resample(full_index, n_samples=n_examples)
-                    classif_predictions_i = classif_predictions.sampling_from_index(index)
-                    data_i = data.sampling_from_index(index)
-                    quantifier.aggregation_fit(classif_predictions_i, data_i)
-                    self.quantifiers.append(quantifier)
+            if classif_predictions is None or labels is None:
+                # The entire dataset was consumed for classifier training, implying there is no need for training
+                # an aggregation function. If the bootstrap method was configured to train different aggregators
+                # (i.e., self.n_train_samples>1), then an error is raise. Otherwise, the method ends.
+                if self.n_train_samples > 1:
+                    raise ValueError(
+                        f'The underlying quantifier ({self.quantifier.__class__.__name__}) has consumed, all training '
+                        f'data, meaning the aggregation function needs none, but {self.n_train_samples=} is > 1, which '
+                        f'is inconsistent.'
+                    )
+            else:
+                # model-based bootstrap (only on the aggregative part)
+                data = LabelledCollection(classif_predictions, labels, classes=self.classes_)
+                n_examples = len(data)
+                full_index = np.arange(n_examples)
+                with qp.util.temp_seed(self.random_state):
+                    for i in range(self.n_train_samples):
+                        quantifier = copy.deepcopy(self.quantifier)
+                        index = resample(full_index, n_samples=n_examples)
+                        classif_predictions_i = classif_predictions.sampling_from_index(index)
+                        data_i = data.sampling_from_index(index)
+                        quantifier.aggregation_fit(classif_predictions_i, data_i)
+                        self.quantifiers.append(quantifier)
         return self
 
     def aggregate(self, classif_predictions: np.ndarray):
         prev_mean, self.confidence = self.aggregate_conf(classif_predictions)
         return prev_mean
 
-    def aggregate_conf(self, classif_predictions: np.ndarray, confidence_level=None):
+    def aggregate_conf_sequential__(self, classif_predictions: np.ndarray, confidence_level=None):
         if confidence_level is None:
             confidence_level = self.confidence_level
 
@@ -449,11 +764,31 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
         prevs = []
         with qp.util.temp_seed(self.random_state):
             for quantifier in self.quantifiers:
-                for i in range(self.n_test_samples):
+                for i in tqdm(range(self.n_test_samples), desc='resampling', total=self.n_test_samples, disable=not self.verbose):
                     sample_i = resample(classif_predictions, n_samples=n_samples)
                     prev_i = quantifier.aggregate(sample_i)
                     prevs.append(prev_i)
 
+        conf = WithConfidenceABC.construct_region(prevs, confidence_level, method=self.region)
+        prev_estim = conf.point_estimate()
+
+        return prev_estim, conf
+
+    def aggregate_conf(self, classif_predictions: np.ndarray, confidence_level=None):
+        confidence_level = confidence_level or self.confidence_level
+
+
+        n_samples = classif_predictions.shape[0]
+        prevs = []
+        with qp.util.temp_seed(self.random_state):
+            for quantifier in self.quantifiers:
+                results = Parallel(n_jobs=-1)(
+                    delayed(bootstrap_once)(i, classif_predictions, quantifier, n_samples)
+                    for i in range(self.n_test_samples)
+                )
+                prevs.extend(results)
+
+        prevs = np.array(prevs)
         conf = WithConfidenceABC.construct_region(prevs, confidence_level, method=self.region)
         prev_estim = conf.point_estimate()
 
@@ -475,6 +810,13 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
 
     def _classifier_method(self):
         return self.quantifier._classifier_method()
+
+
+def bootstrap_once(i, classif_predictions, quantifier, n_samples):
+    idx = np.random.randint(0, len(classif_predictions), n_samples)
+    sample = classif_predictions[idx]
+    prev = quantifier.aggregate(sample)
+    return prev
 
 
 class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
@@ -506,6 +848,8 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
     :param region: string, set to `intervals` for constructing confidence intervals (default), or to
         `ellipse` for constructing an ellipse in the probability simplex, or to `ellipse-clr` for
         constructing an ellipse in the Centered-Log Ratio (CLR) unconstrained space.
+    :param prior: an array-like with the alpha parameters of a Dirichlet prior, a scalar real value
+        to be broadcast to all classes, or the string 'uniform' for a uniform, uninformative prior (default)
     """
     def __init__(self,
                  classifier: BaseEstimator=None,
@@ -515,14 +859,21 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
                  num_samples: int = 1_000,
                  mcmc_seed: int = 0,
                  confidence_level: float = 0.95,
-                 region: str = 'intervals'):
+                 region: str = 'intervals',
+                 temperature = 1., 
+                 prior = 'uniform'):
 
         if num_warmup <= 0:
             raise ValueError(f'parameter {num_warmup=} must be a positive integer')
         if num_samples <= 0:
             raise ValueError(f'parameter {num_samples=} must be a positive integer')
+        assert ((isinstance(prior, str) and prior == 'uniform') or
+                isinstance(prior, Number) or
+                (isinstance(prior, Iterable) and all(isinstance(v, Number) for v in prior))), \
+            f'wrong type for {prior=}; expected "uniform", a real scalar, or an array-like of real values'
 
-        if _bayesian.DEPENDENCIES_INSTALLED is False:
+        bayesian = _get_bayesian_module()
+        if bayesian.DEPENDENCIES_INSTALLED is False:
             raise ImportError("Auxiliary dependencies are required. "
                               "Run `$ pip install quapy[bayes]` to install them.")
 
@@ -532,6 +883,8 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
         self.mcmc_seed = mcmc_seed
         self.confidence_level = confidence_level
         self.region = region
+        self.temperature = temperature
+        self.prior = prior
 
         # Array of shape (n_classes, n_predicted_classes,) where entry (y, c) is the number of instances
         # labeled as class y and predicted as class c.
@@ -562,11 +915,26 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
 
         n_c_unlabeled = F.counts_from_labels(classif_predictions, self.classifier.classes_).astype(float)
 
-        self._samples = _bayesian.sample_posterior(
+        n_classes = len(self.classifier.classes_)
+        if isinstance(self.prior, str) and self.prior == 'uniform':
+            alpha = np.ones(n_classes, dtype=float)
+        elif isinstance(self.prior, Number):
+            alpha = np.full(n_classes, float(self.prior), dtype=float)
+        else:
+            alpha = np.asarray(self.prior, dtype=float)
+            if alpha.ndim != 1 or len(alpha) != n_classes:
+                raise ValueError(
+                    f'wrong shape for prior; expected {n_classes} values, found shape {alpha.shape}'
+                )
+
+        bayesian = _get_bayesian_module()
+        self._samples = bayesian.sample_posterior_bayesianCC(
             n_c_unlabeled=n_c_unlabeled,
             n_y_and_c_labeled=self._n_and_c_labeled,
             num_warmup=self.num_warmup,
             num_samples=self.num_samples,
+            alpha=alpha,
+            temperature=self.temperature,
             seed=self.mcmc_seed,
         )
         return self._samples
@@ -574,15 +942,18 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
     def get_prevalence_samples(self):
         if self._samples is None:
             raise ValueError("sample_from_posterior must be called before get_prevalence_samples")
-        return self._samples[_bayesian.P_TEST_Y]
+        bayesian = _get_bayesian_module()
+        return self._samples[bayesian.P_TEST_Y]
 
     def get_conditional_probability_samples(self):
         if self._samples is None:
             raise ValueError("sample_from_posterior must be called before get_conditional_probability_samples")
-        return self._samples[_bayesian.P_C_COND_Y]
+        bayesian = _get_bayesian_module()
+        return self._samples[bayesian.P_C_COND_Y]
 
     def aggregate(self, classif_predictions):
-        samples = self.sample_from_posterior(classif_predictions)[_bayesian.P_TEST_Y]
+        bayesian = _get_bayesian_module()
+        samples = self.sample_from_posterior(classif_predictions)[bayesian.P_TEST_Y]
         return np.asarray(samples.mean(axis=0), dtype=float)
 
     def predict_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
@@ -637,17 +1008,19 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         if num_samples <= 0:
             raise ValueError(f'parameter {num_samples=} must be a positive integer')
 
-        if not _bayesian.DEPENDENCIES_INSTALLED:
+        bayesian = _get_bayesian_module()
+        if not bayesian.DEPENDENCIES_INSTALLED:
             raise ImportError("Auxiliary dependencies are required. "
                               "Run `$ pip install quapy[bayes]` to install them.")
 
         super().__init__(classifier, fit_classifier, val_split)
+        
         self.nbins = nbins
         self.fixed_bins = fixed_bins
         self.num_warmup = num_warmup
         self.num_samples = num_samples
         self.stan_seed = stan_seed
-        self.stan_code = _bayesian.load_stan_file()
+        self.stan_code = bayesian.load_stan_file()
         self.confidence_level = confidence_level
         self.region = region
 
@@ -676,7 +1049,8 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     def aggregate(self, classif_predictions):
         Px_test = classif_predictions[:, self.pos_label]
         test_hist, _ = np.histogram(Px_test, bins=self.bin_limits)
-        prevs = _bayesian.pq_stan(
+        bayesian = _get_bayesian_module()
+        prevs = bayesian.pq_stan(
             self.stan_code, self.nbins, self.pos_hist, self.neg_hist, test_hist,
             self.num_samples, self.num_warmup, self.stan_seed
         ).flatten()
@@ -694,5 +1068,3 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     def predict_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
         predictions = self.classify(instances)
         return self.aggregate_conf(predictions, confidence_level=confidence_level)
-
-

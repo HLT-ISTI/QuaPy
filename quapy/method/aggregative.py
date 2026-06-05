@@ -3,7 +3,6 @@ from argparse import ArgumentError
 from copy import deepcopy
 from typing import Callable, Literal, Union
 import numpy as np
-from abstention.calibration import NoBiasVectorScaling, TempScaling, VectorScaling
 from numpy.f2py.crackfortran import true_intent_list
 from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
@@ -18,11 +17,25 @@ from quapy.functional import get_divergence
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric
-from quapy.method import _bayesian
 
 # import warnings
 # from sklearn.exceptions import ConvergenceWarning
 # warnings.filterwarnings("ignore", category=ConvergenceWarning)
+
+
+def _get_abstention_calibrators():
+    try:
+        from abstention.calibration import NoBiasVectorScaling, TempScaling, VectorScaling
+    except ImportError as exc:
+        raise ImportError(
+            "Posterior calibration for EMQ requires the optional 'abstention' package."
+        ) from exc
+    return {
+        'nbvs': NoBiasVectorScaling(),
+        'bcts': TempScaling(bias_positions='all'),
+        'ts': TempScaling(),
+        'vs': VectorScaling(),
+    }
 
 
 # Abstract classes
@@ -849,12 +862,7 @@ class EMQ(AggregativeSoftQuantifier):
                                 "validation data")
 
         if self.calib is not None:
-            calibrator = {
-                'nbvs': NoBiasVectorScaling(),
-                'bcts': TempScaling(bias_positions='all'),
-                'ts': TempScaling(),
-                'vs': VectorScaling()
-            }.get(self.calib, None)
+            calibrator = _get_abstention_calibrators().get(self.calib, None)
 
             if calibrator is None:
                 raise ValueError(f'invalid value for {self.calib=}; valid ones are {EMQ.CALIB_OPTIONS}')

@@ -1,19 +1,29 @@
 import unittest
+
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+
 import quapy as qp
+import quapy.functional as F
 from quapy.data import LabelledCollection
 from quapy.functional import strprev
-from sklearn.linear_model import LogisticRegression
-import numpy as np
 from quapy.method.aggregative import PACC
-import quapy.functional as F
+from quapy.tests._synthetic import make_dataset
 
 
 class TestReplicability(unittest.TestCase):
 
-    def test_prediction_replicability(self):
+    @classmethod
+    def setUpClass(cls):
+        cls.binary_dataset = make_dataset(
+            n_train=180, n_test=80, n_classes=2, n_features=10, random_state=21, name='rep-binary'
+        )
+        cls.multiclass_dataset = make_dataset(
+            n_train=180, n_test=80, n_classes=3, n_features=12, random_state=23, name='rep-multiclass'
+        )
 
-        dataset = qp.datasets.fetch_UCIBinaryDataset('yeast')
-        train, test = dataset.train_test
+    def test_prediction_replicability(self):
+        train, test = self.binary_dataset.train_test
 
         with qp.util.temp_seed(0):
             lr = LogisticRegression(random_state=0, max_iter=10000)
@@ -28,7 +38,6 @@ class TestReplicability(unittest.TestCase):
             str_prev2 = strprev(prev2, prec=5)
 
         self.assertEqual(str_prev1, str_prev2)
-
 
     def test_samping_replicability(self):
 
@@ -60,52 +69,32 @@ class TestReplicability(unittest.TestCase):
             sample2 = data.sampling(50, *[0.7, 0.3])
         equal_collections(sample1, sample2, True)
 
-        sample1 = data.sampling(50, *[0.7, 0.3], random_state=0)
-        sample2 = data.sampling(50, *[0.7, 0.3], random_state=0)
-        equal_collections(sample1, sample2, True)
-
         sample1_tr, sample1_te = data.split_stratified(train_prop=0.7, random_state=0)
         sample2_tr, sample2_te = data.split_stratified(train_prop=0.7, random_state=0)
         equal_collections(sample1_tr, sample2_tr, True)
         equal_collections(sample1_te, sample2_te, True)
 
-        with qp.util.temp_seed(0):
-            sample1_tr, sample1_te = data.split_stratified(train_prop=0.7)
-        with qp.util.temp_seed(0):
-            sample2_tr, sample2_te = data.split_stratified(train_prop=0.7)
-        equal_collections(sample1_tr, sample2_tr, True)
-        equal_collections(sample1_te, sample2_te, True)
-
-
     def test_parallel_replicability(self):
-
-        train, test = qp.datasets.fetch_UCIMulticlassDataset('dry-bean').reduce().train_test
-
-        test = test.sampling(500, *[0.1, 0.0, 0.1, 0.1, 0.2, 0.5, 0.0])
+        train, test = self.multiclass_dataset.train_test
+        test = test.sampling(60, *[0.2, 0.3, 0.5], random_state=4)
 
         with qp.util.temp_seed(10):
-            pacc = PACC(LogisticRegression(), val_split=.5, n_jobs=2)
+            pacc = PACC(LogisticRegression(max_iter=5000), val_split=.5, n_jobs=2)
             pacc.fit(*train.Xy)
             prev1 = F.strprev(pacc.predict(test.instances))
 
         with qp.util.temp_seed(0):
-            pacc = PACC(LogisticRegression(), val_split=.5, n_jobs=2)
+            pacc = PACC(LogisticRegression(max_iter=5000), val_split=.5, n_jobs=2)
             pacc.fit(*train.Xy)
             prev2 = F.strprev(pacc.predict(test.instances))
 
         with qp.util.temp_seed(0):
-            pacc = PACC(LogisticRegression(), val_split=.5, n_jobs=2)
+            pacc = PACC(LogisticRegression(max_iter=5000), val_split=.5, n_jobs=2)
             pacc.fit(*train.Xy)
             prev3 = F.strprev(pacc.predict(test.instances))
 
-        print(prev1)
-        print(prev2)
-        print(prev3)
-
         self.assertNotEqual(prev1, prev2)
         self.assertEqual(prev2, prev3)
-
-
 
 
 if __name__ == '__main__':

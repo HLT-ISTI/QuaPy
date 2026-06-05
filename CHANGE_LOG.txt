@@ -2,8 +2,15 @@ Change Log 0.2.1
 -----------------
 
 - Improved documentation of confidence regions.
+- Added Bayesian KDEy and Bayesian MAPLS quantifiers.
+- Added temperature calibration utilities for Bayesian confidence-aware methods.
+- Added compositional CLR and ILR transformations.
+- Extended KDEy with Aitchison/ILR kernels, shrinkage, and improved numerical stability.
+- Added TemperatureScalingFromLogits for calibrating pretrained logits.
+- Added DirichletProtocol for prevalence sampling from Dirichlet priors.
 - Added ReadMe method by Daniel Hopkins and Gary King
 - Internal index in LabelledCollection is now "lazy", and is only constructed if required.
+- Improved unit testing and separated integration tests
 
 Change Log 0.2.0
 -----------------
@@ -214,4 +221,3 @@ Change Log 0.1.7
     any instance of BaseQuantifier), and a subclass of it called OneVsAllAggregative which implements the
     classify / aggregate interface. Both are instances of OneVsAll. There is a method getOneVsAll that returns the
     best instance based on the type of quantifier.
-
