@@ -3,7 +3,6 @@ from argparse import ArgumentError
 from copy import deepcopy
 from typing import Callable, Literal, Union
 import numpy as np
-from numpy.f2py.crackfortran import true_intent_list
 from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.exceptions import NotFittedError
@@ -17,25 +16,17 @@ from quapy.functional import get_divergence
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric
+from quapy.method._helper import (
+    _get_abstention_calibrators,
+    _get_cvxpy,
+    _rlls_check_mode,
+    _rlls_joint_distribution,
+    _rlls_predicted_marginal,
+    _rlls_compute_3deltaC,
+    _rlls_compute_weights,
+    _labels_to_indices,
+)
 
-# import warnings
-# from sklearn.exceptions import ConvergenceWarning
-# warnings.filterwarnings("ignore", category=ConvergenceWarning)
-
-
-def _get_abstention_calibrators():
-    try:
-        from abstention.calibration import NoBiasVectorScaling, TempScaling, VectorScaling
-    except ImportError as exc:
-        raise ImportError(
-            "Posterior calibration for EMQ requires the optional 'abstention' package."
-        ) from exc
-    return {
-        'nbvs': NoBiasVectorScaling(),
-        'bcts': TempScaling(bias_positions='all'),
-        'ts': TempScaling(),
-        'vs': VectorScaling(),
-    }
 
 
 # Abstract classes
@@ -683,6 +674,108 @@ class PACC(AggregativeSoftQuantifier):
         return confusion.T
 
 
+class RLLS(AggregativeSoftQuantifier):
+    """
+    `Regularized Learning for Domain Adaptation under Label Shifts
+    <https://arxiv.org/abs/1903.09734>`_, used here as an aggregative
+    quantifier.
+
+    This implementation ports the regularized weight-estimation component of
+    RLLS to QuaPy's aggregative interface. It estimates label-shift ratios from
+    validation posteriors and source labels, then rescales the source
+    prevalence to obtain target prevalence estimates.
+
+    This method relies on the optional `cvxpy` dependency.
+
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case
+        the classifier is taken to be the one indicated in
+        `qp.environ['DEFAULT_CLS']`
+    :param fit_classifier: whether to train the learner (default is True). Set
+        to False if the learner has been trained outside the quantifier.
+    :param val_split: specifies the data used for generating classifier
+        predictions. This specification can be made as float in (0, 1)
+        indicating the proportion of stratified held-out validation set to be
+        extracted from the training set; or as an integer (default 5),
+        indicating that the predictions are to be generated in a `k`-fold
+        cross-validation manner; or as a tuple `(X, y)` defining the specific
+        set of data to use for validation. This method requires source
+        predictions and therefore needs `val_split` whenever
+        `fit_classifier=True`.
+    :param mode: whether source- and target-domain quantities are estimated
+        from posterior probabilities (`soft`, default) or from argmax
+        predictions (`hard`)
+    :param alpha: multiplicative factor for the regularization level (default
+        0.01)
+    :param delta: confidence parameter used in the finite-sample regularizer
+        (default 0.05)
+    :param clip_weights: if True, clips negative importance weights to zero
+        before converting them into prevalence estimates
+    :param norm: the normalization method passed to
+        :func:`quapy.functional.normalize_prevalence`
+    """
+
+    def __init__(
+            self,
+            classifier: BaseEstimator = None,
+            fit_classifier=True,
+            val_split=5,
+            mode: Literal['soft', 'hard'] = 'soft',
+            alpha: float = 0.01,
+            delta: float = 0.05,
+            clip_weights: bool = True,
+            norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
+    ):
+        super().__init__(classifier, fit_classifier, val_split)
+        self.mode = mode
+        self.alpha = alpha
+        self.delta = delta
+        self.clip_weights = clip_weights
+        self.norm = norm
+        self.last_w_ = None
+
+    def _check_init_parameters(self):
+        _get_cvxpy()
+        _rlls_check_mode(self.mode)
+        if not isinstance(self.alpha, (int, float)) or self.alpha < 0:
+            raise ValueError(f'expected a non-negative real value for alpha; found {self.alpha!r}')
+        if not isinstance(self.delta, (int, float)) or not (0 < self.delta < 1):
+            raise ValueError(f'expected delta to be in (0,1); found {self.delta!r}')
+        if self.norm not in ACC.NORMALIZATIONS:
+            raise ValueError(f"unknown normalization; valid ones are {ACC.NORMALIZATIONS}")
+        if self.fit_classifier and self.val_split is None:
+            raise ValueError(
+                'RLLS requires validation predictions for aggregation_fit; '
+                'please set val_split to an integer, float, or validation tuple'
+            )
+
+    def aggregation_fit(self, classif_predictions, labels):
+        if classif_predictions is None or labels is None:
+            raise ValueError('RLLS requires source posterior predictions and source labels')
+
+        self.train_prevalence_ = F.prevalence_from_labels(labels, classes=self.classes_)
+        self.C_zy_ = _rlls_joint_distribution(
+            classif_predictions,
+            labels,
+            self.classes_,
+            mode=self.mode,
+        )
+        self.pz_ = _rlls_predicted_marginal(classif_predictions, mode=self.mode)
+        self.rho_ = _rlls_compute_3deltaC(len(self.classes_), len(labels), self.delta)
+
+    def aggregate(self, classif_posteriors):
+        qz = _rlls_predicted_marginal(classif_posteriors, mode=self.mode)
+        w = _rlls_compute_weights(
+            self.C_zy_,
+            qz,
+            self.pz_,
+            rho=self.alpha * self.rho_,
+            clip=self.clip_weights,
+        )
+        self.last_w_ = w
+        estimate = self.train_prevalence_ * w
+        return F.normalize_prevalence(estimate, method=self.norm)
+
+
 class EMQ(AggregativeSoftQuantifier):
     """
     `Expectation Maximization for Quantification <https://ieeexplore.ieee.org/abstract/document/6789744>`_ (EMQ),
@@ -991,9 +1084,6 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         Px = classif_posteriors[:, self.pos_label]  # takes only the P(y=+1|x)
 
         prev_estimations = []
-        # for bins in np.linspace(10, 110, 11, dtype=int):  #[10, 20, 30, ..., 100, 110]
-        # Pxy0_density, _ = np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)
-        # Pxy1_density, _ = np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)
         for bins in self.bins:
             Pxy0_density = self.Pxy0_density[bins]
             Pxy1_density = self.Pxy1_density[bins]
@@ -1003,13 +1093,12 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
             # the authors proposed to search for the prevalence yielding the best matching as a linear search
             # at small steps (modern implementations resort to an optimization procedure,
             # see class DistributionMatching)
-            prev_selected, min_dist = None, None
-            for prev in F.prevalence_linspace(grid_points=101, repeats=1, smooth_limits_epsilon=0.0):
-                Px_train = prev * Pxy1_density + (1 - prev) * Pxy0_density
-                hdy = F.HellingerDistance(Px_train, Px_test)
-                if prev_selected is None or hdy < min_dist:
-                    prev_selected, min_dist = prev, hdy
-            prev_estimations.append(prev_selected)
+            def loss(prev):
+                class1_prev = prev[1]
+                Px_train = class1_prev * Pxy1_density + (1 - class1_prev) * Pxy0_density
+                return F.HellingerDistance(Px_train, Px_test)
+
+            prev_estimations.append(F.linear_search(loss, n_classes=2)[1])
 
         class1_prev = np.median(prev_estimations)
         return F.as_binary_prevalence(class1_prev)
@@ -1168,6 +1257,10 @@ class DMy(AggregativeSoftQuantifier):
 
     :param cdf: whether to use CDF instead of PDF (default False)
 
+    :param search: string indicating the search strategy used to estimate the prevalence values.
+        Valid options are `optim_minimize` (default, works for binary and multiclass problems),
+        `linear_search` (binary only), and `ternary_search` (binary only)
+
     :param n_jobs: number of parallel workers (default None)
     """
 
@@ -1218,7 +1311,9 @@ class DMy(AggregativeSoftQuantifier):
         :param labels: array-like with the true labels associated to each posterior
         """
         posteriors, true_labels = classif_predictions, labels
-        n_classes = len(self.classifier.classes_)
+        classes = self.classifier.classes_
+        n_classes = len(classes)
+        true_labels = _labels_to_indices(true_labels, classes)
 
         self.validation_distribution = qp.util.parallel(
             func=self._get_distributions,

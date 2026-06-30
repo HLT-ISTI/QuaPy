@@ -9,6 +9,7 @@ from sklearn.preprocessing import normalize
 from quapy.method.confidence import WithConfidenceABC, ConfidenceRegionABC
 from quapy.functional import get_divergence
 from quapy.method.base import BaseQuantifier, BinaryQuantifier
+from quapy.method._helper import _labels_to_indices
 import quapy.functional as F
 from scipy.optimize import lsq_linear
 from scipy import sparse
@@ -58,6 +59,9 @@ class DMx(BaseQuantifier):
         or a callable function taking two ndarrays of the same dimension as input (default "HD", meaning Hellinger
         Distance)
     :param cdf: whether to use CDF instead of PDF (default False)
+    :param search: string indicating the search strategy used to estimate the prevalence values.
+        Valid options are `optim_minimize` (default, works for binary and multiclass problems),
+        `linear_search` (binary only), and `ternary_search` (binary only)
     :param n_jobs: number of parallel workers (default None)
     """
 
@@ -122,7 +126,9 @@ class DMx(BaseQuantifier):
         """
         self.nfeats = X.shape[1]
         self.feat_ranges = _get_features_range(X)
-        n_classes = len(np.unique(y))
+        classes = np.unique(y)
+        y = _labels_to_indices(y, classes)
+        n_classes = len(classes)
 
         self.validation_distribution = np.asarray(
             [self.__get_distributions(X[y==cat]) for cat in range(n_classes)]

@@ -8,9 +8,10 @@ Change Log 0.2.1
 - Extended KDEy with Aitchison/ILR kernels, shrinkage, and improved numerical stability.
 - Added TemperatureScalingFromLogits for calibrating pretrained logits.
 - Added DirichletProtocol for prevalence sampling from Dirichlet priors.
-- Added ReadMe method by Daniel Hopkins and Gary King
+- Added ReadMe method by Daniel Hopkins and Gary King.
 - Internal index in LabelledCollection is now "lazy", and is only constructed if required.
-- Improved unit testing and separated integration tests
+- Improved unit testing and separated integration tests.
+- Added RLLS (Regularized Learning for Domain Adaptation under Label Shifts) method.
 
 Change Log 0.2.0
 -----------------

@@ -4,6 +4,7 @@ from sklearn.base import BaseEstimator
 from sklearn.neighbors import KernelDensity
 
 import quapy as qp
+from quapy.method._helper import _labels_to_indices
 from quapy.method.aggregative import AggregativeSoftQuantifier
 import quapy.functional as F
 from scipy.special import logsumexp
@@ -374,13 +375,11 @@ class KDEyCS(AggregativeSoftQuantifier):
 
         P, y = classif_predictions, labels
         n = len(self.classes_)
-
-        assert all(sorted(np.unique(y)) == np.arange(n)), \
-            'label name gaps not allowed in current implementation'
+        y = _labels_to_indices(y, self.classes_)
 
         # counts_inv keeps track of the relative weight of each datapoint within its class
         # (i.e., the weight in its KDE model)
-        counts_inv = 1 / (F.counts_from_labels(y, classes=self.classes_))
+        counts_inv = 1 / (F.counts_from_labels(y, classes=np.arange(n)))
 
         # tr_tr_sums corresponds to symbol \overline{B} in the paper
         tr_tr_sums = np.zeros(shape=(n,n), dtype=float)

@@ -15,6 +15,7 @@ AGGREGATIVE_METHODS = {
     aggregative.ACC,
     aggregative.PCC,
     aggregative.PACC,
+    aggregative.RLLS,
     aggregative.EMQ,
     aggregative.HDy,
     aggregative.DyS,
@@ -52,6 +53,7 @@ MULTICLASS_METHODS = {
     aggregative.ACC,
     aggregative.PCC,
     aggregative.PACC,
+    aggregative.RLLS,
     aggregative.EMQ,
     aggregative.KDEyML,
     aggregative.KDEyCS,
@@ -72,7 +74,6 @@ META_METHODS = {
 }
 
 QUANTIFICATION_METHODS = AGGREGATIVE_METHODS | NON_AGGREGATIVE_METHODS | META_METHODS
-
 
 
 

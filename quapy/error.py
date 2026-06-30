@@ -177,6 +177,11 @@ def msre(prevs_true, prevs_hat, prevs_train, eps=0.):
 def aitchisondist(prevs_true, prevs_hat):
     """
     Computes the Aitchison distance between two prevalence vectors.
+    The Aitchison distance between prevalence vectors :math:`p` and
+    :math:`\\hat{p}` is computed as
+    :math:`d_A(p,\\hat{p})=\\|\\mathrm{clr}(p)-\\mathrm{clr}(\\hat{p})\\|_2`,
+    where :math:`\\mathrm{clr}(p)_i=\\log p_i-\\frac{1}{|\\mathcal{Y}|}
+    \\sum_{j \\in \\mathcal{Y}} \\log p_j`.
 
     :param prevs_true: array-like with the true prevalence values
     :param prevs_hat: array-like with the predicted prevalence values
@@ -191,7 +196,9 @@ def aitchisondist(prevs_true, prevs_hat):
 def maitchisondist(prevs_true, prevs_hat):
     """
     Computes the mean Aitchison distance (see :meth:`quapy.error.aitchisondist`)
-    across the sample pairs.
+    across the sample pairs, i.e.,
+    :math:`\\mathrm{mAitchisonDist}=\\frac{1}{n}\\sum_{i=1}^n
+    d_A(p_i,\\hat{p}_i)`.
 
     :param prevs_true: array-like with the true prevalence values
     :param prevs_hat: array-like with the predicted prevalence values

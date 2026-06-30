@@ -430,7 +430,7 @@ def argmin_prevalence(loss: Callable,
     :param method: string indicating the search strategy. Possible values are::
         'optim_minimize': uses scipy.optim
         'linear_search': carries out a linear search for binary problems in the space [0, 0.01, 0.02, ..., 1]
-        'ternary_search': implements the ternary search (not yet implemented)
+        'ternary_search': carries out a ternary search for binary problems in the interval [0,1]
     :return: np.ndarray, a prevalence vector
     """
     if method == 'optim_minimize':
@@ -438,7 +438,7 @@ def argmin_prevalence(loss: Callable,
     elif method == 'linear_search':
         return linear_search(loss, n_classes)
     elif method == 'ternary_search':
-        ternary_search(loss, n_classes)
+        return ternary_search(loss, n_classes)
     else:
         raise NotImplementedError()
 
@@ -493,7 +493,32 @@ def linear_search(loss: Callable, n_classes: int):
 
 
 def ternary_search(loss: Callable, n_classes: int):
-    raise NotImplementedError()
+    """
+    Performs a ternary search for the best prevalence value in binary problems.
+    This search assumes the loss is unimodal over the interval [0,1].
+
+    :param loss: (callable) the function to minimize
+    :param n_classes: (int) the number of classes, i.e., the dimensionality of the prevalence vector
+    :return: (ndarray) the best prevalence vector found
+    """
+    assert n_classes == 2, 'ternary search is only available for binary problems'
+
+    left, right = 0., 1.
+    tol = 1e-5
+    while abs(right - left) >= tol:
+        left_third = left + (right - left) / 3
+        right_third = right - (right - left) / 3
+
+        left_loss = loss(np.asarray([1 - left_third, left_third]))
+        right_loss = loss(np.asarray([1 - right_third, right_third]))
+
+        if left_loss < right_loss:
+            right = right_third
+        else:
+            left = left_third
+
+    prev = (left + right) / 2
+    return np.asarray([1 - prev, prev])
 
 
 # ------------------------------------------------------------------------------------------

@@ -2,10 +2,13 @@ import itertools
 import inspect
 import unittest
 
+import numpy as np
+
 from sklearn.linear_model import LogisticRegression
 
 from quapy.method import AGGREGATIVE_METHODS, BINARY_METHODS, NON_AGGREGATIVE_METHODS
-from quapy.method.aggregative import ACC
+from quapy.method.non_aggregative import DMx
+from quapy.method.aggregative import ACC, DMy, KDEyCS, RLLS
 from quapy.method.meta import Ensemble
 from quapy.functional import check_prevalence_vector
 from quapy.tests._synthetic import make_dataset
@@ -16,6 +19,7 @@ OPTIONAL_AGGREGATIVE_METHODS = {
     'BayesianKDEy',
     'BayesianMAPLS',
     'PQ',
+    'RLLS',
 }
 
 
@@ -121,6 +125,54 @@ class TestMethods(unittest.TestCase):
         else:
             from quapy.method.composable import __old_version_message
             print(__old_version_message)
+
+    def test_rlls(self):
+        try:
+            import cvxpy  # noqa: F401
+        except ImportError:
+            return
+
+        dataset = TestMethods.tiny_dataset_multiclass
+        q = RLLS(LogisticRegression(max_iter=2000), val_split=3)
+        q.fit(*dataset.training.Xy)
+        estim_prevalences = q.predict(dataset.test.X)
+        self.assertTrue(check_prevalence_vector(estim_prevalences))
+
+
+    def test_dmy_noncanonical_labels(self):
+        dataset = TestMethods.tiny_dataset_multiclass
+        label_names = np.asarray(['class-a', 'class-c', 'class-z'])
+        y_train = label_names[dataset.training.y]
+        y_test = label_names[dataset.test.y]
+
+        q = DMy(LogisticRegression(max_iter=2000), val_split=3)
+        q.fit(dataset.training.X, y_train)
+        estim_prevalences = q.predict(dataset.test.X)
+        self.assertTrue(check_prevalence_vector(estim_prevalences))
+        self.assertEqual(len(estim_prevalences), len(np.unique(y_test)))
+
+
+    def test_dmx_noncanonical_labels(self):
+        dataset = TestMethods.tiny_dataset_multiclass
+        label_names = np.asarray(['class-a', 'class-c', 'class-z'])
+        y_train = label_names[dataset.training.y]
+
+        q = DMx()
+        q.fit(dataset.training.X, y_train)
+        estim_prevalences = q.predict(dataset.test.X)
+        self.assertTrue(check_prevalence_vector(estim_prevalences))
+        self.assertEqual(len(estim_prevalences), len(np.unique(y_train)))
+
+    def test_kdeycs_noncanonical_labels(self):
+        dataset = TestMethods.tiny_dataset_multiclass
+        label_names = np.asarray(['class-a', 'class-c', 'class-z'])
+        y_train = label_names[dataset.training.y]
+
+        q = KDEyCS(LogisticRegression(max_iter=2000), val_split=3)
+        q.fit(dataset.training.X, y_train)
+        estim_prevalences = q.predict(dataset.test.X)
+        self.assertTrue(check_prevalence_vector(estim_prevalences))
+        self.assertEqual(len(estim_prevalences), len(np.unique(y_train)))
 
 
 if __name__ == '__main__':
