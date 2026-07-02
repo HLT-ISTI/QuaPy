@@ -44,11 +44,14 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'myst_parser',
+    'sphinx_design',
 ]
 
 autosectionlabel_prefix_document = True
 
 source_suffix = ['.rst', '.md']
+
+myst_enable_extensions = ['colon_fence']
 
 templates_path = ['_templates']
 
@@ -65,7 +68,22 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'pydata_sphinx_theme'
 # html_theme = 'furo'
 # need to be installed: pip install furo (not working...)
-# html_static_path = ['_static']
+html_static_path = ['_static']
+html_css_files = ['custom.css']
+html_theme_options = {
+    'logo': {
+        'image_light': '_static/quapy_logo.png',
+        'image_dark': '_static/quapy_logo_dark.png',
+    },
+    'icon_links': [
+        {
+            'name': 'GitHub',
+            'url': 'https://github.com/HLT-ISTI/QuaPy',
+            'icon': 'fa-brands fa-github',
+            'type': 'fontawesome',
+        },
+    ],
+}
 
 # intersphinx configuration
 intersphinx_mapping = {

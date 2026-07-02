@@ -119,6 +119,9 @@ LEQUA2024_SAMPLE_SIZE = {
     'T4': 250,
 }
 
+IMAGE_DATASETS=['cifar10', 'cifar100', 'cifar100coarse', 'svhn', 'fashionmnist', 'mnist']
+IMAGE_EMBEDDINGS=['features', 'logits', 'predictions']
+
 
 def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False) -> Dataset:
     """
@@ -1062,3 +1065,100 @@ def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=No
         return train, test_gen
     else:
         return train_gen, test_gen
+
+
+def _fetch_image_embedding_splits(dataset_name, embedding, data_home=None) -> tuple[LabelledCollection,LabelledCollection,LabelledCollection]:
+    """
+    Loads a pre-generated embedding set (train, val, or test) of an image dataset from `Zenodo <https://zenodo.org/records/21131944>`_.
+    
+    Embeddings were extracted using `this script <https://github.com/pglez82/visiondatasets_quapy>`_. 
+
+    :param dataset_name: the name of the dataset: valid ones are 'cifar10', 'cifar100', 'cifar100coarse', 'svhn', 'fashionmnist', 'mnist'
+    :param embedding: the type of embedding: valid ones are 'features' (next-to-last representations), 'logits' (pre-activation values), 'predictions' (posterior probabilities)
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: a tuple (train, val, test) where each entry is an instance of :class:`quapy.data.base.LabelledCollection`
+    """
+    assert dataset_name in IMAGE_DATASETS, \
+        f'Name {dataset_name} does not match any known dataset. Valid ones are {IMAGE_DATASETS}'
+    assert embedding in IMAGE_EMBEDDINGS, \
+        f'Name {embedding} does not match any known type of embedding. Valid ones are {IMAGE_EMBEDDINGS}'
+    if data_home is None:
+        data_home = get_quapy_home()
+    
+    dataset_network = {
+        'cifar10': 'resnet18',
+        'cifar100': 'resnet18',
+        'cifar100coarse': 'resnet18',
+        'svhn': 'resnet18',
+        'fashionmnist': 'basiccnn',
+        'mnist': 'basiccnn',
+    }
+
+    trained_network = dataset_network[dataset_name]
+
+    def download_embedding_npz(dataset_name, trained_network, embedding):
+        target_file = f'{dataset_name}_{trained_network}_{embedding}.npz'
+        URL = f'https://zenodo.org/records/21131944/files/{target_file}'
+        os.makedirs(join(data_home, 'image'), exist_ok=True)
+        file_path = join(data_home, 'image', target_file)
+        download_file_if_not_exists(URL, file_path)
+        npz_file = np.load(file_path)
+        return npz_file
+
+    embedding_dict = download_embedding_npz(dataset_name, trained_network, embedding=embedding)
+    labels_dict = download_embedding_npz(dataset_name, trained_network, embedding='targets')
+
+    train = LabelledCollection(embedding_dict['train'], labels_dict['train'])
+    val = LabelledCollection(embedding_dict['val'], labels_dict['val'], classes=train.classes)
+    test = LabelledCollection(embedding_dict['test'], labels_dict['test'], classes=train.classes)
+
+    print(f'{len(train)} | {len(val)} | {len(test)} | {train.X.shape[1]} | {train.n_classes} | {train.n_classes}')
+
+    return train, val, test
+
+
+def fetch_image_embeddings(dataset_name, embedding, heldout_only=True, data_home=None) -> Dataset:
+    """
+    Loads an image dataset with pre-generated embeddings. Available datasets include:
+
+    - 'cifar10', 'cifar100', 'cifar100coarse': see `Alex Krizhevsky and Geoffrey Hinton. Learning multiple layers of features from tiny images. Technical report, University of Toronto, Toronto, Ontario, 2009. <https://cave.cs.toronto.edu/kriz/learning-features-2009-TR.pdf>`_
+    - 'mnist': `Yann LeCun, Corinna Cortes, and Christopher J. C. Burges. The MNIST database of handwritten digits. 1998. <http://yann.lecun.com/exdb/mnist/>`_
+    - 'fashionmnist': `Han Xiao, Kashif Rasul, and Roland Vollgraf. Fashion-MNIST: a novel image dataset for benchmarking machine learning algorithms. arXiv preprint arXiv:1708.07747, 2017. <https://arxiv.org/abs/1708.07747>`_
+    - 'svhn': `Yuval Netzer, Tao Wang, Adam Coates, Alessandro Bissacco, Baolin Wu, Andrew Y Ng, et al. Reading digits in natural images with unsupervised feature learning. In NIPS workshop on deep learning and unsupervised feature learning, volume 2011, page 4. Granada, 2011. <https://static.googleusercontent.com/media/research.google.com/es//pubs/archive/37648.pdf>`_
+    
+    The image dataset are stored in `Zenodo <https://zenodo.org/records/21131944>`_ and were extracted using `this script <https://github.com/pglez82/visiondatasets_quapy>`_. 
+
+    These embeddings were generated using a resnet18 or a simple cnn. In all cases, the network was trained using ~60% of the data, validated on ~25% of the data, and the remaining ~15% was used for test. Splits were created with stratification.
+    Once the network is trained, it was used with frozen weights to generate embeddings for the training, validation, and test, in different formats (see below).
+    It would therefore be convenient to use only heldout data (validation and test) for training and testing quantifiers (this is the default behavior), although the training+validation data can be accessed with `heldout_only=False`.
+
+    :param dataset_name: the name of the dataset: valid ones are 'cifar10', 'cifar100', 'cifar100coarse', 'svhn', 'fashionmnist', 'mnist'
+    :param embedding: the type of embedding: valid ones are 'features' (next-to-last representations), 'logits' (pre-activation outputs), 'predictions' (post-softmax outputs, or predicted posterior probabilities)
+    :param heldout_only: whether to discard the part of the training data used to train the neural model that generated the embeddings (default: True); set to False
+        to obtain, as the training data, the original training+validation splits.
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: an instance of :class:`quapy.data.base.Dataset`
+    """
+    if data_home is None:
+        data_home = get_quapy_home()
+
+    network_train, val, test = _fetch_image_embedding_splits(dataset_name, embedding, data_home)        
+
+    if heldout_only:
+        train = val            
+    else:
+        train = network_train + val
+        
+    return Dataset(train, test, name=dataset_name)
+
+
+if __name__ == '__main__':
+    #train, val, test = _fetch_image_embedding_splits(dataset_name='mnist', embedding='logits')
+    #print(train)
+    #print(val)
+    #print(test)
+
+    dataset = fetch_image_embeddings(dataset_name='svhn', embedding='features', heldout_only=True)
+    print(dataset)

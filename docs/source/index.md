@@ -1,16 +1,68 @@
 ```{toctree}
 :hidden:
 
-self
+Home <self>
+manuals
+API <quapy>
 ```
 
-# Quickstart
+# QuaPy
 
-QuaPy is an open source framework for quantification (a.k.a. supervised prevalence estimation, or learning to quantify) written in Python.
+```{div} hero-copy
+QuaPy is an open-source Python framework for quantification, also known as
+supervised prevalence estimation or learning to quantify. It is designed with
+research and experimental analysis in mind, and combines datasets, protocols,
+evaluation measures, visualization tools, and a broad collection of
+quantification methods in a single coherent workflow.
+```
 
-QuaPy is based on the concept of "data sample", and provides implementations of the most important aspects of the quantification workflow, such as (baseline and advanced) quantification methods, quantification-oriented model selection mechanisms, evaluation measures, and evaluations protocols used for evaluating quantification methods. QuaPy also makes available commonly used datasets, and offers visualization tools for facilitating the analysis and interpretation of the experimental results.
+`````{grid} 1 1 2 2
+:gutter: 3
+:class-container: landing-grid
 
-QuaPy is hosted on GitHub at [https://github.com/HLT-ISTI/QuaPy](https://github.com/HLT-ISTI/QuaPy).
+````{grid-item-card} Quickstart
+:class-card: landing-card
+Install QuaPy and run your first quantifier in a few lines of code.
++++
+```{button-link} #installation
+:color: primary
+Get Started
+```
+````
+
+````{grid-item-card} Manuals
+:class-card: landing-card
+Hands-on guides with methodological context, literature pointers, and reproducible workflows.
++++
+```{button-ref} manuals
+:ref-type: doc
+:color: primary
+Open Manuals
+```
+````
+
+````{grid-item-card} API
+:class-card: landing-card
+Browse the full reference for `quapy`, including methods, datasets, utilities, and research-oriented extensions.
++++
+```{button-ref} quapy
+:ref-type: doc
+:color: primary
+Browse API
+```
+````
+
+````{grid-item-card} GitHub
+:class-card: landing-card
+Explore the source code, open issues, and current development branch activity.
++++
+```{button-link} https://github.com/HLT-ISTI/QuaPy
+:color: primary
+Open GitHub
+```
+````
+
+`````
 
 ## Installation
 
@@ -18,16 +70,37 @@ QuaPy is hosted on GitHub at [https://github.com/HLT-ISTI/QuaPy](https://github.
 pip install quapy
 ```
 
-## Usage
+## Why QuaPy
 
-The following script fetches a dataset of tweets, trains, applies, and evaluates a quantifier based on the *Adjusted Classify & Count* quantification method, using, as the evaluation measure, the *Mean Absolute Error* (MAE) between the predicted and the true class prevalence values of the test set:
+QuaPy is built around the concept of a data sample and supports the main tasks
+in the quantification workflow: training quantifiers, generating evaluation
+samples, measuring quantification error, selecting models under distribution
+shift, and visualizing experimental behaviour. The framework is especially
+suited for research settings, where one often needs not only implementations,
+but also methodological context, literature links, and reproducible evaluation
+procedures.
+
+Some of the main features are:
+
+* Implementation of many popular quantification methods, including Classify & Count and its variants,
+  Expectation Maximization, HDy, QuaNet, quantification ensembles, and Bayesian extensions.
+* Evaluation protocols for generating test samples under prior probability shift.
+* A broad set of quantification-oriented evaluation metrics.
+* Ready-to-use textual, numeric, and benchmark competition datasets.
+* Method documentation that points back to the relevant literature and original papers.
+* Native support for binary and single-label multiclass quantification.
+* Visualization tools for analysing predictions, drift, confidence regions, and ternary prevalences.
+
+## First Example
+
+The following script fetches a binary dataset, trains an Adjusted Classify & Count quantifier,
+and evaluates the resulting prevalence prediction with Mean Absolute Error.
 
 ```python
 import quapy as qp
 
 training, test = qp.datasets.fetch_UCIBinaryDataset("yeast").train_test
 
-# create an "Adjusted Classify & Count" quantifier
 model = qp.method.aggregative.ACC()
 Xtr, ytr = training.Xy
 model.fit(Xtr, ytr)
@@ -39,43 +112,14 @@ error = qp.error.mae(true_prevalence, estim_prevalence)
 print(f'Mean Absolute Error (MAE)={error:.3f}')
 ```
 
-Quantification is useful in scenarios characterized by prior probability shift. In other words, we would be little interested in estimating the class prevalence values of the test set if we could assume the IID assumption to hold, as this prevalence would be roughly equivalent to the class prevalence of the training set. For this reason, any quantification model should be tested across many samples, even ones characterized by class prevalence values different or very different from those found in the training set. QuaPy implements sampling procedures and evaluation protocols that automate this workflow. See the [](./manuals) for detailed examples.
-
-## Manuals
-
-The following manuals illustrate several aspects of QuaPy through examples:
-
-```{toctree}
-:maxdepth: 3
-
-manuals
-```
-
-```{toctree}
-:hidden:
-
-API <quapy>
-```
-
-## Features
-
-* Implementation of many popular quantification methods (Classify-&-Count and its variants, Expectation Maximization,
-quantification methods based on structured output learning, HDy, QuaNet, quantification ensembles, among others).
-* Versatile functionality for performing evaluation based on sampling generation protocols (e.g., APP, NPP, etc.).
-* Implementation of most commonly used evaluation metrics (e.g., AE, RAE, NAE, NRAE, SE, KLD, NKLD, etc.).
-* Datasets frequently used in quantification (textual and numeric), including:
-    * 32 UCI Machine Learning datasets.
-    * 11 Twitter quantification-by-sentiment datasets.
-    * 3 product reviews quantification-by-sentiment datasets. 
-    * 4 tasks from LeQua 2022 competition and 4 tasks from LeQua 2024 competition
-    * IFCB for Plancton quantification 
-* Native support for binary and single-label multiclass quantification scenarios.
-* Model selection functionality that minimizes quantification-oriented loss functions.
-* Visualization tools for analysing the experimental results.
+Quantification is especially useful when the class prevalence of the test data
+may differ from that of the training data. QuaPy implements protocols that make
+it easy to evaluate methods across many such shifts. See the [](./manuals) for
+worked examples.
 
 ## Citing QuaPy
 
-If you find QuaPy useful (and we hope you will), please consider citing the original paper in your research.
+If you find QuaPy useful, please consider citing the original paper.
 
 ```bibtex
 @inproceedings{moreo2021quapy,
@@ -89,7 +133,8 @@ If you find QuaPy useful (and we hope you will), please consider citing the orig
 
 ## Contributing
 
-In case you want to contribute improvements to quapy, please generate pull request to the "devel" branch.
+If you want to contribute improvements to QuaPy, please open a pull request
+against the `devel` branch.
 
 ## Acknowledgments
 
@@ -98,6 +143,6 @@ In case you want to contribute improvements to quapy, please generate pull reque
 :alt: SoBigData++
 ```
 
-This work has been supported by the QuaDaSh project 
-_"Finanziato dall’Unione europea---Next Generation EU, 
+This work has been supported by the QuaDaSh project
+_"Finanziato dall'Unione europea---Next Generation EU,
 Missione 4 Componente 2 CUP B53D23026250001"_.

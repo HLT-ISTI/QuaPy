@@ -1038,6 +1038,10 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     class-conditional distributions of the posterior probabilities returned for the positive and negative validation
     examples, respectively. The parameters of the mixture thus represent the estimates of the class prevalence values.
 
+    This dedicated class is kept for backward compatibility as the historical
+    HDy implementation. The same historical preset is also available as
+    :meth:`DMy.HDy`.
+
     :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
         the one indicated in `qp.environ['DEFAULT_CLS']`
 
@@ -1273,13 +1277,34 @@ class DMy(AggregativeSoftQuantifier):
         self.search = search
         self.n_jobs = n_jobs
 
-    # @classmethod
-    # def HDy(cls, classifier, val_split=5, n_jobs=None):
-    #     from quapy.method.meta import MedianEstimator
-    #
-    #     hdy = DMy(classifier=classifier, val_split=val_split, search='linear_search', divergence='HD')
-    #     hdy = AggregativeMedianEstimator(hdy, param_grid={'nbins': np.linspace(10, 110, 11).astype(int)}, n_jobs=n_jobs)
-    #     return hdy
+    @classmethod
+    def HDy(cls, classifier: BaseEstimator = None, fit_classifier=True, val_split=5, n_jobs=None):
+        """
+        Historical HDy preset expressed as a configuration of :class:`DMy`.
+
+        This preset reproduces the original HDy setup by using Hellinger
+        distance, PDF matching, linear search, and a median sweep over
+        `nbins` in `[10, 20, ..., 110]`.
+
+        :param classifier: a scikit-learn's BaseEstimator, or None
+        :param fit_classifier: whether to train the learner
+        :param val_split: validation specification for generating posteriors
+        :param n_jobs: number of parallel workers
+        :return: an instance of :class:`AggregativeMedianEstimator` configured
+            to reproduce the historical HDy preset
+        """
+        base = cls(
+            classifier=classifier,
+            fit_classifier=fit_classifier,
+            val_split=val_split,
+            nbins=10,
+            divergence='HD',
+            cdf=False,
+            search='linear_search',
+            n_jobs=n_jobs,
+        )
+        param_grid = {'nbins': np.linspace(10, 110, 11, dtype=int)}
+        return AggregativeMedianEstimator(base_quantifier=base, param_grid=param_grid, n_jobs=n_jobs)
 
     def _get_distributions(self, posteriors):
         histograms = []
@@ -1703,5 +1728,6 @@ ExpectationMaximizationQuantifier = EMQ
 SLD = EMQ
 DistributionMatchingY = DMy
 HellingerDistanceY = HDy
+HistoricalHDy = DMy.HDy
 MedianSweep = MS
 MedianSweep2 = MS2

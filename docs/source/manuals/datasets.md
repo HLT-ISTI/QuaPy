@@ -412,11 +412,112 @@ ECML-PKDD 2024, Vilnius, Lithuania.
 ```
 
 
+## Image Embedding Datasets
+
+QuaPy also provides a collection of image datasets in the form of pre-generated
+embeddings, hosted in [Zenodo](https://zenodo.org/records/21131944). 
+These
+embeddings were generated using [this extraction scripts](https://github.com/pglez82/visiondatasets_quapy).
+
+The current public interface is:
+
+```python
+import quapy as qp
+
+data = qp.datasets.fetch_image_embeddings(
+    dataset_name='cifar10',
+    embedding='features',
+    heldout_only=True,
+)
+train, test = data.train_test
+```
+
+The available datasets are:
+
+```python
+qp.datasets.IMAGE_DATASETS
+# ['cifar10', 'cifar100', 'cifar100coarse', 'svhn', 'fashionmnist', 'mnist']
+```
+
+The available embedding types are:
+
+```python
+qp.datasets.IMAGE_EMBEDDINGS
+# ['features', 'logits', 'predictions']
+```
+
+where:
+
+* `features` are the penultimate-layer representations
+* `logits` are the pre-activation outputs of the neural model
+* `predictions` are the post-softmax posterior probabilities
+
+The datasets correspond to frozen neural representations extracted from models
+trained on image classification tasks. QuaPy downloads them automatically on
+first use and stores them locally for fast reuse.
+
+### Train/Test Semantics
+
+Each dataset is internally organised into three splits: `train`, `val`, and
+`test`. The `train` split was used to train the neural model that produced the
+embeddings, while `val` and `test` were not seen during neural training.
+
+For this reason, the default setting is:
+
+```python
+data = qp.datasets.fetch_image_embeddings(..., heldout_only=True)
+```
+
+which returns:
+
+* `train = val`
+* `test = test`
+
+This is often the most convenient choice for quantification experiments, since
+it avoids training quantifiers on examples that were already used to train the
+embedding model.
+
+If instead you want to use all the available non-test data, you can set:
+
+```python
+data = qp.datasets.fetch_image_embeddings(..., heldout_only=False)
+```
+
+In this case, the returned training set is the union of the original neural
+training split and the validation split.
+
+### Sources
+
+The image datasets currently available through `fetch_image_embeddings` are:
+
+* cifar10, cifar100, cifar100coarse:
+  [Alex Krizhevsky and Geoffrey Hinton. Learning multiple layers of features from tiny images. Technical report, University of Toronto, 2009.](https://cave.cs.toronto.edu/kriz/learning-features-2009-TR.pdf)
+* mnist:
+  [Yann LeCun, Corinna Cortes, and Christopher J. C. Burges. The MNIST database of handwritten digits. 1998.](http://yann.lecun.com/exdb/mnist/)
+* fashionmnist:
+  [Han Xiao, Kashif Rasul, and Roland Vollgraf. Fashion-MNIST: a novel image dataset for benchmarking machine learning algorithms. arXiv preprint arXiv:1708.07747, 2017.](https://arxiv.org/abs/1708.07747)
+* svhn:
+  [Yuval Netzer, Tao Wang, Adam Coates, Alessandro Bissacco, Baolin Wu, Andrew Y. Ng, et al. Reading digits in natural images with unsupervised feature learning. NIPS Workshop, 2011.](https://static.googleusercontent.com/media/research.google.com/es//pubs/archive/37648.pdf)
+
+Some statistics are shown in the following table:
+
+| Dataset | backbone | classes | neural network train size | validation size | test size | feature dim | logit dim | prediction dim | type |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| cifar100 | resnet18 | 100 | 35000 | 15000 | 10000 | 512 | 100 | 100 | dense |
+| cifar10 | resnet18 | 10 | 35000 | 15000 | 10000 | 512 | 10 | 10 | dense |
+| cifar100coarse | resnet18 | 20 | 35000 | 15000 | 10000 | 512 | 20 | 20 | dense |
+| mnist | basiccnn | 10 |42000 | 18000 | 10000 | 128 | 10 | 10 | dense |
+| fashionmnist | basiccnn | 10 | 42000 | 18000 | 10000 | 128 | 10 | 10 | dense |
+| svhn | resnet18 | 10 | 51280 | 21977 | 26032 | 512 | 10 | 10 | dense |
+
+
+
+
 ## IFCB Plankton dataset
 
-IFCB is a dataset of plankton species in water samples hosted in `Zenodo <https://zenodo.org/records/10036244>`_.
-This dataset is based on the data available publicly at `WHOI-Plankton repo <https://github.com/hsosik/WHOI-Plankton>`_
-and in the scripts for the processing are available at `P. González's repo <https://github.com/pglez82/IFCB_Zenodo>`_.
+IFCB is a dataset of plankton species in water samples hosted in [Zenodo](https://zenodo.org/records/10036244).
+This dataset is based on the data available publicly at [WHOI-Plankton repo](https://github.com/hsosik/WHOI-Plankton)
+and the scripts for the processing are available at [P. González's repo](https://github.com/pglez82/IFCB_Zenodo).
 
 This dataset comes with precomputed features for testing quantification algorithms.
 

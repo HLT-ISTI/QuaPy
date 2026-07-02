@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 from quapy.method import AGGREGATIVE_METHODS, BINARY_METHODS, NON_AGGREGATIVE_METHODS
-from quapy.method.non_aggregative import DMx
+from quapy.method.non_aggregative import DMx, HDx
 from quapy.method.aggregative import ACC, DMy, KDEyCS, RLLS
 from quapy.method.meta import Ensemble
 from quapy.functional import check_prevalence_vector
@@ -173,6 +173,20 @@ class TestMethods(unittest.TestCase):
         estim_prevalences = q.predict(dataset.test.X)
         self.assertTrue(check_prevalence_vector(estim_prevalences))
         self.assertEqual(len(estim_prevalences), len(np.unique(y_train)))
+
+
+    def test_historical_distribution_matching_presets(self):
+        dataset = TestMethods.tiny_dataset_binary
+
+        hdy = DMy.HDy(LogisticRegression(max_iter=2000), val_split=3)
+        hdy.fit(*dataset.training.Xy)
+        prev_hdy = hdy.predict(dataset.test.X)
+        self.assertTrue(check_prevalence_vector(prev_hdy))
+
+        hdx = HDx()
+        hdx.fit(*dataset.training.Xy)
+        prev_hdx = hdx.predict(dataset.test.X)
+        self.assertTrue(check_prevalence_vector(prev_hdx))
 
 
 if __name__ == '__main__':

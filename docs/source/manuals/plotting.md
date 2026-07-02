@@ -251,3 +251,37 @@ In those cases, however, it is likely that the variances of each
 method get higher, to the detriment of the visualization. 
 We recommend to set _show_std=False_ in those cases 
 in order to hide the color bands.
+
+## Simplex Visualisation
+
+For three-class problems, prevalence vectors lie on the 2-dimensional probability simplex.
+The function `qp.plot.plot_simplex` provides a lightweight ternary plot that can combine
+scatter layers, shaded regions, and density overlays.
+
+A simplex plot is specified through optional layers. Point layers are dictionaries with
+fields `points`, `label`, and `style`; region layers are dictionaries with fields `fn`,
+`label`, `color`, and `alpha`.
+
+```python
+import numpy as np
+import quapy as qp
+
+true_prev = np.array([0.20, 0.35, 0.45])
+train_prev = np.array([0.50, 0.30, 0.20])
+posterior_cloud = np.random.default_rng(0).dirichlet(alpha=40 * true_prev, size=200)
+
+qp.plot.plot_simplex(
+    point_layers=[
+        {'points': posterior_cloud, 'label': 'posterior cloud', 'style': {'s': 12, 'alpha': 0.25, 'color': 'steelblue'}},
+        {'points': true_prev, 'label': 'true prevalence', 'style': {'s': 90, 'color': 'black'}},
+        {'points': train_prev, 'label': 'training prevalence', 'style': {'s': 90, 'color': 'darkorange'}},
+    ],
+    density_function=lambda p: np.exp(-40 * np.sum((p - true_prev) ** 2, axis=1)),
+    class_names=['class A', 'class B', 'class C'],
+    savepath='./plots/simplex.png',
+)
+```
+
+See the dedicated
+[example](https://github.com/HLT-ISTI/QuaPy/blob/master/examples/19.visualizing_simplex.py)
+for a slightly richer illustration.

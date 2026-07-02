@@ -125,7 +125,7 @@ class KDEyML(AggregativeSoftQuantifier, KDEBase):
     """
     Kernel Density Estimation model for quantification (KDEy) relying on the Kullback-Leibler divergence (KLD) as
     the divergence measure to be minimized. This method was first proposed in the paper
-    `Kernel Density Estimation for Multiclass Quantification <https://arxiv.org/abs/2401.00490>`_, in which
+    `Kernel Density Estimation for Multiclass Quantification <https://link.springer.com/article/10.1007/s10994-024-06726-5>`_ (`arXiv <https://arxiv.org/abs/2401.00490>`_), in which
     the authors show that minimizing the distribution mathing criterion for KLD is akin to performing
     maximum likelihood (ML).
 
@@ -220,7 +220,7 @@ class KDEyHD(AggregativeSoftQuantifier, KDEBase):
     """
     Kernel Density Estimation model for quantification (KDEy) relying on the squared Hellinger Disntace (HD) as
     the divergence measure to be minimized. This method was first proposed in the paper
-    `Kernel Density Estimation for Multiclass Quantification <https://arxiv.org/abs/2401.00490>`_, in which
+    `Kernel Density Estimation for Multiclass Quantification <https://link.springer.com/article/10.1007/s10994-024-06726-5>`_ (`arXiv <https://arxiv.org/abs/2401.00490>`_), in which
     the authors proposed a Monte Carlo approach for minimizing the divergence.
 
     The distribution matching optimization problem comes down to solving:
@@ -322,7 +322,7 @@ class KDEyCS(AggregativeSoftQuantifier):
     """
     Kernel Density Estimation model for quantification (KDEy) relying on the Cauchy-Schwarz divergence (CS) as
     the divergence measure to be minimized. This method was first proposed in the paper
-    `Kernel Density Estimation for Multiclass Quantification <https://arxiv.org/abs/2401.00490>`_, in which
+    `Kernel Density Estimation for Multiclass Quantification <https://link.springer.com/article/10.1007/s10994-024-06726-5>`_ (`arXiv <https://arxiv.org/abs/2401.00490>`_), in which
     the authors proposed a Monte Carlo approach for minimizing the divergence.
 
     The distribution matching optimization problem comes down to solving:

@@ -6,12 +6,15 @@ Change Log 0.2.1
 - Added temperature calibration utilities for Bayesian confidence-aware methods.
 - Added compositional CLR and ILR transformations.
 - Extended KDEy with Aitchison/ILR kernels, shrinkage, and improved numerical stability.
+- Added image-embedding-based datasets including CIFAR10, CIFAR100, CIFAR100coarse, VSHN, FashionMNIST, MNIST
 - Added TemperatureScalingFromLogits for calibrating pretrained logits.
 - Added DirichletProtocol for prevalence sampling from Dirichlet priors.
 - Added ReadMe method by Daniel Hopkins and Gary King.
 - Internal index in LabelledCollection is now "lazy", and is only constructed if required.
 - Improved unit testing and separated integration tests.
 - Added RLLS (Regularized Learning for Domain Adaptation under Label Shifts) method.
+- Added visualization tools for 3-class problems in the simplex, see also the new example no.19
+
 
 Change Log 0.2.0
 -----------------

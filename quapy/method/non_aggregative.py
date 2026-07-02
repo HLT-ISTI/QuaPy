@@ -97,7 +97,6 @@ class DMx(BaseQuantifier):
         return hdx
 
     def __get_distributions(self, X):
-
         histograms = []
         for feat_idx in range(self.nfeats):
             feature = X[:, feat_idx]
@@ -161,8 +160,6 @@ class DMx(BaseQuantifier):
         return F.argmin_prevalence(loss, n_classes, method=self.search)
 
 
-
-
 class ReadMe(BaseQuantifier, WithConfidenceABC):
     """
     ReadMe is a non-aggregative quantification system proposed by
@@ -187,8 +184,8 @@ class ReadMe(BaseQuantifier, WithConfidenceABC):
         ReadMe, in which X is constrained to be a binary matrix (e.g., of term presence/absence) and in which
         `Q(X)` and `Q(X|Y)` are modelled, respectively, as matrices of `(2^K, 1)` and `(2^K, n)` values, where
         `K` is the number of columns in the data matrix (i.e., `bagging_range`), and `n` is the number of classes.
-        Of course, this approach is computationally prohibited for large `K`, so the computation is restricted to data
-        matrices with `K<=25` (although we recommend even smaller values of `K`). A much faster model is "naive", which
+        Of course, this approach is computationally prohibited for large `K`, so the authors advised against computing it
+        for matrices with `K>25` (although we recommend even smaller values of `K`). A much faster model is "naive", which
         considers the `Q(X)` and `Q(X|Y)` be multinomial distributions under the `bag-of-words` perspective. In this
         case, `bagging_range` can be set to much larger values. Default is "full" (i.e., original ReadMe behavior).
     :param bootstrap_trials: int, number of bootstrap trials (default 300)
@@ -229,7 +226,6 @@ class ReadMe(BaseQuantifier, WithConfidenceABC):
 
         self.rng = np.random.default_rng(self.random_state)
         self.classes_ = np.unique(y)
-
 
         Xsize = X.shape[0]
 
@@ -303,22 +299,22 @@ class ReadMe(BaseQuantifier, WithConfidenceABC):
             raise ValueError(f'the empirical distribution can only be computed efficiently for dimensions '
                              f'less or equal than {self.MAX_FEATURES_FOR_EMPIRICAL_ESTIMATION}')
 
-        # we convert every binary row (e.g., 0 0 1 0 1) into the equivalent number (e.g., 5)
+        # we first convert every binary row (e.g., 0 0 1 0 1) into the equivalent number (e.g., 5);
+        # this will speed up subsequent comparisons a lot
         K = X.shape[1]
-        binary_powers = 1 << np.arange(K-1, -1, -1)  # (2^K, ..., 32, 16, 8, 4, 2, 1)
-        X_as_binary_numbers = X @ binary_powers
+        binary_powers = 1 << np.arange(K-1, -1, -1)     # (2^K, ..., 32, 16, 8, 4, 2, 1)
+        X_as_binary_numbers = X @ binary_powers         # e.g., [0 0 1 0 1] @ [16, 8, 4, 2, 1] = 5
 
         # count occurrences and compute probs
         counts = np.bincount(X_as_binary_numbers, minlength=2 ** K).astype(float)
         probs = counts / counts.sum()
+
         return probs
 
     def _multinomial_distribution(self, X):
         PX = np.asarray(X.sum(axis=0))
         PX = normalize(PX, norm='l1', axis=1)
         return PX.ravel()
-
-
 
 
 def _get_features_range(X):
@@ -334,4 +330,6 @@ def _get_features_range(X):
 # aliases
 #---------------------------------------------------------------
 
+HDx = DMx.HDx
 DistributionMatchingX = DMx
+HellingerDistanceX = HDx

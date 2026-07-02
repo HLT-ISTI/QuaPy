@@ -1,78 +1,374 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>quapy.data.datasets &mdash; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>quapy.data.datasets &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=9f2a2228" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/quapy/data/datasets';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
 
   
-      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=37f418d5"></script>
-      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
-</head>
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="../../../index.html" class="icon icon-home">
-            QuaPy: A Python-based open-source framework for quantification
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Quickstart</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../manuals.html">Manuals</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../quapy.html">API</a></li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
-      </nav>
+  
+    
+  
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">quapy.data.datasets</li>
-      <li class="wy-breadcrumbs-aside">
-      </li>
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../manuals.html">
+    Manuals
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../quapy.html">
+    API
+  </a>
+</li>
+
   </ul>
-  <hr/>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../manuals.html">
+    Manuals
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../quapy.html">
+    API
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">quapy.data.datasets</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <h1>Source code for quapy.data.datasets</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
@@ -194,6 +490,9 @@
     <span class="s1">&#39;T3&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
     <span class="s1">&#39;T4&#39;</span><span class="p">:</span> <span class="mi">250</span><span class="p">,</span>
 <span class="p">}</span>
+
+<span class="n">IMAGE_DATASETS</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cifar10&#39;</span><span class="p">,</span> <span class="s1">&#39;cifar100&#39;</span><span class="p">,</span> <span class="s1">&#39;cifar100coarse&#39;</span><span class="p">,</span> <span class="s1">&#39;svhn&#39;</span><span class="p">,</span> <span class="s1">&#39;fashionmnist&#39;</span><span class="p">,</span> <span class="s1">&#39;mnist&#39;</span><span class="p">]</span>
+<span class="n">IMAGE_EMBEDDINGS</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="s1">&#39;logits&#39;</span><span class="p">,</span> <span class="s1">&#39;predictions&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="fetch_reviews">
@@ -1165,33 +1464,177 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">train_gen</span><span class="p">,</span> <span class="n">test_gen</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fetch_image_embedding_splits</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">LabelledCollection</span><span class="p">,</span><span class="n">LabelledCollection</span><span class="p">,</span><span class="n">LabelledCollection</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a pre-generated embedding set (train, val, or test) of an image dataset from `Zenodo &lt;https://zenodo.org/records/21131944&gt;`_.</span>
+<span class="sd">    </span>
+<span class="sd">    Embeddings were extracted using `this script &lt;https://github.com/pglez82/visiondatasets_quapy&gt;`_. </span>
+
+<span class="sd">    :param dataset_name: the name of the dataset: valid ones are &#39;cifar10&#39;, &#39;cifar100&#39;, &#39;cifar100coarse&#39;, &#39;svhn&#39;, &#39;fashionmnist&#39;, &#39;mnist&#39;</span>
+<span class="sd">    :param embedding: the type of embedding: valid ones are &#39;features&#39; (next-to-last representations), &#39;logits&#39; (pre-activation values), &#39;predictions&#39; (posterior probabilities)</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :return: a tuple (train, val, test) where each entry is an instance of :class:`quapy.data.base.LabelledCollection`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="n">IMAGE_DATASETS</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s1">&#39;Name </span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1"> does not match any known dataset. Valid ones are </span><span class="si">{</span><span class="n">IMAGE_DATASETS</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">assert</span> <span class="n">embedding</span> <span class="ow">in</span> <span class="n">IMAGE_EMBEDDINGS</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s1">&#39;Name </span><span class="si">{</span><span class="n">embedding</span><span class="si">}</span><span class="s1"> does not match any known type of embedding. Valid ones are </span><span class="si">{</span><span class="n">IMAGE_EMBEDDINGS</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
+    
+    <span class="n">dataset_network</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;cifar10&#39;</span><span class="p">:</span> <span class="s1">&#39;resnet18&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cifar100&#39;</span><span class="p">:</span> <span class="s1">&#39;resnet18&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cifar100coarse&#39;</span><span class="p">:</span> <span class="s1">&#39;resnet18&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;svhn&#39;</span><span class="p">:</span> <span class="s1">&#39;resnet18&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fashionmnist&#39;</span><span class="p">:</span> <span class="s1">&#39;basiccnn&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mnist&#39;</span><span class="p">:</span> <span class="s1">&#39;basiccnn&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">trained_network</span> <span class="o">=</span> <span class="n">dataset_network</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_embedding_npz</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">trained_network</span><span class="p">,</span> <span class="n">embedding</span><span class="p">):</span>
+        <span class="n">target_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">trained_network</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">embedding</span><span class="si">}</span><span class="s1">.npz&#39;</span>
+        <span class="n">URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://zenodo.org/records/21131944/files/</span><span class="si">{</span><span class="n">target_file</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="n">target_file</span><span class="p">)</span>
+        <span class="n">download_file_if_not_exists</span><span class="p">(</span><span class="n">URL</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+        <span class="n">npz_file</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">npz_file</span>
+
+    <span class="n">embedding_dict</span> <span class="o">=</span> <span class="n">download_embedding_npz</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">trained_network</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="n">embedding</span><span class="p">)</span>
+    <span class="n">labels_dict</span> <span class="o">=</span> <span class="n">download_embedding_npz</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">trained_network</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+
+    <span class="n">train</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">embedding_dict</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">],</span> <span class="n">labels_dict</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">])</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">embedding_dict</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">],</span> <span class="n">labels_dict</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">],</span> <span class="n">classes</span><span class="o">=</span><span class="n">train</span><span class="o">.</span><span class="n">classes</span><span class="p">)</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">embedding_dict</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">],</span> <span class="n">labels_dict</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">],</span> <span class="n">classes</span><span class="o">=</span><span class="n">train</span><span class="o">.</span><span class="n">classes</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span><span class="si">}</span><span class="s1"> | </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="si">}</span><span class="s1"> | </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="si">}</span><span class="s1"> | </span><span class="si">{</span><span class="n">train</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> | </span><span class="si">{</span><span class="n">train</span><span class="o">.</span><span class="n">n_classes</span><span class="si">}</span><span class="s1"> | </span><span class="si">{</span><span class="n">train</span><span class="o">.</span><span class="n">n_classes</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">test</span>
+
+
+<div class="viewcode-block" id="fetch_image_embeddings">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_image_embeddings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fetch_image_embeddings</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">heldout_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads an image dataset with pre-generated embeddings. Available datasets include:</span>
+
+<span class="sd">    - &#39;cifar10&#39;, &#39;cifar100&#39;, &#39;cifar100coarse&#39;: see `Alex Krizhevsky and Geoffrey Hinton. Learning multiple layers of features from tiny images. Technical report, University of Toronto, Toronto, Ontario, 2009. &lt;https://cave.cs.toronto.edu/kriz/learning-features-2009-TR.pdf&gt;`_</span>
+<span class="sd">    - &#39;mnist&#39;: `Yann LeCun, Corinna Cortes, and Christopher J. C. Burges. The MNIST database of handwritten digits. 1998. &lt;http://yann.lecun.com/exdb/mnist/&gt;`_</span>
+<span class="sd">    - &#39;fashionmnist&#39;: `Han Xiao, Kashif Rasul, and Roland Vollgraf. Fashion-MNIST: a novel image dataset for benchmarking machine learning algorithms. arXiv preprint arXiv:1708.07747, 2017. &lt;https://arxiv.org/abs/1708.07747&gt;`_</span>
+<span class="sd">    - &#39;svhn&#39;: `Yuval Netzer, Tao Wang, Adam Coates, Alessandro Bissacco, Baolin Wu, Andrew Y Ng, et al. Reading digits in natural images with unsupervised feature learning. In NIPS workshop on deep learning and unsupervised feature learning, volume 2011, page 4. Granada, 2011. &lt;https://static.googleusercontent.com/media/research.google.com/es//pubs/archive/37648.pdf&gt;`_</span>
+<span class="sd">    </span>
+<span class="sd">    The image dataset are stored in `Zenodo &lt;https://zenodo.org/records/21131944&gt;`_ and were extracted using `this script &lt;https://github.com/pglez82/visiondatasets_quapy&gt;`_. </span>
+
+<span class="sd">    These embeddings were generated using a resnet18 or a simple cnn. In all cases, the network was trained using ~60% of the data, validated on ~25% of the data, and the remaining ~15% was used for test. Splits were created with stratification.</span>
+<span class="sd">    Once the network is trained, it was used with frozen weights to generate embeddings for the training, validation, and test, in different formats (see below).</span>
+<span class="sd">    It would therefore be convenient to use only heldout data (validation and test) for training and testing quantifiers (this is the default behavior), although the training+validation data can be accessed with `heldout_only=False`.</span>
+
+<span class="sd">    :param dataset_name: the name of the dataset: valid ones are &#39;cifar10&#39;, &#39;cifar100&#39;, &#39;cifar100coarse&#39;, &#39;svhn&#39;, &#39;fashionmnist&#39;, &#39;mnist&#39;</span>
+<span class="sd">    :param embedding: the type of embedding: valid ones are &#39;features&#39; (next-to-last representations), &#39;logits&#39; (pre-activation outputs), &#39;predictions&#39; (post-softmax outputs, or predicted posterior probabilities)</span>
+<span class="sd">    :param heldout_only: whether to discard the part of the training data used to train the neural model that generated the embeddings (default: True); set to False</span>
+<span class="sd">        to obtain, as the training data, the original training+validation splits.</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :return: an instance of :class:`quapy.data.base.Dataset`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
+
+    <span class="n">network_train</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">_fetch_image_embedding_splits</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">data_home</span><span class="p">)</span>        
+
+    <span class="k">if</span> <span class="n">heldout_only</span><span class="p">:</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">val</span>            
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">network_train</span> <span class="o">+</span> <span class="n">val</span>
+        
+    <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c1">#train, val, test = _fetch_image_embedding_splits(dataset_name=&#39;mnist&#39;, embedding=&#39;logits&#39;)</span>
+    <span class="c1">#print(train)</span>
+    <span class="c1">#print(val)</span>
+    <span class="c1">#print(test)</span>
+
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">fetch_image_embeddings</span><span class="p">(</span><span class="n">dataset_name</span><span class="o">=</span><span class="s1">&#39;svhn&#39;</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="n">heldout_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 </pre></div>
 
-           </div>
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
           </div>
-          <footer>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
   </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
 
-</footer>
-        </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+  <p class="copyright">
+    
+      © Copyright 2024, Alejandro Moreo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
 
-</body>
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
 </html>

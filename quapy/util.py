@@ -152,7 +152,7 @@ def download_file(url, archive_filename):
 
 def download_file_if_not_exists(url, archive_filename):
     """
-    Dowloads a function (using :meth:`download_file`) if the file does not exist.
+    Downloads a file (using :meth:`download_file`) if the file does not exist.
 
     :param url: the url
     :param archive_filename: destination filename
