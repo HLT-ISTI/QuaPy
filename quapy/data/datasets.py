@@ -1113,8 +1113,6 @@ def _fetch_image_embedding_splits(dataset_name, embedding, data_home=None) -> tu
     val = LabelledCollection(embedding_dict['val'], labels_dict['val'], classes=train.classes)
     test = LabelledCollection(embedding_dict['test'], labels_dict['test'], classes=train.classes)
 
-    print(f'{len(train)} | {len(val)} | {len(test)} | {train.X.shape[1]} | {train.n_classes} | {train.n_classes}')
-
     return train, val, test
 
 
