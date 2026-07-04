@@ -67,8 +67,7 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         # this would allow to run parallel instances of predict
         random_code = 'svmperfprocess'+'-'.join(str(local_random.randint(0, 1000000)) for _ in range(5))
         if self.host_folder is None:
-            # tmp dir are removed after the fit terminates in multiprocessing...
-            self.tmpdir = tempfile.TemporaryDirectory(suffix=random_code).name
+            self.tmpdir = join(tempfile.gettempdir(), random_code)
         else:
             self.tmpdir = join(self.host_folder, '.' + random_code)
         makedirs(self.tmpdir, exist_ok=True)
