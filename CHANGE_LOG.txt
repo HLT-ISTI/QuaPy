@@ -1,19 +1,33 @@
 Change Log 0.2.1
 -----------------
 
-- Improved documentation of confidence regions.
+- Improved documentation of confidence regions. Added QuaPy logo :')
+
 - Added Bayesian KDEy and Bayesian MAPLS quantifiers.
+
 - Added temperature calibration utilities for Bayesian confidence-aware methods.
+
 - Added compositional CLR and ILR transformations.
+
 - Extended KDEy with Aitchison/ILR kernels, shrinkage, and improved numerical stability.
-- Added image-embedding-based datasets including CIFAR10, CIFAR100, CIFAR100coarse, VSHN, FashionMNIST, MNIST
+
+- Added image-embedding-based datasets including CIFAR10, CIFAR100, CIFAR100coarse, VSHN, FashionMNIST, MNIST.
+
 - Added TemperatureScalingFromLogits for calibrating pretrained logits.
+
 - Added DirichletProtocol for prevalence sampling from Dirichlet priors.
+
 - Added ReadMe method by Daniel Hopkins and Gary King.
+
 - Internal index in LabelledCollection is now "lazy", and is only constructed if required.
+
 - Improved unit testing and separated integration tests.
+
 - Added RLLS (Regularized Learning for Domain Adaptation under Label Shifts) method.
+
 - Added visualization tools for 3-class problems in the simplex, see also the new example no.19
+
+- Deep code revision and improved codebase
 
 
 Change Log 0.2.0
@@ -32,6 +46,7 @@ Change Log 0.2.0
         in which case the_data is to be used for validation purposes. However, the val_split could be set as a fraction
         indicating only part of the_data must be used for validation, and the rest wasted... it was certainly confusing.
     - This change imposes a versioning constrain with qunfold, which now must be >= 0.1.6
+
 - EMQ has been modified, so that the representation function "classify" now only provides posterior
     probabilities and, if required, these are recalibrated (e.g., by "bcts") during the aggregation function.
     - A new parameter "on_calib_error" is passed to the constructor, which informs of the policy to follow
@@ -39,13 +54,16 @@ Change Log 0.2.0
             - 'raise': raises a RuntimeException (default)
             - 'backup': reruns by silently avoiding calibration
     - Parameter "recalib" has been renamed "calib"
+
 - Added aggregative bootstrap for deriving confidence regions (confidence intervals, ellipses in the simplex, or
     ellipses in the CLR space). This method is efficient as it leverages the two-phases of the aggregative quantifiers.
     This method applies resampling only to the aggregation phase, thus avoiding to train many quantifiers, or
     classify multiple times the instances of a sample. See:
     - quapy/method/confidence.py (new)
     - the new example no. 16.confidence_regions.py
+
 - BayesianCC moved to confidence.py, where methods having to do with confidence intervals belong.
+
 - Improved documentation of qp.plot module.
 
 
@@ -147,6 +165,7 @@ Change Log 0.1.8
 
 - New API documentation template.
 
+
 Change Log 0.1.7
 ----------------
 
@@ -200,7 +219,7 @@ Change Log 0.1.7
 - hyperparameters yielding to inconsistent runs raise a ValueError exception, while hyperparameter combinations
     yielding to internal errors of surrogate functions are reported and skipped, without stopping the grid search.
 
-- DistributionMatching methods added. This is a general framework for distribution matching methods that catters for
+- DistributionMatching methods added. This is a general framework for distribution matching methods that caters for
     multiclass quantification. That is to say, one could get a multiclass variant of the (originally binary) HDy
     method aligned with the Firat's formulation.
 
