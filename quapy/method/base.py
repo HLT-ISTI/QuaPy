@@ -1,3 +1,4 @@
+import warnings
 from abc import ABCMeta, abstractmethod
 from copy import deepcopy
 
@@ -84,8 +85,8 @@ class OneVsAllGeneric(OneVsAll, BaseQuantifier):
         assert isinstance(binary_quantifier, BaseQuantifier), \
             f'{binary_quantifier} does not seem to be a Quantifier'
         if isinstance(binary_quantifier, qp.method.aggregative.AggregativeQuantifier):
-            print('[warning] the quantifier seems to be an instance of qp.method.aggregative.AggregativeQuantifier; '
-                  f'you might prefer instantiating {qp.method.aggregative.OneVsAllAggregative.__name__}')
+            warnings.warn('the quantifier seems to be an instance of qp.method.aggregative.AggregativeQuantifier; '
+                           f'you might prefer instantiating {qp.method.aggregative.OneVsAllAggregative.__name__}')
         self.binary_quantifier = binary_quantifier
         self.n_jobs = qp._get_njobs(n_jobs)
 

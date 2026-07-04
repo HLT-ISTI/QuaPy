@@ -1,3 +1,4 @@
+import logging
 import random
 import shutil
 import subprocess
@@ -79,14 +80,14 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
         cmd = ' '.join([self.svmperf_learn, self.c_cmd, self.loss_cmd, traindat, self.model])
         if self.verbose:
-            print('[Running]', cmd)
-        p = subprocess.run(cmd.split(), stdout=PIPE, stderr=STDOUT)
+            logging.getLogger(__name__).info(f'[Running] {cmd}')
+        p = subprocess.run(cmd.split(), stdout=PIPE, stderr=PIPE)
         if not exists(self.model):
-            print(p.stderr.decode('utf-8'))
+            logging.getLogger(__name__).error(p.stderr.decode('utf-8'))
         remove(traindat)
 
         if self.verbose:
-            print(p.stdout.decode('utf-8'))
+            logging.getLogger(__name__).info(p.stdout.decode('utf-8'))
 
         return self
 
@@ -125,11 +126,11 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
         cmd = ' '.join([self.svmperf_classify, testdat, self.model, predictions_path])
         if self.verbose:
-            print('[Running]', cmd)
+            logging.getLogger(__name__).info(f'[Running] {cmd}')
         p = subprocess.run(cmd.split(), stdout=PIPE, stderr=STDOUT)
 
         if self.verbose:
-            print(p.stdout.decode('utf-8'))
+            logging.getLogger(__name__).info(p.stdout.decode('utf-8'))
 
         scores = np.loadtxt(predictions_path)
         remove(testdat)

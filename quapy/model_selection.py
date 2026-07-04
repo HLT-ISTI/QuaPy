@@ -1,4 +1,5 @@
 import itertools
+import logging
 import signal
 from copy import deepcopy
 from enum import Enum
@@ -91,7 +92,7 @@ class GridSearchQ(BaseQuantifier):
 
     def _sout(self, msg):
         if self.verbose:
-            print(f'[{self.__class__.__name__}:{self.model.__class__.__name__}]: {msg}')
+            logging.getLogger(__name__).info(f'[{self.__class__.__name__}:{self.model.__class__.__name__}]: {msg}')
 
     def __check_error_measure(self, error):
         if error in qp.error.QUANTIFICATION_ERROR:

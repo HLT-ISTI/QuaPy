@@ -329,7 +329,9 @@ class LabelledCollection:
         else:
             raise NotImplementedError('unsupported operation for collection types')
         labels = np.concatenate([lc.labels for lc in args])
-        classes = np.unique(labels).sort()
+        # union of each collection's own classes_, so a class declared but absent from
+        # this particular join (e.g. an empty fold) is preserved at zero prevalence
+        classes = np.unique(np.concatenate([lc.classes_ for lc in args]))
         return LabelledCollection(instances, labels, classes=classes)
 
     @property

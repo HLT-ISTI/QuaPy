@@ -483,7 +483,6 @@ def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs
                 best_bucket_methods.append(method_order[method_index])
         best_methods.append(best_bucket_methods)
         salient_methods.update(best_bucket_methods)
-        print(best_bucket_methods)
 
     if binning=='isomerous':
         fig, axes = plt.subplots(2, 1, gridspec_kw={'height_ratios': [0.2, 1]}, figsize=(20, len(salient_methods)))
@@ -827,7 +826,6 @@ def calibration_plot(prob_classifier, X, y, nbins=10, savepath=None):
     pred_y = posteriors>=0.5
     bins = np.linspace(0, 1, nbins + 1)
     binned_values = np.digitize(posteriors, bins, right=False)
-    print(np.unique(binned_values))
     correct = pred_y == y
     bin_centers = (bins[:-1] + bins[1:]) / 2
     bins_names = np.arange(nbins)

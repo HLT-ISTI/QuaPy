@@ -1,5 +1,5 @@
+import warnings
 from abc import ABC, abstractmethod
-from argparse import ArgumentError
 from copy import deepcopy
 from typing import Callable, Literal, Union
 import numpy as np
@@ -82,9 +82,9 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
                 (f'when {val_split=} is indicated as an integer, it represents the number of folds in a kFCV '
                  f'and must thus be >1')
             if val_split==5 and not fit_classifier:
-                print(f'Warning: {val_split=} will be ignored when the classifier is already trained '
-                      f'({fit_classifier=}). Parameter {self.val_split=} will be set to None. Set {val_split=} '
-                      f'to None to avoid this warning.')
+                warnings.warn(f'{val_split=} will be ignored when the classifier is already trained '
+                              f'({fit_classifier=}). Parameter {self.val_split=} will be set to None. Set {val_split=} '
+                              f'to None to avoid this warning.')
                 self.val_split=None
             if val_split!=5:
                 assert fit_classifier, (f'Parameter {val_split=} has been modified, but {fit_classifier=} '
@@ -343,8 +343,8 @@ class AggregativeSoftQuantifier(AggregativeQuantifier, ABC):
         """
         if not hasattr(self.classifier, self._classifier_method()):
             if adapt_if_necessary:
-                print(f'warning: The learner {self.classifier.__class__.__name__} does not seem to be '
-                      f'probabilistic. The learner will be calibrated (using CalibratedClassifierCV).')
+                warnings.warn(f'The learner {self.classifier.__class__.__name__} does not seem to be '
+                              f'probabilistic. The learner will be calibrated (using CalibratedClassifierCV).')
                 self.classifier = CalibratedClassifierCV(self.classifier, cv=5)
             else:
                 raise AssertionError(f'error: The learner {self.classifier.__class__.__name__} does not '
@@ -838,7 +838,7 @@ class EMQ(AggregativeSoftQuantifier):
         self.exact_train_prev = exact_train_prev
         self.calib = calib
         self.on_calib_error = on_calib_error
-        self.n_jobs = n_jobs
+        self.n_jobs = qp._get_njobs(n_jobs)
 
     @classmethod
     def EMQ_BCTS(cls, classifier: BaseEstimator, fit_classifier=True, val_split=5, on_calib_error="raise", n_jobs=None):
@@ -875,15 +875,15 @@ class EMQ(AggregativeSoftQuantifier):
     def _check_init_parameters(self):
         if self.val_split is not None:
             if self.exact_train_prev and self.calib is None:
-                raise RuntimeWarning(f'The parameter {self.val_split=} was specified for EMQ, while the parameters '
-                                     f'{self.exact_train_prev=} and {self.calib=}. This has no effect and causes an '
-                                     f'unnecessary overload.')
+                warnings.warn(f'The parameter {self.val_split=} was specified for EMQ, while the parameters '
+                              f'{self.exact_train_prev=} and {self.calib=}. This has no effect and causes an '
+                              f'unnecessary overload.', RuntimeWarning)
         else:
             if self.calib is not None:
-                print(f'[warning] The parameter {self.calib=} requires the val_split be different from None. '
-                      f'This parameter will be set to 5. To avoid this warning, set this value to a float value '
-                      f'indicating the proportion of training data to be used as validation, or to an integer '
-                      f'indicating the number of folds for kFCV.')
+                warnings.warn(f'The parameter {self.calib=} requires the val_split be different from None. '
+                              f'This parameter will be set to 5. To avoid this warning, set this value to a float value '
+                              f'indicating the proportion of training data to be used as validation, or to an integer '
+                              f'indicating the number of folds for kFCV.')
                 self.val_split = 5
 
     def classify(self, X):
@@ -945,14 +945,14 @@ class EMQ(AggregativeSoftQuantifier):
         requires_predictions = (self.calib is not None) or (not self.exact_train_prev)
         if P is None and requires_predictions:
             # classifier predictions were not generated because val_split=None
-            raise ArgumentError(self.val_split, self.__class__.__name__ +
-                                ": Classifier predictions for the aggregative fit were not generated because "
-                                "val_split=None. This usually happens when you enable calibrations or heuristics "
-                                "during model selection but left val_split set to its default value (None). "
-                                "Please provide one of the following values for val_split: (i) an integer >1 "
-                                "(e.g. val_split=5) for k-fold cross-validation; (ii) a float in (0,1) (e.g. "
-                                "val_split=0.3) for a proportion split; or (iii) a tuple (X, y) with explicit "
-                                "validation data")
+            raise ValueError(self.__class__.__name__ +
+                             ": Classifier predictions for the aggregative fit were not generated because "
+                             "val_split=None. This usually happens when you enable calibrations or heuristics "
+                             "during model selection but left val_split set to its default value (None). "
+                             "Please provide one of the following values for val_split: (i) an integer >1 "
+                             "(e.g. val_split=5) for k-fold cross-validation; (ii) a float in (0,1) (e.g. "
+                             "val_split=0.3) for a proportion split; or (iii) a tuple (X, y) with explicit "
+                             "validation data")
 
         if self.calib is not None:
             calibrator = _get_abstention_calibrators().get(self.calib, None)
@@ -1023,7 +1023,7 @@ class EMQ(AggregativeSoftQuantifier):
             s += 1
 
         if not converged:
-            print('[warning] the method has reached the maximum number of iterations; it might have not converged')
+            warnings.warn('the method has reached the maximum number of iterations; it might have not converged')
 
         return qs, ps
 
@@ -1143,7 +1143,7 @@ class DyS(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         self.tol = tol
         self.divergence = divergence
         self.n_bins = n_bins
-        self.n_jobs = n_jobs
+        self.n_jobs = qp._get_njobs(n_jobs)
 
     def _ternary_search(self, f, left, right, tol):
         """
@@ -1275,7 +1275,7 @@ class DMy(AggregativeSoftQuantifier):
         self.divergence = divergence
         self.cdf = cdf
         self.search = search
-        self.n_jobs = n_jobs
+        self.n_jobs = qp._get_njobs(n_jobs)
 
     @classmethod
     def HDy(cls, classifier: BaseEstimator = None, fit_classifier=True, val_split=5, n_jobs=None):
@@ -1449,9 +1449,9 @@ def newSVMKLD(svmperf_base=None, C=1):
     return newELM(svmperf_base, loss='kld', C=C)
 
 
-def newSVMKLD(svmperf_base=None, C=1):
+def newSVMNKLD(svmperf_base=None, C=1):
     """
-    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
+    SVM(NKLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
     normalized via the logistic function, as proposed by
     `Esuli et al. 2015 <https://dl.acm.org/doi/abs/10.1145/2700406>`_.
     Equivalent to:
@@ -1578,7 +1578,7 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
         return F.normalize_prevalence(prevalences)
 
     def aggregation_fit(self, classif_predictions, labels):
-        self._parallel(self._delayed_binary_aggregate_fit(c, classif_predictions, labels))
+        self._parallel(self._delayed_binary_aggregate_fit, classif_predictions, labels)
         return self
 
     def _delayed_binary_classification(self, c, X):
@@ -1590,7 +1590,7 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
 
     def _delayed_binary_aggregate_fit(self, c, classif_predictions, labels):
         # trains the aggregation function of the cth quantifier
-        return self.dict_binary_quantifiers[c].aggregate_fit(classif_predictions[:, c], labels)
+        return self.dict_binary_quantifiers[c].aggregation_fit(classif_predictions[:, c], labels == c)
 
 
 class AggregativeMedianEstimator(BinaryQuantifier):
@@ -1656,8 +1656,7 @@ class AggregativeMedianEstimator(BinaryQuantifier):
                     ((params, X, y) for params in cls_configs),
                     seed=qp.environ.get('_R_SEED', None),
                     n_jobs=self.n_jobs,
-                    asarray=False,
-                    backend='threading'
+                    asarray=False
                 )
             else:
                 model = self.base_quantifier
@@ -1669,8 +1668,7 @@ class AggregativeMedianEstimator(BinaryQuantifier):
                 self._delayed_fit_aggregation,
                 itertools.product(models_preds, q_configs),
                 seed=qp.environ.get('_R_SEED', None),
-                n_jobs=self.n_jobs,
-                backend='threading'
+                n_jobs=self.n_jobs
             )
         else:
             configs = qp.model_selection.expand_grid(self.param_grid)
@@ -1678,8 +1676,7 @@ class AggregativeMedianEstimator(BinaryQuantifier):
                 self._delayed_fit,
                 ((params, X, y) for params in configs),
                 seed=qp.environ.get('_R_SEED', None),
-                n_jobs=self.n_jobs,
-                backend='threading'
+                n_jobs=self.n_jobs
             )
         return self
 
@@ -1692,8 +1689,7 @@ class AggregativeMedianEstimator(BinaryQuantifier):
             self._delayed_predict,
             ((model, instances) for model in self.models),
             seed=qp.environ.get('_R_SEED', None),
-            n_jobs=self.n_jobs,
-            backend='threading'
+            n_jobs=self.n_jobs
         )
         return np.median(prev_preds, axis=0)
 

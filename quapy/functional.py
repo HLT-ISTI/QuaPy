@@ -650,7 +650,11 @@ def solve_adjustment(
     if method == "inversion":
         pass  # We leave A and B unchanged
     elif method == "invariant-ratio":
-        # Change the last equation to replace it with the normalization condition
+        # Change the last equation to replace it with the normalization condition;
+        # copy first so this does not mutate the caller's arrays (np.asarray above
+        # returns the same object, not a copy, when the input is already float64)
+        A = A.copy()
+        B = B.copy()
         A[-1, :] = 1.0
         B[-1] = 1.0
     else:

@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 from scipy.sparse import dok_matrix
 from tqdm import tqdm
@@ -30,7 +32,7 @@ def from_text(path, encoding='utf-8', verbose=1, class2int=True):
                     all_sentences.append(sentence)
                     all_labels.append(label)
             except ValueError:
-                print(f'format error in {line}')
+                logging.getLogger(__name__).warning(f'format error in {line}')
     return all_sentences, all_labels
 
 

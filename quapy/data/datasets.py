@@ -1,3 +1,4 @@
+import logging
 import os
 from contextlib import contextmanager
 import zipfile
@@ -212,8 +213,9 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
     if dataset_name in {'semeval13', 'semeval14', 'semeval15'}:
         trainset_name = 'semeval'
         testset_name  = 'semeval' if for_model_selection else dataset_name
-        print(f"the training and development sets for datasets 'semeval13', 'semeval14', 'semeval15' are common "
-              f"(called 'semeval'); returning trainin-set='{trainset_name}' and test-set={testset_name}")
+        logging.getLogger(__name__).info(
+            f"the training and development sets for datasets 'semeval13', 'semeval14', 'semeval15' are common "
+            f"(called 'semeval'); returning trainin-set='{trainset_name}' and test-set={testset_name}")
     else:
         if dataset_name == 'semeval' and for_model_selection==False:
             raise ValueError('dataset "semeval" can only be used for model selection. '
@@ -1152,11 +1154,3 @@ def fetch_image_embeddings(dataset_name, embedding, heldout_only=True, data_home
     return Dataset(train, test, name=dataset_name)
 
 
-if __name__ == '__main__':
-    #train, val, test = _fetch_image_embedding_splits(dataset_name='mnist', embedding='logits')
-    #print(train)
-    #print(val)
-    #print(test)
-
-    dataset = fetch_image_embeddings(dataset_name='svhn', embedding='features', heldout_only=True)
-    print(dataset)

@@ -187,8 +187,7 @@ class ResultSubmission:
         try:
             df = pd.read_csv(path, index_col=0)
         except Exception as e:
-            print(f'the file {path} does not seem to be a valid csv file. ')
-            print(e)
+            raise ValueError(f'the file {path} does not seem to be a valid csv file: {e}')
         return ResultSubmission.check_dataframe_format(df, path=path)
 
     @classmethod

@@ -445,11 +445,6 @@ class DirichletProtocol(OnLabelledCollectionProtocol):
 
     def __init__(self, data: LabelledCollection, alpha, sample_size=None, repeats=100, random_state=0,
                  return_type='sample_prev'):
-        #assert ((isinstance(alpha, str) and alpha == 'uniform') or
-        #        isinstance(alpha, Number) or
-        #        (isinstance(alpha, Iterable) and all(isinstance(v, Number) for v in alpha))), \
-        #    f'wrong type for {alpha=}; expected "uniform", a real scalar, or an array-like of real values'
-        
         n_classes = data.n_classes
         if isinstance(alpha, str) and alpha == 'uniform':
             self.alpha = np.ones(n_classes, dtype=float)
@@ -464,7 +459,6 @@ class DirichletProtocol(OnLabelledCollectionProtocol):
 
         super(DirichletProtocol, self).__init__(random_state)
         self.data = data
-        #self.alpha = alpha
         self.sample_size = qp._get_sample_size(sample_size)
         self.repeats = repeats
         self.random_state = random_state

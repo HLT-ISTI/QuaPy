@@ -110,10 +110,10 @@ class ThresholdOptimization(BinaryAggregativeQuantifier):
         TN = np.logical_and(y == y_, y == self.neg_label).sum()
         return TP, FP, FN, TN
 
-    def _compute_tpr(self, TP, FP):
-        if TP + FP == 0:
+    def _compute_tpr(self, TP, FN):
+        if TP + FN == 0:
             return 1
-        return TP / (TP + FP)
+        return TP / (TP + FN)
 
     def _compute_fpr(self, FP, TN):
         if FP + TN == 0:

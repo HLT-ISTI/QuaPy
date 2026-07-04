@@ -16,7 +16,6 @@ from sklearn.utils import resample
 from abc import ABC, abstractmethod
 from scipy.special import factorial
 import copy
-from functools import lru_cache
 from tqdm import tqdm
 
 """
@@ -64,7 +63,6 @@ class ConfidenceRegionABC(ABC):
         """
         ...
 
-    @lru_cache
     def simplex_portion(self):
         """
         Computes the fraction of the simplex which is covered by the region. This is not the volume of the region
@@ -73,9 +71,10 @@ class ConfidenceRegionABC(ABC):
 
         :return: float, the fraction of the simplex covered by the region
         """
-        return self.montecarlo_proportion()
+        if not hasattr(self, '_simplex_portion_cache'):
+            self._simplex_portion_cache = self.montecarlo_proportion()
+        return self._simplex_portion_cache
 
-    @lru_cache
     def montecarlo_proportion(self, n_trials=10_000):
         """
         Estimates, via a Monte Carlo approach, the fraction of the simplex covered by the region. This is carried
@@ -84,10 +83,13 @@ class ConfidenceRegionABC(ABC):
 
         :return: float in [0,1]
         """
-        with qp.util.temp_seed(0):
-            uniform_simplex = F.uniform_simplex_sampling(n_classes=self.ndim(), size=n_trials)
-        proportion = np.clip(self.coverage(uniform_simplex), 0., 1.)
-        return proportion
+        if not hasattr(self, '_montecarlo_proportion_cache'):
+            self._montecarlo_proportion_cache = {}
+        if n_trials not in self._montecarlo_proportion_cache:
+            with qp.util.temp_seed(0):
+                uniform_simplex = F.uniform_simplex_sampling(n_classes=self.ndim(), size=n_trials)
+            self._montecarlo_proportion_cache[n_trials] = np.clip(self.coverage(uniform_simplex), 0., 1.)
+        return self._montecarlo_proportion_cache[n_trials]
 
     @property
     @abstractmethod
@@ -446,7 +448,7 @@ class ConfidenceEllipseSimplex(ConfidenceRegionABC):
 
         try:
             self.precision_matrix_ = np.linalg.pinv(self.cov_)
-        except:
+        except np.linalg.LinAlgError:
             self.precision_matrix_ = None
 
         self.dim = samples.shape[-1]
