@@ -29,7 +29,7 @@
   <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=9f2a2228" />
   
@@ -370,26 +370,26 @@
                 <article class="bd-article">
                   
   <h1>Source code for quapy.util</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">urllib</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExitStack</span>
+<span></span><span class="kn">import</span> <span class="nn">contextlib</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">ExitStack</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">time</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">joblib</span> <span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">signal</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_parallel_slices</span><span class="p">(</span><span class="n">n_tasks</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_get_parallel_slices</span><span class="p">(</span><span class="n">n_tasks</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
         <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
     <span class="n">batch</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_tasks</span> <span class="o">/</span> <span class="n">n_jobs</span><span class="p">)</span>
@@ -399,7 +399,7 @@
 
 <div class="viewcode-block" id="map_parallel">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.map_parallel">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">map_parallel</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">map_parallel</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies func to n_jobs slices of args. E.g., if args is an array of 99 items and n_jobs=2, then</span>
 <span class="sd">    func is applied in two parallel processes to args[0:50] and to args[50:99]. func is a function</span>
@@ -420,7 +420,7 @@
 
 <div class="viewcode-block" id="parallel">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.parallel">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parallel</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asarray</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;loky&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">parallel</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asarray</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;loky&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A wrapper of multiprocessing:</span>
 
@@ -438,7 +438,7 @@
 <span class="sd">    :param backend: indicates the backend used for handling parallel works</span>
 <span class="sd">    :param open_args: if True, then the delayed function is called on *args_i, instead of on args_i</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">func_dec</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">func_dec</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="n">qp</span><span class="o">.</span><span class="n">environ</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;N_JOBS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="c1">#set a context with a temporal seed to ensure results are reproducibles in parallel</span>
@@ -458,7 +458,7 @@
 
 <div class="viewcode-block" id="parallel_unpack">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.parallel_unpack">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parallel_unpack</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asarray</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;loky&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">parallel_unpack</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">asarray</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;loky&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A wrapper of multiprocessing:</span>
 
@@ -476,7 +476,7 @@
 <span class="sd">    :param backend: indicates the backend used for handling parallel works</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">func_dec</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">func_dec</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="n">qp</span><span class="o">.</span><span class="n">environ</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;N_JOBS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="c1"># set a context with a temporal seed to ensure results are reproducibles in parallel</span>
@@ -496,7 +496,7 @@
 <div class="viewcode-block" id="temp_seed">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.temp_seed">[docs]</a>
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">temp_seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">temp_seed</span><span class="p">(</span><span class="n">random_state</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Can be used in a &quot;with&quot; context to set a temporal seed without modifying the outer numpy&#39;s current state. E.g.:</span>
 
@@ -520,14 +520,14 @@
 
 <div class="viewcode-block" id="download_file">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.download_file">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">archive_filename</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">download_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">archive_filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Downloads a file from a url</span>
 
 <span class="sd">    :param url: the url</span>
 <span class="sd">    :param archive_filename: destination filename</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">progress</span><span class="p">(</span><span class="n">blocknum</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">progress</span><span class="p">(</span><span class="n">blocknum</span><span class="p">,</span> <span class="n">bs</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
         <span class="n">total_sz_mb</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1"> MB&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">size</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
         <span class="n">current_sz_mb</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%.2f</span><span class="s1"> MB&#39;</span> <span class="o">%</span> <span class="p">((</span><span class="n">blocknum</span> <span class="o">*</span> <span class="n">bs</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r</span><span class="s1">downloaded </span><span class="si">%s</span><span class="s1"> / </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">current_sz_mb</span><span class="p">,</span> <span class="n">total_sz_mb</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -539,7 +539,7 @@
 
 <div class="viewcode-block" id="download_file_if_not_exists">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.download_file_if_not_exists">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">download_file_if_not_exists</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">archive_filename</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">download_file_if_not_exists</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">archive_filename</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Downloads a file (using :meth:`download_file`) if the file does not exist.</span>
 
@@ -555,7 +555,7 @@
 
 <div class="viewcode-block" id="create_if_not_exist">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.create_if_not_exist">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_if_not_exist</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">create_if_not_exist</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An alias to `os.makedirs(path, exist_ok=True)` that also returns the path. This is useful in cases like, e.g.:</span>
 
@@ -571,7 +571,7 @@
 
 <div class="viewcode-block" id="get_quapy_home">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.get_quapy_home">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_quapy_home</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">get_quapy_home</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Gets the home directory of QuaPy, i.e., the directory where QuaPy saves permanent data, such as dowloaded datasets.</span>
 <span class="sd">    This directory is `~/quapy_data`</span>
@@ -586,7 +586,7 @@
 
 <div class="viewcode-block" id="create_parent_dir">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.create_parent_dir">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_parent_dir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">create_parent_dir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Creates the parent dir (if any) of a given path, if not exists. E.g., for `./path/to/file.txt`, the path `./path/to`</span>
 <span class="sd">    is created.</span>
@@ -601,7 +601,7 @@
 
 <div class="viewcode-block" id="save_text_file">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.save_text_file">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">save_text_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">save_text_file</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Saves a text file to disk, given its full path, and creates the parent directory if missing.</span>
 
@@ -616,7 +616,7 @@
 
 <div class="viewcode-block" id="pickled_resource">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.pickled_resource">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">pickled_resource</span><span class="p">(</span><span class="n">pickle_path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">generation_func</span><span class="p">:</span><span class="nb">callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">pickled_resource</span><span class="p">(</span><span class="n">pickle_path</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">generation_func</span><span class="p">:</span><span class="nb">callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Allows for fast reuse of resources that are generated only once by calling generation_func(\\*args). The next times</span>
 <span class="sd">    this function is invoked, it loads the pickled resource. Example:</span>
@@ -646,7 +646,7 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_check_sample_size</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_check_sample_size</span><span class="p">(</span><span class="n">sample_size</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">sample_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">assert</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
             <span class="s1">&#39;error: sample_size set to None, and cannot be resolved from the environment&#39;</span>
@@ -658,8 +658,8 @@
 
 <div class="viewcode-block" id="load_report">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.load_report">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_report</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">str2prev_arr</span><span class="p">(</span><span class="n">strprev</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">load_report</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">as_dict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">str2prev_arr</span><span class="p">(</span><span class="n">strprev</span><span class="p">):</span>
         <span class="n">within</span> <span class="o">=</span> <span class="n">strprev</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;[]&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="n">float_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">within</span><span class="p">]</span>
         <span class="n">float_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="nb">sum</span><span class="p">(</span><span class="n">float_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -683,7 +683,7 @@
 
 <div class="viewcode-block" id="EarlyStop">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.EarlyStop">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">EarlyStop</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">EarlyStop</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class implementing the early-stopping condition typically used for training neural networks.</span>
 
@@ -708,7 +708,7 @@
 <span class="sd">    :ivar IMPROVED: flag (boolean) indicating whether there was an improvement in the last call</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patience</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">patience</span><span class="p">,</span> <span class="n">lower_is_better</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">PATIENCE_LIMIT</span> <span class="o">=</span> <span class="n">patience</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">better</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">:</span> <span class="n">a</span><span class="o">&lt;</span><span class="n">b</span> <span class="k">if</span> <span class="n">lower_is_better</span> <span class="k">else</span> <span class="n">a</span><span class="o">&gt;</span><span class="n">b</span>
@@ -718,7 +718,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">STOP</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">IMPROVED</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">watch_score</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">watch_score</span><span class="p">,</span> <span class="n">epoch</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Commits the new score found in epoch `epoch`. If the score improves over the best score found so far, then</span>
 <span class="sd">        the patiente counter gets reset. If otherwise, the patience counter is decreased, and in case it reachs 0,</span>
@@ -742,7 +742,7 @@
 <div class="viewcode-block" id="timeout">
 <a class="viewcode-back" href="../../quapy.html#quapy.util.timeout">[docs]</a>
 <span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">timeout</span><span class="p">(</span><span class="n">seconds</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span><span class="n">seconds</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Opens a context that will launch an exception if not closed after a given number of seconds</span>
 
@@ -761,7 +761,7 @@
 <span class="sd">    :param seconds: number of seconds, set to &lt;=0 to ignore the timer</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">seconds</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">handler</span><span class="p">(</span><span class="n">signum</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">()</span>
 
         <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGALRM</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>

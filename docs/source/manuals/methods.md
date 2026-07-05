@@ -227,6 +227,38 @@ and is suitable for problems in which the `q = Mp` matrix is nearly non-invertib
 Note that this quantification method requires `val_split` to be a `float` and installation of additional dependencies (`$ pip install quapy[bayes]`) needed to run Markov chain Monte Carlo sampling. Markov Chain Monte Carlo is is slower than matrix inversion methods, but is guaranteed to sample proper probability vectors, so no clipping strategies are required.
 An example presenting how to run the method and use posterior samples is available in `examples/bayesian_quantification.py`.
 
+### Regularized Learning under Label Shift (RLLS)
+
+`RLLS` is available at `qp.method.aggregative.RLLS` and ports the regularized
+importance-weight estimation procedure of
+[Azizzadenesheli, K., Liu, A., Yang, F., and Anandkumar, A. (2019). Regularized
+Learning for Domain Adaptation under Label Shifts.
+ICLR 2019](https://arxiv.org/abs/1903.09734) to QuaPy's aggregative interface.
+The method estimates the label-shift importance weights `w = q(y)/p(y)` from
+the classifier's validation posteriors (or, in `mode='hard'`, its argmax
+predictions) and the corresponding source labels, regularizing the estimation
+by an amount controlled by `alpha` (scaled by a finite-sample confidence term
+governed by `delta`). The resulting weights are then used to rescale the
+training prevalence into the target prevalence estimate.
+
+Like ACC and PACC, RLLS requires validation predictions and therefore expects
+`val_split` to be set (as an integer for k-fold cross-validation, a float for
+a held-out split, or an explicit `(X, y)` tuple) whenever `fit_classifier=True`.
+This method relies on the optional `cvxpy` dependency, which must be
+installed separately (`$ pip install cvxpy`).
+
+```python
+import quapy as qp
+from quapy.method.aggregative import RLLS
+from sklearn.linear_model import LogisticRegression
+
+train, test = qp.datasets.fetch_UCIBinaryDataset('haberman').train_test
+
+model = RLLS(LogisticRegression(max_iter=2000), val_split=5)
+model.fit(*train.Xy)
+estim_prevalence = model.predict(test.X)
+```
+
 ### Expectation Maximization (EMQ)
 
 The Expectation Maximization Quantifier (EMQ), also known as
@@ -273,6 +305,40 @@ or Temperature Scaling (`ts`); default is `None` (no calibration).
 
 You can use the class method `EMQ_BCTS` to effortlessly instantiate EMQ with the best performing
 heuristics found by [Alexandari et al. (2020)](http://proceedings.mlr.press/v119/alexandari20a.html). See the API documentation for further details. 
+
+#### BayesianMAPLS
+
+`BayesianMAPLS` is a Bayesian variant of EMQ/MLLS proposed by
+Ye, C. et al. (2024). Label shift estimation for class-imbalance problem: A
+Bayesian approach. Proceedings of the IEEE/CVF Winter Conference on
+Applications of Computer Vision (WACV 2024). QuaPy's implementation is
+adapted from the [authors' reference code](https://github.com/ChangkunYe/MAPLS/blob/main/label_shift/mapls.py).
+Rather than returning a single point estimate for the class prevalence, it
+places a Dirichlet prior over the sought prevalence vector (in an
+unconstrained, Isometric-Log-Ratio-transformed space) and samples from the
+resulting posterior via Markov Chain Monte Carlo (using `numpyro`/`jax`),
+conditioned on a preliminary MAP estimate obtained via the underlying `mapls`
+routine. Like `BayesianCC`, its `aggregate` method returns the posterior mean,
+while `predict_conf` additionally returns a confidence region (`intervals`,
+`ellipse`, `ellipse-clr`, or `ellipse-ilr`) built from the posterior samples.
+
+This method requires installation of additional dependencies
+(`$ pip install quapy[bayes]`) needed to run MCMC sampling; parameters
+`num_warmup` and `num_samples` control the length of the chain, and `prior`
+allows choosing between a uniform Dirichlet prior (default) or one of the
+data-dependent priors ("map"/"map2") proposed in the original paper.
+
+```python
+import quapy as qp
+from quapy.method._bayesian import BayesianMAPLS
+from sklearn.linear_model import LogisticRegression
+
+train, test = qp.datasets.fetch_UCIBinaryDataset('haberman').train_test
+
+model = BayesianMAPLS(LogisticRegression())
+model.fit(*train.Xy)
+estim_prevalence, conf_region = model.predict_conf(test.X)
+```
 
 
 ### Hellinger Distance y (HDy)
@@ -323,6 +389,38 @@ QuaPy also provides an implementation of the "DyS"
 framework proposed by [Maletzke et al (2020)](https://ojs.aaai.org/index.php/AAAI/article/view/4376)
 and the "SMM" method proposed by [Hassan et al (2019)](https://ieeexplore.ieee.org/document/9260028)
 (thanks to _Pablo González_ for the contributions!)
+
+#### PQ
+
+`PQ` (Precise Quantifier), available at `qp.method.confidence.PQ`, is a
+Bayesian distribution-matching variant of `HDy` proposed in
+[Igiraneza, A.B., Fraser, C., and Hinch, R. (2025). Estimating prevalence
+with precision and accuracy.](https://arxiv.org/abs/2507.06061)
+Rather than matching a single test histogram against a mixture of two
+class-conditional histograms via a divergence measure (as `HDy` does), `PQ`
+places the histogram-matching problem in a Bayesian setting and samples the
+full posterior distribution over the (binary) prevalence value via Markov
+Chain Monte Carlo (using `stan`). Its `aggregate` method returns the
+posterior mean, while `predict_conf` additionally returns a confidence
+region built from the posterior samples (`intervals`, `ellipse`, or
+`ellipse-clr`).
+
+`PQ` accepts `nbins` (the number of histogram bins, quantile-based by default,
+or uniform if `fixed_bins=True`), and the usual MCMC controls `num_warmup`,
+`num_samples`, and `stan_seed`. This method relies on the optional `stan`
+dependency, installed via `$ pip install quapy[bayes]`.
+
+```python
+import quapy as qp
+from quapy.method.confidence import PQ
+from sklearn.linear_model import LogisticRegression
+
+train, test = qp.datasets.fetch_UCIBinaryDataset('haberman').train_test
+
+model = PQ(LogisticRegression())
+model.fit(*train.Xy)
+estim_prevalence, conf_region = model.predict_conf(test.X)
+```
 
 ### Threshold Optimization methods
 
@@ -441,6 +539,199 @@ binary problems too).
 All KDE-based methods depend on the hyperparameter `bandwidth` of the kernel. Typical values
 that can be explored in model selection range in [0.01, 0.25]. Previous experiments reveal the methods' performance
 varies smoothly at small variations of this hyperparameter.
+
+#### BayesianKDEy
+
+`BayesianKDEy`, available at `qp.method._bayesian.BayesianKDEy`, is a Bayesian
+version of KDEy. Instead of solving for the single prevalence vector that
+minimizes a divergence between the test distribution and a KDE-based mixture
+model (as the KDEy variants above do), `BayesianKDEy` places a Dirichlet
+prior over the prevalence vector and samples its posterior via Markov Chain
+Monte Carlo (using `numpyro`/`jax`), conditioned on the same KDE mixture
+components. Its `aggregate` method returns the posterior mean, while
+`predict_conf` additionally returns a confidence region built from the
+posterior samples.
+
+In addition to the `kernel` and `bandwidth` hyperparameters (with the same
+`gaussian`/`aitchison`/`ilr` kernel choice, and `shrinkage` regularization
+for the latter two, available in `KDEyML`), `BayesianKDEy` exposes the usual
+MCMC controls: `num_warmup`, `num_samples`, `mcmc_seed`, a `temperature` for
+posterior calibration, and `prior` for choosing the Dirichlet prior
+(`'uniform'` by default, or a custom scalar/array). This method relies on
+the optional MCMC dependencies, installed via
+`$ pip install quapy[bayes]`.
+
+```python
+import quapy as qp
+from quapy.method._bayesian import BayesianKDEy
+from sklearn.linear_model import LogisticRegression
+
+train, test = qp.datasets.fetch_UCIBinaryDataset('haberman').train_test
+
+model = BayesianKDEy(LogisticRegression(), bandwidth=0.1)
+model.fit(*train.Xy)
+estim_prevalence, conf_region = model.predict_conf(test.X)
+```
+
+
+## Non-Aggregative Methods
+
+Non-aggregative methods are quantifiers that do not follow the two-step
+(classify, then aggregate) pattern described above for aggregative methods.
+These methods are implemented in the `qp.method.non_aggregative` module and
+extend `BaseQuantifier` directly, implementing `fit` and `predict` on their own terms.
+
+### Maximum Likelihood Prevalence Estimation (MLPE)
+
+`MaximumLikelihoodPrevalenceEstimation` (MLPE) is a lazy baseline quantifier
+that assumes the IID assumption holds, i.e., that there is no prior probability
+shift between the training and the test distributions. Its `fit` method simply
+computes and stores the training prevalence, and its `predict` method returns
+that same training prevalence for any test sample, irrespective of the sample
+itself. MLPE is considered a lower-bound quantifier: any quantification method
+worth using should outperform it.
+
+```python
+import quapy as qp
+from quapy.method.non_aggregative import MaximumLikelihoodPrevalenceEstimation
+
+dataset = qp.datasets.fetch_UCIBinaryDataset('haberman')
+train, test = dataset.train_test
+
+model = MaximumLikelihoodPrevalenceEstimation()
+model.fit(*train.Xy)
+estim_prevalence = model.predict(test.X)  # always equals train.prevalence()
+```
+
+### Distribution Matching x (DMx) and Hellinger Distance x (HDx)
+
+`DMx` is the covariate-space counterpart of the `DMy` distribution-matching
+quantifier described in {ref}`the Hellinger Distance y (HDy) section <manuals/methods:Hellinger Distance y (HDy)>`:
+instead of matching distributions built from the classifier's predictions, `DMx` matches
+distributions built directly from the (discretized) feature space, and thus
+requires no classifier at all. For each class, `DMx` builds one histogram per
+feature from the training instances of that class; at prediction time, it
+searches for the mixture of these class-conditional histograms that best
+matches the (also histogram-based) representation of the test sample, in
+terms of a chosen divergence.
+
+`DMx` accepts the following hyperparameters in its constructor:
+
+* `nbins`: the number of bins used to discretize each feature (default 8)
+* `divergence`: a string ("HD" for Hellinger Distance, or "topsoe") or a
+  callable taking two histograms and returning a divergence value (default "HD")
+* `cdf`: whether to match cumulative distributions (CDFs) instead of the
+  histograms (PDFs) themselves (default False)
+* `search`: the strategy used for finding the optimal prevalence; valid
+  options are `optim_minimize` (default, works for binary and multiclass
+  problems), `linear_search`, and `ternary_search` (these last two are
+  binary-only)
+* `n_jobs`: number of parallel workers (default None)
+
+`DMx` also offers the class method `DMx.HDx` (aliased as
+`qp.method.non_aggregative.HDx`, and also as `HellingerDistanceX`) that
+reproduces the original Hellinger Distance x (HDx) method proposed by
+[González-Castro, Alaiz-Rodríguez, and Alegre (2013)](https://www.sciencedirect.com/science/article/pii/S0020025512004069),
+the same paper that introduced HDy. HDx is a binary-only method that computes
+the matching for `nbins` ranging over `[10, 20, ..., 110]` (via a
+`MedianEstimator`, taking the median of the resulting estimates) and searches
+for the best prevalence via a linear search stepping by 0.01, rather than via
+the `optim_minimize` search used by `DMx` by default.
+
+The following code, adapted from the example comparing HDy and HDx
+(`examples/11.comparing_HDy_HDx.py`), shows the two methods side-by-side:
+
+```python
+from sklearn.linear_model import LogisticRegression
+import quapy as qp
+from quapy.method.aggregative import HDy
+from quapy.method.non_aggregative import DMx
+
+train, test = qp.datasets.fetch_UCIBinaryDataset('haberman').train_test
+Xtr, ytr = train.Xy
+
+hdy = HDy(LogisticRegression()).fit(Xtr, ytr)
+estim_prevalence_hdy = hdy.predict(test.X)
+
+hdx = DMx.HDx(n_jobs=-1).fit(Xtr, ytr)
+estim_prevalence_hdx = hdx.predict(test.X)
+```
+
+Note that, unlike HDy, HDx requires no classifier whatsoever, since it
+operates directly on the covariates.
+
+### ReadMe
+
+`ReadMe` is a non-aggregative quantification method proposed by
+[Hopkins, D. and King, G. (2007). A method of automated nonparametric content
+analysis for social science. American Journal of Political Science,
+54(1):229-247.](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-5907.2009.00428.x)
+The method estimates `Q(Y=i)` directly from `Q(X) = sum_i Q(X|Y=i) Q(Y=i)` by
+solving a (constrained) least-squares regression, thus avoiding the cost of
+estimating posterior probabilities `Q(Y=i|X)` altogether.
+
+Since `Q(X)` and `Q(X|Y=i)` can be of very high dimension for realistic
+feature spaces, ReadMe renders the problem tractable by performing bagging in
+the feature space: many small random subsets of features (of size
+`bagging_range`) are drawn, the least-squares problem is solved on each
+subset, and the resulting estimates are averaged. ReadMe additionally
+combines this bagging procedure with bootstrap resampling of the training
+instances in order to derive confidence regions around the point estimate;
+accordingly, `ReadMe` implements the `WithConfidenceABC` interface (see the
+{ref}`confidence regions section <manuals/methods:Confidence Regions for Class Prevalence Estimation>`),
+and exposes a `predict_conf` method in addition to `predict`.
+
+`ReadMe` accepts the following hyperparameters:
+
+* `prob_model`: either `"full"` (default), the original Hopkins and King
+  formulation, in which `Q(X)` and `Q(X|Y)` are modelled empirically and thus
+  require the feature matrix `X` to be binary (e.g., term presence/absence);
+  or `"naive"`, a much faster approximation that models `Q(X)` and `Q(X|Y)` as
+  multinomial (bag-of-words) distributions, and that supports much larger
+  values of `bagging_range`
+* `bootstrap_trials`: number of bootstrap resamplings of the training data
+  used for deriving the confidence region (default 300)
+* `bagging_trials`: number of bagging trials, i.e., random feature subsets,
+  averaged for each point estimate (default 300)
+* `bagging_range`: number of features kept in each bagging trial (default 15);
+  note that, when `prob_model="full"`, this value should typically be kept
+  small (the authors advise against values above 25) since the empirical
+  distribution requires enumerating `2^bagging_range` possible feature
+  configurations
+* `confidence_level`: the confidence level for the confidence region
+  (default 0.95)
+* `region`: the type of confidence region to construct, one of `"intervals"`
+  (default), `"ellipse"`, or `"ellipse-clr"` (see the
+  {ref}`confidence regions section <manuals/methods:Confidence Regions for Class Prevalence Estimation>`
+  for details)
+* `random_state`: an int for replicability, or `None` (default)
+* `verbose`: whether to display progress information (default False)
+
+The following minimal example, adapted from
+`examples/18.ReadMe_for_text_analysis.py`, shows ReadMe applied to a binary
+bag-of-words text quantification problem:
+
+```python
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.pipeline import Pipeline
+import quapy as qp
+from quapy.method.non_aggregative import ReadMe
+
+reviews = qp.datasets.fetch_reviews('imdb').reduce(n_train=1000, random_state=0)
+
+# ReadMe's "full" model requires a binary feature matrix
+encode_0_1 = Pipeline([('0_1_terms', CountVectorizer(min_df=5, binary=True))])
+train, test = qp.data.preprocessing.instance_transformation(reviews, encode_0_1, inplace=True).train_test
+
+model = ReadMe(prob_model='full', bootstrap_trials=100, bagging_trials=100, bagging_range=20, random_state=0)
+model.fit(*train.Xy)  # lazy: only bootstrap resampling happens here
+
+estim_prevalence, conf_region = model.predict_conf(test.X)
+```
+
+Note that `ReadMe` is computationally expensive: its cost scales with the
+product of `bootstrap_trials` and `bagging_trials`, each of which requires
+solving a least-squares problem.
 
 
 ## Composable Methods

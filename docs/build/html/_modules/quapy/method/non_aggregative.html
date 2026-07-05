@@ -29,8 +29,9 @@
   <link href="../../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 <link href="../../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=874c1152" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=9f2a2228" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
@@ -41,6 +42,7 @@
     <script src="../../../_static/documentation_options.js?v=37f418d5"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/quapy/method/non_aggregative';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -114,8 +116,14 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
   
-    <p class="title logo__title">QuaPy</p>
   
 </a></div>
     
@@ -131,7 +139,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../index.html">
-    Quickstart
+    Home
   </a>
 </li>
 
@@ -183,6 +191,21 @@
   </ul>
 </div></div>
       
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
     </div>
     
   </div>
@@ -229,7 +252,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../../index.html">
-    Quickstart
+    Home
   </a>
 </li>
 
@@ -271,6 +294,21 @@
     <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
         
       </div>
     
@@ -332,26 +370,26 @@
                 <article class="bd-article">
                   
   <h1>Source code for quapy.method.non_aggregative</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Counter</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.feature_extraction.text</span><span class="w"> </span><span class="kn">import</span> <span class="n">CountVectorizer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">resample</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize</span>
+<span></span><span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">resample</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">normalize</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.confidence</span><span class="w"> </span><span class="kn">import</span> <span class="n">WithConfidenceABC</span><span class="p">,</span> <span class="n">ConfidenceRegionABC</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_divergence</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">BinaryQuantifier</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method._helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_labels_to_indices</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">quapy.functional</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">F</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">lsq_linear</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">sparse</span>
+<span class="kn">from</span> <span class="nn">quapy.method.confidence</span> <span class="kn">import</span> <span class="n">WithConfidenceABC</span><span class="p">,</span> <span class="n">ConfidenceRegionABC</span>
+<span class="kn">from</span> <span class="nn">quapy.functional</span> <span class="kn">import</span> <span class="n">get_divergence</span>
+<span class="kn">from</span> <span class="nn">quapy.method.base</span> <span class="kn">import</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">BinaryQuantifier</span>
+<span class="kn">from</span> <span class="nn">quapy.method._helper</span> <span class="kn">import</span> <span class="n">_labels_to_indices</span>
+<span class="kn">import</span> <span class="nn">quapy.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">lsq_linear</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">sparse</span>
 
 
 <div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MaximumLikelihoodPrevalenceEstimation</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">MaximumLikelihoodPrevalenceEstimation</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The `Maximum Likelihood Prevalence Estimation` (MLPE) method is a lazy method that assumes there is no prior</span>
 <span class="sd">    probability shift between training and test instances (put it other way, that the i.i.d. assumpion holds).</span>
@@ -360,12 +398,12 @@
 <span class="sd">    any quantification method should beat.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_classes_</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation.fit">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.fit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes the training prevalence and stores it.</span>
 
@@ -380,7 +418,7 @@
 
 <div class="viewcode-block" id="MaximumLikelihoodPrevalenceEstimation.predict">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.MaximumLikelihoodPrevalenceEstimation.predict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Ignores the input instances and returns, as the class prevalence estimantes, the training prevalence.</span>
 
@@ -394,7 +432,7 @@
 
 <div class="viewcode-block" id="DMx">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DMx</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">DMx</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generic Distribution Matching quantifier for binary or multiclass quantification based on the space of covariates.</span>
 <span class="sd">    This implementation takes the number of bins, the divergence, and the possibility to work on CDF as hyperparameters.</span>
@@ -410,7 +448,7 @@
 <span class="sd">    :param n_jobs: number of parallel workers (default None)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">divergence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span> <span class="n">cdf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">search</span><span class="o">=</span><span class="s1">&#39;optim_minimize&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">divergence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span> <span class="n">cdf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">search</span><span class="o">=</span><span class="s1">&#39;optim_minimize&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nbins</span> <span class="o">=</span> <span class="n">nbins</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">divergence</span> <span class="o">=</span> <span class="n">divergence</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cdf</span> <span class="o">=</span> <span class="n">cdf</span>
@@ -420,7 +458,7 @@
 <div class="viewcode-block" id="DMx.HDx">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.HDx">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">HDx</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">HDx</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        `Hellinger Distance x &lt;https://www.sciencedirect.com/science/article/pii/S0020025512004069&gt;`_ (HDx).</span>
 <span class="sd">        HDx is a method for training binary quantifiers, that models quantification as the problem of</span>
@@ -436,7 +474,7 @@
 <span class="sd">        :return: an instance of this class setup to mimick the performance of the HDx as originally proposed by</span>
 <span class="sd">            González-Castro, Alaiz-Rodríguez, Alegre (2013)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.meta</span><span class="w"> </span><span class="kn">import</span> <span class="n">MedianEstimator</span>
+        <span class="kn">from</span> <span class="nn">quapy.method.meta</span> <span class="kn">import</span> <span class="n">MedianEstimator</span>
 
         <span class="n">dmx</span> <span class="o">=</span> <span class="n">DMx</span><span class="p">(</span><span class="n">divergence</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span> <span class="n">cdf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">search</span><span class="o">=</span><span class="s1">&#39;linear_search&#39;</span><span class="p">)</span>
         <span class="n">nbins</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)}</span>
@@ -444,7 +482,7 @@
         <span class="k">return</span> <span class="n">hdx</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">__get_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__get_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="n">histograms</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">feat_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nfeats</span><span class="p">):</span>
             <span class="n">feature</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="n">feat_idx</span><span class="p">]</span>
@@ -461,7 +499,7 @@
 
 <div class="viewcode-block" id="DMx.fit">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.fit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates the validation distributions out of the training data (covariates).</span>
 <span class="sd">        The validation distributions have shape `(n, nfeats, nbins)`, with `n` the number of classes, `nfeats`</span>
@@ -488,7 +526,7 @@
 
 <div class="viewcode-block" id="DMx.predict">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.DMx.predict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Searches for the mixture model parameter (the sought prevalence values) that yields a validation distribution</span>
 <span class="sd">        (the mixture) that best matches the test distribution, in terms of the divergence measure of choice.</span>
@@ -504,7 +542,7 @@
         <span class="n">test_distribution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_distributions</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">divergence</span> <span class="o">=</span> <span class="n">get_divergence</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">divergence</span><span class="p">)</span>
         <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_feats</span><span class="p">,</span> <span class="n">nbins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_distribution</span><span class="o">.</span><span class="n">shape</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">loss</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
             <span class="n">prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">mixture_distribution</span> <span class="o">=</span> <span class="p">(</span><span class="n">prev</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_distribution</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_feats</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">divs</span> <span class="o">=</span> <span class="p">[</span><span class="n">divergence</span><span class="p">(</span><span class="n">test_distribution</span><span class="p">[</span><span class="n">feat</span><span class="p">],</span> <span class="n">mixture_distribution</span><span class="p">[</span><span class="n">feat</span><span class="p">])</span> <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_feats</span><span class="p">)]</span>
@@ -517,7 +555,7 @@
 
 <div class="viewcode-block" id="ReadMe">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.ReadMe">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ReadMe</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">WithConfidenceABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ReadMe</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">WithConfidenceABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    ReadMe is a non-aggregative quantification system proposed by</span>
 <span class="sd">    `Daniel Hopkins and Gary King, 2007. A method of automated nonparametric content analysis for</span>
@@ -558,7 +596,7 @@
     <span class="n">MAX_FEATURES_FOR_EMPIRICAL_ESTIMATION</span> <span class="o">=</span> <span class="mi">25</span>
     <span class="n">PROBABILISTIC_MODELS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;naive&quot;</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">prob_model</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span>
                  <span class="n">bootstrap_trials</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
                  <span class="n">bagging_trials</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
@@ -580,7 +618,7 @@
 
 <div class="viewcode-block" id="ReadMe.fit">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.ReadMe.fit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_matrix</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
@@ -600,7 +638,7 @@
 
 <div class="viewcode-block" id="ReadMe.predict_conf">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.ReadMe.predict_conf">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ConfidenceRegionABC</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ConfidenceRegionABC</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_matrix</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
         <span class="n">n_features</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -627,12 +665,12 @@
 
 <div class="viewcode-block" id="ReadMe.predict">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.non_aggregative.ReadMe.predict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="n">prev_estim</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_conf</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">prev_estim</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_quantify_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">,</span> <span class="n">Xte</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_quantify_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">,</span> <span class="n">Xte</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Single ReadMe estimate.&quot;&quot;&quot;</span>
         <span class="n">PX_given_Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_compute_P</span><span class="p">(</span><span class="n">Xtr</span><span class="p">[</span><span class="n">ytr</span> <span class="o">==</span> <span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)])</span>
         <span class="n">PX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_P</span><span class="p">(</span><span class="n">Xte</span><span class="p">)</span>
@@ -641,17 +679,17 @@
         <span class="n">pY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pY</span> <span class="o">/</span> <span class="n">pY</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_check_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_check_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;the &quot;full&quot; model requires estimating empirical distributions; due to the high computational cost,</span>
 <span class="sd">                this function is only made available for binary matrices&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob_model</span> <span class="o">==</span> <span class="s1">&#39;full&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_binary_matrix</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;the empirical distribution can only be computed efficiently on binary matrices&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_is_binary_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_is_binary_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">data</span> <span class="k">if</span> <span class="n">sparse</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">else</span> <span class="n">X</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">((</span><span class="n">data</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">data</span> <span class="o">==</span> <span class="mi">1</span><span class="p">))</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_P</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_compute_P</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob_model</span> <span class="o">==</span> <span class="s1">&#39;naive&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multinomial_distribution</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">prob_model</span> <span class="o">==</span> <span class="s1">&#39;full&#39;</span><span class="p">:</span>
@@ -659,7 +697,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unknown </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prob_model</span><span class="si">}</span><span class="s1">; valid ones are </span><span class="si">{</span><span class="n">ReadMe</span><span class="o">.</span><span class="n">PROBABILISTIC_MODELS</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_empirical_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_empirical_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_FEATURES_FOR_EMPIRICAL_ESTIMATION</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;the empirical distribution can only be computed efficiently for dimensions &#39;</span>
@@ -677,14 +715,14 @@
 
         <span class="k">return</span> <span class="n">probs</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_multinomial_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_multinomial_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="n">PX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
         <span class="n">PX</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">PX</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="s1">&#39;l1&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">PX</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span></div>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_get_features_range</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_get_features_range</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
     <span class="n">feat_ranges</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">ncols</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">col_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ncols</span><span class="p">):</span>

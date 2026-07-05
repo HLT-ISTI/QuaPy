@@ -29,8 +29,9 @@
   <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=874c1152" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=9f2a2228" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
@@ -41,6 +42,7 @@
     <script src="../../_static/documentation_options.js?v=37f418d5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/quapy/functional';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -114,8 +116,14 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
   
-    <p class="title logo__title">QuaPy</p>
   
 </a></div>
     
@@ -131,7 +139,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../index.html">
-    Quickstart
+    Home
   </a>
 </li>
 
@@ -183,6 +191,21 @@
   </ul>
 </div></div>
       
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
     </div>
     
   </div>
@@ -229,7 +252,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../index.html">
-    Quickstart
+    Home
   </a>
 </li>
 
@@ -271,6 +294,21 @@
     <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
         
       </div>
     
@@ -332,17 +370,17 @@
                 <article class="bd-article">
                   
   <h1>Source code for quapy.functional</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">ArrayLike</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">scipy</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
 
 
 <span class="c1"># ------------------------------------------------------------------------------------------</span>
@@ -351,7 +389,7 @@
 
 <div class="viewcode-block" id="classes_from_labels">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.classes_from_labels">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">classes_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">classes_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Obtains a np.ndarray with the (sorted) classes</span>
 <span class="sd">    :param labels: array-like with the instances&#39; labels</span>
@@ -365,7 +403,7 @@
 
 <div class="viewcode-block" id="num_classes_from_labels">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.num_classes_from_labels">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">num_classes_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">num_classes_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Obtains the number of classes from an array-like of instance&#39;s labels</span>
 <span class="sd">    :param labels: array-like with the instances&#39; labels</span>
@@ -380,7 +418,7 @@
 
 <div class="viewcode-block" id="counts_from_labels">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.counts_from_labels">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">counts_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">classes</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">counts_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">classes</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the raw count values from a vector of labels.</span>
 
@@ -401,7 +439,7 @@
 
 <div class="viewcode-block" id="prevalence_from_labels">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_from_labels">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">prevalence_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">classes</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">prevalence_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">classes</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the prevalence values from a vector of labels.</span>
 
@@ -419,7 +457,7 @@
 
 <div class="viewcode-block" id="prevalence_from_probabilities">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_from_probabilities">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">prevalence_from_probabilities</span><span class="p">(</span><span class="n">posteriors</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">binarize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">prevalence_from_probabilities</span><span class="p">(</span><span class="n">posteriors</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">binarize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a vector of prevalence values from a matrix of posterior probabilities.</span>
 
@@ -443,7 +481,7 @@
 
 <div class="viewcode-block" id="num_prevalence_combinations">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.num_prevalence_combinations">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the number of valid prevalence combinations in the n_classes-dimensional simplex if `n_prevpoints` equally</span>
 <span class="sd">    distant prevalence values are generated and `n_repeats` repetitions are requested.</span>
@@ -472,7 +510,7 @@
 
 <div class="viewcode-block" id="get_nprevpoints_approximation">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.get_nprevpoints_approximation">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_nprevpoints_approximation</span><span class="p">(</span><span class="n">combinations_budget</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get_nprevpoints_approximation</span><span class="p">(</span><span class="n">combinations_budget</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Searches for the largest number of (equidistant) prevalence points to define for each of the `n_classes` classes so</span>
 <span class="sd">    that the number of valid prevalence values generated as combinations of prevalence points (points in a</span>
@@ -500,7 +538,7 @@
 
 <div class="viewcode-block" id="as_binary_prevalence">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.as_binary_prevalence">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">as_binary_prevalence</span><span class="p">(</span><span class="n">positive_prevalence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">],</span> <span class="n">clip_if_necessary</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">as_binary_prevalence</span><span class="p">(</span><span class="n">positive_prevalence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">],</span> <span class="n">clip_if_necessary</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper that, given a float representing the prevalence for the positive class, returns a np.ndarray of two</span>
 <span class="sd">    values representing a binary distribution.</span>
@@ -522,7 +560,7 @@
 
 <div class="viewcode-block" id="strprev">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.strprev">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">strprev</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">prec</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">strprev</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">prec</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a string representation for a prevalence vector. E.g.,</span>
 
@@ -539,7 +577,7 @@
 
 <div class="viewcode-block" id="check_prevalence_vector">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.check_prevalence_vector">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">check_prevalence_vector</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">raise_exception</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">,</span> <span class="n">aggr</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">check_prevalence_vector</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">raise_exception</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-08</span><span class="p">,</span> <span class="n">aggr</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks that `prevalences` is a valid prevalence vector, i.e., it contains values in [0,1] and</span>
 <span class="sd">    the values sum up to 1. In other words, verifies that the `prevalences` vectors lies in the</span>
@@ -581,7 +619,7 @@
 
 <div class="viewcode-block" id="uniform_prevalence">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.uniform_prevalence">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">uniform_prevalence</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">uniform_prevalence</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a vector representing the uniform distribution for `n_classes`</span>
 
@@ -597,7 +635,7 @@
 
 <div class="viewcode-block" id="normalize_prevalence">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.normalize_prevalence">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">normalize_prevalence</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;l1&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">normalize_prevalence</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;l1&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Normalizes a vector or matrix of prevalence values. The normalization consists of applying a L1 normalization in</span>
 <span class="sd">    cases in which the prevalence values are not all-zeros, and to convert the prevalence values into `1/n_classes` in</span>
@@ -640,7 +678,7 @@
 
 <div class="viewcode-block" id="l1_norm">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.l1_norm">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">l1_norm</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">l1_norm</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies L1 normalization to the `unnormalized_arr` so that it becomes a valid prevalence</span>
 <span class="sd">    vector. Zero vectors are mapped onto the uniform distribution. Raises an exception if</span>
@@ -666,7 +704,7 @@
 
 <div class="viewcode-block" id="clip">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.clip">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">clip</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">clip</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clips the values in [0,1] and then applies the L1 normalization.</span>
 
@@ -681,7 +719,7 @@
 
 <div class="viewcode-block" id="projection_simplex_sort">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.projection_simplex_sort">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">projection_simplex_sort</span><span class="p">(</span><span class="n">unnormalized_arr</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">projection_simplex_sort</span><span class="p">(</span><span class="n">unnormalized_arr</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Projects a point onto the probability simplex.</span>
 
 <span class="sd">    The code is adapted from Mathieu Blondel&#39;s BSD-licensed</span>
@@ -709,7 +747,7 @@
 
 <div class="viewcode-block" id="softmax">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.softmax">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">softmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">softmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies the softmax function to all vectors even if the original vectors were valid distributions.</span>
 <span class="sd">    If you want to leave valid vectors untouched, use condsoftmax instead.</span>
@@ -724,7 +762,7 @@
 
 <div class="viewcode-block" id="condsoftmax">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.condsoftmax">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">condsoftmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">condsoftmax</span><span class="p">(</span><span class="n">prevalences</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies the softmax function only to vectors that do not represent valid distributions.</span>
 
@@ -749,7 +787,7 @@
 
 <div class="viewcode-block" id="HellingerDistance">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.HellingerDistance">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">HellingerDistance</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Q</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">HellingerDistance</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Q</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the Hellingher Distance (HD) between (discretized) distributions `P` and `Q`.</span>
 <span class="sd">    The HD for two discrete distributions of `k` bins is defined as:</span>
@@ -767,7 +805,7 @@
 
 <div class="viewcode-block" id="TopsoeDistance">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.TopsoeDistance">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">TopsoeDistance</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Q</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">TopsoeDistance</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">Q</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Topsoe distance between two (discretized) distributions `P` and `Q`.</span>
 <span class="sd">    The Topsoe distance for two discrete distributions of `k` bins is defined as:</span>
@@ -786,7 +824,7 @@
 
 <div class="viewcode-block" id="get_divergence">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.get_divergence">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_divergence</span><span class="p">(</span><span class="n">divergence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]):</span>
+<span class="k">def</span> <span class="nf">get_divergence</span><span class="p">(</span><span class="n">divergence</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Guarantees that the divergence received as argument is a function. That is, if this argument is already</span>
 <span class="sd">    a callable, then it is returned, if it is instead a string, then tries to instantiate the corresponding</span>
@@ -815,7 +853,7 @@
 
 <div class="viewcode-block" id="argmin_prevalence">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.argmin_prevalence">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">argmin_prevalence</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+<span class="k">def</span> <span class="nf">argmin_prevalence</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
                       <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
                       <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;optim_minimize&quot;</span><span class="p">,</span> <span class="s2">&quot;linear_search&quot;</span><span class="p">,</span> <span class="s2">&quot;ternary_search&quot;</span><span class="p">]</span><span class="o">=</span><span class="s1">&#39;optim_minimize&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -842,7 +880,7 @@
 
 <div class="viewcode-block" id="optim_minimize">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.optim_minimize">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">return_loss</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">return_loss</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Searches for the optimal prevalence values, i.e., an `n_classes`-dimensional vector of the (`n_classes`-1)-simplex</span>
 <span class="sd">    that yields the smallest lost. This optimization is carried out by means of a constrained search using scipy&#39;s</span>
@@ -854,7 +892,7 @@
 <span class="sd">    :return: (ndarray) the best prevalence vector found or a tuple which also contains the value of the loss</span>
 <span class="sd">        if return_loss=True</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">optimize</span>
+    <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
 
     <span class="c1"># the initial point is set as the uniform distribution</span>
     <span class="n">uniform_distribution</span> <span class="o">=</span> <span class="n">uniform_prevalence</span><span class="p">(</span><span class="n">n_classes</span><span class="o">=</span><span class="n">n_classes</span><span class="p">)</span>
@@ -873,7 +911,7 @@
 
 <div class="viewcode-block" id="linear_search">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.linear_search">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">linear_search</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">linear_search</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs a linear search for the best prevalence value in binary problems. The search is carried out by exploring</span>
 <span class="sd">    the range [0,1] stepping by 0.01. This search is inefficient, and is added only for completeness (some of the</span>
@@ -897,7 +935,7 @@
 
 <div class="viewcode-block" id="ternary_search">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.ternary_search">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">ternary_search</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">ternary_search</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Performs a ternary search for the best prevalence value in binary problems.</span>
 <span class="sd">    This search assumes the loss is unimodal over the interval [0,1].</span>
@@ -933,7 +971,7 @@
 
 <div class="viewcode-block" id="prevalence_linspace">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.prevalence_linspace">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">prevalence_linspace</span><span class="p">(</span><span class="n">grid_points</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">smooth_limits_epsilon</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">prevalence_linspace</span><span class="p">(</span><span class="n">grid_points</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">repeats</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">smooth_limits_epsilon</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Produces an array of uniformly separated values of prevalence.</span>
 <span class="sd">    By default, produces an array of 21 prevalence values, with</span>
@@ -958,7 +996,7 @@
 
 <div class="viewcode-block" id="uniform_prevalence_sampling">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.uniform_prevalence_sampling">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">uniform_prevalence_sampling</span><span class="p">(</span><span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">uniform_prevalence_sampling</span><span class="p">(</span><span class="n">n_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements the `Kraemer algorithm &lt;http://www.cs.cmu.edu/~nasmith/papers/smith+tromble.tr04.pdf&gt;`_</span>
 <span class="sd">    for sampling uniformly at random from the unit simplex. This implementation is adapted from this</span>
@@ -994,7 +1032,7 @@
 
 <div class="viewcode-block" id="solve_adjustment_binary">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.solve_adjustment_binary">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">solve_adjustment_binary</span><span class="p">(</span><span class="n">prevalence_estim</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">tpr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fpr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">clip</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">solve_adjustment_binary</span><span class="p">(</span><span class="n">prevalence_estim</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">tpr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fpr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">clip</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Implements the adjustment of ACC and PACC for the binary case. The adjustment for a prevalence estimate of the</span>
 <span class="sd">    positive class `p` comes down to computing:</span>
@@ -1021,7 +1059,7 @@
 
 <div class="viewcode-block" id="solve_adjustment">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.solve_adjustment">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">solve_adjustment</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">solve_adjustment</span><span class="p">(</span>
     <span class="n">class_conditional_rates</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">unadjusted_counts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;inversion&quot;</span><span class="p">,</span> <span class="s2">&quot;invariant-ratio&quot;</span><span class="p">],</span>
@@ -1067,14 +1105,18 @@
     <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;inversion&quot;</span><span class="p">:</span>
         <span class="k">pass</span>  <span class="c1"># We leave A and B unchanged</span>
     <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;invariant-ratio&quot;</span><span class="p">:</span>
-        <span class="c1"># Change the last equation to replace it with the normalization condition</span>
+        <span class="c1"># Change the last equation to replace it with the normalization condition;</span>
+        <span class="c1"># copy first so this does not mutate the caller&#39;s arrays (np.asarray above</span>
+        <span class="c1"># returns the same object, not a copy, when the input is already float64)</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">A</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="n">B</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown </span><span class="si">{</span><span class="n">method</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;minimize&quot;</span><span class="p">:</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">loss</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">prev</span> <span class="o">-</span> <span class="n">B</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">optim_minimize</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">elif</span> <span class="n">solver</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;exact-raise&quot;</span><span class="p">,</span> <span class="s2">&quot;exact-cc&quot;</span><span class="p">]:</span>
@@ -1102,7 +1144,7 @@
 
 <div class="viewcode-block" id="CompositionalTransformation">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.CompositionalTransformation">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">CompositionalTransformation</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CompositionalTransformation</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Abstract class of transformations for compositional data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1110,13 +1152,13 @@
     <span class="n">EPSILON</span> <span class="o">=</span> <span class="mf">1e-12</span>
 
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="o">...</span>
 
 <div class="viewcode-block" id="CompositionalTransformation.inverse">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.CompositionalTransformation.inverse">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
         <span class="o">...</span></div>
 </div>
 
@@ -1124,12 +1166,12 @@
 
 <div class="viewcode-block" id="CLRtransformation">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.CLRtransformation">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">CLRtransformation</span><span class="p">(</span><span class="n">CompositionalTransformation</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">CLRtransformation</span><span class="p">(</span><span class="n">CompositionalTransformation</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Centered log-ratio (CLR) transformation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EPSILON</span><span class="p">)</span>
         <span class="n">geometric_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
@@ -1137,7 +1179,7 @@
 
 <div class="viewcode-block" id="CLRtransformation.inverse">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.CLRtransformation.inverse">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">scipy</span><span class="o">.</span><span class="n">special</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
 </div>
 
@@ -1145,12 +1187,12 @@
 
 <div class="viewcode-block" id="ILRtransformation">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.ILRtransformation">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ILRtransformation</span><span class="p">(</span><span class="n">CompositionalTransformation</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">ILRtransformation</span><span class="p">(</span><span class="n">CompositionalTransformation</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Isometric log-ratio (ILR) transformation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">smooth</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">EPSILON</span><span class="p">)</span>
         <span class="n">basis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_V</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -1158,7 +1200,7 @@
 
 <div class="viewcode-block" id="ILRtransformation.inverse">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.ILRtransformation.inverse">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
         <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
         <span class="n">basis</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_V</span><span class="p">(</span><span class="n">Z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">logp</span> <span class="o">=</span> <span class="n">Z</span> <span class="o">@</span> <span class="n">basis</span>
@@ -1169,7 +1211,7 @@
 <div class="viewcode-block" id="ILRtransformation.get_V">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.ILRtransformation.get_V">[docs]</a>
     <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_V</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_V</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
         <span class="n">helmert</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
             <span class="n">helmert</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
@@ -1182,7 +1224,7 @@
 
 <div class="viewcode-block" id="normalized_entropy">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.normalized_entropy">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">normalized_entropy</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">normalized_entropy</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Computes the normalized Shannon entropy of a prevalence vector.</span>
 
@@ -1198,7 +1240,7 @@
 
 <div class="viewcode-block" id="antagonistic_prevalence">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.antagonistic_prevalence">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">antagonistic_prevalence</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">strength</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">antagonistic_prevalence</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">strength</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reflects a prevalence vector in ILR space and maps it back to the simplex.</span>
 
@@ -1215,7 +1257,7 @@
 
 <div class="viewcode-block" id="in_simplex">
 <a class="viewcode-back" href="../../quapy.html#quapy.functional.in_simplex">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">in_simplex</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">in_simplex</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks whether points lie in the probability simplex.</span>
 

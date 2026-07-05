@@ -29,8 +29,9 @@
   <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=874c1152" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=9f2a2228" />
   
   <!-- So that users can add custom icons -->
   <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
@@ -41,6 +42,7 @@
     <script src="../../_static/documentation_options.js?v=37f418d5"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/quapy/plot';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -114,8 +116,14 @@
   
   
   
+    
+    
+      
+    
+    
+    <img src="../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
   
-    <p class="title logo__title">QuaPy</p>
   
 </a></div>
     
@@ -131,7 +139,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../index.html">
-    Quickstart
+    Home
   </a>
 </li>
 
@@ -183,6 +191,21 @@
   </ul>
 </div></div>
       
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
     </div>
     
   </div>
@@ -229,7 +252,7 @@
     
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../index.html">
-    Quickstart
+    Home
   </a>
 </li>
 
@@ -271,6 +294,21 @@
     <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
         
       </div>
     
@@ -332,19 +370,19 @@
                 <article class="bd-article">
                   
   <h1>Source code for quapy.plot</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">math</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">cm</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearSegmentedColormap</span><span class="p">,</span> <span class="n">ListedColormap</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_cmap</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.ticker</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScalarFormatter</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">ttest_ind_from_stats</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">mcolors</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">LinearSegmentedColormap</span><span class="p">,</span> <span class="n">ListedColormap</span>
+<span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">import</span> <span class="n">get_cmap</span>
+<span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">ScalarFormatter</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">ttest_ind_from_stats</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
+<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.figsize&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.dpi&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
@@ -353,7 +391,7 @@
 
 <div class="viewcode-block" id="binary_diagonal">
 <a class="viewcode-back" href="../../quapy.html#quapy.plot.binary_diagonal">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">binary_diagonal</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_std</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="k">def</span> <span class="nf">binary_diagonal</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_std</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">train_prev</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method_order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The diagonal plot displays the predicted prevalence values (along the y-axis) as a function of the true prevalence</span>
@@ -433,7 +471,7 @@
 
 <div class="viewcode-block" id="binary_bias_global">
 <a class="viewcode-back" href="../../quapy.html#quapy.plot.binary_bias_global">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">binary_bias_global</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">binary_bias_global</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Box-plots displaying the global bias (i.e., signed error computed as the estimated value minus the true value)</span>
 <span class="sd">    for each quantification method with respect to a given positive class.</span>
@@ -479,7 +517,7 @@
 
 <div class="viewcode-block" id="binary_bias_bins">
 <a class="viewcode-back" href="../../quapy.html#quapy.plot.binary_bias_bins">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">binary_bias_bins</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">tab10</span><span class="p">,</span>
+<span class="k">def</span> <span class="nf">binary_bias_bins</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">pos_class</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">tab10</span><span class="p">,</span>
                      <span class="n">vertical_xticks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Box-plots displaying the local bias (i.e., signed error computed as the estimated value minus the true value)</span>
@@ -505,7 +543,7 @@
 <span class="sd">    :param savepath: path where to save the plot. If not indicated (as default), the plot is shown.</span>
 <span class="sd">    :return: returns (fig, ax) matplotlib objects for eventual customisation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">pylab</span><span class="w"> </span><span class="kn">import</span> <span class="n">boxplot</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">setp</span>
+    <span class="kn">from</span> <span class="nn">pylab</span> <span class="kn">import</span> <span class="n">boxplot</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">setp</span>
 
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
@@ -581,7 +619,7 @@
 
 <div class="viewcode-block" id="error_by_drift">
 <a class="viewcode-back" href="../../quapy.html#quapy.plot.error_by_drift">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">error_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span>
+<span class="k">def</span> <span class="nf">error_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span>
                    <span class="n">n_bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">error_name</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">show_std</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">show_density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                    <span class="n">show_legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -717,7 +755,7 @@
 
 <div class="viewcode-block" id="brokenbar_supremacy_by_drift">
 <a class="viewcode-back" href="../../quapy.html#quapy.plot.brokenbar_supremacy_by_drift">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">brokenbar_supremacy_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span>
+<span class="k">def</span> <span class="nf">brokenbar_supremacy_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span>
                                  <span class="n">n_bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">binning</span><span class="o">=</span><span class="s1">&#39;isomerous&#39;</span><span class="p">,</span>
                                  <span class="n">x_error</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">y_error</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">ttest_alpha</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span> <span class="n">tail_density_threshold</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
                                  <span class="n">method_order</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -831,7 +869,6 @@
                 <span class="n">best_bucket_methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method_order</span><span class="p">[</span><span class="n">method_index</span><span class="p">])</span>
         <span class="n">best_methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">best_bucket_methods</span><span class="p">)</span>
         <span class="n">salient_methods</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">best_bucket_methods</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">best_bucket_methods</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">binning</span><span class="o">==</span><span class="s1">&#39;isomerous&#39;</span><span class="p">:</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;height_ratios&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]},</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">salient_methods</span><span class="p">)))</span>
@@ -914,7 +951,7 @@
 
 <div class="viewcode-block" id="plot_simplex">
 <a class="viewcode-back" href="../../quapy.html#quapy.plot.plot_simplex">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_simplex</span><span class="p">(</span>
+<span class="k">def</span> <span class="nf">plot_simplex</span><span class="p">(</span>
         <span class="n">point_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">region_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">density_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1032,7 +1069,7 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_merge</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_merge</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">):</span>
     <span class="n">ndims</span> <span class="o">=</span> <span class="n">true_prevs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;true&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ndims</span><span class="p">)),</span> <span class="s1">&#39;estim&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ndims</span><span class="p">))})</span>
     <span class="n">method_order</span><span class="o">=</span><span class="p">[]</span>
@@ -1046,14 +1083,14 @@
     <span class="k">return</span> <span class="n">method_order</span><span class="p">,</span> <span class="n">true_prevs_</span><span class="p">,</span> <span class="n">estim_prevs_</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_set_colors</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">n_methods</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_set_colors</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">n_methods</span><span class="p">):</span>
     <span class="n">NUM_COLORS</span> <span class="o">=</span> <span class="n">n_methods</span>
     <span class="k">if</span> <span class="n">NUM_COLORS</span><span class="o">&gt;</span><span class="mi">10</span><span class="p">:</span>
         <span class="n">cm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;tab20&#39;</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">set_prop_cycle</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="n">cm</span><span class="p">(</span><span class="mf">1.</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">NUM_COLORS</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_COLORS</span><span class="p">)])</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_save_or_show</span><span class="p">(</span><span class="n">savepath</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_save_or_show</span><span class="p">(</span><span class="n">savepath</span><span class="p">):</span>
     <span class="c1"># if savepath is specified, then saves the plot in that path; otherwise the plot is shown</span>
     <span class="k">if</span> <span class="n">savepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">create_parent_dir</span><span class="p">(</span><span class="n">savepath</span><span class="p">)</span>
@@ -1063,7 +1100,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_join_data_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span> <span class="n">x_error</span><span class="p">,</span> <span class="n">y_error</span><span class="p">,</span> <span class="n">method_order</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_join_data_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span> <span class="n">x_error</span><span class="p">,</span> <span class="n">y_error</span><span class="p">,</span> <span class="n">method_order</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">))})</span>
 
     <span class="k">if</span> <span class="n">method_order</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1084,7 +1121,7 @@
     <span class="k">return</span> <span class="n">data</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_simplex_to_cartesian</span><span class="p">(</span><span class="n">prevalences</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_simplex_to_cartesian</span><span class="p">(</span><span class="n">prevalences</span><span class="p">):</span>
     <span class="n">prevalences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevalences</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">prevalences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">prevalences</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">prevalences</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
@@ -1094,14 +1131,14 @@
     <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_barycentric_from_xy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_barycentric_from_xy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
     <span class="n">p3</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">y</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
     <span class="n">p2</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">p3</span>
     <span class="n">p1</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">p2</span> <span class="o">-</span> <span class="n">p3</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">p3</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_simplex_mesh</span><span class="p">(</span><span class="n">resolution</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_simplex_mesh</span><span class="p">(</span><span class="n">resolution</span><span class="p">):</span>
     <span class="n">simplex_ymax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
     <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">simplex_ymax</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
@@ -1111,7 +1148,7 @@
     <span class="k">return</span> <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">pts_bary</span><span class="p">,</span> <span class="n">mask</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_simplex_function</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_evaluate_simplex_function</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">points</span><span class="p">):</span>
     <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">function</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -1124,14 +1161,14 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">function</span><span class="p">(</span><span class="n">point</span><span class="p">)</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_region_colormap</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.35</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_region_colormap</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.35</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">ListedColormap</span><span class="p">([</span>
         <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
         <span class="p">(</span><span class="o">*</span><span class="n">mcolors</span><span class="o">.</span><span class="n">to_rgb</span><span class="p">(</span><span class="n">color</span><span class="p">),</span> <span class="n">alpha</span><span class="p">),</span>
     <span class="p">])</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_plot_simplex_points</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">point_layers</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_plot_simplex_points</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">point_layers</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">point_layers</span><span class="p">:</span>
         <span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">layer</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">}</span>
@@ -1139,7 +1176,7 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">_simplex_to_cartesian</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">),</span> <span class="o">**</span><span class="n">style</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_plot_simplex_regions</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">region_layers</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_plot_simplex_regions</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">region_layers</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
     <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">pts_bary</span><span class="p">,</span> <span class="n">simplex_mask</span> <span class="o">=</span> <span class="n">_simplex_mesh</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
     <span class="n">valid_points</span> <span class="o">=</span> <span class="n">pts_bary</span><span class="p">[</span><span class="n">simplex_mask</span><span class="p">]</span>
 
@@ -1158,7 +1195,7 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">),</span> <span class="n">alpha</span><span class="o">=</span><span class="n">layer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="mf">0.35</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="n">layer</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">])</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_plot_simplex_density</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">density_function</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_plot_simplex_density</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">density_function</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="p">):</span>
     <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">pts_bary</span><span class="p">,</span> <span class="n">simplex_mask</span> <span class="o">=</span> <span class="n">_simplex_mesh</span><span class="p">(</span><span class="n">resolution</span><span class="p">)</span>
     <span class="n">valid_points</span> <span class="o">=</span> <span class="n">pts_bary</span><span class="p">[</span><span class="n">simplex_mask</span><span class="p">]</span>
     <span class="n">density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">simplex_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -1174,14 +1211,13 @@
 
 <div class="viewcode-block" id="calibration_plot">
 <a class="viewcode-back" href="../../quapy.html#quapy.plot.calibration_plot">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">calibration_plot</span><span class="p">(</span><span class="n">prob_classifier</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">calibration_plot</span><span class="p">(</span><span class="n">prob_classifier</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">posteriors</span> <span class="o">=</span> <span class="n">prob_classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">posteriors</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;calibration plot only works for binary problems&#39;</span>
     <span class="n">posteriors</span> <span class="o">=</span> <span class="n">posteriors</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">pred_y</span> <span class="o">=</span> <span class="n">posteriors</span><span class="o">&gt;=</span><span class="mf">0.5</span>
     <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nbins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">binned_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">binned_values</span><span class="p">))</span>
     <span class="n">correct</span> <span class="o">=</span> <span class="n">pred_y</span> <span class="o">==</span> <span class="n">y</span>
     <span class="n">bin_centers</span> <span class="o">=</span> <span class="p">(</span><span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">bins_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">nbins</span><span class="p">)</span>
@@ -1202,8 +1238,8 @@
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+    <span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+    <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">UCI_BINARY_DATASETS</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
     <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">train_test</span>
     <span class="n">classifier</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
