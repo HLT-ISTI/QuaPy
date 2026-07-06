@@ -194,6 +194,8 @@ class ReadMe(BaseQuantifier, WithConfidenceABC):
     :param confidence_level: float, a value in (0,1) reflecting the desired confidence level (default 0.95)
     :param region: str in 'intervals', 'ellipse', 'ellipse-clr'; indicates the preferred method for
         defining the confidence region (see :class:`WithConfidenceABC`)
+    :param bonferroni: bool (default False), whether to apply Bonferroni correction when
+        `region='intervals'`. This parameter has no effect for ellipse-based regions.
     :param random_state: int or None, allows replicability (default None)
     :param verbose: bool, whether to display information during the process (default False)
     """
@@ -208,6 +210,7 @@ class ReadMe(BaseQuantifier, WithConfidenceABC):
                  bagging_range=15,
                  confidence_level=0.95,
                  region='intervals',
+                 bonferroni=False,
                  random_state=None,
                  verbose=False):
         assert prob_model in ReadMe.PROBABILISTIC_MODELS, \
@@ -218,6 +221,7 @@ class ReadMe(BaseQuantifier, WithConfidenceABC):
         self.bagging_range = bagging_range
         self.confidence_level = confidence_level
         self.region = region
+        self.bonferroni = bonferroni
         self.random_state = random_state
         self.verbose = verbose
 
@@ -238,8 +242,10 @@ class ReadMe(BaseQuantifier, WithConfidenceABC):
 
         return self
 
-    def predict_conf(self, X, confidence_level=0.95) -> (np.ndarray, ConfidenceRegionABC):
+    def predict_conf(self, X, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
         self._check_matrix(X)
+        if confidence_level is None:
+            confidence_level = self.confidence_level
 
         n_features = X.shape[1]
         boots_prevalences = []
@@ -257,7 +263,7 @@ class ReadMe(BaseQuantifier, WithConfidenceABC):
 
             boots_prevalences.append(np.mean(bagging_estimates, axis=0))
 
-        conf = WithConfidenceABC.construct_region(boots_prevalences, confidence_level, method=self.region)
+        conf = WithConfidenceABC.construct_region(boots_prevalences, confidence_level, method=self.region, bonferroni=self.bonferroni)
         prev_estim = conf.point_estimate()
 
         return prev_estim, conf

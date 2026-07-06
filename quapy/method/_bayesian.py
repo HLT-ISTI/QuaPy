@@ -271,6 +271,9 @@ class BayesianKDEy(AggregativeSoftQuantifier, KDEBase, WithConfidenceABC):
         intervals (default), or to `ellipse` for constructing an ellipse in
         the probability simplex, or to `ellipse-clr` for constructing an
         ellipse in the Centered-Log Ratio (CLR) unconstrained space.
+    :param bonferroni: bool (default False), whether to apply Bonferroni
+        correction when `region='intervals'`. This parameter has no effect
+        for ellipse-based regions.
     :param temperature: temperature (>0) for posterior calibration
         (default 1.)
     :param prior: an array-like with the alpha parameters of a Dirichlet
@@ -292,6 +295,7 @@ class BayesianKDEy(AggregativeSoftQuantifier, KDEBase, WithConfidenceABC):
         mcmc_seed: int = 0,
         confidence_level: float = 0.95,
         region: str = 'intervals',
+        bonferroni: bool = False,
         temperature: float = 1.0,
         prior='uniform',
         verbose: bool = False,
@@ -315,6 +319,7 @@ class BayesianKDEy(AggregativeSoftQuantifier, KDEBase, WithConfidenceABC):
         self.mcmc_seed = mcmc_seed
         self.confidence_level = confidence_level
         self.region = region
+        self.bonferroni = bonferroni
         self.temperature = _validate_temperature(temperature)
         self.prior = prior
         self.verbose = verbose
@@ -358,6 +363,7 @@ class BayesianKDEy(AggregativeSoftQuantifier, KDEBase, WithConfidenceABC):
             self.prevalence_samples,
             confidence_level=confidence_level,
             method=self.region,
+            bonferroni=self.bonferroni,
         )
         return point_estimate, region
 
@@ -433,6 +439,9 @@ class BayesianMAPLS(AggregativeSoftQuantifier, WithConfidenceABC):
         intervals (default), or to `ellipse` for constructing an ellipse in
         the probability simplex, or to `ellipse-clr` for constructing an
         ellipse in the Centered-Log Ratio (CLR) unconstrained space.
+    :param bonferroni: bool (default False), whether to apply Bonferroni
+        correction when `region='intervals'`. This parameter has no effect
+        for ellipse-based regions.
     :param temperature: temperature (>0) for posterior calibration
         (default 1.)
     :param prior: an array-like with the alpha parameters of a Dirichlet
@@ -455,6 +464,7 @@ class BayesianMAPLS(AggregativeSoftQuantifier, WithConfidenceABC):
         mcmc_seed: int = 0,
         confidence_level: float = 0.95,
         region: str = 'intervals',
+        bonferroni: bool = False,
         temperature: float = 1.0,
         prior='uniform',
         mapls_chain_init=True,
@@ -482,6 +492,7 @@ class BayesianMAPLS(AggregativeSoftQuantifier, WithConfidenceABC):
         self.mcmc_seed = mcmc_seed
         self.confidence_level = confidence_level
         self.region = region
+        self.bonferroni = bonferroni
         self.temperature = _validate_temperature(temperature)
         self.prior = prior
         self.mapls_chain_init = mapls_chain_init
@@ -553,6 +564,7 @@ class BayesianMAPLS(AggregativeSoftQuantifier, WithConfidenceABC):
             self.prevalence_samples,
             confidence_level=confidence_level,
             method=self.region,
+            bonferroni=self.bonferroni,
         )
         return point_estimate, region
 

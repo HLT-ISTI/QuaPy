@@ -75,7 +75,8 @@ There are different ways for constructing confidence regions implemented in QuaP
     convenient for taking into account the inner structure of the probability simplex)
     use: AggregativeBootstrap(PACC(), confidence_level=0.95, method='ellipse-clr')
     
-Other methods that return confidence regions in QuaPy include the BayesianCC method.
+Other methods that return confidence regions in QuaPy include the Bayesian methods (BayesianCC, 
+    BayesianMAPLS, PQ, and BayesianKDEy).
 """
 
 

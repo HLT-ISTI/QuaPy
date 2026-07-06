@@ -176,7 +176,7 @@ class WithConfidenceABC(ABC):
         return self.predict_conf(instances=instances, confidence_level=confidence_level)
 
     @classmethod
-    def construct_region(cls, prev_estims, confidence_level=0.95, method='intervals')->ConfidenceRegionABC:
+    def construct_region(cls, prev_estims, confidence_level=0.95, method='intervals', bonferroni=False)->ConfidenceRegionABC:
         """
         Construct a confidence region given many prevalence estimations.
 
@@ -186,10 +186,16 @@ class WithConfidenceABC(ABC):
             constructing confidence intervals (default), or to `ellipse` for constructing an
             ellipse in the probability simplex, or to `ellipse-clr` for constructing an ellipse
             in the Centered-Log Ratio (CLR) unconstrained space.
+        :param bonferroni: bool (default False), whether to apply Bonferroni correction when
+            `method='intervals'`. This parameter has no effect for ellipse-based regions.
         """
         region = None
         if method == 'intervals':
-            region = ConfidenceIntervals(prev_estims, confidence_level=confidence_level)
+            region = ConfidenceIntervals(
+                prev_estims,
+                confidence_level=confidence_level,
+                bonferroni_correction=bonferroni,
+            )
         elif method == 'ellipse':
             region = ConfidenceEllipseSimplex(prev_estims, confidence_level=confidence_level)
         elif method == 'ellipse-clr':
@@ -337,7 +343,7 @@ class ConfidenceIntervals(ConfidenceRegionABC):
     """
     Instantiates a region based on (independent) Confidence Intervals.
 
-    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     :param bonferroni_correction: bool (default False), if True, a Bonferroni correction
         is applied to the significance level (`alpha`) before computing confidence intervals.
@@ -432,7 +438,7 @@ class ConfidenceEllipseSimplex(ConfidenceRegionABC):
     """
     Instantiates a Confidence Ellipse in the probability simplex.
 
-    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     """
 
@@ -496,7 +502,7 @@ class ConfidenceEllipseTransformed(ConfidenceRegionABC):
     """
     Instantiates a Confidence Ellipse in a transformed space.
 
-    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     """
 
@@ -549,7 +555,7 @@ class ConfidenceEllipseCLR(ConfidenceEllipseTransformed):
     """
     Instantiates a Confidence Ellipse in the Centered-Log Ratio (CLR) space.
 
-    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     """
     def __init__(self, samples, confidence_level=0.95):
@@ -560,7 +566,7 @@ class ConfidenceEllipseILR(ConfidenceEllipseTransformed):
     """
     Instantiates a Confidence Ellipse in the Isometric-Log Ratio (CLR) space.
 
-    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     """
     def __init__(self, samples, confidence_level=0.95):
@@ -572,7 +578,7 @@ class ConfidenceIntervalsTransformed(ConfidenceRegionABC):
     """
     Instantiates a Confidence Interval region in a transformed space.
 
-    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     :param bonferroni_correction: bool (default False), if True, a Bonferroni correction
         is applied to the significance level (`alpha`) before computing confidence intervals.
@@ -636,7 +642,7 @@ class ConfidenceIntervalsCLR(ConfidenceIntervalsTransformed):
     """
     Instantiates a Confidence Intervals in the Centered-Log Ratio (CLR) space.
 
-    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     :param bonferroni_correction: bool (default False), if True, a Bonferroni correction
         is applied to the significance level (`alpha`) before computing confidence intervals.
@@ -652,7 +658,7 @@ class ConfidenceIntervalsILR(ConfidenceIntervalsTransformed):
     """
     Instantiates a Confidence Intervals in the Isometric-Log Ratio (CLR) space.
 
-    :param samples: np.ndarray of shape (n_bootstrap_samples, n_classes)
+    :param samples: np.ndarray of shape (n_samples, n_classes)
     :param confidence_level: float, the confidence level (default 0.95)
     :param bonferroni_correction: bool (default False), if True, a Bonferroni correction
         is applied to the significance level (`alpha`) before computing confidence intervals.
@@ -693,6 +699,8 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
     :param region: string, set to `intervals` for constructing confidence intervals (default), or to
         `ellipse` for constructing an ellipse in the probability simplex, or to `ellipse-clr` for
         constructing an ellipse in the Centered-Log Ratio (CLR) unconstrained space.
+    :param bonferroni: bool (default False), whether to apply Bonferroni correction when
+        `region='intervals'`. This parameter has no effect for ellipse-based regions.
     :param random_state: int for replicating samples, None (default) for non-replicable samples
     """
 
@@ -702,6 +710,7 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
                  n_test_samples=500,
                  confidence_level=0.95,
                  region='intervals',
+                 bonferroni=False,
                  random_state=None,
                  verbose=False):
 
@@ -719,6 +728,7 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
         self.n_test_samples = n_test_samples
         self.confidence_level = confidence_level
         self.region = region
+        self.bonferroni = bonferroni
         self.random_state = random_state
         self.verbose = verbose
 
@@ -771,7 +781,7 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
                     prev_i = quantifier.aggregate(sample_i)
                     prevs.append(prev_i)
 
-        conf = WithConfidenceABC.construct_region(prevs, confidence_level, method=self.region)
+        conf = WithConfidenceABC.construct_region(prevs, confidence_level, method=self.region, bonferroni=self.bonferroni)
         prev_estim = conf.point_estimate()
 
         return prev_estim, conf
@@ -791,7 +801,7 @@ class AggregativeBootstrap(WithConfidenceABC, AggregativeQuantifier):
                 prevs.extend(results)
 
         prevs = np.array(prevs)
-        conf = WithConfidenceABC.construct_region(prevs, confidence_level, method=self.region)
+        conf = WithConfidenceABC.construct_region(prevs, confidence_level, method=self.region, bonferroni=self.bonferroni)
         prev_estim = conf.point_estimate()
 
         return prev_estim, conf
@@ -850,6 +860,8 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
     :param region: string, set to `intervals` for constructing confidence intervals (default), or to
         `ellipse` for constructing an ellipse in the probability simplex, or to `ellipse-clr` for
         constructing an ellipse in the Centered-Log Ratio (CLR) unconstrained space.
+    :param bonferroni: bool (default False), whether to apply Bonferroni correction when
+        `region='intervals'`. This parameter has no effect for ellipse-based regions.
     :param prior: an array-like with the alpha parameters of a Dirichlet prior, a scalar real value
         to be broadcast to all classes, or the string 'uniform' for a uniform, uninformative prior (default)
     """
@@ -862,6 +874,7 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
                  mcmc_seed: int = 0,
                  confidence_level: float = 0.95,
                  region: str = 'intervals',
+                 bonferroni: bool = False,
                  temperature = 1., 
                  prior = 'uniform'):
 
@@ -885,6 +898,7 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
         self.mcmc_seed = mcmc_seed
         self.confidence_level = confidence_level
         self.region = region
+        self.bonferroni = bonferroni
         self.temperature = temperature
         self.prior = prior
 
@@ -964,7 +978,7 @@ class BayesianCC(AggregativeCrispQuantifier, WithConfidenceABC):
         classif_predictions = self.classify(instances)
         point_estimate = self.aggregate(classif_predictions)
         samples = self.get_prevalence_samples()  # available after calling "aggregate" function
-        region = WithConfidenceABC.construct_region(samples, confidence_level=confidence_level, method=self.region)
+        region = WithConfidenceABC.construct_region(samples, confidence_level=confidence_level, method=self.region, bonferroni=self.bonferroni)
         return point_estimate, region
     
 
@@ -992,6 +1006,8 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     :param region: string, set to `intervals` for constructing confidence intervals (default), or to
         `ellipse` for constructing an ellipse in the probability simplex, or to `ellipse-clr` for
         constructing an ellipse in the Centered-Log Ratio (CLR) unconstrained space.
+    :param bonferroni: bool (default False), whether to apply Bonferroni correction when
+        `region='intervals'`. This parameter has no effect for ellipse-based regions.
     """
     def __init__(self,
                  classifier: BaseEstimator=None,
@@ -1003,7 +1019,8 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
                  num_samples: int = 1_000,
                  stan_seed: int = 0,
                  confidence_level: float = 0.95,
-                 region: str = 'intervals'):
+                 region: str = 'intervals',
+                 bonferroni: bool = False):
 
         if num_warmup <= 0:
             raise ValueError(f'parameter {num_warmup=} must be a positive integer')
@@ -1025,6 +1042,7 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         self.stan_code = bayesian.load_stan_file()
         self.confidence_level = confidence_level
         self.region = region
+        self.bonferroni = bonferroni
 
     def aggregation_fit(self, classif_predictions, labels):
         y_pred = classif_predictions[:, self.pos_label]
@@ -1064,7 +1082,7 @@ class PQ(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
             confidence_level = self.confidence_level
         point_estimate = self.aggregate(predictions)
         samples = self.prev_distribution
-        region = WithConfidenceABC.construct_region(samples, confidence_level=confidence_level, method=self.region)
+        region = WithConfidenceABC.construct_region(samples, confidence_level=confidence_level, method=self.region, bonferroni=self.bonferroni)
         return point_estimate, region
 
     def predict_conf(self, instances, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
