@@ -1,5 +1,7 @@
 # QuaPy
 
+## version 0.2.1
+
 QuaPy is an open source framework for quantification (a.k.a. supervised prevalence estimation, or learning to quantify)
 written in Python.
 
@@ -74,6 +76,7 @@ See the [documentation](https://hlt-isti.github.io/QuaPy/manuals.html) for detai
 
 * Implementation of many popular quantification methods (Classify-&-Count and its variants, Expectation Maximization,
 quantification methods based on structured output learning, HDy, QuaNet, quantification ensembles, among others).
+* Support for uncertainty quantification via bootstrap-based and Bayesian methods, including confidence intervals and simplex-aware confidence regions.
 * Versatile functionality for performing evaluation based on sampling generation protocols (e.g., APP, NPP, etc.).
 * Implementation of most commonly used evaluation metrics (e.g., AE, RAE, NAE, NRAE, SE, KLD, NKLD, etc.).
 * Datasets frequently used in quantification (textual and numeric), including:

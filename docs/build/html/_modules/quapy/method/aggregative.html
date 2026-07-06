@@ -778,8 +778,13 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.CC">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CC</span><span class="p">(</span><span class="n">AggregativeCrispQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The most basic Quantification method. One that simply classifies all instances and counts how many have been</span>
-<span class="sd">    attributed to each of the classes in order to compute class prevalence estimates.</span>
+<span class="sd">    `Classify &amp; Count` (CC), the most basic quantification method, one that</span>
+<span class="sd">    simply classifies all instances and counts how many have been attributed to</span>
+<span class="sd">    each class in order to compute class prevalence estimates. This baseline is</span>
+<span class="sd">    the unadjusted estimator discussed, among others, in</span>
+<span class="sd">    `Forman, G. (2008). Quantifying counts and costs via classification.</span>
+<span class="sd">    Data Mining and Knowledge Discovery, 17, 164-206</span>
+<span class="sd">    &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_.</span>
 
 <span class="sd">    :param classifier: a sklearn&#39;s Estimator that generates a classifier</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -816,8 +821,13 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PCC">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PCC</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    `Probabilistic Classify &amp; Count &lt;https://ieeexplore.ieee.org/abstract/document/5694031&gt;`_,</span>
-<span class="sd">    the probabilistic variant of CC that relies on the posterior probabilities returned by a probabilistic classifier.</span>
+<span class="sd">    `Probabilistic Classify &amp; Count` (PCC), the probabilistic variant of CC</span>
+<span class="sd">    that relies on the posterior probabilities returned by a probabilistic</span>
+<span class="sd">    classifier, introduced in</span>
+<span class="sd">    `Bella, A., Ferri, C., Hernández-Orallo, J., and Ramírez-Quintana, M.J.</span>
+<span class="sd">    (2010). Quantification via probability estimators. In Proceedings of the</span>
+<span class="sd">    2010 IEEE International Conference on Data Mining (ICDM 2010)</span>
+<span class="sd">    &lt;https://ieeexplore.ieee.org/abstract/document/5694031&gt;`_.</span>
 
 <span class="sd">    :param classifier: a sklearn&#39;s Estimator that generates a classifier</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -849,9 +859,12 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ACC</span><span class="p">(</span><span class="n">AggregativeCrispQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    `Adjusted Classify &amp; Count &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_,</span>
-<span class="sd">    the &quot;adjusted&quot; variant of :class:`CC`, that corrects the predictions of CC</span>
-<span class="sd">    according to the `misclassification rates`.</span>
+<span class="sd">    `Adjusted Classify &amp; Count` (ACC), the &quot;adjusted&quot; variant of :class:`CC`</span>
+<span class="sd">    that corrects the predictions of CC according to the</span>
+<span class="sd">    misclassification rates, originally proposed in</span>
+<span class="sd">    `Forman, G. (2008). Quantifying counts and costs via classification.</span>
+<span class="sd">    Data Mining and Knowledge Discovery, 17, 164-206</span>
+<span class="sd">    &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_.</span>
 
 <span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
 <span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
@@ -1008,8 +1021,13 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PACC">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PACC</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    `Probabilistic Adjusted Classify &amp; Count &lt;https://ieeexplore.ieee.org/abstract/document/5694031&gt;`_,</span>
-<span class="sd">    the probabilistic variant of ACC that relies on the posterior probabilities returned by a probabilistic classifier.</span>
+<span class="sd">    `Probabilistic Adjusted Classify &amp; Count` (PACC), the probabilistic</span>
+<span class="sd">    variant of ACC that relies on the posterior probabilities returned by a</span>
+<span class="sd">    probabilistic classifier, introduced in</span>
+<span class="sd">    `Bella, A., Ferri, C., Hernández-Orallo, J., and Ramírez-Quintana, M.J.</span>
+<span class="sd">    (2010). Quantification via probability estimators. In Proceedings of the</span>
+<span class="sd">    2010 IEEE International Conference on Data Mining (ICDM 2010)</span>
+<span class="sd">    &lt;https://ieeexplore.ieee.org/abstract/document/5694031&gt;`_.</span>
 
 <span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
 <span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
@@ -2279,6 +2297,10 @@
 <span class="n">KDEyHD</span> <span class="o">=</span> <span class="n">_kdey</span><span class="o">.</span><span class="n">KDEyHD</span>
 <span class="n">KDEyCS</span> <span class="o">=</span> <span class="n">_kdey</span><span class="o">.</span><span class="n">KDEyCS</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_edy</span>
+
+<span class="n">EDy</span> <span class="o">=</span> <span class="n">_edy</span><span class="o">.</span><span class="n">EDy</span>
+
 <span class="c1"># ---------------------------------------------------------------</span>
 <span class="c1"># aliases</span>
 <span class="c1"># ---------------------------------------------------------------</span>
@@ -2290,6 +2312,7 @@
 <span class="n">ExpectationMaximizationQuantifier</span> <span class="o">=</span> <span class="n">EMQ</span>
 <span class="n">SLD</span> <span class="o">=</span> <span class="n">EMQ</span>
 <span class="n">DistributionMatchingY</span> <span class="o">=</span> <span class="n">DMy</span>
+<span class="n">EnergyDistanceY</span> <span class="o">=</span> <span class="n">EDy</span>
 <span class="n">HellingerDistanceY</span> <span class="o">=</span> <span class="n">HDy</span>
 <span class="n">HistoricalHDy</span> <span class="o">=</span> <span class="n">DMy</span><span class="o">.</span><span class="n">HDy</span>
 <span class="n">MedianSweep</span> <span class="o">=</span> <span class="n">MS</span>

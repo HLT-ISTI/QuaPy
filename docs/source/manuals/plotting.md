@@ -284,4 +284,8 @@ qp.plot.plot_simplex(
 
 See the dedicated
 [example](https://github.com/HLT-ISTI/QuaPy/blob/master/examples/19.visualizing_simplex.py)
-for a slightly richer illustration.
+for a slightly richer illustration. The current example combines a posterior
+cloud, the true/training/predicted prevalences, a smooth density surface, and
+a region induced by Bonferroni-corrected 95% confidence intervals.
+
+![simplex visualization](./plots/simplex_visualization.png)

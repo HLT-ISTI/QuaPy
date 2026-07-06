@@ -8,7 +8,7 @@ from sklearn.linear_model import LogisticRegression
 
 from quapy.method import AGGREGATIVE_METHODS, BINARY_METHODS, NON_AGGREGATIVE_METHODS
 from quapy.method.non_aggregative import DMx, HDx
-from quapy.method.aggregative import ACC, DMy, KDEyCS, RLLS
+from quapy.method.aggregative import ACC, DMy, EDy, KDEyCS, RLLS
 from quapy.method.meta import Ensemble
 from quapy.functional import check_prevalence_vector
 from quapy.tests._synthetic import make_dataset
@@ -20,6 +20,7 @@ OPTIONAL_AGGREGATIVE_METHODS = {
     'BayesianMAPLS',
     'PQ',
     'RLLS',
+    'EDy',
 }
 
 
@@ -134,6 +135,19 @@ class TestMethods(unittest.TestCase):
 
         dataset = TestMethods.tiny_dataset_multiclass
         q = RLLS(LogisticRegression(max_iter=2000), val_split=3)
+        q.fit(*dataset.training.Xy)
+        estim_prevalences = q.predict(dataset.test.X)
+        self.assertTrue(check_prevalence_vector(estim_prevalences))
+
+
+    def test_edy(self):
+        try:
+            import quadprog  # noqa: F401
+        except ImportError:
+            return
+
+        dataset = TestMethods.tiny_dataset_multiclass
+        q = EDy(LogisticRegression(max_iter=2000), val_split=3)
         q.fit(*dataset.training.Xy)
         estim_prevalences = q.predict(dataset.test.X)
         self.assertTrue(check_prevalence_vector(estim_prevalences))

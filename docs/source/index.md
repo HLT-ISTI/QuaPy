@@ -13,7 +13,7 @@ QuaPy is an open-source Python framework for quantification, also known as
 supervised prevalence estimation or learning to quantify. It is designed with
 research and experimental analysis in mind, and combines datasets, protocols,
 evaluation measures, visualization tools, and a broad collection of
-quantification methods in a single coherent workflow.
+quantification methods in a single workflow.
 ```
 
 `````{grid} 1 1 2 2

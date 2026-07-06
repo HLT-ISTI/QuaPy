@@ -415,11 +415,12 @@ ECML-PKDD 2024, Vilnius, Lithuania.
 ## Image Embedding Datasets
 
 QuaPy also provides a collection of image datasets in the form of pre-generated
-embeddings, hosted in [Zenodo](https://zenodo.org/records/21131944). 
+embeddings.
 These
-embeddings were generated using [this extraction scripts](https://github.com/pglez82/visiondatasets_quapy).
+embeddings were generated using [this extraction script](https://github.com/pglez82/visiondatasets_quapy) 
+and are hosted in [Zenodo](https://zenodo.org/records/21131944). 
 
-The current public interface is:
+An example of current public interface is:
 
 ```python
 import quapy as qp
@@ -432,21 +433,19 @@ data = qp.datasets.fetch_image_embeddings(
 train, test = data.train_test
 ```
 
-The available datasets are:
+The available datasets are in `qp.datasets.IMAGE_DATASETS`, and include 6 datasets:
 
-```python
-qp.datasets.IMAGE_DATASETS
-# ['cifar10', 'cifar100', 'cifar100coarse', 'svhn', 'fashionmnist', 'mnist']
-```
+* `cifar10`, `cifar100`, and `cifar100coarse`:
+  [Alex Krizhevsky and Geoffrey Hinton. Learning multiple layers of features from tiny images. Technical report, University of Toronto, 2009.](https://cave.cs.toronto.edu/kriz/learning-features-2009-TR.pdf)
+* `mnist`:
+  [Yann LeCun, Corinna Cortes, and Christopher J. C. Burges. The MNIST database of handwritten digits. 1998.](http://yann.lecun.com/exdb/mnist/)
+* `fashionmnist`:
+  [Han Xiao, Kashif Rasul, and Roland Vollgraf. Fashion-MNIST: a novel image dataset for benchmarking machine learning algorithms. arXiv preprint arXiv:1708.07747, 2017.](https://arxiv.org/abs/1708.07747)
+* `svhn`:
+  [Yuval Netzer, Tao Wang, Adam Coates, Alessandro Bissacco, Baolin Wu, Andrew Y. Ng, et al. Reading digits in natural images with unsupervised feature learning. NIPS Workshop, 2011.](https://static.googleusercontent.com/media/research.google.com/es//pubs/archive/37648.pdf)
 
-The available embedding types are:
 
-```python
-qp.datasets.IMAGE_EMBEDDINGS
-# ['features', 'logits', 'predictions']
-```
-
-where:
+The available embedding types are in `qp.datasets.IMAGE_EMBEDDINGS`, and include:
 
 * `features` are the penultimate-layer representations
 * `logits` are the pre-activation outputs of the neural model
@@ -456,48 +455,19 @@ The datasets correspond to frozen neural representations extracted from models
 trained on image classification tasks. QuaPy downloads them automatically on
 first use and stores them locally for fast reuse.
 
-### Train/Test Semantics
-
 Each dataset is internally organised into three splits: `train`, `val`, and
 `test`. The `train` split was used to train the neural model that produced the
-embeddings, while `val` and `test` were not seen during neural training.
-
-For this reason, the default setting is:
-
-```python
-data = qp.datasets.fetch_image_embeddings(..., heldout_only=True)
-```
-
-which returns:
-
-* `train = val`
-* `test = test`
-
+embeddings, while `val` and `test` were not seen during neural training. 
+For this reason, the default setting indicates `heldout_only=True`, meaning
+that the returned dataset will take the validation partition as the training
+set, and the test partition as the test set. 
 This is often the most convenient choice for quantification experiments, since
 it avoids training quantifiers on examples that were already used to train the
 embedding model.
 
-If instead you want to use all the available non-test data, you can set:
-
-```python
-data = qp.datasets.fetch_image_embeddings(..., heldout_only=False)
-```
-
-In this case, the returned training set is the union of the original neural
+If instead you want to use all the available non-test data, you can set `heldout_only=False`,
+in which case, the returned training set is the union of the original neural
 training split and the validation split.
-
-### Sources
-
-The image datasets currently available through `fetch_image_embeddings` are:
-
-* cifar10, cifar100, cifar100coarse:
-  [Alex Krizhevsky and Geoffrey Hinton. Learning multiple layers of features from tiny images. Technical report, University of Toronto, 2009.](https://cave.cs.toronto.edu/kriz/learning-features-2009-TR.pdf)
-* mnist:
-  [Yann LeCun, Corinna Cortes, and Christopher J. C. Burges. The MNIST database of handwritten digits. 1998.](http://yann.lecun.com/exdb/mnist/)
-* fashionmnist:
-  [Han Xiao, Kashif Rasul, and Roland Vollgraf. Fashion-MNIST: a novel image dataset for benchmarking machine learning algorithms. arXiv preprint arXiv:1708.07747, 2017.](https://arxiv.org/abs/1708.07747)
-* svhn:
-  [Yuval Netzer, Tao Wang, Adam Coates, Alessandro Bissacco, Baolin Wu, Andrew Y. Ng, et al. Reading digits in natural images with unsupervised feature learning. NIPS Workshop, 2011.](https://static.googleusercontent.com/media/research.google.com/es//pubs/archive/37648.pdf)
 
 Some statistics are shown in the following table:
 

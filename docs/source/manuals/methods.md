@@ -118,11 +118,15 @@ in evaluation.
 QuaPy implements the four CC variants, i.e.:
 
 * _CC_ (Classify & Count), the simplest aggregative quantifier; one that
- simply relies on the label predictions of a classifier to deliver class estimates.
-* _ACC_ (Adjusted Classify & Count), the adjusted variant of CC.
+  classifies all instances and computes the prevalence of the predicted labels.
+  This baseline is discussed, among others, in [Forman (2008)](https://link.springer.com/article/10.1007/s10618-008-0097-y).
+* _ACC_ (Adjusted Classify & Count), the adjusted variant of CC, originally
+  proposed in [Forman (2008)](https://link.springer.com/article/10.1007/s10618-008-0097-y).
 * _PCC_ (Probabilistic Classify & Count), the probabilistic variant of CC that
-relies on the soft estimations (or posterior probabilities) returned by a (probabilistic) classifier.
-* _PACC_ (Probabilistic Adjusted Classify & Count), the adjusted variant of PCC.
+  relies on the posterior probabilities returned by a probabilistic classifier,
+  introduced in [Bella et al. (2010)](https://ieeexplore.ieee.org/abstract/document/5694031).
+* _PACC_ (Probabilistic Adjusted Classify & Count), the adjusted variant of PCC,
+  also introduced in [Bella et al. (2010)](https://ieeexplore.ieee.org/abstract/document/5694031).
 
 The following code serves as a complete example using CC equipped 
 with a SVM as the classifier:
@@ -142,7 +146,7 @@ svm = LinearSVC()
 # (an alias is available in qp.method.aggregative.ClassifyAndCount)
 model = qp.method.aggregative.CC(svm)
 model.fit(Xtr, ytr)
-estim_prevalence = model.predict(test.instances)
+estim_prevalence = model.predict(test.X)
 ```
 
 The same code could be used to instantiate an ACC, by simply replacing
@@ -319,7 +323,21 @@ model.fit(*train.Xy)
 estim_prevalence = model.predict(test.X)
 ```
 
-### Hellinger Distance y (HDy)
+### Distribution Matching 
+
+Distribution Matching (DM) methods search for the mixture parameter (the sought class prevalence values)
+yielding the mixture between the class-wise representations that best matches the test distribution.
+Different criteria for deciding how this matching is assessed, and different ways for modelling the
+distributions give rise to different instantiations of DM methods.
+
+The following methods are here discussed because they rely on a surrogate classifier for representing
+the distributions, albeit different non-aggregative variants of them do often exist. Aside from this,
+the formulation of DM methods is flexible enough as to accomodate methods that were proposed under a different
+framework; examples include ACC and PACC. 
+
+See the frameworks by [Firat](https://arxiv.org/abs/1606.00868), [Bunse](https://dl.gi.de/items/5a61f30f-6c84-4165-bd92-9098bd9e91aa), [Garg et al.](https://dl.acm.org/doi/10.5555/3495724.3496001), or [Dussap](https://theses.hal.science/tel-04931123), for more details.
+
+#### Hellinger Distance y (HDy)
 
 Implementation of the method based on the Hellinger Distance y (HDy) proposed by
 [González-Castro, V., Alaiz-Rodríguez, R., and Alegre, E. (2013). Class distribution
@@ -354,23 +372,93 @@ model.fit(*dataset.training.Xy)
 estim_prevalence = model.predict(dataset.test.X)
 ```
 
-QuaPy also provides an implementation of the generalized
-"Distribution Matching" approaches for multiclass, inspired by the framework
-of [Firat (2016)](https://arxiv.org/abs/1606.00868). One can instantiate
-a variant of HDy for multiclass quantification as follows:
+#### Generalized Distribution Matching y (DMy)
+
+QuaPy also provides a generalized posterior-space distribution-matching
+quantifier for binary or multiclass problems, implemented as
+`qp.method.aggregative.DMy`. This class follows the generic distribution
+matching view discussed by [Firat (2016)](https://arxiv.org/abs/1606.00868):
+it represents class-conditional posterior distributions by histograms and then
+searches for the prevalence vector whose mixture best matches the test
+distribution.
+
+`DMy` is intentionally flexible and exposes three main design choices: the
+number of histogram bins (`nbins`), the divergence to minimize (`divergence`,
+e.g., `'HD'` or `'topsoe'`), and whether to match PDFs or CDFs (`cdf`). The
+optimization routine can also be selected through `search`; the default
+`'optim_minimize'` works for multiclass problems, while `'linear_search'` and
+`'ternary_search'` are binary-only. A multiclass HDy-like instance can be
+obtained as:
 
 ```python
-mutliclassHDy = qp.method.aggregative.DMy(classifier=LogisticRegression(), divergence='HD', cdf=False)
-``` 
+multiclass_hdy = qp.method.aggregative.DMy(
+    classifier=LogisticRegression(),
+    divergence='HD',
+    cdf=False,
+)
+```
 
-QuaPy also provides an implementation of the "DyS"
-framework proposed by [Maletzke et al (2020)](https://ojs.aaai.org/index.php/AAAI/article/view/4376)
-and the "SMM" method proposed by [Hassan et al (2019)](https://ieeexplore.ieee.org/document/9260028)
-(thanks to _Pablo González_ for the contributions!)
+#### DyS
 
-A Bayesian distribution-matching counterpart is also available; see the
+QuaPy implements the binary `DyS` framework proposed by
+[Maletzke et al. (2020)](https://ojs.aaai.org/index.php/AAAI/article/view/4376)
+as `qp.method.aggregative.DyS`. Conceptually, `DyS` can be seen as a
+generalization of HDy in which the prevalence is found by ternary search over a
+distribution-matching objective. In QuaPy, the user can select the number of
+histogram bins (`n_bins`), the divergence (`divergence`), and the optimization
+tolerance (`tol`).
+
+#### Energy Distance y (EDy)
+
+QuaPy also adapts `EDy` from [quantificationlib](https://github.com/AICGijon/quantificationlib), 
+which is available as `qp.method.aggregative.EDy`. 
+
+This
+method replaces histogram matching with an energy-distance formulation defined
+directly on posterior-probability vectors and solves the resulting optimization
+problem by quadratic programming. The method is proposed in 
+[Castaño et al.'s (2024)](https://ieeexplore.ieee.org/document/9791435/) paper.
+
+In QuaPy, `EDy` works for binary and
+multiclass problems and lets the user choose the pairwise distance through the
+`distance` parameter (`'manhattan'`, `'euclidean'`, or a custom callable).
+Because the optimization relies on `quadprog`, this method requires the
+optional dependency `pip install quadprog`.
+
+#### SMM
+
+QuaPy also includes the binary `SMM` method of
+[Hassan et al. (2019)](https://ieeexplore.ieee.org/document/9260028),
+available as `qp.method.aggregative.SMM`. This is a very lightweight
+distribution-matching variant in which the posterior representation is reduced
+to class-wise means rather than full histograms, making it conceptually close
+to PACC.
+
+
+#### Kernel Density Estimation methods (KDEy)
+
+QuaPy provides implementations for the three variants
+of KDE-based methods proposed in 
+_[Moreo, A., González, P. and del Coz, J.J.. 
+Kernel Density Estimation for Multiclass Quantification. 
+Machine Learning. Vol 114 (92), 2025](https://link.springer.com/article/10.1007/s10994-024-06726-5)_
+(a [preprint](https://arxiv.org/abs/2401.00490) is available online). 
+The variants differ in the divergence metric to be minimized:
+
+- KDEy-HD: minimizes the (squared) Hellinger Distance and solves the problem via a Monte Carlo approach
+- KDEy-CS: minimizes the Cauchy-Schwarz divergence and solves the problem via a closed-form solution
+- KDEy-ML: minimizes the Kullback-Leibler divergence and solves the problem via maximum-likelihood
+
+These methods are specifically devised for multiclass problems (although they can tackle 
+binary problems too). 
+
+All KDE-based methods depend on the hyperparameter `bandwidth` of the kernel. Typical values
+that can be explored in model selection range in [0.01, 0.25]. Previous experiments reveal the methods' performance
+varies smoothly at small variations of this hyperparameter.
+
+A Bayesian counterpart is available as well; see the
 {ref}`Bayesian Quantification Methods section <manuals/methods:Bayesian Quantification Methods>`
-for `PQ` (Precise Quantifier).
+for `BayesianKDEy`.
 
 
 ### Explicit Loss Minimization
@@ -444,44 +532,21 @@ import quapy as qp
 from quapy.method.aggregative import SVMQ
 
 # load a single-label dataset (this one contains 3 classes)
-dataset = qp.datasets.fetch_twitter('hcr', pickle=True)
+train, test = qp.datasets.fetch_twitter('hcr', pickle=True).train_test
 
 # let qp know where svmperf is
 qp.environ['SVMPERF_HOME'] = '../svm_perf_quantification'
 
 model = newOneVsAll(SVMQ(), n_jobs=-1)  # run them on parallel
-model.fit(dataset.training)
-estim_prevalence = model.predict(dataset.test.instances)
+model.fit(*train.Xy)
+estim_prevalence = model.predict(test.X)
 ```
 
 Check the examples on [explicit loss minimization](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/17.explicit_loss_minimization.py)
 and on [one versus all quantification](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/10.one_vs_all.py) for more details.
 **Note** that the _one versus all_ approach is considered inappropriate under prior probability shift, though. 
 
-### Kernel Density Estimation methods (KDEy)
 
-QuaPy provides implementations for the three variants
-of KDE-based methods proposed in 
-_[Moreo, A., González, P. and del Coz, J.J.. 
-Kernel Density Estimation for Multiclass Quantification. 
-Machine Learning. Vol 114 (92), 2025](https://link.springer.com/article/10.1007/s10994-024-06726-5)_
-(a [preprint](https://arxiv.org/abs/2401.00490) is available online). 
-The variants differ in the divergence metric to be minimized:
-
-- KDEy-HD: minimizes the (squared) Hellinger Distance and solves the problem via a Monte Carlo approach
-- KDEy-CS: minimizes the Cauchy-Schwarz divergence and solves the problem via a closed-form solution
-- KDEy-ML: minimizes the Kullback-Leibler divergence and solves the problem via maximum-likelihood
-
-These methods are specifically devised for multiclass problems (although they can tackle 
-binary problems too). 
-
-All KDE-based methods depend on the hyperparameter `bandwidth` of the kernel. Typical values
-that can be explored in model selection range in [0.01, 0.25]. Previous experiments reveal the methods' performance
-varies smoothly at small variations of this hyperparameter.
-
-A Bayesian counterpart is available as well; see the
-{ref}`Bayesian Quantification Methods section <manuals/methods:Bayesian Quantification Methods>`
-for `BayesianKDEy`.
 
 
 ## Non-Aggregative Methods

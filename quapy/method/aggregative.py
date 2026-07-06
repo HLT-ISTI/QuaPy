@@ -371,8 +371,13 @@ class BinaryAggregativeQuantifier(AggregativeQuantifier, BinaryQuantifier):
 # ------------------------------------
 class CC(AggregativeCrispQuantifier):
     """
-    The most basic Quantification method. One that simply classifies all instances and counts how many have been
-    attributed to each of the classes in order to compute class prevalence estimates.
+    `Classify & Count` (CC), the most basic quantification method, one that
+    simply classifies all instances and counts how many have been attributed to
+    each class in order to compute class prevalence estimates. This baseline is
+    the unadjusted estimator discussed, among others, in
+    `Forman, G. (2008). Quantifying counts and costs via classification.
+    Data Mining and Knowledge Discovery, 17, 164-206
+    <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_.
 
     :param classifier: a sklearn's Estimator that generates a classifier
     """
@@ -400,8 +405,13 @@ class CC(AggregativeCrispQuantifier):
 
 class PCC(AggregativeSoftQuantifier):
     """
-    `Probabilistic Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
-    the probabilistic variant of CC that relies on the posterior probabilities returned by a probabilistic classifier.
+    `Probabilistic Classify & Count` (PCC), the probabilistic variant of CC
+    that relies on the posterior probabilities returned by a probabilistic
+    classifier, introduced in
+    `Bella, A., Ferri, C., Hernández-Orallo, J., and Ramírez-Quintana, M.J.
+    (2010). Quantification via probability estimators. In Proceedings of the
+    2010 IEEE International Conference on Data Mining (ICDM 2010)
+    <https://ieeexplore.ieee.org/abstract/document/5694031>`_.
 
     :param classifier: a sklearn's Estimator that generates a classifier
     """
@@ -424,9 +434,12 @@ class PCC(AggregativeSoftQuantifier):
 
 class ACC(AggregativeCrispQuantifier):
     """
-    `Adjusted Classify & Count <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_,
-    the "adjusted" variant of :class:`CC`, that corrects the predictions of CC
-    according to the `misclassification rates`.
+    `Adjusted Classify & Count` (ACC), the "adjusted" variant of :class:`CC`
+    that corrects the predictions of CC according to the
+    misclassification rates, originally proposed in
+    `Forman, G. (2008). Quantifying counts and costs via classification.
+    Data Mining and Knowledge Discovery, 17, 164-206
+    <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_.
 
     :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
         the one indicated in `qp.environ['DEFAULT_CLS']`
@@ -568,8 +581,13 @@ class ACC(AggregativeCrispQuantifier):
 
 class PACC(AggregativeSoftQuantifier):
     """
-    `Probabilistic Adjusted Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
-    the probabilistic variant of ACC that relies on the posterior probabilities returned by a probabilistic classifier.
+    `Probabilistic Adjusted Classify & Count` (PACC), the probabilistic
+    variant of ACC that relies on the posterior probabilities returned by a
+    probabilistic classifier, introduced in
+    `Bella, A., Ferri, C., Hernández-Orallo, J., and Ramírez-Quintana, M.J.
+    (2010). Quantification via probability estimators. In Proceedings of the
+    2010 IEEE International Conference on Data Mining (ICDM 2010)
+    <https://ieeexplore.ieee.org/abstract/document/5694031>`_.
 
     :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
         the one indicated in `qp.environ['DEFAULT_CLS']`
@@ -1712,6 +1730,10 @@ KDEyML = _kdey.KDEyML
 KDEyHD = _kdey.KDEyHD
 KDEyCS = _kdey.KDEyCS
 
+from . import _edy
+
+EDy = _edy.EDy
+
 # ---------------------------------------------------------------
 # aliases
 # ---------------------------------------------------------------
@@ -1723,6 +1745,7 @@ ProbabilisticAdjustedClassifyAndCount = PACC
 ExpectationMaximizationQuantifier = EMQ
 SLD = EMQ
 DistributionMatchingY = DMy
+EnergyDistanceY = EDy
 HellingerDistanceY = HDy
 HistoricalHDy = DMy.HDy
 MedianSweep = MS
