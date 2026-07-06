@@ -65,6 +65,117 @@ error_function = qp.error.from_name('mse')
 error = error_function(true_prev, estim_prev)
 ```
 
+The main quantification measures currently available in `qp.error` are the
+following. As a rule of thumb, names starting with `m` indicate the mean value
+across many sample pairs, while the corresponding unprefixed function returns
+the sample-wise quantity. Let `p` denote the true prevalence vector,
+`\hat{p}` the predicted prevalence vector, `\mathcal{Y}` the set of classes,
+and `p^{tr}` the training prevalence vector.
+
+### Prevalence-vector measures
+
+Absolute error and its mean version:
+
+```{math}
+AE(p,\hat{p}) = \frac{1}{|\mathcal{Y}|}\sum_{y \in \mathcal{Y}} |\hat{p}(y)-p(y)|
+```
+
+Implemented as `ae` and `mae`.
+
+Normalized absolute error and its mean version:
+
+```{math}
+NAE(p,\hat{p}) = \frac{AE(p,\hat{p})}{z_{AE}},\qquad
+z_{AE}=\frac{2(1-\min_{y \in \mathcal{Y}} p(y))}{|\mathcal{Y}|}
+```
+
+Implemented as `nae` and `mnae`.
+
+Squared error and its mean version:
+
+```{math}
+SE(p,\hat{p}) = \frac{1}{|\mathcal{Y}|}\sum_{y \in \mathcal{Y}} (\hat{p}(y)-p(y))^2
+```
+
+Implemented as `se` and `mse`.
+
+Relative absolute error and its mean version:
+
+```{math}
+RAE(p,\hat{p}) = \frac{1}{|\mathcal{Y}|}\sum_{y \in \mathcal{Y}}\frac{|\hat{p}(y)-p(y)|}{p(y)}
+```
+
+Implemented as `rae` and `mrae`.
+
+Normalized relative absolute error and its mean version:
+
+```{math}
+NRAE(p,\hat{p}) = \frac{RAE(p,\hat{p})}{z_{RAE}},\qquad
+z_{RAE}=\frac{|\mathcal{Y}|-1+\frac{1-\min_{y \in \mathcal{Y}} p(y)}{\min_{y \in \mathcal{Y}} p(y)}}{|\mathcal{Y}|}
+```
+
+Implemented as `nrae` and `mnrae`.
+
+Kullback-Leibler divergence and its mean version:
+
+```{math}
+KLD(p,\hat{p}) = \sum_{y \in \mathcal{Y}} p(y)\log\frac{p(y)}{\hat{p}(y)}
+```
+
+Implemented as `kld` and `mkld`.
+
+Normalized Kullback-Leibler divergence and its mean version:
+
+```{math}
+NKLD(p,\hat{p}) = 2\frac{e^{KLD(p,\hat{p})}}{e^{KLD(p,\hat{p})}+1}-1
+```
+
+Implemented as `nkld` and `mnkld`.
+
+Squared ratio error and its mean version:
+
+```{math}
+SRE(p,\hat{p},p^{tr}) = \frac{1}{|\mathcal{Y}|}\sum_{i \in \mathcal{Y}} (w_i-\hat{w}_i)^2,\qquad
+w_i=\frac{p_i}{p^{tr}_i}
+```
+
+Implemented as `sre` and `msre`.
+
+Aitchison distance and its mean version:
+
+```{math}
+d_A(p,\hat{p}) = \|\mathrm{clr}(p)-\mathrm{clr}(\hat{p})\|_2
+```
+
+Implemented as `aitchisondist` and `maitchisondist`.
+
+### Additional measures
+
+Match distance computes the cumulative-distribution discrepancy under the
+assumption that moving mass from class `i` to class `i+1` has unit cost:
+
+```{math}
+MD(p,\hat{p}) = \sum_{i=1}^{|\mathcal{Y}|-1} \left|\sum_{j=1}^{i} p_j - \sum_{j=1}^{i} \hat{p}_j\right|
+```
+
+Implemented as `md`. Its normalized variant `nmd` rescales this quantity by
+`1/(|\mathcal{Y}|-1)`.
+
+For binary quantification, QuaPy also provides the signed bias of the positive
+class and its mean value:
+
+```{math}
+bias(p,\hat{p}) = \hat{p}_1 - p_1
+```
+
+Implemented as `bias_binary` and `mean_bias_binary`.
+
+### Classification measures
+
+The same module also exposes two classification-oriented error measures, which
+can occasionally be useful for diagnostics: `acce` (accuracy error, i.e.,
+`1-accuracy`) and `f1e` (macro-`F_1` error, i.e., `1-F_1^M`).
+
 ## Evaluation Protocols
 
 An _evaluation protocol_ is an evaluation procedure that uses
