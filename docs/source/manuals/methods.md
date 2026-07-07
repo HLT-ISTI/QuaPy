@@ -488,66 +488,37 @@ the last two methods (SVM(AE) and SVM(RAE)) have been implemented in
 QuaPy in order to make available ELM variants for what nowadays
 are considered the most well-behaved evaluation metrics in quantification.
 
-In order to make these models work, you would need to run the script
-`prepare_svmperf.sh` (distributed along with QuaPy) that
-downloads `SVMperf`' source code, applies a patch that 
-implements the quantification oriented losses, and compiles the
-sources.
+#### Installing the SVMperf backend
 
-If you want to add any custom loss, you would need to modify
-the source code of `SVMperf` in order to implement it, and
-assign a valid loss code to it. Then you must re-compile 
-the whole thing and instantiate the quantifier in QuaPy
-as follows:
+These methods rely on Joachim's [SVMperf](https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html),
+patched with quantification-oriented losses. QuaPy provides the script
+[`prepare_svmperf.sh`](https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh),
+which downloads the original sources, applies the patch, and compiles the
+resulting binary. In practice, this amounts to running:
 
-```python
-# you can either set the path to your custom svm_perf_quantification implementation
-# in the environment variable, or as an argument to the constructor of ELM
-qp.environ['SVMPERF_HOME'] = './path/to/svm_perf_quantification'
-
-# assign an alias to your custom loss and the id you have assigned to it
-svmperf = qp.classification.svmperf.SVMperf
-svmperf.valid_losses['mycustomloss'] = 28
-
-# instantiate the ELM method indicating the loss
-model = qp.method.aggregative.ELM(loss='mycustomloss')
+```sh
+./prepare_svmperf.sh
 ```
 
-All ELM are binary quantifiers since they rely on `SVMperf`, that
-currently supports only binary classification.
-ELM variants (any binary quantifier in general) can be extended
-to operate in single-label scenarios trivially by adopting a 
-"one-vs-all" strategy (as, e.g., in 
-[_Gao, W. and Sebastiani, F. (2016). From classification to quantification in tweet sentiment
-analysis. Social Network Analysis and Mining, 6(19):1–22_](https://link.springer.com/article/10.1007/s13278-016-0327-z)).
-In QuaPy this is possible by using the `OneVsAll` class.
-
-There are two ways for instantiating this class, `OneVsAllGeneric` that works for
-any quantifier, and `OneVsAllAggregative` that is optimized for aggregative quantifiers.
-In general, you can simply use the `newOneVsAll` function and QuaPy will choose
-the more convenient of the two.
+This creates a directory `svm_perf_quantification/`. Once this is available,
+you can point QuaPy to it with:
 
 ```python
-import quapy as qp
-from quapy.method.aggregative import SVMQ
-
-# load a single-label dataset (this one contains 3 classes)
-train, test = qp.datasets.fetch_twitter('hcr', pickle=True).train_test
-
-# let qp know where svmperf is
-qp.environ['SVMPERF_HOME'] = '../svm_perf_quantification'
-
-model = newOneVsAll(SVMQ(), n_jobs=-1)  # run them on parallel
-model.fit(*train.Xy)
-estim_prevalence = model.predict(test.X)
+qp.environ['SVMPERF_HOME'] = './svm_perf_quantification'
 ```
 
-Check the examples on [explicit loss minimization](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/17.explicit_loss_minimization.py)
-and on [one versus all quantification](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/10.one_vs_all.py) for more details.
-**Note** that the _one versus all_ approach is considered inappropriate under prior probability shift, though. 
+The patch extends the one originally released for
+[Esuli and Sebastiani (2015)](https://dl.acm.org/doi/abs/10.1145/2700406)
+and also covers the `Q`, `AE`, and `RAE` losses used by QuaPy's ELM wrappers.
 
-
-
+All ELM methods are binary because `SVMperf` itself is binary. They can still
+be wrapped in a one-vs-all scheme for single-label multiclass problems, though
+this strategy is generally considered inappropriate under prior probability
+shift. See the examples on
+[explicit loss minimization](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/17.explicit_loss_minimization.py)
+and on
+[one versus all quantification](https://github.com/HLT-ISTI/QuaPy/blob/devel/examples/10.one_vs_all.py)
+for minimal working code.
 
 ## Non-Aggregative Methods
 
@@ -634,6 +605,18 @@ estim_prevalence_hdx = hdx.predict(test.X)
 
 Note that, unlike HDy, HDx requires no classifier whatsoever, since it
 operates directly on the covariates.
+
+### Energy Distance x (EDx)
+
+QuaPy also provides `qp.method.non_aggregative.EDx`, which is the
+feature-space counterpart of `EDy`: it keeps the same energy-distance
+formulation and quadratic-program solver, but applies them directly to the raw
+instances instead of first projecting them onto posterior probabilities through
+a classifier. In this sense, `EDx` is to `EDy` what `DMx` is to `DMy`.
+
+`EDx` works for binary and multiclass problems, accepts the same `distance`
+options as `EDy` (`'manhattan'`, `'euclidean'`, or a custom callable), and
+requires the optional dependency `pip install quadprog`.
 
 ### ReadMe
 
@@ -1026,7 +1009,8 @@ estim_prevalence, conf_region = model.predict_conf(test.X)
 #### BayesianKDEy (a Bayesian implementation of KDEyML)
 
 `BayesianKDEy`, available at `qp.method._bayesian.BayesianKDEy`, is a Bayesian
-version of KDEy. Instead of solving for the single prevalence vector that
+version of KDEy proposed by [Moreo et al. 2026](https://arxiv.org/abs/2607.04977).
+Instead of solving for the single prevalence vector that
 minimizes a divergence between the test distribution and a KDE-based mixture
 model (as the KDEy variants above do), `BayesianKDEy` places a Dirichlet
 prior over the prevalence vector and samples its posterior via Markov Chain

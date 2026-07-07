@@ -10,9 +10,11 @@ from quapy.method.confidence import WithConfidenceABC, ConfidenceRegionABC
 from quapy.functional import get_divergence
 from quapy.method.base import BaseQuantifier, BinaryQuantifier
 from quapy.method._helper import _labels_to_indices
+from quapy.method._energy import _EnergyDistanceCore
 import quapy.functional as F
 from scipy.optimize import lsq_linear
 from scipy import sparse
+import quapy as qp
 
 
 class MaximumLikelihoodPrevalenceEstimation(BaseQuantifier):
@@ -158,6 +160,70 @@ class DMx(BaseQuantifier):
             return np.mean(divs)
 
         return F.argmin_prevalence(loss, n_classes, method=self.search)
+
+
+class EDx(_EnergyDistanceCore, BaseQuantifier):
+    """
+    Energy Distance x (EDx), a covariate-space distribution-matching
+    quantifier based on energy distance.
+
+    EDx is the classifier-free counterpart of :class:`quapy.method.aggregative.EDy`.
+    Instead of representing each class through posterior-probability vectors, it
+    represents each class by the cloud of raw feature vectors observed in the
+    training set and estimates the test prevalence vector by solving the same
+    energy-distance quadratic program directly in feature space.
+
+    This implementation works for binary and multiclass single-label
+    quantification and relies on the optional ``quadprog`` dependency. The
+    current QuaPy adaptation shares its numerical core with EDy and keeps
+    credit to the original implementation available in
+    `quantificationlib <https://github.com/AICGijon/quantificationlib>`_.
+
+    The formulation follows the same references as EDy, namely:
+
+    * Alberto Castaño, Laura Morán-Fernández, Jaime Alonso,
+      Verónica Bolón-Canedo, Amparo Alonso-Betanzos, and Juan José del Coz.
+      *An analysis of quantification methods based on matching distributions*.
+    * Hideko Kawakubo, Marthinus Christoffel du Plessis, and Masashi Sugiyama
+      (2016). *Computationally efficient class-prior estimation under class
+      balance change using energy distance*. IEICE Transactions on Information
+      and Systems, 99(1):176-186.
+
+    :param distance: distance used to compare feature vectors. Valid string
+        aliases are ``'manhattan'`` (default) and ``'euclidean'``; a custom
+        callable compatible with pairwise-distance signatures can also be used
+    :param n_jobs: number of parallel workers (default ``None``, meaning the
+        value is taken from the environment)
+    """
+
+    def __init__(self, distance: Union[str, Callable] = 'manhattan', n_jobs=None):
+        self.distance = distance
+        self.n_jobs = qp._get_njobs(n_jobs)
+        self.classes_ = None
+        self.n_features_in_ = None
+        self.train_distrib_ = None
+        self.train_n_cls_i_ = None
+        self.K_ = None
+        self.G_ = None
+        self.C_ = None
+        self.b_ = None
+        self.a_ = None
+
+    def fit(self, X, y):
+        """Fit class-conditional feature-space distributions from training data."""
+        self._check_ed_init_parameters()
+        labels = np.asarray(y)
+        self.classes_ = np.unique(labels)
+        self.n_features_in_ = X.shape[1]
+        train_distrib = [X[labels == class_] for class_ in self.classes_]
+        return self._fit_energy_model(train_distrib)
+
+    def predict(self, X):
+        """Estimate class prevalences for a test sample of raw instances."""
+        assert X.shape[1] == self.n_features_in_, (
+            f'wrong shape; expected {self.n_features_in_}, found {X.shape[1]}'
+        )
+        return self._predict_energy(X)
 
 
 class ReadMe(BaseQuantifier, WithConfidenceABC):
@@ -336,6 +402,8 @@ def _get_features_range(X):
 # aliases
 #---------------------------------------------------------------
 
+
 HDx = DMx.HDx
 DistributionMatchingX = DMx
+EnergyDistanceX = EDx
 HellingerDistanceX = HDx

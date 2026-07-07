@@ -16,6 +16,7 @@ from quapy.functional import get_divergence
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric
+from quapy.method._energy import _EnergyDistanceCore
 from quapy.method._helper import (
     _get_abstention_calibrators,
     _get_cvxpy,
@@ -1712,6 +1713,106 @@ class AggregativeMedianEstimator(BinaryQuantifier):
         return np.median(prev_preds, axis=0)
 
 
+class EDy(_EnergyDistanceCore, AggregativeSoftQuantifier):
+    """
+    Energy Distance y (EDy), a posterior-space distribution-matching quantifier
+    based on energy distance.
+
+    The method represents each class by the posterior-probability vectors
+    produced by a probabilistic classifier on validation data, and estimates the
+    test prevalence vector by matching the test posterior distribution against
+    the class-conditional validation distributions through an energy-distance
+    objective solved as a quadratic program. The method is therefore another
+    instance of the general mixture-matching view of quantification, but it
+    operates directly on posterior vectors rather than on histogram summaries.
+
+    This implementation works for binary and multiclass single-label
+    quantification and relies on the optional ``quadprog`` dependency. It was
+    adapted to QuaPy's current aggregative API from the original implementation
+    available in `quantificationlib <https://github.com/AICGijon/quantificationlib>`_,
+    and now shares its numerical core with the classifier-free
+    :class:`quapy.method.non_aggregative.EDx` variant.
+
+    The current implementation follows the energy-distance formulation discussed
+    in:
+
+    * Alberto Castaño, Laura Morán-Fernández, Jaime Alonso,
+      Verónica Bolón-Canedo, Amparo Alonso-Betanzos, and Juan José del Coz.
+      *An analysis of quantification methods based on matching distributions*.
+    * Hideko Kawakubo, Marthinus Christoffel du Plessis, and Masashi Sugiyama
+      (2016). *Computationally efficient class-prior estimation under class
+      balance change using energy distance*. IEICE Transactions on Information
+      and Systems, 99(1):176-186.
+
+    :param classifier: a scikit-learn ``BaseEstimator``, or ``None`` to use
+        ``qp.environ['DEFAULT_CLS']``
+    :param fit_classifier: whether to train the learner (default ``True``).
+        Set to ``False`` if the learner has already been trained outside the
+        quantifier
+    :param val_split: specification of the data used for generating validation
+        posterior probabilities. This can be an integer (default ``5``) for
+        k-fold cross-validation, a float in ``(0, 1)`` for a held-out split,
+        or a tuple ``(X, y)`` with explicit validation data
+    :param distance: distance used to compare posterior vectors. Valid string
+        aliases are ``'manhattan'`` (default) and ``'euclidean'``; a custom
+        callable compatible with pairwise-distance signatures can also be used
+    :param n_jobs: number of parallel workers (default ``None``, meaning the
+        value is taken from the environment)
+    """
+
+    def __init__(
+        self,
+        classifier: BaseEstimator = None,
+        fit_classifier: bool = True,
+        val_split=5,
+        distance: Union[str, Callable] = 'manhattan',
+        n_jobs=None,
+    ):
+        super().__init__(classifier, fit_classifier, val_split)
+        self.distance = distance
+        self.n_jobs = qp._get_njobs(n_jobs)
+        self.train_n_cls_i_ = None
+        self.train_distrib_ = None
+        self.K_ = None
+        self.G_ = None
+        self.C_ = None
+        self.b_ = None
+        self.a_ = None
+
+    def _check_init_parameters(self):
+        self._check_ed_init_parameters()
+
+    def aggregation_fit(self, classif_predictions, labels):
+        """
+        Estimate the class-conditional posterior distributions on validation
+        data and pre-compute the quadratic-program parameters that depend only
+        on the training side.
+
+        In EDy, the validation posteriors are not discretized into histograms.
+        Instead, each class is represented by the cloud of posterior vectors
+        observed for that class, and these clouds are then compared through the
+        selected pairwise distance.
+
+        :param classif_predictions: posterior probabilities returned by the
+            classifier on validation data
+        :param labels: true labels associated to each posterior vector
+        """
+        posteriors = np.asarray(classif_predictions, dtype=float)
+        labels = np.asarray(labels)
+        train_distrib = [posteriors[labels == class_] for class_ in self.classes_]
+        return self._fit_energy_model(train_distrib)
+
+    def aggregate(self, posteriors: np.ndarray):
+        """Estimate the prevalence vector for a test sample.
+
+        :param posteriors: posterior probabilities returned by the classifier
+            for the instances in the test sample
+        :return: a prevalence vector of shape ``(n_classes,)``
+        """
+        posteriors = np.asarray(posteriors, dtype=float)
+        return self._predict_energy(posteriors)
+
+
 # ---------------------------------------------------------------
 # imports
 # ---------------------------------------------------------------
@@ -1730,9 +1831,6 @@ KDEyML = _kdey.KDEyML
 KDEyHD = _kdey.KDEyHD
 KDEyCS = _kdey.KDEyCS
 
-from . import _edy
-
-EDy = _edy.EDy
 
 # ---------------------------------------------------------------
 # aliases

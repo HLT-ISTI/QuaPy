@@ -33,7 +33,7 @@ QuaPy provides implementations of most popular sample generation protocols
 used in literature. This is the subject of the following sections.
 
 
-## Artificial-Prevalence Protocol
+## APP: Artificial-Prevalence Protocol
 
 The "artificial-sampling protocol" (APP) proposed by 
 [Forman (2005)](https://link.springer.com/chapter/10.1007/11564096_55)
@@ -138,7 +138,7 @@ Each point corresponds to one sampled prevalence vector. As expected, the
 points lie on a regular grid over the simplex, ensuring systematic coverage of
 the prevalence space.
 
-## Sampling from the unit-simplex, the Uniform-Prevalence Protocol (UPP)
+## UPP: Sampling from the unit-simplex, the Uniform-Prevalence Protocol
 
 Generating all possible combinations from a grid of prevalence values (APP) in 
 multiclass is cumbersome, and when the number of classes increases it rapidly
@@ -176,6 +176,10 @@ Unlike grid-based APP, UPP does not force prevalence vectors to lie on a
 regular lattice. Instead, it spreads samples over the simplex in a
 statistically uniform way, making it attractive when the number of classes is
 large and exhaustive grids become impractical.
+
+*Note* that UPP is actually a different (modern) implementation of the Artificial Prevalence Protocol,
+and is here given a different name simply to allow both implementations coexist in QuaPy. "UPP" is not a
+proper accademic name, and practitioners should rather refer to it as APP. 
 
 ## Natural-Prevalence Protocol 
 

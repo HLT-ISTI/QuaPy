@@ -63,11 +63,13 @@ MULTICLASS_METHODS = {
     confidence.BayesianCC,
     _bayesian.BayesianKDEy,
     _bayesian.BayesianMAPLS,
+    non_aggregative.EDx,
 }
 
 NON_AGGREGATIVE_METHODS = {
     non_aggregative.MaximumLikelihoodPrevalenceEstimation,
-    non_aggregative.DMx
+    non_aggregative.DMx,
+    non_aggregative.EDx
 }
 
 META_METHODS = {
