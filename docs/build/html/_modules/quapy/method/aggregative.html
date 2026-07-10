@@ -388,6 +388,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.classification.svmperf</span><span class="w"> </span><span class="kn">import</span> <span class="n">SVMperf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">LabelledCollection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">BinaryQuantifier</span><span class="p">,</span> <span class="n">OneVsAllGeneric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method._energy</span><span class="w"> </span><span class="kn">import</span> <span class="n">_EnergyDistanceCore</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method._helper</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_get_abstention_calibrators</span><span class="p">,</span>
     <span class="n">_get_cvxpy</span><span class="p">,</span>
@@ -2279,6 +2280,115 @@
 
 
 
+<div class="viewcode-block" id="EDy">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EDy">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EDy</span><span class="p">(</span><span class="n">_EnergyDistanceCore</span><span class="p">,</span> <span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Energy Distance y (EDy), a posterior-space distribution-matching quantifier</span>
+<span class="sd">    based on energy distance.</span>
+
+<span class="sd">    The method represents each class by the posterior-probability vectors</span>
+<span class="sd">    produced by a probabilistic classifier on validation data, and estimates the</span>
+<span class="sd">    test prevalence vector by matching the test posterior distribution against</span>
+<span class="sd">    the class-conditional validation distributions through an energy-distance</span>
+<span class="sd">    objective solved as a quadratic program. The method is therefore another</span>
+<span class="sd">    instance of the general mixture-matching view of quantification, but it</span>
+<span class="sd">    operates directly on posterior vectors rather than on histogram summaries.</span>
+
+<span class="sd">    This implementation works for binary and multiclass single-label</span>
+<span class="sd">    quantification and relies on the optional ``quadprog`` dependency. It was</span>
+<span class="sd">    adapted to QuaPy&#39;s current aggregative API from the original implementation</span>
+<span class="sd">    available in `quantificationlib &lt;https://github.com/AICGijon/quantificationlib&gt;`_,</span>
+<span class="sd">    and now shares its numerical core with the classifier-free</span>
+<span class="sd">    :class:`quapy.method.non_aggregative.EDx` variant.</span>
+
+<span class="sd">    The current implementation follows the energy-distance formulation discussed</span>
+<span class="sd">    in:</span>
+
+<span class="sd">    * Alberto Castaño, Laura Morán-Fernández, Jaime Alonso,</span>
+<span class="sd">      Verónica Bolón-Canedo, Amparo Alonso-Betanzos, and Juan José del Coz.</span>
+<span class="sd">      *An analysis of quantification methods based on matching distributions*.</span>
+<span class="sd">    * Hideko Kawakubo, Marthinus Christoffel du Plessis, and Masashi Sugiyama</span>
+<span class="sd">      (2016). *Computationally efficient class-prior estimation under class</span>
+<span class="sd">      balance change using energy distance*. IEICE Transactions on Information</span>
+<span class="sd">      and Systems, 99(1):176-186.</span>
+
+<span class="sd">    :param classifier: a scikit-learn ``BaseEstimator``, or ``None`` to use</span>
+<span class="sd">        ``qp.environ[&#39;DEFAULT_CLS&#39;]``</span>
+<span class="sd">    :param fit_classifier: whether to train the learner (default ``True``).</span>
+<span class="sd">        Set to ``False`` if the learner has already been trained outside the</span>
+<span class="sd">        quantifier</span>
+<span class="sd">    :param val_split: specification of the data used for generating validation</span>
+<span class="sd">        posterior probabilities. This can be an integer (default ``5``) for</span>
+<span class="sd">        k-fold cross-validation, a float in ``(0, 1)`` for a held-out split,</span>
+<span class="sd">        or a tuple ``(X, y)`` with explicit validation data</span>
+<span class="sd">    :param distance: distance used to compare posterior vectors. Valid string</span>
+<span class="sd">        aliases are ``&#39;manhattan&#39;`` (default) and ``&#39;euclidean&#39;``; a custom</span>
+<span class="sd">        callable compatible with pairwise-distance signatures can also be used</span>
+<span class="sd">    :param n_jobs: number of parallel workers (default ``None``, meaning the</span>
+<span class="sd">        value is taken from the environment)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fit_classifier</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">distance</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;manhattan&#39;</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_n_cls_i_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_distrib_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">G_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a_</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_init_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_ed_init_parameters</span><span class="p">()</span>
+
+<div class="viewcode-block" id="EDy.aggregation_fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EDy.aggregation_fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimate the class-conditional posterior distributions on validation</span>
+<span class="sd">        data and pre-compute the quadratic-program parameters that depend only</span>
+<span class="sd">        on the training side.</span>
+
+<span class="sd">        In EDy, the validation posteriors are not discretized into histograms.</span>
+<span class="sd">        Instead, each class is represented by the cloud of posterior vectors</span>
+<span class="sd">        observed for that class, and these clouds are then compared through the</span>
+<span class="sd">        selected pairwise distance.</span>
+
+<span class="sd">        :param classif_predictions: posterior probabilities returned by the</span>
+<span class="sd">            classifier on validation data</span>
+<span class="sd">        :param labels: true labels associated to each posterior vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">posteriors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">train_distrib</span> <span class="o">=</span> <span class="p">[</span><span class="n">posteriors</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="n">class_</span><span class="p">]</span> <span class="k">for</span> <span class="n">class_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_energy_model</span><span class="p">(</span><span class="n">train_distrib</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EDy.aggregate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EDy.aggregate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Estimate the prevalence vector for a test sample.</span>
+
+<span class="sd">        :param posteriors: posterior probabilities returned by the classifier</span>
+<span class="sd">            for the instances in the test sample</span>
+<span class="sd">        :return: a prevalence vector of shape ``(n_classes,)``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">posteriors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_energy</span><span class="p">(</span><span class="n">posteriors</span><span class="p">)</span></div>
+</div>
+
+
+
 <span class="c1"># ---------------------------------------------------------------</span>
 <span class="c1"># imports</span>
 <span class="c1"># ---------------------------------------------------------------</span>
@@ -2297,9 +2407,6 @@
 <span class="n">KDEyHD</span> <span class="o">=</span> <span class="n">_kdey</span><span class="o">.</span><span class="n">KDEyHD</span>
 <span class="n">KDEyCS</span> <span class="o">=</span> <span class="n">_kdey</span><span class="o">.</span><span class="n">KDEyCS</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_edy</span>
-
-<span class="n">EDy</span> <span class="o">=</span> <span class="n">_edy</span><span class="o">.</span><span class="n">EDy</span>
 
 <span class="c1"># ---------------------------------------------------------------</span>
 <span class="c1"># aliases</span>
