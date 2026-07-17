@@ -35,7 +35,8 @@ try:
     import stan.common
 
     DEPENDENCIES_INSTALLED = True
-except ImportError:
+except ImportError as e:
+    logging.getLogger(__name__).warning(f'Bayesian dependencies failed to import: {e!r}')
     jax = None
     jnp = None
     jrandom = None
