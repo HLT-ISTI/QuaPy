@@ -8,8 +8,6 @@ from contextlib import ExitStack
 from abc import ABCMeta, abstractmethod
 from quapy.data import LabelledCollection
 import quapy.functional as F
-from os.path import exists
-from glob import glob
 from collections.abc import Iterable
 from numbers import Number
 

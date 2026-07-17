@@ -3,7 +3,7 @@
 import numpy as np
 from sklearn.metrics import f1_score
 import quapy as qp
-from functional import AitchisonDistance
+from quapy.functional import AitchisonDistance
 
 
 def from_name(err_name):
