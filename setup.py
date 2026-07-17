@@ -130,7 +130,7 @@ setup(
     # Similar to `install_requires` above, these must be valid existing
     # projects.
     extras_require={  # Optional
-       'bayes': ['jax', 'jaxlib', 'numpyro', 'pystan', 'setuptools'],
+       'bayes': ['jax', 'jaxlib', 'numpyro', 'pystan', 'setuptools<82'],
        'neural': ['torch'],
        'tests': ['certifi'],
        'docs' : ['sphinx-rtd-theme', 'myst-parser'],
