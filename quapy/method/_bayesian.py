@@ -7,6 +7,7 @@ import importlib.resources
 import logging
 import os
 import sys
+import warnings
 from collections.abc import Iterable
 from numbers import Number, Real
 
@@ -22,6 +23,15 @@ from quapy.method._kdey import KDEBase
 from quapy.method.aggregative import AggregativeSoftQuantifier
 from quapy.method.confidence import ConfidenceRegionABC, WithConfidenceABC
 from quapy.protocol import AbstractProtocol
+
+# stan's plugin discovery (stan.plugins.get_plugins) calls pkg_resources.iter_entry_points()
+# on every model build, each of which re-emits setuptools' pkg_resources deprecation notice;
+# this is upstream pystan noise, not actionable in quapy, so it is silenced here.
+warnings.filterwarnings(
+    "ignore",
+    message=r".*pkg_resources is deprecated.*",
+    category=UserWarning,
+)
 
 try:
     import jax
