@@ -393,6 +393,23 @@ def TopsoeDistance(P: np.ndarray, Q: np.ndarray, epsilon: float=1e-20):
     return np.sum(P*np.log((2*P+epsilon)/(P+Q+epsilon)) + Q*np.log((2*Q+epsilon)/(P+Q+epsilon)))
 
 
+def AitchisonDistance(prevs_true, prevs_hat):
+    """
+    Computes the Aitchison distance between two prevalence vectors.
+    The Aitchison distance between prevalence vectors :math:`p` and
+    :math:`\\hat{p}` is computed as
+    :math:`d_A(p,\\hat{p})=\\|\\mathrm{clr}(p)-\\mathrm{clr}(\\hat{p})\\|_2`,
+    where :math:`\\mathrm{clr}(p)_i=\\log p_i-\\frac{1}{|\\mathcal{Y}|}
+    \\sum_{j \\in \\mathcal{Y}} \\log p_j`.
+
+    :param prevs_true: array-like with the true prevalence values
+    :param prevs_hat: array-like with the predicted prevalence values
+    :return: Aitchison distance
+    """
+    clr = CLRtransformation()
+    return np.linalg.norm(clr(prevs_true) - clr(prevs_hat), axis=-1)
+
+
 def get_divergence(divergence: Union[str, Callable]):
     """
     Guarantees that the divergence received as argument is a function. That is, if this argument is already
@@ -407,6 +424,8 @@ def get_divergence(divergence: Union[str, Callable]):
             return HellingerDistance
         elif divergence=='topsoe':
             return TopsoeDistance
+        elif divergence=='aitchison':
+            return AitchisonDistance
         else:
             raise ValueError(f'unknown divergence {divergence}')
     elif callable(divergence):

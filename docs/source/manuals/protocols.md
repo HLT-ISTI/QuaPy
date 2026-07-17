@@ -181,7 +181,7 @@ large and exhaustive grids become impractical.
 and is here given a different name simply to allow both implementations coexist in QuaPy. "UPP" is not a
 proper accademic name, and practitioners should rather refer to it as APP. 
 
-## Natural-Prevalence Protocol 
+## NPP: Natural-Prevalence Protocol 
 
 The "natural-prevalence protocol" (NPP) comes down to generating samples drawn 
 uniformly at random from the original labelled collection. This protocol has

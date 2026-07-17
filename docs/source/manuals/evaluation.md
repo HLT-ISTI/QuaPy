@@ -141,13 +141,12 @@ w_i=\frac{p_i}{p^{tr}_i}
 
 Implemented as `sre` and `msre`.
 
-Aitchison distance and its mean version:
+The Aitchison Quantification Error (AQE) and its mean version (MAQE) are implemented as `aqe` and `maqe` using the 
+Aitchison Distance (available in `qp.functional.AitchisonDistance`, here denoted `d_A`):
 
 ```{math}
 d_A(p,\hat{p}) = \|\mathrm{clr}(p)-\mathrm{clr}(\hat{p})\|_2
 ```
-
-Implemented as `aitchisondist` and `maitchisondist`.
 
 ### Additional measures
 

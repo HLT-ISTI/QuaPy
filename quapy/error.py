@@ -3,6 +3,7 @@
 import numpy as np
 from sklearn.metrics import f1_score
 import quapy as qp
+from functional import AitchisonDistance
 
 
 def from_name(err_name):
@@ -174,7 +175,7 @@ def msre(prevs_true, prevs_hat, prevs_train, eps=0.):
     return np.mean(sre(prevs_true, prevs_hat, prevs_train, eps))
 
 
-def aitchisondist(prevs_true, prevs_hat):
+def aqe(prevs_true, prevs_hat):
     """
     Computes the Aitchison distance between two prevalence vectors.
     The Aitchison distance between prevalence vectors :math:`p` and
@@ -187,13 +188,10 @@ def aitchisondist(prevs_true, prevs_hat):
     :param prevs_hat: array-like with the predicted prevalence values
     :return: Aitchison distance
     """
-    from quapy.functional import CLRtransformation
-
-    clr = CLRtransformation()
-    return np.linalg.norm(clr(prevs_true) - clr(prevs_hat), axis=-1)
+    return AitchisonDistance(prevs_true, prevs_hat)
 
 
-def maitchisondist(prevs_true, prevs_hat):
+def maqe(prevs_true, prevs_hat):
     """
     Computes the mean Aitchison distance (see :meth:`quapy.error.aitchisondist`)
     across the sample pairs, i.e.,
@@ -204,7 +202,7 @@ def maitchisondist(prevs_true, prevs_hat):
     :param prevs_hat: array-like with the predicted prevalence values
     :return: mean Aitchison distance
     """
-    return np.mean(aitchisondist(prevs_true, prevs_hat))
+    return np.mean(aqe(prevs_true, prevs_hat))
 
 
 def mkld(prevs_true, prevs_hat, eps=None):
@@ -453,8 +451,8 @@ def __check_eps(eps=None):
 
 
 CLASSIFICATION_ERROR = {f1e, acce}
-QUANTIFICATION_ERROR = {mae, mnae, mrae, mnrae, mse, mkld, mnkld, msre, maitchisondist}
-QUANTIFICATION_ERROR_SINGLE = {ae, nae, rae, nrae, se, kld, nkld, sre, aitchisondist}
+QUANTIFICATION_ERROR = {mae, mnae, mrae, mnrae, mse, mkld, mnkld, msre, maqe}
+QUANTIFICATION_ERROR_SINGLE = {ae, nae, rae, nrae, se, kld, nkld, sre, aqe}
 QUANTIFICATION_ERROR_SMOOTH = {kld, nkld, rae, nrae, mkld, mnkld, mrae}
 CLASSIFICATION_ERROR_NAMES = {func.__name__ for func in CLASSIFICATION_ERROR}
 QUANTIFICATION_ERROR_NAMES = {func.__name__ for func in QUANTIFICATION_ERROR}
@@ -467,8 +465,8 @@ f1_error = f1e
 acc_error = acce
 mean_absolute_error = mae
 squared_ratio_error = sre
-dist_aitchison = aitchisondist
-mean_dist_aitchison = maitchisondist
+dist_aitchison = aqe
+mean_dist_aitchison = maqe
 absolute_error = ae
 mean_relative_absolute_error = mrae
 relative_absolute_error = rae
