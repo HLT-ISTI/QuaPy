@@ -1,10 +1,8 @@
+import warnings
 from abc import ABC, abstractmethod
-from argparse import ArgumentError
 from copy import deepcopy
 from typing import Callable, Literal, Union
 import numpy as np
-from abstention.calibration import NoBiasVectorScaling, TempScaling, VectorScaling
-from numpy.f2py.crackfortran import true_intent_list
 from sklearn.base import BaseEstimator
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.exceptions import NotFittedError
@@ -18,11 +16,18 @@ from quapy.functional import get_divergence
 from quapy.classification.svmperf import SVMperf
 from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier, OneVsAllGeneric
-from quapy.method import _bayesian
+from quapy.method._energy import _EnergyDistanceCore
+from quapy.method._helper import (
+    _get_abstention_calibrators,
+    _get_cvxpy,
+    _rlls_check_mode,
+    _rlls_joint_distribution,
+    _rlls_predicted_marginal,
+    _rlls_compute_3deltaC,
+    _rlls_compute_weights,
+    _labels_to_indices,
+)
 
-# import warnings
-# from sklearn.exceptions import ConvergenceWarning
-# warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 
 # Abstract classes
@@ -78,9 +83,9 @@ class AggregativeQuantifier(BaseQuantifier, ABC):
                 (f'when {val_split=} is indicated as an integer, it represents the number of folds in a kFCV '
                  f'and must thus be >1')
             if val_split==5 and not fit_classifier:
-                print(f'Warning: {val_split=} will be ignored when the classifier is already trained '
-                      f'({fit_classifier=}). Parameter {self.val_split=} will be set to None. Set {val_split=} '
-                      f'to None to avoid this warning.')
+                warnings.warn(f'{val_split=} will be ignored when the classifier is already trained '
+                              f'({fit_classifier=}). Parameter {self.val_split=} will be set to None. Set {val_split=} '
+                              f'to None to avoid this warning.')
                 self.val_split=None
             if val_split!=5:
                 assert fit_classifier, (f'Parameter {val_split=} has been modified, but {fit_classifier=} '
@@ -339,8 +344,8 @@ class AggregativeSoftQuantifier(AggregativeQuantifier, ABC):
         """
         if not hasattr(self.classifier, self._classifier_method()):
             if adapt_if_necessary:
-                print(f'warning: The learner {self.classifier.__class__.__name__} does not seem to be '
-                      f'probabilistic. The learner will be calibrated (using CalibratedClassifierCV).')
+                warnings.warn(f'The learner {self.classifier.__class__.__name__} does not seem to be '
+                              f'probabilistic. The learner will be calibrated (using CalibratedClassifierCV).')
                 self.classifier = CalibratedClassifierCV(self.classifier, cv=5)
             else:
                 raise AssertionError(f'error: The learner {self.classifier.__class__.__name__} does not '
@@ -367,8 +372,13 @@ class BinaryAggregativeQuantifier(AggregativeQuantifier, BinaryQuantifier):
 # ------------------------------------
 class CC(AggregativeCrispQuantifier):
     """
-    The most basic Quantification method. One that simply classifies all instances and counts how many have been
-    attributed to each of the classes in order to compute class prevalence estimates.
+    `Classify & Count` (CC), the most basic quantification method, one that
+    simply classifies all instances and counts how many have been attributed to
+    each class in order to compute class prevalence estimates. This baseline is
+    the unadjusted estimator discussed, among others, in
+    `Forman, G. (2008). Quantifying counts and costs via classification.
+    Data Mining and Knowledge Discovery, 17, 164-206
+    <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_.
 
     :param classifier: a sklearn's Estimator that generates a classifier
     """
@@ -396,14 +406,19 @@ class CC(AggregativeCrispQuantifier):
 
 class PCC(AggregativeSoftQuantifier):
     """
-    `Probabilistic Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
-    the probabilistic variant of CC that relies on the posterior probabilities returned by a probabilistic classifier.
+    `Probabilistic Classify & Count` (PCC), the probabilistic variant of CC
+    that relies on the posterior probabilities returned by a probabilistic
+    classifier, introduced in
+    `Bella, A., Ferri, C., Hernández-Orallo, J., and Ramírez-Quintana, M.J.
+    (2010). Quantification via probability estimators. In Proceedings of the
+    2010 IEEE International Conference on Data Mining (ICDM 2010)
+    <https://ieeexplore.ieee.org/abstract/document/5694031>`_.
 
     :param classifier: a sklearn's Estimator that generates a classifier
     """
 
-    def __init__(self, classifier: BaseEstimator = None, fit_classifier: bool = True):
-        super().__init__(classifier, fit_classifier, val_split=None)
+    def __init__(self, classifier: BaseEstimator = None, fit_classifier: bool = True, val_split=None):
+        super().__init__(classifier, fit_classifier, val_split=val_split)
 
     def aggregation_fit(self, classif_predictions, labels):
         """
@@ -420,9 +435,12 @@ class PCC(AggregativeSoftQuantifier):
 
 class ACC(AggregativeCrispQuantifier):
     """
-    `Adjusted Classify & Count <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_,
-    the "adjusted" variant of :class:`CC`, that corrects the predictions of CC
-    according to the `misclassification rates`.
+    `Adjusted Classify & Count` (ACC), the "adjusted" variant of :class:`CC`
+    that corrects the predictions of CC according to the
+    misclassification rates, originally proposed in
+    `Forman, G. (2008). Quantifying counts and costs via classification.
+    Data Mining and Knowledge Discovery, 17, 164-206
+    <https://link.springer.com/article/10.1007/s10618-008-0097-y>`_.
 
     :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
         the one indicated in `qp.environ['DEFAULT_CLS']`
@@ -564,8 +582,13 @@ class ACC(AggregativeCrispQuantifier):
 
 class PACC(AggregativeSoftQuantifier):
     """
-    `Probabilistic Adjusted Classify & Count <https://ieeexplore.ieee.org/abstract/document/5694031>`_,
-    the probabilistic variant of ACC that relies on the posterior probabilities returned by a probabilistic classifier.
+    `Probabilistic Adjusted Classify & Count` (PACC), the probabilistic
+    variant of ACC that relies on the posterior probabilities returned by a
+    probabilistic classifier, introduced in
+    `Bella, A., Ferri, C., Hernández-Orallo, J., and Ramírez-Quintana, M.J.
+    (2010). Quantification via probability estimators. In Proceedings of the
+    2010 IEEE International Conference on Data Mining (ICDM 2010)
+    <https://ieeexplore.ieee.org/abstract/document/5694031>`_.
 
     :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
         the one indicated in `qp.environ['DEFAULT_CLS']`
@@ -670,6 +693,108 @@ class PACC(AggregativeSoftQuantifier):
         return confusion.T
 
 
+class RLLS(AggregativeSoftQuantifier):
+    """
+    `Regularized Learning for Domain Adaptation under Label Shifts
+    <https://arxiv.org/abs/1903.09734>`_, used here as an aggregative
+    quantifier.
+
+    This implementation ports the regularized weight-estimation component of
+    RLLS to QuaPy's aggregative interface. It estimates label-shift ratios from
+    validation posteriors and source labels, then rescales the source
+    prevalence to obtain target prevalence estimates.
+
+    This method relies on the optional `cvxpy` dependency.
+
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case
+        the classifier is taken to be the one indicated in
+        `qp.environ['DEFAULT_CLS']`
+    :param fit_classifier: whether to train the learner (default is True). Set
+        to False if the learner has been trained outside the quantifier.
+    :param val_split: specifies the data used for generating classifier
+        predictions. This specification can be made as float in (0, 1)
+        indicating the proportion of stratified held-out validation set to be
+        extracted from the training set; or as an integer (default 5),
+        indicating that the predictions are to be generated in a `k`-fold
+        cross-validation manner; or as a tuple `(X, y)` defining the specific
+        set of data to use for validation. This method requires source
+        predictions and therefore needs `val_split` whenever
+        `fit_classifier=True`.
+    :param mode: whether source- and target-domain quantities are estimated
+        from posterior probabilities (`soft`, default) or from argmax
+        predictions (`hard`)
+    :param alpha: multiplicative factor for the regularization level (default
+        0.01)
+    :param delta: confidence parameter used in the finite-sample regularizer
+        (default 0.05)
+    :param clip_weights: if True, clips negative importance weights to zero
+        before converting them into prevalence estimates
+    :param norm: the normalization method passed to
+        :func:`quapy.functional.normalize_prevalence`
+    """
+
+    def __init__(
+            self,
+            classifier: BaseEstimator = None,
+            fit_classifier=True,
+            val_split=5,
+            mode: Literal['soft', 'hard'] = 'soft',
+            alpha: float = 0.01,
+            delta: float = 0.05,
+            clip_weights: bool = True,
+            norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
+    ):
+        super().__init__(classifier, fit_classifier, val_split)
+        self.mode = mode
+        self.alpha = alpha
+        self.delta = delta
+        self.clip_weights = clip_weights
+        self.norm = norm
+        self.last_w_ = None
+
+    def _check_init_parameters(self):
+        _get_cvxpy()
+        _rlls_check_mode(self.mode)
+        if not isinstance(self.alpha, (int, float)) or self.alpha < 0:
+            raise ValueError(f'expected a non-negative real value for alpha; found {self.alpha!r}')
+        if not isinstance(self.delta, (int, float)) or not (0 < self.delta < 1):
+            raise ValueError(f'expected delta to be in (0,1); found {self.delta!r}')
+        if self.norm not in ACC.NORMALIZATIONS:
+            raise ValueError(f"unknown normalization; valid ones are {ACC.NORMALIZATIONS}")
+        if self.fit_classifier and self.val_split is None:
+            raise ValueError(
+                'RLLS requires validation predictions for aggregation_fit; '
+                'please set val_split to an integer, float, or validation tuple'
+            )
+
+    def aggregation_fit(self, classif_predictions, labels):
+        if classif_predictions is None or labels is None:
+            raise ValueError('RLLS requires source posterior predictions and source labels')
+
+        self.train_prevalence_ = F.prevalence_from_labels(labels, classes=self.classes_)
+        self.C_zy_ = _rlls_joint_distribution(
+            classif_predictions,
+            labels,
+            self.classes_,
+            mode=self.mode,
+        )
+        self.pz_ = _rlls_predicted_marginal(classif_predictions, mode=self.mode)
+        self.rho_ = _rlls_compute_3deltaC(len(self.classes_), len(labels), self.delta)
+
+    def aggregate(self, classif_posteriors):
+        qz = _rlls_predicted_marginal(classif_posteriors, mode=self.mode)
+        w = _rlls_compute_weights(
+            self.C_zy_,
+            qz,
+            self.pz_,
+            rho=self.alpha * self.rho_,
+            clip=self.clip_weights,
+        )
+        self.last_w_ = w
+        estimate = self.train_prevalence_ * w
+        return F.normalize_prevalence(estimate, method=self.norm)
+
+
 class EMQ(AggregativeSoftQuantifier):
     """
     `Expectation Maximization for Quantification <https://ieeexplore.ieee.org/abstract/document/6789744>`_ (EMQ),
@@ -732,7 +857,7 @@ class EMQ(AggregativeSoftQuantifier):
         self.exact_train_prev = exact_train_prev
         self.calib = calib
         self.on_calib_error = on_calib_error
-        self.n_jobs = n_jobs
+        self.n_jobs = qp._get_njobs(n_jobs)
 
     @classmethod
     def EMQ_BCTS(cls, classifier: BaseEstimator, fit_classifier=True, val_split=5, on_calib_error="raise", n_jobs=None):
@@ -769,15 +894,15 @@ class EMQ(AggregativeSoftQuantifier):
     def _check_init_parameters(self):
         if self.val_split is not None:
             if self.exact_train_prev and self.calib is None:
-                raise RuntimeWarning(f'The parameter {self.val_split=} was specified for EMQ, while the parameters '
-                                     f'{self.exact_train_prev=} and {self.calib=}. This has no effect and causes an '
-                                     f'unnecessary overload.')
+                warnings.warn(f'The parameter {self.val_split=} was specified for EMQ, while the parameters '
+                              f'{self.exact_train_prev=} and {self.calib=}. This has no effect and causes an '
+                              f'unnecessary overload.', RuntimeWarning)
         else:
             if self.calib is not None:
-                print(f'[warning] The parameter {self.calib=} requires the val_split be different from None. '
-                      f'This parameter will be set to 5. To avoid this warning, set this value to a float value '
-                      f'indicating the proportion of training data to be used as validation, or to an integer '
-                      f'indicating the number of folds for kFCV.')
+                warnings.warn(f'The parameter {self.calib=} requires the val_split be different from None. '
+                              f'This parameter will be set to 5. To avoid this warning, set this value to a float value '
+                              f'indicating the proportion of training data to be used as validation, or to an integer '
+                              f'indicating the number of folds for kFCV.')
                 self.val_split = 5
 
     def classify(self, X):
@@ -839,22 +964,17 @@ class EMQ(AggregativeSoftQuantifier):
         requires_predictions = (self.calib is not None) or (not self.exact_train_prev)
         if P is None and requires_predictions:
             # classifier predictions were not generated because val_split=None
-            raise ArgumentError(self.val_split, self.__class__.__name__ +
-                                ": Classifier predictions for the aggregative fit were not generated because "
-                                "val_split=None. This usually happens when you enable calibrations or heuristics "
-                                "during model selection but left val_split set to its default value (None). "
-                                "Please provide one of the following values for val_split: (i) an integer >1 "
-                                "(e.g. val_split=5) for k-fold cross-validation; (ii) a float in (0,1) (e.g. "
-                                "val_split=0.3) for a proportion split; or (iii) a tuple (X, y) with explicit "
-                                "validation data")
+            raise ValueError(self.__class__.__name__ +
+                             ": Classifier predictions for the aggregative fit were not generated because "
+                             "val_split=None. This usually happens when you enable calibrations or heuristics "
+                             "during model selection but left val_split set to its default value (None). "
+                             "Please provide one of the following values for val_split: (i) an integer >1 "
+                             "(e.g. val_split=5) for k-fold cross-validation; (ii) a float in (0,1) (e.g. "
+                             "val_split=0.3) for a proportion split; or (iii) a tuple (X, y) with explicit "
+                             "validation data")
 
         if self.calib is not None:
-            calibrator = {
-                'nbvs': NoBiasVectorScaling(),
-                'bcts': TempScaling(bias_positions='all'),
-                'ts': TempScaling(),
-                'vs': VectorScaling()
-            }.get(self.calib, None)
+            calibrator = _get_abstention_calibrators().get(self.calib, None)
 
             if calibrator is None:
                 raise ValueError(f'invalid value for {self.calib=}; valid ones are {EMQ.CALIB_OPTIONS}')
@@ -922,7 +1042,7 @@ class EMQ(AggregativeSoftQuantifier):
             s += 1
 
         if not converged:
-            print('[warning] the method has reached the maximum number of iterations; it might have not converged')
+            warnings.warn('the method has reached the maximum number of iterations; it might have not converged')
 
         return qs, ps
 
@@ -936,6 +1056,10 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
     the other is generated from a validation set. This latter distribution is defined as a mixture of the
     class-conditional distributions of the posterior probabilities returned for the positive and negative validation
     examples, respectively. The parameters of the mixture thus represent the estimates of the class prevalence values.
+
+    This dedicated class is kept for backward compatibility as the historical
+    HDy implementation. The same historical preset is also available as
+    :meth:`DMy.HDy`.
 
     :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
         the one indicated in `qp.environ['DEFAULT_CLS']`
@@ -983,9 +1107,6 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         Px = classif_posteriors[:, self.pos_label]  # takes only the P(y=+1|x)
 
         prev_estimations = []
-        # for bins in np.linspace(10, 110, 11, dtype=int):  #[10, 20, 30, ..., 100, 110]
-        # Pxy0_density, _ = np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)
-        # Pxy1_density, _ = np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)
         for bins in self.bins:
             Pxy0_density = self.Pxy0_density[bins]
             Pxy1_density = self.Pxy1_density[bins]
@@ -995,13 +1116,12 @@ class HDy(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
             # the authors proposed to search for the prevalence yielding the best matching as a linear search
             # at small steps (modern implementations resort to an optimization procedure,
             # see class DistributionMatching)
-            prev_selected, min_dist = None, None
-            for prev in F.prevalence_linspace(grid_points=101, repeats=1, smooth_limits_epsilon=0.0):
-                Px_train = prev * Pxy1_density + (1 - prev) * Pxy0_density
-                hdy = F.HellingerDistance(Px_train, Px_test)
-                if prev_selected is None or hdy < min_dist:
-                    prev_selected, min_dist = prev, hdy
-            prev_estimations.append(prev_selected)
+            def loss(prev):
+                class1_prev = prev[1]
+                Px_train = class1_prev * Pxy1_density + (1 - class1_prev) * Pxy0_density
+                return F.HellingerDistance(Px_train, Px_test)
+
+            prev_estimations.append(F.linear_search(loss, n_classes=2)[1])
 
         class1_prev = np.median(prev_estimations)
         return F.as_binary_prevalence(class1_prev)
@@ -1042,7 +1162,7 @@ class DyS(AggregativeSoftQuantifier, BinaryAggregativeQuantifier):
         self.tol = tol
         self.divergence = divergence
         self.n_bins = n_bins
-        self.n_jobs = n_jobs
+        self.n_jobs = qp._get_njobs(n_jobs)
 
     def _ternary_search(self, f, left, right, tol):
         """
@@ -1160,6 +1280,10 @@ class DMy(AggregativeSoftQuantifier):
 
     :param cdf: whether to use CDF instead of PDF (default False)
 
+    :param search: string indicating the search strategy used to estimate the prevalence values.
+        Valid options are `optim_minimize` (default, works for binary and multiclass problems),
+        `linear_search` (binary only), and `ternary_search` (binary only)
+
     :param n_jobs: number of parallel workers (default None)
     """
 
@@ -1170,15 +1294,36 @@ class DMy(AggregativeSoftQuantifier):
         self.divergence = divergence
         self.cdf = cdf
         self.search = search
-        self.n_jobs = n_jobs
+        self.n_jobs = qp._get_njobs(n_jobs)
 
-    # @classmethod
-    # def HDy(cls, classifier, val_split=5, n_jobs=None):
-    #     from quapy.method.meta import MedianEstimator
-    #
-    #     hdy = DMy(classifier=classifier, val_split=val_split, search='linear_search', divergence='HD')
-    #     hdy = AggregativeMedianEstimator(hdy, param_grid={'nbins': np.linspace(10, 110, 11).astype(int)}, n_jobs=n_jobs)
-    #     return hdy
+    @classmethod
+    def HDy(cls, classifier: BaseEstimator = None, fit_classifier=True, val_split=5, n_jobs=None):
+        """
+        Historical HDy preset expressed as a configuration of :class:`DMy`.
+
+        This preset reproduces the original HDy setup by using Hellinger
+        distance, PDF matching, linear search, and a median sweep over
+        `nbins` in `[10, 20, ..., 110]`.
+
+        :param classifier: a scikit-learn's BaseEstimator, or None
+        :param fit_classifier: whether to train the learner
+        :param val_split: validation specification for generating posteriors
+        :param n_jobs: number of parallel workers
+        :return: an instance of :class:`AggregativeMedianEstimator` configured
+            to reproduce the historical HDy preset
+        """
+        base = cls(
+            classifier=classifier,
+            fit_classifier=fit_classifier,
+            val_split=val_split,
+            nbins=10,
+            divergence='HD',
+            cdf=False,
+            search='linear_search',
+            n_jobs=n_jobs,
+        )
+        param_grid = {'nbins': np.linspace(10, 110, 11, dtype=int)}
+        return AggregativeMedianEstimator(base_quantifier=base, param_grid=param_grid, n_jobs=n_jobs)
 
     def _get_distributions(self, posteriors):
         histograms = []
@@ -1210,7 +1355,9 @@ class DMy(AggregativeSoftQuantifier):
         :param labels: array-like with the true labels associated to each posterior
         """
         posteriors, true_labels = classif_predictions, labels
-        n_classes = len(self.classifier.classes_)
+        classes = self.classifier.classes_
+        n_classes = len(classes)
+        true_labels = _labels_to_indices(true_labels, classes)
 
         self.validation_distribution = qp.util.parallel(
             func=self._get_distributions,
@@ -1321,9 +1468,9 @@ def newSVMKLD(svmperf_base=None, C=1):
     return newELM(svmperf_base, loss='kld', C=C)
 
 
-def newSVMKLD(svmperf_base=None, C=1):
+def newSVMNKLD(svmperf_base=None, C=1):
     """
-    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
+    SVM(NKLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
     normalized via the logistic function, as proposed by
     `Esuli et al. 2015 <https://dl.acm.org/doi/abs/10.1145/2700406>`_.
     Equivalent to:
@@ -1450,7 +1597,7 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
         return F.normalize_prevalence(prevalences)
 
     def aggregation_fit(self, classif_predictions, labels):
-        self._parallel(self._delayed_binary_aggregate_fit(c, classif_predictions, labels))
+        self._parallel(self._delayed_binary_aggregate_fit, classif_predictions, labels)
         return self
 
     def _delayed_binary_classification(self, c, X):
@@ -1462,7 +1609,7 @@ class OneVsAllAggregative(OneVsAllGeneric, AggregativeQuantifier):
 
     def _delayed_binary_aggregate_fit(self, c, classif_predictions, labels):
         # trains the aggregation function of the cth quantifier
-        return self.dict_binary_quantifiers[c].aggregate_fit(classif_predictions[:, c], labels)
+        return self.dict_binary_quantifiers[c].aggregation_fit(classif_predictions[:, c], labels == c)
 
 
 class AggregativeMedianEstimator(BinaryQuantifier):
@@ -1528,8 +1675,7 @@ class AggregativeMedianEstimator(BinaryQuantifier):
                     ((params, X, y) for params in cls_configs),
                     seed=qp.environ.get('_R_SEED', None),
                     n_jobs=self.n_jobs,
-                    asarray=False,
-                    backend='threading'
+                    asarray=False
                 )
             else:
                 model = self.base_quantifier
@@ -1541,8 +1687,7 @@ class AggregativeMedianEstimator(BinaryQuantifier):
                 self._delayed_fit_aggregation,
                 itertools.product(models_preds, q_configs),
                 seed=qp.environ.get('_R_SEED', None),
-                n_jobs=self.n_jobs,
-                backend='threading'
+                n_jobs=self.n_jobs
             )
         else:
             configs = qp.model_selection.expand_grid(self.param_grid)
@@ -1550,8 +1695,7 @@ class AggregativeMedianEstimator(BinaryQuantifier):
                 self._delayed_fit,
                 ((params, X, y) for params in configs),
                 seed=qp.environ.get('_R_SEED', None),
-                n_jobs=self.n_jobs,
-                backend='threading'
+                n_jobs=self.n_jobs
             )
         return self
 
@@ -1564,10 +1708,109 @@ class AggregativeMedianEstimator(BinaryQuantifier):
             self._delayed_predict,
             ((model, instances) for model in self.models),
             seed=qp.environ.get('_R_SEED', None),
-            n_jobs=self.n_jobs,
-            backend='threading'
+            n_jobs=self.n_jobs
         )
         return np.median(prev_preds, axis=0)
+
+
+class EDy(_EnergyDistanceCore, AggregativeSoftQuantifier):
+    """
+    Energy Distance y (EDy), a posterior-space distribution-matching quantifier
+    based on energy distance.
+
+    The method represents each class by the posterior-probability vectors
+    produced by a probabilistic classifier on validation data, and estimates the
+    test prevalence vector by matching the test posterior distribution against
+    the class-conditional validation distributions through an energy-distance
+    objective solved as a quadratic program. The method is therefore another
+    instance of the general mixture-matching view of quantification, but it
+    operates directly on posterior vectors rather than on histogram summaries.
+
+    This implementation works for binary and multiclass single-label
+    quantification and relies on the optional ``quadprog`` dependency. It was
+    adapted to QuaPy's current aggregative API from the original implementation
+    available in `quantificationlib <https://github.com/AICGijon/quantificationlib>`_,
+    and now shares its numerical core with the classifier-free
+    :class:`quapy.method.non_aggregative.EDx` variant.
+
+    The current implementation follows the energy-distance formulation discussed
+    in:
+
+    * Alberto Castaño, Laura Morán-Fernández, Jaime Alonso,
+      Verónica Bolón-Canedo, Amparo Alonso-Betanzos, and Juan José del Coz.
+      *An analysis of quantification methods based on matching distributions*.
+    * Hideko Kawakubo, Marthinus Christoffel du Plessis, and Masashi Sugiyama
+      (2016). *Computationally efficient class-prior estimation under class
+      balance change using energy distance*. IEICE Transactions on Information
+      and Systems, 99(1):176-186.
+
+    :param classifier: a scikit-learn ``BaseEstimator``, or ``None`` to use
+        ``qp.environ['DEFAULT_CLS']``
+    :param fit_classifier: whether to train the learner (default ``True``).
+        Set to ``False`` if the learner has already been trained outside the
+        quantifier
+    :param val_split: specification of the data used for generating validation
+        posterior probabilities. This can be an integer (default ``5``) for
+        k-fold cross-validation, a float in ``(0, 1)`` for a held-out split,
+        or a tuple ``(X, y)`` with explicit validation data
+    :param distance: distance used to compare posterior vectors. Valid string
+        aliases are ``'manhattan'`` (default) and ``'euclidean'``; a custom
+        callable compatible with pairwise-distance signatures can also be used
+    :param n_jobs: number of parallel workers (default ``None``, meaning the
+        value is taken from the environment)
+    """
+
+    def __init__(
+        self,
+        classifier: BaseEstimator = None,
+        fit_classifier: bool = True,
+        val_split=5,
+        distance: Union[str, Callable] = 'manhattan',
+        n_jobs=None,
+    ):
+        super().__init__(classifier, fit_classifier, val_split)
+        self.distance = distance
+        self.n_jobs = qp._get_njobs(n_jobs)
+        self.train_n_cls_i_ = None
+        self.train_distrib_ = None
+        self.K_ = None
+        self.G_ = None
+        self.C_ = None
+        self.b_ = None
+        self.a_ = None
+
+    def _check_init_parameters(self):
+        self._check_ed_init_parameters()
+
+    def aggregation_fit(self, classif_predictions, labels):
+        """
+        Estimate the class-conditional posterior distributions on validation
+        data and pre-compute the quadratic-program parameters that depend only
+        on the training side.
+
+        In EDy, the validation posteriors are not discretized into histograms.
+        Instead, each class is represented by the cloud of posterior vectors
+        observed for that class, and these clouds are then compared through the
+        selected pairwise distance.
+
+        :param classif_predictions: posterior probabilities returned by the
+            classifier on validation data
+        :param labels: true labels associated to each posterior vector
+        """
+        posteriors = np.asarray(classif_predictions, dtype=float)
+        labels = np.asarray(labels)
+        train_distrib = [posteriors[labels == class_] for class_ in self.classes_]
+        return self._fit_energy_model(train_distrib)
+
+    def aggregate(self, posteriors: np.ndarray):
+        """Estimate the prevalence vector for a test sample.
+
+        :param posteriors: posterior probabilities returned by the classifier
+            for the instances in the test sample
+        :return: a prevalence vector of shape ``(n_classes,)``
+        """
+        posteriors = np.asarray(posteriors, dtype=float)
+        return self._predict_energy(posteriors)
 
 
 # ---------------------------------------------------------------
@@ -1588,6 +1831,7 @@ KDEyML = _kdey.KDEyML
 KDEyHD = _kdey.KDEyHD
 KDEyCS = _kdey.KDEyCS
 
+
 # ---------------------------------------------------------------
 # aliases
 # ---------------------------------------------------------------
@@ -1599,6 +1843,8 @@ ProbabilisticAdjustedClassifyAndCount = PACC
 ExpectationMaximizationQuantifier = EMQ
 SLD = EMQ
 DistributionMatchingY = DMy
+EnergyDistanceY = EDy
 HellingerDistanceY = HDy
+HistoricalHDy = DMy.HDy
 MedianSweep = MS
 MedianSweep2 = MS2

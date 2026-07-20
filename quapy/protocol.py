@@ -8,8 +8,8 @@ from contextlib import ExitStack
 from abc import ABCMeta, abstractmethod
 from quapy.data import LabelledCollection
 import quapy.functional as F
-from os.path import exists
-from glob import glob
+from collections.abc import Iterable
+from numbers import Number
 
 
 class AbstractProtocol(metaclass=ABCMeta):
@@ -171,7 +171,7 @@ class AbstractStochasticSeededProtocol(AbstractProtocol):
         return sample
 
 
-class OnLabelledCollectionProtocol:
+class OnLabelledCollectionProtocol(AbstractStochasticSeededProtocol):
     """
     Protocols that generate samples from a :class:`qp.data.LabelledCollection` object.
     """
@@ -229,8 +229,17 @@ class OnLabelledCollectionProtocol:
         elif return_type=='index':
             return lambda lc,params:params
 
+    def sample(self, index):
+        """
+        Realizes the sample given the index of the instances.
 
-class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
+        :param index: indexes of the instances to select
+        :return: an instance of :class:`qp.data.LabelledCollection`
+        """
+        return self.data.sampling_from_index(index)
+
+
+class APP(OnLabelledCollectionProtocol):
     """
     Implementation of the artificial prevalence protocol (APP).
     The APP consists of exploring a grid of prevalence values containing `n_prevalences` points (e.g.,
@@ -311,15 +320,6 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
             indexes.append(index)
         return indexes
 
-    def sample(self, index):
-        """
-        Realizes the sample given the index of the instances.
-
-        :param index: indexes of the instances to select
-        :return: an instance of :class:`qp.data.LabelledCollection`
-        """
-        return self.data.sampling_from_index(index)
-
     def total(self):
         """
         Returns the number of samples that will be generated
@@ -329,7 +329,7 @@ class APP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         return F.num_prevalence_combinations(self.n_prevalences, self.data.n_classes, self.repeats)
 
 
-class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
+class NPP(OnLabelledCollectionProtocol):
     """
     A generator of samples that implements the natural prevalence protocol (NPP). The NPP consists of drawing
     samples uniformly at random, therefore approximately preserving the natural prevalence of the collection.
@@ -365,15 +365,6 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
             indexes.append(index)
         return indexes
 
-    def sample(self, index):
-        """
-        Realizes the sample given the index of the instances.
-
-        :param index: indexes of the instances to select
-        :return: an instance of :class:`qp.data.LabelledCollection`
-        """
-        return self.data.sampling_from_index(index)
-
     def total(self):
         """
         Returns the number of samples that will be generated (equals to "repeats")
@@ -383,7 +374,7 @@ class NPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
         return self.repeats
 
 
-class UPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
+class UPP(OnLabelledCollectionProtocol):
     """
     A variant of :class:`APP` that, instead of using a grid of equidistant prevalence values,
     relies on the Kraemer algorithm for sampling unit (k-1)-simplex uniformly at random, with
@@ -423,14 +414,63 @@ class UPP(AbstractStochasticSeededProtocol, OnLabelledCollectionProtocol):
             indexes.append(index)
         return indexes
 
-    def sample(self, index):
+    def total(self):
         """
-        Realizes the sample given the index of the instances.
+        Returns the number of samples that will be generated (equals to "repeats")
 
-        :param index: indexes of the instances to select
-        :return: an instance of :class:`qp.data.LabelledCollection`
+        :return: int
         """
-        return self.data.sampling_from_index(index)
+        return self.repeats
+
+
+class DirichletProtocol(OnLabelledCollectionProtocol):
+    """
+    A protocol that establishes a prior Dirichlet distribution for the prevalence of the samples.
+    Note that providing an all-ones vector of Dirichlet parameters is equivalent to invoking the
+    APP protocol (although each protocol will generate a different series of samples given a
+    fixed seed, since the implementation is different).
+
+    :param data: a `LabelledCollection` from which the samples will be drawn
+    :param alpha: an array-like of shape (n_classes,) with the parameters of the Dirichlet distribution
+    :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from
+        qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.
+    :param repeats: the number of samples to generate. Default is 100.
+    :param random_state: allows replicating samples across runs (default 0, meaning that the sequence of samples
+        will be the same every time the protocol is called)
+    :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or
+        to "labelled_collection" to get instead instances of LabelledCollection
+    """
+
+    def __init__(self, data: LabelledCollection, alpha, sample_size=None, repeats=100, random_state=0,
+                 return_type='sample_prev'):
+        n_classes = data.n_classes
+        if isinstance(alpha, str) and alpha == 'uniform':
+            self.alpha = np.ones(n_classes, dtype=float)
+        elif isinstance(alpha, Number):
+            self.alpha = np.full(n_classes, float(alpha), dtype=float)
+        else:
+            self.alpha = np.asarray(alpha, dtype=float)
+            if self.alpha.ndim != 1 or len(self.alpha) != n_classes:
+                raise ValueError(
+                    f'wrong shape for alpha; expected {n_classes} values, found shape {self.alpha.shape}'
+                )
+
+        super(DirichletProtocol, self).__init__(random_state)
+        self.data = data
+        self.sample_size = qp._get_sample_size(sample_size)
+        self.repeats = repeats
+        self.random_state = random_state
+        self.collator = OnLabelledCollectionProtocol.get_collator(return_type)
+
+    def samples_parameters(self):
+        """
+        Return all the necessary parameters to replicate the samples.
+
+        :return: a list of indexes that realize the sampling
+        """
+        prevs = np.random.dirichlet(self.alpha, size=self.repeats)
+        indexes = [self.data.sampling_index(self.sample_size, *prevs_i) for prevs_i in prevs]
+        return indexes
 
     def total(self):
         """
@@ -450,7 +490,7 @@ class DomainMixer(AbstractStochasticSeededProtocol):
     :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from
         qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.
     :param repeats: int, number of samples to draw for every mixture rate
-    :param prevalence: the prevalence to preserv along the mixtures. If specified, should be an array containing
+    :param prevalence: the prevalence to preserve along the mixtures. If specified, should be an array containing
         one prevalence value (positive float) for each class and summing up to one. If not specified, the prevalence
         will be taken from the domain A (default).
     :param mixture_points: an integer indicating the number of points to take from a linear scale (e.g., 21 will

@@ -1,15 +1,26 @@
+import logging
 import os
 from contextlib import contextmanager
 import zipfile
 from os.path import join
 import pandas as pd
-from ucimlrepo import fetch_ucirepo
 from quapy.data.base import Dataset, LabelledCollection
 from quapy.data.preprocessing import text2tfidf, reduce_columns
 from quapy.data.preprocessing import standardize as standardizer
 from quapy.data.reader import *
 from quapy.util import download_file_if_not_exists, download_file, get_quapy_home, pickled_resource
 from sklearn.preprocessing import StandardScaler
+
+
+def _fetch_ucirepo(*args, **kwargs):
+    try:
+        from ucimlrepo import fetch_ucirepo
+    except ImportError as exc:
+        raise ImportError(
+            "UCI dataset fetching requires the optional 'ucimlrepo' package. "
+            "Install it to use fetch_UCIBinaryDataset or fetch_UCIMulticlassDataset."
+        ) from exc
+    return fetch_ucirepo(*args, **kwargs)
 
 
 REVIEWS_SENTIMENT_DATASETS = ['hp', 'kindle', 'imdb']
@@ -109,6 +120,9 @@ LEQUA2024_SAMPLE_SIZE = {
     'T4': 250,
 }
 
+IMAGE_DATASETS=['cifar10', 'cifar100', 'cifar100coarse', 'svhn', 'fashionmnist', 'mnist']
+IMAGE_EMBEDDINGS=['features', 'logits', 'predictions']
+
 
 def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False) -> Dataset:
     """
@@ -199,8 +213,9 @@ def fetch_twitter(dataset_name, for_model_selection=False, min_df=None, data_hom
     if dataset_name in {'semeval13', 'semeval14', 'semeval15'}:
         trainset_name = 'semeval'
         testset_name  = 'semeval' if for_model_selection else dataset_name
-        print(f"the training and development sets for datasets 'semeval13', 'semeval14', 'semeval15' are common "
-              f"(called 'semeval'); returning trainin-set='{trainset_name}' and test-set={testset_name}")
+        logging.getLogger(__name__).info(
+            f"the training and development sets for datasets 'semeval13', 'semeval14', 'semeval15' are common "
+            f"(called 'semeval'); returning trainin-set='{trainset_name}' and test-set={testset_name}")
     else:
         if dataset_name == 'semeval' and for_model_selection==False:
             raise ValueError('dataset "semeval" can only be used for model selection. '
@@ -500,11 +515,11 @@ def fetch_UCIBinaryLabelledCollection(dataset_name, data_home=None, standardize=
             y = df["NSP"].astype(int).values
         elif group == "semeion":
             with download_tmp_file("semeion", "semeion.data") as tmp:
-                df = pd.read_csv(tmp, header=None, sep='\s+')
+                df = pd.read_csv(tmp, header=None, sep='\\s+')
             X = df.iloc[:, 0:256].astype(float).values
             y = df[263].values  # 263 stands for digit 8 (labels are one-hot vectors from col 256-266)
         else:
-            df = fetch_ucirepo(id=id)
+            df = _fetch_ucirepo(id=id)
             X, y = df.data.features.to_numpy(), df.data.targets.to_numpy().squeeze()
 
         # transform data when needed before returning (returned data will be pickled)
@@ -616,8 +631,8 @@ def fetch_UCIMulticlassDataset(
         are taken for training, and the rest (irrespective of `min_test_split`) is taken for test.
     :param max_train_instances: maximum number of instances to keep for training (defaults to 25000);
         set to -1 or None to avoid this check
-    :param min_class_support: minimum number of istances per class. Classes with fewer instances
-        are discarded (deafult is 100)
+    :param min_class_support: integer or float, the minimum number or proportion of istances per class.
+        Classes with fewer instances are discarded (deafult is 100).
     :param standardize: indicates whether the covariates should be standardized or not (default is True). If requested,
         standardization applies after the LabelledCollection is split, that is, the mean an std are computed only on the
         training portion of the data.
@@ -673,6 +688,11 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
         f'Name {dataset_name} does not match any known dataset from the ' \
         f'UCI Machine Learning datasets repository (multiclass). ' \
         f'Valid ones are {UCI_MULTICLASS_DATASETS}'
+
+    assert (min_class_support is None or
+            ((isinstance(min_class_support, int) and min_class_support >= 0) or
+             (isinstance(min_class_support, float) and 0. <= min_class_support < 1.))), \
+        f'invalid value for {min_class_support=}; expected non negative integer or float in [0,1)'
     
     if data_home is None:
         data_home = get_quapy_home()
@@ -739,26 +759,43 @@ def fetch_UCIMulticlassLabelledCollection(dataset_name, data_home=None, min_clas
 
     file = join(data_home, 'uci_multiclass', dataset_name+'.pkl')
     
+    def dummify_categorical_features(df_features, dataset_id):
+        categorical_features = {
+            158: ["S1", "C1", "S2", "C2", "S3", "C3", "S4", "C4", "S5", "C5"],  # poker_hand
+        }
+
+        categorical = categorical_features.get(dataset_id, [])
+
+        X = df_features.copy()
+        if categorical:
+            X[categorical] = X[categorical].astype("category")
+            X = pd.get_dummies(X, columns=categorical, drop_first=True)
+
+        return X
+
     def download(id, name):
-        df = fetch_ucirepo(id=id)
+        df = _fetch_ucirepo(id=id)
 
-        df.data.features = pd.get_dummies(df.data.features, drop_first=True)
-        X, y = df.data.features.to_numpy(dtype=np.float64), df.data.targets.to_numpy().squeeze()
+        X_df = dummify_categorical_features(df.data.features, id)
+        X = X_df.to_numpy(dtype=np.float64)
+        y = df.data.targets.to_numpy().squeeze()
 
-        assert y.ndim == 1, 'more than one y'
+        assert y.ndim == 1, f'error: the dataset {id=} {name=} has more than one target variable'
 
         classes = np.sort(np.unique(y))
         y = np.searchsorted(classes, y)
         return LabelledCollection(X, y)
 
-    def filter_classes(data: LabelledCollection, min_ipc):
-        if min_ipc is None:
-            min_ipc = 0
+    def filter_classes(data: LabelledCollection, min_class_support):
+        if min_class_support is None or min_class_support == 0.:
+            return data
+        if isinstance(min_class_support, float):
+            min_class_support = int(len(data) * min_class_support)
         classes = data.classes_
-        # restrict classes to only those with at least min_ipc instances
-        classes = classes[data.counts() >= min_ipc]
+        # restrict classes to only those with at least min_class_support instances
+        classes = classes[data.counts() >= min_class_support]
         # filter X and y keeping only datapoints belonging to valid classes
-        filter_idx = np.in1d(data.y, classes)
+        filter_idx = np.isin(data.y, classes)
         X, y = data.X[filter_idx], data.y[filter_idx]
         # map classes to range(len(classes))
         y = np.searchsorted(classes, y)
@@ -1030,3 +1067,90 @@ def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=No
         return train, test_gen
     else:
         return train_gen, test_gen
+
+
+def _fetch_image_embedding_splits(dataset_name, embedding, data_home=None) -> tuple[LabelledCollection,LabelledCollection,LabelledCollection]:
+    """
+    Loads a pre-generated embedding set (train, val, or test) of an image dataset from `Zenodo <https://zenodo.org/records/21131944>`_.
+    
+    Embeddings were extracted using `this script <https://github.com/pglez82/visiondatasets_quapy>`_. 
+
+    :param dataset_name: the name of the dataset: valid ones are 'cifar10', 'cifar100', 'cifar100coarse', 'svhn', 'fashionmnist', 'mnist'
+    :param embedding: the type of embedding: valid ones are 'features' (next-to-last representations), 'logits' (pre-activation values), 'predictions' (posterior probabilities)
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: a tuple (train, val, test) where each entry is an instance of :class:`quapy.data.base.LabelledCollection`
+    """
+    assert dataset_name in IMAGE_DATASETS, \
+        f'Name {dataset_name} does not match any known dataset. Valid ones are {IMAGE_DATASETS}'
+    assert embedding in IMAGE_EMBEDDINGS, \
+        f'Name {embedding} does not match any known type of embedding. Valid ones are {IMAGE_EMBEDDINGS}'
+    if data_home is None:
+        data_home = get_quapy_home()
+    
+    dataset_network = {
+        'cifar10': 'resnet18',
+        'cifar100': 'resnet18',
+        'cifar100coarse': 'resnet18',
+        'svhn': 'resnet18',
+        'fashionmnist': 'basiccnn',
+        'mnist': 'basiccnn',
+    }
+
+    trained_network = dataset_network[dataset_name]
+
+    def download_embedding_npz(dataset_name, trained_network, embedding):
+        target_file = f'{dataset_name}_{trained_network}_{embedding}.npz'
+        URL = f'https://zenodo.org/records/21131944/files/{target_file}'
+        os.makedirs(join(data_home, 'image'), exist_ok=True)
+        file_path = join(data_home, 'image', target_file)
+        download_file_if_not_exists(URL, file_path)
+        npz_file = np.load(file_path)
+        return npz_file
+
+    embedding_dict = download_embedding_npz(dataset_name, trained_network, embedding=embedding)
+    labels_dict = download_embedding_npz(dataset_name, trained_network, embedding='targets')
+
+    train = LabelledCollection(embedding_dict['train'], labels_dict['train'])
+    val = LabelledCollection(embedding_dict['val'], labels_dict['val'], classes=train.classes)
+    test = LabelledCollection(embedding_dict['test'], labels_dict['test'], classes=train.classes)
+
+    return train, val, test
+
+
+def fetch_image_embeddings(dataset_name, embedding, heldout_only=True, data_home=None) -> Dataset:
+    """
+    Loads an image dataset with pre-generated embeddings. Available datasets include:
+
+    - 'cifar10', 'cifar100', 'cifar100coarse': see `Alex Krizhevsky and Geoffrey Hinton. Learning multiple layers of features from tiny images. Technical report, University of Toronto, Toronto, Ontario, 2009. <https://cave.cs.toronto.edu/kriz/learning-features-2009-TR.pdf>`_
+    - 'mnist': `Yann LeCun, Corinna Cortes, and Christopher J. C. Burges. The MNIST database of handwritten digits. 1998. <http://yann.lecun.com/exdb/mnist/>`_
+    - 'fashionmnist': `Han Xiao, Kashif Rasul, and Roland Vollgraf. Fashion-MNIST: a novel image dataset for benchmarking machine learning algorithms. arXiv preprint arXiv:1708.07747, 2017. <https://arxiv.org/abs/1708.07747>`_
+    - 'svhn': `Yuval Netzer, Tao Wang, Adam Coates, Alessandro Bissacco, Baolin Wu, Andrew Y Ng, et al. Reading digits in natural images with unsupervised feature learning. In NIPS workshop on deep learning and unsupervised feature learning, volume 2011, page 4. Granada, 2011. <https://static.googleusercontent.com/media/research.google.com/es//pubs/archive/37648.pdf>`_
+    
+    The image dataset are stored in `Zenodo <https://zenodo.org/records/21131944>`_ and were extracted using `this script <https://github.com/pglez82/visiondatasets_quapy>`_. 
+
+    These embeddings were generated using a resnet18 or a simple cnn. In all cases, the network was trained using ~60% of the data, validated on ~25% of the data, and the remaining ~15% was used for test. Splits were created with stratification.
+    Once the network is trained, it was used with frozen weights to generate embeddings for the training, validation, and test, in different formats (see below).
+    It would therefore be convenient to use only heldout data (validation and test) for training and testing quantifiers (this is the default behavior), although the training+validation data can be accessed with `heldout_only=False`.
+
+    :param dataset_name: the name of the dataset: valid ones are 'cifar10', 'cifar100', 'cifar100coarse', 'svhn', 'fashionmnist', 'mnist'
+    :param embedding: the type of embedding: valid ones are 'features' (next-to-last representations), 'logits' (pre-activation outputs), 'predictions' (post-softmax outputs, or predicted posterior probabilities)
+    :param heldout_only: whether to discard the part of the training data used to train the neural model that generated the embeddings (default: True); set to False
+        to obtain, as the training data, the original training+validation splits.
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: an instance of :class:`quapy.data.base.Dataset`
+    """
+    if data_home is None:
+        data_home = get_quapy_home()
+
+    network_train, val, test = _fetch_image_embedding_splits(dataset_name, embedding, data_home)        
+
+    if heldout_only:
+        train = val            
+    else:
+        train = network_train + val
+        
+    return Dataset(train, test, name=dataset_name)
+
+

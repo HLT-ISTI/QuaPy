@@ -16,7 +16,6 @@ scale each value by per-class thresholds, i.e., [0.33*0.1, 0.33*1, 0.33*1]/sum."
 
 - [TODO] document confidence in manuals
 - [TODO] Test the return_type="index" in protocols and finish the "distributing_samples.py" example
-- [TODO] Add EDy (an implementation is available at quantificationlib)
 - [TODO] add ensemble methods SC-MQ, MC-SQ, MC-MQ
 - [TODO] add HistNetQ
 - [TODO] add CDE-iteration and Bayes-CDE methods

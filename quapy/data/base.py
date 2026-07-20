@@ -33,7 +33,6 @@ class LabelledCollection:
         else:
             self.instances = np.asarray(instances)
         self.labels = np.asarray(labels)
-        n_docs = len(self)
         if classes is None:
             self.classes_ = F.classes_from_labels(self.labels)
         else:
@@ -41,7 +40,13 @@ class LabelledCollection:
             self.classes_.sort()
             if len(set(self.labels).difference(set(classes))) > 0:
                 raise ValueError(f'labels ({set(self.labels)}) contain values not included in classes_ ({set(classes)})')
-        self.index = {class_: np.arange(n_docs)[self.labels == class_] for class_ in self.classes_}
+        self._index = None
+
+    @property
+    def index(self):
+        if not hasattr(self, '_index') or self._index is None:
+            self._index = {class_: np.arange(len(self))[self.labels == class_] for class_ in self.classes_}
+        return self._index
 
     @classmethod
     def load(cls, path: str, loader_func: callable, classes=None, **loader_kwargs):
@@ -324,7 +329,9 @@ class LabelledCollection:
         else:
             raise NotImplementedError('unsupported operation for collection types')
         labels = np.concatenate([lc.labels for lc in args])
-        classes = np.unique(labels).sort()
+        # union of each collection's own classes_, so a class declared but absent from
+        # this particular join (e.g. an empty fold) is preserved at zero prevalence
+        classes = np.unique(np.concatenate([lc.classes_ for lc in args]))
         return LabelledCollection(instances, labels, classes=classes)
 
     @property

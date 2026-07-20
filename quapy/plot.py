@@ -1,11 +1,14 @@
 from collections import defaultdict
-import matplotlib.pyplot as plt
-from matplotlib.pyplot import get_cmap
-import numpy as np
-from matplotlib import cm
-from scipy.stats import ttest_ind_from_stats
-from matplotlib.ticker import ScalarFormatter
 import math
+
+from matplotlib import cm
+import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap
+from matplotlib.pyplot import get_cmap
+from matplotlib.ticker import ScalarFormatter
+import numpy as np
+from scipy.stats import ttest_ind_from_stats
 
 import quapy as qp
 
@@ -480,7 +483,6 @@ def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs
                 best_bucket_methods.append(method_order[method_index])
         best_methods.append(best_bucket_methods)
         salient_methods.update(best_bucket_methods)
-        print(best_bucket_methods)
 
     if binning=='isomerous':
         fig, axes = plt.subplots(2, 1, gridspec_kw={'height_ratios': [0.2, 1]}, figsize=(20, len(salient_methods)))
@@ -560,6 +562,123 @@ def brokenbar_supremacy_by_drift(method_names, true_prevs, estim_prevs, tr_prevs
     return fig, ax
 
 
+def plot_simplex(
+        point_layers=None,
+        region_layers=None,
+        density_function=None,
+        density_color='#1f77b4',
+        density_alpha=1.0,
+        resolution=400,
+        class_names=None,
+        title=None,
+        show_legend=True,
+        legend_loc='lower center',
+        legend_bbox_to_anchor=(0.5, -0.08),
+        legend_ncol=2,
+        figsize=(6.8, 6.2),
+        class_name_fontsize=10,
+        title_fontsize=11,
+        legend_fontsize=9,
+        ax=None,
+        savepath=None):
+    """
+    Plots data on the ternary simplex for three-class quantification problems.
+
+    This utility is convenient for visualising prevalence vectors, posterior triplets,
+    confidence regions, or any other points that lie on the 2-dimensional probability
+    simplex. The plot can combine three optional layer types:
+
+    * `point_layers`: scatter layers for one or more prevalence clouds or reference points
+    * `region_layers`: shaded regions defined by callables on prevalence vectors
+    * `density_function`: a scalar function evaluated on the simplex and rendered as a heatmap
+
+    Each entry in `point_layers` is a dictionary with a mandatory `points` field
+    containing an array-like of shape `(n_points, 3)` or `(3,)`. Optional fields are
+    `label` for the legend and `style` for matplotlib scatter keyword arguments.
+
+    Each entry in `region_layers` is a dictionary with a mandatory `fn` field containing
+    a callable that receives prevalence vectors and returns region-membership scores.
+    Optional fields are `label`, `color`, and `alpha`.
+
+    :param point_layers: optional list of point-layer dictionaries
+    :param region_layers: optional list of region-layer dictionaries
+    :param density_function: optional callable receiving prevalence vectors and returning
+        scalar values
+    :param density_color: color used for the density heatmap
+    :param density_alpha: opacity for the density heatmap
+    :param resolution: number of grid steps per axis used for rendering regions and densities
+    :param class_names: optional list or tuple with the three class names
+    :param title: optional plot title
+    :param show_legend: whether to display the legend
+    :param legend_loc: location string passed to matplotlib for the legend
+    :param legend_bbox_to_anchor: optional legend anchor box
+    :param legend_ncol: number of legend columns
+    :param figsize: figure size used when `ax` is not provided
+    :param class_name_fontsize: fontsize used for simplex vertex labels
+    :param title_fontsize: fontsize used for the optional title
+    :param legend_fontsize: fontsize used for the legend
+    :param ax: optional matplotlib axes object; if not provided, a new figure is created
+    :param savepath: path where to save the plot; if not indicated, the plot is shown when
+        `ax` is not provided
+    :return: returns `(fig, ax)` matplotlib objects for eventual customisation
+    """
+    if class_names is None:
+        class_names = ('Y=1', 'Y=2', 'Y=3')
+    if len(class_names) != 3:
+        raise ValueError(f'expected exactly 3 class names, got {len(class_names)}')
+
+    own_figure = ax is None
+    if own_figure:
+        fig, ax = plt.subplots(figsize=figsize)
+    else:
+        fig = ax.figure
+
+    if density_function is not None:
+        _plot_simplex_density(ax, density_function, resolution, density_color, density_alpha)
+
+    if region_layers:
+        _plot_simplex_regions(ax, region_layers, resolution)
+
+    if point_layers:
+        _plot_simplex_points(ax, point_layers)
+
+    simplex_ymax = np.sqrt(3) / 2
+    triangle = np.array([
+        [0.0, 0.0],
+        [1.0, 0.0],
+        [0.5, simplex_ymax],
+        [0.0, 0.0],
+    ])
+    ax.plot(triangle[:, 0], triangle[:, 1], color='black')
+
+    ax.text(-0.05, -0.05, class_names[0], ha='right', va='top', fontsize=class_name_fontsize)
+    ax.text(1.05, -0.05, class_names[1], ha='left', va='top', fontsize=class_name_fontsize)
+    ax.text(0.5, simplex_ymax + 0.05, class_names[2], ha='center', va='bottom', fontsize=class_name_fontsize)
+
+    if title is not None:
+        ax.set_title(title, fontsize=title_fontsize)
+
+    ax.set_aspect('equal')
+    ax.set_xlim(-0.1, 1.1)
+    ax.set_ylim(-0.1, simplex_ymax + 0.1)
+    ax.axis('off')
+
+    if show_legend:
+        _, labels = ax.get_legend_handles_labels()
+        if labels:
+            ax.legend(loc=legend_loc, bbox_to_anchor=legend_bbox_to_anchor, ncol=legend_ncol, fontsize=legend_fontsize, frameon=False)
+
+    fig.tight_layout(pad=0.6)
+
+    if savepath is not None:
+        qp.util.create_parent_dir(savepath)
+        fig.savefig(savepath, bbox_inches='tight')
+    elif own_figure:
+        plt.show()
+
+    return fig, ax
+
+
 def _merge(method_names, true_prevs, estim_prevs):
     ndims = true_prevs[0].shape[1]
     data = defaultdict(lambda: {'true': np.empty(shape=(0, ndims)), 'estim': np.empty(shape=(0, ndims))})
@@ -612,6 +731,94 @@ def _join_data_by_drift(method_names, true_prevs, estim_prevs, tr_prevs, x_error
     return data
 
 
+def _simplex_to_cartesian(prevalences):
+    prevalences = np.asarray(prevalences, dtype=float)
+    prevalences = np.atleast_2d(prevalences)
+    if prevalences.shape[1] != 3:
+        raise ValueError(f'plot_simplex expects prevalence vectors of shape (_, 3); found {prevalences.shape}')
+    x = prevalences[:, 1] + 0.5 * prevalences[:, 2]
+    y = prevalences[:, 2] * (np.sqrt(3) / 2)
+    return x, y
+
+
+def _barycentric_from_xy(x, y):
+    p3 = 2 * y / np.sqrt(3)
+    p2 = x - 0.5 * p3
+    p1 = 1 - p2 - p3
+    return np.stack([p1, p2, p3], axis=-1)
+
+
+def _simplex_mesh(resolution):
+    simplex_ymax = np.sqrt(3) / 2
+    xs = np.linspace(0, 1, resolution)
+    ys = np.linspace(0, simplex_ymax, resolution)
+    grid_x, grid_y = np.meshgrid(xs, ys)
+    pts_bary = _barycentric_from_xy(grid_x, grid_y)
+    mask = np.all(pts_bary >= 0, axis=-1)
+    return xs, ys, pts_bary, mask
+
+
+def _evaluate_simplex_function(function, points):
+    points = np.asarray(points, dtype=float)
+    try:
+        values = np.asarray(function(points), dtype=float)
+        if values.shape == (points.shape[0],):
+            return values
+        if values.shape == points.shape[:-1]:
+            return values.reshape(-1)
+    except Exception:
+        pass
+    return np.asarray([function(point) for point in points], dtype=float)
+
+
+def _region_colormap(color='blue', alpha=0.35):
+    return ListedColormap([
+        (1.0, 1.0, 1.0, 0.0),
+        (*mcolors.to_rgb(color), alpha),
+    ])
+
+
+def _plot_simplex_points(ax, point_layers):
+    for layer in point_layers:
+        points = np.asarray(layer['points'], dtype=float)
+        style = {'s': 25, 'alpha': 0.8}
+        style.update(layer.get('style', {}))
+        ax.scatter(*_simplex_to_cartesian(points), label=layer.get('label'), **style)
+
+
+def _plot_simplex_regions(ax, region_layers, resolution):
+    xs, ys, pts_bary, simplex_mask = _simplex_mesh(resolution)
+    valid_points = pts_bary[simplex_mask]
+
+    for layer in region_layers:
+        mask = np.zeros(simplex_mask.shape, dtype=float)
+        values = _evaluate_simplex_function(layer['fn'], valid_points)
+        mask[simplex_mask] = values
+        ax.pcolormesh(
+            xs,
+            ys,
+            mask,
+            shading='auto',
+            cmap=_region_colormap(layer.get('color', 'blue'), layer.get('alpha', 0.35)),
+        )
+        if layer.get('label') is not None:
+            ax.scatter([], [], color=layer.get('color', 'blue'), alpha=layer.get('alpha', 0.35), label=layer['label'])
+
+
+def _plot_simplex_density(ax, density_function, resolution, color, alpha):
+    xs, ys, pts_bary, simplex_mask = _simplex_mesh(resolution)
+    valid_points = pts_bary[simplex_mask]
+    density = np.full(simplex_mask.shape, np.nan, dtype=float)
+    values = _evaluate_simplex_function(density_function, valid_points)
+    min_v, max_v = np.min(values), np.max(values)
+    if max_v > min_v:
+        values = (values - min_v) / (max_v - min_v)
+    density[simplex_mask] = values
+
+    cmap = LinearSegmentedColormap.from_list('simplex_density', ['white', color])
+    ax.pcolormesh(xs, ys, density, shading='auto', cmap=cmap, alpha=alpha)
+
+
 def calibration_plot(prob_classifier, X, y, nbins=10, savepath=None):
     posteriors = prob_classifier.predict_proba(X)
     assert posteriors.ndim==2, 'calibration plot only works for binary problems'
@@ -619,7 +826,6 @@ def calibration_plot(prob_classifier, X, y, nbins=10, savepath=None):
     pred_y = posteriors>=0.5
     bins = np.linspace(0, 1, nbins + 1)
     binned_values = np.digitize(posteriors, bins, right=False)
-    print(np.unique(binned_values))
     correct = pred_y == y
     bin_centers = (bins[:-1] + bins[1:]) / 2
     bins_names = np.arange(nbins)

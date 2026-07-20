@@ -1,84 +1,385 @@
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>quapy.error &mdash; QuaPy: A Python-based open-source framework for quantification 0.1.8 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
 
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>quapy.error &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
   
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-    <script src="../../_static/js/theme.js"></script>
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=9f2a2228" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/quapy/error';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" /> 
-</head>
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
 
-          
-          
-          <a href="../../index.html" class="icon icon-home">
-            QuaPy: A Python-based open-source framework for quantification
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html">quapy</a></li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
-      </nav>
+  
+    
+  
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">quapy.error</li>
-      <li class="wy-breadcrumbs-aside">
-      </li>
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../manuals.html">
+    Manuals
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../quapy.html">
+    API
+  </a>
+</li>
+
   </ul>
-  <hr/>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../manuals.html">
+    Manuals
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../quapy.html">
+    API
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">quapy.error</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <h1>Source code for quapy.error</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Implementation of error measures used for quantification&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">f1_score</span>
-<span class="kn">import</span> <span class="nn">quapy</span> <span class="k">as</span> <span class="nn">qp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">f1_score</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 
 
-<div class="viewcode-block" id="from_name"><a class="viewcode-back" href="../../quapy.html#quapy.error.from_name">[docs]</a><span class="k">def</span> <span class="nf">from_name</span><span class="p">(</span><span class="n">err_name</span><span class="p">):</span>
+<div class="viewcode-block" id="from_name">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.from_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_name</span><span class="p">(</span><span class="n">err_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Gets an error function from its name. E.g., `from_name(&quot;mae&quot;)`</span>
 <span class="sd">    will return function :meth:`quapy.error.mae`</span>
 
@@ -90,7 +391,10 @@
     <span class="k">return</span> <span class="n">callable_error</span></div>
 
 
-<div class="viewcode-block" id="f1e"><a class="viewcode-back" href="../../quapy.html#quapy.error.f1e">[docs]</a><span class="k">def</span> <span class="nf">f1e</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+
+<div class="viewcode-block" id="f1e">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.f1e">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">f1e</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;F1 error: simply computes the error in terms of macro :math:`F_1`, i.e.,</span>
 <span class="sd">    :math:`1-F_1^M`, where :math:`F_1` is the harmonic mean of precision and recall,</span>
 <span class="sd">    defined as :math:`\\frac{2tp}{2tp+fp+fn}`, with `tp`, `fp`, and `fn` standing</span>
@@ -105,7 +409,10 @@
     <span class="k">return</span> <span class="mf">1.</span> <span class="o">-</span> <span class="n">f1_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="s1">&#39;macro&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="acce"><a class="viewcode-back" href="../../quapy.html#quapy.error.acce">[docs]</a><span class="k">def</span> <span class="nf">acce</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+
+<div class="viewcode-block" id="acce">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.acce">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">acce</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the error in terms of 1-accuracy. The accuracy is computed as</span>
 <span class="sd">    :math:`\\frac{tp+tn}{tp+fp+fn+tn}`, with `tp`, `fp`, `fn`, and `tn` standing</span>
 <span class="sd">    for true positives, false positives, false negatives, and true negatives,</span>
@@ -118,89 +425,207 @@
     <span class="k">return</span> <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">y_true</span> <span class="o">==</span> <span class="n">y_pred</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="mae"><a class="viewcode-back" href="../../quapy.html#quapy.error.mae">[docs]</a><span class="k">def</span> <span class="nf">mae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+
+<div class="viewcode-block" id="mae">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.mae">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the mean absolute error (see :meth:`quapy.error.ae`) across the sample pairs.</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted</span>
 <span class="sd">        prevalence values</span>
 <span class="sd">    :return: mean absolute error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">ae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">ae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="ae"><a class="viewcode-back" href="../../quapy.html#quapy.error.ae">[docs]</a><span class="k">def</span> <span class="nf">ae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ae">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.ae">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the absolute error between the two prevalence vectors.</span>
 <span class="sd">     Absolute error between two prevalence vectors :math:`p` and :math:`\\hat{p}`  is computed as</span>
 <span class="sd">     :math:`AE(p,\\hat{p})=\\frac{1}{|\\mathcal{Y}|}\\sum_{y\\in \\mathcal{Y}}|\\hat{p}(y)-p(y)|`,</span>
 <span class="sd">     where :math:`\\mathcal{Y}` are the classes of interest.</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values</span>
 <span class="sd">    :return: absolute error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">prevs</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">prevs_hat</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;wrong shape </span><span class="si">{</span><span class="n">prevs</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> vs. </span><span class="si">{</span><span class="n">prevs_hat</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prevs_hat</span> <span class="o">-</span> <span class="n">prevs</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+    <span class="n">prevs_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">)</span>
+    <span class="n">prevs_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">prevs_hat</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;wrong shape </span><span class="si">{</span><span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> vs. </span><span class="si">{</span><span class="n">prevs_hat</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prevs_hat</span> <span class="o">-</span> <span class="n">prevs_true</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="nae"><a class="viewcode-back" href="../../quapy.html#quapy.error.nae">[docs]</a><span class="k">def</span> <span class="nf">nae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+
+<div class="viewcode-block" id="nae">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.nae">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">nae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the normalized absolute error between the two prevalence vectors.</span>
 <span class="sd">     Normalized absolute error between two prevalence vectors :math:`p` and :math:`\\hat{p}`  is computed as</span>
 <span class="sd">     :math:`NAE(p,\\hat{p})=\\frac{AE(p,\\hat{p})}{z_{AE}}`,</span>
 <span class="sd">     where :math:`z_{AE}=\\frac{2(1-\\min_{y\\in \\mathcal{Y}} p(y))}{|\\mathcal{Y}|}`, and :math:`\\mathcal{Y}`</span>
 <span class="sd">     are the classes of interest.</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values</span>
 <span class="sd">    :return: normalized absolute error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">assert</span> <span class="n">prevs</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">prevs_hat</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;wrong shape </span><span class="si">{</span><span class="n">prevs</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> vs. </span><span class="si">{</span><span class="n">prevs_hat</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prevs_hat</span> <span class="o">-</span> <span class="n">prevs</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">prevs</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)))</span></div>
+    <span class="n">prevs_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">)</span>
+    <span class="n">prevs_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">prevs_hat</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;wrong shape </span><span class="si">{</span><span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> vs. </span><span class="si">{</span><span class="n">prevs_hat</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">prevs_hat</span> <span class="o">-</span> <span class="n">prevs_true</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)))</span></div>
 
 
-<div class="viewcode-block" id="mnae"><a class="viewcode-back" href="../../quapy.html#quapy.error.mnae">[docs]</a><span class="k">def</span> <span class="nf">mnae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+
+<div class="viewcode-block" id="mnae">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.mnae">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mnae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the mean normalized absolute error (see :meth:`quapy.error.nae`) across the sample pairs.</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted</span>
 <span class="sd">        prevalence values</span>
 <span class="sd">    :return: mean normalized absolute error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">nae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">nae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="mse"><a class="viewcode-back" href="../../quapy.html#quapy.error.mse">[docs]</a><span class="k">def</span> <span class="nf">mse</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+
+<div class="viewcode-block" id="mse">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.mse">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mse</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the mean squared error (see :meth:`quapy.error.se`) across the sample pairs.</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_samples, n_classes,)` with the</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the</span>
 <span class="sd">        true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the</span>
 <span class="sd">        predicted prevalence values</span>
 <span class="sd">    :return: mean squared error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">se</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">se</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="se"><a class="viewcode-back" href="../../quapy.html#quapy.error.se">[docs]</a><span class="k">def</span> <span class="nf">se</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+
+<div class="viewcode-block" id="se">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.se">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">se</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the squared error between the two prevalence vectors.</span>
 <span class="sd">     Squared error between two prevalence vectors :math:`p` and :math:`\\hat{p}`  is computed as</span>
 <span class="sd">     :math:`SE(p,\\hat{p})=\\frac{1}{|\\mathcal{Y}|}\\sum_{y\\in \\mathcal{Y}}(\\hat{p}(y)-p(y))^2`,</span>
 <span class="sd">     where</span>
 <span class="sd">     :math:`\\mathcal{Y}` are the classes of interest.</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values</span>
 <span class="sd">    :return: absolute error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">((</span><span class="n">prevs_hat</span> <span class="o">-</span> <span class="n">prevs</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+    <span class="n">prevs_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">)</span>
+    <span class="n">prevs_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">((</span><span class="n">prevs_hat</span> <span class="o">-</span> <span class="n">prevs_true</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="mkld"><a class="viewcode-back" href="../../quapy.html#quapy.error.mkld">[docs]</a><span class="k">def</span> <span class="nf">mkld</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="sre">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.sre">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sre</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">prevs_train</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the squared ratio error between two prevalence vectors.</span>
+<span class="sd">    The squared ratio error between prevalence vectors :math:`p` and</span>
+<span class="sd">    :math:`\\hat{p}` with training prevalence :math:`p^{tr}` is:</span>
+<span class="sd">    :math:`SRE(p,\\hat{p},p^{tr})=\\frac{1}{|\\mathcal{Y}|}\\sum_{i \\in \\mathcal{Y}}(w_i-\\hat{w}_i)^2`,</span>
+<span class="sd">    where :math:`w_i=\\frac{p_i}{p^{tr}_i}`.</span>
+
+<span class="sd">    :param prevs_true: array-like with the true prevalence values</span>
+<span class="sd">    :param prevs_hat: array-like with the predicted prevalence values</span>
+<span class="sd">    :param prevs_train: array-like with the training prevalence values, or a single</span>
+<span class="sd">        prevalence vector when all comparisons refer to the same training set</span>
+<span class="sd">    :param eps: smoothing factor for the prevalence values (default 0, i.e., no smoothing)</span>
+<span class="sd">    :return: squared ratio error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prevs_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">)</span>
+    <span class="n">prevs_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">)</span>
+    <span class="n">prevs_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_train</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">prevs_hat</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;wrong shape </span><span class="si">{</span><span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span><span class="si">=}</span><span class="s1"> vs </span><span class="si">{</span><span class="n">prevs_hat</span><span class="o">.</span><span class="n">shape</span><span class="si">=}</span><span class="s1">&#39;</span>
+    <span class="k">assert</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">prevs_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;wrong shape for training prevalence&#39;</span>
+    <span class="k">if</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">prevs_train</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">prevs_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">prevs_train</span><span class="p">,</span> <span class="n">reps</span><span class="o">=</span><span class="p">(</span><span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">eps</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">prevs_true</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+        <span class="n">prevs_hat</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+        <span class="n">prevs_train</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs_train</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+
+    <span class="n">n_classes</span> <span class="o">=</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">prevs_true</span> <span class="o">/</span> <span class="n">prevs_train</span>
+    <span class="n">w_hat</span> <span class="o">=</span> <span class="n">prevs_hat</span> <span class="o">/</span> <span class="n">prevs_train</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">n_classes</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">w</span> <span class="o">-</span> <span class="n">w_hat</span><span class="p">)</span> <span class="o">**</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="msre">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.msre">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">msre</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">prevs_train</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the mean squared ratio error (see :meth:`quapy.error.sre`) across the sample pairs.</span>
+
+<span class="sd">    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_hat: array-like of shape equal to prevs_true with the predicted prevalence values</span>
+<span class="sd">    :param prevs_train: array-like with the training prevalence values</span>
+<span class="sd">    :param eps: smoothing factor (default 0, i.e., no smoothing)</span>
+<span class="sd">    :return: mean squared ratio error</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">sre</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">prevs_train</span><span class="p">,</span> <span class="n">eps</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="aitchisondist">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.aitchisondist">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">aitchisondist</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Aitchison distance between two prevalence vectors.</span>
+<span class="sd">    The Aitchison distance between prevalence vectors :math:`p` and</span>
+<span class="sd">    :math:`\\hat{p}` is computed as</span>
+<span class="sd">    :math:`d_A(p,\\hat{p})=\\|\\mathrm{clr}(p)-\\mathrm{clr}(\\hat{p})\\|_2`,</span>
+<span class="sd">    where :math:`\\mathrm{clr}(p)_i=\\log p_i-\\frac{1}{|\\mathcal{Y}|}</span>
+<span class="sd">    \\sum_{j \\in \\mathcal{Y}} \\log p_j`.</span>
+
+<span class="sd">    :param prevs_true: array-like with the true prevalence values</span>
+<span class="sd">    :param prevs_hat: array-like with the predicted prevalence values</span>
+<span class="sd">    :return: Aitchison distance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">CLRtransformation</span>
+
+    <span class="n">clr</span> <span class="o">=</span> <span class="n">CLRtransformation</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">clr</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">)</span> <span class="o">-</span> <span class="n">clr</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="maitchisondist">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.maitchisondist">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">maitchisondist</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the mean Aitchison distance (see :meth:`quapy.error.aitchisondist`)</span>
+<span class="sd">    across the sample pairs, i.e.,</span>
+<span class="sd">    :math:`\\mathrm{mAitchisonDist}=\\frac{1}{n}\\sum_{i=1}^n</span>
+<span class="sd">    d_A(p_i,\\hat{p}_i)`.</span>
+
+<span class="sd">    :param prevs_true: array-like with the true prevalence values</span>
+<span class="sd">    :param prevs_hat: array-like with the predicted prevalence values</span>
+<span class="sd">    :return: mean Aitchison distance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">aitchisondist</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="mkld">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.mkld">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mkld</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the mean Kullback-Leibler divergence (see :meth:`quapy.error.kld`) across the</span>
 <span class="sd">    sample pairs. The distributions are smoothed using the `eps` factor</span>
 <span class="sd">    (see :meth:`quapy.error.smooth`).</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true</span>
 <span class="sd">        prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted</span>
 <span class="sd">        prevalence values</span>
@@ -210,10 +635,13 @@
 <span class="sd">        (which has thus to be set beforehand).</span>
 <span class="sd">    :return: mean Kullback-Leibler distribution</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">kld</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">kld</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="kld"><a class="viewcode-back" href="../../quapy.html#quapy.error.kld">[docs]</a><span class="k">def</span> <span class="nf">kld</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="kld">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.kld">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">kld</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Kullback-Leibler divergence between the two prevalence distributions.</span>
 <span class="sd">     Kullback-Leibler divergence between two prevalence distributions :math:`p` and :math:`\\hat{p}`</span>
 <span class="sd">     is computed as</span>
@@ -222,7 +650,7 @@
 <span class="sd">     where :math:`\\mathcal{Y}` are the classes of interest.</span>
 <span class="sd">     The distributions are smoothed using the `eps` factor (see :meth:`quapy.error.smooth`).</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values</span>
 <span class="sd">    :param eps: smoothing factor. KLD is not defined in cases in which the distributions contain</span>
 <span class="sd">        zeros; `eps` is typically set to be :math:`\\frac{1}{2T}`, with :math:`T` the sample size.</span>
@@ -231,17 +659,20 @@
 <span class="sd">    :return: Kullback-Leibler divergence between the two distributions</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">eps</span> <span class="o">=</span> <span class="n">__check_eps</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
-    <span class="n">smooth_prevs</span> <span class="o">=</span> <span class="n">prevs</span> <span class="o">+</span> <span class="n">eps</span>
-    <span class="n">smooth_prevs_hat</span> <span class="o">=</span> <span class="n">prevs_hat</span> <span class="o">+</span> <span class="n">eps</span>
+    <span class="n">smooth_prevs</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+    <span class="n">smooth_prevs_hat</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">smooth_prevs</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">smooth_prevs</span><span class="o">/</span><span class="n">smooth_prevs_hat</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="mnkld"><a class="viewcode-back" href="../../quapy.html#quapy.error.mnkld">[docs]</a><span class="k">def</span> <span class="nf">mnkld</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="mnkld">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.mnkld">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mnkld</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the mean Normalized Kullback-Leibler divergence (see :meth:`quapy.error.nkld`)</span>
 <span class="sd">    across the sample pairs. The distributions are smoothed using the `eps` factor</span>
 <span class="sd">    (see :meth:`quapy.error.smooth`).</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted</span>
 <span class="sd">        prevalence values</span>
 <span class="sd">    :param eps: smoothing factor. NKLD is not defined in cases in which the distributions contain</span>
@@ -250,10 +681,13 @@
 <span class="sd">        (which has thus to be set beforehand).</span>
 <span class="sd">    :return: mean Normalized Kullback-Leibler distribution</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">nkld</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">nkld</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="nkld"><a class="viewcode-back" href="../../quapy.html#quapy.error.nkld">[docs]</a><span class="k">def</span> <span class="nf">nkld</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="nkld">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.nkld">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">nkld</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Normalized Kullback-Leibler divergence between the two prevalence distributions.</span>
 <span class="sd">     Normalized Kullback-Leibler divergence between two prevalence distributions :math:`p` and</span>
 <span class="sd">     :math:`\\hat{p}` is computed as</span>
@@ -262,7 +696,7 @@
 <span class="sd">     :math:`\\mathcal{Y}` are the classes of interest.</span>
 <span class="sd">     The distributions are smoothed using the `eps` factor (see :meth:`quapy.error.smooth`).</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values</span>
 <span class="sd">    :param eps: smoothing factor. NKLD is not defined in cases in which the distributions</span>
 <span class="sd">        contain zeros; `eps` is typically set to be :math:`\\frac{1}{2T}`, with :math:`T` the sample</span>
@@ -270,16 +704,19 @@
 <span class="sd">        `SAMPLE_SIZE` (which has thus to be set beforehand).</span>
 <span class="sd">    :return: Normalized Kullback-Leibler divergence between the two distributions</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ekld</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kld</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">))</span>
+    <span class="n">ekld</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kld</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">))</span>
     <span class="k">return</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">ekld</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">ekld</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.</span></div>
 
 
-<div class="viewcode-block" id="mrae"><a class="viewcode-back" href="../../quapy.html#quapy.error.mrae">[docs]</a><span class="k">def</span> <span class="nf">mrae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="mrae">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.mrae">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mrae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the mean relative absolute error (see :meth:`quapy.error.rae`) across</span>
 <span class="sd">    the sample pairs. The distributions are smoothed using the `eps` factor (see</span>
 <span class="sd">    :meth:`quapy.error.smooth`).</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true</span>
 <span class="sd">        prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted</span>
 <span class="sd">        prevalence values</span>
@@ -289,10 +726,13 @@
 <span class="sd">        the environment variable `SAMPLE_SIZE` (which has thus to be set beforehand).</span>
 <span class="sd">    :return: mean relative absolute error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">rae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">rae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="rae"><a class="viewcode-back" href="../../quapy.html#quapy.error.rae">[docs]</a><span class="k">def</span> <span class="nf">rae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="rae">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.rae">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the absolute relative error between the two prevalence vectors.</span>
 <span class="sd">     Relative absolute error between two prevalence vectors :math:`p` and :math:`\\hat{p}`</span>
 <span class="sd">     is computed as</span>
@@ -301,7 +741,7 @@
 <span class="sd">     where :math:`\\mathcal{Y}` are the classes of interest.</span>
 <span class="sd">     The distributions are smoothed using the `eps` factor (see :meth:`quapy.error.smooth`).</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values</span>
 <span class="sd">    :param eps: smoothing factor. `rae` is not defined in cases in which the true distribution</span>
 <span class="sd">        contains zeros; `eps` is typically set to be :math:`\\frac{1}{2T}`, with :math:`T` the</span>
@@ -310,12 +750,15 @@
 <span class="sd">    :return: relative absolute error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">eps</span> <span class="o">=</span> <span class="n">__check_eps</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
-    <span class="n">prevs</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+    <span class="n">prevs_true</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
     <span class="n">prevs_hat</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">prevs</span> <span class="o">-</span> <span class="n">prevs_hat</span><span class="p">)</span> <span class="o">/</span> <span class="n">prevs</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">prevs_true</span> <span class="o">-</span> <span class="n">prevs_hat</span><span class="p">)</span> <span class="o">/</span> <span class="n">prevs_true</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="nrae"><a class="viewcode-back" href="../../quapy.html#quapy.error.nrae">[docs]</a><span class="k">def</span> <span class="nf">nrae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="nrae">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.nrae">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">nrae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the normalized absolute relative error between the two prevalence vectors.</span>
 <span class="sd">     Relative absolute error between two prevalence vectors :math:`p` and :math:`\\hat{p}`</span>
 <span class="sd">     is computed as</span>
@@ -325,7 +768,7 @@
 <span class="sd">     and :math:`\\mathcal{Y}` are the classes of interest.</span>
 <span class="sd">     The distributions are smoothed using the `eps` factor (see :meth:`quapy.error.smooth`).</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values</span>
 <span class="sd">    :param eps: smoothing factor. `nrae` is not defined in cases in which the true distribution</span>
 <span class="sd">        contains zeros; `eps` is typically set to be :math:`\\frac{1}{2T}`, with :math:`T` the</span>
@@ -334,18 +777,21 @@
 <span class="sd">    :return: normalized relative absolute error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">eps</span> <span class="o">=</span> <span class="n">__check_eps</span><span class="p">(</span><span class="n">eps</span><span class="p">)</span>
-    <span class="n">prevs</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+    <span class="n">prevs_true</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
     <span class="n">prevs_hat</span> <span class="o">=</span> <span class="n">smooth</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
-    <span class="n">min_p</span> <span class="o">=</span> <span class="n">prevs</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">prevs</span> <span class="o">-</span> <span class="n">prevs_hat</span><span class="p">)</span> <span class="o">/</span> <span class="n">prevs</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">prevs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">min_p</span><span class="p">)</span><span class="o">/</span><span class="n">min_p</span><span class="p">)</span></div>
+    <span class="n">min_p</span> <span class="o">=</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">prevs_true</span> <span class="o">-</span> <span class="n">prevs_hat</span><span class="p">)</span> <span class="o">/</span> <span class="n">prevs_true</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">min_p</span><span class="p">)</span> <span class="o">/</span> <span class="n">min_p</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="mnrae"><a class="viewcode-back" href="../../quapy.html#quapy.error.mnrae">[docs]</a><span class="k">def</span> <span class="nf">mnrae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="mnrae">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.mnrae">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mnrae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the mean normalized relative absolute error (see :meth:`quapy.error.nrae`) across</span>
 <span class="sd">    the sample pairs. The distributions are smoothed using the `eps` factor (see</span>
 <span class="sd">    :meth:`quapy.error.smooth`).</span>
 
-<span class="sd">    :param prevs: array-like of shape `(n_samples, n_classes,)` with the true</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true</span>
 <span class="sd">        prevalence values</span>
 <span class="sd">    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted</span>
 <span class="sd">        prevalence values</span>
@@ -355,10 +801,84 @@
 <span class="sd">        the environment variable `SAMPLE_SIZE` (which has thus to be set beforehand).</span>
 <span class="sd">    :return: mean normalized relative absolute error</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">nrae</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">nrae</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="smooth"><a class="viewcode-back" href="../../quapy.html#quapy.error.smooth">[docs]</a><span class="k">def</span> <span class="nf">smooth</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
+
+<div class="viewcode-block" id="nmd">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.nmd">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">nmd</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Normalized Match Distance; which is the Normalized Distance multiplied by the factor</span>
+<span class="sd">    `1/(n-1)` to guarantee the measure ranges between 0 (best prediction) and 1 (worst prediction).</span>
+
+<span class="sd">    :param prevs_true: array-like of shape `(n_classes,)` or `(n_instances, n_classes)`  with the true prevalence values</span>
+<span class="sd">    :param prevs_hat: array-like of shape `(n_classes,)` or `(n_instances, n_classes)` with the predicted prevalence values</span>
+<span class="sd">    :return: float in [0,1]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prevs_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">)</span>
+    <span class="n">prevs_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">match_distance</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="bias_binary">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.bias_binary">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">bias_binary</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the (positive) bias in a binary problem. The bias is simply the difference between the</span>
+<span class="sd">    predicted positive value and the true positive value, so that a positive such value indicates the</span>
+<span class="sd">    prediction has positive bias (i.e., it tends to overestimate) the true value, and negative otherwise.</span>
+<span class="sd">    :math:`bias(p,\\hat{p})=\\hat{p}_1-p_1`,</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_hat: array-like of shape `(n_samples, n_classes,)` with the predicted</span>
+<span class="sd">        prevalence values</span>
+<span class="sd">    :return: binary bias</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prevs_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">)</span>
+    <span class="n">prevs_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">prevs_true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;bias_binary can only be applied to binary problems&#39;</span>
+    <span class="k">return</span> <span class="n">prevs_hat</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">prevs_true</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="mean_bias_binary">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.mean_bias_binary">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mean_bias_binary</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the mean of the (positive) bias in a binary problem.</span>
+<span class="sd">    :param prevs_true: array-like of shape `(n_classes,)` with the true prevalence values</span>
+<span class="sd">    :param prevs_hat: array-like of shape `(n_classes,)` with the predicted prevalence values</span>
+<span class="sd">    :return: mean binary bias</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">bias_binary</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="md">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.md">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">md</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">prevs_hat</span><span class="p">,</span> <span class="n">ERROR_TOL</span><span class="o">=</span><span class="mf">1E-3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Match Distance, under the assumption that the cost in mistaking class i with class i+1 is 1 in</span>
+<span class="sd">    all cases.</span>
+
+<span class="sd">    :param prevs_true: array-like of shape `(n_classes,)` or `(n_instances, n_classes)`  with the true prevalence values</span>
+<span class="sd">    :param prevs_hat: array-like of shape `(n_classes,)` or `(n_instances, n_classes)` with the predicted prevalence values</span>
+<span class="sd">    :return: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">prevs_true</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">P_hat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">prevs_hat</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">P_hat</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="n">ERROR_TOL</span><span class="p">)),</span> \
+        <span class="s1">&#39;arg error in match_distance: the array does not represent a valid distribution&#39;</span>
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">P</span><span class="o">-</span><span class="n">P_hat</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">distances</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="smooth">
+<a class="viewcode-back" href="../../quapy.html#quapy.error.smooth">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">smooth</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Smooths a prevalence distribution with :math:`\\epsilon` (`eps`) as:</span>
 <span class="sd">    :math:`\\underline{p}(y)=\\frac{\\epsilon+p(y)}{\\epsilon|\\mathcal{Y}|+</span>
 <span class="sd">    \\displaystyle\\sum_{y\\in \\mathcal{Y}}p(y)}`</span>
@@ -367,11 +887,13 @@
 <span class="sd">    :param eps: smoothing factor</span>
 <span class="sd">    :return: array-like of shape `(n_classes,)` with the smoothed distribution</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prevs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevs</span><span class="p">)</span>
     <span class="n">n_classes</span> <span class="o">=</span> <span class="n">prevs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">prevs</span> <span class="o">+</span> <span class="n">eps</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">eps</span> <span class="o">*</span> <span class="n">n_classes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
 
 
-<span class="k">def</span> <span class="nf">__check_eps</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">__check_eps</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">eps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sample_size</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">sample_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -381,8 +903,8 @@
 
 
 <span class="n">CLASSIFICATION_ERROR</span> <span class="o">=</span> <span class="p">{</span><span class="n">f1e</span><span class="p">,</span> <span class="n">acce</span><span class="p">}</span>
-<span class="n">QUANTIFICATION_ERROR</span> <span class="o">=</span> <span class="p">{</span><span class="n">mae</span><span class="p">,</span> <span class="n">mnae</span><span class="p">,</span> <span class="n">mrae</span><span class="p">,</span> <span class="n">mnrae</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">mkld</span><span class="p">,</span> <span class="n">mnkld</span><span class="p">}</span>
-<span class="n">QUANTIFICATION_ERROR_SINGLE</span> <span class="o">=</span> <span class="p">{</span><span class="n">ae</span><span class="p">,</span> <span class="n">nae</span><span class="p">,</span> <span class="n">rae</span><span class="p">,</span> <span class="n">nrae</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">kld</span><span class="p">,</span> <span class="n">nkld</span><span class="p">}</span>
+<span class="n">QUANTIFICATION_ERROR</span> <span class="o">=</span> <span class="p">{</span><span class="n">mae</span><span class="p">,</span> <span class="n">mnae</span><span class="p">,</span> <span class="n">mrae</span><span class="p">,</span> <span class="n">mnrae</span><span class="p">,</span> <span class="n">mse</span><span class="p">,</span> <span class="n">mkld</span><span class="p">,</span> <span class="n">mnkld</span><span class="p">,</span> <span class="n">msre</span><span class="p">,</span> <span class="n">maitchisondist</span><span class="p">}</span>
+<span class="n">QUANTIFICATION_ERROR_SINGLE</span> <span class="o">=</span> <span class="p">{</span><span class="n">ae</span><span class="p">,</span> <span class="n">nae</span><span class="p">,</span> <span class="n">rae</span><span class="p">,</span> <span class="n">nrae</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="n">kld</span><span class="p">,</span> <span class="n">nkld</span><span class="p">,</span> <span class="n">sre</span><span class="p">,</span> <span class="n">aitchisondist</span><span class="p">}</span>
 <span class="n">QUANTIFICATION_ERROR_SMOOTH</span> <span class="o">=</span> <span class="p">{</span><span class="n">kld</span><span class="p">,</span> <span class="n">nkld</span><span class="p">,</span> <span class="n">rae</span><span class="p">,</span> <span class="n">nrae</span><span class="p">,</span> <span class="n">mkld</span><span class="p">,</span> <span class="n">mnkld</span><span class="p">,</span> <span class="n">mrae</span><span class="p">}</span>
 <span class="n">CLASSIFICATION_ERROR_NAMES</span> <span class="o">=</span> <span class="p">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">CLASSIFICATION_ERROR</span><span class="p">}</span>
 <span class="n">QUANTIFICATION_ERROR_NAMES</span> <span class="o">=</span> <span class="p">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">QUANTIFICATION_ERROR</span><span class="p">}</span>
@@ -394,6 +916,9 @@
 <span class="n">f1_error</span> <span class="o">=</span> <span class="n">f1e</span>
 <span class="n">acc_error</span> <span class="o">=</span> <span class="n">acce</span>
 <span class="n">mean_absolute_error</span> <span class="o">=</span> <span class="n">mae</span>
+<span class="n">squared_ratio_error</span> <span class="o">=</span> <span class="n">sre</span>
+<span class="n">dist_aitchison</span> <span class="o">=</span> <span class="n">aitchisondist</span>
+<span class="n">mean_dist_aitchison</span> <span class="o">=</span> <span class="n">maitchisondist</span>
 <span class="n">absolute_error</span> <span class="o">=</span> <span class="n">ae</span>
 <span class="n">mean_relative_absolute_error</span> <span class="o">=</span> <span class="n">mrae</span>
 <span class="n">relative_absolute_error</span> <span class="o">=</span> <span class="n">rae</span>
@@ -401,33 +926,79 @@
 <span class="n">normalized_relative_absolute_error</span> <span class="o">=</span> <span class="n">nrae</span>
 <span class="n">mean_normalized_absolute_error</span> <span class="o">=</span> <span class="n">mnae</span>
 <span class="n">mean_normalized_relative_absolute_error</span> <span class="o">=</span> <span class="n">mnrae</span>
+<span class="n">normalized_match_distance</span> <span class="o">=</span> <span class="n">nmd</span>
+<span class="n">match_distance</span> <span class="o">=</span> <span class="n">md</span>
 </pre></div>
 
-           </div>
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
           </div>
-          <footer>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
   </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
 
-</footer>
-        </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+  <p class="copyright">
+    
+      © Copyright 2024, Alejandro Moreo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
 
-</body>
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
 </html>

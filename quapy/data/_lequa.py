@@ -99,6 +99,9 @@ class SamplesFromDir(AbstractProtocol):
             sample, _ = self.load_fn(os.path.join(self.path_dir, f'{id}.txt'))
             yield sample, prevalence
 
+    def total(self):
+        return len(self.true_prevs)
+
 
 class LabelledCollectionsFromDir(AbstractProtocol):
 
@@ -112,6 +115,10 @@ class LabelledCollectionsFromDir(AbstractProtocol):
             collection_path = os.path.join(self.path_dir, f'{id}.txt')
             lc = LabelledCollection.load(path=collection_path, loader_func=self.load_fn)
             yield lc
+
+    def total(self):
+        return len(self.true_prevs)
+
 
 
 class ResultSubmission:
@@ -180,8 +187,7 @@ class ResultSubmission:
         try:
             df = pd.read_csv(path, index_col=0)
         except Exception as e:
-            print(f'the file {path} does not seem to be a valid csv file. ')
-            print(e)
+            raise ValueError(f'the file {path} does not seem to be a valid csv file: {e}')
         return ResultSubmission.check_dataframe_format(df, path=path)
 
     @classmethod

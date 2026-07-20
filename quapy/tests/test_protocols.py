@@ -3,7 +3,7 @@ import numpy as np
 
 import quapy.functional
 from quapy.data import LabelledCollection
-from quapy.protocol import APP, NPP, UPP, DomainMixer, AbstractStochasticSeededProtocol
+from quapy.protocol import APP, NPP, UPP, DomainMixer, AbstractStochasticSeededProtocol, DirichletProtocol
 
 
 def mock_labelled_collection(prefix=''):
@@ -132,6 +132,31 @@ class TestProtocols(unittest.TestCase):
     def test_kraemer_not_replicate(self):
         data = mock_labelled_collection()
         p = UPP(data, sample_size=5, repeats=10, random_state=None)
+
+        samples1 = samples_to_str(p)
+        samples2 = samples_to_str(p)
+
+        self.assertNotEqual(samples1, samples2)
+
+    def test_dirichlet_replicate(self):
+        data = mock_labelled_collection()
+        p = DirichletProtocol(data, alpha=[1, 2, 3, 4], sample_size=5, repeats=10, random_state=42)
+
+        samples1 = samples_to_str(p)
+        samples2 = samples_to_str(p)
+
+        self.assertEqual(samples1, samples2)
+
+        p = DirichletProtocol(data, alpha=[1, 2, 3, 4], sample_size=5, repeats=10, random_state=0)
+
+        samples1 = samples_to_str(p)
+        samples2 = samples_to_str(p)
+
+        self.assertEqual(samples1, samples2)
+
+    def test_dirichlet_not_replicate(self):
+        data = mock_labelled_collection()
+        p = DirichletProtocol(data, alpha=[1, 2, 3, 4], sample_size=5, repeats=10, random_state=None)
 
         samples1 = samples_to_str(p)
         samples2 = samples_to_str(p)

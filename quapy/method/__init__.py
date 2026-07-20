@@ -3,6 +3,7 @@ from sklearn.exceptions import ConvergenceWarning
 warnings.simplefilter("ignore", ConvergenceWarning)
 
 from . import confidence
+from . import _bayesian
 from . import base
 from . import aggregative
 from . import non_aggregative
@@ -14,6 +15,7 @@ AGGREGATIVE_METHODS = {
     aggregative.ACC,
     aggregative.PCC,
     aggregative.PACC,
+    aggregative.RLLS,
     aggregative.EMQ,
     aggregative.HDy,
     aggregative.DyS,
@@ -24,11 +26,15 @@ AGGREGATIVE_METHODS = {
     aggregative.MS,
     aggregative.MS2,
     aggregative.DMy,
+    aggregative.EDy,
     aggregative.KDEyML,
     aggregative.KDEyCS,
     aggregative.KDEyHD,
     # aggregative.OneVsAllAggregative,
     confidence.BayesianCC,
+    _bayesian.BayesianKDEy,
+    _bayesian.BayesianMAPLS,
+    confidence.PQ,
 }
 
 BINARY_METHODS = {
@@ -40,6 +46,7 @@ BINARY_METHODS = {
     aggregative.MAX,
     aggregative.MS,
     aggregative.MS2,
+    confidence.PQ,
 }
 
 MULTICLASS_METHODS = {
@@ -47,16 +54,22 @@ MULTICLASS_METHODS = {
     aggregative.ACC,
     aggregative.PCC,
     aggregative.PACC,
+    aggregative.RLLS,
     aggregative.EMQ,
+    aggregative.EDy,
     aggregative.KDEyML,
     aggregative.KDEyCS,
     aggregative.KDEyHD,
-    confidence.BayesianCC
+    confidence.BayesianCC,
+    _bayesian.BayesianKDEy,
+    _bayesian.BayesianMAPLS,
+    non_aggregative.EDx,
 }
 
 NON_AGGREGATIVE_METHODS = {
     non_aggregative.MaximumLikelihoodPrevalenceEstimation,
-    non_aggregative.DMx
+    non_aggregative.DMx,
+    non_aggregative.EDx
 }
 
 META_METHODS = {
@@ -65,8 +78,6 @@ META_METHODS = {
 }
 
 QUANTIFICATION_METHODS = AGGREGATIVE_METHODS | NON_AGGREGATIVE_METHODS | META_METHODS
-
-
 
 
 

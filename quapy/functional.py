@@ -1,10 +1,14 @@
 import warnings
+from abc import ABC, abstractmethod
 from collections import defaultdict
+from functools import lru_cache
 from typing import Literal, Union, Callable
 from numpy.typing import ArrayLike
 
 import scipy
 import numpy as np
+
+import quapy as qp
 
 
 # ------------------------------------------------------------------------------------------
@@ -277,7 +281,7 @@ def l1_norm(prevalences: ArrayLike) -> np.ndarray:
     """
     n_classes = prevalences.shape[-1]
     accum = prevalences.sum(axis=-1, keepdims=True)
-    prevalences = np.true_divide(prevalences, accum, where=accum > 0)
+    prevalences = np.true_divide(prevalences, accum, where=accum > 0, out=None)
     allzeros = accum.flatten() == 0
     if any(allzeros):
         if prevalences.ndim == 1:
@@ -389,6 +393,23 @@ def TopsoeDistance(P: np.ndarray, Q: np.ndarray, epsilon: float=1e-20):
     return np.sum(P*np.log((2*P+epsilon)/(P+Q+epsilon)) + Q*np.log((2*Q+epsilon)/(P+Q+epsilon)))
 
 
+def AitchisonDistance(prevs_true, prevs_hat):
+    """
+    Computes the Aitchison distance between two prevalence vectors.
+    The Aitchison distance between prevalence vectors :math:`p` and
+    :math:`\\hat{p}` is computed as
+    :math:`d_A(p,\\hat{p})=\\|\\mathrm{clr}(p)-\\mathrm{clr}(\\hat{p})\\|_2`,
+    where :math:`\\mathrm{clr}(p)_i=\\log p_i-\\frac{1}{|\\mathcal{Y}|}
+    \\sum_{j \\in \\mathcal{Y}} \\log p_j`.
+
+    :param prevs_true: array-like with the true prevalence values
+    :param prevs_hat: array-like with the predicted prevalence values
+    :return: Aitchison distance
+    """
+    clr = CLRtransformation()
+    return np.linalg.norm(clr(prevs_true) - clr(prevs_hat), axis=-1)
+
+
 def get_divergence(divergence: Union[str, Callable]):
     """
     Guarantees that the divergence received as argument is a function. That is, if this argument is already
@@ -403,6 +424,8 @@ def get_divergence(divergence: Union[str, Callable]):
             return HellingerDistance
         elif divergence=='topsoe':
             return TopsoeDistance
+        elif divergence=='aitchison':
+            return AitchisonDistance
         else:
             raise ValueError(f'unknown divergence {divergence}')
     elif callable(divergence):
@@ -426,7 +449,7 @@ def argmin_prevalence(loss: Callable,
     :param method: string indicating the search strategy. Possible values are::
         'optim_minimize': uses scipy.optim
         'linear_search': carries out a linear search for binary problems in the space [0, 0.01, 0.02, ..., 1]
-        'ternary_search': implements the ternary search (not yet implemented)
+        'ternary_search': carries out a ternary search for binary problems in the interval [0,1]
     :return: np.ndarray, a prevalence vector
     """
     if method == 'optim_minimize':
@@ -434,7 +457,7 @@ def argmin_prevalence(loss: Callable,
     elif method == 'linear_search':
         return linear_search(loss, n_classes)
     elif method == 'ternary_search':
-        ternary_search(loss, n_classes)
+        return ternary_search(loss, n_classes)
     else:
         raise NotImplementedError()
 
@@ -489,7 +512,32 @@ def linear_search(loss: Callable, n_classes: int):
 
 
 def ternary_search(loss: Callable, n_classes: int):
-    raise NotImplementedError()
+    """
+    Performs a ternary search for the best prevalence value in binary problems.
+    This search assumes the loss is unimodal over the interval [0,1].
+
+    :param loss: (callable) the function to minimize
+    :param n_classes: (int) the number of classes, i.e., the dimensionality of the prevalence vector
+    :return: (ndarray) the best prevalence vector found
+    """
+    assert n_classes == 2, 'ternary search is only available for binary problems'
+
+    left, right = 0., 1.
+    tol = 1e-5
+    while abs(right - left) >= tol:
+        left_third = left + (right - left) / 3
+        right_third = right - (right - left) / 3
+
+        left_loss = loss(np.asarray([1 - left_third, left_third]))
+        right_loss = loss(np.asarray([1 - right_third, right_third]))
+
+        if left_loss < right_loss:
+            right = right_third
+        else:
+            left = left_third
+
+    prev = (left + right) / 2
+    return np.asarray([1 - prev, prev])
 
 
 # ------------------------------------------------------------------------------------------
@@ -621,7 +669,11 @@ def solve_adjustment(
     if method == "inversion":
         pass  # We leave A and B unchanged
     elif method == "invariant-ratio":
-        # Change the last equation to replace it with the normalization condition
+        # Change the last equation to replace it with the normalization condition;
+        # copy first so this does not mutate the caller's arrays (np.asarray above
+        # returns the same object, not a copy, when the input is already float64)
+        A = A.copy()
+        B = B.copy()
         A[-1, :] = 1.0
         B[-1] = 1.0
     else:
@@ -649,3 +701,105 @@ def solve_adjustment(
         raise ValueError(f'unknown {solver=}')
 
 
+# ------------------------------------------------------------------------------------------
+# Transformations from Compositional analysis
+# ------------------------------------------------------------------------------------------
+
+class CompositionalTransformation(ABC):
+    """
+    Abstract class of transformations for compositional data.
+    """
+
+    EPSILON = 1e-12
+
+    @abstractmethod
+    def __call__(self, X):
+        ...
+
+    @abstractmethod
+    def inverse(self, Z):
+        ...
+
+
+class CLRtransformation(CompositionalTransformation):
+    """
+    Centered log-ratio (CLR) transformation.
+    """
+
+    def __call__(self, X):
+        X = np.asarray(X)
+        X = qp.error.smooth(X, self.EPSILON)
+        geometric_mean = np.exp(np.mean(np.log(X), axis=-1, keepdims=True))
+        return np.log(X / geometric_mean)
+
+    def inverse(self, Z):
+        return scipy.special.softmax(Z, axis=-1)
+
+
+class ILRtransformation(CompositionalTransformation):
+    """
+    Isometric log-ratio (ILR) transformation.
+    """
+
+    def __call__(self, X):
+        X = np.asarray(X)
+        X = qp.error.smooth(X, self.EPSILON)
+        basis = self.get_V(X.shape[-1])
+        return np.log(X) @ basis.T
+
+    def inverse(self, Z):
+        Z = np.asarray(Z)
+        basis = self.get_V(Z.shape[-1] + 1)
+        logp = Z @ basis
+        p = np.exp(logp)
+        return p / np.sum(p, axis=-1, keepdims=True)
+
+    @lru_cache(maxsize=None)
+    def get_V(self, k):
+        helmert = np.zeros((k, k))
+        for i in range(1, k):
+            helmert[i, :i] = 1
+            helmert[i, i] = -i
+            helmert[i] = helmert[i] / np.sqrt(i * (i + 1))
+        return helmert[1:, :]
+
+
+def normalized_entropy(p):
+    """
+    Computes the normalized Shannon entropy of a prevalence vector.
+
+    :param p: array-like prevalence vector summing to 1
+    :return: float in [0,1]
+    """
+    p = np.asarray(p)
+    entropy = scipy.stats.entropy(p)
+    max_entropy = np.log(len(p))
+    return np.clip(entropy / max_entropy, 0, 1)
+
+
+def antagonistic_prevalence(p, strength=1):
+    """
+    Reflects a prevalence vector in ILR space and maps it back to the simplex.
+
+    :param p: array-like prevalence vector
+    :param strength: reflection strength in ILR space
+    :return: prevalence vector in the simplex
+    """
+    ilr = ILRtransformation()
+    z = ilr(p)
+    z_ant = -strength * z
+    return ilr.inverse(z_ant)
+
+
+def in_simplex(x, atol=1e-8):
+    """
+    Checks whether points lie in the probability simplex.
+
+    :param x: array-like of shape `(n_classes,)` or `(n_points, n_classes)`
+    :param atol: numerical tolerance for the unit-sum check
+    :return: boolean or boolean array
+    """
+    x = np.asarray(x)
+    non_negative = np.all(x >= 0, axis=-1)
+    sum_to_one = np.isclose(x.sum(axis=-1), 1.0, atol=atol)
+    return non_negative & sum_to_one

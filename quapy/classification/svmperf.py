@@ -1,3 +1,4 @@
+import logging
 import random
 import shutil
 import subprocess
@@ -66,8 +67,7 @@ class SVMperf(BaseEstimator, ClassifierMixin):
         # this would allow to run parallel instances of predict
         random_code = 'svmperfprocess'+'-'.join(str(local_random.randint(0, 1000000)) for _ in range(5))
         if self.host_folder is None:
-            # tmp dir are removed after the fit terminates in multiprocessing...
-            self.tmpdir = tempfile.TemporaryDirectory(suffix=random_code).name
+            self.tmpdir = join(tempfile.gettempdir(), random_code)
         else:
             self.tmpdir = join(self.host_folder, '.' + random_code)
         makedirs(self.tmpdir, exist_ok=True)
@@ -79,14 +79,14 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
         cmd = ' '.join([self.svmperf_learn, self.c_cmd, self.loss_cmd, traindat, self.model])
         if self.verbose:
-            print('[Running]', cmd)
-        p = subprocess.run(cmd.split(), stdout=PIPE, stderr=STDOUT)
+            logging.getLogger(__name__).info(f'[Running] {cmd}')
+        p = subprocess.run(cmd.split(), stdout=PIPE, stderr=PIPE)
         if not exists(self.model):
-            print(p.stderr.decode('utf-8'))
+            logging.getLogger(__name__).error(p.stderr.decode('utf-8'))
         remove(traindat)
 
         if self.verbose:
-            print(p.stdout.decode('utf-8'))
+            logging.getLogger(__name__).info(p.stdout.decode('utf-8'))
 
         return self
 
@@ -125,11 +125,11 @@ class SVMperf(BaseEstimator, ClassifierMixin):
 
         cmd = ' '.join([self.svmperf_classify, testdat, self.model, predictions_path])
         if self.verbose:
-            print('[Running]', cmd)
+            logging.getLogger(__name__).info(f'[Running] {cmd}')
         p = subprocess.run(cmd.split(), stdout=PIPE, stderr=STDOUT)
 
         if self.verbose:
-            print(p.stdout.decode('utf-8'))
+            logging.getLogger(__name__).info(p.stdout.decode('utf-8'))
 
         scores = np.loadtxt(predictions_path)
         remove(testdat)

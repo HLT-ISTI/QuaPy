@@ -1,0 +1,53 @@
+.navbar-brand.logo .title.logo__title {
+    display: none;
+}
+
+.navbar-brand img {
+    max-height: 2.2rem;
+    width: auto;
+}
+
+.navbar-brand.logo .title.logo__title {
+    font-size: 1.05rem;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+@media (max-width: 1200px) {
+    .bd-header .navbar-header-items {
+        min-width: 0;
+    }
+
+    .bd-header .navbar-header-items__center {
+        overflow-x: auto;
+    }
+
+    .bd-header .bd-navbar-elements {
+        flex-wrap: nowrap;
+    }
+}
+
+.hero-copy {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    max-width: 56rem;
+    margin: 0 0 1.5rem 0;
+}
+
+.landing-grid {
+    margin: 1.2rem 0 2rem 0;
+}
+
+.landing-card {
+    border-radius: 1rem;
+    border: 1px solid var(--pst-color-border, #d0d7de);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.landing-card .sd-card-title {
+    font-size: 1.1rem;
+}
+
+[data-theme="dark"] .landing-card {
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}

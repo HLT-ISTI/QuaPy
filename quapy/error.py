@@ -3,6 +3,7 @@
 import numpy as np
 from sklearn.metrics import f1_score
 import quapy as qp
+from quapy.functional import AitchisonDistance
 
 
 def from_name(err_name):
@@ -126,6 +127,82 @@ def se(prevs_true, prevs_hat):
     prevs_true = np.asarray(prevs_true)
     prevs_hat = np.asarray(prevs_hat)
     return ((prevs_hat - prevs_true) ** 2).mean(axis=-1)
+
+
+def sre(prevs_true, prevs_hat, prevs_train, eps=0.):
+    """
+    Computes the squared ratio error between two prevalence vectors.
+    The squared ratio error between prevalence vectors :math:`p` and
+    :math:`\\hat{p}` with training prevalence :math:`p^{tr}` is:
+    :math:`SRE(p,\\hat{p},p^{tr})=\\frac{1}{|\\mathcal{Y}|}\\sum_{i \\in \\mathcal{Y}}(w_i-\\hat{w}_i)^2`,
+    where :math:`w_i=\\frac{p_i}{p^{tr}_i}`.
+
+    :param prevs_true: array-like with the true prevalence values
+    :param prevs_hat: array-like with the predicted prevalence values
+    :param prevs_train: array-like with the training prevalence values, or a single
+        prevalence vector when all comparisons refer to the same training set
+    :param eps: smoothing factor for the prevalence values (default 0, i.e., no smoothing)
+    :return: squared ratio error
+    """
+    prevs_true = np.asarray(prevs_true)
+    prevs_hat = np.asarray(prevs_hat)
+    prevs_train = np.asarray(prevs_train)
+    assert prevs_true.shape == prevs_hat.shape, f'wrong shape {prevs_true.shape=} vs {prevs_hat.shape=}'
+    assert prevs_true.shape[-1] == prevs_train.shape[-1], 'wrong shape for training prevalence'
+    if prevs_true.ndim == 2 and prevs_train.ndim == 1:
+        prevs_train = np.tile(prevs_train, reps=(prevs_true.shape[0], 1))
+    if eps > 0:
+        prevs_true = smooth(prevs_true, eps)
+        prevs_hat = smooth(prevs_hat, eps)
+        prevs_train = smooth(prevs_train, eps)
+
+    n_classes = prevs_true.shape[-1]
+    w = prevs_true / prevs_train
+    w_hat = prevs_hat / prevs_train
+    return (1. / n_classes) * np.sum((w - w_hat) ** 2., axis=-1)
+
+
+def msre(prevs_true, prevs_hat, prevs_train, eps=0.):
+    """
+    Computes the mean squared ratio error (see :meth:`quapy.error.sre`) across the sample pairs.
+
+    :param prevs_true: array-like of shape `(n_samples, n_classes,)` with the true prevalence values
+    :param prevs_hat: array-like of shape equal to prevs_true with the predicted prevalence values
+    :param prevs_train: array-like with the training prevalence values
+    :param eps: smoothing factor (default 0, i.e., no smoothing)
+    :return: mean squared ratio error
+    """
+    return np.mean(sre(prevs_true, prevs_hat, prevs_train, eps))
+
+
+def aqe(prevs_true, prevs_hat):
+    """
+    Computes the Aitchison distance between two prevalence vectors.
+    The Aitchison distance between prevalence vectors :math:`p` and
+    :math:`\\hat{p}` is computed as
+    :math:`d_A(p,\\hat{p})=\\|\\mathrm{clr}(p)-\\mathrm{clr}(\\hat{p})\\|_2`,
+    where :math:`\\mathrm{clr}(p)_i=\\log p_i-\\frac{1}{|\\mathcal{Y}|}
+    \\sum_{j \\in \\mathcal{Y}} \\log p_j`.
+
+    :param prevs_true: array-like with the true prevalence values
+    :param prevs_hat: array-like with the predicted prevalence values
+    :return: Aitchison distance
+    """
+    return AitchisonDistance(prevs_true, prevs_hat)
+
+
+def maqe(prevs_true, prevs_hat):
+    """
+    Computes the mean Aitchison distance (see :meth:`quapy.error.aitchisondist`)
+    across the sample pairs, i.e.,
+    :math:`\\mathrm{mAitchisonDist}=\\frac{1}{n}\\sum_{i=1}^n
+    d_A(p_i,\\hat{p}_i)`.
+
+    :param prevs_true: array-like with the true prevalence values
+    :param prevs_hat: array-like with the predicted prevalence values
+    :return: mean Aitchison distance
+    """
+    return np.mean(aqe(prevs_true, prevs_hat))
 
 
 def mkld(prevs_true, prevs_hat, eps=None):
@@ -374,8 +451,8 @@ def __check_eps(eps=None):
 
 
 CLASSIFICATION_ERROR = {f1e, acce}
-QUANTIFICATION_ERROR = {mae, mnae, mrae, mnrae, mse, mkld, mnkld}
-QUANTIFICATION_ERROR_SINGLE = {ae, nae, rae, nrae, se, kld, nkld}
+QUANTIFICATION_ERROR = {mae, mnae, mrae, mnrae, mse, mkld, mnkld, msre, maqe}
+QUANTIFICATION_ERROR_SINGLE = {ae, nae, rae, nrae, se, kld, nkld, sre, aqe}
 QUANTIFICATION_ERROR_SMOOTH = {kld, nkld, rae, nrae, mkld, mnkld, mrae}
 CLASSIFICATION_ERROR_NAMES = {func.__name__ for func in CLASSIFICATION_ERROR}
 QUANTIFICATION_ERROR_NAMES = {func.__name__ for func in QUANTIFICATION_ERROR}
@@ -387,6 +464,9 @@ ERROR_NAMES = \
 f1_error = f1e
 acc_error = acce
 mean_absolute_error = mae
+squared_ratio_error = sre
+dist_aitchison = aqe
+mean_dist_aitchison = maqe
 absolute_error = ae
 mean_relative_absolute_error = mrae
 relative_absolute_error = rae

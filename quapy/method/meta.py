@@ -1,4 +1,5 @@
 import itertools
+import logging
 from copy import deepcopy
 from typing import Union, List
 import numpy as np
@@ -24,65 +25,6 @@ if _neural:
     QuaNet = _neural.QuaNetTrainer
 else:
     QuaNet = "QuaNet is not available due to missing torch package"
-
-
-class MedianEstimator2(BinaryQuantifier):
-    """
-    This method is a meta-quantifier that returns, as the estimated class prevalence values, the median of the
-    estimation returned by differently (hyper)parameterized base quantifiers.
-    The median of unit-vectors is only guaranteed to be a unit-vector for n=2 dimensions,
-    i.e., in cases of binary quantification.
-
-    :param base_quantifier: the base, binary quantifier
-    :param random_state: a seed to be set before fitting any base quantifier (default None)
-    :param param_grid: the grid or parameters towards which the median will be computed
-    :param n_jobs: number of parllel workes
-    """
-    def __init__(self, base_quantifier: BinaryQuantifier, param_grid: dict, random_state=None, n_jobs=None):
-        self.base_quantifier = base_quantifier
-        self.param_grid = param_grid
-        self.random_state = random_state
-        self.n_jobs = qp._get_njobs(n_jobs)
-
-    def get_params(self, deep=True):
-        return self.base_quantifier.get_params(deep)
-
-    def set_params(self, **params):
-        self.base_quantifier.set_params(**params)
-
-    def _delayed_fit(self, args):
-        with qp.util.temp_seed(self.random_state):
-            params, X, y = args
-            model = deepcopy(self.base_quantifier)
-            model.set_params(**params)
-            model.fit(X, y)
-            return model
-
-    def fit(self, X, y):
-        self._check_binary(y, self.__class__.__name__)
-
-        configs = qp.model_selection.expand_grid(self.param_grid)
-        self.models = qp.util.parallel(
-            self._delayed_fit,
-            ((params, X, y) for params in configs),
-            seed=qp.environ.get('_R_SEED', None),
-            n_jobs=self.n_jobs
-        )
-        return self
-
-    def _delayed_predict(self, args):
-        model, instances = args
-        return model.predict(instances)
-
-    def predict(self, X):
-        prev_preds = qp.util.parallel(
-            self._delayed_predict,
-            ((model, X) for model in self.models),
-            seed=qp.environ.get('_R_SEED', None),
-            n_jobs=self.n_jobs
-        )
-        prev_preds = np.asarray(prev_preds)
-        return np.median(prev_preds, axis=0)
 
 
 class MedianEstimator(BinaryQuantifier):
@@ -213,7 +155,7 @@ class Ensemble(BaseQuantifier):
 
     def _sout(self, msg):
         if self.verbose:
-            print('[Ensemble]' + msg)
+            logging.getLogger(__name__).info('[Ensemble] ' + msg)
 
     def fit(self, X, y):
 
@@ -402,7 +344,7 @@ def _select_k(elements, order, k):
 def _delayed_new_instance(args):
     base_quantifier, data, val_split, prev, posteriors, keep_samples, verbose, sample_size = args
     if verbose:
-        print(f'\tfit-start for prev {F.strprev(prev)}, sample_size={sample_size}')
+        logging.getLogger(__name__).info(f'fit-start for prev {F.strprev(prev)}, sample_size={sample_size}')
     model = deepcopy(base_quantifier)
 
     if val_split is not None:
@@ -422,7 +364,7 @@ def _delayed_new_instance(args):
     tr_distribution = get_probability_distribution(posteriors[sample_index]) if (posteriors is not None) else None
 
     if verbose:
-        print(f'\t--fit-ended for prev {F.strprev(prev)}')
+        logging.getLogger(__name__).info(f'fit-ended for prev {F.strprev(prev)}')
 
     return (model, tr_prevalence, tr_distribution, sample if keep_samples else None)
 

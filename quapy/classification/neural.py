@@ -1,3 +1,4 @@
+import logging
 import os
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
@@ -42,7 +43,7 @@ class NeuralClassifierTrainer:
                  batch_size=64,
                  batch_size_test=512,
                  padding_length=300,
-                 device='cuda',
+                 device='cpu',
                  checkpointpath='../checkpoint/classifier_net.dat'):
 
         super().__init__()
@@ -63,7 +64,7 @@ class NeuralClassifierTrainer:
         self.learner_hyperparams = self.net.get_params()
         self.checkpointpath = checkpointpath
 
-        print(f'[NeuralNetwork running on {device}]')
+        logging.getLogger(__name__).info(f'NeuralNetwork running on {device}')
         os.makedirs(Path(checkpointpath).parent, exist_ok=True)
 
     def reset_net_params(self, vocab_size, n_classes):
@@ -198,14 +199,15 @@ class NeuralClassifierTrainer:
                 if self.early_stop.IMPROVED:
                     torch.save(self.net.state_dict(), checkpoint)
                 elif self.early_stop.STOP:
-                    print(f'training ended by patience exhasted; loading best model parameters in {checkpoint} '
-                          f'for epoch {self.early_stop.best_epoch}')
+                    logging.getLogger(__name__).info(
+                        f'training ended by patience exhausted; loading best model parameters in {checkpoint} '
+                        f'for epoch {self.early_stop.best_epoch}')
                     self.net.load_state_dict(torch.load(checkpoint))
                     break
 
-        print('performing one training pass over the validation set...')
+        logging.getLogger(__name__).info('performing one training pass over the validation set...')
         self._train_epoch(valid_generator, self.status['tr'], pbar, epoch=0)
-        print('[done]')
+        logging.getLogger(__name__).info('done')
 
         return self
 

@@ -1,11 +1,20 @@
-from typing import Union, Callable
+from itertools import product
+from tqdm import tqdm
+from typing import Union, Callable, Counter
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.utils import resample
+from sklearn.preprocessing import normalize
 
+from quapy.method.confidence import WithConfidenceABC, ConfidenceRegionABC
 from quapy.functional import get_divergence
-from quapy.data import LabelledCollection
 from quapy.method.base import BaseQuantifier, BinaryQuantifier
+from quapy.method._helper import _labels_to_indices
+from quapy.method._energy import _EnergyDistanceCore
 import quapy.functional as F
+from scipy.optimize import lsq_linear
+from scipy import sparse
+import quapy as qp
 
 
 class MaximumLikelihoodPrevalenceEstimation(BaseQuantifier):
@@ -52,6 +61,9 @@ class DMx(BaseQuantifier):
         or a callable function taking two ndarrays of the same dimension as input (default "HD", meaning Hellinger
         Distance)
     :param cdf: whether to use CDF instead of PDF (default False)
+    :param search: string indicating the search strategy used to estimate the prevalence values.
+        Valid options are `optim_minimize` (default, works for binary and multiclass problems),
+        `linear_search` (binary only), and `ternary_search` (binary only)
     :param n_jobs: number of parallel workers (default None)
     """
 
@@ -87,7 +99,6 @@ class DMx(BaseQuantifier):
         return hdx
 
     def __get_distributions(self, X):
-
         histograms = []
         for feat_idx in range(self.nfeats):
             feature = X[:, feat_idx]
@@ -116,7 +127,9 @@ class DMx(BaseQuantifier):
         """
         self.nfeats = X.shape[1]
         self.feat_ranges = _get_features_range(X)
-        n_classes = len(np.unique(y))
+        classes = np.unique(y)
+        y = _labels_to_indices(y, classes)
+        n_classes = len(classes)
 
         self.validation_distribution = np.asarray(
             [self.__get_distributions(X[y==cat]) for cat in range(n_classes)]
@@ -149,53 +162,231 @@ class DMx(BaseQuantifier):
         return F.argmin_prevalence(loss, n_classes, method=self.search)
 
 
-# class ReadMe(BaseQuantifier):
-#
-#     def __init__(self, bootstrap_trials=100, bootstrap_range=100, bagging_trials=100, bagging_range=25, **vectorizer_kwargs):
-#         raise NotImplementedError('under development ...')
-#         self.bootstrap_trials = bootstrap_trials
-#         self.bootstrap_range = bootstrap_range
-#         self.bagging_trials = bagging_trials
-#         self.bagging_range = bagging_range
-#         self.vectorizer_kwargs = vectorizer_kwargs
-#
-#     def fit(self, data: LabelledCollection):
-#         X, y = data.Xy
-#         self.vectorizer = CountVectorizer(binary=True, **self.vectorizer_kwargs)
-#         X = self.vectorizer.fit_transform(X)
-#         self.class_conditional_X = {i: X[y==i] for i in range(data.classes_)}
-#
-#     def predict(self, X):
-#         X = self.vectorizer.transform(X)
-#
-#         # number of features
-#         num_docs, num_feats = X.shape
-#
-#         # bootstrap
-#         p_boots = []
-#         for _ in range(self.bootstrap_trials):
-#             docs_idx = np.random.choice(num_docs, size=self.bootstra_range, replace=False)
-#             class_conditional_X = {i: X[docs_idx] for i, X in self.class_conditional_X.items()}
-#             Xboot = X[docs_idx]
-#
-#             # bagging
-#             p_bags = []
-#             for _ in range(self.bagging_trials):
-#                 feat_idx = np.random.choice(num_feats, size=self.bagging_range, replace=False)
-#                 class_conditional_Xbag = {i: X[:, feat_idx] for i, X in class_conditional_X.items()}
-#                 Xbag = Xboot[:,feat_idx]
-#                 p = self.std_constrained_linear_ls(Xbag, class_conditional_Xbag)
-#                 p_bags.append(p)
-#             p_boots.append(np.mean(p_bags, axis=0))
-#
-#         p_mean = np.mean(p_boots, axis=0)
-#         p_std  = np.std(p_bags, axis=0)
-#
-#         return p_mean
-#
-#
-#     def std_constrained_linear_ls(self, X, class_cond_X: dict):
-#         pass
+class EDx(_EnergyDistanceCore, BaseQuantifier):
+    """
+    Energy Distance x (EDx), a covariate-space distribution-matching
+    quantifier based on energy distance.
+
+    EDx is the classifier-free counterpart of :class:`quapy.method.aggregative.EDy`.
+    Instead of representing each class through posterior-probability vectors, it
+    represents each class by the cloud of raw feature vectors observed in the
+    training set and estimates the test prevalence vector by solving the same
+    energy-distance quadratic program directly in feature space.
+
+    This implementation works for binary and multiclass single-label
+    quantification and relies on the optional ``quadprog`` dependency. The
+    current QuaPy adaptation shares its numerical core with EDy and keeps
+    credit to the original implementation available in
+    `quantificationlib <https://github.com/AICGijon/quantificationlib>`_.
+
+    The formulation follows the same references as EDy, namely:
+
+    * Alberto Castaño, Laura Morán-Fernández, Jaime Alonso,
+      Verónica Bolón-Canedo, Amparo Alonso-Betanzos, and Juan José del Coz.
+      *An analysis of quantification methods based on matching distributions*.
+    * Hideko Kawakubo, Marthinus Christoffel du Plessis, and Masashi Sugiyama
+      (2016). *Computationally efficient class-prior estimation under class
+      balance change using energy distance*. IEICE Transactions on Information
+      and Systems, 99(1):176-186.
+
+    :param distance: distance used to compare feature vectors. Valid string
+        aliases are ``'manhattan'`` (default) and ``'euclidean'``; a custom
+        callable compatible with pairwise-distance signatures can also be used
+    :param n_jobs: number of parallel workers (default ``None``, meaning the
+        value is taken from the environment)
+    """
+
+    def __init__(self, distance: Union[str, Callable] = 'manhattan', n_jobs=None):
+        self.distance = distance
+        self.n_jobs = qp._get_njobs(n_jobs)
+        self.classes_ = None
+        self.n_features_in_ = None
+        self.train_distrib_ = None
+        self.train_n_cls_i_ = None
+        self.K_ = None
+        self.G_ = None
+        self.C_ = None
+        self.b_ = None
+        self.a_ = None
+
+    def fit(self, X, y):
+        """Fit class-conditional feature-space distributions from training data."""
+        self._check_ed_init_parameters()
+        labels = np.asarray(y)
+        self.classes_ = np.unique(labels)
+        self.n_features_in_ = X.shape[1]
+        train_distrib = [X[labels == class_] for class_ in self.classes_]
+        return self._fit_energy_model(train_distrib)
+
+    def predict(self, X):
+        """Estimate class prevalences for a test sample of raw instances."""
+        assert X.shape[1] == self.n_features_in_, (
+            f'wrong shape; expected {self.n_features_in_}, found {X.shape[1]}'
+        )
+        return self._predict_energy(X)
+
+
+class ReadMe(BaseQuantifier, WithConfidenceABC):
+    """
+    ReadMe is a non-aggregative quantification system proposed by
+    `Daniel Hopkins and Gary King, 2007. A method of automated nonparametric content analysis for
+    social science. American Journal of Political Science, 54(1):229–247.
+    <https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-5907.2009.00428.x>`_.
+    The idea is to estimate `Q(Y=i)` directly from:
+
+    :math:`Q(X)=\\sum_{i=1} Q(X|Y=i) Q(Y=i)`
+
+    via least-squares regression, i.e., without incurring the cost of computing posterior probabilities.
+    However, this poses a very difficult representation in which the vector `Q(X)` and the matrix `Q(X|Y=i)`
+    can be of very high dimensions. In order to render the problem tracktable, ReadMe performs bagging in
+    the feature space. ReadMe also combines bagging with bootstrap in order to derive confidence intervals
+    around point estimations.
+
+    We use the same default parameters as in the official
+    `R implementation <https://github.com/iqss-research/ReadMeV1/blob/master/R/prototype.R>`_.
+
+    :param prob_model: str ('naive', or 'full'), selects the modality in which the probabilities `Q(X)` and
+        `Q(X|Y)` are to be modelled. Options include "full", which corresponds to the original formulation of
+        ReadMe, in which X is constrained to be a binary matrix (e.g., of term presence/absence) and in which
+        `Q(X)` and `Q(X|Y)` are modelled, respectively, as matrices of `(2^K, 1)` and `(2^K, n)` values, where
+        `K` is the number of columns in the data matrix (i.e., `bagging_range`), and `n` is the number of classes.
+        Of course, this approach is computationally prohibited for large `K`, so the authors advised against computing it
+        for matrices with `K>25` (although we recommend even smaller values of `K`). A much faster model is "naive", which
+        considers the `Q(X)` and `Q(X|Y)` be multinomial distributions under the `bag-of-words` perspective. In this
+        case, `bagging_range` can be set to much larger values. Default is "full" (i.e., original ReadMe behavior).
+    :param bootstrap_trials: int, number of bootstrap trials (default 300)
+    :param bagging_trials: int, number of bagging trials (default 300)
+    :param bagging_range: int, number of features to keep for each bagging trial (default 15)
+    :param confidence_level: float, a value in (0,1) reflecting the desired confidence level (default 0.95)
+    :param region: str in 'intervals', 'ellipse', 'ellipse-clr'; indicates the preferred method for
+        defining the confidence region (see :class:`WithConfidenceABC`)
+    :param bonferroni: bool (default False), whether to apply Bonferroni correction when
+        `region='intervals'`. This parameter has no effect for ellipse-based regions.
+    :param random_state: int or None, allows replicability (default None)
+    :param verbose: bool, whether to display information during the process (default False)
+    """
+
+    MAX_FEATURES_FOR_EMPIRICAL_ESTIMATION = 25
+    PROBABILISTIC_MODELS = ["naive", "full"]
+
+    def __init__(self,
+                 prob_model="full",
+                 bootstrap_trials=300,
+                 bagging_trials=300,
+                 bagging_range=15,
+                 confidence_level=0.95,
+                 region='intervals',
+                 bonferroni=False,
+                 random_state=None,
+                 verbose=False):
+        assert prob_model in ReadMe.PROBABILISTIC_MODELS, \
+            f'unknown {prob_model=}, valid ones are {ReadMe.PROBABILISTIC_MODELS=}'
+        self.prob_model = prob_model
+        self.bootstrap_trials = bootstrap_trials
+        self.bagging_trials = bagging_trials
+        self.bagging_range = bagging_range
+        self.confidence_level = confidence_level
+        self.region = region
+        self.bonferroni = bonferroni
+        self.random_state = random_state
+        self.verbose = verbose
+
+    def fit(self, X, y):
+        self._check_matrix(X)
+
+        self.rng = np.random.default_rng(self.random_state)
+        self.classes_ = np.unique(y)
+
+        Xsize = X.shape[0]
+
+        # Bootstrap loop
+        self.Xboots, self.yboots = [], []
+        for _ in range(self.bootstrap_trials):
+            idx = self.rng.choice(Xsize, size=Xsize, replace=True)
+            self.Xboots.append(X[idx])
+            self.yboots.append(y[idx])
+
+        return self
+
+    def predict_conf(self, X, confidence_level=None) -> (np.ndarray, ConfidenceRegionABC):
+        self._check_matrix(X)
+        if confidence_level is None:
+            confidence_level = self.confidence_level
+
+        n_features = X.shape[1]
+        boots_prevalences = []
+        for Xboots, yboots in tqdm(
+                zip(self.Xboots, self.yboots),
+                desc='bootstrap predictions', total=self.bootstrap_trials, disable=not self.verbose
+        ):
+            bagging_estimates = []
+            for _ in range(self.bagging_trials):
+                feat_idx = self.rng.choice(n_features, size=self.bagging_range, replace=False)
+                Xboots_bagging = Xboots[:, feat_idx]
+                X_boots_bagging = X[:, feat_idx]
+                bagging_prev = self._quantify_iteration(Xboots_bagging, yboots, X_boots_bagging)
+                bagging_estimates.append(bagging_prev)
+
+            boots_prevalences.append(np.mean(bagging_estimates, axis=0))
+
+        conf = WithConfidenceABC.construct_region(boots_prevalences, confidence_level, method=self.region, bonferroni=self.bonferroni)
+        prev_estim = conf.point_estimate()
+
+        return prev_estim, conf
+
+    def predict(self, X):
+        prev_estim, _ = self.predict_conf(X)
+        return prev_estim
+
+    def _quantify_iteration(self, Xtr, ytr, Xte):
+        """Single ReadMe estimate."""
+        PX_given_Y = np.asarray([self._compute_P(Xtr[ytr == c]) for i,c in enumerate(self.classes_)])
+        PX = self._compute_P(Xte)
+
+        res = lsq_linear(A=PX_given_Y.T, b=PX, bounds=(0, 1))
+        pY = np.maximum(res.x, 0)
+        return pY / pY.sum()
+
+    def _check_matrix(self, X):
+        """the "full" model requires estimating empirical distributions; due to the high computational cost,
+                this function is only made available for binary matrices"""
+        if self.prob_model == 'full' and not self._is_binary_matrix(X):
+            raise ValueError('the empirical distribution can only be computed efficiently on binary matrices')
+
+    def _is_binary_matrix(self, X):
+        data = X.data if sparse.issparse(X) else X
+        return np.all((data == 0) | (data == 1))
+
+    def _compute_P(self, X):
+        if self.prob_model == 'naive':
+            return self._multinomial_distribution(X)
+        elif self.prob_model == 'full':
+            return self._empirical_distribution(X)
+        else:
+            raise ValueError(f'unknown {self.prob_model}; valid ones are {ReadMe.PROBABILISTIC_MODELS=}')
+
+    def _empirical_distribution(self, X):
+
+        if X.shape[1] > self.MAX_FEATURES_FOR_EMPIRICAL_ESTIMATION:
+            raise ValueError(f'the empirical distribution can only be computed efficiently for dimensions '
+                             f'less or equal than {self.MAX_FEATURES_FOR_EMPIRICAL_ESTIMATION}')
+
+        # we first convert every binary row (e.g., 0 0 1 0 1) into the equivalent number (e.g., 5);
+        # this will speed up subsequent comparisons a lot
+        K = X.shape[1]
+        binary_powers = 1 << np.arange(K-1, -1, -1)     # (2^K, ..., 32, 16, 8, 4, 2, 1)
+        X_as_binary_numbers = X @ binary_powers         # e.g., [0 0 1 0 1] @ [16, 8, 4, 2, 1] = 5
+
+        # count occurrences and compute probs
+        counts = np.bincount(X_as_binary_numbers, minlength=2 ** K).astype(float)
+        probs = counts / counts.sum()
+
+        return probs
+
+    def _multinomial_distribution(self, X):
+        PX = np.asarray(X.sum(axis=0))
+        PX = normalize(PX, norm='l1', axis=1)
+        return PX.ravel()
 
 
 def _get_features_range(X):
@@ -211,4 +402,8 @@ def _get_features_range(X):
 # aliases
 #---------------------------------------------------------------
 
+
+HDx = DMx.HDx
 DistributionMatchingX = DMx
+EnergyDistanceX = EDx
+HellingerDistanceX = HDx

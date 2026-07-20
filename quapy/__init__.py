@@ -7,13 +7,17 @@ from . import functional
 from . import method
 from . import evaluation
 from . import protocol
-from . import plot
 from . import util
 from . import model_selection
 from . import classification
 import os
 
-__version__ = '0.2.0'
+try:
+    from . import plot
+except ImportError:
+    plot = None
+
+__version__ = '0.2.1'
 
 
 def _default_cls():
@@ -73,5 +77,4 @@ def _get_classifier(classifier):
     if classifier is None:
         raise ValueError('neither classifier nor qp.environ["DEFAULT_CLS"] have been specified')
     return classifier
-
 

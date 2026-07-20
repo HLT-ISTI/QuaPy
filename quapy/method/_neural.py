@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 import random
@@ -173,7 +174,7 @@ class QuaNetTrainer(BaseQuantifier):
             order_by=0 if data.binary else None,
             **self.quanet_params
         ).to(self.device)
-        print(self.quanet)
+        logging.getLogger(__name__).debug(self.quanet)
 
         self.optim = torch.optim.Adam(self.quanet.parameters(), lr=self.lr)
         early_stop = EarlyStop(self.patience, lower_is_better=True)
@@ -188,8 +189,9 @@ class QuaNetTrainer(BaseQuantifier):
             if early_stop.IMPROVED:
                 torch.save(self.quanet.state_dict(), checkpoint)
             elif early_stop.STOP:
-                print(f'training ended by patience exhausted; loading best model parameters in {checkpoint} '
-                      f'for epoch {early_stop.best_epoch}')
+                logging.getLogger(__name__).info(
+                    f'training ended by patience exhausted; loading best model parameters in {checkpoint} '
+                    f'for epoch {early_stop.best_epoch}')
                 self.quanet.load_state_dict(torch.load(checkpoint))
                 break
 

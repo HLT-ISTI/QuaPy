@@ -36,7 +36,7 @@ with qp.util.temp_seed(0):
     true_prev = shifted_test.prevalence()
 
     # by calling "quantify_conf", we obtain the point estimate and the confidence intervals around it
-    pred_prev, conf_intervals = pacc.quantify_conf(shifted_test.X)
+    pred_prev, conf_intervals = pacc.predict_conf(shifted_test.X)
 
     # conf_intervals is an instance of ConfidenceRegionABC, which provides some useful utilities like:
     # - coverage: a function which computes the fraction of true values that belong to the confidence region
@@ -75,7 +75,8 @@ There are different ways for constructing confidence regions implemented in QuaP
     convenient for taking into account the inner structure of the probability simplex)
     use: AggregativeBootstrap(PACC(), confidence_level=0.95, method='ellipse-clr')
     
-Other methods that return confidence regions in QuaPy include the BayesianCC method.
+Other methods that return confidence regions in QuaPy include the Bayesian methods (BayesianCC, 
+    BayesianMAPLS, PQ, and BayesianKDEy).
 """
 
 
