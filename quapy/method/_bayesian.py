@@ -46,7 +46,10 @@ try:
 
     DEPENDENCIES_INSTALLED = True
 except ImportError as e:
-    logging.getLogger(__name__).warning(f'Bayesian dependencies failed to import: {e!r}')
+    # not installing the bayes extra is the common case (jax/numpyro/pystan are optional); this is
+    # only surfaced at debug level so it doesn't nag plain installs, but is still there to diagnose
+    # a broken/partial bayes install (e.g. pip install quapy[bayes] with a mismatched dependency).
+    logging.getLogger(__name__).debug(f'Bayesian dependencies failed to import: {e!r}')
     jax = None
     jnp = None
     jrandom = None
