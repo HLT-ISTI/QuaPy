@@ -47,14 +47,17 @@ class RecalibratedProbabilisticClassifierBase(BaseEstimator, RecalibratedProbabi
         training set afterwards. Default value is 5.
     :param n_jobs: indicate the number of parallel workers (only when val_split is an integer); default=None
     :param verbose: whether or not to display information in the standard output
+    :param random_state: controls the shuffling of the train/validation split when val_split is a float
+        (has no effect when val_split is an integer); pass an int for reproducible splits
     """
 
-    def __init__(self, classifier, calibrator, val_split=5, n_jobs=None, verbose=False):
+    def __init__(self, classifier, calibrator, val_split=5, n_jobs=None, verbose=False, random_state=None):
         self.classifier = classifier
         self.calibrator = calibrator
         self.val_split = val_split
         self.n_jobs = n_jobs
         self.verbose = verbose
+        self.random_state = random_state
 
     def fit(self, X, y):
         """
@@ -103,7 +106,9 @@ class RecalibratedProbabilisticClassifierBase(BaseEstimator, RecalibratedProbabi
         :param y: array-like of shape `(n_samples,)` with the class labels
         :return: self
         """
-        Xtr, Xva, ytr, yva = train_test_split(X, y, test_size=self.val_split, stratify=y)
+        Xtr, Xva, ytr, yva = train_test_split(
+            X, y, test_size=self.val_split, stratify=y, random_state=self.random_state
+        )
         self.classifier.fit(Xtr, ytr)
         posteriors = self.classifier.predict_proba(Xva)
         nclasses = len(np.unique(yva))
@@ -151,15 +156,18 @@ class NBVSCalibration(RecalibratedProbabilisticClassifierBase):
         training set afterwards. Default value is 5.
     :param n_jobs: indicate the number of parallel workers (only when val_split is an integer)
     :param verbose: whether or not to display information in the standard output
+    :param random_state: controls the shuffling of the train/validation split when val_split is a float
+        (has no effect when val_split is an integer); pass an int for reproducible splits
     """
 
-    def __init__(self, classifier, val_split=5, n_jobs=None, verbose=False):
+    def __init__(self, classifier, val_split=5, n_jobs=None, verbose=False, random_state=None):
         NoBiasVectorScaling, _, _ = _require_abstention_calibration()
         self.classifier = classifier
         self.calibrator = NoBiasVectorScaling(verbose=verbose)
         self.val_split = val_split
         self.n_jobs = n_jobs
         self.verbose = verbose
+        self.random_state = random_state
 
 
 class BCTSCalibration(RecalibratedProbabilisticClassifierBase):
@@ -174,15 +182,18 @@ class BCTSCalibration(RecalibratedProbabilisticClassifierBase):
         training set afterwards. Default value is 5.
     :param n_jobs: indicate the number of parallel workers (only when val_split is an integer)
     :param verbose: whether or not to display information in the standard output
+    :param random_state: controls the shuffling of the train/validation split when val_split is a float
+        (has no effect when val_split is an integer); pass an int for reproducible splits
     """
 
-    def __init__(self, classifier, val_split=5, n_jobs=None, verbose=False):
+    def __init__(self, classifier, val_split=5, n_jobs=None, verbose=False, random_state=None):
         _, TempScaling, _ = _require_abstention_calibration()
         self.classifier = classifier
         self.calibrator = TempScaling(verbose=verbose, bias_positions='all')
         self.val_split = val_split
         self.n_jobs = n_jobs
         self.verbose = verbose
+        self.random_state = random_state
 
 
 class TSCalibration(RecalibratedProbabilisticClassifierBase):
@@ -197,15 +208,18 @@ class TSCalibration(RecalibratedProbabilisticClassifierBase):
         training set afterwards. Default value is 5.
     :param n_jobs: indicate the number of parallel workers (only when val_split is an integer)
     :param verbose: whether or not to display information in the standard output
+    :param random_state: controls the shuffling of the train/validation split when val_split is a float
+        (has no effect when val_split is an integer); pass an int for reproducible splits
     """
 
-    def __init__(self, classifier, val_split=5, n_jobs=None, verbose=False):
+    def __init__(self, classifier, val_split=5, n_jobs=None, verbose=False, random_state=None):
         _, TempScaling, _ = _require_abstention_calibration()
         self.classifier = classifier
         self.calibrator = TempScaling(verbose=verbose)
         self.val_split = val_split
         self.n_jobs = n_jobs
         self.verbose = verbose
+        self.random_state = random_state
 
 
 class VSCalibration(RecalibratedProbabilisticClassifierBase):
@@ -220,15 +234,18 @@ class VSCalibration(RecalibratedProbabilisticClassifierBase):
         training set afterwards. Default value is 5.
     :param n_jobs: indicate the number of parallel workers (only when val_split is an integer)
     :param verbose: whether or not to display information in the standard output
+    :param random_state: controls the shuffling of the train/validation split when val_split is a float
+        (has no effect when val_split is an integer); pass an int for reproducible splits
     """
 
-    def __init__(self, classifier, val_split=5, n_jobs=None, verbose=False):
+    def __init__(self, classifier, val_split=5, n_jobs=None, verbose=False, random_state=None):
         _, _, VectorScaling = _require_abstention_calibration()
         self.classifier = classifier
         self.calibrator = VectorScaling(verbose=verbose)
         self.val_split = val_split
         self.n_jobs = n_jobs
         self.verbose = verbose
+        self.random_state = random_state
 
 
 class TemperatureScalingFromLogits(BaseEstimator):

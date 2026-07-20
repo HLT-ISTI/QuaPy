@@ -25,7 +25,7 @@ class TestCalibration(unittest.TestCase):
 
     def test_calibration_with_float_val_split(self):
         X, y = self.data.Xy
-        model = BCTSCalibration(LogisticRegression(max_iter=2000), val_split=0.3)
+        model = BCTSCalibration(LogisticRegression(max_iter=2000), val_split=0.3, random_state=0)
         model.fit(X, y)
         posteriors = model.predict_proba(X)
         self.assertEqual(posteriors.shape, (len(y), self.data.n_classes))
