@@ -17,7 +17,6 @@ for facilitating the analysis and interpretation of the experimental results.
 
 * Version 0.2.1 is released! major changes can be consulted [here](CHANGE_LOG.txt).
 * The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/index.html)
-* Manuals are available [here](https://hlt-isti.github.io/QuaPy/manuals.html)
 
 ### Installation
 
