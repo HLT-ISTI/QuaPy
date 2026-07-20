@@ -1,0 +1,1713 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>quapy.method.confidence &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=9f2a2228" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/quapy/method/confidence';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../manuals.html">
+    Manuals
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../quapy.html">
+    API
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../manuals.html">
+    Manuals
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../quapy.html">
+    API
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">quapy.method.confidence</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for quapy.method.confidence</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">numbers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Number</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">confusion_matrix</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">quapy.functional</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">F</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.functional</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompositionalTransformation</span><span class="p">,</span> <span class="n">CLRtransformation</span><span class="p">,</span> <span class="n">ILRtransformation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">LabelledCollection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.aggregative</span><span class="w"> </span><span class="kn">import</span> <span class="n">AggregativeQuantifier</span><span class="p">,</span> <span class="n">AggregativeCrispQuantifier</span><span class="p">,</span> <span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">BinaryAggregativeQuantifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">chi2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">resample</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">factorial</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides implementation of different types of confidence regions, and the implementation of Bootstrap</span>
+<span class="sd">for AggregativeQuantifiers.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_bayesian_module</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method</span><span class="w"> </span><span class="kn">import</span> <span class="n">_bayesian</span>
+    <span class="k">return</span> <span class="n">_bayesian</span>
+
+<div class="viewcode-block" id="ConfidenceRegionABC">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceRegionABC">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfidenceRegionABC</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class of confidence regions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ConfidenceRegionABC.point_estimate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceRegionABC.point_estimate">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">point_estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the point estimate corresponding to a set of bootstrap estimates.</span>
+
+<span class="sd">        :return: np.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceRegionABC.ndim">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceRegionABC.ndim">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ndim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of dimensions of the region. This number corresponds to the total number of classes. The dimensionality</span>
+<span class="sd">        of the simplex is therefore ndim-1</span>
+
+<span class="sd">        :return: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">point_estimate</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceRegionABC.coverage">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceRegionABC.coverage">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks whether a value, or a sets of values, are contained in the confidence region. The method computes the</span>
+<span class="sd">        fraction of these that are contained in the region, if more than one value is passed. If only one value is</span>
+<span class="sd">        passed, then it either returns 1.0 or 0.0, for indicating the value is in the region or not, respectively.</span>
+
+<span class="sd">        :param true_value: a np.ndarray of shape (n_classes,) or shape (n_values, n_classes,)</span>
+<span class="sd">        :return: float in [0,1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceRegionABC.simplex_portion">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceRegionABC.simplex_portion">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">simplex_portion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the fraction of the simplex which is covered by the region. This is not the volume of the region</span>
+<span class="sd">        itself (which could lie outside the boundaries of the simplex), but the actual fraction of the simplex</span>
+<span class="sd">        contained in the region. A default implementation, based on Monte Carlo approximation, is provided.</span>
+
+<span class="sd">        :return: float, the fraction of the simplex covered by the region</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_simplex_portion_cache&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_simplex_portion_cache</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">montecarlo_proportion</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_simplex_portion_cache</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceRegionABC.montecarlo_proportion">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceRegionABC.montecarlo_proportion">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">montecarlo_proportion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_trials</span><span class="o">=</span><span class="mi">10_000</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimates, via a Monte Carlo approach, the fraction of the simplex covered by the region. This is carried</span>
+<span class="sd">        out by returning the fraction of the `n_trials` points, uniformly drawn at random from the simplex, that</span>
+<span class="sd">        are included in the region. The value is only computed once when multiple calls are made.</span>
+
+<span class="sd">        :return: float in [0,1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_montecarlo_proportion_cache&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_montecarlo_proportion_cache</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">n_trials</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_montecarlo_proportion_cache</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+                <span class="n">uniform_simplex</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">uniform_simplex_sampling</span><span class="p">(</span><span class="n">n_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ndim</span><span class="p">(),</span> <span class="n">size</span><span class="o">=</span><span class="n">n_trials</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_montecarlo_proportion_cache</span><span class="p">[</span><span class="n">n_trials</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coverage</span><span class="p">(</span><span class="n">uniform_simplex</span><span class="p">),</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_montecarlo_proportion_cache</span><span class="p">[</span><span class="n">n_trials</span><span class="p">]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">samples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns internal samples &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overloads in operator, checks if `p` is contained in the region</span>
+
+<span class="sd">        :param p: array-like</span>
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">p</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;unexpected shape for point parameter&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coverage</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">==</span><span class="mf">1.</span>
+
+<div class="viewcode-block" id="ConfidenceRegionABC.closest_point_in_region">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceRegionABC.closest_point_in_region">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closest_point_in_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds the closes point to p that belongs to the region. Assumes the region is convex.</span>
+
+<span class="sd">        :param p: array-like, the point</span>
+<span class="sd">        :param tol: float, error tolerance</span>
+<span class="sd">        :param max_iter: int, max number of iterations</span>
+<span class="sd">        :returns: array-like, the closes point to p in the segment between p and the center of the region, that</span>
+<span class="sd">            belongs to the region</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># if p in region, returns p itself</span>
+        <span class="k">if</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># center of the region</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">point_estimate</span><span class="p">()</span>
+
+        <span class="c1"># binary search in [0,1], interpolation parameter</span>
+        <span class="c1"># low=closest to p, high=closest to c</span>
+        <span class="n">low</span><span class="p">,</span> <span class="n">high</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+            <span class="n">mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">low</span> <span class="o">+</span> <span class="n">high</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">mid</span><span class="p">)</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">mid</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+                <span class="n">high</span> <span class="o">=</span> <span class="n">mid</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">low</span> <span class="o">=</span> <span class="n">mid</span>
+            <span class="k">if</span> <span class="n">high</span> <span class="o">-</span> <span class="n">low</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="n">in_boundary</span> <span class="o">=</span> <span class="n">p</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">high</span><span class="p">)</span> <span class="o">+</span> <span class="n">c</span><span class="o">*</span><span class="n">high</span>
+        <span class="k">return</span> <span class="n">in_boundary</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="WithConfidenceABC">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.WithConfidenceABC">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WithConfidenceABC</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class for confidence regions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">REGION_TYPE</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;intervals&#39;</span><span class="p">,</span> <span class="s1">&#39;ellipse&#39;</span><span class="p">,</span> <span class="s1">&#39;ellipse-clr&#39;</span><span class="p">,</span> <span class="s1">&#39;ellipse-ilr&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="WithConfidenceABC.predict_conf">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.WithConfidenceABC.predict_conf">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ConfidenceRegionABC</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds the method `predict_conf` to the interface. This method returns not only the point-estimate, but</span>
+<span class="sd">        also the confidence region around it.</span>
+
+<span class="sd">        :param instances: a np.ndarray of shape (n_instances, n_features,)</span>
+<span class="sd">        :param confidence_level: float in (0, 1), default is 0.95</span>
+<span class="sd">        :return: a tuple (`point_estimate`, `conf_region`), where `point_estimate` is a np.ndarray of shape</span>
+<span class="sd">            (n_classes,) and  `conf_region` is an object from :class:`ConfidenceRegionABC`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="WithConfidenceABC.quantify_conf">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.WithConfidenceABC.quantify_conf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">quantify_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ConfidenceRegionABC</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Alias to `predict_conf`. This method returns not only the point-estimate, but</span>
+<span class="sd">        also the confidence region around it.</span>
+
+<span class="sd">        :param instances: a np.ndarray of shape (n_instances, n_features,)</span>
+<span class="sd">        :param confidence_level: float in (0, 1), default is 0.95</span>
+<span class="sd">        :return: a tuple (`point_estimate`, `conf_region`), where `point_estimate` is a np.ndarray of shape</span>
+<span class="sd">            (n_classes,) and  `conf_region` is an object from :class:`ConfidenceRegionABC`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_conf</span><span class="p">(</span><span class="n">instances</span><span class="o">=</span><span class="n">instances</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WithConfidenceABC.construct_region">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.WithConfidenceABC.construct_region">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">construct_region</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">prev_estims</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;intervals&#39;</span><span class="p">,</span> <span class="n">bonferroni</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">ConfidenceRegionABC</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a confidence region given many prevalence estimations.</span>
+
+<span class="sd">        :param prev_estims: np.ndarray of shape (n_estims, n_classes)</span>
+<span class="sd">        :param confidence_level: float, the confidence level for the region (default 0.95)</span>
+<span class="sd">        :param method: str, indicates the method for constructing regions. Set to `intervals` for</span>
+<span class="sd">            constructing confidence intervals (default), or to `ellipse` for constructing an</span>
+<span class="sd">            ellipse in the probability simplex, or to `ellipse-clr` for constructing an ellipse</span>
+<span class="sd">            in the Centered-Log Ratio (CLR) unconstrained space.</span>
+<span class="sd">        :param bonferroni: bool (default False), whether to apply Bonferroni correction when</span>
+<span class="sd">            `method=&#39;intervals&#39;`. This parameter has no effect for ellipse-based regions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;intervals&#39;</span><span class="p">:</span>
+            <span class="n">region</span> <span class="o">=</span> <span class="n">ConfidenceIntervals</span><span class="p">(</span>
+                <span class="n">prev_estims</span><span class="p">,</span>
+                <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">,</span>
+                <span class="n">bonferroni_correction</span><span class="o">=</span><span class="n">bonferroni</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;ellipse&#39;</span><span class="p">:</span>
+            <span class="n">region</span> <span class="o">=</span> <span class="n">ConfidenceEllipseSimplex</span><span class="p">(</span><span class="n">prev_estims</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;ellipse-clr&#39;</span><span class="p">:</span>
+            <span class="n">region</span> <span class="o">=</span> <span class="n">ConfidenceEllipseCLR</span><span class="p">(</span><span class="n">prev_estims</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;ellipse-ilr&#39;</span><span class="p">:</span>
+            <span class="n">region</span> <span class="o">=</span> <span class="n">ConfidenceEllipseILR</span><span class="p">(</span><span class="n">prev_estims</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">region</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unknown method </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">region</span></div>
+</div>
+
+
+<div class="viewcode-block" id="simplex_volume">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.simplex_volume">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">simplex_volume</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the volume of the n-dimensional simplex. For n classes, the corresponding volume</span>
+<span class="sd">    is :meth:`simplex_volume(n-1)` since the simplex has one degree of freedom less.</span>
+
+<span class="sd">    :param n: int, the dimensionality of the simplex</span>
+<span class="sd">    :return: float, the volume of the n-dimensional simplex</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="within_ellipse_prop__">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.within_ellipse_prop__">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">within_ellipse_prop__</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">prec_matrix</span><span class="p">,</span> <span class="n">chi2_critical</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks the proportion of values that belong to the ellipse with center `mean` and precision matrix `prec_matrix`</span>
+<span class="sd">    at a distance `chi2_critical`.</span>
+
+<span class="sd">    :param values: a np.ndarray of shape (n_dim,) or (n_values, n_dim,)</span>
+<span class="sd">    :param mean: a np.ndarray of shape (n_dim,) with the center of the ellipse</span>
+<span class="sd">    :param prec_matrix: a np.ndarray with the precision matrix (inverse of the</span>
+<span class="sd">        covariance matrix) of the ellipse. If this inverse cannot be computed</span>
+<span class="sd">        then None must be passed</span>
+<span class="sd">    :param chi2_critical: float, the chi2 critical value</span>
+
+<span class="sd">    :return: float in [0,1], the fraction of values that are contained in the ellipse</span>
+<span class="sd">        defined by the mean (center), the precision matrix (shape), and the chi2_critical value (distance).</span>
+<span class="sd">        If `values` is only one value, then either 0. (not contained) or 1. (contained) is returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">prec_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.</span>
+
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">values</span> <span class="o">-</span> <span class="n">mean</span>  <span class="c1"># Mahalanobis distance</span>
+
+    <span class="n">d_M_squared</span> <span class="o">=</span> <span class="n">diff</span> <span class="o">@</span> <span class="n">prec_matrix</span> <span class="o">@</span> <span class="n">diff</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># d_M^2</span>
+    <span class="k">if</span> <span class="n">d_M_squared</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">d_M_squared</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">d_M_squared</span><span class="p">)</span>
+
+    <span class="n">within_elipse</span> <span class="o">=</span> <span class="p">(</span><span class="n">d_M_squared</span> <span class="o">&lt;=</span> <span class="n">chi2_critical</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">within_elipse</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">within_elipse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">within_elipse</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">within_elipse</span> <span class="o">*</span> <span class="mf">1.0</span></div>
+
+
+
+<div class="viewcode-block" id="within_ellipse_prop">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.within_ellipse_prop">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">within_ellipse_prop</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">prec_matrix</span><span class="p">,</span> <span class="n">chi2_critical</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks the proportion of values that belong to the ellipse with center `mean` and precision matrix `prec_matrix`</span>
+<span class="sd">        at a distance `chi2_critical`.</span>
+
+<span class="sd">        :param values: a np.ndarray of shape (n_dim,) or (n_values, n_dim,)</span>
+<span class="sd">        :param mean: a np.ndarray of shape (n_dim,) with the center of the ellipse</span>
+<span class="sd">        :param prec_matrix: a np.ndarray with the precision matrix (inverse of the</span>
+<span class="sd">            covariance matrix) of the ellipse. If this inverse cannot be computed</span>
+<span class="sd">            then None must be passed</span>
+<span class="sd">        :param chi2_critical: float, the chi2 critical value</span>
+
+<span class="sd">        :return: float in [0,1], the fraction of values that are contained in the ellipse</span>
+<span class="sd">            defined by the mean (center), the precision matrix (shape), and the chi2_critical value (distance).</span>
+<span class="sd">            If `values` is only one value, then either 0. (not contained) or 1. (contained) is returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">prec_matrix</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">values</span> <span class="o">-</span> <span class="n">mean</span>
+    <span class="n">d_M_squared</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diff</span> <span class="o">@</span> <span class="n">prec_matrix</span> <span class="o">*</span> <span class="n">diff</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">within_ellipse</span> <span class="o">=</span> <span class="n">d_M_squared</span> <span class="o">&lt;=</span> <span class="n">chi2_critical</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">within_ellipse</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">within_ellipse</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">within_ellipse</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="closest_point_on_ellipsoid">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.closest_point_on_ellipsoid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">closest_point_on_ellipsoid</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">cov</span><span class="p">,</span> <span class="n">chi2_critical</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the closest point on the ellipsoid defined by:</span>
+<span class="sd">        (x - mean)^T cov^{-1} (x - mean) = chi2_critical</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mean</span><span class="p">)</span>
+    <span class="n">Sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cov</span><span class="p">)</span>
+
+    <span class="c1"># Precompute precision matrix</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="n">Sigma</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">P</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Define v = p - mean</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-</span> <span class="n">mean</span>
+
+    <span class="c1"># If p is inside the ellipsoid, return p itself</span>
+    <span class="n">M_dist</span> <span class="o">=</span> <span class="n">v</span> <span class="o">@</span> <span class="n">P</span> <span class="o">@</span> <span class="n">v</span>
+    <span class="k">if</span> <span class="n">M_dist</span> <span class="o">&lt;=</span> <span class="n">chi2_critical</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Function to compute x(lambda)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x_lambda</span><span class="p">(</span><span class="n">lmbda</span><span class="p">):</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">+</span> <span class="n">lmbda</span> <span class="o">*</span> <span class="n">P</span>
+        <span class="k">return</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="c1"># Function whose root we want: f(lambda) = Mahalanobis distance - chi2</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">lmbda</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x_lambda</span><span class="p">(</span><span class="n">lmbda</span><span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">mean</span>
+        <span class="k">return</span> <span class="n">diff</span> <span class="o">@</span> <span class="n">P</span> <span class="o">@</span> <span class="n">diff</span> <span class="o">-</span> <span class="n">chi2_critical</span>
+
+    <span class="c1"># Bisection search over lambda &gt;= 0</span>
+    <span class="n">l_low</span><span class="p">,</span> <span class="n">l_high</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span>
+
+    <span class="c1"># Increase high until f(high) &lt; 0</span>
+    <span class="k">while</span> <span class="n">f</span><span class="p">(</span><span class="n">l_high</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">l_high</span> <span class="o">*=</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">l_high</span> <span class="o">&gt;</span> <span class="mf">1e12</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to bracket the root.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Bisection</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+        <span class="n">l_mid</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">l_low</span> <span class="o">+</span> <span class="n">l_high</span><span class="p">)</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">l_mid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">fm</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">fm</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">l_low</span> <span class="o">=</span> <span class="n">l_mid</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">l_high</span> <span class="o">=</span> <span class="n">l_mid</span>
+
+    <span class="n">l_opt</span> <span class="o">=</span> <span class="n">l_mid</span>
+    <span class="k">return</span> <span class="n">x_lambda</span><span class="p">(</span><span class="n">l_opt</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ConfidenceIntervals">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervals">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfidenceIntervals</span><span class="p">(</span><span class="n">ConfidenceRegionABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiates a region based on (independent) Confidence Intervals.</span>
+
+<span class="sd">    :param samples: np.ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">    :param confidence_level: float, the confidence level (default 0.95)</span>
+<span class="sd">    :param bonferroni_correction: bool (default False), if True, a Bonferroni correction</span>
+<span class="sd">        is applied to the significance level (`alpha`) before computing confidence intervals.</span>
+<span class="sd">        The correction consists of replacing `alpha` with `alpha/n_classes`. When</span>
+<span class="sd">        `n_classes=2` the correction is not applied because there is only one verification test</span>
+<span class="sd">        since the other class is constrained. This is not necessarily true for n_classes&gt;2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">bonferroni_correction</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">confidence_level</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">confidence_level</span><span class="si">=}</span><span class="s1"> must be in range(0,1)&#39;</span>
+        <span class="k">assert</span> <span class="n">samples</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;unexpected shape; must be (n_bootstrap_samples, n_classes)&#39;</span>
+
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">means_</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span> <span class="o">=</span> <span class="n">confidence_level</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span><span class="o">-</span><span class="n">confidence_level</span>
+        <span class="k">if</span> <span class="n">bonferroni_correction</span><span class="p">:</span>
+            <span class="n">n_classes</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">n_classes</span><span class="o">&gt;</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">/</span><span class="n">n_classes</span>
+        <span class="n">low_perc</span> <span class="o">=</span> <span class="p">(</span><span class="n">alpha</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span>
+        <span class="n">high_perc</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">alpha</span><span class="o">/</span><span class="mf">2.</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">I_low</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">I_high</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="p">[</span><span class="n">low_perc</span><span class="p">,</span> <span class="n">high_perc</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="o">=</span> <span class="n">samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">samples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span>
+
+<div class="viewcode-block" id="ConfidenceIntervals.point_estimate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervals.point_estimate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">point_estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the point estimate, the class-wise average of the bootstrapped estimates</span>
+
+<span class="sd">        :return: np.ndarray of shape (n_classes,)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">means_</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceIntervals.coverage">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervals.coverage">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks whether a value, or a sets of values, are contained in the confidence region. The method computes the</span>
+<span class="sd">        fraction of these that are contained in the region, if more than one value is passed. If only one value is</span>
+<span class="sd">        passed, then it either returns 1.0 or 0.0, for indicating the value is in the region or not, respectively.</span>
+
+<span class="sd">        :param true_value: a np.ndarray of shape (n_classes,) or shape (n_values, n_classes,)</span>
+<span class="sd">        :return: float in [0,1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">within_intervals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I_low</span> <span class="o">&lt;=</span> <span class="n">true_value</span><span class="p">,</span> <span class="n">true_value</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">I_high</span><span class="p">)</span>
+        <span class="n">within_all_intervals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">within_intervals</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">proportion</span> <span class="o">=</span> <span class="n">within_all_intervals</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">proportion</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceIntervals.coverage_soft">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervals.coverage_soft">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">coverage_soft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_value</span><span class="p">):</span>
+        <span class="n">within_intervals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I_low</span> <span class="o">&lt;=</span> <span class="n">true_value</span><span class="p">,</span> <span class="n">true_value</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">I_high</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">within_intervals</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;[&#39;</span><span class="o">+</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">low</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">high</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">)&#39;</span> <span class="k">for</span> <span class="p">(</span><span class="n">low</span><span class="p">,</span><span class="n">high</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I_low</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">I_high</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39;]&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">n_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I_low</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ConfidenceIntervals.winkler_scores">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervals.winkler_scores">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">winkler_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_ae</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">true_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">true_prev</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">true_prev</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;unexpected dimensionality for true_prev&#39;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">true_prev</span><span class="p">)</span><span class="o">==</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dim</span><span class="p">,</span> \
+            <span class="sa">f</span><span class="s1">&#39;unexpected number of dimensions; found </span><span class="si">{</span><span class="n">true_prev</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s1">, expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_dim</span><span class="si">}</span><span class="s1">&#39;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">winkler_score</span><span class="p">(</span><span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">,</span> <span class="n">true_val</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">center</span><span class="p">):</span>
+            <span class="n">amp</span> <span class="o">=</span> <span class="n">high</span><span class="o">-</span><span class="n">low</span>
+            <span class="n">scale_cost</span> <span class="o">=</span> <span class="mf">2.</span><span class="o">/</span><span class="n">alpha</span>
+            <span class="n">cost</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">low</span><span class="o">-</span><span class="n">true_val</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">true_val</span><span class="o">-</span><span class="n">high</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">add_ae</span><span class="p">:</span>
+                <span class="n">err</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">true_val</span> <span class="o">-</span> <span class="n">center</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">amp</span> <span class="o">+</span> <span class="n">scale_cost</span><span class="o">*</span><span class="n">cost</span> <span class="o">+</span> <span class="n">err</span>
+
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">winkler_score</span><span class="p">(</span><span class="n">low_i</span><span class="p">,</span> <span class="n">high_i</span><span class="p">,</span> <span class="n">true_v</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">center</span><span class="p">)</span>
+                <span class="k">for</span> <span class="p">(</span><span class="n">low_i</span><span class="p">,</span> <span class="n">high_i</span><span class="p">,</span> <span class="n">true_v</span><span class="p">,</span> <span class="n">center</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I_low</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">I_high</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">point_estimate</span><span class="p">())]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceIntervals.mean_winkler_score">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervals.mean_winkler_score">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mean_winkler_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_ae</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">winkler_scores</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">add_ae</span><span class="o">=</span><span class="n">add_ae</span><span class="p">))</span></div>
+</div>
+
+
+
+
+<div class="viewcode-block" id="ConfidenceEllipseSimplex">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceEllipseSimplex">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfidenceEllipseSimplex</span><span class="p">(</span><span class="n">ConfidenceRegionABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiates a Confidence Ellipse in the probability simplex.</span>
+
+<span class="sd">    :param samples: np.ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">    :param confidence_level: float, the confidence level (default 0.95)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+
+        <span class="k">assert</span> <span class="mf">0.</span> <span class="o">&lt;</span> <span class="n">confidence_level</span> <span class="o">&lt;</span> <span class="mf">1.</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">confidence_level</span><span class="si">=}</span><span class="s1"> must be in range(0,1)&#39;</span>
+
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span> <span class="o">=</span> <span class="n">confidence_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean_</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cov_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">rowvar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">precision_matrix_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">pinv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cov_</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">LinAlgError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">precision_matrix_</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ddof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="c1"># critical chi-square value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span> <span class="o">=</span> <span class="n">confidence_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chi2_critical_</span> <span class="o">=</span> <span class="n">chi2</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">confidence_level</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ddof</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="o">=</span> <span class="n">samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">-</span><span class="n">confidence_level</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">samples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span>
+
+<div class="viewcode-block" id="ConfidenceEllipseSimplex.point_estimate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceEllipseSimplex.point_estimate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">point_estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the point estimate, the center of the ellipse.</span>
+
+<span class="sd">        :return: np.ndarray of shape (n_classes,)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceEllipseSimplex.coverage">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceEllipseSimplex.coverage">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks whether a value, or a sets of values, are contained in the confidence region. The method computes the</span>
+<span class="sd">        fraction of these that are contained in the region, if more than one value is passed. If only one value is</span>
+<span class="sd">        passed, then it either returns 1.0 or 0.0, for indicating the value is in the region or not, respectively.</span>
+
+<span class="sd">        :param true_value: a np.ndarray of shape (n_classes,) or shape (n_values, n_classes,)</span>
+<span class="sd">        :return: float in [0,1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">within_ellipse_prop</span><span class="p">(</span><span class="n">true_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision_matrix_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chi2_critical_</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceEllipseSimplex.closest_point_in_region">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceEllipseSimplex.closest_point_in_region">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closest_point_in_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">closest_point_on_ellipsoid</span><span class="p">(</span>
+            <span class="n">p</span><span class="p">,</span>
+            <span class="n">mean</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mean_</span><span class="p">,</span>
+            <span class="n">cov</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cov_</span><span class="p">,</span>
+            <span class="n">chi2_critical</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">chi2_critical_</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ConfidenceEllipseTransformed">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceEllipseTransformed">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfidenceEllipseTransformed</span><span class="p">(</span><span class="n">ConfidenceRegionABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiates a Confidence Ellipse in a transformed space.</span>
+
+<span class="sd">    :param samples: np.ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">    :param confidence_level: float, the confidence level (default 0.95)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">transformation</span><span class="p">:</span> <span class="n">CompositionalTransformation</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span> <span class="o">=</span> <span class="n">transformation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span> <span class="o">=</span> <span class="n">confidence_level</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># self.mean_ = self.transformation.inverse(np.mean(Z, axis=0))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf_region_z</span> <span class="o">=</span> <span class="n">ConfidenceEllipseSimplex</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="o">=</span> <span class="n">samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">-</span><span class="n">confidence_level</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">samples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span>
+
+<div class="viewcode-block" id="ConfidenceEllipseTransformed.point_estimate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceEllipseTransformed.point_estimate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">point_estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the point estimate, the center of the ellipse.</span>
+
+<span class="sd">        :return: np.ndarray of shape (n_classes,)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The inverse of the CLR does not coincide with the true mean, because the geometric mean</span>
+        <span class="c1"># requires smoothing the prevalence vectors and this affects the softmax (inverse);</span>
+        <span class="c1"># return self.clr.inverse(self.mean_) # &lt;- does not coincide</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceEllipseTransformed.coverage">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceEllipseTransformed.coverage">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks whether a value, or a sets of values, are contained in the confidence region. The method computes the</span>
+<span class="sd">        fraction of these that are contained in the region, if more than one value is passed. If only one value is</span>
+<span class="sd">        passed, then it either returns 1.0 or 0.0, for indicating the value is in the region or not, respectively.</span>
+
+<span class="sd">        :param true_value: a np.ndarray of shape (n_classes,) or shape (n_values, n_classes,)</span>
+<span class="sd">        :return: float in [0,1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">transformed_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">(</span><span class="n">true_value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf_region_z</span><span class="o">.</span><span class="n">coverage</span><span class="p">(</span><span class="n">transformed_values</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceEllipseTransformed.closest_point_in_region">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceEllipseTransformed.closest_point_in_region">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closest_point_in_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="n">p_prime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">b_prime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf_region_z</span><span class="o">.</span><span class="n">closest_point_in_region</span><span class="p">(</span><span class="n">p_prime</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">b_prime</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">b</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ConfidenceEllipseCLR">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceEllipseCLR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfidenceEllipseCLR</span><span class="p">(</span><span class="n">ConfidenceEllipseTransformed</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiates a Confidence Ellipse in the Centered-Log Ratio (CLR) space.</span>
+
+<span class="sd">    :param samples: np.ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">    :param confidence_level: float, the confidence level (default 0.95)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">CLRtransformation</span><span class="p">(),</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ConfidenceEllipseILR">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceEllipseILR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfidenceEllipseILR</span><span class="p">(</span><span class="n">ConfidenceEllipseTransformed</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiates a Confidence Ellipse in the Isometric-Log Ratio (CLR) space.</span>
+
+<span class="sd">    :param samples: np.ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">    :param confidence_level: float, the confidence level (default 0.95)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">ILRtransformation</span><span class="p">(),</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="ConfidenceIntervalsTransformed">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervalsTransformed">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfidenceIntervalsTransformed</span><span class="p">(</span><span class="n">ConfidenceRegionABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiates a Confidence Interval region in a transformed space.</span>
+
+<span class="sd">    :param samples: np.ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">    :param confidence_level: float, the confidence level (default 0.95)</span>
+<span class="sd">    :param bonferroni_correction: bool (default False), if True, a Bonferroni correction</span>
+<span class="sd">        is applied to the significance level (`alpha`) before computing confidence intervals.</span>
+<span class="sd">        The correction consists of replacing `alpha` with `alpha/n_classes`. When</span>
+<span class="sd">        `n_classes=2` the correction is not applied because there is only one verification test</span>
+<span class="sd">        since the other class is constrained. This is not necessarily true for n_classes&gt;2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">transformation</span><span class="p">:</span> <span class="n">CompositionalTransformation</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">bonferroni_correction</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span> <span class="o">=</span> <span class="n">transformation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span> <span class="o">=</span> <span class="n">confidence_level</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># self.mean_ = self.transformation.inverse(np.mean(Z, axis=0))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conf_region_z</span> <span class="o">=</span> <span class="n">ConfidenceIntervals</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">,</span> <span class="n">bonferroni_correction</span><span class="o">=</span><span class="n">bonferroni_correction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="o">=</span> <span class="n">samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">-</span><span class="n">confidence_level</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">samples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span>
+
+<div class="viewcode-block" id="ConfidenceIntervalsTransformed.point_estimate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervalsTransformed.point_estimate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">point_estimate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the point estimate, the center of the ellipse.</span>
+
+<span class="sd">        :return: np.ndarray of shape (n_classes,)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The inverse of the CLR does not coincide with the true mean, because the geometric mean</span>
+        <span class="c1"># requires smoothing the prevalence vectors and this affects the softmax (inverse);</span>
+        <span class="c1"># return self.clr.inverse(self.mean_) # &lt;- does not coincide</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean_</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceIntervalsTransformed.coverage">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervalsTransformed.coverage">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks whether a value, or a sets of values, are contained in the confidence region. The method computes the</span>
+<span class="sd">        fraction of these that are contained in the region, if more than one value is passed. If only one value is</span>
+<span class="sd">        passed, then it either returns 1.0 or 0.0, for indicating the value is in the region or not, respectively.</span>
+
+<span class="sd">        :param true_value: a np.ndarray of shape (n_classes,) or shape (n_values, n_classes,)</span>
+<span class="sd">        :return: float in [0,1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">transformed_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">(</span><span class="n">true_value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf_region_z</span><span class="o">.</span><span class="n">coverage</span><span class="p">(</span><span class="n">transformed_values</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceIntervalsTransformed.coverage_soft">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervalsTransformed.coverage_soft">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">coverage_soft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_value</span><span class="p">):</span>
+        <span class="n">transformed_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">(</span><span class="n">true_value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf_region_z</span><span class="o">.</span><span class="n">coverage_soft</span><span class="p">(</span><span class="n">transformed_values</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceIntervalsTransformed.winkler_scores">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervalsTransformed.winkler_scores">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">winkler_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_ae</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">transformed_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">(</span><span class="n">true_prev</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf_region_z</span><span class="o">.</span><span class="n">winkler_scores</span><span class="p">(</span><span class="n">transformed_values</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">add_ae</span><span class="o">=</span><span class="n">add_ae</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ConfidenceIntervalsTransformed.mean_winkler_score">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervalsTransformed.mean_winkler_score">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mean_winkler_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">add_ae</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">transformed_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformation</span><span class="p">(</span><span class="n">true_prev</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conf_region_z</span><span class="o">.</span><span class="n">mean_winkler_score</span><span class="p">(</span><span class="n">transformed_values</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">add_ae</span><span class="o">=</span><span class="n">add_ae</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ConfidenceIntervalsCLR">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervalsCLR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfidenceIntervalsCLR</span><span class="p">(</span><span class="n">ConfidenceIntervalsTransformed</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiates a Confidence Intervals in the Centered-Log Ratio (CLR) space.</span>
+
+<span class="sd">    :param samples: np.ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">    :param confidence_level: float, the confidence level (default 0.95)</span>
+<span class="sd">    :param bonferroni_correction: bool (default False), if True, a Bonferroni correction</span>
+<span class="sd">        is applied to the significance level (`alpha`) before computing confidence intervals.</span>
+<span class="sd">        The correction consists of replacing `alpha` with `alpha/n_classes`. When</span>
+<span class="sd">        `n_classes=2` the correction is not applied because there is only one verification test</span>
+<span class="sd">        since the other class is constrained. This is not necessarily true for n_classes&gt;2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">bonferroni_correction</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">CLRtransformation</span><span class="p">(),</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">,</span> <span class="n">bonferroni_correction</span><span class="o">=</span><span class="n">bonferroni_correction</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ConfidenceIntervalsILR">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.ConfidenceIntervalsILR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfidenceIntervalsILR</span><span class="p">(</span><span class="n">ConfidenceIntervalsTransformed</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiates a Confidence Intervals in the Isometric-Log Ratio (CLR) space.</span>
+
+<span class="sd">    :param samples: np.ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">    :param confidence_level: float, the confidence level (default 0.95)</span>
+<span class="sd">    :param bonferroni_correction: bool (default False), if True, a Bonferroni correction</span>
+<span class="sd">        is applied to the significance level (`alpha`) before computing confidence intervals.</span>
+<span class="sd">        The correction consists of replacing `alpha` with `alpha/n_classes`. When</span>
+<span class="sd">        `n_classes=2` the correction is not applied because there is only one verification test</span>
+<span class="sd">        since the other class is constrained. This is not necessarily true for n_classes&gt;2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">bonferroni_correction</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">ILRtransformation</span><span class="p">(),</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">,</span> <span class="n">bonferroni_correction</span><span class="o">=</span><span class="n">bonferroni_correction</span><span class="p">)</span></div>
+
+
+
+
+<div class="viewcode-block" id="AggregativeBootstrap">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.AggregativeBootstrap">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AggregativeBootstrap</span><span class="p">(</span><span class="n">WithConfidenceABC</span><span class="p">,</span> <span class="n">AggregativeQuantifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Aggregative Bootstrap allows any AggregativeQuantifier to get confidence regions around</span>
+<span class="sd">    point-estimates of class prevalence values. This method implements some optimizations for</span>
+<span class="sd">    speeding up the computations, which are only possible due to the two phases of the aggregative</span>
+<span class="sd">    quantifiers.</span>
+
+<span class="sd">    During training, the bootstrap repetitions are only carried out over pre-classified training instances,</span>
+<span class="sd">    after the classifier has been trained (only once), in order to train a series of aggregation</span>
+<span class="sd">    functions (model-based approach).</span>
+
+<span class="sd">    During inference, the bootstrap repetitions are applied to the pre-classified test instances.</span>
+
+<span class="sd">    See</span>
+<span class="sd">    `Moreo, A., Salvati, N.</span>
+<span class="sd">    An Efficient Method for Deriving Confidence Intervals in Aggregative Quantification.</span>
+<span class="sd">    Learning to Quantify: Methods and Applications (LQ 2025), co-located at ECML-PKDD 2025.</span>
+<span class="sd">    pp 12-33 &lt;https://lq-2025.github.io/proceedings/CompleteVolume.pdf&gt;`_</span>
+
+<span class="sd">    :param quantifier: an aggregative quantifier</span>
+<span class="sd">    :para n_train_samples: int, the number of training resamplings (defaults to 1, set to &gt; 1 to activate a</span>
+<span class="sd">        model-based bootstrap approach)</span>
+<span class="sd">    :para n_test_samples: int, the number of test resamplings (defaults to 500, set to &gt; 1 to activate a</span>
+<span class="sd">        population-based bootstrap approach)</span>
+<span class="sd">    :param confidence_level: float, the confidence level for the confidence region (default 0.95)</span>
+<span class="sd">    :param region: string, set to `intervals` for constructing confidence intervals (default), or to</span>
+<span class="sd">        `ellipse` for constructing an ellipse in the probability simplex, or to `ellipse-clr` for</span>
+<span class="sd">        constructing an ellipse in the Centered-Log Ratio (CLR) unconstrained space.</span>
+<span class="sd">    :param bonferroni: bool (default False), whether to apply Bonferroni correction when</span>
+<span class="sd">        `region=&#39;intervals&#39;`. This parameter has no effect for ellipse-based regions.</span>
+<span class="sd">    :param random_state: int for replicating samples, None (default) for non-replicable samples</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">quantifier</span><span class="p">:</span> <span class="n">AggregativeQuantifier</span><span class="p">,</span>
+                 <span class="n">n_train_samples</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">n_test_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+                 <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
+                 <span class="n">region</span><span class="o">=</span><span class="s1">&#39;intervals&#39;</span><span class="p">,</span>
+                 <span class="n">bonferroni</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">AggregativeQuantifier</span><span class="p">),</span> \
+            <span class="sa">f</span><span class="s1">&#39;base quantifier does not seem to be an instance of </span><span class="si">{</span><span class="n">AggregativeQuantifier</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">assert</span> <span class="n">n_train_samples</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> \
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">n_train_samples</span><span class="si">=}</span><span class="s1"> must be &gt;= 1&#39;</span>
+        <span class="k">assert</span> <span class="n">n_test_samples</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> \
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">n_test_samples</span><span class="si">=}</span><span class="s1"> must be &gt;= 1&#39;</span>
+        <span class="k">assert</span> <span class="n">n_test_samples</span><span class="o">&gt;</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">n_train_samples</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">,</span> \
+            <span class="sa">f</span><span class="s1">&#39;either </span><span class="si">{</span><span class="n">n_test_samples</span><span class="si">=}</span><span class="s1"> or </span><span class="si">{</span><span class="n">n_train_samples</span><span class="si">=}</span><span class="s1"> must be &gt;1&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">quantifier</span> <span class="o">=</span> <span class="n">quantifier</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_train_samples</span> <span class="o">=</span> <span class="n">n_train_samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_test_samples</span> <span class="o">=</span> <span class="n">n_test_samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span> <span class="o">=</span> <span class="n">confidence_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">region</span> <span class="o">=</span> <span class="n">region</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bonferroni</span> <span class="o">=</span> <span class="n">bonferroni</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+<div class="viewcode-block" id="AggregativeBootstrap.aggregation_fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.AggregativeBootstrap.aggregation_fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">quantifiers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_train_samples</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">quantifier</span><span class="o">.</span><span class="n">aggregation_fit</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">quantifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quantifier</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">classif_predictions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># The entire dataset was consumed for classifier training, implying there is no need for training</span>
+                <span class="c1"># an aggregation function. If the bootstrap method was configured to train different aggregators</span>
+                <span class="c1"># (i.e., self.n_train_samples&gt;1), then an error is raise. Otherwise, the method ends.</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_train_samples</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;The underlying quantifier (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">quantifier</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">) has consumed, all training &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;data, meaning the aggregation function needs none, but </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_train_samples</span><span class="si">=}</span><span class="s1"> is &gt; 1, which &#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39;is inconsistent.&#39;</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># model-based bootstrap (only on the aggregative part)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+                <span class="n">n_examples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">full_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_examples</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_train_samples</span><span class="p">):</span>
+                        <span class="n">quantifier</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">quantifier</span><span class="p">)</span>
+                        <span class="n">index</span> <span class="o">=</span> <span class="n">resample</span><span class="p">(</span><span class="n">full_index</span><span class="p">,</span> <span class="n">n_samples</span><span class="o">=</span><span class="n">n_examples</span><span class="p">)</span>
+                        <span class="n">classif_predictions_i</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                        <span class="n">data_i</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                        <span class="n">quantifier</span><span class="o">.</span><span class="n">aggregation_fit</span><span class="p">(</span><span class="n">classif_predictions_i</span><span class="p">,</span> <span class="n">data_i</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">quantifiers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">quantifier</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="AggregativeBootstrap.aggregate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.AggregativeBootstrap.aggregate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">prev_mean</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate_conf</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prev_mean</span></div>
+
+
+<div class="viewcode-block" id="AggregativeBootstrap.aggregate_conf_sequential__">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.AggregativeBootstrap.aggregate_conf_sequential__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_conf_sequential__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">confidence_level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">confidence_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span>
+
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">prevs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">quantifier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantifiers</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_test_samples</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;resampling&#39;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_test_samples</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">):</span>
+                    <span class="n">sample_i</span> <span class="o">=</span> <span class="n">resample</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="n">n_samples</span><span class="o">=</span><span class="n">n_samples</span><span class="p">)</span>
+                    <span class="n">prev_i</span> <span class="o">=</span> <span class="n">quantifier</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">sample_i</span><span class="p">)</span>
+                    <span class="n">prevs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prev_i</span><span class="p">)</span>
+
+        <span class="n">conf</span> <span class="o">=</span> <span class="n">WithConfidenceABC</span><span class="o">.</span><span class="n">construct_region</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">confidence_level</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">bonferroni</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bonferroni</span><span class="p">)</span>
+        <span class="n">prev_estim</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">point_estimate</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">prev_estim</span><span class="p">,</span> <span class="n">conf</span></div>
+
+
+<div class="viewcode-block" id="AggregativeBootstrap.aggregate_conf">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.AggregativeBootstrap.aggregate_conf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">confidence_level</span> <span class="o">=</span> <span class="n">confidence_level</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span>
+
+
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">prevs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">quantifier</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantifiers</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)(</span>
+                    <span class="n">delayed</span><span class="p">(</span><span class="n">bootstrap_once</span><span class="p">)(</span><span class="n">i</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">quantifier</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_test_samples</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">prevs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="n">prevs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">prevs</span><span class="p">)</span>
+        <span class="n">conf</span> <span class="o">=</span> <span class="n">WithConfidenceABC</span><span class="o">.</span><span class="n">construct_region</span><span class="p">(</span><span class="n">prevs</span><span class="p">,</span> <span class="n">confidence_level</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">bonferroni</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bonferroni</span><span class="p">)</span>
+        <span class="n">prev_estim</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">point_estimate</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">prev_estim</span><span class="p">,</span> <span class="n">conf</span></div>
+
+
+<div class="viewcode-block" id="AggregativeBootstrap.fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.AggregativeBootstrap.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quantifier</span><span class="o">.</span><span class="n">_check_init_parameters</span><span class="p">()</span>
+        <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantifier</span><span class="o">.</span><span class="n">classifier_fit_predict</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">aggregation_fit</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="AggregativeBootstrap.predict_conf">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.AggregativeBootstrap.predict_conf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ConfidenceRegionABC</span><span class="p">):</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate_conf</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantifier</span><span class="o">.</span><span class="n">classifier</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_classifier_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantifier</span><span class="o">.</span><span class="n">_classifier_method</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="bootstrap_once">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.bootstrap_once">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">bootstrap_once</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">quantifier</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">):</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">),</span> <span class="n">n_samples</span><span class="p">)</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="n">prev</span> <span class="o">=</span> <span class="n">quantifier</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">prev</span></div>
+
+
+
+<div class="viewcode-block" id="BayesianCC">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.BayesianCC">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BayesianCC</span><span class="p">(</span><span class="n">AggregativeCrispQuantifier</span><span class="p">,</span> <span class="n">WithConfidenceABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    `Bayesian quantification &lt;https://arxiv.org/abs/2302.09159&gt;`_ method (by Albert Ziegler and Paweł Czyż),</span>
+<span class="sd">    which is a variant of :class:`ACC` that calculates the posterior probability distribution</span>
+<span class="sd">    over the prevalence vectors, rather than providing a point estimate obtained</span>
+<span class="sd">    by matrix inversion.</span>
+
+<span class="sd">    Can be used to diagnose degeneracy in the predictions visible when the confusion</span>
+<span class="sd">    matrix has high condition number or to quantify uncertainty around the point estimate.</span>
+
+<span class="sd">    This method relies on extra dependencies, which have to be installed via:</span>
+<span class="sd">    `$ pip install quapy[bayes]`</span>
+
+<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param val_split:  specifies the data used for generating classifier predictions. This specification</span>
+<span class="sd">        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to</span>
+<span class="sd">        be extracted from the training set; or as an integer (default 5), indicating that the predictions</span>
+<span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
+<span class="sd">        for `k`); or as a tuple `(X,y)` defining the specific set of data to use for validation. Set to</span>
+<span class="sd">        None when the method does not require any validation data, in order to avoid that some portion of</span>
+<span class="sd">        the training data be wasted.</span>
+<span class="sd">    :param num_warmup: number of warmup iterations for the MCMC sampler (default 500)</span>
+<span class="sd">    :param num_samples: number of samples to draw from the posterior (default 1000)</span>
+<span class="sd">    :param mcmc_seed: random seed for the MCMC sampler (default 0)</span>
+<span class="sd">    :param confidence_level: float in [0,1] to construct a confidence region around the point estimate (default 0.95)</span>
+<span class="sd">    :param region: string, set to `intervals` for constructing confidence intervals (default), or to</span>
+<span class="sd">        `ellipse` for constructing an ellipse in the probability simplex, or to `ellipse-clr` for</span>
+<span class="sd">        constructing an ellipse in the Centered-Log Ratio (CLR) unconstrained space.</span>
+<span class="sd">    :param bonferroni: bool (default False), whether to apply Bonferroni correction when</span>
+<span class="sd">        `region=&#39;intervals&#39;`. This parameter has no effect for ellipse-based regions.</span>
+<span class="sd">    :param prior: an array-like with the alpha parameters of a Dirichlet prior, a scalar real value</span>
+<span class="sd">        to be broadcast to all classes, or the string &#39;uniform&#39; for a uniform, uninformative prior (default)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">val_split</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+                 <span class="n">num_warmup</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+                 <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1_000</span><span class="p">,</span>
+                 <span class="n">mcmc_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">confidence_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+                 <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;intervals&#39;</span><span class="p">,</span>
+                 <span class="n">bonferroni</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">temperature</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> 
+                 <span class="n">prior</span> <span class="o">=</span> <span class="s1">&#39;uniform&#39;</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">num_warmup</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;parameter </span><span class="si">{</span><span class="n">num_warmup</span><span class="si">=}</span><span class="s1"> must be a positive integer&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_samples</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;parameter </span><span class="si">{</span><span class="n">num_samples</span><span class="si">=}</span><span class="s1"> must be a positive integer&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">prior</span> <span class="o">==</span> <span class="s1">&#39;uniform&#39;</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="ow">or</span>
+                <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Number</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">prior</span><span class="p">))),</span> \
+            <span class="sa">f</span><span class="s1">&#39;wrong type for </span><span class="si">{</span><span class="n">prior</span><span class="si">=}</span><span class="s1">; expected &quot;uniform&quot;, a real scalar, or an array-like of real values&#39;</span>
+
+        <span class="n">bayesian</span> <span class="o">=</span> <span class="n">_get_bayesian_module</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">bayesian</span><span class="o">.</span><span class="n">DEPENDENCIES_INSTALLED</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;Auxiliary dependencies are required. &quot;</span>
+                              <span class="s2">&quot;Run `$ pip install quapy[bayes]` to install them.&quot;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_warmup</span> <span class="o">=</span> <span class="n">num_warmup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="n">num_samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mcmc_seed</span> <span class="o">=</span> <span class="n">mcmc_seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span> <span class="o">=</span> <span class="n">confidence_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">region</span> <span class="o">=</span> <span class="n">region</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bonferroni</span> <span class="o">=</span> <span class="n">bonferroni</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">prior</span>
+
+        <span class="c1"># Array of shape (n_classes, n_predicted_classes,) where entry (y, c) is the number of instances</span>
+        <span class="c1"># labeled as class y and predicted as class c.</span>
+        <span class="c1"># By default, this array is set to None and later defined as part of the `aggregation_fit` phase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_and_c_labeled</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Dictionary with posterior samples, set when `aggregate` is provided.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="BayesianCC.aggregation_fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.BayesianCC.aggregation_fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimates the misclassification rates.</span>
+
+<span class="sd">        :param classif_predictions: array-like with the label predictions returned by the classifier</span>
+<span class="sd">        :param labels: array-like with the true labels associated to each classifier prediction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pred_labels</span> <span class="o">=</span> <span class="n">classif_predictions</span>
+        <span class="n">true_labels</span> <span class="o">=</span> <span class="n">labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_and_c_labeled</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span>
+            <span class="n">y_true</span><span class="o">=</span><span class="n">true_labels</span><span class="p">,</span>
+            <span class="n">y_pred</span><span class="o">=</span><span class="n">pred_labels</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BayesianCC.sample_from_posterior">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.BayesianCC.sample_from_posterior">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample_from_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_and_c_labeled</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;aggregation_fit must be called before sample_from_posterior&quot;</span><span class="p">)</span>
+
+        <span class="n">n_c_unlabeled</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">counts_from_labels</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior</span> <span class="o">==</span> <span class="s1">&#39;uniform&#39;</span><span class="p">:</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">alpha</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_classes</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;wrong shape for prior; expected </span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s1"> values, found shape </span><span class="si">{</span><span class="n">alpha</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+
+        <span class="n">bayesian</span> <span class="o">=</span> <span class="n">_get_bayesian_module</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="o">=</span> <span class="n">bayesian</span><span class="o">.</span><span class="n">sample_posterior_bayesianCC</span><span class="p">(</span>
+            <span class="n">n_c_unlabeled</span><span class="o">=</span><span class="n">n_c_unlabeled</span><span class="p">,</span>
+            <span class="n">n_y_and_c_labeled</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_and_c_labeled</span><span class="p">,</span>
+            <span class="n">num_warmup</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_warmup</span><span class="p">,</span>
+            <span class="n">num_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="n">temperature</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mcmc_seed</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span></div>
+
+
+<div class="viewcode-block" id="BayesianCC.get_prevalence_samples">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.BayesianCC.get_prevalence_samples">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_prevalence_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sample_from_posterior must be called before get_prevalence_samples&quot;</span><span class="p">)</span>
+        <span class="n">bayesian</span> <span class="o">=</span> <span class="n">_get_bayesian_module</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span><span class="p">[</span><span class="n">bayesian</span><span class="o">.</span><span class="n">P_TEST_Y</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BayesianCC.get_conditional_probability_samples">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.BayesianCC.get_conditional_probability_samples">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_conditional_probability_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;sample_from_posterior must be called before get_conditional_probability_samples&quot;</span><span class="p">)</span>
+        <span class="n">bayesian</span> <span class="o">=</span> <span class="n">_get_bayesian_module</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span><span class="p">[</span><span class="n">bayesian</span><span class="o">.</span><span class="n">P_C_COND_Y</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="BayesianCC.aggregate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.BayesianCC.aggregate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">):</span>
+        <span class="n">bayesian</span> <span class="o">=</span> <span class="n">_get_bayesian_module</span><span class="p">()</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_from_posterior</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">)[</span><span class="n">bayesian</span><span class="o">.</span><span class="n">P_TEST_Y</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BayesianCC.predict_conf">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.BayesianCC.predict_conf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ConfidenceRegionABC</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">confidence_level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">confidence_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span>
+        <span class="n">classif_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+        <span class="n">point_estimate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">)</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prevalence_samples</span><span class="p">()</span>  <span class="c1"># available after calling &quot;aggregate&quot; function</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="n">WithConfidenceABC</span><span class="o">.</span><span class="n">construct_region</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">bonferroni</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bonferroni</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">point_estimate</span><span class="p">,</span> <span class="n">region</span></div>
+</div>
+
+    
+
+<div class="viewcode-block" id="PQ">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.PQ">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PQ</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">BinaryAggregativeQuantifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    `Precise Quantifier: Bayesian distribution matching quantifier &lt;https://arxiv.org/abs/2507.06061&gt;,</span>
+<span class="sd">    which is a variant of :class:`HDy` that calculates the posterior probability distribution</span>
+<span class="sd">    over the prevalence vectors, rather than providing a point estimate.</span>
+
+<span class="sd">    This method relies on extra dependencies, which have to be installed via:</span>
+<span class="sd">    `$ pip install quapy[bayes]`</span>
+
+<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param val_split:  specifies the data used for generating classifier predictions. This specification</span>
+<span class="sd">        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to</span>
+<span class="sd">        be extracted from the training set; or as an integer (default 5), indicating that the predictions</span>
+<span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
+<span class="sd">        for `k`); or as a tuple `(X,y)` defining the specific set of data to use for validation. Set to</span>
+<span class="sd">        None when the method does not require any validation data, in order to avoid that some portion of</span>
+<span class="sd">        the training data be wasted.</span>
+<span class="sd">    :param num_warmup: number of warmup iterations for the STAN sampler (default 500)</span>
+<span class="sd">    :param num_samples: number of samples to draw from the posterior (default 1000)</span>
+<span class="sd">    :param stan_seed: random seed for the STAN sampler (default 0)</span>
+<span class="sd">    :param region: string, set to `intervals` for constructing confidence intervals (default), or to</span>
+<span class="sd">        `ellipse` for constructing an ellipse in the probability simplex, or to `ellipse-clr` for</span>
+<span class="sd">        constructing an ellipse in the Centered-Log Ratio (CLR) unconstrained space.</span>
+<span class="sd">    :param bonferroni: bool (default False), whether to apply Bonferroni correction when</span>
+<span class="sd">        `region=&#39;intervals&#39;`. This parameter has no effect for ellipse-based regions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">val_split</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+                 <span class="n">nbins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+                 <span class="n">fixed_bins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">num_warmup</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+                 <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1_000</span><span class="p">,</span>
+                 <span class="n">stan_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="n">confidence_level</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+                 <span class="n">region</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;intervals&#39;</span><span class="p">,</span>
+                 <span class="n">bonferroni</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">num_warmup</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;parameter </span><span class="si">{</span><span class="n">num_warmup</span><span class="si">=}</span><span class="s1"> must be a positive integer&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_samples</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;parameter </span><span class="si">{</span><span class="n">num_samples</span><span class="si">=}</span><span class="s1"> must be a positive integer&#39;</span><span class="p">)</span>
+
+        <span class="n">bayesian</span> <span class="o">=</span> <span class="n">_get_bayesian_module</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">bayesian</span><span class="o">.</span><span class="n">DEPENDENCIES_INSTALLED</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s2">&quot;Auxiliary dependencies are required. &quot;</span>
+                              <span class="s2">&quot;Run `$ pip install quapy[bayes]` to install them.&quot;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">nbins</span> <span class="o">=</span> <span class="n">nbins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fixed_bins</span> <span class="o">=</span> <span class="n">fixed_bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_warmup</span> <span class="o">=</span> <span class="n">num_warmup</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span> <span class="o">=</span> <span class="n">num_samples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stan_seed</span> <span class="o">=</span> <span class="n">stan_seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stan_code</span> <span class="o">=</span> <span class="n">bayesian</span><span class="o">.</span><span class="n">load_stan_file</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span> <span class="o">=</span> <span class="n">confidence_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">region</span> <span class="o">=</span> <span class="n">region</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bonferroni</span> <span class="o">=</span> <span class="n">bonferroni</span>
+
+<div class="viewcode-block" id="PQ.aggregation_fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.PQ.aggregation_fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">]</span>
+
+        <span class="c1"># Compute bin limits</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_bins</span><span class="p">:</span>
+            <span class="c1"># Uniform bins in [0,1]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bin_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Quantile bins</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bin_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># Assign each prediction to a bin</span>
+        <span class="n">bin_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Positive and negative masks</span>
+        <span class="n">pos_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">)</span>
+        <span class="n">neg_mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">pos_mask</span>
+
+        <span class="c1"># Count positives and negatives per bin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_hist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">bin_indices</span><span class="p">[</span><span class="n">pos_mask</span><span class="p">],</span> <span class="n">minlength</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nbins</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neg_hist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">bin_indices</span><span class="p">[</span><span class="n">neg_mask</span><span class="p">],</span> <span class="n">minlength</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nbins</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PQ.aggregate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.PQ.aggregate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">):</span>
+        <span class="n">Px_test</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">]</span>
+        <span class="n">test_hist</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">Px_test</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bin_limits</span><span class="p">)</span>
+        <span class="n">bayesian</span> <span class="o">=</span> <span class="n">_get_bayesian_module</span><span class="p">()</span>
+        <span class="n">prevs</span> <span class="o">=</span> <span class="n">bayesian</span><span class="o">.</span><span class="n">pq_stan</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stan_code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nbins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_hist</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">neg_hist</span><span class="p">,</span> <span class="n">test_hist</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_warmup</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stan_seed</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prev_distribution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="mi">1</span><span class="o">-</span><span class="n">prevs</span><span class="p">,</span> <span class="n">prevs</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_distribution</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PQ.aggregate_conf">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.PQ.aggregate_conf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">confidence_level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">confidence_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span>
+        <span class="n">point_estimate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev_distribution</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="n">WithConfidenceABC</span><span class="o">.</span><span class="n">construct_region</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">bonferroni</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bonferroni</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">point_estimate</span><span class="p">,</span> <span class="n">region</span></div>
+
+
+<div class="viewcode-block" id="PQ.predict_conf">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.confidence.PQ.predict_conf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">ConfidenceRegionABC</span><span class="p">):</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">instances</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate_conf</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024, Alejandro Moreo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

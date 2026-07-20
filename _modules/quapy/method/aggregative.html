@@ -1,86 +1,380 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>quapy.method.aggregative &mdash; QuaPy: A Python-based open-source framework for quantification 0.2.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>quapy.method.aggregative &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=9f2a2228" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/quapy/method/aggregative';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
 
   
-      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=938c9ccc"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
-</head>
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="../../../index.html" class="icon icon-home">
-            QuaPy: A Python-based open-source framework for quantification
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Quickstart</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../manuals.html">Manuals</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../quapy.html">API</a></li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
-      </nav>
+  
+    
+  
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">quapy.method.aggregative</li>
-      <li class="wy-breadcrumbs-aside">
-      </li>
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../manuals.html">
+    Manuals
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../quapy.html">
+    API
+  </a>
+</li>
+
   </ul>
-  <hr/>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../manuals.html">
+    Manuals
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../quapy.html">
+    API
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">quapy.method.aggregative</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <h1>Source code for quapy.method.aggregative</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">argparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgumentError</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">abstention.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoBiasVectorScaling</span><span class="p">,</span> <span class="n">TempScaling</span><span class="p">,</span> <span class="n">VectorScaling</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.f2py.crackfortran</span><span class="w"> </span><span class="kn">import</span> <span class="n">true_intent_list</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEstimator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">CalibratedClassifierCV</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotFittedError</span>
@@ -94,11 +388,18 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.classification.svmperf</span><span class="w"> </span><span class="kn">import</span> <span class="n">SVMperf</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">LabelledCollection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">BinaryQuantifier</span><span class="p">,</span> <span class="n">OneVsAllGeneric</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method</span><span class="w"> </span><span class="kn">import</span> <span class="n">_bayesian</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method._energy</span><span class="w"> </span><span class="kn">import</span> <span class="n">_EnergyDistanceCore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method._helper</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_get_abstention_calibrators</span><span class="p">,</span>
+    <span class="n">_get_cvxpy</span><span class="p">,</span>
+    <span class="n">_rlls_check_mode</span><span class="p">,</span>
+    <span class="n">_rlls_joint_distribution</span><span class="p">,</span>
+    <span class="n">_rlls_predicted_marginal</span><span class="p">,</span>
+    <span class="n">_rlls_compute_3deltaC</span><span class="p">,</span>
+    <span class="n">_rlls_compute_weights</span><span class="p">,</span>
+    <span class="n">_labels_to_indices</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="c1"># import warnings</span>
-<span class="c1"># from sklearn.exceptions import ConvergenceWarning</span>
-<span class="c1"># warnings.filterwarnings(&quot;ignore&quot;, category=ConvergenceWarning)</span>
 
 
 <span class="c1"># Abstract classes</span>
@@ -156,9 +457,9 @@
                 <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;when </span><span class="si">{</span><span class="n">val_split</span><span class="si">=}</span><span class="s1"> is indicated as an integer, it represents the number of folds in a kFCV &#39;</span>
                  <span class="sa">f</span><span class="s1">&#39;and must thus be &gt;1&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">val_split</span><span class="o">==</span><span class="mi">5</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fit_classifier</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Warning: </span><span class="si">{</span><span class="n">val_split</span><span class="si">=}</span><span class="s1"> will be ignored when the classifier is already trained &#39;</span>
-                      <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">fit_classifier</span><span class="si">=}</span><span class="s1">). Parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val_split</span><span class="si">=}</span><span class="s1"> will be set to None. Set </span><span class="si">{</span><span class="n">val_split</span><span class="si">=}</span><span class="s1"> &#39;</span>
-                      <span class="sa">f</span><span class="s1">&#39;to None to avoid this warning.&#39;</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">val_split</span><span class="si">=}</span><span class="s1"> will be ignored when the classifier is already trained &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;(</span><span class="si">{</span><span class="n">fit_classifier</span><span class="si">=}</span><span class="s1">). Parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val_split</span><span class="si">=}</span><span class="s1"> will be set to None. Set </span><span class="si">{</span><span class="n">val_split</span><span class="si">=}</span><span class="s1"> &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;to None to avoid this warning.&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span><span class="o">=</span><span class="kc">None</span>
             <span class="k">if</span> <span class="n">val_split</span><span class="o">!=</span><span class="mi">5</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Parameter </span><span class="si">{</span><span class="n">val_split</span><span class="si">=}</span><span class="s1"> has been modified, but </span><span class="si">{</span><span class="n">fit_classifier</span><span class="si">=}</span><span class="s1"> &#39;</span>
@@ -441,8 +742,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_classifier_method</span><span class="p">()):</span>
             <span class="k">if</span> <span class="n">adapt_if_necessary</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;warning: The learner </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> does not seem to be &#39;</span>
-                      <span class="sa">f</span><span class="s1">&#39;probabilistic. The learner will be calibrated (using CalibratedClassifierCV).&#39;</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The learner </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> does not seem to be &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;probabilistic. The learner will be calibrated (using CalibratedClassifierCV).&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">CalibratedClassifierCV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;error: The learner </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> does not &#39;</span>
@@ -478,8 +779,13 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.CC">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CC</span><span class="p">(</span><span class="n">AggregativeCrispQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The most basic Quantification method. One that simply classifies all instances and counts how many have been</span>
-<span class="sd">    attributed to each of the classes in order to compute class prevalence estimates.</span>
+<span class="sd">    `Classify &amp; Count` (CC), the most basic quantification method, one that</span>
+<span class="sd">    simply classifies all instances and counts how many have been attributed to</span>
+<span class="sd">    each class in order to compute class prevalence estimates. This baseline is</span>
+<span class="sd">    the unadjusted estimator discussed, among others, in</span>
+<span class="sd">    `Forman, G. (2008). Quantifying counts and costs via classification.</span>
+<span class="sd">    Data Mining and Knowledge Discovery, 17, 164-206</span>
+<span class="sd">    &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_.</span>
 
 <span class="sd">    :param classifier: a sklearn&#39;s Estimator that generates a classifier</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -516,14 +822,19 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PCC">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PCC</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    `Probabilistic Classify &amp; Count &lt;https://ieeexplore.ieee.org/abstract/document/5694031&gt;`_,</span>
-<span class="sd">    the probabilistic variant of CC that relies on the posterior probabilities returned by a probabilistic classifier.</span>
+<span class="sd">    `Probabilistic Classify &amp; Count` (PCC), the probabilistic variant of CC</span>
+<span class="sd">    that relies on the posterior probabilities returned by a probabilistic</span>
+<span class="sd">    classifier, introduced in</span>
+<span class="sd">    `Bella, A., Ferri, C., Hernández-Orallo, J., and Ramírez-Quintana, M.J.</span>
+<span class="sd">    (2010). Quantification via probability estimators. In Proceedings of the</span>
+<span class="sd">    2010 IEEE International Conference on Data Mining (ICDM 2010)</span>
+<span class="sd">    &lt;https://ieeexplore.ieee.org/abstract/document/5694031&gt;`_.</span>
 
 <span class="sd">    :param classifier: a sklearn&#39;s Estimator that generates a classifier</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="n">val_split</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PCC.aggregation_fit">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PCC.aggregation_fit">[docs]</a>
@@ -549,9 +860,12 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.ACC">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ACC</span><span class="p">(</span><span class="n">AggregativeCrispQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    `Adjusted Classify &amp; Count &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_,</span>
-<span class="sd">    the &quot;adjusted&quot; variant of :class:`CC`, that corrects the predictions of CC</span>
-<span class="sd">    according to the `misclassification rates`.</span>
+<span class="sd">    `Adjusted Classify &amp; Count` (ACC), the &quot;adjusted&quot; variant of :class:`CC`</span>
+<span class="sd">    that corrects the predictions of CC according to the</span>
+<span class="sd">    misclassification rates, originally proposed in</span>
+<span class="sd">    `Forman, G. (2008). Quantifying counts and costs via classification.</span>
+<span class="sd">    Data Mining and Knowledge Discovery, 17, 164-206</span>
+<span class="sd">    &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_.</span>
 
 <span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
 <span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
@@ -708,8 +1022,13 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.PACC">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PACC</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    `Probabilistic Adjusted Classify &amp; Count &lt;https://ieeexplore.ieee.org/abstract/document/5694031&gt;`_,</span>
-<span class="sd">    the probabilistic variant of ACC that relies on the posterior probabilities returned by a probabilistic classifier.</span>
+<span class="sd">    `Probabilistic Adjusted Classify &amp; Count` (PACC), the probabilistic</span>
+<span class="sd">    variant of ACC that relies on the posterior probabilities returned by a</span>
+<span class="sd">    probabilistic classifier, introduced in</span>
+<span class="sd">    `Bella, A., Ferri, C., Hernández-Orallo, J., and Ramírez-Quintana, M.J.</span>
+<span class="sd">    (2010). Quantification via probability estimators. In Proceedings of the</span>
+<span class="sd">    2010 IEEE International Conference on Data Mining (ICDM 2010)</span>
+<span class="sd">    &lt;https://ieeexplore.ieee.org/abstract/document/5694031&gt;`_.</span>
 
 <span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
 <span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
@@ -824,6 +1143,117 @@
 
 
 
+<div class="viewcode-block" id="RLLS">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.RLLS">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RLLS</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    `Regularized Learning for Domain Adaptation under Label Shifts</span>
+<span class="sd">    &lt;https://arxiv.org/abs/1903.09734&gt;`_, used here as an aggregative</span>
+<span class="sd">    quantifier.</span>
+
+<span class="sd">    This implementation ports the regularized weight-estimation component of</span>
+<span class="sd">    RLLS to QuaPy&#39;s aggregative interface. It estimates label-shift ratios from</span>
+<span class="sd">    validation posteriors and source labels, then rescales the source</span>
+<span class="sd">    prevalence to obtain target prevalence estimates.</span>
+
+<span class="sd">    This method relies on the optional `cvxpy` dependency.</span>
+
+<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case</span>
+<span class="sd">        the classifier is taken to be the one indicated in</span>
+<span class="sd">        `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param fit_classifier: whether to train the learner (default is True). Set</span>
+<span class="sd">        to False if the learner has been trained outside the quantifier.</span>
+<span class="sd">    :param val_split: specifies the data used for generating classifier</span>
+<span class="sd">        predictions. This specification can be made as float in (0, 1)</span>
+<span class="sd">        indicating the proportion of stratified held-out validation set to be</span>
+<span class="sd">        extracted from the training set; or as an integer (default 5),</span>
+<span class="sd">        indicating that the predictions are to be generated in a `k`-fold</span>
+<span class="sd">        cross-validation manner; or as a tuple `(X, y)` defining the specific</span>
+<span class="sd">        set of data to use for validation. This method requires source</span>
+<span class="sd">        predictions and therefore needs `val_split` whenever</span>
+<span class="sd">        `fit_classifier=True`.</span>
+<span class="sd">    :param mode: whether source- and target-domain quantities are estimated</span>
+<span class="sd">        from posterior probabilities (`soft`, default) or from argmax</span>
+<span class="sd">        predictions (`hard`)</span>
+<span class="sd">    :param alpha: multiplicative factor for the regularization level (default</span>
+<span class="sd">        0.01)</span>
+<span class="sd">    :param delta: confidence parameter used in the finite-sample regularizer</span>
+<span class="sd">        (default 0.05)</span>
+<span class="sd">    :param clip_weights: if True, clips negative importance weights to zero</span>
+<span class="sd">        before converting them into prevalence estimates</span>
+<span class="sd">    :param norm: the normalization method passed to</span>
+<span class="sd">        :func:`quapy.functional.normalize_prevalence`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;soft&#39;</span><span class="p">,</span> <span class="s1">&#39;hard&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;soft&#39;</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span>
+            <span class="n">delta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+            <span class="n">clip_weights</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">norm</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;clip&#39;</span><span class="p">,</span> <span class="s1">&#39;mapsimplex&#39;</span><span class="p">,</span> <span class="s1">&#39;condsoftmax&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;clip&#39;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">=</span> <span class="n">delta</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clip_weights</span> <span class="o">=</span> <span class="n">clip_weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">norm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_w_</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_init_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_get_cvxpy</span><span class="p">()</span>
+        <span class="n">_rlls_check_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a non-negative real value for alpha; found </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected delta to be in (0,1); found </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ACC</span><span class="o">.</span><span class="n">NORMALIZATIONS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown normalization; valid ones are </span><span class="si">{</span><span class="n">ACC</span><span class="o">.</span><span class="n">NORMALIZATIONS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_classifier</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;RLLS requires validation predictions for aggregation_fit; &#39;</span>
+                <span class="s1">&#39;please set val_split to an integer, float, or validation tuple&#39;</span>
+            <span class="p">)</span>
+
+<div class="viewcode-block" id="RLLS.aggregation_fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.RLLS.aggregation_fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">classif_predictions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">labels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;RLLS requires source posterior predictions and source labels&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_prevalence_</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">prevalence_from_labels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C_zy_</span> <span class="o">=</span> <span class="n">_rlls_joint_distribution</span><span class="p">(</span>
+            <span class="n">classif_predictions</span><span class="p">,</span>
+            <span class="n">labels</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pz_</span> <span class="o">=</span> <span class="n">_rlls_predicted_marginal</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rho_</span> <span class="o">=</span> <span class="n">_rlls_compute_3deltaC</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RLLS.aggregate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.RLLS.aggregate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_posteriors</span><span class="p">):</span>
+        <span class="n">qz</span> <span class="o">=</span> <span class="n">_rlls_predicted_marginal</span><span class="p">(</span><span class="n">classif_posteriors</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">_rlls_compute_weights</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">C_zy_</span><span class="p">,</span>
+            <span class="n">qz</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pz_</span><span class="p">,</span>
+            <span class="n">rho</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho_</span><span class="p">,</span>
+            <span class="n">clip</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clip_weights</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_w_</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="n">estimate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_prevalence_</span> <span class="o">*</span> <span class="n">w</span>
+        <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">normalize_prevalence</span><span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">norm</span><span class="p">)</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="EMQ">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EMQ</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
@@ -888,7 +1318,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">exact_train_prev</span> <span class="o">=</span> <span class="n">exact_train_prev</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calib</span> <span class="o">=</span> <span class="n">calib</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_calib_error</span> <span class="o">=</span> <span class="n">on_calib_error</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="EMQ.EMQ_BCTS">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EMQ.EMQ_BCTS">[docs]</a>
@@ -928,15 +1358,15 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_init_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exact_train_prev</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">calib</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">RuntimeWarning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val_split</span><span class="si">=}</span><span class="s1"> was specified for EMQ, while the parameters &#39;</span>
-                                     <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exact_train_prev</span><span class="si">=}</span><span class="s1"> and </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib</span><span class="si">=}</span><span class="s1">. This has no effect and causes an &#39;</span>
-                                     <span class="sa">f</span><span class="s1">&#39;unnecessary overload.&#39;</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">val_split</span><span class="si">=}</span><span class="s1"> was specified for EMQ, while the parameters &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">exact_train_prev</span><span class="si">=}</span><span class="s1"> and </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib</span><span class="si">=}</span><span class="s1">. This has no effect and causes an &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;unnecessary overload.&#39;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calib</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[warning] The parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib</span><span class="si">=}</span><span class="s1"> requires the val_split be different from None. &#39;</span>
-                      <span class="sa">f</span><span class="s1">&#39;This parameter will be set to 5. To avoid this warning, set this value to a float value &#39;</span>
-                      <span class="sa">f</span><span class="s1">&#39;indicating the proportion of training data to be used as validation, or to an integer &#39;</span>
-                      <span class="sa">f</span><span class="s1">&#39;indicating the number of folds for kFCV.&#39;</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib</span><span class="si">=}</span><span class="s1"> requires the val_split be different from None. &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;This parameter will be set to 5. To avoid this warning, set this value to a float value &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;indicating the proportion of training data to be used as validation, or to an integer &#39;</span>
+                              <span class="sa">f</span><span class="s1">&#39;indicating the number of folds for kFCV.&#39;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="o">=</span> <span class="mi">5</span>
 
 <div class="viewcode-block" id="EMQ.classify">
@@ -1006,22 +1436,17 @@
         <span class="n">requires_predictions</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exact_train_prev</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">P</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">requires_predictions</span><span class="p">:</span>
             <span class="c1"># classifier predictions were not generated because val_split=None</span>
-            <span class="k">raise</span> <span class="n">ArgumentError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">val_split</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span>
-                                <span class="s2">&quot;: Classifier predictions for the aggregative fit were not generated because &quot;</span>
-                                <span class="s2">&quot;val_split=None. This usually happens when you enable calibrations or heuristics &quot;</span>
-                                <span class="s2">&quot;during model selection but left val_split set to its default value (None). &quot;</span>
-                                <span class="s2">&quot;Please provide one of the following values for val_split: (i) an integer &gt;1 &quot;</span>
-                                <span class="s2">&quot;(e.g. val_split=5) for k-fold cross-validation; (ii) a float in (0,1) (e.g. &quot;</span>
-                                <span class="s2">&quot;val_split=0.3) for a proportion split; or (iii) a tuple (X, y) with explicit &quot;</span>
-                                <span class="s2">&quot;validation data&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span>
+                             <span class="s2">&quot;: Classifier predictions for the aggregative fit were not generated because &quot;</span>
+                             <span class="s2">&quot;val_split=None. This usually happens when you enable calibrations or heuristics &quot;</span>
+                             <span class="s2">&quot;during model selection but left val_split set to its default value (None). &quot;</span>
+                             <span class="s2">&quot;Please provide one of the following values for val_split: (i) an integer &gt;1 &quot;</span>
+                             <span class="s2">&quot;(e.g. val_split=5) for k-fold cross-validation; (ii) a float in (0,1) (e.g. &quot;</span>
+                             <span class="s2">&quot;val_split=0.3) for a proportion split; or (iii) a tuple (X, y) with explicit &quot;</span>
+                             <span class="s2">&quot;validation data&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">calib</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">calibrator</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">&#39;nbvs&#39;</span><span class="p">:</span> <span class="n">NoBiasVectorScaling</span><span class="p">(),</span>
-                <span class="s1">&#39;bcts&#39;</span><span class="p">:</span> <span class="n">TempScaling</span><span class="p">(</span><span class="n">bias_positions</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">),</span>
-                <span class="s1">&#39;ts&#39;</span><span class="p">:</span> <span class="n">TempScaling</span><span class="p">(),</span>
-                <span class="s1">&#39;vs&#39;</span><span class="p">:</span> <span class="n">VectorScaling</span><span class="p">()</span>
-            <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">calibrator</span> <span class="o">=</span> <span class="n">_get_abstention_calibrators</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">calib</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">calibrator</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;invalid value for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">calib</span><span class="si">=}</span><span class="s1">; valid ones are </span><span class="si">{</span><span class="n">EMQ</span><span class="o">.</span><span class="n">CALIB_OPTIONS</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -1098,7 +1523,7 @@
             <span class="n">s</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">converged</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[warning] the method has reached the maximum number of iterations; it might have not converged&#39;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;the method has reached the maximum number of iterations; it might have not converged&#39;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">qs</span><span class="p">,</span> <span class="n">ps</span></div>
 </div>
@@ -1116,6 +1541,10 @@
 <span class="sd">    the other is generated from a validation set. This latter distribution is defined as a mixture of the</span>
 <span class="sd">    class-conditional distributions of the posterior probabilities returned for the positive and negative validation</span>
 <span class="sd">    examples, respectively. The parameters of the mixture thus represent the estimates of the class prevalence values.</span>
+
+<span class="sd">    This dedicated class is kept for backward compatibility as the historical</span>
+<span class="sd">    HDy implementation. The same historical preset is also available as</span>
+<span class="sd">    :meth:`DMy.HDy`.</span>
 
 <span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
 <span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
@@ -1168,9 +1597,6 @@
         <span class="n">Px</span> <span class="o">=</span> <span class="n">classif_posteriors</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_label</span><span class="p">]</span>  <span class="c1"># takes only the P(y=+1|x)</span>
 
         <span class="n">prev_estimations</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># for bins in np.linspace(10, 110, 11, dtype=int):  #[10, 20, 30, ..., 100, 110]</span>
-        <span class="c1"># Pxy0_density, _ = np.histogram(self.Pxy0, bins=bins, range=(0, 1), density=True)</span>
-        <span class="c1"># Pxy1_density, _ = np.histogram(self.Pxy1, bins=bins, range=(0, 1), density=True)</span>
         <span class="k">for</span> <span class="n">bins</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">:</span>
             <span class="n">Pxy0_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pxy0_density</span><span class="p">[</span><span class="n">bins</span><span class="p">]</span>
             <span class="n">Pxy1_density</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Pxy1_density</span><span class="p">[</span><span class="n">bins</span><span class="p">]</span>
@@ -1180,13 +1606,12 @@
             <span class="c1"># the authors proposed to search for the prevalence yielding the best matching as a linear search</span>
             <span class="c1"># at small steps (modern implementations resort to an optimization procedure,</span>
             <span class="c1"># see class DistributionMatching)</span>
-            <span class="n">prev_selected</span><span class="p">,</span> <span class="n">min_dist</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-            <span class="k">for</span> <span class="n">prev</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">prevalence_linspace</span><span class="p">(</span><span class="n">grid_points</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">smooth_limits_epsilon</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
-                <span class="n">Px_train</span> <span class="o">=</span> <span class="n">prev</span> <span class="o">*</span> <span class="n">Pxy1_density</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">prev</span><span class="p">)</span> <span class="o">*</span> <span class="n">Pxy0_density</span>
-                <span class="n">hdy</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">HellingerDistance</span><span class="p">(</span><span class="n">Px_train</span><span class="p">,</span> <span class="n">Px_test</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">prev_selected</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">hdy</span> <span class="o">&lt;</span> <span class="n">min_dist</span><span class="p">:</span>
-                    <span class="n">prev_selected</span><span class="p">,</span> <span class="n">min_dist</span> <span class="o">=</span> <span class="n">prev</span><span class="p">,</span> <span class="n">hdy</span>
-            <span class="n">prev_estimations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prev_selected</span><span class="p">)</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">loss</span><span class="p">(</span><span class="n">prev</span><span class="p">):</span>
+                <span class="n">class1_prev</span> <span class="o">=</span> <span class="n">prev</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">Px_train</span> <span class="o">=</span> <span class="n">class1_prev</span> <span class="o">*</span> <span class="n">Pxy1_density</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">class1_prev</span><span class="p">)</span> <span class="o">*</span> <span class="n">Pxy0_density</span>
+                <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">HellingerDistance</span><span class="p">(</span><span class="n">Px_train</span><span class="p">,</span> <span class="n">Px_test</span><span class="p">)</span>
+
+            <span class="n">prev_estimations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">linear_search</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="mi">2</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="n">class1_prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">prev_estimations</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">as_binary_prevalence</span><span class="p">(</span><span class="n">class1_prev</span><span class="p">)</span></div>
@@ -1231,7 +1656,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tol</span> <span class="o">=</span> <span class="n">tol</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">divergence</span> <span class="o">=</span> <span class="n">divergence</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="n">n_bins</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_ternary_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">tol</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -1367,6 +1792,10 @@
 
 <span class="sd">    :param cdf: whether to use CDF instead of PDF (default False)</span>
 
+<span class="sd">    :param search: string indicating the search strategy used to estimate the prevalence values.</span>
+<span class="sd">        Valid options are `optim_minimize` (default, works for binary and multiclass problems),</span>
+<span class="sd">        `linear_search` (binary only), and `ternary_search` (binary only)</span>
+
 <span class="sd">    :param n_jobs: number of parallel workers (default None)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1377,15 +1806,39 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">divergence</span> <span class="o">=</span> <span class="n">divergence</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cdf</span> <span class="o">=</span> <span class="n">cdf</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search</span> <span class="o">=</span> <span class="n">search</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
 
-    <span class="c1"># @classmethod</span>
-    <span class="c1"># def HDy(cls, classifier, val_split=5, n_jobs=None):</span>
-    <span class="c1">#     from quapy.method.meta import MedianEstimator</span>
-    <span class="c1">#</span>
-    <span class="c1">#     hdy = DMy(classifier=classifier, val_split=val_split, search=&#39;linear_search&#39;, divergence=&#39;HD&#39;)</span>
-    <span class="c1">#     hdy = AggregativeMedianEstimator(hdy, param_grid={&#39;nbins&#39;: np.linspace(10, 110, 11).astype(int)}, n_jobs=n_jobs)</span>
-    <span class="c1">#     return hdy</span>
+<div class="viewcode-block" id="DMy.HDy">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.DMy.HDy">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">HDy</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Historical HDy preset expressed as a configuration of :class:`DMy`.</span>
+
+<span class="sd">        This preset reproduces the original HDy setup by using Hellinger</span>
+<span class="sd">        distance, PDF matching, linear search, and a median sweep over</span>
+<span class="sd">        `nbins` in `[10, 20, ..., 110]`.</span>
+
+<span class="sd">        :param classifier: a scikit-learn&#39;s BaseEstimator, or None</span>
+<span class="sd">        :param fit_classifier: whether to train the learner</span>
+<span class="sd">        :param val_split: validation specification for generating posteriors</span>
+<span class="sd">        :param n_jobs: number of parallel workers</span>
+<span class="sd">        :return: an instance of :class:`AggregativeMedianEstimator` configured</span>
+<span class="sd">            to reproduce the historical HDy preset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">classifier</span><span class="o">=</span><span class="n">classifier</span><span class="p">,</span>
+            <span class="n">fit_classifier</span><span class="o">=</span><span class="n">fit_classifier</span><span class="p">,</span>
+            <span class="n">val_split</span><span class="o">=</span><span class="n">val_split</span><span class="p">,</span>
+            <span class="n">nbins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">divergence</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span>
+            <span class="n">cdf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">search</span><span class="o">=</span><span class="s1">&#39;linear_search&#39;</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)}</span>
+        <span class="k">return</span> <span class="n">AggregativeMedianEstimator</span><span class="p">(</span><span class="n">base_quantifier</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_distributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">):</span>
         <span class="n">histograms</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1419,7 +1872,9 @@
 <span class="sd">        :param labels: array-like with the true labels associated to each posterior</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">posteriors</span><span class="p">,</span> <span class="n">true_labels</span> <span class="o">=</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span>
-        <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span>
+        <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
+        <span class="n">true_labels</span> <span class="o">=</span> <span class="n">_labels_to_indices</span><span class="p">(</span><span class="n">true_labels</span><span class="p">,</span> <span class="n">classes</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">validation_distribution</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">parallel</span><span class="p">(</span>
             <span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_distributions</span><span class="p">,</span>
@@ -1516,6 +1971,8 @@
 
 
 
+<div class="viewcode-block" id="newSVMKLD">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMKLD">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">newSVMKLD</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence</span>
@@ -1538,14 +1995,15 @@
 <span class="sd">    :return: returns an instance of CC set to work with SVMperf (with loss and C set properly) as the</span>
 <span class="sd">        underlying classifier</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">newELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;kld&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">newELM</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;kld&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="newSVMKLD">
-<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMKLD">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">newSVMKLD</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+<div class="viewcode-block" id="newSVMNKLD">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.newSVMNKLD">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">newSVMNKLD</span><span class="p">(</span><span class="n">svmperf_base</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence</span>
+<span class="sd">    SVM(NKLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence</span>
 <span class="sd">    normalized via the logistic function, as proposed by</span>
 <span class="sd">    `Esuli et al. 2015 &lt;https://dl.acm.org/doi/abs/10.1145/2700406&gt;`_.</span>
 <span class="sd">    Equivalent to:</span>
@@ -1689,7 +2147,7 @@
 <div class="viewcode-block" id="OneVsAllAggregative.aggregation_fit">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.OneVsAllAggregative.aggregation_fit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_parallel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delayed_binary_aggregate_fit</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_parallel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delayed_binary_aggregate_fit</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
@@ -1702,7 +2160,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_delayed_binary_aggregate_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
         <span class="c1"># trains the aggregation function of the cth quantifier</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_binary_quantifiers</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">aggregate_fit</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">[:,</span> <span class="n">c</span><span class="p">],</span> <span class="n">labels</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict_binary_quantifiers</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">aggregation_fit</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">[:,</span> <span class="n">c</span><span class="p">],</span> <span class="n">labels</span> <span class="o">==</span> <span class="n">c</span><span class="p">)</span></div>
 
 
 
@@ -1779,8 +2237,7 @@
                     <span class="p">((</span><span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">cls_configs</span><span class="p">),</span>
                     <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
                     <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
-                    <span class="n">asarray</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                    <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;threading&#39;</span>
+                    <span class="n">asarray</span><span class="o">=</span><span class="kc">False</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_quantifier</span>
@@ -1792,8 +2249,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_fit_aggregation</span><span class="p">,</span>
                 <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">models_preds</span><span class="p">,</span> <span class="n">q_configs</span><span class="p">),</span>
                 <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
-                <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;threading&#39;</span>
+                <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">configs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">expand_grid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param_grid</span><span class="p">)</span>
@@ -1801,8 +2257,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_fit</span><span class="p">,</span>
                 <span class="p">((</span><span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">),</span>
                 <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
-                <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;threading&#39;</span>
+                <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
@@ -1818,10 +2273,118 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_delayed_predict</span><span class="p">,</span>
             <span class="p">((</span><span class="n">model</span><span class="p">,</span> <span class="n">instances</span><span class="p">)</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">models</span><span class="p">),</span>
             <span class="n">seed</span><span class="o">=</span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;_R_SEED&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
-            <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;threading&#39;</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">prev_preds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EDy">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EDy">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EDy</span><span class="p">(</span><span class="n">_EnergyDistanceCore</span><span class="p">,</span> <span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Energy Distance y (EDy), a posterior-space distribution-matching quantifier</span>
+<span class="sd">    based on energy distance.</span>
+
+<span class="sd">    The method represents each class by the posterior-probability vectors</span>
+<span class="sd">    produced by a probabilistic classifier on validation data, and estimates the</span>
+<span class="sd">    test prevalence vector by matching the test posterior distribution against</span>
+<span class="sd">    the class-conditional validation distributions through an energy-distance</span>
+<span class="sd">    objective solved as a quadratic program. The method is therefore another</span>
+<span class="sd">    instance of the general mixture-matching view of quantification, but it</span>
+<span class="sd">    operates directly on posterior vectors rather than on histogram summaries.</span>
+
+<span class="sd">    This implementation works for binary and multiclass single-label</span>
+<span class="sd">    quantification and relies on the optional ``quadprog`` dependency. It was</span>
+<span class="sd">    adapted to QuaPy&#39;s current aggregative API from the original implementation</span>
+<span class="sd">    available in `quantificationlib &lt;https://github.com/AICGijon/quantificationlib&gt;`_,</span>
+<span class="sd">    and now shares its numerical core with the classifier-free</span>
+<span class="sd">    :class:`quapy.method.non_aggregative.EDx` variant.</span>
+
+<span class="sd">    The current implementation follows the energy-distance formulation discussed</span>
+<span class="sd">    in:</span>
+
+<span class="sd">    * Alberto Castaño, Laura Morán-Fernández, Jaime Alonso,</span>
+<span class="sd">      Verónica Bolón-Canedo, Amparo Alonso-Betanzos, and Juan José del Coz.</span>
+<span class="sd">      *An analysis of quantification methods based on matching distributions*.</span>
+<span class="sd">    * Hideko Kawakubo, Marthinus Christoffel du Plessis, and Masashi Sugiyama</span>
+<span class="sd">      (2016). *Computationally efficient class-prior estimation under class</span>
+<span class="sd">      balance change using energy distance*. IEICE Transactions on Information</span>
+<span class="sd">      and Systems, 99(1):176-186.</span>
+
+<span class="sd">    :param classifier: a scikit-learn ``BaseEstimator``, or ``None`` to use</span>
+<span class="sd">        ``qp.environ[&#39;DEFAULT_CLS&#39;]``</span>
+<span class="sd">    :param fit_classifier: whether to train the learner (default ``True``).</span>
+<span class="sd">        Set to ``False`` if the learner has already been trained outside the</span>
+<span class="sd">        quantifier</span>
+<span class="sd">    :param val_split: specification of the data used for generating validation</span>
+<span class="sd">        posterior probabilities. This can be an integer (default ``5``) for</span>
+<span class="sd">        k-fold cross-validation, a float in ``(0, 1)`` for a held-out split,</span>
+<span class="sd">        or a tuple ``(X, y)`` with explicit validation data</span>
+<span class="sd">    :param distance: distance used to compare posterior vectors. Valid string</span>
+<span class="sd">        aliases are ``&#39;manhattan&#39;`` (default) and ``&#39;euclidean&#39;``; a custom</span>
+<span class="sd">        callable compatible with pairwise-distance signatures can also be used</span>
+<span class="sd">    :param n_jobs: number of parallel workers (default ``None``, meaning the</span>
+<span class="sd">        value is taken from the environment)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fit_classifier</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">distance</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;manhattan&#39;</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_n_cls_i_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_distrib_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">G_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a_</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_init_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_ed_init_parameters</span><span class="p">()</span>
+
+<div class="viewcode-block" id="EDy.aggregation_fit">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EDy.aggregation_fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimate the class-conditional posterior distributions on validation</span>
+<span class="sd">        data and pre-compute the quadratic-program parameters that depend only</span>
+<span class="sd">        on the training side.</span>
+
+<span class="sd">        In EDy, the validation posteriors are not discretized into histograms.</span>
+<span class="sd">        Instead, each class is represented by the cloud of posterior vectors</span>
+<span class="sd">        observed for that class, and these clouds are then compared through the</span>
+<span class="sd">        selected pairwise distance.</span>
+
+<span class="sd">        :param classif_predictions: posterior probabilities returned by the</span>
+<span class="sd">            classifier on validation data</span>
+<span class="sd">        :param labels: true labels associated to each posterior vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">posteriors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">classif_predictions</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="n">train_distrib</span> <span class="o">=</span> <span class="p">[</span><span class="n">posteriors</span><span class="p">[</span><span class="n">labels</span> <span class="o">==</span> <span class="n">class_</span><span class="p">]</span> <span class="k">for</span> <span class="n">class_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_energy_model</span><span class="p">(</span><span class="n">train_distrib</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EDy.aggregate">
+<a class="viewcode-back" href="../../../quapy.method.html#quapy.method.aggregative.EDy.aggregate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Estimate the prevalence vector for a test sample.</span>
+
+<span class="sd">        :param posteriors: posterior probabilities returned by the classifier</span>
+<span class="sd">            for the instances in the test sample</span>
+<span class="sd">        :return: a prevalence vector of shape ``(n_classes,)``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">posteriors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_energy</span><span class="p">(</span><span class="n">posteriors</span><span class="p">)</span></div>
 </div>
 
 
@@ -1844,6 +2407,7 @@
 <span class="n">KDEyHD</span> <span class="o">=</span> <span class="n">_kdey</span><span class="o">.</span><span class="n">KDEyHD</span>
 <span class="n">KDEyCS</span> <span class="o">=</span> <span class="n">_kdey</span><span class="o">.</span><span class="n">KDEyCS</span>
 
+
 <span class="c1"># ---------------------------------------------------------------</span>
 <span class="c1"># aliases</span>
 <span class="c1"># ---------------------------------------------------------------</span>
@@ -1855,36 +2419,82 @@
 <span class="n">ExpectationMaximizationQuantifier</span> <span class="o">=</span> <span class="n">EMQ</span>
 <span class="n">SLD</span> <span class="o">=</span> <span class="n">EMQ</span>
 <span class="n">DistributionMatchingY</span> <span class="o">=</span> <span class="n">DMy</span>
+<span class="n">EnergyDistanceY</span> <span class="o">=</span> <span class="n">EDy</span>
 <span class="n">HellingerDistanceY</span> <span class="o">=</span> <span class="n">HDy</span>
+<span class="n">HistoricalHDy</span> <span class="o">=</span> <span class="n">DMy</span><span class="o">.</span><span class="n">HDy</span>
 <span class="n">MedianSweep</span> <span class="o">=</span> <span class="n">MS</span>
 <span class="n">MedianSweep2</span> <span class="o">=</span> <span class="n">MS2</span>
 </pre></div>
 
-           </div>
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
           </div>
-          <footer>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
   </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
 
-</footer>
-        </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+  <p class="copyright">
+    
+      © Copyright 2024, Alejandro Moreo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
 
-</body>
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
 </html>

@@ -1,91 +1,398 @@
 
-
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../../">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>quapy.data.datasets &mdash; QuaPy: A Python-based open-source framework for quantification 0.2.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>quapy.data.datasets &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=9f2a2228" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="../../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/quapy/data/datasets';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
 
   
-      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=938c9ccc"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
-</head>
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="../../../index.html" class="icon icon-home">
-            QuaPy: A Python-based open-source framework for quantification
-          </a>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Quickstart</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../manuals.html">Manuals</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../quapy.html">API</a></li>
-</ul>
 
-        </div>
-      </div>
-    </nav>
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">QuaPy: A Python-based open-source framework for quantification</a>
-      </nav>
+  
+    
+  
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">quapy.data.datasets</li>
-      <li class="wy-breadcrumbs-aside">
-      </li>
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../manuals.html">
+    Manuals
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../quapy.html">
+    API
+  </a>
+</li>
+
   </ul>
-  <hr/>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../manuals.html">
+    Manuals
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../quapy.html">
+    API
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/HLT-ISTI/QuaPy" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">quapy.data.datasets</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
   <h1>Source code for quapy.data.datasets</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">join</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ucimlrepo</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_ucirepo</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.data.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span><span class="p">,</span> <span class="n">LabelledCollection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.data.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">text2tfidf</span><span class="p">,</span> <span class="n">reduce_columns</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.data.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">standardize</span> <span class="k">as</span> <span class="n">standardizer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.data.reader</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.util</span><span class="w"> </span><span class="kn">import</span> <span class="n">download_file_if_not_exists</span><span class="p">,</span> <span class="n">download_file</span><span class="p">,</span> <span class="n">get_quapy_home</span><span class="p">,</span> <span class="n">pickled_resource</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fetch_ucirepo</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">ucimlrepo</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_ucirepo</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+            <span class="s2">&quot;UCI dataset fetching requires the optional &#39;ucimlrepo&#39; package. &quot;</span>
+            <span class="s2">&quot;Install it to use fetch_UCIBinaryDataset or fetch_UCIMulticlassDataset.&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">return</span> <span class="n">fetch_ucirepo</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
 <span class="n">REVIEWS_SENTIMENT_DATASETS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hp&#39;</span><span class="p">,</span> <span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="s1">&#39;imdb&#39;</span><span class="p">]</span>
@@ -185,6 +492,9 @@
     <span class="s1">&#39;T4&#39;</span><span class="p">:</span> <span class="mi">250</span><span class="p">,</span>
 <span class="p">}</span>
 
+<span class="n">IMAGE_DATASETS</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cifar10&#39;</span><span class="p">,</span> <span class="s1">&#39;cifar100&#39;</span><span class="p">,</span> <span class="s1">&#39;cifar100coarse&#39;</span><span class="p">,</span> <span class="s1">&#39;svhn&#39;</span><span class="p">,</span> <span class="s1">&#39;fashionmnist&#39;</span><span class="p">,</span> <span class="s1">&#39;mnist&#39;</span><span class="p">]</span>
+<span class="n">IMAGE_EMBEDDINGS</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;features&#39;</span><span class="p">,</span> <span class="s1">&#39;logits&#39;</span><span class="p">,</span> <span class="s1">&#39;predictions&#39;</span><span class="p">]</span>
+
 
 <div class="viewcode-block" id="fetch_reviews">
 <a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_reviews">[docs]</a>
@@ -280,8 +590,9 @@
     <span class="k">if</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;semeval13&#39;</span><span class="p">,</span> <span class="s1">&#39;semeval14&#39;</span><span class="p">,</span> <span class="s1">&#39;semeval15&#39;</span><span class="p">}:</span>
         <span class="n">trainset_name</span> <span class="o">=</span> <span class="s1">&#39;semeval&#39;</span>
         <span class="n">testset_name</span>  <span class="o">=</span> <span class="s1">&#39;semeval&#39;</span> <span class="k">if</span> <span class="n">for_model_selection</span> <span class="k">else</span> <span class="n">dataset_name</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;the training and development sets for datasets &#39;semeval13&#39;, &#39;semeval14&#39;, &#39;semeval15&#39; are common &quot;</span>
-              <span class="sa">f</span><span class="s2">&quot;(called &#39;semeval&#39;); returning trainin-set=&#39;</span><span class="si">{</span><span class="n">trainset_name</span><span class="si">}</span><span class="s2">&#39; and test-set=</span><span class="si">{</span><span class="n">testset_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;the training and development sets for datasets &#39;semeval13&#39;, &#39;semeval14&#39;, &#39;semeval15&#39; are common &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(called &#39;semeval&#39;); returning trainin-set=&#39;</span><span class="si">{</span><span class="n">trainset_name</span><span class="si">}</span><span class="s2">&#39; and test-set=</span><span class="si">{</span><span class="n">testset_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">dataset_name</span> <span class="o">==</span> <span class="s1">&#39;semeval&#39;</span> <span class="ow">and</span> <span class="n">for_model_selection</span><span class="o">==</span><span class="kc">False</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;dataset &quot;semeval&quot; can only be used for model selection. &#39;</span>
@@ -587,11 +898,11 @@
             <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;NSP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
         <span class="k">elif</span> <span class="n">group</span> <span class="o">==</span> <span class="s2">&quot;semeion&quot;</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">download_tmp_file</span><span class="p">(</span><span class="s2">&quot;semeion&quot;</span><span class="p">,</span> <span class="s2">&quot;semeion.data&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
-                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;\s+&#39;</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">s+&#39;</span><span class="p">)</span>
             <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">256</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="mi">263</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># 263 stands for digit 8 (labels are one-hot vectors from col 256-266)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">fetch_ucirepo</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">_fetch_ucirepo</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
             <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">df</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">targets</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
 
         <span class="c1"># transform data when needed before returning (returned data will be pickled)</span>
@@ -706,8 +1017,8 @@
 <span class="sd">        are taken for training, and the rest (irrespective of `min_test_split`) is taken for test.</span>
 <span class="sd">    :param max_train_instances: maximum number of instances to keep for training (defaults to 25000);</span>
 <span class="sd">        set to -1 or None to avoid this check</span>
-<span class="sd">    :param min_class_support: minimum number of istances per class. Classes with fewer instances</span>
-<span class="sd">        are discarded (deafult is 100)</span>
+<span class="sd">    :param min_class_support: integer or float, the minimum number or proportion of istances per class.</span>
+<span class="sd">        Classes with fewer instances are discarded (deafult is 100).</span>
 <span class="sd">    :param standardize: indicates whether the covariates should be standardized or not (default is True). If requested,</span>
 <span class="sd">        standardization applies after the LabelledCollection is split, that is, the mean an std are computed only on the</span>
 <span class="sd">        training portion of the data.</span>
@@ -766,6 +1077,11 @@
         <span class="sa">f</span><span class="s1">&#39;Name </span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1"> does not match any known dataset from the &#39;</span> \
         <span class="sa">f</span><span class="s1">&#39;UCI Machine Learning datasets repository (multiclass). &#39;</span> \
         <span class="sa">f</span><span class="s1">&#39;Valid ones are </span><span class="si">{</span><span class="n">UCI_MULTICLASS_DATASETS</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="k">assert</span> <span class="p">(</span><span class="n">min_class_support</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span>
+            <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">min_class_support</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">min_class_support</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span>
+             <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">min_class_support</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">and</span> <span class="mf">0.</span> <span class="o">&lt;=</span> <span class="n">min_class_support</span> <span class="o">&lt;</span> <span class="mf">1.</span><span class="p">))),</span> \
+        <span class="sa">f</span><span class="s1">&#39;invalid value for </span><span class="si">{</span><span class="n">min_class_support</span><span class="si">=}</span><span class="s1">; expected non negative integer or float in [0,1)&#39;</span>
     
     <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
@@ -832,26 +1148,43 @@
 
     <span class="n">file</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;uci_multiclass&#39;</span><span class="p">,</span> <span class="n">dataset_name</span><span class="o">+</span><span class="s1">&#39;.pkl&#39;</span><span class="p">)</span>
     
+    <span class="k">def</span><span class="w"> </span><span class="nf">dummify_categorical_features</span><span class="p">(</span><span class="n">df_features</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">):</span>
+        <span class="n">categorical_features</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">158</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;S1&quot;</span><span class="p">,</span> <span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="s2">&quot;S2&quot;</span><span class="p">,</span> <span class="s2">&quot;C2&quot;</span><span class="p">,</span> <span class="s2">&quot;S3&quot;</span><span class="p">,</span> <span class="s2">&quot;C3&quot;</span><span class="p">,</span> <span class="s2">&quot;S4&quot;</span><span class="p">,</span> <span class="s2">&quot;C4&quot;</span><span class="p">,</span> <span class="s2">&quot;S5&quot;</span><span class="p">,</span> <span class="s2">&quot;C5&quot;</span><span class="p">],</span>  <span class="c1"># poker_hand</span>
+        <span class="p">}</span>
+
+        <span class="n">categorical</span> <span class="o">=</span> <span class="n">categorical_features</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df_features</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">categorical</span><span class="p">:</span>
+            <span class="n">X</span><span class="p">[</span><span class="n">categorical</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">categorical</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">categorical</span><span class="p">,</span> <span class="n">drop_first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">X</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">fetch_ucirepo</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">_fetch_ucirepo</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
 
-        <span class="n">df</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="n">drop_first</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">features</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="n">df</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">targets</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+        <span class="n">X_df</span> <span class="o">=</span> <span class="n">dummify_categorical_features</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">features</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X_df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">targets</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
 
-        <span class="k">assert</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;more than one y&#39;</span>
+        <span class="k">assert</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;error: the dataset </span><span class="si">{</span><span class="nb">id</span><span class="si">=}</span><span class="s1"> </span><span class="si">{</span><span class="n">name</span><span class="si">=}</span><span class="s1"> has more than one target variable&#39;</span>
 
         <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">filter_classes</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">min_ipc</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">min_ipc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">min_ipc</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_classes</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">min_class_support</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">min_class_support</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">min_class_support</span> <span class="o">==</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">min_class_support</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="n">min_class_support</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">*</span> <span class="n">min_class_support</span><span class="p">)</span>
         <span class="n">classes</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">classes_</span>
-        <span class="c1"># restrict classes to only those with at least min_ipc instances</span>
-        <span class="n">classes</span> <span class="o">=</span> <span class="n">classes</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">min_ipc</span><span class="p">]</span>
+        <span class="c1"># restrict classes to only those with at least min_class_support instances</span>
+        <span class="n">classes</span> <span class="o">=</span> <span class="n">classes</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">min_class_support</span><span class="p">]</span>
         <span class="c1"># filter X and y keeping only datapoints belonging to valid classes</span>
-        <span class="n">filter_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="p">)</span>
+        <span class="n">filter_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="p">)</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">filter_idx</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="n">filter_idx</span><span class="p">]</span>
         <span class="c1"># map classes to range(len(classes))</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">classes</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
@@ -1133,33 +1466,167 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">train_gen</span><span class="p">,</span> <span class="n">test_gen</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fetch_image_embedding_splits</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">LabelledCollection</span><span class="p">,</span><span class="n">LabelledCollection</span><span class="p">,</span><span class="n">LabelledCollection</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads a pre-generated embedding set (train, val, or test) of an image dataset from `Zenodo &lt;https://zenodo.org/records/21131944&gt;`_.</span>
+<span class="sd">    </span>
+<span class="sd">    Embeddings were extracted using `this script &lt;https://github.com/pglez82/visiondatasets_quapy&gt;`_. </span>
+
+<span class="sd">    :param dataset_name: the name of the dataset: valid ones are &#39;cifar10&#39;, &#39;cifar100&#39;, &#39;cifar100coarse&#39;, &#39;svhn&#39;, &#39;fashionmnist&#39;, &#39;mnist&#39;</span>
+<span class="sd">    :param embedding: the type of embedding: valid ones are &#39;features&#39; (next-to-last representations), &#39;logits&#39; (pre-activation values), &#39;predictions&#39; (posterior probabilities)</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :return: a tuple (train, val, test) where each entry is an instance of :class:`quapy.data.base.LabelledCollection`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">dataset_name</span> <span class="ow">in</span> <span class="n">IMAGE_DATASETS</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s1">&#39;Name </span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1"> does not match any known dataset. Valid ones are </span><span class="si">{</span><span class="n">IMAGE_DATASETS</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">assert</span> <span class="n">embedding</span> <span class="ow">in</span> <span class="n">IMAGE_EMBEDDINGS</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s1">&#39;Name </span><span class="si">{</span><span class="n">embedding</span><span class="si">}</span><span class="s1"> does not match any known type of embedding. Valid ones are </span><span class="si">{</span><span class="n">IMAGE_EMBEDDINGS</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
+    
+    <span class="n">dataset_network</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;cifar10&#39;</span><span class="p">:</span> <span class="s1">&#39;resnet18&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cifar100&#39;</span><span class="p">:</span> <span class="s1">&#39;resnet18&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cifar100coarse&#39;</span><span class="p">:</span> <span class="s1">&#39;resnet18&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;svhn&#39;</span><span class="p">:</span> <span class="s1">&#39;resnet18&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;fashionmnist&#39;</span><span class="p">:</span> <span class="s1">&#39;basiccnn&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mnist&#39;</span><span class="p">:</span> <span class="s1">&#39;basiccnn&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">trained_network</span> <span class="o">=</span> <span class="n">dataset_network</span><span class="p">[</span><span class="n">dataset_name</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">download_embedding_npz</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">trained_network</span><span class="p">,</span> <span class="n">embedding</span><span class="p">):</span>
+        <span class="n">target_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">trained_network</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">embedding</span><span class="si">}</span><span class="s1">.npz&#39;</span>
+        <span class="n">URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;https://zenodo.org/records/21131944/files/</span><span class="si">{</span><span class="n">target_file</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">data_home</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="n">target_file</span><span class="p">)</span>
+        <span class="n">download_file_if_not_exists</span><span class="p">(</span><span class="n">URL</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+        <span class="n">npz_file</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">npz_file</span>
+
+    <span class="n">embedding_dict</span> <span class="o">=</span> <span class="n">download_embedding_npz</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">trained_network</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="n">embedding</span><span class="p">)</span>
+    <span class="n">labels_dict</span> <span class="o">=</span> <span class="n">download_embedding_npz</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">trained_network</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="s1">&#39;targets&#39;</span><span class="p">)</span>
+
+    <span class="n">train</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">embedding_dict</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">],</span> <span class="n">labels_dict</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">])</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">embedding_dict</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">],</span> <span class="n">labels_dict</span><span class="p">[</span><span class="s1">&#39;val&#39;</span><span class="p">],</span> <span class="n">classes</span><span class="o">=</span><span class="n">train</span><span class="o">.</span><span class="n">classes</span><span class="p">)</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">LabelledCollection</span><span class="p">(</span><span class="n">embedding_dict</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">],</span> <span class="n">labels_dict</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">],</span> <span class="n">classes</span><span class="o">=</span><span class="n">train</span><span class="o">.</span><span class="n">classes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">test</span>
+
+
+<div class="viewcode-block" id="fetch_image_embeddings">
+<a class="viewcode-back" href="../../../quapy.data.html#quapy.data.datasets.fetch_image_embeddings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fetch_image_embeddings</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">heldout_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Loads an image dataset with pre-generated embeddings. Available datasets include:</span>
+
+<span class="sd">    - &#39;cifar10&#39;, &#39;cifar100&#39;, &#39;cifar100coarse&#39;: see `Alex Krizhevsky and Geoffrey Hinton. Learning multiple layers of features from tiny images. Technical report, University of Toronto, Toronto, Ontario, 2009. &lt;https://cave.cs.toronto.edu/kriz/learning-features-2009-TR.pdf&gt;`_</span>
+<span class="sd">    - &#39;mnist&#39;: `Yann LeCun, Corinna Cortes, and Christopher J. C. Burges. The MNIST database of handwritten digits. 1998. &lt;http://yann.lecun.com/exdb/mnist/&gt;`_</span>
+<span class="sd">    - &#39;fashionmnist&#39;: `Han Xiao, Kashif Rasul, and Roland Vollgraf. Fashion-MNIST: a novel image dataset for benchmarking machine learning algorithms. arXiv preprint arXiv:1708.07747, 2017. &lt;https://arxiv.org/abs/1708.07747&gt;`_</span>
+<span class="sd">    - &#39;svhn&#39;: `Yuval Netzer, Tao Wang, Adam Coates, Alessandro Bissacco, Baolin Wu, Andrew Y Ng, et al. Reading digits in natural images with unsupervised feature learning. In NIPS workshop on deep learning and unsupervised feature learning, volume 2011, page 4. Granada, 2011. &lt;https://static.googleusercontent.com/media/research.google.com/es//pubs/archive/37648.pdf&gt;`_</span>
+<span class="sd">    </span>
+<span class="sd">    The image dataset are stored in `Zenodo &lt;https://zenodo.org/records/21131944&gt;`_ and were extracted using `this script &lt;https://github.com/pglez82/visiondatasets_quapy&gt;`_. </span>
+
+<span class="sd">    These embeddings were generated using a resnet18 or a simple cnn. In all cases, the network was trained using ~60% of the data, validated on ~25% of the data, and the remaining ~15% was used for test. Splits were created with stratification.</span>
+<span class="sd">    Once the network is trained, it was used with frozen weights to generate embeddings for the training, validation, and test, in different formats (see below).</span>
+<span class="sd">    It would therefore be convenient to use only heldout data (validation and test) for training and testing quantifiers (this is the default behavior), although the training+validation data can be accessed with `heldout_only=False`.</span>
+
+<span class="sd">    :param dataset_name: the name of the dataset: valid ones are &#39;cifar10&#39;, &#39;cifar100&#39;, &#39;cifar100coarse&#39;, &#39;svhn&#39;, &#39;fashionmnist&#39;, &#39;mnist&#39;</span>
+<span class="sd">    :param embedding: the type of embedding: valid ones are &#39;features&#39; (next-to-last representations), &#39;logits&#39; (pre-activation outputs), &#39;predictions&#39; (post-softmax outputs, or predicted posterior probabilities)</span>
+<span class="sd">    :param heldout_only: whether to discard the part of the training data used to train the neural model that generated the embeddings (default: True); set to False</span>
+<span class="sd">        to obtain, as the training data, the original training+validation splits.</span>
+<span class="sd">    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default</span>
+<span class="sd">        ~/quay_data/ directory)</span>
+<span class="sd">    :return: an instance of :class:`quapy.data.base.Dataset`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data_home</span> <span class="o">=</span> <span class="n">get_quapy_home</span><span class="p">()</span>
+
+    <span class="n">network_train</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">_fetch_image_embedding_splits</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">,</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">data_home</span><span class="p">)</span>        
+
+    <span class="k">if</span> <span class="n">heldout_only</span><span class="p">:</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">val</span>            
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">network_train</span> <span class="o">+</span> <span class="n">val</span>
+        
+    <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">)</span></div>
+
+
+
 </pre></div>
 
-           </div>
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
           </div>
-          <footer>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright 2024, Alejandro Moreo.</p>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
   </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
 
-</footer>
-        </div>
-      </div>
-    </section>
-  </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+  <p class="copyright">
+    
+      © Copyright 2024, Alejandro Moreo.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
 
-</body>
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
 </html>
