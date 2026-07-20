@@ -133,7 +133,7 @@ setup(
        'bayes': ['jax', 'jaxlib', 'numpyro', 'pystan', 'setuptools<82'],
        'neural': ['torch'],
        'tests': ['certifi'],
-       'docs' : ['sphinx-rtd-theme', 'myst-parser'],
+       'docs' : ['pydata-sphinx-theme', 'myst-parser', 'sphinx-design'],
     },
 
     # If there are data files included in your packages that need to be
