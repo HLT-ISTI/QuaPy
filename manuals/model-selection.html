@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>4. Model Selection &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>4. Model Selection &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -443,16 +443,16 @@ in <em>qp.error</em>) and according to a
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">In this example, we show how to perform model selection on a DistributionMatching quantifier.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">DMy</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
 
-<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
-<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;N_JOBS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># explore hyper-parameters in parallel</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'SAMPLE_SIZE'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'N_JOBS'</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># explore hyper-parameters in parallel</span>
 
-<span class="n">training</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;imdb&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">training</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'imdb'</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="c1"># The model will be returned by the fit method of GridSearchQ.</span>
 <span class="c1"># Every combination of hyper-parameters will be evaluated by confronting the</span>
@@ -464,47 +464,47 @@ in <em>qp.error</em>) and according to a
 <span class="n">training</span><span class="p">,</span> <span class="n">validation</span> <span class="o">=</span> <span class="n">training</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">train_prop</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
 <span class="n">protocol</span> <span class="o">=</span> <span class="n">APP</span><span class="p">(</span><span class="n">validation</span><span class="p">)</span>
 
-<span class="c1"># We will explore a classification-dependent hyper-parameter (e.g., the &#39;C&#39;</span>
+<span class="c1"># We will explore a classification-dependent hyper-parameter (e.g., the 'C'</span>
 <span class="c1"># hyper-parameter of LogisticRegression) and a quantification-dependent hyper-parameter</span>
 <span class="c1"># (e.g., the number of bins in a DistributionMatching quantifier.</span>
-<span class="c1"># Classifier-dependent hyper-parameters have to be marked with a prefix &quot;classifier__&quot;</span>
+<span class="c1"># Classifier-dependent hyper-parameters have to be marked with a prefix "classifier__"</span>
 <span class="c1"># in order to let the quantifier know this hyper-parameter belongs to its underlying</span>
 <span class="c1"># classifier.</span>
 <span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
-    <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>
+    <span class="s1">'classifier__C'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+    <span class="s1">'nbins'</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">],</span>
 <span class="p">}</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">GridSearchQ</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
     <span class="n">param_grid</span><span class="o">=</span><span class="n">param_grid</span><span class="p">,</span>
     <span class="n">protocol</span><span class="o">=</span><span class="n">protocol</span><span class="p">,</span>
-    <span class="n">error</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span>  <span class="c1"># the error to optimize is the MAE (a quantification-oriented loss)</span>
+    <span class="n">error</span><span class="o">=</span><span class="s1">'mae'</span><span class="p">,</span>  <span class="c1"># the error to optimize is the MAE (a quantification-oriented loss)</span>
     <span class="n">refit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># retrain on the whole labelled set once done</span>
     <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># show information as the process goes on</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">training</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;model selection ended: best hyper-parameters=</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">best_params_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'model selection ended: best hyper-parameters=</span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">best_params_</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_model_</span>
 
 <span class="c1"># evaluation in terms of MAE</span>
 <span class="c1"># we use the same evaluation protocol (APP) on the test set</span>
-<span class="n">mae_score</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">),</span> <span class="n">error_metric</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">)</span>
+<span class="n">mae_score</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">),</span> <span class="n">error_metric</span><span class="o">=</span><span class="s1">'mae'</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;MAE=</span><span class="si">{</span><span class="n">mae_score</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'MAE=</span><span class="si">{</span><span class="n">mae_score</span><span class="si">:</span><span class="s1">.5f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In this example, the system outputs:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">starting</span> <span class="n">model</span> <span class="n">selection</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=-</span><span class="mi">1</span>
-<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">64</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.04021</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.1356</span><span class="n">s</span><span class="p">]</span>
-<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.04286</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.2139</span><span class="n">s</span><span class="p">]</span>
-<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.04888</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.2491</span><span class="n">s</span><span class="p">]</span>
-<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.05163</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.5372</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">'classifier__C'</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">'nbins'</span><span class="p">:</span> <span class="mi">64</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.04021</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.1356</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">'classifier__C'</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">'nbins'</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.04286</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.2139</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">'classifier__C'</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span> <span class="s1">'nbins'</span><span class="p">:</span> <span class="mi">16</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.04888</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.2491</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">'classifier__C'</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span> <span class="s1">'nbins'</span><span class="p">:</span> <span class="mi">8</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.05163</span> <span class="p">[</span><span class="n">took</span> <span class="mf">1.5372</span><span class="n">s</span><span class="p">]</span>
 <span class="p">[</span><span class="o">...</span><span class="p">]</span>
-<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.02445</span> <span class="p">[</span><span class="n">took</span> <span class="mf">2.9056</span><span class="n">s</span><span class="p">]</span>
-<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">optimization</span> <span class="n">finished</span><span class="p">:</span> <span class="n">best</span> <span class="n">params</span> <span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span> <span class="p">(</span><span class="n">score</span><span class="o">=</span><span class="mf">0.02234</span><span class="p">)</span> <span class="p">[</span><span class="n">took</span> <span class="mf">7.3114</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">hyperparams</span><span class="o">=</span><span class="p">{</span><span class="s1">'classifier__C'</span><span class="p">:</span> <span class="mf">1000.0</span><span class="p">,</span> <span class="s1">'nbins'</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span>	 <span class="n">got</span> <span class="n">mae</span> <span class="n">score</span> <span class="mf">0.02445</span> <span class="p">[</span><span class="n">took</span> <span class="mf">2.9056</span><span class="n">s</span><span class="p">]</span>
+<span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">optimization</span> <span class="n">finished</span><span class="p">:</span> <span class="n">best</span> <span class="n">params</span> <span class="p">{</span><span class="s1">'classifier__C'</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s1">'nbins'</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span> <span class="p">(</span><span class="n">score</span><span class="o">=</span><span class="mf">0.02234</span><span class="p">)</span> <span class="p">[</span><span class="n">took</span> <span class="mf">7.3114</span><span class="n">s</span><span class="p">]</span>
 <span class="p">[</span><span class="n">GridSearchQ</span><span class="p">]:</span> <span class="n">refitting</span> <span class="n">on</span> <span class="n">the</span> <span class="n">whole</span> <span class="n">development</span> <span class="nb">set</span>
-<span class="n">model</span> <span class="n">selection</span> <span class="n">ended</span><span class="p">:</span> <span class="n">best</span> <span class="n">hyper</span><span class="o">-</span><span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s1">&#39;nbins&#39;</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span>
+<span class="n">model</span> <span class="n">selection</span> <span class="n">ended</span><span class="p">:</span> <span class="n">best</span> <span class="n">hyper</span><span class="o">-</span><span class="n">parameters</span><span class="o">=</span><span class="p">{</span><span class="s1">'classifier__C'</span><span class="p">:</span> <span class="mf">100.0</span><span class="p">,</span> <span class="s1">'nbins'</span><span class="p">:</span> <span class="mi">32</span><span class="p">}</span>
 <span class="n">MAE</span><span class="o">=</span><span class="mf">0.03102</span>
 </pre></div>
 </div>
@@ -522,7 +522,7 @@ classifier learner as a GridSearchCV from scikit-learn.
 The following code illustrates how to do that:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">learner</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span>
     <span class="n">LogisticRegression</span><span class="p">(),</span>
-    <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="s1">&#39;class_weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;balanced&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]},</span>
+    <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">'C'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="s1">'class_weight'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'balanced'</span><span class="p">,</span> <span class="kc">None</span><span class="p">]},</span>
     <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">DistributionMatching</span><span class="p">(</span><span class="n">learner</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">dataset</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
 </pre></div>

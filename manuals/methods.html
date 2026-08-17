@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>3. Quantification Methods &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>3. Quantification Methods &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -522,7 +522,7 @@ with a SVM as the classifier:</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">quapy.functional</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">F</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.svm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearSVC</span>
 
-<span class="n">training</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">training</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">'hcr'</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 <span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span> <span class="o">=</span> <span class="n">training</span><span class="o">.</span><span class="n">Xy</span>
 
 <span class="c1"># instantiate a classifier learner, in this case a SVM</span>
@@ -558,7 +558,7 @@ specific held-out validation set (i.e., an tuple <code class="docutils literal n
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">PCC</span><span class="p">(</span><span class="n">svm</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>
 <span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">Xte</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;classifier:&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'classifier:'</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">classifier</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In this case, QuaPy will print:</p>
@@ -645,7 +645,7 @@ experiments we have carried out.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
 
-<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;hcr&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">'hcr'</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">EMQ</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
@@ -694,7 +694,7 @@ installed separately (<code class="docutils literal notranslate"><span class="pr
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.aggregative</span><span class="w"> </span><span class="kn">import</span> <span class="n">RLLS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
 
-<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;haberman&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'haberman'</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">RLLS</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">),</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
@@ -735,7 +735,7 @@ provided in QuaPy accepts only binary datasets.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
 
 <span class="c1"># load a binary dataset</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;hp&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'hp'</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">text2tfidf</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">HDy</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
@@ -762,7 +762,7 @@ optimization routine can also be selected through <code class="docutils literal 
 obtained as:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">multiclass_hdy</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">DMy</span><span class="p">(</span>
     <span class="n">classifier</span><span class="o">=</span><span class="n">LogisticRegression</span><span class="p">(),</span>
-    <span class="n">divergence</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span>
+    <span class="n">divergence</span><span class="o">=</span><span class="s1">'HD'</span><span class="p">,</span>
     <span class="n">cdf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -863,7 +863,7 @@ resulting binary. In practice, this amounts to running:</p>
 </div>
 <p>This creates a directory <code class="docutils literal notranslate"><span class="pre">svm_perf_quantification/</span></code>. Once this is available,
 you can point QuaPy to it with:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SVMPERF_HOME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;./svm_perf_quantification&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'SVMPERF_HOME'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'./svm_perf_quantification'</span>
 </pre></div>
 </div>
 <p>The patch extends the one originally released for
@@ -898,7 +898,7 @@ worth using should outperform it.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.non_aggregative</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaximumLikelihoodPrevalenceEstimation</span>
 
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;haberman&#39;</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'haberman'</span><span class="p">)</span>
 <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">MaximumLikelihoodPrevalenceEstimation</span><span class="p">()</span>
@@ -947,7 +947,7 @@ the <code class="docutils literal notranslate"><span class="pre">optim_minimize<
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.aggregative</span><span class="w"> </span><span class="kn">import</span> <span class="n">HDy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.non_aggregative</span><span class="w"> </span><span class="kn">import</span> <span class="n">DMx</span>
 
-<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;haberman&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'haberman'</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 <span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">Xy</span>
 
 <span class="n">hdy</span> <span class="o">=</span> <span class="n">HDy</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>
@@ -1026,13 +1026,13 @@ bag-of-words text quantification problem:</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.non_aggregative</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReadMe</span>
 
-<span class="n">reviews</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;imdb&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">n_train</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">reviews</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'imdb'</span><span class="p">)</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">n_train</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="c1"># ReadMe&#39;s &quot;full&quot; model requires a binary feature matrix</span>
-<span class="n">encode_0_1</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;0_1_terms&#39;</span><span class="p">,</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">))])</span>
+<span class="c1"># ReadMe's "full" model requires a binary feature matrix</span>
+<span class="n">encode_0_1</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">'0_1_terms'</span><span class="p">,</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">binary</span><span class="o">=</span><span class="kc">True</span><span class="p">))])</span>
 <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">instance_transformation</span><span class="p">(</span><span class="n">reviews</span><span class="p">,</span> <span class="n">encode_0_1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">ReadMe</span><span class="p">(</span><span class="n">prob_model</span><span class="o">=</span><span class="s1">&#39;full&#39;</span><span class="p">,</span> <span class="n">bootstrap_trials</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">bagging_trials</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">bagging_range</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ReadMe</span><span class="p">(</span><span class="n">prob_model</span><span class="o">=</span><span class="s1">'full'</span><span class="p">,</span> <span class="n">bootstrap_trials</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">bagging_trials</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">bagging_range</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>  <span class="c1"># lazy: only bootstrap resampling happens here</span>
 
 <span class="n">estim_prevalence</span><span class="p">,</span> <span class="n">conf_region</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_conf</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
@@ -1051,8 +1051,8 @@ of quantification methods from loss functions and feature transformations (thank
 <section id="installation">
 <h3><span class="section-number">3.3.1. </span>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h3>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip<span class="w"> </span>setuptools<span class="w"> </span>wheel
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;jax[cpu]&quot;</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.5&quot;</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"jax[cpu]"</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.5"</span>
 </pre></div>
 </div>
 <p><strong>Note:</strong> since version 0.2.0, QuaPy is only compatible with qunfold &gt;=0.1.5.</p>
@@ -1141,10 +1141,10 @@ The last parameter indicates to use all processors for parallelization.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.meta</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ensemble</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
 
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;haberman&#39;</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'haberman'</span><span class="p">)</span>
 <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_test</span>
 
-<span class="n">model</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">quantifier</span><span class="o">=</span><span class="n">ACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">()),</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="s1">&#39;ave&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">quantifier</span><span class="o">=</span><span class="n">ACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">()),</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="s1">'ave'</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
 <span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
 </pre></div>
@@ -1177,18 +1177,18 @@ In the following example, we show an instantiation of QuaNet that instead uses C
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.classification.neural</span><span class="w"> </span><span class="kn">import</span> <span class="n">NeuralClassifierTrainer</span><span class="p">,</span> <span class="n">CNNnet</span>
 
 <span class="c1"># use samples of 100 elements</span>
-<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'SAMPLE_SIZE'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
 
 <span class="c1"># load the kindle dataset as text, and convert words to numerical indexes</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'kindle'</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># the text classifier is a CNN trained by NeuralClassifierTrainer</span>
 <span class="n">cnn</span> <span class="o">=</span> <span class="n">CNNnet</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">n_classes</span><span class="p">)</span>
-<span class="n">learner</span> <span class="o">=</span> <span class="n">NeuralClassifierTrainer</span><span class="p">(</span><span class="n">cnn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+<span class="n">learner</span> <span class="o">=</span> <span class="n">NeuralClassifierTrainer</span><span class="p">(</span><span class="n">cnn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
 
 <span class="c1"># train QuaNet</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">QuaNet</span><span class="p">(</span><span class="n">learner</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">QuaNet</span><span class="p">(</span><span class="n">learner</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
 <span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
 </pre></div>
@@ -1224,13 +1224,13 @@ During inference, bootstrap is applied over pre-classified test instances.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.aggregative</span><span class="w"> </span><span class="kn">import</span> <span class="n">PACC</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.confidence</span><span class="w"> </span><span class="kn">import</span> <span class="n">AggregativeBootstrap</span>
 
-<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s1">&#39;molecular&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s1">'molecular'</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">AggregativeBootstrap</span><span class="p">(</span>
     <span class="n">PACC</span><span class="p">(),</span>
     <span class="n">n_test_samples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
     <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
-    <span class="n">region</span><span class="o">=</span><span class="s1">&#39;ellipse-clr&#39;</span><span class="p">,</span>  <span class="c1"># choose among: intervals, ellipse, ellipse-clr, ellipse-ilr</span>
+    <span class="n">region</span><span class="o">=</span><span class="s1">'ellipse-clr'</span><span class="p">,</span>  <span class="c1"># choose among: intervals, ellipse, ellipse-clr, ellipse-ilr</span>
     <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
@@ -1293,7 +1293,7 @@ data-dependent priors (“map”/”map2”) proposed in the original paper.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method._bayesian</span><span class="w"> </span><span class="kn">import</span> <span class="n">BayesianMAPLS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
 
-<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;haberman&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'haberman'</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">BayesianMAPLS</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
@@ -1323,7 +1323,7 @@ dependency, installed via <code class="docutils literal notranslate"><span class
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.confidence</span><span class="w"> </span><span class="kn">import</span> <span class="n">PQ</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
 
-<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;haberman&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'haberman'</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">PQ</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
@@ -1355,7 +1355,7 @@ the optional MCMC dependencies, installed via
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method._bayesian</span><span class="w"> </span><span class="kn">import</span> <span class="n">BayesianKDEy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
 
-<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;haberman&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'haberman'</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="n">model</span> <span class="o">=</span> <span class="n">BayesianKDEy</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">bandwidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>

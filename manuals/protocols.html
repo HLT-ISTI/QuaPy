@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>6. Protocols &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>6. Protocols &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -464,7 +464,7 @@ this budget. This can be achieved with the function
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">budget</span> <span class="o">=</span> <span class="mi">5000</span>
 <span class="n">n_prevalences</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">get_nprevpoints_approximation</span><span class="p">(</span><span class="n">budget</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">n</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevalences</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;by setting n_prevalences=</span><span class="si">{</span><span class="n">n_prevalences</span><span class="si">}</span><span class="s1"> the number of evaluations for </span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s1"> classes will be </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'by setting n_prevalences=</span><span class="si">{</span><span class="n">n_prevalences</span><span class="si">}</span><span class="s1"> the number of evaluations for </span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s1"> classes will be </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>this will produce the following output:</p>
@@ -479,21 +479,21 @@ and evaluation:</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
 
-<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
-<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;N_JOBS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'SAMPLE_SIZE'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'N_JOBS'</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
 <span class="c1"># define an instance of our custom quantifier</span>
 <span class="n">quantifier</span> <span class="o">=</span> <span class="n">ACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">())</span>
 
 <span class="c1"># load the IMDb dataset</span>
-<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;imdb&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'imdb'</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
 <span class="c1"># model selection</span>
 <span class="n">train</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">split_stratified</span><span class="p">(</span><span class="n">train_prop</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
 <span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">Xy</span>
 <span class="n">quantifier</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">GridSearchQ</span><span class="p">(</span>
     <span class="n">quantifier</span><span class="p">,</span> 
-    <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;classifier__C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)},</span> 
+    <span class="n">param_grid</span><span class="o">=</span><span class="p">{</span><span class="s1">'classifier__C'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)},</span> 
     <span class="n">protocol</span><span class="o">=</span><span class="n">APP</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>  <span class="c1"># &lt;- this is the protocol we use for generating validation samples</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>
 
@@ -502,8 +502,8 @@ and evaluation:</p>
 <span class="c1"># quantifier = GridSearchQ(quantifier, param_grid, protocol=val_app).fit(Xtr, ytr)</span>
 
 <span class="c1"># evaluation with APP</span>
-<span class="n">mae</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">),</span> <span class="n">error_metric</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;MAE = </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">mae</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">),</span> <span class="n">error_metric</span><span class="o">=</span><span class="s1">'mae'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'MAE = </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Note that APP is an instance of <em>AbstractStochasticSeededProtocol</em> and that the

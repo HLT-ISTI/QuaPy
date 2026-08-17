@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>quapy.method._kdey &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>quapy.method._kdey &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,8 +121,8 @@
       
     
     
-    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -386,43 +386,43 @@
 <div class="viewcode-block" id="KDEBase">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">KDEBase</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Common ancestor for KDE-based methods. Implements some common routines.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">BANDWIDTH_METHOD</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;scott&#39;</span><span class="p">,</span> <span class="s1">&#39;silverman&#39;</span><span class="p">]</span>
-    <span class="n">KERNELS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;gaussian&#39;</span><span class="p">,</span> <span class="s1">&#39;aitchison&#39;</span><span class="p">,</span> <span class="s1">&#39;ilr&#39;</span><span class="p">]</span>
+    <span class="n">BANDWIDTH_METHOD</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'scott'</span><span class="p">,</span> <span class="s1">'silverman'</span><span class="p">]</span>
+    <span class="n">KERNELS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'gaussian'</span><span class="p">,</span> <span class="s1">'aitchison'</span><span class="p">,</span> <span class="s1">'ilr'</span><span class="p">]</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_bandwidth</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Checks that the bandwidth parameter is correct</span>
 
 <span class="sd">        :param bandwidth: either a string (see BANDWIDTH_METHOD) or a float</span>
 <span class="sd">        :return: the bandwidth if the check is passed, or raises an exception for invalid values</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="n">bandwidth</span> <span class="ow">in</span> <span class="n">KDEBase</span><span class="o">.</span><span class="n">BANDWIDTH_METHOD</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="n">Real</span><span class="p">),</span> \
-            <span class="sa">f</span><span class="s1">&#39;invalid bandwidth, valid ones are </span><span class="si">{</span><span class="n">KDEBase</span><span class="o">.</span><span class="n">BANDWIDTH_METHOD</span><span class="si">}</span><span class="s1"> or float values&#39;</span>
+            <span class="sa">f</span><span class="s1">'invalid bandwidth, valid ones are </span><span class="si">{</span><span class="n">KDEBase</span><span class="o">.</span><span class="n">BANDWIDTH_METHOD</span><span class="si">}</span><span class="s1"> or float values'</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="n">Real</span><span class="p">):</span>
             <span class="n">bandwidth</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">bandwidth</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_kernel</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">kernel</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">kernel</span> <span class="ow">in</span> <span class="n">KDEBase</span><span class="o">.</span><span class="n">KERNELS</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;unknown </span><span class="si">{</span><span class="n">kernel</span><span class="si">=}</span><span class="s1">&#39;</span>
+        <span class="k">assert</span> <span class="n">kernel</span> <span class="ow">in</span> <span class="n">KDEBase</span><span class="o">.</span><span class="n">KERNELS</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'unknown </span><span class="si">{</span><span class="n">kernel</span><span class="si">=}</span><span class="s1">'</span>
         <span class="k">return</span> <span class="n">kernel</span>
 
 <div class="viewcode-block" id="KDEBase.get_kde_function">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.get_kde_function">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_kde_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Wraps the KDE function from scikit-learn.</span>
 
 <span class="sd">        :param X: data for which the density function is to be estimated</span>
 <span class="sd">        :param bandwidth: the bandwidth of the kernel</span>
 <span class="sd">        :param kernel: the kernel family</span>
-<span class="sd">        :return: a scikit-learn&#39;s KernelDensity object</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        :return: a scikit-learn's KernelDensity object</span>
+<span class="sd">        """</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_posteriors</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
         <span class="n">bandwidth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">effective_bandwidth</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">KernelDensity</span><span class="p">(</span><span class="n">bandwidth</span><span class="o">=</span><span class="n">bandwidth</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
@@ -431,15 +431,15 @@
 <div class="viewcode-block" id="KDEBase.pdf">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.pdf">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">pdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kde</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">kernel</span><span class="p">,</span> <span class="n">log_densities</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Wraps the density evalution of scikit-learn&#39;s KDE. Scikit-learn returns log-scores (s), so this</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Wraps the density evalution of scikit-learn's KDE. Scikit-learn returns log-scores (s), so this</span>
 <span class="sd">        function returns :math:`e^{s}`</span>
 
 <span class="sd">        :param kde: a previously fit KDE function</span>
 <span class="sd">        :param X: the data for which the density is to be estimated</span>
 <span class="sd">        :param kernel: the kernel family</span>
 <span class="sd">        :return: np.ndarray with the densities</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_posteriors</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
         <span class="n">log_density</span> <span class="o">=</span> <span class="n">kde</span><span class="o">.</span><span class="n">score_samples</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">log_densities</span><span class="p">:</span>
@@ -450,7 +450,7 @@
 <div class="viewcode-block" id="KDEBase.get_mixture_components">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.get_mixture_components">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_mixture_components</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">classes</span><span class="p">,</span> <span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Returns an array containing the mixture components, i.e., the KDE functions for each class.</span>
 
 <span class="sd">        :param X: the data containing the covariates</span>
@@ -459,12 +459,12 @@
 <span class="sd">        :param bandwidth: float, the bandwidth of the kernel</span>
 <span class="sd">        :param kernel: the kernel family</span>
 <span class="sd">        :return: a list of KernelDensity objects, each fitted with the corresponding class-specific covariates</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">class_cond_X</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">:</span>
             <span class="n">selX</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">y</span><span class="o">==</span><span class="n">cat</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">selX</span><span class="o">.</span><span class="n">size</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;empty class </span><span class="si">{</span><span class="n">cat</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'empty class </span><span class="si">{</span><span class="n">cat</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">class_cond_X</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">selX</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_kde_function</span><span class="p">(</span><span class="n">X_cond_yi</span><span class="p">,</span> <span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span> <span class="k">for</span> <span class="n">X_cond_yi</span> <span class="ow">in</span> <span class="n">class_cond_X</span><span class="p">]</span></div>
 
@@ -472,11 +472,11 @@
 <div class="viewcode-block" id="KDEBase.transform_posteriors">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.transform_posteriors">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">transform_posteriors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">kernel</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">kernel</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;aitchison&#39;</span><span class="p">,</span> <span class="s1">&#39;ilr&#39;</span><span class="p">}:</span>
+        <span class="k">if</span> <span class="n">kernel</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">'aitchison'</span><span class="p">,</span> <span class="s1">'ilr'</span><span class="p">}:</span>
             <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shrink_posteriors</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">kernel</span> <span class="o">==</span> <span class="s1">&#39;aitchison&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">kernel</span> <span class="o">==</span> <span class="s1">'aitchison'</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clr_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">kernel</span> <span class="o">==</span> <span class="s1">&#39;ilr&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">kernel</span> <span class="o">==</span> <span class="s1">'ilr'</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ilr_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">X</span></div>
 
@@ -484,7 +484,7 @@
 <div class="viewcode-block" id="KDEBase.shrink_posteriors">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.shrink_posteriors">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">shrink_posteriors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="n">shrinkage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;shrinkage&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">shrinkage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'shrinkage'</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">shrinkage</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">X</span>
         <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -496,8 +496,8 @@
 <div class="viewcode-block" id="KDEBase.effective_bandwidth">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.effective_bandwidth">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">effective_bandwidth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="p">):</span>
-        <span class="n">shrinkage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;shrinkage&#39;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">shrinkage</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">kernel</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;aitchison&#39;</span><span class="p">,</span> <span class="s1">&#39;ilr&#39;</span><span class="p">}</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="n">Real</span><span class="p">):</span>
+        <span class="n">shrinkage</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'shrinkage'</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shrinkage</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">kernel</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">'aitchison'</span><span class="p">,</span> <span class="s1">'ilr'</span><span class="p">}</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="n">Real</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">shrinkage</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">bandwidth</span></div>
 
@@ -505,7 +505,7 @@
 <div class="viewcode-block" id="KDEBase.clr_transform">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.clr_transform">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">clr_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;clr&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'clr'</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">clr</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">CLRtransformation</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">clr</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
 
@@ -513,7 +513,7 @@
 <div class="viewcode-block" id="KDEBase.ilr_transform">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEBase.ilr_transform">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">ilr_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ilr&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'ilr'</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ilr</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">ILRtransformation</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ilr</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
 </div>
@@ -523,7 +523,7 @@
 <div class="viewcode-block" id="KDEyML">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyML">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">KDEyML</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">KDEBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Kernel Density Estimation model for quantification (KDEy) relying on the Kullback-Leibler divergence (KLD) as</span>
 <span class="sd">    the divergence measure to be minimized. This method was first proposed in the paper</span>
 <span class="sd">    `Kernel Density Estimation for Multiclass Quantification &lt;https://link.springer.com/article/10.1007/s10994-024-06726-5&gt;`_ (`arXiv &lt;https://arxiv.org/abs/2401.00490&gt;`_), in which</span>
@@ -548,8 +548,8 @@
 
 <span class="sd">    which corresponds to the maximum likelihood estimate.</span>
 
-<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
-<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ['DEFAULT_CLS']`</span>
 <span class="sd">    :param fit_classifier: whether to train the learner (default is True). Set to False if the</span>
 <span class="sd">        learner has been trained outside the quantifier.</span>
 <span class="sd">    :param val_split: specifies the data used for generating classifier predictions. This specification</span>
@@ -562,16 +562,16 @@
 <span class="sd">    :param shrinkage: amount of shrinkage towards the uniform distribution to apply before</span>
 <span class="sd">        Aitchison/ILR transformations. Must be in ``[0,1)``.</span>
 <span class="sd">    :param random_state: a seed to be set before fitting any base quantifier (default None)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">bandwidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-                 <span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;gaussian&#39;</span><span class="p">,</span> <span class="n">shrinkage</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">kernel</span><span class="o">=</span><span class="s1">'gaussian'</span><span class="p">,</span> <span class="n">shrinkage</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="n">KDEBase</span><span class="o">.</span><span class="n">_check_bandwidth</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_kernel</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
-        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">shrinkage</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;shrinkage must be in [0,1)&#39;</span>
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">!=</span> <span class="s1">&#39;gaussian&#39;</span> <span class="ow">or</span> <span class="n">shrinkage</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> \
-            <span class="s1">&#39;shrinkage is only supported for Aitchison/ILR kernels&#39;</span>
+        <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">shrinkage</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'shrinkage must be in [0,1)'</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">!=</span> <span class="s1">'gaussian'</span> <span class="ow">or</span> <span class="n">shrinkage</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> \
+            <span class="s1">'shrinkage is only supported for Aitchison/ILR kernels'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shrinkage</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">shrinkage</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span>
 
@@ -591,17 +591,17 @@
 <div class="viewcode-block" id="KDEyML.aggregate">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyML.aggregate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Searches for the mixture model parameter (the sought prevalence values) that maximizes the likelihood</span>
 <span class="sd">        of the data (i.e., that minimizes the negative log-likelihood)</span>
 
 <span class="sd">        :param posteriors: instances in the sample converted into posterior probabilities</span>
 <span class="sd">        :return: a vector of class prevalence estimates</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">with</span> <span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">):</span>
             <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-12</span>
             <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span><span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">!=</span> <span class="s1">&#39;gaussian&#39;</span> <span class="ow">and</span> <span class="n">n_classes</span> <span class="o">&gt;=</span> <span class="mi">20</span><span class="p">)</span> <span class="ow">or</span> <span class="n">n_classes</span> <span class="o">&gt;=</span> <span class="mi">30</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">!=</span> <span class="s1">'gaussian'</span> <span class="ow">and</span> <span class="n">n_classes</span> <span class="o">&gt;=</span> <span class="mi">20</span><span class="p">)</span> <span class="ow">or</span> <span class="n">n_classes</span> <span class="o">&gt;=</span> <span class="mi">30</span><span class="p">:</span>
                 <span class="n">test_log_densities</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">kde_i</span><span class="p">,</span> <span class="n">posteriors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="n">log_densities</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">kde_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span>
@@ -627,7 +627,7 @@
 <div class="viewcode-block" id="KDEyHD">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyHD">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">KDEyHD</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">,</span> <span class="n">KDEBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Kernel Density Estimation model for quantification (KDEy) relying on the squared Hellinger Disntace (HD) as</span>
 <span class="sd">    the divergence measure to be minimized. This method was first proposed in the paper</span>
 <span class="sd">    `Kernel Density Estimation for Multiclass Quantification &lt;https://link.springer.com/article/10.1007/s10994-024-06726-5&gt;`_ (`arXiv &lt;https://arxiv.org/abs/2401.00490&gt;`_), in which</span>
@@ -657,8 +657,8 @@
 <span class="sd">    where the datapoints (trials) :math:`x_1,\\ldots,x_t\\sim_{\\mathrm{iid}} r` with :math:`r`  the</span>
 <span class="sd">    uniform distribution.</span>
 
-<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
-<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ['DEFAULT_CLS']`</span>
 <span class="sd">    :param fit_classifier: whether to train the learner (default is True). Set to False if the</span>
 <span class="sd">        learner has been trained outside the quantifier.</span>
 <span class="sd">    :param val_split: specifies the data used for generating classifier predictions. This specification</span>
@@ -669,14 +669,14 @@
 <span class="sd">    :param bandwidth: float, the bandwidth of the Kernel</span>
 <span class="sd">    :param random_state: a seed to be set before fitting any base quantifier (default None)</span>
 <span class="sd">    :param montecarlo_trials: number of Monte Carlo trials (default 10000)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">divergence</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;HD&#39;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">divergence</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">'HD'</span><span class="p">,</span>
                  <span class="n">bandwidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">montecarlo_trials</span><span class="o">=</span><span class="mi">10000</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">divergence</span> <span class="o">=</span> <span class="n">divergence</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="n">KDEBase</span><span class="o">.</span><span class="n">_check_bandwidth</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;gaussian&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="n">KDEBase</span><span class="o">.</span><span class="n">_check_bandwidth</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s1">'gaussian'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">montecarlo_trials</span> <span class="o">=</span> <span class="n">montecarlo_trials</span>
 
@@ -684,7 +684,7 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyHD.aggregation_fit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">aggregation_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mixture_components</span><span class="p">(</span>
-            <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">,</span> <span class="s1">&#39;gaussian&#39;</span>
+            <span class="n">classif_predictions</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">,</span> <span class="s1">'gaussian'</span>
         <span class="p">)</span>
 
         <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">montecarlo_trials</span>
@@ -692,7 +692,7 @@
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reference_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">kde_i</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">N</span><span class="o">//</span><span class="n">n</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">rs</span><span class="p">)</span> <span class="k">for</span> <span class="n">kde_i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reference_classwise_densities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
-            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">kde_j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_samples</span><span class="p">,</span> <span class="s1">&#39;gaussian&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">kde_j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span><span class="p">]</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">kde_j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_samples</span><span class="p">,</span> <span class="s1">'gaussian'</span><span class="p">)</span> <span class="k">for</span> <span class="n">kde_j</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reference_density</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_classwise_densities</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># equiv. to (uniform @ self.reference_classwise_densities)</span>
 
@@ -706,17 +706,17 @@
         <span class="c1"># apply importance sampling (IS). In this version we compute D(p_alpha||q) with IS</span>
         <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mix_densities</span><span class="p">)</span>
 
-        <span class="n">test_kde</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kde_function</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">,</span> <span class="s1">&#39;gaussian&#39;</span><span class="p">)</span>
-        <span class="n">test_densities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">test_kde</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_samples</span><span class="p">,</span> <span class="s1">&#39;gaussian&#39;</span><span class="p">)</span>
+        <span class="n">test_kde</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_kde_function</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span><span class="p">,</span> <span class="s1">'gaussian'</span><span class="p">)</span>
+        <span class="n">test_densities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">test_kde</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_samples</span><span class="p">,</span> <span class="s1">'gaussian'</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">f_squared_hellinger</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
         
         <span class="c1"># todo: this will fail when self.divergence is a callable, and is not the right place to do it anyway</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">divergence</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;hd&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">divergence</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">'hd'</span><span class="p">:</span>
             <span class="n">f</span> <span class="o">=</span> <span class="n">f_squared_hellinger</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;only squared HD is currently implemented&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'only squared HD is currently implemented'</span><span class="p">)</span>
 
         <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-10</span>
         <span class="n">qs</span> <span class="o">=</span> <span class="n">test_densities</span> <span class="o">+</span> <span class="n">epsilon</span>
@@ -738,7 +738,7 @@
 <div class="viewcode-block" id="KDEyCS">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyCS">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">KDEyCS</span><span class="p">(</span><span class="n">AggregativeSoftQuantifier</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Kernel Density Estimation model for quantification (KDEy) relying on the Cauchy-Schwarz divergence (CS) as</span>
 <span class="sd">    the divergence measure to be minimized. This method was first proposed in the paper</span>
 <span class="sd">    `Kernel Density Estimation for Multiclass Quantification &lt;https://link.springer.com/article/10.1007/s10994-024-06726-5&gt;`_ (`arXiv &lt;https://arxiv.org/abs/2401.00490&gt;`_), in which</span>
@@ -762,8 +762,8 @@
 
 <span class="sd">    The authors showed that this distribution matching admits a closed-form solution</span>
 
-<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
-<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ['DEFAULT_CLS']`</span>
 <span class="sd">    :param fit_classifier: whether to train the learner (default is True). Set to False if the</span>
 <span class="sd">        learner has been trained outside the quantifier.</span>
 <span class="sd">    :param val_split: specifies the data used for generating classifier predictions. This specification</span>
@@ -772,18 +772,18 @@
 <span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
 <span class="sd">        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.</span>
 <span class="sd">    :param bandwidth: float, the bandwidth of the Kernel</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">bandwidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="n">KDEBase</span><span class="o">.</span><span class="n">_check_bandwidth</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;gaussian&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span> <span class="o">=</span> <span class="n">KDEBase</span><span class="o">.</span><span class="n">_check_bandwidth</span><span class="p">(</span><span class="n">bandwidth</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s1">'gaussian'</span><span class="p">)</span>
 
 <div class="viewcode-block" id="KDEyCS.gram_matrix_mix_sum">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._kdey.KDEyCS.gram_matrix_mix_sum">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">gram_matrix_mix_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># this adapts the output of the rbf_kernel function (pairwise evaluations of Gaussian kernels k(x,y))</span>
         <span class="c1"># to contain pairwise evaluations of N(x|mu,Sigma1+Sigma2) with mu=y and Sigma1 and Sigma2 are </span>
-        <span class="c1"># two &quot;scalar matrices&quot; (h^2)*I each, so Sigma1+Sigma2 has scalar 2(h^2) (h is the bandwidth)</span>
+        <span class="c1"># two "scalar matrices" (h^2)*I each, so Sigma1+Sigma2 has scalar 2(h^2) (h is the bandwidth)</span>
         <span class="n">h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bandwidth</span>
         <span class="n">variance</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">h</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">nD</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>

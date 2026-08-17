@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>quapy.classification.calibration &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>quapy.classification.calibration &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,8 +121,8 @@
       
     
     
-    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -380,7 +380,7 @@
 
 
 <span class="c1"># Wrappers of calibration defined by Alexandari et al. in paper &lt;http://proceedings.mlr.press/v119/alexandari20a.html&gt;</span>
-<span class="c1"># requires &quot;pip install abstension&quot;</span>
+<span class="c1"># requires "pip install abstension"</span>
 <span class="c1"># see https://github.com/kundajelab/abstention</span>
 
 
@@ -389,8 +389,8 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">abstention.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoBiasVectorScaling</span><span class="p">,</span> <span class="n">TempScaling</span><span class="p">,</span> <span class="n">VectorScaling</span>
     <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-            <span class="s2">&quot;Calibration methods in quapy.classification.calibration require the optional &quot;</span>
-            <span class="s2">&quot;&#39;abstention&#39; package.&quot;</span>
+            <span class="s2">"Calibration methods in quapy.classification.calibration require the optional "</span>
+            <span class="s2">"'abstention' package."</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
     <span class="k">return</span> <span class="n">NoBiasVectorScaling</span><span class="p">,</span> <span class="n">TempScaling</span><span class="p">,</span> <span class="n">VectorScaling</span>
 
@@ -398,12 +398,12 @@
 <div class="viewcode-block" id="RecalibratedProbabilisticClassifier">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.RecalibratedProbabilisticClassifier">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RecalibratedProbabilisticClassifier</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Abstract class for (re)calibration method from `abstention.calibration`, as defined in</span>
 <span class="sd">    `Alexandari, A., Kundaje, A., &amp; Shrikumar, A. (2020, November). Maximum likelihood with bias-corrected calibration</span>
 <span class="sd">    is hard-to-beat at label shift adaptation. In International Conference on Machine Learning (pp. 222-232). PMLR.</span>
 <span class="sd">    &lt;http://proceedings.mlr.press/v119/alexandari20a.html&gt;`_:</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">pass</span></div>
 
 
@@ -411,7 +411,7 @@
 <div class="viewcode-block" id="RecalibratedProbabilisticClassifierBase">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RecalibratedProbabilisticClassifierBase</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RecalibratedProbabilisticClassifier</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Applies a (re)calibration method from `abstention.calibration`, as defined in</span>
 <span class="sd">    `Alexandari et al. paper &lt;http://proceedings.mlr.press/v119/alexandari20a.html&gt;`_.</span>
 
@@ -426,7 +426,7 @@
 <span class="sd">    :param verbose: whether or not to display information in the standard output</span>
 <span class="sd">    :param random_state: controls the shuffling of the train/validation split when val_split is a float</span>
 <span class="sd">        (has no effect when val_split is an integer); pass an int for reproducible splits</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">calibrator</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
@@ -439,28 +439,28 @@
 <div class="viewcode-block" id="RecalibratedProbabilisticClassifierBase.fit">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Fits the calibration for the probabilistic classifier.</span>
 
 <span class="sd">        :param X: array-like of shape `(n_samples, n_features)` with the data instances</span>
 <span class="sd">        :param y: array-like of shape `(n_samples,)` with the class labels</span>
 <span class="sd">        :return: self</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;wrong value for val_split: the number of folds must be &gt; 2&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'wrong value for val_split: the number of folds must be &gt; 2'</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_cv</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;wrong value for val_split: the proportion of validation documents must be in (0,1)&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'wrong value for val_split: the proportion of validation documents must be in (0,1)'</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_tr_val</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RecalibratedProbabilisticClassifierBase.fit_cv">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit_cv">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit_cv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Fits the calibration in a cross-validation manner, i.e., it generates posterior probabilities for all</span>
 <span class="sd">        training instances via cross-validation, and then retrains the classifier on all training instances.</span>
 <span class="sd">        The posterior probabilities thus generated are used for calibrating the outputs of the classifier.</span>
@@ -468,9 +468,9 @@
 <span class="sd">        :param X: array-like of shape `(n_samples, n_features)` with the data instances</span>
 <span class="sd">        :param y: array-like of shape `(n_samples,)` with the class labels</span>
 <span class="sd">        :return: self</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">posteriors</span> <span class="o">=</span> <span class="n">cross_val_predict</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">val_split</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;predict_proba&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">val_split</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'predict_proba'</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="n">nclasses</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
@@ -481,7 +481,7 @@
 <div class="viewcode-block" id="RecalibratedProbabilisticClassifierBase.fit_tr_val">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.fit_tr_val">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit_tr_val</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Fits the calibration in a train/val-split manner, i.e.t, it partitions the training instances into a</span>
 <span class="sd">        training and a validation set, and then uses the training samples to learn classifier which is then used</span>
 <span class="sd">        to generate posterior probabilities for the held-out validation data. These posteriors are used to calibrate</span>
@@ -490,7 +490,7 @@
 <span class="sd">        :param X: array-like of shape `(n_samples, n_features)` with the data instances</span>
 <span class="sd">        :param y: array-like of shape `(n_samples,)` with the class labels</span>
 <span class="sd">        :return: self</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">Xtr</span><span class="p">,</span> <span class="n">Xva</span><span class="p">,</span> <span class="n">ytr</span><span class="p">,</span> <span class="n">yva</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
             <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">val_split</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
         <span class="p">)</span>
@@ -504,35 +504,35 @@
 <div class="viewcode-block" id="RecalibratedProbabilisticClassifierBase.predict">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.predict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Predicts class labels for the data instances in `X`</span>
 
 <span class="sd">        :param X: array-like of shape `(n_samples, n_features)` with the data instances</span>
 <span class="sd">        :return: array-like of shape `(n_samples,)` with the class label predictions</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="RecalibratedProbabilisticClassifierBase.predict_proba">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.RecalibratedProbabilisticClassifierBase.predict_proba">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Generates posterior probabilities for the data instances in `X`</span>
 
 <span class="sd">        :param X: array-like of shape `(n_samples, n_features)` with the data instances</span>
 <span class="sd">        :return: array-like of shape `(n_samples, n_classes)` with posterior probabilities</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_function</span><span class="p">(</span><span class="n">posteriors</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">classes_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Returns the classes on which the classifier has been trained on</span>
 
 <span class="sd">        :return: array-like of shape `(n_classes)`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">classes_</span></div>
 
 
@@ -540,7 +540,7 @@
 <div class="viewcode-block" id="NBVSCalibration">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.NBVSCalibration">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NBVSCalibration</span><span class="p">(</span><span class="n">RecalibratedProbabilisticClassifierBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Applies the No-Bias Vector Scaling (NBVS) calibration method from `abstention.calibration`, as defined in</span>
 <span class="sd">    `Alexandari et al. paper &lt;http://proceedings.mlr.press/v119/alexandari20a.html&gt;`_:</span>
 
@@ -553,7 +553,7 @@
 <span class="sd">    :param verbose: whether or not to display information in the standard output</span>
 <span class="sd">    :param random_state: controls the shuffling of the train/validation split when val_split is a float</span>
 <span class="sd">        (has no effect when val_split is an integer); pass an int for reproducible splits</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">NoBiasVectorScaling</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_require_abstention_calibration</span><span class="p">()</span>
@@ -569,7 +569,7 @@
 <div class="viewcode-block" id="BCTSCalibration">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.BCTSCalibration">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BCTSCalibration</span><span class="p">(</span><span class="n">RecalibratedProbabilisticClassifierBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Applies the Bias-Corrected Temperature Scaling (BCTS) calibration method from `abstention.calibration`, as defined in</span>
 <span class="sd">    `Alexandari et al. paper &lt;http://proceedings.mlr.press/v119/alexandari20a.html&gt;`_:</span>
 
@@ -582,12 +582,12 @@
 <span class="sd">    :param verbose: whether or not to display information in the standard output</span>
 <span class="sd">    :param random_state: controls the shuffling of the train/validation split when val_split is a float</span>
 <span class="sd">        (has no effect when val_split is an integer); pass an int for reproducible splits</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">TempScaling</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_require_abstention_calibration</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">classifier</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">calibrator</span> <span class="o">=</span> <span class="n">TempScaling</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">bias_positions</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">calibrator</span> <span class="o">=</span> <span class="n">TempScaling</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span> <span class="n">bias_positions</span><span class="o">=</span><span class="s1">'all'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">val_split</span> <span class="o">=</span> <span class="n">val_split</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
@@ -598,7 +598,7 @@
 <div class="viewcode-block" id="TSCalibration">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.TSCalibration">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TSCalibration</span><span class="p">(</span><span class="n">RecalibratedProbabilisticClassifierBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Applies the Temperature Scaling (TS) calibration method from `abstention.calibration`, as defined in</span>
 <span class="sd">    `Alexandari et al. paper &lt;http://proceedings.mlr.press/v119/alexandari20a.html&gt;`_:</span>
 
@@ -611,7 +611,7 @@
 <span class="sd">    :param verbose: whether or not to display information in the standard output</span>
 <span class="sd">    :param random_state: controls the shuffling of the train/validation split when val_split is a float</span>
 <span class="sd">        (has no effect when val_split is an integer); pass an int for reproducible splits</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">TempScaling</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_require_abstention_calibration</span><span class="p">()</span>
@@ -627,7 +627,7 @@
 <div class="viewcode-block" id="VSCalibration">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.VSCalibration">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VSCalibration</span><span class="p">(</span><span class="n">RecalibratedProbabilisticClassifierBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Applies the Vector Scaling (VS) calibration method from `abstention.calibration`, as defined in</span>
 <span class="sd">    `Alexandari et al. paper &lt;http://proceedings.mlr.press/v119/alexandari20a.html&gt;`_:</span>
 
@@ -640,7 +640,7 @@
 <span class="sd">    :param verbose: whether or not to display information in the standard output</span>
 <span class="sd">    :param random_state: controls the shuffling of the train/validation split when val_split is a float</span>
 <span class="sd">        (has no effect when val_split is an integer); pass an int for reproducible splits</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">VectorScaling</span> <span class="o">=</span> <span class="n">_require_abstention_calibration</span><span class="p">()</span>
@@ -656,7 +656,7 @@
 <div class="viewcode-block" id="TemperatureScalingFromLogits">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.TemperatureScalingFromLogits">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TemperatureScalingFromLogits</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Calibrates a matrix of logits by learning a temperature-scaling mapping</span>
 <span class="sd">    with the calibration methods from `abstention.calibration`.</span>
 
@@ -668,7 +668,7 @@
 <span class="sd">        (BCTS); otherwise, uses standard Temperature Scaling (TS)</span>
 <span class="sd">    :param verbose: whether the underlying calibrator should display progress</span>
 <span class="sd">        information</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bias_corrected</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bias_corrected</span> <span class="o">=</span> <span class="n">bias_corrected</span>
@@ -677,14 +677,14 @@
 <div class="viewcode-block" id="TemperatureScalingFromLogits.fit">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.TemperatureScalingFromLogits.fit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Fits the logits calibrator.</span>
 
 <span class="sd">        :param X: array-like of shape `(n_samples, n_classes)` containing</span>
 <span class="sd">            logits</span>
 <span class="sd">        :param y: array-like of shape `(n_samples,)` containing class labels</span>
 <span class="sd">        :return: self</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder_</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span>
@@ -695,14 +695,14 @@
         <span class="n">logits_dim</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">n_classes</span> <span class="o">!=</span> <span class="n">logits_dim</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;mismatch between the number of classes (</span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s1">) and the &#39;</span>
-                <span class="sa">f</span><span class="s1">&#39;dimensionality of the logits (</span><span class="si">{</span><span class="n">logits_dim</span><span class="si">}</span><span class="s1">)&#39;</span>
+                <span class="sa">f</span><span class="s1">'mismatch between the number of classes (</span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s1">) and the '</span>
+                <span class="sa">f</span><span class="s1">'dimensionality of the logits (</span><span class="si">{</span><span class="n">logits_dim</span><span class="si">}</span><span class="s1">)'</span>
             <span class="p">)</span>
 
         <span class="n">_</span><span class="p">,</span> <span class="n">TempScaling</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_require_abstention_calibration</span><span class="p">()</span>
         <span class="n">calibrator</span> <span class="o">=</span> <span class="n">TempScaling</span><span class="p">(</span>
             <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
-            <span class="n">bias_positions</span><span class="o">=</span><span class="s1">&#39;all&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_corrected</span> <span class="k">else</span> <span class="p">[],</span>
+            <span class="n">bias_positions</span><span class="o">=</span><span class="s1">'all'</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_corrected</span> <span class="k">else</span> <span class="p">[],</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calibrator_</span> <span class="o">=</span> <span class="n">calibrator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calibration_function_</span> <span class="o">=</span> <span class="n">calibrator</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n_classes</span><span class="p">)[</span><span class="n">y_enc</span><span class="p">])</span>
@@ -712,28 +712,28 @@
 <div class="viewcode-block" id="TemperatureScalingFromLogits.predict_proba">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.TemperatureScalingFromLogits.predict_proba">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Converts logits into calibrated posterior probabilities.</span>
 
 <span class="sd">        :param X: array-like of shape `(n_samples, n_classes)` containing</span>
 <span class="sd">            logits</span>
 <span class="sd">        :return: array-like of shape `(n_samples, n_classes)` with calibrated</span>
 <span class="sd">            posterior probabilities</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calibration_function_</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TemperatureScalingFromLogits.predict">
 <a class="viewcode-back" href="../../../quapy.classification.html#quapy.classification.calibration.TemperatureScalingFromLogits.predict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Predicts class labels after calibration.</span>
 
 <span class="sd">        :param X: array-like of shape `(n_samples, n_classes)` containing</span>
 <span class="sd">            logits</span>
 <span class="sd">        :return: array-like of shape `(n_samples,)` with class label</span>
 <span class="sd">            predictions</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">posteriors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoder_</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">posteriors</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span></div>
 </div>

@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>quapy.method._threshold_optim &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>quapy.method._threshold_optim &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,8 +121,8 @@
       
     
     
-    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -383,7 +383,7 @@
 <div class="viewcode-block" id="ThresholdOptimization">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ThresholdOptimization</span><span class="p">(</span><span class="n">BinaryAggregativeQuantifier</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Abstract class of Threshold Optimization variants for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
 <span class="sd">    `Forman 2008 &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_.</span>
@@ -392,8 +392,8 @@
 <span class="sd">    that would allow for more true positives and many more false positives, on the grounds this</span>
 <span class="sd">    would deliver larger denominators.</span>
 
-<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
-<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ['DEFAULT_CLS']`</span>
 
 <span class="sd">    :param fit_classifier: whether to train the learner (default is True). Set to False if the</span>
 <span class="sd">        learner has been trained outside the quantifier.</span>
@@ -405,7 +405,7 @@
 <span class="sd">        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.</span>
 
 <span class="sd">    :param n_jobs: number of parallel workers</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
@@ -415,40 +415,40 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.condition">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Implements the criterion according to which the threshold should be selected.</span>
 <span class="sd">        This function should return the (float) score to be minimized.</span>
 
 <span class="sd">        :param tpr: float, true positive rate</span>
 <span class="sd">        :param fpr: float, false positive rate</span>
 <span class="sd">        :return: float, a score for the given `tpr` and `fpr`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="ThresholdOptimization.discard">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.ThresholdOptimization.discard">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">discard</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Indicates whether a combination of tpr and fpr should be discarded</span>
 
 <span class="sd">        :param tpr: float, true positive rate</span>
 <span class="sd">        :param fpr: float, false positive rate</span>
 <span class="sd">        :return: true if the combination is to be discarded, false otherwise</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">tpr</span> <span class="o">-</span> <span class="n">fpr</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span></div>
 
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_eval_candidate_thresholds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_scores</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Seeks for the best `tpr` and `fpr` according to the score obtained at different</span>
 <span class="sd">        decision thresholds. The scoring function is implemented in function `_condition`.</span>
 
 <span class="sd">        :param decision_scores: array-like with the classification scores</span>
 <span class="sd">        :param y: predicted labels for the validation set (or for the training set via `k`-fold cross validation)</span>
 <span class="sd">        :return: best `tpr` and `fpr` and `threshold` according to `_condition`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">candidate_thresholds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">decision_scores</span><span class="p">)</span>
 
         <span class="n">candidates</span> <span class="o">=</span> <span class="p">[]</span>
@@ -524,15 +524,15 @@
 <div class="viewcode-block" id="T50">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.T50">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">T50</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Threshold Optimization variant for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
 <span class="sd">    `Forman 2008 &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_ that looks</span>
 <span class="sd">    for the threshold that makes `tpr` closest to 0.5.</span>
 <span class="sd">    The goal is to bring improved stability to the denominator of the adjustment.</span>
 
-<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
-<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ['DEFAULT_CLS']`</span>
 
 <span class="sd">    :param fit_classifier: whether to train the learner (default is True). Set to False if the</span>
 <span class="sd">        learner has been trained outside the quantifier.</span>
@@ -543,7 +543,7 @@
 <span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
 <span class="sd">        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
@@ -559,15 +559,15 @@
 <div class="viewcode-block" id="MAX">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MAX">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MAX</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Threshold Optimization variant for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
 <span class="sd">    `Forman 2008 &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_ that looks</span>
 <span class="sd">    for the threshold that maximizes `tpr-fpr`.</span>
 <span class="sd">    The goal is to bring improved stability to the denominator of the adjustment.</span>
 
-<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
-<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ['DEFAULT_CLS']`</span>
 <span class="sd">    :param fit_classifier: whether to train the learner (default is True). Set to False if the</span>
 <span class="sd">        learner has been trained outside the quantifier.</span>
 <span class="sd">    :param val_split: specifies the data used for generating classifier predictions. This specification</span>
@@ -576,7 +576,7 @@
 <span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
 <span class="sd">        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
@@ -593,15 +593,15 @@
 <div class="viewcode-block" id="X">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.X">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">X</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Threshold Optimization variant for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
 <span class="sd">    `Forman 2008 &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_ that looks</span>
 <span class="sd">    for the threshold that yields `tpr=1-fpr`.</span>
 <span class="sd">    The goal is to bring improved stability to the denominator of the adjustment.</span>
 
-<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
-<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ['DEFAULT_CLS']`</span>
 <span class="sd">    :param fit_classifier: whether to train the learner (default is True). Set to False if the</span>
 <span class="sd">        learner has been trained outside the quantifier.</span>
 <span class="sd">    :param val_split: specifies the data used for generating classifier predictions. This specification</span>
@@ -610,7 +610,7 @@
 <span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
 <span class="sd">        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
@@ -626,15 +626,15 @@
 <div class="viewcode-block" id="MS">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MS</span><span class="p">(</span><span class="n">ThresholdOptimization</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Median Sweep. Threshold Optimization variant for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
 <span class="sd">    `Forman 2008 &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_ that generates</span>
 <span class="sd">    class prevalence estimates for all decision thresholds and returns the median of them all.</span>
 <span class="sd">    The goal is to bring improved stability to the denominator of the adjustment.</span>
 
-<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
-<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ['DEFAULT_CLS']`</span>
 <span class="sd">    :param fit_classifier: whether to train the learner (default is True). Set to False if the</span>
 <span class="sd">        learner has been trained outside the quantifier.</span>
 <span class="sd">    :param val_split: specifies the data used for generating classifier predictions. This specification</span>
@@ -642,7 +642,7 @@
 <span class="sd">        be extracted from the training set; or as an integer (default 5), indicating that the predictions</span>
 <span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
 <span class="sd">        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>
@@ -679,7 +679,7 @@
 <div class="viewcode-block" id="MS2">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method._threshold_optim.MS2">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MS2</span><span class="p">(</span><span class="n">MS</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Median Sweep 2. Threshold Optimization variant for :class:`ACC` as proposed by</span>
 <span class="sd">    `Forman 2006 &lt;https://dl.acm.org/doi/abs/10.1145/1150402.1150423&gt;`_ and</span>
 <span class="sd">    `Forman 2008 &lt;https://link.springer.com/article/10.1007/s10618-008-0097-y&gt;`_ that generates</span>
@@ -687,8 +687,8 @@
 <span class="sd">    which `tpr-fpr&gt;0.25`</span>
 <span class="sd">    The goal is to bring improved stability to the denominator of the adjustment.</span>
 
-<span class="sd">    :param classifier: a scikit-learn&#39;s BaseEstimator, or None, in which case the classifier is taken to be</span>
-<span class="sd">        the one indicated in `qp.environ[&#39;DEFAULT_CLS&#39;]`</span>
+<span class="sd">    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be</span>
+<span class="sd">        the one indicated in `qp.environ['DEFAULT_CLS']`</span>
 <span class="sd">    :param fit_classifier: whether to train the learner (default is True). Set to False if the</span>
 <span class="sd">        learner has been trained outside the quantifier.</span>
 <span class="sd">    :param val_split: specifies the data used for generating classifier predictions. This specification</span>
@@ -696,7 +696,7 @@
 <span class="sd">        be extracted from the training set; or as an integer (default 5), indicating that the predictions</span>
 <span class="sd">        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value</span>
 <span class="sd">        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">classifier</span><span class="p">:</span> <span class="n">BaseEstimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">fit_classifier</span><span class="p">,</span> <span class="n">val_split</span><span class="p">)</span>

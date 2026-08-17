@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>qunfold.sklearn &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>qunfold.sklearn &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,8 +121,8 @@
       
     
     
-    <img src="../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -379,7 +379,7 @@
 <div class="viewcode-block" id="CVClassifier">
 <a class="viewcode-back" href="../../quapy.method.html#quapy.method.composable.CVClassifier">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CVClassifier</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span><span class="n">ClassifierMixin</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;An ensemble of classifiers that are trained from cross-validation folds.</span>
+<span class="w">  </span><span class="sd">"""An ensemble of classifiers that are trained from cross-validation folds.</span>
 
 <span class="sd">  All objects of this type have a fixed attribute `oob_score = True` and, when trained, a fitted attribute `self.oob_decision_function_`, just like scikit-learn bagging classifiers.</span>
 
@@ -392,7 +392,7 @@
 <span class="sd">      Here, we create an instance of ACC that trains a logistic regression classifier with 10 cross-validation folds.</span>
 
 <span class="sd">          &gt;&gt;&gt; ACC(CVClassifier(LogisticRegression(), 10))</span>
-<span class="sd">  &quot;&quot;&quot;</span>
+<span class="sd">  """</span>
   <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">n_estimators</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">estimator</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span> <span class="o">=</span> <span class="n">n_estimators</span>
@@ -402,7 +402,7 @@
 <a class="viewcode-back" href="../../quapy.method.html#quapy.method.composable.CVClassifier.fit">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">i_classes_</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># the indices of each estimator&#39;s subset of classes</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">i_classes_</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># the indices of each estimator's subset of classes</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">estimator_weights_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">unique_labels</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">oob_decision_function_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)))</span>
@@ -430,7 +430,7 @@
 <div class="viewcode-block" id="CVClassifier.predict_proba">
 <a class="viewcode-back" href="../../quapy.method.html#quapy.method.composable.CVClassifier.predict_proba">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;classes_&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"classes_"</span><span class="p">):</span>
       <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">()</span>
     <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span><span class="p">),</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)))</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="n">i_classes</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimators_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">i_classes_</span><span class="p">)):</span>

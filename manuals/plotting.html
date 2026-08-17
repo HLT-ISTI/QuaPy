@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>5. Plotting &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>5. Plotting &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -421,7 +421,7 @@ involved in the experiments. In this case, all experiments for the
 method will be merged and the plot will represent the method’s
 performance across various datasets.</p>
 <p>This is a very simple example of a valid input for the plotting functions:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">method_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;classify &amp; count&#39;</span><span class="p">,</span> <span class="s1">&#39;EMQ&#39;</span><span class="p">,</span> <span class="s1">&#39;classify &amp; count&#39;</span><span class="p">]</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">method_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'classify &amp; count'</span><span class="p">,</span> <span class="s1">'EMQ'</span><span class="p">,</span> <span class="s1">'classify &amp; count'</span><span class="p">]</span>
 <span class="n">true_prevs</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">]]),</span>
     <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.75</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]]),</span>
@@ -457,20 +457,20 @@ generating 100 random samples at each prevalence).</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.aggregative</span><span class="w"> </span><span class="kn">import</span> <span class="n">CC</span><span class="p">,</span> <span class="n">ACC</span><span class="p">,</span> <span class="n">PCC</span><span class="p">,</span> <span class="n">PACC</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.svm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearSVC</span>
 
-<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
+<span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'SAMPLE_SIZE'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">gen_data</span><span class="p">():</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">base_classifier</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">LinearSVC</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="s1">&#39;balanced&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LinearSVC</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="s1">'balanced'</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">models</span><span class="p">():</span>
-        <span class="k">yield</span> <span class="s1">&#39;CC&#39;</span><span class="p">,</span> <span class="n">CC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
-        <span class="k">yield</span> <span class="s1">&#39;ACC&#39;</span><span class="p">,</span> <span class="n">ACC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
-        <span class="k">yield</span> <span class="s1">&#39;PCC&#39;</span><span class="p">,</span> <span class="n">PCC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
-        <span class="k">yield</span> <span class="s1">&#39;PACC&#39;</span><span class="p">,</span> <span class="n">PACC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">'CC'</span><span class="p">,</span> <span class="n">CC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">'ACC'</span><span class="p">,</span> <span class="n">ACC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">'PCC'</span><span class="p">,</span> <span class="n">PCC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
+        <span class="k">yield</span> <span class="s1">'PACC'</span><span class="p">,</span> <span class="n">PACC</span><span class="p">(</span><span class="n">base_classifier</span><span class="p">())</span>
 
-    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'kindle'</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
 
     <span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
 
@@ -499,7 +499,7 @@ although one can simply generate as many <em>diagonal</em> plots as
 classes there are by indicating which class should be considered
 the target of the plot.</p>
 <p>The following call will produce the plot:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">binary_diagonal</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">train_prev</span><span class="o">=</span><span class="n">tr_prevs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">savepath</span><span class="o">=</span><span class="s1">&#39;./plots/bin_diag.png&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">binary_diagonal</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">train_prev</span><span class="o">=</span><span class="n">tr_prevs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">savepath</span><span class="o">=</span><span class="s1">'./plots/bin_diag.png'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>the last argument is optional, and indicates the path where to save
@@ -523,7 +523,7 @@ prevalence seen during training.</p>
 displays with respect to the training prevalences by
 means of <a class="reference external" href="https://en.wikipedia.org/wiki/Box_plot">box plots</a>.
 This plot can be generated by:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">binary_bias_global</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="s1">&#39;./plots/bin_bias.png&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">binary_bias_global</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="s1">'./plots/bin_bias.png'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>and should look like:</p>
@@ -549,7 +549,7 @@ This example can be run by rewritting the <em>gen_data()</em> function
 like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">gen_data</span><span class="p">():</span>
 
-    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;imdb&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'imdb'</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">CC</span><span class="p">(</span><span class="n">LinearSVC</span><span class="p">())</span>
 
     <span class="n">method_data</span> <span class="o">=</span> <span class="p">[]</span>
@@ -559,7 +559,7 @@ like this:</p>
         <span class="n">train_sample</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">training_size</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="n">training_prevalence</span><span class="p">)</span>
         <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train_sample</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
         <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">prediction</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">APP</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-        <span class="n">method_name</span> <span class="o">=</span> <span class="s1">&#39;CC$_{&#39;</span><span class="o">+</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">training_prevalence</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;\%}$&#39;</span>
+        <span class="n">method_name</span> <span class="o">=</span> <span class="s1">'CC$_{'</span><span class="o">+</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">training_prevalence</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span> <span class="o">+</span> <span class="s1">'\%}$'</span>
         <span class="n">method_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">method_name</span><span class="p">,</span> <span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">,</span> <span class="n">train_sample</span><span class="o">.</span><span class="n">prevalence</span><span class="p">()))</span>
 
     <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">method_data</span><span class="p">)</span>
@@ -605,7 +605,7 @@ and <em>absolute error</em> as the measure of the error (the
 drift in the x-axis is always computed in terms of <em>absolute error</em> since
 other errors are harder to interpret):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">error_by_drift</span><span class="p">(</span><span class="n">method_names</span><span class="p">,</span> <span class="n">true_prevs</span><span class="p">,</span> <span class="n">estim_prevs</span><span class="p">,</span> <span class="n">tr_prevs</span><span class="p">,</span> 
-    <span class="n">error_name</span><span class="o">=</span><span class="s1">&#39;ae&#39;</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="s1">&#39;./plots/err_drift.png&#39;</span><span class="p">)</span>
+    <span class="n">error_name</span><span class="o">=</span><span class="s1">'ae'</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">savepath</span><span class="o">=</span><span class="s1">'./plots/err_drift.png'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><img alt="diag plot on IMDb" src="../_images/err_drift.png" /></p>
@@ -638,13 +638,13 @@ fields <code class="docutils literal notranslate"><span class="pre">points</span
 
 <span class="n">qp</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">plot_simplex</span><span class="p">(</span>
     <span class="n">point_layers</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span><span class="s1">&#39;points&#39;</span><span class="p">:</span> <span class="n">posterior_cloud</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;posterior cloud&#39;</span><span class="p">,</span> <span class="s1">&#39;style&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;steelblue&#39;</span><span class="p">}},</span>
-        <span class="p">{</span><span class="s1">&#39;points&#39;</span><span class="p">:</span> <span class="n">true_prev</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;true prevalence&#39;</span><span class="p">,</span> <span class="s1">&#39;style&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;black&#39;</span><span class="p">}},</span>
-        <span class="p">{</span><span class="s1">&#39;points&#39;</span><span class="p">:</span> <span class="n">train_prev</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;training prevalence&#39;</span><span class="p">,</span> <span class="s1">&#39;style&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;darkorange&#39;</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s1">'points'</span><span class="p">:</span> <span class="n">posterior_cloud</span><span class="p">,</span> <span class="s1">'label'</span><span class="p">:</span> <span class="s1">'posterior cloud'</span><span class="p">,</span> <span class="s1">'style'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'s'</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">'alpha'</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="s1">'color'</span><span class="p">:</span> <span class="s1">'steelblue'</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s1">'points'</span><span class="p">:</span> <span class="n">true_prev</span><span class="p">,</span> <span class="s1">'label'</span><span class="p">:</span> <span class="s1">'true prevalence'</span><span class="p">,</span> <span class="s1">'style'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'s'</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="s1">'color'</span><span class="p">:</span> <span class="s1">'black'</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s1">'points'</span><span class="p">:</span> <span class="n">train_prev</span><span class="p">,</span> <span class="s1">'label'</span><span class="p">:</span> <span class="s1">'training prevalence'</span><span class="p">,</span> <span class="s1">'style'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'s'</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="s1">'color'</span><span class="p">:</span> <span class="s1">'darkorange'</span><span class="p">}},</span>
     <span class="p">],</span>
     <span class="n">density_function</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">p</span> <span class="o">-</span> <span class="n">true_prev</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span>
-    <span class="n">class_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;class A&#39;</span><span class="p">,</span> <span class="s1">&#39;class B&#39;</span><span class="p">,</span> <span class="s1">&#39;class C&#39;</span><span class="p">],</span>
-    <span class="n">savepath</span><span class="o">=</span><span class="s1">&#39;./plots/simplex.png&#39;</span><span class="p">,</span>
+    <span class="n">class_names</span><span class="o">=</span><span class="p">[</span><span class="s1">'class A'</span><span class="p">,</span> <span class="s1">'class B'</span><span class="p">,</span> <span class="s1">'class C'</span><span class="p">],</span>
+    <span class="n">savepath</span><span class="o">=</span><span class="s1">'./plots/simplex.png'</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>

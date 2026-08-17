@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>2. Evaluation &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>2. Evaluation &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -125,8 +125,8 @@
       
     
     
-    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -437,11 +437,11 @@ to the function each time, or to set a QuaPy’s environment
 variable <em>SAMPLE_SIZE</em> once, and omit this argument
 thereafter (recommended);
 e.g.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># once for all</span>
-<span class="n">true_prev</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>  <span class="c1"># let&#39;s assume 3 classes</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'SAMPLE_SIZE'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># once for all</span>
+<span class="n">true_prev</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>  <span class="c1"># let's assume 3 classes</span>
 <span class="n">estim_prev</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]</span>
 <span class="n">error</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">mrae</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mrae(</span><span class="si">{</span><span class="n">true_prev</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">estim_prev</span><span class="si">}</span><span class="s1">) = </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'mrae(</span><span class="si">{</span><span class="n">true_prev</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">estim_prev</span><span class="si">}</span><span class="s1">) = </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>will print:</p>
@@ -450,7 +450,7 @@ e.g.:</p>
 </div>
 <p>It is also possible to instantiate QuaPy’s quantification
 error functions from strings using, e.g.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">error_function</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="s1">&#39;mse&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">error_function</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="s1">'mse'</span><span class="p">)</span>
 <span class="n">error</span> <span class="o">=</span> <span class="n">error_function</span><span class="p">(</span><span class="n">true_prev</span><span class="p">,</span> <span class="n">estim_prev</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -536,8 +536,8 @@ chosen and instantiated one specific such protocol, that we here
 simply call <em>prot</em>. Let also assume our model is called
 <em>quantifier</em> and that our evaluatio measure of choice is
 <em>mae</em>. The evaluation comes down to:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mae</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">prot</span><span class="p">,</span> <span class="n">error_metric</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;MAE = </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">mae</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">prot</span><span class="p">,</span> <span class="n">error_metric</span><span class="o">=</span><span class="s1">'mae'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'MAE = </span><span class="si">{</span><span class="n">mae</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>It is often desirable to evaluate our system using more than one
@@ -546,16 +546,16 @@ a <em>report</em>. A report in QuaPy is a dataframe accounting for all the
 true prevalence values with their corresponding prevalence values
 as estimated by the quantifier, along with the error each has given
 rise.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluation_report</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">prot</span><span class="p">,</span> <span class="n">error_metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="s1">&#39;mrae&#39;</span><span class="p">,</span> <span class="s1">&#39;mkld&#39;</span><span class="p">])</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">evaluation_report</span><span class="p">(</span><span class="n">quantifier</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">prot</span><span class="p">,</span> <span class="n">error_metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">'mae'</span><span class="p">,</span> <span class="s1">'mrae'</span><span class="p">,</span> <span class="s1">'mkld'</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>From a pandas’ dataframe, it is straightforward to visualize all the results,
 and compute the averaged values, e.g.:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.expand_frame_repr&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-<span class="n">report</span><span class="p">[</span><span class="s1">&#39;estim-prev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s1">&#39;estim-prev&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">'display.expand_frame_repr'</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">report</span><span class="p">[</span><span class="s1">'estim-prev'</span><span class="p">]</span> <span class="o">=</span> <span class="n">report</span><span class="p">[</span><span class="s1">'estim-prev'</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Averaged values:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Averaged values:'</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">numeric_only</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </pre></div>
 </div>

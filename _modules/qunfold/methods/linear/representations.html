@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>qunfold.methods.linear.representations &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>qunfold.methods.linear.representations &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../../../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,8 +121,8 @@
       
     
     
-    <img src="../../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -382,10 +382,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">...base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseMixin</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">AbstractRepresentation</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span><span class="n">BaseMixin</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;Abstract base class for representations.&quot;&quot;&quot;</span>
+<span class="w">  </span><span class="sd">"""Abstract base class for representations."""</span>
   <span class="nd">@abstractmethod</span>
   <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This abstract method has to fit the representation and to return the transformed input data.</span>
+<span class="w">    </span><span class="sd">"""This abstract method has to fit the representation and to return the transformed input data.</span>
 
 <span class="sd">    Note:</span>
 <span class="sd">        Implementations of this abstract method should check the sanity of labels by calling `check_y(y, n_classes)` and they must set the property `self.p_trn = class_prevalences(y, n_classes)`.</span>
@@ -399,11 +399,11 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A transfer matrix `M` if `average==True` or a transformation `f(X)` if `average==False`. `f(X)` might contain `NaN` entries if the fitting permits the estimation, e.g., in bootstrapped fitting procedures.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">pass</span>
   <span class="nd">@abstractmethod</span>
   <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;This abstract method has to transform the data `X`.</span>
+<span class="w">    </span><span class="sd">"""This abstract method has to transform the data `X`.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        X: The feature matrix that will be transformed.</span>
@@ -412,12 +412,12 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A vector `q = f(X).average(axis=0, weights=sample_weight)` if `average==True` or a transformation `f(X)` if `average==False`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">pass</span>
   <span class="nd">@property</span>
   <span class="nd">@abstractmethod</span>
   <span class="k">def</span><span class="w"> </span><span class="nf">n_output_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The number of output features generated by this representation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The number of output features generated by this representation."""</span>
     <span class="k">pass</span>
 
 <span class="c1"># helper function for ClassRepresentation(..., is_probabilistic=False)</span>
@@ -428,7 +428,7 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.ClassRepresentation">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ClassRepresentation</span><span class="p">(</span><span class="n">AbstractRepresentation</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;A classification-based data representation.</span>
+<span class="w">  </span><span class="sd">"""A classification-based data representation.</span>
 
 <span class="sd">  This representation can either be probabilistic (using the posterior predictions of a classifier) or crisp (using the class predictions of a classifier). It is used in ACC, PACC, CC, PCC, and SLD.</span>
 
@@ -436,17 +436,17 @@
 <span class="sd">      classifier: A classifier that implements the API of scikit-learn.</span>
 <span class="sd">      is_probabilistic (optional): Whether probabilistic or crisp predictions of the `classifier` are used to represent the data. Defaults to `False`.</span>
 <span class="sd">      fit_classifier (optional): Whether to fit the `classifier` when this quantifier is fitted. Defaults to `True`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
+<span class="sd">  """</span>
   <span class="n">classifier</span><span class="p">:</span> <span class="n">Any</span>
   <span class="n">is_probabilistic</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
   <span class="n">fit_classifier</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <div class="viewcode-block" id="ClassRepresentation.fit_transform">
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.ClassRepresentation.fit_transform">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="s2">&quot;oob_score&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">oob_score</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="p">,</span> <span class="s2">"oob_score"</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">oob_score</span><span class="p">:</span>
       <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-        <span class="s2">&quot;The ClassRepresentation either requires a bagging classifier with oob_score=True&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;or an instance of qunfold.sklearn.CVClassifier&quot;</span>
+        <span class="s2">"The ClassRepresentation either requires a bagging classifier with oob_score=True"</span><span class="p">,</span>
+        <span class="s2">"or an instance of qunfold.sklearn.CVClassifier"</span>
       <span class="p">)</span>
     <span class="n">check_y</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">p_trn</span> <span class="o">=</span> <span class="n">class_prevalences</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
@@ -498,13 +498,13 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.DistanceRepresentation">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">DistanceRepresentation</span><span class="p">(</span><span class="n">AbstractRepresentation</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;A distance-based data representation, as it is used in `EDx` and `EDy`.</span>
+<span class="w">  </span><span class="sd">"""A distance-based data representation, as it is used in `EDx` and `EDy`.</span>
 
 <span class="sd">  Args:</span>
-<span class="sd">      metric (optional): The metric with which the distance between data items is measured. Can take any value that is accepted by `scipy.spatial.distance.cdist`. Defaults to `&quot;euclidean&quot;`.</span>
+<span class="sd">      metric (optional): The metric with which the distance between data items is measured. Can take any value that is accepted by `scipy.spatial.distance.cdist`. Defaults to `"euclidean"`.</span>
 <span class="sd">      preprocessor (optional): Another `AbstractRepresentation` that is called before this representation. Defaults to `None`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
-  <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;euclidean&quot;</span>
+<span class="sd">  """</span>
+  <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"euclidean"</span>
   <span class="n">preprocessor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AbstractRepresentation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <div class="viewcode-block" id="DistanceRepresentation.fit_transform">
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.DistanceRepresentation.fit_transform">[docs]</a>
@@ -562,13 +562,13 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.HistogramRepresentation">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">HistogramRepresentation</span><span class="p">(</span><span class="n">AbstractRepresentation</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;A histogram-based data representation, as it is used in `HDx` and `HDy`.</span>
+<span class="w">  </span><span class="sd">"""A histogram-based data representation, as it is used in `HDx` and `HDy`.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">      n_bins: The number of bins in each feature.</span>
 <span class="sd">      preprocessor (optional): Another `AbstractRepresentation` that is called before this representation. Defaults to `None`.</span>
 <span class="sd">      unit_scale (optional): Whether or not to scale each output to a sum of one. A value of `False` indicates that the sum of each output is the number of features. Defaults to `True`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
+<span class="sd">  """</span>
   <span class="n">n_bins</span><span class="p">:</span> <span class="nb">int</span>
   <span class="n">preprocessor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AbstractRepresentation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
   <span class="n">unit_scale</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
@@ -659,7 +659,7 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.EnergyKernelRepresentation">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">EnergyKernelRepresentation</span><span class="p">(</span><span class="n">AbstractRepresentation</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;A kernel-based data representation, as it is used in `KMM`, that uses the `energy` kernel:</span>
+<span class="w">  </span><span class="sd">"""A kernel-based data representation, as it is used in `KMM`, that uses the `energy` kernel:</span>
 
 <span class="sd">      k(x_1, x_2) = ||x_1|| + ||x_2|| - ||x_1 - x_2||</span>
 
@@ -668,15 +668,15 @@
 
 <span class="sd">  Args:</span>
 <span class="sd">      preprocessor (optional): Another `AbstractRepresentation` that is called before this representation. Defaults to `None`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
+<span class="sd">  """</span>
   <span class="n">preprocessor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AbstractRepresentation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <div class="viewcode-block" id="EnergyKernelRepresentation.fit_transform">
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.EnergyKernelRepresentation.fit_transform">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">average</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;EnergyKernelRepresentation does not support average=False&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"EnergyKernelRepresentation does not support average=False"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;EnergyKernelRepresentation does not support sample_weight != None&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"EnergyKernelRepresentation does not support sample_weight != None"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">n_classes</span><span class="p">)</span>
@@ -704,9 +704,9 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.EnergyKernelRepresentation.transform">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">average</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;EnergyKernelRepresentation does not support average=False&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"EnergyKernelRepresentation does not support average=False"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;EnergyKernelRepresentation does not support sample_weight != None&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"EnergyKernelRepresentation does not support sample_weight != None"</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
@@ -717,7 +717,7 @@
     <span class="n">dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_classes</span><span class="p">)</span> <span class="c1"># = ||x_1 - x_2|| for all x_2 = X_trn[y_trn == i]</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
       <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y_trn</span><span class="o">==</span><span class="n">c</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">dists</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">cdist</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_trn</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y_trn</span><span class="o">==</span><span class="n">c</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">dists</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">cdist</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_trn</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y_trn</span><span class="o">==</span><span class="n">c</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="s2">"euclidean"</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">norm</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">norms</span> <span class="o">-</span> <span class="n">dists</span> <span class="c1"># = ||x_1|| + ||x_2|| - ||x_1 - x_2|| for all x_2</span>
   <span class="nd">@property</span>
   <span class="k">def</span><span class="w"> </span><span class="nf">n_output_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -728,23 +728,23 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.GaussianKernelRepresentation">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GaussianKernelRepresentation</span><span class="p">(</span><span class="n">AbstractRepresentation</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;A kernel-based data representation, as it is used in `KMM`, that uses the `gaussian` kernel:</span>
+<span class="w">  </span><span class="sd">"""A kernel-based data representation, as it is used in `KMM`, that uses the `gaussian` kernel:</span>
 
 <span class="sd">      k(x, y) = exp(-||x - y||^2 / (2σ^2))</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">      sigma (optional): A smoothing parameter of the kernel function. Defaults to `1`.</span>
 <span class="sd">      preprocessor (optional): Another `AbstractRepresentation` that is called before this representation. Defaults to `None`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
+<span class="sd">  """</span>
   <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span>
   <span class="n">preprocessor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AbstractRepresentation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 <div class="viewcode-block" id="GaussianKernelRepresentation.fit_transform">
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.GaussianKernelRepresentation.fit_transform">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">average</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GaussianKernelRepresentation does not support average=False&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"GaussianKernelRepresentation does not support average=False"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GaussianKernelRepresentation does not support sample_weight != None&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"GaussianKernelRepresentation does not support sample_weight != None"</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">n_classes</span><span class="p">)</span>
       <span class="n">is_finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -766,9 +766,9 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.GaussianKernelRepresentation.transform">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">average</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GaussianKernelRepresentation does not support average=False&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"GaussianKernelRepresentation does not support average=False"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GaussianKernelRepresentation does not support sample_weight != None&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"GaussianKernelRepresentation does not support sample_weight != None"</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform_after_preprocessor</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
@@ -778,7 +778,7 @@
     <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_classes</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
       <span class="n">norm_fac</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_trn</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y_trn</span><span class="o">==</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-      <span class="n">sq_dists</span> <span class="o">=</span> <span class="n">cdist</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_trn</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y_trn</span> <span class="o">==</span> <span class="n">i</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+      <span class="n">sq_dists</span> <span class="o">=</span> <span class="n">cdist</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_trn</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">y_trn</span> <span class="o">==</span> <span class="n">i</span><span class="p">],</span> <span class="n">metric</span><span class="o">=</span><span class="s2">"euclidean"</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
       <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">sq_dists</span> <span class="o">/</span> <span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">norm_fac</span> <span class="c1"># &lt;= old version</span>
     <span class="k">return</span> <span class="n">res</span>
   <span class="nd">@property</span>
@@ -790,22 +790,22 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.KernelRepresentation">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">KernelRepresentation</span><span class="p">(</span><span class="n">AbstractRepresentation</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;A general kernel-based data representation, as it is used in `KMM`. If you intend to use a Gaussian kernel or energy kernel, prefer their dedicated and more efficient implementations over this class.</span>
+<span class="w">  </span><span class="sd">"""A general kernel-based data representation, as it is used in `KMM`. If you intend to use a Gaussian kernel or energy kernel, prefer their dedicated and more efficient implementations over this class.</span>
 
 <span class="sd">  Note:</span>
 <span class="sd">      The methods of this representation do not support setting `average=False`.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">      kernel: A callable that will be used as the kernel. Must follow the signature `(X[y==i], X[y==j]) -&gt; scalar`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
+<span class="sd">  """</span>
   <span class="n">kernel</span><span class="p">:</span> <span class="n">Callable</span>
 <div class="viewcode-block" id="KernelRepresentation.fit_transform">
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.KernelRepresentation.fit_transform">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">average</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;KernelRepresentation does not support average=False&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"KernelRepresentation does not support average=False"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;KernelRepresentation does not support sample_weight != None&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"KernelRepresentation does not support sample_weight != None"</span><span class="p">)</span>
     <span class="n">check_y</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">p_trn</span> <span class="o">=</span> <span class="n">class_prevalences</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
     <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_trn</span><span class="p">)</span> <span class="c1"># not None anymore</span>
@@ -824,9 +824,9 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.KernelRepresentation.transform">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">average</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;KernelRepresentation does not support average=False&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"KernelRepresentation does not support average=False"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;KernelRepresentation does not support sample_weight != None&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"KernelRepresentation does not support sample_weight != None"</span><span class="p">)</span>
     <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p_trn</span><span class="p">)</span>
     <span class="n">q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_classes</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
@@ -853,11 +853,11 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.LaplacianKernelRepresentation">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">LaplacianKernelRepresentation</span><span class="p">(</span><span class="n">KernelRepresentation</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;A kernel-based data representation, as it is used in `KMM`, that uses the `laplacian` kernel.</span>
+<span class="w">  </span><span class="sd">"""A kernel-based data representation, as it is used in `KMM`, that uses the `laplacian` kernel.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">      sigma (optional): A smoothing parameter of the kernel function. Defaults to `1`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
+<span class="sd">  """</span>
   <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">1.</span><span class="p">):</span>
     <span class="n">KernelRepresentation</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">LaplacianKernelRepresentation</span><span class="o">.</span><span class="n">create_kernel</span><span class="p">(</span><span class="n">sigma</span><span class="p">))</span>
 <div class="viewcode-block" id="LaplacianKernelRepresentation.create_kernel">
@@ -872,14 +872,14 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.GaussianRFFKernelRepresentation">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GaussianRFFKernelRepresentation</span><span class="p">(</span><span class="n">AbstractRepresentation</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;An efficient approximation of the `GaussianKernelRepresentation`, as it is used in `KMM`, using random Fourier features.</span>
+<span class="w">  </span><span class="sd">"""An efficient approximation of the `GaussianKernelRepresentation`, as it is used in `KMM`, using random Fourier features.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">      sigma (optional): A smoothing parameter of the kernel function. Defaults to `1`.</span>
 <span class="sd">      n_rff (optional): The number of random Fourier features. Defaults to `1000`.</span>
 <span class="sd">      preprocessor (optional): Another `AbstractRepresentation` that is called before this representation. Defaults to `None`.</span>
 <span class="sd">      seed (optional): Controls the randomness of the random Fourier features. Defaults to `None`.</span>
-<span class="sd">  &quot;&quot;&quot;</span>
+<span class="sd">  """</span>
   <span class="n">sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span>
   <span class="n">n_rff</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span>
   <span class="n">preprocessor</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AbstractRepresentation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -888,9 +888,9 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.GaussianRFFKernelRepresentation.fit_transform">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">average</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GaussianRFFKernelRepresentation does not support average=False&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"GaussianRFFKernelRepresentation does not support average=False"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GaussianRFFKernelRepresentation does not support sample_weight != None&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"GaussianRFFKernelRepresentation does not support sample_weight != None"</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">n_classes</span><span class="p">)</span>
       <span class="n">is_finite</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -919,9 +919,9 @@
 <a class="viewcode-back" href="../../../../quapy.method.html#quapy.method.composable.GaussianRFFKernelRepresentation.transform">[docs]</a>
   <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">average</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GaussianRFFKernelRepresentation does not support average=False&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"GaussianRFFKernelRepresentation does not support average=False"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GaussianRFFKernelRepresentation does not support sample_weight != None&quot;</span><span class="p">)</span>
+      <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"GaussianRFFKernelRepresentation does not support sample_weight != None"</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
       <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">fX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform_after_preprocessor</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu</span>
@@ -938,7 +938,7 @@
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OriginalRepresentation</span><span class="p">(</span><span class="n">AbstractRepresentation</span><span class="p">):</span>
-<span class="w">  </span><span class="sd">&quot;&quot;&quot;A dummy representation that simply returns the data as it is.&quot;&quot;&quot;</span>
+<span class="w">  </span><span class="sd">"""A dummy representation that simply returns the data as it is."""</span>
   <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">check_y</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">p_trn</span> <span class="o">=</span> <span class="n">class_prevalences</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">n_classes</span><span class="p">)</span>

@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>quapy.protocol &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>quapy.protocol &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,8 +121,8 @@
       
     
     
-    <img src="../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -387,28 +387,28 @@
 <div class="viewcode-block" id="AbstractProtocol">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.AbstractProtocol">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AbstractProtocol</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Abstract parent class for sample generation protocols.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Implements the protocol. Yields one sample at a time along with its prevalence</span>
 
 <span class="sd">        :return: yields a tuple `(sample, prev) at a time, where `sample` is a set of instances</span>
 <span class="sd">            and in which `prev` is an `nd.array` with the class prevalence values</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span>
 
 <div class="viewcode-block" id="AbstractProtocol.total">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.AbstractProtocol.total">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Indicates the total number of samples that the protocol generates.</span>
 
 <span class="sd">        :return: The number of samples to generate if known, or `None` otherwise.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 </div>
 
@@ -417,32 +417,32 @@
 <div class="viewcode-block" id="IterateProtocol">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.IterateProtocol">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">IterateProtocol</span><span class="p">(</span><span class="n">AbstractProtocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A very simple protocol which simply iterates over a list of previously generated samples</span>
 
 <span class="sd">    :param samples: a list of :class:`quapy.data.base.LabelledCollection`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="p">[</span><span class="n">LabelledCollection</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">samples</span> <span class="o">=</span> <span class="n">samples</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Yields one sample from the initial list at a time</span>
 
 <span class="sd">        :return: yields a tuple `(sample, prev) at a time, where `sample` is a set of instances</span>
 <span class="sd">            and in which `prev` is an `nd.array` with the class prevalence values</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">sample</span><span class="o">.</span><span class="n">Xp</span>
 
 <div class="viewcode-block" id="IterateProtocol.total">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.IterateProtocol.total">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Returns the number of samples in this protocol</span>
 
 <span class="sd">        :return: int</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samples</span><span class="p">)</span></div>
 </div>
 
@@ -451,34 +451,34 @@
 <div class="viewcode-block" id="ProtocolFromIndex">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.ProtocolFromIndex">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProtocolFromIndex</span><span class="p">(</span><span class="n">AbstractProtocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A protocol from a list of indexes</span>
 
 <span class="sd">    :param data: a :class:`quapy.data.base.LabelledCollection`</span>
 <span class="sd">    :param indexes: a list of indexes</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">indexes</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span> <span class="o">=</span> <span class="n">indexes</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Yields one sample at a time extracted using the indexes</span>
 
 <span class="sd">        :return: yields a tuple `(sample, prev) at a time, where `sample` is a set of instances</span>
 <span class="sd">            and in which `prev` is an `nd.array` with the class prevalence values</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexes</span><span class="p">:</span>
             <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">Xp</span>
 
 <div class="viewcode-block" id="ProtocolFromIndex.total">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.ProtocolFromIndex.total">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Returns the number of samples in this protocol</span>
 
 <span class="sd">        :return: int</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexes</span><span class="p">)</span></div>
 </div>
 
@@ -487,7 +487,7 @@
 <div class="viewcode-block" id="AbstractStochasticSeededProtocol">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.AbstractStochasticSeededProtocol">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AbstractStochasticSeededProtocol</span><span class="p">(</span><span class="n">AbstractProtocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    An `AbstractStochasticSeededProtocol` is a protocol that generates, via any random procedure (e.g.,</span>
 <span class="sd">    via random sampling), sequences of :class:`quapy.data.base.LabelledCollection` samples.</span>
 <span class="sd">    The protocol abstraction enforces</span>
@@ -499,9 +499,9 @@
 
 <span class="sd">    :param random_state: the seed for allowing to replicate any sequence of samples. Default is 0, meaning that</span>
 <span class="sd">        the sequence will be consistent every time the protocol is called.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">_random_state</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># means &quot;not set&quot;</span>
+    <span class="n">_random_state</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># means "not set"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
@@ -518,11 +518,11 @@
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.AbstractStochasticSeededProtocol.samples_parameters">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">samples_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        This function has to return all the necessary parameters to replicate the samples</span>
 
 <span class="sd">        :return: a list of parameters, each of which serves to deterministically generate a sample</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -530,27 +530,27 @@
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.AbstractStochasticSeededProtocol.sample">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Extract one sample determined by the given parameters</span>
 
 <span class="sd">        :param params: all the necessary parameters to generate a sample</span>
 <span class="sd">        :return: one sample (the same sample has to be generated for the same parameters)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Yields one sample at a time. The type of object returned depends on the `collator` function. The</span>
 <span class="sd">        default behaviour returns tuples of the form `(sample, prevalence)`.</span>
 
-<span class="sd">        :return: a tuple `(sample, prevalence)` if  return_type=&#39;sample_prev&#39;, or an instance of</span>
-<span class="sd">            :class:`qp.data.LabelledCollection` if return_type=&#39;labelled_collection&#39;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        :return: a tuple `(sample, prevalence)` if  return_type='sample_prev', or an instance of</span>
+<span class="sd">            :class:`qp.data.LabelledCollection` if return_type='labelled_collection'</span>
+<span class="sd">        """</span>
         <span class="k">with</span> <span class="n">ExitStack</span><span class="p">()</span> <span class="k">as</span> <span class="n">stack</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The random seed has never been initialized. &#39;</span>
-                                 <span class="s1">&#39;Set it to None not to impose replicability.&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'The random seed has never been initialized. '</span>
+                                 <span class="s1">'Set it to None not to impose replicability.'</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">qp</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">temp_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">params</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples_parameters</span><span class="p">():</span>
@@ -559,7 +559,7 @@
 <div class="viewcode-block" id="AbstractStochasticSeededProtocol.collator">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.AbstractStochasticSeededProtocol.collator">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">collator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        The collator prepares the sample to accommodate the desired output format before returning the output.</span>
 <span class="sd">        This collator simply returns the sample as it is. Classes inheriting from this abstract class can</span>
 <span class="sd">        implement their custom collators.</span>
@@ -567,7 +567,7 @@
 <span class="sd">        :param sample: the sample to be returned</span>
 <span class="sd">        :param args: additional arguments</span>
 <span class="sd">        :return: the sample adhering to a desired output format (in this case, the sample is returned as it is)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">sample</span></div>
 </div>
 
@@ -576,27 +576,27 @@
 <div class="viewcode-block" id="OnLabelledCollectionProtocol">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.OnLabelledCollectionProtocol">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OnLabelledCollectionProtocol</span><span class="p">(</span><span class="n">AbstractStochasticSeededProtocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Protocols that generate samples from a :class:`qp.data.LabelledCollection` object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">RETURN_TYPES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sample_prev&#39;</span><span class="p">,</span> <span class="s1">&#39;labelled_collection&#39;</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">]</span>
+    <span class="n">RETURN_TYPES</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'sample_prev'</span><span class="p">,</span> <span class="s1">'labelled_collection'</span><span class="p">,</span> <span class="s1">'index'</span><span class="p">]</span>
 
 <div class="viewcode-block" id="OnLabelledCollectionProtocol.get_labelled_collection">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.OnLabelledCollectionProtocol.get_labelled_collection">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_labelled_collection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Returns the labelled collection on which this protocol acts.</span>
 
 <span class="sd">        :return: an object of type :class:`qp.data.LabelledCollection`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div>
 
 
 <div class="viewcode-block" id="OnLabelledCollectionProtocol.on_preclassified_instances">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.OnLabelledCollectionProtocol.on_preclassified_instances">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_preclassified_instances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pre_classifications</span><span class="p">,</span> <span class="n">in_place</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Returns a copy of this protocol that acts on a modified version of the original</span>
 <span class="sd">        :class:`qp.data.LabelledCollection` in which the original instances have been replaced</span>
 <span class="sd">        with the outputs of a classifier for each instance. (This is convenient for speeding-up</span>
@@ -607,10 +607,10 @@
 <span class="sd">            `(n_instances, n_classes)` when the classifier is a probabilistic one.</span>
 <span class="sd">        :param in_place: whether or not to apply the modification in-place or in a new copy (default).</span>
 <span class="sd">        :return: a copy of this protocol</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pre_classifications</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> \
-            <span class="sa">f</span><span class="s1">&#39;error: the pre-classified data has different shape &#39;</span> \
-            <span class="sa">f</span><span class="s1">&#39;(expected </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s1">, found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pre_classifications</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span>
+            <span class="sa">f</span><span class="s1">'error: the pre-classified data has different shape '</span> \
+            <span class="sa">f</span><span class="s1">'(expected </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s1">, found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pre_classifications</span><span class="p">)</span><span class="si">}</span><span class="s1">)'</span>
         <span class="k">if</span> <span class="n">in_place</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">instances</span> <span class="o">=</span> <span class="n">pre_classifications</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -622,35 +622,35 @@
 <div class="viewcode-block" id="OnLabelledCollectionProtocol.get_collator">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.OnLabelledCollectionProtocol.get_collator">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_collator</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;sample_prev&#39;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_collator</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">'sample_prev'</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Returns a collator function, i.e., a function that prepares the yielded data</span>
 
-<span class="sd">        :param return_type: either &#39;sample_prev&#39; (default) if the collator is requested to yield tuples of</span>
-<span class="sd">            `(sample, prevalence)`, or &#39;labelled_collection&#39; when it is requested to yield instances of</span>
+<span class="sd">        :param return_type: either 'sample_prev' (default) if the collator is requested to yield tuples of</span>
+<span class="sd">            `(sample, prevalence)`, or 'labelled_collection' when it is requested to yield instances of</span>
 <span class="sd">            :class:`qp.data.LabelledCollection`</span>
 <span class="sd">        :return: the collator function (a callable function that takes as input an instance of</span>
 <span class="sd">            :class:`qp.data.LabelledCollection`)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="n">return_type</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">RETURN_TYPES</span><span class="p">,</span> \
-            <span class="sa">f</span><span class="s1">&#39;unknown return type passed as argument; valid ones are </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">RETURN_TYPES</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="k">if</span> <span class="n">return_type</span><span class="o">==</span><span class="s1">&#39;sample_prev&#39;</span><span class="p">:</span>
+            <span class="sa">f</span><span class="s1">'unknown return type passed as argument; valid ones are </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="n">RETURN_TYPES</span><span class="si">}</span><span class="s1">'</span>
+        <span class="k">if</span> <span class="n">return_type</span><span class="o">==</span><span class="s1">'sample_prev'</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">lambda</span> <span class="n">lc</span><span class="p">,</span><span class="n">params</span><span class="p">:</span><span class="n">lc</span><span class="o">.</span><span class="n">Xp</span>
-        <span class="k">elif</span> <span class="n">return_type</span><span class="o">==</span><span class="s1">&#39;labelled_collection&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">return_type</span><span class="o">==</span><span class="s1">'labelled_collection'</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">lambda</span> <span class="n">lc</span><span class="p">,</span><span class="n">params</span><span class="p">:</span><span class="n">lc</span>
-        <span class="k">elif</span> <span class="n">return_type</span><span class="o">==</span><span class="s1">&#39;index&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">return_type</span><span class="o">==</span><span class="s1">'index'</span><span class="p">:</span>
             <span class="k">return</span> <span class="k">lambda</span> <span class="n">lc</span><span class="p">,</span><span class="n">params</span><span class="p">:</span><span class="n">params</span></div>
 
 
 <div class="viewcode-block" id="OnLabelledCollectionProtocol.sample">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.OnLabelledCollectionProtocol.sample">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Realizes the sample given the index of the instances.</span>
 
 <span class="sd">        :param index: indexes of the instances to select</span>
 <span class="sd">        :return: an instance of :class:`qp.data.LabelledCollection`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span></div>
 </div>
 
@@ -659,7 +659,7 @@
 <div class="viewcode-block" id="APP">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.APP">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">APP</span><span class="p">(</span><span class="n">OnLabelledCollectionProtocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Implementation of the artificial prevalence protocol (APP).</span>
 <span class="sd">    The APP consists of exploring a grid of prevalence values containing `n_prevalences` points (e.g.,</span>
 <span class="sd">    [0, 0.05, 0.1, 0.15, ..., 1], if `n_prevalences=21`), and generating all valid combinations of</span>
@@ -669,7 +669,7 @@
 
 <span class="sd">    :param data: a `LabelledCollection` from which the samples will be drawn</span>
 <span class="sd">    :param sample_size: integer, number of instances in each sample; if None (default) then it is taken from</span>
-<span class="sd">        qp.environ[&quot;SAMPLE_SIZE&quot;]. If this is not set, a ValueError exception is raised.</span>
+<span class="sd">        qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.</span>
 <span class="sd">    :param n_prevalences: the number of equidistant prevalence points to extract from the [0,1] interval for the</span>
 <span class="sd">        grid (default is 21)</span>
 <span class="sd">    :param repeats: number of copies for each valid prevalence vector (default is 10)</span>
@@ -678,12 +678,12 @@
 <span class="sd">        will be the same every time the protocol is called)</span>
 <span class="sd">    :param sanity_check: int, raises an exception warning the user that the number of examples to be generated exceed</span>
 <span class="sd">        this number; set to None for skipping this check</span>
-<span class="sd">    :param return_type: set to &quot;sample_prev&quot; (default) to get the pairs of (sample, prevalence) at each iteration, or</span>
-<span class="sd">        to &quot;labelled_collection&quot; to get instead instances of LabelledCollection</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or</span>
+<span class="sd">        to "labelled_collection" to get instead instances of LabelledCollection</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_prevalences</span><span class="o">=</span><span class="mi">21</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-                 <span class="n">smooth_limits_epsilon</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;sample_prev&#39;</span><span class="p">):</span>
+                 <span class="n">smooth_limits_epsilon</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sanity_check</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s1">'sample_prev'</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">APP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_sample_size</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span>
@@ -691,21 +691,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">repeats</span> <span class="o">=</span> <span class="n">repeats</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">smooth_limits_epsilon</span> <span class="o">=</span> <span class="n">smooth_limits_epsilon</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">sanity_check</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sanity_check</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="n">sanity_check</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;param &quot;sanity_check&quot; must either be None or a positive integer&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'param "sanity_check" must either be None or a positive integer'</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sanity_check</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">n</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">num_prevalence_combinations</span><span class="p">(</span><span class="n">n_prevpoints</span><span class="o">=</span><span class="n">n_prevalences</span><span class="p">,</span> <span class="n">n_classes</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">n_repeats</span><span class="o">=</span><span class="n">repeats</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="n">sanity_check</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Abort: the number of samples that will be generated by </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">) &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;exceeds the maximum number of allowed samples (</span><span class="si">{</span><span class="n">sanity_check</span><span class="w"> </span><span class="si">= }</span><span class="s2">). Set &#39;sanity_check&#39; to &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;None, or to a higher number, for bypassing this check.&quot;</span><span class="p">)</span>
+                    <span class="sa">f</span><span class="s2">"Abort: the number of samples that will be generated by </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">) "</span>
+                    <span class="sa">f</span><span class="s2">"exceeds the maximum number of allowed samples (</span><span class="si">{</span><span class="n">sanity_check</span><span class="w"> </span><span class="si">= }</span><span class="s2">). Set 'sanity_check' to "</span>
+                    <span class="sa">f</span><span class="s2">"None, or to a higher number, for bypassing this check."</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">collator</span> <span class="o">=</span> <span class="n">OnLabelledCollectionProtocol</span><span class="o">.</span><span class="n">get_collator</span><span class="p">(</span><span class="n">return_type</span><span class="p">)</span>
 
 <div class="viewcode-block" id="APP.prevalence_grid">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.APP.prevalence_grid">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">prevalence_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Generates vectors of prevalence values from an exhaustive grid of prevalence values. The</span>
 <span class="sd">        number of prevalence values explored for each dimension depends on `n_prevalences`, so that, if, for example,</span>
 <span class="sd">        `n_prevalences=11` then the prevalence values of the grid are taken from [0, 0.1, 0.2, ..., 0.9, 1]. Only</span>
@@ -718,7 +718,7 @@
 <span class="sd">        :return: a `np.ndarray` of shape `(n, dimensions)` if `return_constrained_dim=True` or of shape</span>
 <span class="sd">            `(n, dimensions-1)` if `return_constrained_dim=False`, where `n` is the number of valid combinations found</span>
 <span class="sd">            in the grid multiplied by `repeat`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">dimensions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">n_classes</span>
         <span class="n">s</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">prevalence_linspace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_prevalences</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">smooth_limits_epsilon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">smooth_limits_epsilon</span><span class="p">)</span>
         <span class="n">eps</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span> <span class="c1"># handling floating rounding</span>
@@ -733,11 +733,11 @@
 <div class="viewcode-block" id="APP.samples_parameters">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.APP.samples_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">samples_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return all the necessary parameters to replicate the samples as according to the APP protocol.</span>
 
 <span class="sd">        :return: a list of indexes that realize the APP sampling</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">indexes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">prevs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prevalence_grid</span><span class="p">():</span>
             <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sampling_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span> <span class="o">*</span><span class="n">prevs</span><span class="p">)</span>
@@ -748,11 +748,11 @@
 <div class="viewcode-block" id="APP.total">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.APP.total">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Returns the number of samples that will be generated</span>
 
 <span class="sd">        :return: int</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">num_prevalence_combinations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_prevalences</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repeats</span><span class="p">)</span></div>
 </div>
 
@@ -761,22 +761,22 @@
 <div class="viewcode-block" id="NPP">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.NPP">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NPP</span><span class="p">(</span><span class="n">OnLabelledCollectionProtocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A generator of samples that implements the natural prevalence protocol (NPP). The NPP consists of drawing</span>
 <span class="sd">    samples uniformly at random, therefore approximately preserving the natural prevalence of the collection.</span>
 
 <span class="sd">    :param data: a `LabelledCollection` from which the samples will be drawn</span>
 <span class="sd">    :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from</span>
-<span class="sd">        qp.environ[&quot;SAMPLE_SIZE&quot;]. If this is not set, a ValueError exception is raised.</span>
+<span class="sd">        qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.</span>
 <span class="sd">    :param repeats: the number of samples to generate. Default is 100.</span>
 <span class="sd">    :param random_state: allows replicating samples across runs (default 0, meaning that the sequence of samples</span>
 <span class="sd">        will be the same every time the protocol is called)</span>
-<span class="sd">    :param return_type: set to &quot;sample_prev&quot; (default) to get the pairs of (sample, prevalence) at each iteration, or</span>
-<span class="sd">        to &quot;labelled_collection&quot; to get instead instances of LabelledCollection</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or</span>
+<span class="sd">        to "labelled_collection" to get instead instances of LabelledCollection</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span><span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                 <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;sample_prev&#39;</span><span class="p">):</span>
+                 <span class="n">return_type</span><span class="o">=</span><span class="s1">'sample_prev'</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">NPP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_sample_size</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span>
@@ -787,11 +787,11 @@
 <div class="viewcode-block" id="NPP.samples_parameters">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.NPP.samples_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">samples_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return all the necessary parameters to replicate the samples as according to the NPP protocol.</span>
 
 <span class="sd">        :return: a list of indexes that realize the NPP sampling</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">indexes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repeats</span><span class="p">):</span>
             <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">uniform_sampling_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">)</span>
@@ -802,11 +802,11 @@
 <div class="viewcode-block" id="NPP.total">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.NPP.total">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the number of samples that will be generated (equals to &quot;repeats&quot;)</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Returns the number of samples that will be generated (equals to "repeats")</span>
 
 <span class="sd">        :return: int</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repeats</span></div>
 </div>
 
@@ -815,7 +815,7 @@
 <div class="viewcode-block" id="UPP">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.UPP">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">UPP</span><span class="p">(</span><span class="n">OnLabelledCollectionProtocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A variant of :class:`APP` that, instead of using a grid of equidistant prevalence values,</span>
 <span class="sd">    relies on the Kraemer algorithm for sampling unit (k-1)-simplex uniformly at random, with</span>
 <span class="sd">    k the number of classes. This protocol covers the entire range of prevalence values in a</span>
@@ -825,16 +825,16 @@
 
 <span class="sd">    :param data: a `LabelledCollection` from which the samples will be drawn</span>
 <span class="sd">    :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from</span>
-<span class="sd">        qp.environ[&quot;SAMPLE_SIZE&quot;]. If this is not set, a ValueError exception is raised.</span>
+<span class="sd">        qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.</span>
 <span class="sd">    :param repeats: the number of samples to generate. Default is 100.</span>
 <span class="sd">    :param random_state: allows replicating samples across runs (default 0, meaning that the sequence of samples</span>
 <span class="sd">        will be the same every time the protocol is called)</span>
-<span class="sd">    :param return_type: set to &quot;sample_prev&quot; (default) to get the pairs of (sample, prevalence) at each iteration, or</span>
-<span class="sd">        to &quot;labelled_collection&quot; to get instead instances of LabelledCollection</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or</span>
+<span class="sd">        to "labelled_collection" to get instead instances of LabelledCollection</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                 <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;sample_prev&#39;</span><span class="p">):</span>
+                 <span class="n">return_type</span><span class="o">=</span><span class="s1">'sample_prev'</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">UPP</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_sample_size</span><span class="p">(</span><span class="n">sample_size</span><span class="p">)</span>
@@ -845,11 +845,11 @@
 <div class="viewcode-block" id="UPP.samples_parameters">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.UPP.samples_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">samples_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return all the necessary parameters to replicate the samples as according to the UPP protocol.</span>
 
 <span class="sd">        :return: a list of indexes that realize the UPP sampling</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">indexes</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">prevs</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">uniform_simplex_sampling</span><span class="p">(</span><span class="n">n_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repeats</span><span class="p">):</span>
             <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sampling_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span> <span class="o">*</span><span class="n">prevs</span><span class="p">)</span>
@@ -860,11 +860,11 @@
 <div class="viewcode-block" id="UPP.total">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.UPP.total">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the number of samples that will be generated (equals to &quot;repeats&quot;)</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Returns the number of samples that will be generated (equals to "repeats")</span>
 
 <span class="sd">        :return: int</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repeats</span></div>
 </div>
 
@@ -873,7 +873,7 @@
 <div class="viewcode-block" id="DirichletProtocol">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.DirichletProtocol">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DirichletProtocol</span><span class="p">(</span><span class="n">OnLabelledCollectionProtocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A protocol that establishes a prior Dirichlet distribution for the prevalence of the samples.</span>
 <span class="sd">    Note that providing an all-ones vector of Dirichlet parameters is equivalent to invoking the</span>
 <span class="sd">    APP protocol (although each protocol will generate a different series of samples given a</span>
@@ -882,18 +882,18 @@
 <span class="sd">    :param data: a `LabelledCollection` from which the samples will be drawn</span>
 <span class="sd">    :param alpha: an array-like of shape (n_classes,) with the parameters of the Dirichlet distribution</span>
 <span class="sd">    :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from</span>
-<span class="sd">        qp.environ[&quot;SAMPLE_SIZE&quot;]. If this is not set, a ValueError exception is raised.</span>
+<span class="sd">        qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.</span>
 <span class="sd">    :param repeats: the number of samples to generate. Default is 100.</span>
 <span class="sd">    :param random_state: allows replicating samples across runs (default 0, meaning that the sequence of samples</span>
 <span class="sd">        will be the same every time the protocol is called)</span>
-<span class="sd">    :param return_type: set to &quot;sample_prev&quot; (default) to get the pairs of (sample, prevalence) at each iteration, or</span>
-<span class="sd">        to &quot;labelled_collection&quot; to get instead instances of LabelledCollection</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    :param return_type: set to "sample_prev" (default) to get the pairs of (sample, prevalence) at each iteration, or</span>
+<span class="sd">        to "labelled_collection" to get instead instances of LabelledCollection</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">LabelledCollection</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">sample_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-                 <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;sample_prev&#39;</span><span class="p">):</span>
+                 <span class="n">return_type</span><span class="o">=</span><span class="s1">'sample_prev'</span><span class="p">):</span>
         <span class="n">n_classes</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">n_classes</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">alpha</span> <span class="o">==</span> <span class="s1">&#39;uniform&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">alpha</span> <span class="o">==</span> <span class="s1">'uniform'</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">Number</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_classes</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">alpha</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -901,7 +901,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_classes</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;wrong shape for alpha; expected </span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s1"> values, found shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">'wrong shape for alpha; expected </span><span class="si">{</span><span class="n">n_classes</span><span class="si">}</span><span class="s1"> values, found shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1">'</span>
                 <span class="p">)</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">DirichletProtocol</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
@@ -914,11 +914,11 @@
 <div class="viewcode-block" id="DirichletProtocol.samples_parameters">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.DirichletProtocol.samples_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">samples_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return all the necessary parameters to replicate the samples.</span>
 
 <span class="sd">        :return: a list of indexes that realize the sampling</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">prevs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">dirichlet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repeats</span><span class="p">)</span>
         <span class="n">indexes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sampling_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_size</span><span class="p">,</span> <span class="o">*</span><span class="n">prevs_i</span><span class="p">)</span> <span class="k">for</span> <span class="n">prevs_i</span> <span class="ow">in</span> <span class="n">prevs</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">indexes</span></div>
@@ -927,11 +927,11 @@
 <div class="viewcode-block" id="DirichletProtocol.total">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.DirichletProtocol.total">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the number of samples that will be generated (equals to &quot;repeats&quot;)</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Returns the number of samples that will be generated (equals to "repeats")</span>
 
 <span class="sd">        :return: int</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repeats</span></div>
 </div>
 
@@ -940,13 +940,13 @@
 <div class="viewcode-block" id="DomainMixer">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.DomainMixer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DomainMixer</span><span class="p">(</span><span class="n">AbstractStochasticSeededProtocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Generates mixtures of two domains (A and B) at controlled rates, but preserving the original class prevalence.</span>
 
 <span class="sd">    :param domainA: one domain, an object of :class:`qp.data.LabelledCollection`</span>
 <span class="sd">    :param domainB: another domain, an object of :class:`qp.data.LabelledCollection`</span>
 <span class="sd">    :param sample_size: integer, the number of instances in each sample; if None (default) then it is taken from</span>
-<span class="sd">        qp.environ[&quot;SAMPLE_SIZE&quot;]. If this is not set, a ValueError exception is raised.</span>
+<span class="sd">        qp.environ["SAMPLE_SIZE"]. If this is not set, a ValueError exception is raised.</span>
 <span class="sd">    :param repeats: int, number of samples to draw for every mixture rate</span>
 <span class="sd">    :param prevalence: the prevalence to preserve along the mixtures. If specified, should be an array containing</span>
 <span class="sd">        one prevalence value (positive float) for each class and summing up to one. If not specified, the prevalence</span>
@@ -956,7 +956,7 @@
 <span class="sd">        the specific points</span>
 <span class="sd">    :param random_state: allows replicating samples across runs (default 0, meaning that the sequence of samples</span>
 <span class="sd">        will be the same every time the protocol is called)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
@@ -967,7 +967,7 @@
             <span class="n">prevalence</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">mixture_points</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
             <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-            <span class="n">return_type</span><span class="o">=</span><span class="s1">&#39;sample_prev&#39;</span><span class="p">):</span>
+            <span class="n">return_type</span><span class="o">=</span><span class="s1">'sample_prev'</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DomainMixer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">A</span> <span class="o">=</span> <span class="n">domainA</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="n">domainB</span>
@@ -978,26 +978,26 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">prevalence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">prevalence</span><span class="p">)</span>
             <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prevalence</span><span class="p">)</span> <span class="o">==</span> <span class="n">domainA</span><span class="o">.</span><span class="n">n_classes</span><span class="p">,</span> \
-                <span class="sa">f</span><span class="s1">&#39;wrong shape for the vector prevalence (expected </span><span class="si">{</span><span class="n">domainA</span><span class="o">.</span><span class="n">n_classes</span><span class="si">}</span><span class="s1">)&#39;</span>
+                <span class="sa">f</span><span class="s1">'wrong shape for the vector prevalence (expected </span><span class="si">{</span><span class="n">domainA</span><span class="o">.</span><span class="n">n_classes</span><span class="si">}</span><span class="s1">)'</span>
             <span class="k">assert</span> <span class="n">F</span><span class="o">.</span><span class="n">check_prevalence_vector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prevalence</span><span class="p">),</span> \
-                <span class="sa">f</span><span class="s1">&#39;the prevalence vector is not valid (either it contains values outside [0,1] or does not sum up to 1)&#39;</span>
+                <span class="sa">f</span><span class="s1">'the prevalence vector is not valid (either it contains values outside [0,1] or does not sum up to 1)'</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mixture_points</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mixture_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mixture_points</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mixture_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mixture_points</span><span class="p">)</span>
             <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mixture_points</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mixture_points</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">)),</span> \
-                <span class="s1">&#39;mixture_model datatype not understood (expected int or a sequence of real values in [0,1])&#39;</span>
+                <span class="s1">'mixture_model datatype not understood (expected int or a sequence of real values in [0,1])'</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">collator</span> <span class="o">=</span> <span class="n">OnLabelledCollectionProtocol</span><span class="o">.</span><span class="n">get_collator</span><span class="p">(</span><span class="n">return_type</span><span class="p">)</span>
 
 <div class="viewcode-block" id="DomainMixer.samples_parameters">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.DomainMixer.samples_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">samples_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return all the necessary parameters to replicate the samples as according to the this protocol.</span>
 
 <span class="sd">        :return: a list of zipped indexes (from A and B) that realize the sampling</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">indexesA</span><span class="p">,</span> <span class="n">indexesB</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">propA</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mixture_points</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repeats</span><span class="p">):</span>
@@ -1013,12 +1013,12 @@
 <div class="viewcode-block" id="DomainMixer.sample">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.DomainMixer.sample">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indexes</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Realizes the sample given a pair of indexes of the instances from A and B.</span>
 
 <span class="sd">        :param indexes: indexes of the instances to select from A and B</span>
 <span class="sd">        :return: an instance of :class:`qp.data.LabelledCollection`</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">indexesA</span><span class="p">,</span> <span class="n">indexesB</span> <span class="o">=</span> <span class="n">indexes</span>
         <span class="n">sampleA</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">A</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">indexesA</span><span class="p">)</span>
         <span class="n">sampleB</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="o">.</span><span class="n">sampling_from_index</span><span class="p">(</span><span class="n">indexesB</span><span class="p">)</span>
@@ -1028,11 +1028,11 @@
 <div class="viewcode-block" id="DomainMixer.total">
 <a class="viewcode-back" href="../../quapy.html#quapy.protocol.DomainMixer.total">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns the number of samples that will be generated (equals to &quot;repeats * mixture_points&quot;)</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Returns the number of samples that will be generated (equals to "repeats * mixture_points")</span>
 
 <span class="sd">        :return: int</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">repeats</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mixture_points</span><span class="p">)</span></div>
 </div>
 

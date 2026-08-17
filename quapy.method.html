@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>quapy.method package &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>quapy.method package &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=37f418d5"></script>
+    <script src="_static/documentation_options.js?v=33d9864b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -1890,7 +1890,7 @@ underlying classifier</p>
 <dd><p>SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Absolute Error as first used by
 <a class="reference external" href="https://arxiv.org/abs/2011.02552">Moreo and Sebastiani, 2021</a>.
 Equivalent to:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">'mae'</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Quantifiers based on ELM represent a family of methods based on structured output learning;
@@ -1921,7 +1921,7 @@ underlying classifier</p>
 <dd><p>SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Kullback-Leibler Divergence
 as proposed by <a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/2700406">Esuli et al. 2015</a>.
 Equivalent to:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;kld&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">'kld'</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Quantifiers based on ELM represent a family of methods based on structured output learning;
@@ -1953,7 +1953,7 @@ underlying classifier</p>
 normalized via the logistic function, as proposed by
 <a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/2700406">Esuli et al. 2015</a>.
 Equivalent to:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;nkld&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">'nkld'</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Quantifiers based on ELM represent a family of methods based on structured output learning;
@@ -1985,7 +1985,7 @@ underlying classifier</p>
 classification-oriented loss and a quantification-oriented loss, as proposed by
 <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S003132031400291X">Barranquero et al. 2015</a>.
 Equivalent to:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;q&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">'q'</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Quantifiers based on ELM represent a family of methods based on structured output learning;
@@ -2016,7 +2016,7 @@ underlying classifier</p>
 <dd><p>SVM(KLD) is an Explicit Loss Minimization (ELM) quantifier set to optimize for the Relative Absolute Error as first
 used by <a class="reference external" href="https://arxiv.org/abs/2011.02552">Moreo and Sebastiani, 2021</a>.
 Equivalent to:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;mrae&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">CC</span><span class="p">(</span><span class="n">SVMperf</span><span class="p">(</span><span class="n">svmperf_base</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="s1">'mrae'</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Quantifiers based on ELM represent a family of methods based on structured output learning;
@@ -2409,18 +2409,18 @@ for speeding-up the training phase.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">quapy.classification.neural</span><span class="w"> </span><span class="kn">import</span> <span class="n">NeuralClassifierTrainer</span><span class="p">,</span> <span class="n">CNNnet</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># use samples of 100 elements</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'SAMPLE_SIZE'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># load the Kindle dataset as text, and convert words to numerical indexes</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'kindle'</span><span class="p">,</span> <span class="n">pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">qp</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># the text classifier is a CNN trained by NeuralClassifierTrainer</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">cnn</span> <span class="o">=</span> <span class="n">CNNnet</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">vocabulary_size</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">n_classes</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">classifier</span> <span class="o">=</span> <span class="n">NeuralClassifierTrainer</span><span class="p">(</span><span class="n">cnn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">classifier</span> <span class="o">=</span> <span class="n">NeuralClassifierTrainer</span><span class="p">(</span><span class="n">cnn</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># train QuaNet (QuaNet is an alias to QuaNetTrainer)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">QuaNet</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SAMPLE_SIZE&#39;</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">QuaNet</span><span class="p">(</span><span class="n">classifier</span><span class="p">,</span> <span class="n">qp</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'SAMPLE_SIZE'</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cuda'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
 </pre></div>
@@ -3185,7 +3185,7 @@ Hellinger Distance, to the distribution of posterior probabilities in the test s
 retaining those that minimize a quantification error measure, which is passed as an argument.</p></li>
 </ul>
 <p>Example:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">quantifier</span><span class="o">=</span><span class="n">ACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">()),</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="s1">&#39;ave&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Ensemble</span><span class="p">(</span><span class="n">quantifier</span><span class="o">=</span><span class="n">ACC</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">()),</span> <span class="n">size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="s1">'ave'</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -3588,21 +3588,21 @@ on <a class="reference internal" href="quapy.html#quapy.error.mae" title="quapy.
 meaning that a static selection of members of the ensemble is made based on their performance
 in terms of this error.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;class_weight&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;balanced&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">'C'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">),</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">'class_weight'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'balanced'</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">param_mod_sel</span> <span class="o">=</span> <span class="p">{</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;sample_size&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;protocol&#39;</span><span class="p">:</span> <span class="s1">&#39;app&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">'sample_size'</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">'protocol'</span><span class="p">:</span> <span class="s1">'app'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">common</span><span class="o">=</span><span class="p">{</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;max_sample_size&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;n_jobs&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;param_grid&#39;</span><span class="p">:</span> <span class="n">param_grid</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">&#39;param_mod_sel&#39;</span><span class="p">:</span> <span class="n">param_mod_sel</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">'max_sample_size'</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">'n_jobs'</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">'param_grid'</span><span class="p">:</span> <span class="n">param_grid</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s1">'param_mod_sel'</span><span class="p">:</span> <span class="n">param_mod_sel</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ensembleFactory</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">PACC</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="s1">&#39;mae&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">common</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ensembleFactory</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">PACC</span><span class="p">,</span> <span class="n">optim</span><span class="o">=</span><span class="s1">'mae'</span><span class="p">,</span> <span class="n">policy</span><span class="o">=</span><span class="s1">'mae'</span><span class="p">,</span> <span class="o">**</span><span class="n">common</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -4266,7 +4266,7 @@ parameters and not others.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">quapy</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">GridSearchQ</span><span class="p">(</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span> <span class="o">=</span> <span class="n">o_acc</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span> <span class="c1"># try both splitting criteria</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="s2">&quot;representation__classifier__estimator__criterion&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;gini&quot;</span><span class="p">,</span> <span class="s2">&quot;entropy&quot;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="s2">"representation__classifier__estimator__criterion"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"gini"</span><span class="p">,</span> <span class="s2">"entropy"</span><span class="p">],</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="p">},</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># ...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
@@ -4795,7 +4795,7 @@ parameters and not others.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">quapy</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">GridSearchQ</span><span class="p">(</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span> <span class="o">=</span> <span class="n">qunfold_method</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span> <span class="c1"># try both splitting criteria</span>
-<span class="gp">&gt;&gt;&gt; </span>        <span class="s2">&quot;representation__classifier__estimator__criterion&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;gini&quot;</span><span class="p">,</span> <span class="s2">&quot;entropy&quot;</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="s2">"representation__classifier__estimator__criterion"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"gini"</span><span class="p">,</span> <span class="s2">"entropy"</span><span class="p">],</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="p">},</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="c1"># ...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>

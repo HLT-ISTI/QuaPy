@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>quapy.data package &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>quapy.data package &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=37f418d5"></script>
+    <script src="_static/documentation_options.js?v=33d9864b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -533,9 +533,9 @@ See <a class="reference internal" href="#quapy.data.base.LabelledCollection.load
 <dt class="sig sig-object py" id="quapy.data.base.Dataset.stats">
 <span class="sig-name descname"><span class="pre">stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#Dataset.stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.Dataset.stats" title="Link to this definition">#</a></dt>
 <dd><p>Returns (and eventually prints) a dictionary with some stats of this dataset. E.g.,:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'kindle'</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">stats</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Dataset</span><span class="o">=</span><span class="n">kindle</span> <span class="c1">#tr-instances=3821, #te-instances=21591, type=&lt;class &#39;scipy.sparse.csr.csr_matrix&#39;&gt;, #features=4403, #classes=[0 1], tr-prevs=[0.081, 0.919], te-prevs=[0.063, 0.937]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Dataset</span><span class="o">=</span><span class="n">kindle</span> <span class="c1">#tr-instances=3821, #te-instances=21591, type=&lt;class 'scipy.sparse.csr.csr_matrix'&gt;, #features=4403, #classes=[0 1], tr-prevs=[0.081, 0.919], te-prevs=[0.063, 0.937]</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -879,9 +879,9 @@ second one with <cite>1-train_prop</cite> elements</p>
 <dt class="sig sig-object py" id="quapy.data.base.LabelledCollection.stats">
 <span class="sig-name descname"><span class="pre">stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/base.html#LabelledCollection.stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.base.LabelledCollection.stats" title="Link to this definition">#</a></dt>
 <dd><p>Returns (and eventually prints) a dictionary with some stats of this collection. E.g.,:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'kindle'</span><span class="p">,</span> <span class="n">tfidf</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_df</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">stats</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#instances=3821, type=&lt;class &#39;scipy.sparse.csr.csr_matrix&#39;&gt;, #features=4403, #classes=[0 1], prevs=[0.081, 0.919]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#instances=3821, type=&lt;class 'scipy.sparse.csr.csr_matrix'&gt;, #features=4403, #classes=[0 1], prevs=[0.081, 0.919]</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -1029,7 +1029,7 @@ The datasets do not come with a predefined train-test split, and so Pérez-Gáll
 protocol, meaning that each collection was used to generate two rounds (hence the x2) of 5 fold cross validation.
 This can be reproduced by using <a class="reference internal" href="#quapy.data.base.Dataset.kFCV" title="quapy.data.base.Dataset.kFCV"><code class="xref py py-meth docutils literal notranslate"><span class="pre">quapy.data.base.Dataset.kFCV()</span></code></a>, e.g.:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">collection</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="s2">&quot;yeast&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">collection</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="s2">"yeast"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">kFCV</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">nfolds</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">nrepeats</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
 </pre></div>
@@ -1061,7 +1061,7 @@ This can be reproduced by using <a class="reference internal" href="#quapy.data.
 - It has more than two classes
 - It is available for Python import (requires ucimlrepo package)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s2">&quot;dry-bean&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s2">"dry-bean"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_test</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
 </pre></div>
@@ -1104,7 +1104,7 @@ training portion of the data.</p></li>
 - It has more than two classes
 - It is available for Python import (requires ucimlrepo package)</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">collection</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s2">&quot;dry-bean&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">collection</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s2">"dry-bean"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">Xy</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="o">...</span>
 </pre></div>
@@ -1578,8 +1578,8 @@ File fomart &lt;0 or 1&gt;        &lt;document&gt;</p>
 <span class="sig-prename descclassname"><span class="pre">quapy.data.reader.</span></span><span class="sig-name descname"><span class="pre">reindex_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/data/reader.html#reindex_labels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.data.reader.reindex_labels" title="Link to this definition">#</a></dt>
 <dd><p>Re-indexes a list of labels as a list of indexes, and returns the classnames corresponding to the indexes.
 E.g.:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reindex_labels</span><span class="p">([</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span> <span class="n">array</span><span class="p">([</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;U1&#39;</span><span class="p">))</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">reindex_labels</span><span class="p">([</span><span class="s1">'B'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="s1">'A'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span> <span class="n">array</span><span class="p">([</span><span class="s1">'A'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">'&lt;U1'</span><span class="p">))</span>
 </pre></div>
 </div>
 <dl class="field-list simple">

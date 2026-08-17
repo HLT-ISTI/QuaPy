@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>quapy.method.base &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>quapy.method.base &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../../../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,8 +121,8 @@
       
     
     
-    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -387,23 +387,23 @@
 <div class="viewcode-block" id="BaseQuantifier">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.base.BaseQuantifier">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseQuantifier</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Abstract Quantifier. A quantifier is defined as an object of a class that implements the method :meth:`fit` on</span>
 <span class="sd">    a pair X, y, the method :meth:`predict`, and the :meth:`set_params` and</span>
 <span class="sd">    :meth:`get_params` for model selection (see :meth:`quapy.model_selection.GridSearchQ`)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="BaseQuantifier.fit">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.base.BaseQuantifier.fit">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Generates a quantifier.</span>
 
 <span class="sd">        :param X: array-like, the training instances</span>
 <span class="sd">        :param y: array-like, the labels</span>
 <span class="sd">        :return: self</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
@@ -411,24 +411,24 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.base.BaseQuantifier.predict">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate class prevalence estimates for the sample&#39;s instances</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Generate class prevalence estimates for the sample's instances</span>
 
 <span class="sd">        :param X: array-like, the test instances</span>
 <span class="sd">        :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span></div>
 
 
 <div class="viewcode-block" id="BaseQuantifier.quantify">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.base.BaseQuantifier.quantify">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">quantify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Alias to :meth:`predict`, for old compatibility</span>
 
 <span class="sd">        :param X: array-like</span>
 <span class="sd">        :return: `np.ndarray` of shape `(n_classes,)` with class prevalence estimates.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span></div>
 </div>
 
@@ -437,15 +437,15 @@
 <div class="viewcode-block" id="BinaryQuantifier">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.base.BinaryQuantifier">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BinaryQuantifier</span><span class="p">(</span><span class="n">BaseQuantifier</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Abstract class of binary quantifiers, i.e., quantifiers estimating class prevalence values for only two classes</span>
 <span class="sd">    (typically, to be interpreted as one class and its complement).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">quantifier_name</span><span class="p">):</span>
         <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
-        <span class="k">assert</span> <span class="n">n_classes</span><span class="o">==</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">quantifier_name</span><span class="si">}</span><span class="s1"> works only on problems of binary classification. &#39;</span> \
-                            <span class="sa">f</span><span class="s1">&#39;Use the class OneVsAll to enable </span><span class="si">{</span><span class="n">quantifier_name</span><span class="si">}</span><span class="s1"> work on single-label data.&#39;</span></div>
+        <span class="k">assert</span> <span class="n">n_classes</span><span class="o">==</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">quantifier_name</span><span class="si">}</span><span class="s1"> works only on problems of binary classification. '</span> \
+                            <span class="sa">f</span><span class="s1">'Use the class OneVsAll to enable </span><span class="si">{</span><span class="n">quantifier_name</span><span class="si">}</span><span class="s1"> work on single-label data.'</span></div>
 
 
 
@@ -460,7 +460,7 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.base.newOneVsAll">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">newOneVsAll</span><span class="p">(</span><span class="n">binary_quantifier</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">binary_quantifier</span><span class="p">,</span> <span class="n">BaseQuantifier</span><span class="p">),</span> \
-        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">binary_quantifier</span><span class="si">}</span><span class="s1"> does not seem to be a Quantifier&#39;</span>
+        <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">binary_quantifier</span><span class="si">}</span><span class="s1"> does not seem to be a Quantifier'</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">binary_quantifier</span><span class="p">,</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">AggregativeQuantifier</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">OneVsAllAggregative</span><span class="p">(</span><span class="n">binary_quantifier</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -471,17 +471,17 @@
 <div class="viewcode-block" id="OneVsAllGeneric">
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.base.OneVsAllGeneric">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OneVsAllGeneric</span><span class="p">(</span><span class="n">OneVsAll</span><span class="p">,</span> <span class="n">BaseQuantifier</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Allows any binary quantifier to perform quantification on single-label datasets. The method maintains one binary</span>
 <span class="sd">    quantifier for each class, and then l1-normalizes the outputs so that the class prevalence values sum up to 1.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">binary_quantifier</span><span class="p">:</span> <span class="n">BaseQuantifier</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">binary_quantifier</span><span class="p">,</span> <span class="n">BaseQuantifier</span><span class="p">),</span> \
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">binary_quantifier</span><span class="si">}</span><span class="s1"> does not seem to be a Quantifier&#39;</span>
+            <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">binary_quantifier</span><span class="si">}</span><span class="s1"> does not seem to be a Quantifier'</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">binary_quantifier</span><span class="p">,</span> <span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">AggregativeQuantifier</span><span class="p">):</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;the quantifier seems to be an instance of qp.method.aggregative.AggregativeQuantifier; &#39;</span>
-                           <span class="sa">f</span><span class="s1">&#39;you might prefer instantiating </span><span class="si">{</span><span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">OneVsAllAggregative</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">'the quantifier seems to be an instance of qp.method.aggregative.AggregativeQuantifier; '</span>
+                           <span class="sa">f</span><span class="s1">'you might prefer instantiating </span><span class="si">{</span><span class="n">qp</span><span class="o">.</span><span class="n">method</span><span class="o">.</span><span class="n">aggregative</span><span class="o">.</span><span class="n">OneVsAllAggregative</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">binary_quantifier</span> <span class="o">=</span> <span class="n">binary_quantifier</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">_get_njobs</span><span class="p">(</span><span class="n">n_jobs</span><span class="p">)</span>
 
@@ -489,7 +489,7 @@
 <a class="viewcode-back" href="../../../quapy.method.html#quapy.method.base.OneVsAllGeneric.fit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">classes</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="p">)</span><span class="o">!=</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> expect non-binary data&#39;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="p">)</span><span class="o">!=</span><span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> expect non-binary data'</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dict_binary_quantifiers</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binary_quantifier</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parallel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_delayed_binary_fit</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
@@ -498,7 +498,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
-            <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;threading&#39;</span><span class="p">)(</span>
+            <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">'threading'</span><span class="p">)(</span>
                 <span class="n">delayed</span><span class="p">(</span><span class="n">func</span><span class="p">)(</span><span class="n">c</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes</span>
             <span class="p">)</span>
         <span class="p">)</span>

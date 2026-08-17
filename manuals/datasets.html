@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>1. Datasets &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation</title>
+    <title>1. Datasets &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=37f418d5"></script>
+    <script src="../_static/documentation_options.js?v=33d9864b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
-    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1 documentation - Home"/>
+    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
   
   
 </a></div>
@@ -414,9 +414,9 @@ Take a look at the following code:</p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">quapy.functional</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">F</span>
 
 <span class="n">instances</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;1st positive document&#39;</span><span class="p">,</span> <span class="s1">&#39;2nd positive document&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;the only negative document&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;1st neutral document&#39;</span><span class="p">,</span> <span class="s1">&#39;2nd neutral document&#39;</span><span class="p">,</span> <span class="s1">&#39;3rd neutral document&#39;</span>
+    <span class="s1">'1st positive document'</span><span class="p">,</span> <span class="s1">'2nd positive document'</span><span class="p">,</span>
+    <span class="s1">'the only negative document'</span><span class="p">,</span>
+    <span class="s1">'1st neutral document'</span><span class="p">,</span> <span class="s1">'2nd neutral document'</span><span class="p">,</span> <span class="s1">'3rd neutral document'</span>
 <span class="p">]</span>
 <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 
@@ -434,17 +434,17 @@ Take a look at the following code:</p>
 <span class="n">prev</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
 <span class="n">sample</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sampling</span><span class="p">(</span><span class="n">sample_size</span><span class="p">,</span> <span class="o">*</span><span class="n">prev</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;instances:&#39;</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;labels:&#39;</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;prevalence:&#39;</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">prevalence</span><span class="p">(),</span> <span class="n">prec</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'instances:'</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">instances</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'labels:'</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">labels</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'prevalence:'</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">strprev</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">prevalence</span><span class="p">(),</span> <span class="n">prec</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Which outputs:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">instances</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;the only negative document&#39;</span> <span class="s1">&#39;2nd positive document&#39;</span>
-  <span class="s1">&#39;2nd positive document&#39;</span> <span class="s1">&#39;2nd neutral document&#39;</span> <span class="s1">&#39;1st positive document&#39;</span>
-  <span class="s1">&#39;the only negative document&#39;</span> <span class="s1">&#39;the only negative document&#39;</span>
-  <span class="s1">&#39;the only negative document&#39;</span> <span class="s1">&#39;2nd positive document&#39;</span>
-  <span class="s1">&#39;1st positive document&#39;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">instances</span><span class="p">:</span> <span class="p">[</span><span class="s1">'the only negative document'</span> <span class="s1">'2nd positive document'</span>
+  <span class="s1">'2nd positive document'</span> <span class="s1">'2nd neutral document'</span> <span class="s1">'1st positive document'</span>
+  <span class="s1">'the only negative document'</span> <span class="s1">'the only negative document'</span>
+  <span class="s1">'the only negative document'</span> <span class="s1">'2nd positive document'</span>
+  <span class="s1">'1st positive document'</span><span class="p">]</span>
 <span class="n">labels</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span> <span class="mi">2</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">2</span><span class="p">]</span>
 <span class="n">prevalence</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.40</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.50</span><span class="p">]</span>
 </pre></div>
@@ -467,7 +467,7 @@ for <a class="reference internal" href="evaluation.html"><span class="doc std st
 the well-known IMDb movie reviews can be fetched using a unified interface.
 For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">&#39;kindle&#39;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_reviews</span><span class="p">(</span><span class="s1">'kindle'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>These datasets have been used in:</p>
@@ -531,7 +531,7 @@ split for model selection purposes, and a train+val/test split
 for model evaluation. The following code exemplifies how to load
 a twitter dataset for model selection.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">&#39;gasp&#39;</span><span class="p">,</span> <span class="n">for_model_selection</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_twitter</span><span class="p">(</span><span class="s1">'gasp'</span><span class="p">,</span> <span class="n">for_model_selection</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The datasets were used in:</p>
@@ -549,7 +549,7 @@ The lists of the Twitter dataset’s ids can be consulted in:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># a list of 11 dataset ids that can be used for model selection or model evaluation</span>
 <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">TWITTER_SENTIMENT_DATASETS_TEST</span>
 
-<span class="c1"># 9 dataset ids in which &quot;semeval13&quot;, &quot;semeval14&quot;, and &quot;semeval15&quot; are replaced with &quot;semeval&quot;</span>
+<span class="c1"># 9 dataset ids in which "semeval13", "semeval14", and "semeval15" are replaced with "semeval"</span>
 <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">TWITTER_SENTIMENT_DATASETS_TRAIN</span>  
 </pre></div>
 </div>
@@ -687,7 +687,7 @@ since we were unable to find the datasets with ids “diabetes” and “phoneme
 <p>These dataset can be loaded by calling, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 
-<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">&#39;yeast&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'yeast'</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This call will return a <em>Dataset</em> object in which the training and
@@ -701,7 +701,7 @@ the entire collection, and then creating a generator that will return one
 training+test dataset at a time, following a kFCV protocol:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 
-<span class="n">collection</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="s2">&quot;yeast&quot;</span><span class="p">)</span>
+<span class="n">collection</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryLabelledCollection</span><span class="p">(</span><span class="s2">"yeast"</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">qp</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">kFCV</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">nfolds</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">nrepeats</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
   <span class="o">...</span>
 </pre></div>
@@ -972,25 +972,25 @@ and this has a disproportionate impact in the average performance.</p></li>
 <p>A collection of 24 multiclass datasets from the <a class="reference external" href="https://archive.ics.uci.edu/ml/datasets.php">UCI Machine Learning repository</a>.
 Some of the datasets were first used in <a class="reference external" href="https://arxiv.org/abs/2401.00490">this paper</a> and can be instantiated as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s1">'dry-bean'</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>A dataset can be instantiated filtering classes with a minimum number of instances using the <code class="docutils literal notranslate"><span class="pre">min_class_support</span></code> parameter
 (default: <code class="docutils literal notranslate"><span class="pre">100</span></code>) as folows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span> <span class="n">min_class_support</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassLabelledCollection</span><span class="p">(</span><span class="s1">'dry-bean'</span><span class="p">,</span> <span class="n">min_class_support</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>There are no pre-defined train-test partitions for these datasets, but you can easily create your own with the
 <code class="docutils literal notranslate"><span class="pre">split_stratified</span></code> method, e.g., <code class="docutils literal notranslate"><span class="pre">data.split_stratified()</span></code>. This can be also achieved using the method <code class="docutils literal notranslate"><span class="pre">fetch_UCIMulticlassDataset</span></code>
 as shown below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span> <span class="n">min_test_split</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s1">'dry-bean'</span><span class="p">,</span> <span class="n">min_test_split</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">train_test</span>
 </pre></div>
 </div>
 <p>This method tries to respect the <code class="docutils literal notranslate"><span class="pre">min_test_split</span></code> value while generating the train-test partition, but the resulting training set
 will not be bigger than <code class="docutils literal notranslate"><span class="pre">max_train_instances</span></code>, which defaults to <code class="docutils literal notranslate"><span class="pre">25000</span></code>. A bigger value can be passed as a parameter:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s1">&#39;dry-bean&#39;</span><span class="p">,</span> <span class="n">min_test_split</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">max_train_instances</span><span class="o">=</span><span class="mi">30000</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIMulticlassDataset</span><span class="p">(</span><span class="s1">'dry-bean'</span><span class="p">,</span> <span class="n">min_test_split</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">max_train_instances</span><span class="o">=</span><span class="mi">30000</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">train_test</span>
 </pre></div>
 </div>
@@ -1351,8 +1351,8 @@ and are hosted in <a class="reference external" href="https://zenodo.org/records
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_image_embeddings</span><span class="p">(</span>
-    <span class="n">dataset_name</span><span class="o">=</span><span class="s1">&#39;cifar10&#39;</span><span class="p">,</span>
-    <span class="n">embedding</span><span class="o">=</span><span class="s1">&#39;features&#39;</span><span class="p">,</span>
+    <span class="n">dataset_name</span><span class="o">=</span><span class="s1">'cifar10'</span><span class="p">,</span>
+    <span class="n">embedding</span><span class="o">=</span><span class="s1">'features'</span><span class="p">,</span>
     <span class="n">heldout_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">train_test</span>
@@ -1545,8 +1545,8 @@ I what follows, there are some code snippets for doing so; see also the example
 <a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/examples/3.custom_collection.py">3.custom_collection.py</a>.</p>
 <p>QuaPy provides data loaders for simple formats dealing with
 text; for example, use <code class="docutils literal notranslate"><span class="pre">qp.data.reader.from_text</span></code> for the following the format:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">class</span><span class="o">-</span><span class="nb">id</span> \<span class="n">t</span> <span class="n">first</span> <span class="n">document</span><span class="s1">&#39;s pre-processed text </span><span class="se">\n</span>
-<span class="n">class</span><span class="o">-</span><span class="nb">id</span> \<span class="n">t</span> <span class="n">second</span> <span class="n">document</span><span class="s1">&#39;s pre-processed text </span><span class="se">\n</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">class</span><span class="o">-</span><span class="nb">id</span> \<span class="n">t</span> <span class="n">first</span> <span class="n">document</span><span class="s1">'s pre-processed text </span><span class="se">\n</span>
+<span class="n">class</span><span class="o">-</span><span class="nb">id</span> \<span class="n">t</span> <span class="n">second</span> <span class="n">document</span><span class="s1">'s pre-processed text </span><span class="se">\n</span>
 <span class="o">...</span>
 </pre></div>
 </div>
@@ -1576,11 +1576,11 @@ paths, in order to create a training and test pair of <em>LabelledCollection</em
 e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
 
-<span class="n">train_path</span> <span class="o">=</span> <span class="s1">&#39;../my_data/train.dat&#39;</span>
-<span class="n">test_path</span> <span class="o">=</span> <span class="s1">&#39;../my_data/test.dat&#39;</span>
+<span class="n">train_path</span> <span class="o">=</span> <span class="s1">'../my_data/train.dat'</span>
+<span class="n">test_path</span> <span class="o">=</span> <span class="s1">'../my_data/test.dat'</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">my_custom_loader</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">custom_kwargs</span><span class="p">):</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
         <span class="o">...</span>
     <span class="k">return</span> <span class="n">instances</span><span class="p">,</span> <span class="n">labels</span>
 
