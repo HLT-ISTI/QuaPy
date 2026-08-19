@@ -26,6 +26,17 @@ if _neural:
 else:
     QuaNet = "QuaNet is not available due to missing torch package"
 
+try:
+    from . import _histnet
+except ModuleNotFoundError:
+    _histnet = None
+
+
+if _histnet:
+    HistNetQ = _histnet.HistNetQ
+else:
+    HistNetQ = "HistNetQ is not available due to missing torch package"
+
 
 class MedianEstimator(BinaryQuantifier):
     """

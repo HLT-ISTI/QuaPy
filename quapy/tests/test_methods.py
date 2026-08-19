@@ -95,6 +95,37 @@ class TestMethods(unittest.TestCase):
             estim_prevalences = ensemble.predict(dataset.test.instances)
             self.assertTrue(check_prevalence_vector(estim_prevalences))
 
+    def test_histnetq(self):
+        try:
+            import torch
+        except ModuleNotFoundError:
+            print('the torch package is not installed; skipping unit test for HistNetQ')
+            return
+
+        from quapy.method.meta import HistNetQ
+        from quapy.protocol import UPP
+
+        for dataset in TestMethods.datasets:
+            model = HistNetQ(
+                bag_size=20, n_bags_train=10, n_bags_val=5, train_epochs=2, patience=1, batch_size=2,
+                device='cpu', checkpointdir='./checkpoint_test_histnetq'
+            )
+            model.fit(*dataset.training.Xy)
+            estim_prevalences = model.predict(dataset.test.X)
+            self.assertTrue(check_prevalence_vector(estim_prevalences))
+
+            # fit_from_samples: simulate a scenario in which only pre-built samples (no instance labels)
+            # are available for training, as is the case, e.g., for LeQua's SamplesFromDir protocol
+            given_samples = UPP(dataset.training, sample_size=20, repeats=8, random_state=1)
+            val_samples = UPP(dataset.training, sample_size=20, repeats=4, random_state=2)
+            model2 = HistNetQ(
+                bag_size=20, train_epochs=2, patience=1, batch_size=2, device='cpu',
+                checkpointdir='./checkpoint_test_histnetq'
+            )
+            model2.fit_from_samples(given_samples, val_protocol=val_samples, mix_bags=True)
+            estim_prevalences2 = model2.predict(dataset.test.X)
+            self.assertTrue(check_prevalence_vector(estim_prevalences2))
+
     def test_composable(self):
         try:
             from quapy.method.composable import check_compatible_qunfold_version
