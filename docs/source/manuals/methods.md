@@ -851,7 +851,36 @@ model.fit(*dataset.training.Xy)
 estim_prevalence = model.predict(dataset.test.X)
 ```
 
-(confidence-regions-for-class-prevalence-estimation)=
+### HistNetQ
+
+QuaPy offers an implementation of HistNetQ, a deep learning model based on a differentiable
+histogram representation, presented in:
+
+[_Pérez-Mon, O., Moreo, A., del Coz, J.J., & González, P. (2025).
+Quantification using permutation-invariant networks based on histograms.
+Neural Computing and Applications, 37(5), 3505-3520._](https://doi.org/10.1007/s00521-024-10721-1)
+
+This model requires `torch` to be installed. Like QuaNet, HistNetQ is trained end-to-end on
+samples ("bags") of known prevalence rather than on individually labeled instances; unlike QuaNet,
+it requires no classifier at all, only an optional feature extraction module (a plain identity
+module is used by default, for already-vectorized data).
+
+```python
+import quapy as qp
+from quapy.method.meta import HistNetQ
+
+dataset = qp.datasets.fetch_UCIBinaryDataset('haberman')
+
+model = HistNetQ(bag_size=100, device='cpu')
+model.fit(*dataset.training.Xy)
+estim_prevalence = model.predict(dataset.test.X)
+```
+
+HistNetQ can alternatively be trained directly from a protocol that already provides the training
+samples (e.g., when only bag-level prevalence values are available), via the `fit_from_samples`
+method; see the API documentation for further details.
+
+
 ## Quantifiers with Uncertainty Quantification
 
 _(New in v0.2.0!)_ Some quantification methods go beyond providing a single point estimate of class prevalence values and also produce confidence regions, which characterize the uncertainty around the point estimate. In QuaPy, two such families are currently implemented: bootstrap methods and Bayesian methods.

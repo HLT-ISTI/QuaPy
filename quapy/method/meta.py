@@ -16,15 +16,26 @@ from quapy.method.base import BaseQuantifier, BinaryQuantifier
 from quapy.method.aggregative import CC, ACC, PACC, HDy, EMQ, AggregativeQuantifier, AggregativeSoftQuantifier
 
 try:
-    from . import _neural
+    from . import _quanet
 except ModuleNotFoundError:
-    _neural = None
+    _quanet = None
 
 
-if _neural:
-    QuaNet = _neural.QuaNetTrainer
+if _quanet:
+    QuaNet = _quanet.QuaNetTrainer
 else:
     QuaNet = "QuaNet is not available due to missing torch package"
+
+try:
+    from . import _histnet
+except ModuleNotFoundError:
+    _histnet = None
+
+
+if _histnet:
+    HistNetQ = _histnet.HistNetQ
+else:
+    HistNetQ = "HistNetQ is not available due to missing torch package"
 
 
 class MedianEstimator(BinaryQuantifier):

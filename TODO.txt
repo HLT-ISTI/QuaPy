@@ -1,22 +1,20 @@
-Solve the warnings issue; right now there is a warning ignore in method/__init__.py:
-
 Add 'platt' to calib options in EMQ?
 
 Allow n_prevpoints in APP to be specified by a user-defined grid?
 
-Add the fix suggested by Alexander?
-"For a more general application, I would maybe first establish a per-class threshold value of plausible prevalence
+Add the fix suggested by Alexander:
+
+For a more general application, I would maybe first establish a per-class threshold value of plausible prevalence
 based on the number of actual positives and the required sample size; e.g., for sample_size=100 and actual
 positives [10, 100, 500] -> [0.1, 1.0, 1.0], meaning that class 0 can be sampled at most at 0.1 prevalence, while
 the others can be sampled up to 1. prevalence. Then, when a prevalence value is requested, e.g., [0.33, 0.33, 0.33],
 we may either clip each value and normalize (as you suggest for the extreme case, e.g., [0.1, 0.33, 0.33]/sum) or
-scale each value by per-class thresholds, i.e., [0.33*0.1, 0.33*1, 0.33*1]/sum."
+scale each value by per-class thresholds, i.e., [0.33*0.1, 0.33*1, 0.33*1]/sum.
 - This affects LabelledCollection
 - This functionality should be accessible via sampling protocols and evaluation functions
 
-- [TODO] document confidence in manuals
+- [TODO] Test the return_type="index" in protocols and finish the "distributing_samples.py" example
 - [TODO] add ensemble methods SC-MQ, MC-SQ, MC-MQ
-- [TODO] add HistNetQ
 - [TODO] add CDE-iteration and Bayes-CDE methods
 - [TODO] add Friedman's method and DeBias
 - [TODO] check ignore warning stuff

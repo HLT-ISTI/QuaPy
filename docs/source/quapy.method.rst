@@ -17,7 +17,7 @@ quapy.method.aggregative module
    :undoc-members:
    :show-inheritance:
 
-.. automodule:: quapy.method._neural
+.. automodule:: quapy.method._quanet
    :members:
    :undoc-members:
    :show-inheritance:
