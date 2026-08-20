@@ -126,6 +126,7 @@ class TestMethods(unittest.TestCase):
             estim_prevalences2 = model2.predict(dataset.test.X)
             self.assertTrue(check_prevalence_vector(estim_prevalences2))
 
+
     def test_composable(self):
         try:
             from quapy.method.composable import check_compatible_qunfold_version

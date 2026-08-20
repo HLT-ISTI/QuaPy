@@ -1,17 +1,21 @@
 """
-HistNetQ implementation.
+HistNetQ implementation, see the original paper:
+
+Pérez-Mon, O., Moreo, A., Coz, JJ del, & González, P. (2025).
+Quantification using permutation-invariant networks based on histograms.
+Neural Computing and Applications, 37(5), 3505-3520.
 
 Ported from the reference implementation at https://github.com/pglez84/histnetq (the `HistNet`/
 `DLQuantification` classes in that repo), adapted to QuaPy's own protocol-based sample generation
 (replacing that repo's custom, `quantificationlib`-backed bag generators) and restricted, for now, to
-the "hard" differentiable histogram variant:
+the "hard" differentiable histogram variant by:
 
 Yusuf, I., Igwegbe, G., and Azeez, O. "Differentiable Histogram with Hard-Binning."
 arXiv preprint arXiv:2012.06311 (2020).
 
 The overall architecture is: feature_extraction -> Sigmoid -> histogram layer -> small MLP -> softmax,
 trained by minimizing a quantification loss over samples ("bags") of known prevalence, rather than
-over individually labeled instances (in the spirit of QuaNet, see method/_neural.py).
+over individually labeled instances (in the spirit of QuaNet, see method/_quanet.py).
 """
 import copy
 import os
@@ -177,10 +181,17 @@ class HistNetQ(BaseQuantifier):
     Implementation of `HistNetQ <https://github.com/pglez84/histnetq>`_, a neural network for
     quantification that learns a differentiable histogram-based representation of a sample, trained
     end-to-end by minimizing a quantification loss over many samples ("bags") of known prevalence.
+    The method was proposed in `Pérez-Mon, O., Moreo, A., Coz, JJ del, & González, P. (2025).
+    Quantification using permutation-invariant networks based on histograms.
+    Neural Computing and Applications, 37(5), 3505-3520.
+    <https://link.springer.com/article/10.1007/s00521-024-10721-1>`_
 
     HistNetQ does not follow the classify-then-aggregate pattern of :class:`quapy.method.aggregative.
-    AggregativeQuantifier`; like :class:`quapy.method.meta.QuaNet`, it is trained and evaluated
-    end-to-end on whole samples rather than on individually labeled instances.
+    AggregativeQuantifier`. Such classical approach is termed asymmetric, in the sense that quantifiers
+    learn from labelled instances and perform inference over bags.
+    Like :class:`quapy.method.meta.QuaNet`, HistNetQ is trained and evaluated
+    end-to-end on whole samples rather than on individually labeled instances, following a symmetric problem setting
+    (learning from bags, predicting on bags).
 
     Training data can be provided in two ways:
 
