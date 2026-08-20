@@ -1,6 +1,6 @@
 # QuaPy
 
-## version 0.2.1
+## version 0.2.2
 
 QuaPy is an open source framework for quantification (a.k.a. supervised prevalence estimation, or learning to quantify)
 written in Python.
@@ -15,7 +15,7 @@ for facilitating the analysis and interpretation of the experimental results.
 
 ### Last updates:
 
-* Version 0.2.1 is released! major changes can be consulted [here](CHANGE_LOG.txt).
+* Version 0.2.2 is released! major changes can be consulted [here](CHANGE_LOG.txt).
 * The developer API documentation is available [here](https://hlt-isti.github.io/QuaPy/index.html)
 
 ### Installation
