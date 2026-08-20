@@ -1,13 +1,6 @@
-Adapt examples; remaining: example 4-onwards
-not working: 15 (qunfold)
-
-Solve the warnings issue; right now there is a warning ignore in method/__init__.py:
-
 Add 'platt' to calib options in EMQ?
 
 Allow n_prevpoints in APP to be specified by a user-defined grid?
-
-Update READMEs, wiki, & examples for new fit-predict interface
 
 Add the fix suggested by Alexander:
 
@@ -20,15 +13,8 @@ scale each value by per-class thresholds, i.e., [0.33*0.1, 0.33*1, 0.33*1]/sum.
 - This affects LabelledCollection
 - This functionality should be accessible via sampling protocols and evaluation functions
 
-Solve the pre-trained classifier issues. An example is the coptic-codes script I did, which needed a mock_lr to
-work for having access to classes_; think also the case in which the precomputed outputs are already generated
-as in the unifying problems code.
-
-
-- [TODO] document confidence in manuals
 - [TODO] Test the return_type="index" in protocols and finish the "distributing_samples.py" example
 - [TODO] add ensemble methods SC-MQ, MC-SQ, MC-MQ
-- [TODO] add HistNetQ
 - [TODO] add CDE-iteration and Bayes-CDE methods
 - [TODO] add Friedman's method and DeBias
 - [TODO] check ignore warning stuff
