@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>3. Quantification Methods &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
+    <title>3. Quantification Methods &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=33d9864b"></script>
+    <script src="../_static/documentation_options.js?v=000c92bf"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
-    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation - Home"/>
+    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation - Home"/>
   
   
 </a></div>
@@ -988,7 +988,7 @@ subset, and the resulting estimates are averaged. ReadMe additionally
 combines this bagging procedure with bootstrap resampling of the training
 instances in order to derive confidence regions around the point estimate;
 accordingly, <code class="docutils literal notranslate"><span class="pre">ReadMe</span></code> implements the <code class="docutils literal notranslate"><span class="pre">WithConfidenceABC</span></code> interface (see the
-<a class="reference internal" href="#confidence-regions-for-class-prevalence-estimation"><span class="std std-ref">confidence regions section</span></a>),
+<span class="xref std std-ref">confidence regions section</span>),
 and exposes a <code class="docutils literal notranslate"><span class="pre">predict_conf</span></code> method in addition to <code class="docutils literal notranslate"><span class="pre">predict</span></code>.</p>
 <p><code class="docutils literal notranslate"><span class="pre">ReadMe</span></code> accepts the following hyperparameters:</p>
 <ul class="simple">
@@ -1011,7 +1011,7 @@ configurations</p></li>
 (default 0.95)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">region</span></code>: the type of confidence region to construct, one of <code class="docutils literal notranslate"><span class="pre">&quot;intervals&quot;</span></code>
 (default), <code class="docutils literal notranslate"><span class="pre">&quot;ellipse&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ellipse-clr&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;ellipse-ilr&quot;</span></code> (see the
-<a class="reference internal" href="#confidence-regions-for-class-prevalence-estimation"><span class="std std-ref">confidence regions section</span></a>
+<span class="xref std std-ref">confidence regions section</span>
 for details)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bonferroni</span></code>: whether to apply Bonferroni correction when <code class="docutils literal notranslate"><span class="pre">region=&quot;intervals&quot;</span></code>
 (default <code class="docutils literal notranslate"><span class="pre">False</span></code>); this parameter has no effect for ellipse-based regions</p></li>
@@ -1194,9 +1194,34 @@ In the following example, we show an instantiation of QuaNet that instead uses C
 </pre></div>
 </div>
 </section>
+<section id="histnetq">
+<h3><span class="section-number">3.4.3. </span>HistNetQ<a class="headerlink" href="#histnetq" title="Link to this heading">#</a></h3>
+<p>QuaPy offers an implementation of HistNetQ, a deep learning model based on a differentiable
+histogram representation, presented in:</p>
+<p><a class="reference external" href="https://doi.org/10.1007/s00521-024-10721-1"><em>Pérez-Mon, O., Moreo, A., del Coz, J.J., &amp; González, P. (2025).
+Quantification using permutation-invariant networks based on histograms.
+Neural Computing and Applications, 37(5), 3505-3520.</em></a></p>
+<p>This model requires <code class="docutils literal notranslate"><span class="pre">torch</span></code> to be installed. Like QuaNet, HistNetQ is trained end-to-end on
+samples (“bags”) of known prevalence rather than on individually labeled instances; unlike QuaNet,
+it requires no classifier at all, only an optional feature extraction module (a plain identity
+module is used by default, for already-vectorized data).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.meta</span><span class="w"> </span><span class="kn">import</span> <span class="n">HistNetQ</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'haberman'</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">HistNetQ</span><span class="p">(</span><span class="n">bag_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cpu'</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>HistNetQ can alternatively be trained directly from a protocol that already provides the training
+samples (e.g., when only bag-level prevalence values are available), via the <code class="docutils literal notranslate"><span class="pre">fit_from_samples</span></code>
+method; see the API documentation for further details.</p>
+</section>
 </section>
 <section id="quantifiers-with-uncertainty-quantification">
-<span id="confidence-regions-for-class-prevalence-estimation"></span><h2><span class="section-number">3.5. </span>Quantifiers with Uncertainty Quantification<a class="headerlink" href="#quantifiers-with-uncertainty-quantification" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.5. </span>Quantifiers with Uncertainty Quantification<a class="headerlink" href="#quantifiers-with-uncertainty-quantification" title="Link to this heading">#</a></h2>
 <p><em>(New in v0.2.0!)</em> Some quantification methods go beyond providing a single point estimate of class prevalence values and also produce confidence regions, which characterize the uncertainty around the point estimate. In QuaPy, two such families are currently implemented: bootstrap methods and Bayesian methods.</p>
 <p>Confidence regions are constructed around a point estimate, which is typically computed as the mean value of a set of samples.</p>
 <p>The confidence region can be instantiated in four ways:</p>
@@ -1452,6 +1477,7 @@ the optional MCMC dependencies, installed via
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#meta-models">3.4. Meta Models</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ensembles">3.4.1. Ensembles</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-quanet-neural-network">3.4.2. The QuaNet neural network</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#histnetq">3.4.3. HistNetQ</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quantifiers-with-uncertainty-quantification">3.5. Quantifiers with Uncertainty Quantification</a><ul class="nav section-nav flex-column">

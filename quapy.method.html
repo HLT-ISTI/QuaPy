@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>quapy.method package &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
+    <title>quapy.method package &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=33d9864b"></script>
+    <script src="_static/documentation_options.js?v=000c92bf"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -124,8 +124,8 @@
       
     
     
-    <img src="_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
-    <img src="_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation - Home"/>
+    <img src="_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation - Home"/>
   
   
 </a></div>
@@ -2353,12 +2353,12 @@ of the data (i.e., that minimizes the negative log-likelihood)</p>
 
 </dd></dl>
 
-<dl class="py class" id="module-quapy.method._neural">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetModule">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">quapy.method._neural.</span></span><span class="sig-name descname"><span class="pre">QuaNetModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc_embedding_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_hidden_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_nlayers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1024,</span> <span class="pre">512]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bidirectional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qdrop_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_neural.html#QuaNetModule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._neural.QuaNetModule" title="Link to this definition">#</a></dt>
+<dl class="py class" id="module-quapy.method._quanet">
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetModule">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">quapy.method._quanet.</span></span><span class="sig-name descname"><span class="pre">QuaNetModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc_embedding_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stats_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_hidden_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_nlayers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1024,</span> <span class="pre">512]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bidirectional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qdrop_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_by</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_quanet.html#QuaNetModule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._quanet.QuaNetModule" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
 <p>Implements the <a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/3269206.3269287">QuaNet</a> forward pass.
-See <a class="reference internal" href="#quapy.method._neural.QuaNetTrainer" title="quapy.method._neural.QuaNetTrainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuaNetTrainer</span></code></a> for training QuaNet.</p>
+See <a class="reference internal" href="#quapy.method._quanet.QuaNetTrainer" title="quapy.method._quanet.QuaNetTrainer"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuaNetTrainer</span></code></a> for training QuaNet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2376,13 +2376,13 @@ quantification embedding</p></li>
 </dd>
 </dl>
 <dl class="py property">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetModule.device">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#quapy.method._neural.QuaNetModule.device" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetModule.device">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">device</span></span><a class="headerlink" href="#quapy.method._quanet.QuaNetModule.device" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetModule.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc_embeddings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statistics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_neural.html#QuaNetModule.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._neural.QuaNetModule.forward" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetModule.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc_embeddings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc_posteriors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statistics</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_quanet.html#QuaNetModule.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._quanet.QuaNetModule.forward" title="Link to this definition">#</a></dt>
 <dd><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -2397,8 +2397,8 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetTrainer">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">quapy.method._neural.</span></span><span class="sig-name descname"><span class="pre">QuaNetTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_classifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_iter_per_poch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">va_iter_per_poch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_hidden_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_nlayers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1024,</span> <span class="pre">512]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bidirectional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qdrop_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpointdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../checkpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpointname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_neural.html#QuaNetTrainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._neural.QuaNetTrainer" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetTrainer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">quapy.method._quanet.</span></span><span class="sig-name descname"><span class="pre">QuaNetTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_classifier</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tr_iter_per_poch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">va_iter_per_poch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_hidden_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lstm_nlayers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ff_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1024,</span> <span class="pre">512]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bidirectional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qdrop_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpointdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'../checkpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpointname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_quanet.html#QuaNetTrainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._quanet.QuaNetTrainer" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#quapy.method.base.BaseQuantifier" title="quapy.method.base.BaseQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseQuantifier</span></code></a></p>
 <p>Implementation of <a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/3269206.3269287">QuaNet</a>, a neural network for
 quantification. This implementation uses <a class="reference external" href="https://pytorch.org/">PyTorch</a> and can take advantage of GPU
@@ -2454,25 +2454,25 @@ training phase (early stopping)</p></li>
 </dd>
 </dl>
 <dl class="py property">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetTrainer.classes_">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.method._neural.QuaNetTrainer.classes_" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetTrainer.classes_">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">classes_</span></span><a class="headerlink" href="#quapy.method._quanet.QuaNetTrainer.classes_" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetTrainer.clean_checkpoint">
-<span class="sig-name descname"><span class="pre">clean_checkpoint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_neural.html#QuaNetTrainer.clean_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._neural.QuaNetTrainer.clean_checkpoint" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetTrainer.clean_checkpoint">
+<span class="sig-name descname"><span class="pre">clean_checkpoint</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_quanet.html#QuaNetTrainer.clean_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._quanet.QuaNetTrainer.clean_checkpoint" title="Link to this definition">#</a></dt>
 <dd><p>Removes the checkpoint</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetTrainer.clean_checkpoint_dir">
-<span class="sig-name descname"><span class="pre">clean_checkpoint_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_neural.html#QuaNetTrainer.clean_checkpoint_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._neural.QuaNetTrainer.clean_checkpoint_dir" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetTrainer.clean_checkpoint_dir">
+<span class="sig-name descname"><span class="pre">clean_checkpoint_dir</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_quanet.html#QuaNetTrainer.clean_checkpoint_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._quanet.QuaNetTrainer.clean_checkpoint_dir" title="Link to this definition">#</a></dt>
 <dd><p>Removes anything contained in the checkpoint directory</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetTrainer.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_neural.html#QuaNetTrainer.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._neural.QuaNetTrainer.fit" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetTrainer.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_quanet.html#QuaNetTrainer.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._quanet.QuaNetTrainer.fit" title="Link to this definition">#</a></dt>
 <dd><p>Trains QuaNet.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2490,8 +2490,8 @@ training phase (early stopping)</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetTrainer.get_params">
-<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_neural.html#QuaNetTrainer.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._neural.QuaNetTrainer.get_params" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetTrainer.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_quanet.html#QuaNetTrainer.get_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._quanet.QuaNetTrainer.get_params" title="Link to this definition">#</a></dt>
 <dd><p>Get parameters for this estimator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2508,8 +2508,8 @@ contained subobjects that are estimators.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetTrainer.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_neural.html#QuaNetTrainer.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._neural.QuaNetTrainer.predict" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetTrainer.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_quanet.html#QuaNetTrainer.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._quanet.QuaNetTrainer.predict" title="Link to this definition">#</a></dt>
 <dd><p>Generate class prevalence estimates for the sample’s instances</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -2522,8 +2522,8 @@ contained subobjects that are estimators.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="quapy.method._neural.QuaNetTrainer.set_params">
-<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_neural.html#QuaNetTrainer.set_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._neural.QuaNetTrainer.set_params" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.QuaNetTrainer.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_quanet.html#QuaNetTrainer.set_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._quanet.QuaNetTrainer.set_params" title="Link to this definition">#</a></dt>
 <dd><p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
 (such as <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html#sklearn.pipeline.Pipeline" title="(in scikit-learn v1.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a>). The latter have
@@ -2545,8 +2545,8 @@ possible to update each component of a nested object.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="quapy.method._neural.mae_loss">
-<span class="sig-prename descclassname"><span class="pre">quapy.method._neural.</span></span><span class="sig-name descname"><span class="pre">mae_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_neural.html#mae_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._neural.mae_loss" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="quapy.method._quanet.mae_loss">
+<span class="sig-prename descclassname"><span class="pre">quapy.method._quanet.</span></span><span class="sig-name descname"><span class="pre">mae_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/method/_quanet.html#mae_loss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.method._quanet.mae_loss" title="Link to this definition">#</a></dt>
 <dd><p>Torch-like wrapper for the Mean Absolute Error</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -6034,22 +6034,22 @@ If <cite>values</cite> is only one value, then either 0. (not contained) or 1. (
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._kdey.KDEyML.aggregation_fit"><code class="docutils literal notranslate"><span class="pre">KDEyML.aggregation_fit()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetModule"><code class="docutils literal notranslate"><span class="pre">QuaNetModule</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetModule.device"><code class="docutils literal notranslate"><span class="pre">QuaNetModule.device</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetModule.forward"><code class="docutils literal notranslate"><span class="pre">QuaNetModule.forward()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetModule"><code class="docutils literal notranslate"><span class="pre">QuaNetModule</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetModule.device"><code class="docutils literal notranslate"><span class="pre">QuaNetModule.device</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetModule.forward"><code class="docutils literal notranslate"><span class="pre">QuaNetModule.forward()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetTrainer"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetTrainer.classes_"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.classes_</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetTrainer.clean_checkpoint"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.clean_checkpoint()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetTrainer.clean_checkpoint_dir"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.clean_checkpoint_dir()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetTrainer.fit"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.fit()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetTrainer.get_params"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.get_params()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetTrainer.predict"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.predict()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.QuaNetTrainer.set_params"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.set_params()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetTrainer"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetTrainer.classes_"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.classes_</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetTrainer.clean_checkpoint"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.clean_checkpoint()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetTrainer.clean_checkpoint_dir"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.clean_checkpoint_dir()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetTrainer.fit"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetTrainer.get_params"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.get_params()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetTrainer.predict"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.predict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.QuaNetTrainer.set_params"><code class="docutils literal notranslate"><span class="pre">QuaNetTrainer.set_params()</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._neural.mae_loss"><code class="docutils literal notranslate"><span class="pre">mae_loss()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._quanet.mae_loss"><code class="docutils literal notranslate"><span class="pre">mae_loss()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._threshold_optim.MAX"><code class="docutils literal notranslate"><span class="pre">MAX</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.method._threshold_optim.MAX.condition"><code class="docutils literal notranslate"><span class="pre">MAX.condition()</span></code></a></li>
 </ul>

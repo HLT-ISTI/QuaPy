@@ -1,15 +1,15 @@
 {
-    "index": 0.013,
+    "index": 0.014,
     "manuals": 0.012,
-    "manuals/datasets": 0.089,
+    "manuals/datasets": 0.09,
     "manuals/evaluation": 0.017,
-    "manuals/methods": 0.093,
+    "manuals/methods": 0.095,
     "manuals/model-selection": 0.008,
     "manuals/plotting": 0.019,
     "manuals/protocols": 0.018,
     "modules": 0.002,
-    "quapy": 2.83,
-    "quapy.classification": 0.968,
-    "quapy.data": 0.847,
-    "quapy.method": 2.628
+    "quapy": 3.083,
+    "quapy.classification": 1.012,
+    "quapy.data": 0.852,
+    "quapy.method": 2.638
 }

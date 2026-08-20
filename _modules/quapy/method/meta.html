@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>quapy.method.meta &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation</title>
+    <title>quapy.method.meta &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=33d9864b"></script>
+    <script src="../../../_static/documentation_options.js?v=000c92bf"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -121,8 +121,8 @@
       
     
     
-    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
-    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.1.post1 documentation - Home"/>
+    <img src="../../../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation - Home"/>
+    <img src="../../../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation - Home"/>
   
   
 </a></div>
@@ -388,15 +388,26 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.aggregative</span><span class="w"> </span><span class="kn">import</span> <span class="n">CC</span><span class="p">,</span> <span class="n">ACC</span><span class="p">,</span> <span class="n">PACC</span><span class="p">,</span> <span class="n">HDy</span><span class="p">,</span> <span class="n">EMQ</span><span class="p">,</span> <span class="n">AggregativeQuantifier</span><span class="p">,</span> <span class="n">AggregativeSoftQuantifier</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_neural</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_quanet</span>
 <span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
-    <span class="n">_neural</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_quanet</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<span class="k">if</span> <span class="n">_neural</span><span class="p">:</span>
-    <span class="n">QuaNet</span> <span class="o">=</span> <span class="n">_neural</span><span class="o">.</span><span class="n">QuaNetTrainer</span>
+<span class="k">if</span> <span class="n">_quanet</span><span class="p">:</span>
+    <span class="n">QuaNet</span> <span class="o">=</span> <span class="n">_quanet</span><span class="o">.</span><span class="n">QuaNetTrainer</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="n">QuaNet</span> <span class="o">=</span> <span class="s2">"QuaNet is not available due to missing torch package"</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">_histnet</span>
+<span class="k">except</span> <span class="ne">ModuleNotFoundError</span><span class="p">:</span>
+    <span class="n">_histnet</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">if</span> <span class="n">_histnet</span><span class="p">:</span>
+    <span class="n">HistNetQ</span> <span class="o">=</span> <span class="n">_histnet</span><span class="o">.</span><span class="n">HistNetQ</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">HistNetQ</span> <span class="o">=</span> <span class="s2">"HistNetQ is not available due to missing torch package"</span>
 
 
 <div class="viewcode-block" id="MedianEstimator">
