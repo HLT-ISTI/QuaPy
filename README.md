@@ -83,7 +83,8 @@ quantification methods based on structured output learning, HDy, QuaNet, quantif
     * 11 Twitter quantification-by-sentiment datasets.
     * 3 product reviews quantification-by-sentiment datasets. 
     * 4 tasks from LeQua 2022 competition and 4 tasks from LeQua 2024 competition
-    * IFCB for Plancton quantification 
+    * IFCB for Plancton quantification
+    * Image datasets (MNIST, FashionMNIST, CIFAR10, CIFAR100, SVHN)
 * Native support for binary and single-label multiclass quantification scenarios.
 * Model selection functionality that minimizes quantification-oriented loss functions.
 * Visualization tools for analysing the experimental results.
