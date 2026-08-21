@@ -1,15 +1,15 @@
 {
-    "index": 0.015,
+    "index": 0.013,
     "manuals": 0.012,
-    "manuals/datasets": 0.107,
-    "manuals/evaluation": 0.02,
-    "manuals/methods": 0.109,
+    "manuals/datasets": 0.09,
+    "manuals/evaluation": 0.017,
+    "manuals/methods": 0.095,
     "manuals/model-selection": 0.008,
-    "manuals/plotting": 0.021,
-    "manuals/protocols": 0.02,
+    "manuals/plotting": 0.019,
+    "manuals/protocols": 0.018,
     "modules": 0.002,
-    "quapy": 2.962,
-    "quapy.classification": 1.01,
-    "quapy.data": 0.855,
-    "quapy.method": 2.704
+    "quapy": 2.97,
+    "quapy.classification": 1.02,
+    "quapy.data": 0.836,
+    "quapy.method": 2.631
 }
