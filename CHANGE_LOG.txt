@@ -5,6 +5,7 @@ Change Log 0.2.2
 
 - Minor fixes
 
+
 Change Log 0.2.1
 -----------------
 
