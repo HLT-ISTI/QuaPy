@@ -8,7 +8,7 @@ from sklearn.linear_model import LogisticRegression
 
 from quapy.method import AGGREGATIVE_METHODS, BINARY_METHODS, NON_AGGREGATIVE_METHODS
 from quapy.method.non_aggregative import DMx, EDx, HDx
-from quapy.method.aggregative import ACC, DMy, EDy, KDEyCS, RLLS
+from quapy.method.aggregative import ACC, BBSEhard, BBSEsoft, DMy, EDy, KDEyCS, LEIP, RLLS
 from quapy.method.meta import Ensemble
 from quapy.functional import check_prevalence_vector
 from quapy.tests._synthetic import make_dataset
@@ -21,6 +21,7 @@ OPTIONAL_AGGREGATIVE_METHODS = {
     'PQ',
     'RLLS',
     'EDy',
+    'LEIP',
 }
 
 OPTIONAL_NON_AGGREGATIVE_METHODS = {
@@ -177,6 +178,29 @@ class TestMethods(unittest.TestCase):
         estim_prevalences = q.predict(dataset.test.X)
         self.assertTrue(check_prevalence_vector(estim_prevalences))
 
+
+    def test_leip(self):
+        dataset = TestMethods.tiny_dataset_multiclass
+        q = LEIP(LogisticRegression(max_iter=2000), val_split=3)
+        q.fit(*dataset.training.Xy)
+        estim_prevalences = q.predict(dataset.test.X)
+        self.assertTrue(check_prevalence_vector(estim_prevalences))
+
+    def test_leip_fixed_tau(self):
+        dataset = TestMethods.tiny_dataset_binary
+        q = LEIP(LogisticRegression(max_iter=2000), val_split=None, tau=0.6)
+        q.fit(*dataset.training.Xy)
+        estim_prevalences = q.predict(dataset.test.X)
+        self.assertTrue(check_prevalence_vector(estim_prevalences))
+
+    def test_bbse(self):
+        dataset = TestMethods.tiny_dataset_multiclass
+        for cls in (BBSEhard, BBSEsoft):
+            for solver in ('minimize', 'exact-raise', 'exact-cc'):
+                q = cls(LogisticRegression(max_iter=2000), val_split=3, solver=solver)
+                q.fit(*dataset.training.Xy)
+                estim_prevalences = q.predict(dataset.test.X)
+                self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_edy(self):
         try:

@@ -20,3 +20,5 @@ scale each value by per-class thresholds, i.e., [0.33*0.1, 0.33*1, 0.33*1]/sum.
 - [TODO] check ignore warning stuff
     check https://docs.python.org/3/library/warnings.html#temporarily-suppressing-warnings
 - [TODO] nmd and md are not selectable from qp.evaluation.evaluate as a string
+- [TODO] add https://www.kaggle.com/datasets/Cornell-University/arxiv dataset? in the paper "Online Adaptation to
+    Label Distribution Shift" they say it provides a natural label shift over time

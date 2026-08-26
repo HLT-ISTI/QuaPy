@@ -462,7 +462,7 @@ def argmin_prevalence(loss: Callable,
         raise NotImplementedError()
 
 
-def optim_minimize(loss: Callable, n_classes: int, return_loss=False):
+def optim_minimize(loss: Callable, n_classes: int, x0='uniform', bounds='simplex', constraints='simplex', return_loss=False):
     """
     Searches for the optimal prevalence values, i.e., an `n_classes`-dimensional vector of the (`n_classes`-1)-simplex
     that yields the smallest lost. This optimization is carried out by means of a constrained search using scipy's
@@ -470,19 +470,32 @@ def optim_minimize(loss: Callable, n_classes: int, return_loss=False):
 
     :param loss: (callable) the function to minimize
     :param n_classes: (int) the number of classes, i.e., the dimensionality of the prevalence vector
+    :param x0: initial solution; if the string 'uniform' is passed (default) then the initial solution is the
+        uniform distribution; otherwise, a valid object must be provided
+    :param bounds: the bounds of the search space; if the string `simplex` is passed (default) then the bounds
+        of a simplex of appropriate dimension is instantiated; otherwise, a valid tuple must be provided
+    :param constraints: the constraints of valid solutions; if the string `simplex` is passed (default) then the
+        constraint that a point must lie on the simplex is assumed; otherwise, valid constrains must be provided
+        (see scipy.optimize)
     :param return_loss: bool, if True, returns also the value of the loss (default is False).
     :return: (ndarray) the best prevalence vector found or a tuple which also contains the value of the loss
         if return_loss=True
     """
     from scipy import optimize
 
-    # the initial point is set as the uniform distribution
-    uniform_distribution = uniform_prevalence(n_classes=n_classes)
+    if isinstance(x0, str) and x0=='uniform':
+        # the initial point is set as the uniform distribution
+        x0 = uniform_prevalence(n_classes=n_classes)
 
-    # solutions are bounded to those contained in the unit-simplex
-    bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
-    constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
-    r = optimize.minimize(loss, x0=uniform_distribution, method='SLSQP', bounds=bounds, constraints=constraints)
+    if isinstance(bounds, str) and bounds=='simplex':
+        # solutions are bounded to those contained in the unit-simplex
+        bounds = tuple((0, 1) for _ in range(n_classes))  # values in [0,1]
+
+    if isinstance(constraints, str) and constraints=='simplex':
+        # the point must lie on the simplex
+        constraints = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)})  # values summing up to 1
+
+    r = optimize.minimize(loss, x0=x0, method='SLSQP', bounds=bounds, constraints=constraints)
     
     if return_loss:
         return r.x, r.fun
@@ -621,84 +634,6 @@ def solve_adjustment_binary(prevalence_estim: ArrayLike, tpr: float, fpr: float,
     if clip:
         adjusted = np.clip(adjusted, 0., 1.)
     return adjusted
-
-
-def solve_adjustment(
-    class_conditional_rates: np.ndarray,
-    unadjusted_counts: np.ndarray,
-    method: Literal["inversion", "invariant-ratio"],
-    solver: Literal["exact", "minimize", "exact-raise", "exact-cc"]) -> np.ndarray:
-    """
-    Function that tries to solve for :math:`p` the equation :math:`q = M p`, where :math:`q` is the vector of
-    `unadjusted counts` (as estimated, e.g., via classify and count) with :math:`q_i` an estimate of
-    :math:`P(\hat{Y}=y_i)`, and where :math:`M` is the matrix of `class-conditional rates` with :math:`M_{ij}` an
-    estimate of :math:`P(\hat{Y}=y_i|Y=y_j)`.
-
-    :param class_conditional_rates: array of shape `(n_classes, n_classes,)` with entry `(i,j)` being the estimate
-        of :math:`P(\hat{Y}=y_i|Y=y_j)`, that is, the probability that an instance that belongs to class :math:`y_j`
-        ends up being classified as belonging to class :math:`y_i`
-
-    :param unadjusted_counts: array of shape `(n_classes,)` containing the unadjusted prevalence values (e.g., as
-        estimated by CC or PCC)
-
-    :param str method: indicates the adjustment method to be used. Valid options are:
-
-        * `inversion`: tries to solve the equation :math:`q = M p` as :math:`p = M^{-1} q` where
-          :math:`M^{-1}` is the matrix inversion of :math:`M`. This inversion may not exist in
-          degenerated cases.
-        * `invariant-ratio`: invariant ratio estimator of `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>`_,
-          which replaces the last equation in :math:`M` with the normalization condition (i.e., that the sum of
-          all prevalence values must equal 1).
-
-    :param str solver: the method to use for solving the system of linear equations. Valid options are:
-
-        * `exact-raise`: tries to solve the system using matrix inversion. Raises an error if the matrix has rank
-          strictly lower than `n_classes`.
-        * `exact-cc`: if the matrix is not full rank, returns :math:`q` (i.e., the unadjusted counts) as the estimates
-        * `exact`: deprecated, defaults to 'exact-cc' (will be removed in future versions)
-        * `minimize`: minimizes a loss, so the solution always exists
-    """
-    if solver == "exact":
-        warnings.warn(
-            "The 'exact' solver is deprecated. Use 'exact-raise' or 'exact-cc'", DeprecationWarning, stacklevel=2)
-        solver = "exact-cc"
-
-    A = np.asarray(class_conditional_rates, dtype=float)
-    B = np.asarray(unadjusted_counts, dtype=float)
-
-    if method == "inversion":
-        pass  # We leave A and B unchanged
-    elif method == "invariant-ratio":
-        # Change the last equation to replace it with the normalization condition;
-        # copy first so this does not mutate the caller's arrays (np.asarray above
-        # returns the same object, not a copy, when the input is already float64)
-        A = A.copy()
-        B = B.copy()
-        A[-1, :] = 1.0
-        B[-1] = 1.0
-    else:
-        raise ValueError(f"unknown {method=}")
-
-    if solver == "minimize":
-        def loss(prev):
-            return np.linalg.norm(A @ prev - B)
-        return optim_minimize(loss, n_classes=A.shape[0])
-    elif solver in ["exact-raise", "exact-cc"]:
-        # Solvers based on matrix inversion, so we use try/except block
-        try:
-            return np.linalg.solve(A, B)
-        except np.linalg.LinAlgError:
-            # The matrix is not invertible.
-            # Depending on the solver, we either raise an error
-            # or return the classifier predictions without adjustment
-            if solver == "exact-raise":
-                raise
-            elif solver == "exact-cc":
-                return unadjusted_counts
-            else:
-                raise ValueError(f"Solver {solver} not known.")
-    else:
-        raise ValueError(f'unknown {solver=}')
 
 
 # ------------------------------------------------------------------------------------------

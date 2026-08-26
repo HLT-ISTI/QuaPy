@@ -368,6 +368,65 @@ class BinaryAggregativeQuantifier(AggregativeQuantifier, BinaryQuantifier):
         return super().fit(X, y)
 
 
+class ImportanceWeightQuantifier(AggregativeQuantifier, ABC):
+    """
+    Abstract mixin for aggregative quantifiers that estimate the target prevalence by first computing a vector
+    of importance weights :math:`w_y=Q(y)/P(y)` (with :math:`P` and :math:`Q` the training and target
+    distributions), and then rescaling the training prevalence by these weights, i.e.,
+    :math:`\\hat{p}(y) \\propto w_y \\cdot P(y)`.
+
+    Subclasses must set a fitted attribute `self.train_prevalence_` (typically in :meth:`aggregation_fit`) and
+    must implement :meth:`_weights_from_predictions`. This class provides a template implementation of
+    :meth:`aggregate`, together with :meth:`get_importance_weights` and :meth:`quantify_and_weigh`, none of
+    which mutate any internal state, so that they are all safe to call concurrently (e.g., from different
+    threads) on the same fitted instance for different batches of target instances.
+    """
+
+    @abstractmethod
+    def _weights_from_predictions(self, classif_predictions) -> np.ndarray:
+        """
+        Computes the vector of importance weights from the classifier predictions on a batch of (unlabelled)
+        target instances.
+
+        :param classif_predictions: array-like with the classifier predictions (crisp or soft, depending on
+            the subclass) for the target instances
+        :return: np.ndarray of shape `(n_classes,)`
+        """
+        ...
+
+    def _prevalence_from_weights(self, weights: np.ndarray) -> np.ndarray:
+        estimate = self.train_prevalence_ * weights
+        return F.normalize_prevalence(estimate, method=self.norm)
+
+    def aggregate(self, classif_predictions):
+        weights = self._weights_from_predictions(classif_predictions)
+        return self._prevalence_from_weights(weights)
+
+    def get_importance_weights(self, instances) -> np.ndarray:
+        """
+        Estimates the vector of importance weights :math:`w_y=Q(y)/P(y)` for the given (unlabelled) target
+        instances.
+
+        :param instances: array-like of shape `(n_instances, n_dimensions)`, the target instances
+        :return: np.ndarray of shape `(n_classes,)`
+        """
+        classif_predictions = self.classify(instances)
+        return self._weights_from_predictions(classif_predictions)
+
+    def quantify_and_weigh(self, instances):
+        """
+        Jointly returns the estimated target prevalence and the importance weights used to obtain it, computed
+        from a single pass of classifier predictions over the given (unlabelled) target instances.
+
+        :param instances: array-like of shape `(n_instances, n_dimensions)`, the target instances
+        :return: a tuple `(prevalence, weights)`, both np.ndarray of shape `(n_classes,)`
+        """
+        classif_predictions = self.classify(instances)
+        weights = self._weights_from_predictions(classif_predictions)
+        prevalence = self._prevalence_from_weights(weights)
+        return prevalence, weights
+
+
 # Methods
 # ------------------------------------
 class CC(AggregativeCrispQuantifier):
@@ -456,8 +515,10 @@ class ACC(AggregativeCrispQuantifier):
 
     :param str method: adjustment method to be used:
 
-        * 'inversion': matrix inversion method based on the matrix equality :math:`P(C)=P(C|Y)P(Y)`,
-          which tries to invert :math:`P(C|Y)` matrix.
+        * 'inversion': matrix inversion method. Based on the matrix equality :math:`q=M p`, with
+          :math:`q` the prevalence vector estimated by CC, :math:`M` the matrix with entries :math:`i,j` representing
+          :math:`P(\\hat{Y}=i|Y=j)`, and :math:`p` the sought class prevalence vector, the matrix inversion
+          tries to solve for :math:`p=M^{-1} q`
         * 'invariant-ratio': invariant ratio estimator of `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>`_,
           which replaces the last equation with the normalization condition.
 
@@ -467,8 +528,7 @@ class ACC(AggregativeCrispQuantifier):
           strictly less than `n_classes`.
         * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds to
           no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
-        * 'exact': deprecated, defaults to 'exact-cc'
-        * 'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the
+        * 'minimize': minimizes the squared L2 norm of :math:`|Ax-B|`. This one generally works better, and is the
           default parameter. More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions of
           Adjusted Classify and Count", on proceedings of the 2nd International Workshop on Learning to Quantify:
           Methods and Applications (LQ 2022), ECML/PKDD 2022, Grenoble (France)
@@ -489,7 +549,7 @@ class ACC(AggregativeCrispQuantifier):
             classifier: BaseEstimator = None,
             fit_classifier = True,
             val_split = 5,
-            solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
+            solver: Literal['minimize', 'exact-raise', 'exact-cc'] = 'minimize',
             method: Literal['inversion', 'invariant-ratio'] = 'inversion',
             norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
             n_jobs=None,
@@ -500,7 +560,7 @@ class ACC(AggregativeCrispQuantifier):
         self.method = method
         self.norm = norm
 
-    SOLVERS = ['exact', 'minimize', 'exact-raise', 'exact-cc']
+    SOLVERS = ['minimize', 'exact-raise', 'exact-cc']
     METHODS = ['inversion', 'invariant-ratio']
     NORMALIZATIONS = ['clip', 'mapsimplex', 'condsoftmax', None]
 
@@ -551,8 +611,8 @@ class ACC(AggregativeCrispQuantifier):
     @classmethod
     def getPteCondEstim(cls, classes, y, y_):
         """
-        Estimate the matrix with entry (i,j) being the estimate of P(hat_yi|yj), that is, the probability that a
-        document that belongs to yj ends up being classified as belonging to yi
+        Estimate the matrix with entry (i,j) being the estimate of P(hat_yi|yj), that is, the probability that an
+        instance that belongs to class j ends up being classified as belonging to class i
 
         :param classes: array-like with the class names
         :param y: array-like with the true labels
@@ -570,14 +630,233 @@ class ACC(AggregativeCrispQuantifier):
         return conf
 
     def aggregate(self, classif_predictions):
-        prevs_estim = self.cc.aggregate(classif_predictions)
-        estimate = F.solve_adjustment(
+        prevs_estim_cc = self.cc.aggregate(classif_predictions)
+        estimate = ACC.solve_adjustment(
             class_conditional_rates=self.Pte_cond_estim_,
-            unadjusted_counts=prevs_estim,
+            unadjusted_counts=prevs_estim_cc,
             solver=self.solver,
             method=self.method,
         )
         return F.normalize_prevalence(estimate, method=self.norm)
+
+    @classmethod
+    def solve_adjustment(cls,
+            class_conditional_rates: np.ndarray,
+            unadjusted_counts: np.ndarray,
+            method: Literal["inversion", "invariant-ratio"],
+            solver: Literal["minimize", "exact-raise", "exact-cc"]) -> np.ndarray:
+        """
+        Function that tries to solve for :math:`p` the equation :math:`q = M p`, where :math:`q` is the vector of
+        `unadjusted counts` (as estimated, e.g., via classify and count) with :math:`q_i` an estimate of
+        :math:`P(\\hat{Y}=y_i)`, and where :math:`M` is the matrix of `class-conditional rates` with :math:`M_{ij}` an
+        estimate of :math:`P(\\hat{Y}=y_i|Y=y_j)`.
+
+        :param class_conditional_rates: array of shape `(n_classes, n_classes,)` with entry `(i,j)` being the estimate
+            of :math:`P(\\hat{Y}=y_i|Y=y_j)`, that is, the probability that an instance ends up being classified as
+            belonging to class :math:`y_i` given it actually belonged to class :math:`y_j`
+
+        :param unadjusted_counts: array of shape `(n_classes,)` containing the unadjusted prevalence values (e.g., as
+            estimated by CC or PCC)
+
+        :param str method: indicates the adjustment method to be used. Valid options are:
+
+            * `inversion`: tries to solve the equation :math:`q = M p` as :math:`p = M^{-1} q` where
+              :math:`M^{-1}` is the matrix inversion of :math:`M`. This inversion may not exist in
+              degenerated cases.
+            * `invariant-ratio`: invariant ratio estimator of `Vaz et al. 2018 <https://jmlr.org/papers/v20/18-456.html>`_,
+              which replaces the last equation in :math:`M` with the normalization condition (i.e., that the sum of
+              all prevalence values must equal 1).
+
+        :param str solver: the method to use for solving the system of linear equations. Valid options are:
+
+            * `exact-raise`: tries to solve the system using matrix inversion. Raises an error if the matrix has rank
+              strictly lower than `n_classes`.
+            * `exact-cc`: if the matrix is not full rank, returns :math:`q` (i.e., the unadjusted counts) as the estimates
+            * `minimize`: minimizes a loss, so the solution always exists
+        """
+
+        A = np.asarray(class_conditional_rates, dtype=float).copy()
+        B = np.asarray(unadjusted_counts, dtype=float).copy()
+
+        if method == "inversion":
+            pass  # leave A and B unchanged
+        elif method == "invariant-ratio":
+            # Change the last equation to replace it with the normalization condition;
+            # copy first so this does not mutate the caller's arrays (np.asarray above
+            # returns the same object, not a copy, when the input is already float64)
+            A[-1, :] = 1.0
+            B[-1] = 1.0
+        else:
+            raise ValueError(f"unknown {method=}")
+
+        if solver in ["exact-raise", "exact-cc"]:
+            try:
+                return np.linalg.solve(A, B)
+            except np.linalg.LinAlgError:
+                if solver=='exact-cc':
+                    return unadjusted_counts
+                else:
+                    raise
+        elif solver == "minimize":
+            def loss(prev):
+                return np.linalg.norm(A @ prev - B)
+            return F.optim_minimize(loss, n_classes=A.shape[0], return_loss=False)
+        else:
+            raise ValueError(f"unknown {solver=}")
+
+
+class BBSEhard(ImportanceWeightQuantifier, AggregativeCrispQuantifier):
+    """
+    `Black Box Shift Estimator` (BBSE) hard aims at finding the importance weights :math:`w_i=Q(i)/P(i)`,
+    with :math:`P` and :math:`Q` the training and test distributions.
+    BBSE is similar in spirit to ACC, but it solves the problem :math:`q=C w`, with :math:`q` the prevalence vector
+    estimated by CC, :math:`C` the matrix with entries :math:`i,j` representing :math:`P(\\hat{Y}=i,Y=j)`, and
+    :math:`w` the sought vector of importance weights. The `hard` variant estimates these quantities using
+    crisp counts.
+
+    BBSE was proposed in
+    `Lipton, Z., Wang, Y. X., & Smola, A. (2018, July).
+    Detecting and correcting for label shift with black box predictors.
+    In International conference on machine learning (pp. 3122-3130). PMLR.
+    <https://proceedings.mlr.press/v80/lipton18a.html>`_.
+
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+
+    :param str solver: indicates the method to use for solving the system of linear equations. Valid options are:
+
+        * 'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has rank
+          strictly less than `n_classes`.
+        * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds to
+          no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
+        * 'exact': deprecated, defaults to 'exact-cc'
+        * 'minimize': minimizes the squared L2 norm of :math:`|Ax-B|`. This one generally works better, and is the
+          default parameter. More details about this can be consulted in
+          `Tachet des Combes, R., Zhao, H., Wang, Y. X., & Gordon, G. J. (2020).
+          Domain adaptation with conditional distribution matching and generalized label shift.
+          Advances in Neural Information Processing Systems, 33, 19276-19289.
+          <https://proceedings.neurips.cc/paper_files/paper/2020/hash/dfbfa7ddcfffeb581f50edcf9a0204bb-Abstract.html>`_.
+
+    :param str norm: the method to use for normalization.
+
+        * `clip`, the values are clipped to the range [0,1] and then L1-normalized.
+        * `mapsimplex` projects vectors onto the probability simplex. This implementation relies on
+          `Mathieu Blondel's projection_simplex_sort <https://gist.github.com/mblondel/6f3b7aaad90606b98f71>`_
+        * `condsoftmax`, applies a softmax normalization only to prevalence vectors that lie outside the simplex
+
+    :param n_jobs: number of parallel workers
+    """
+
+    def __init__(
+            self,
+            classifier: BaseEstimator = None,
+            fit_classifier = True,
+            val_split = 5,
+            solver: Literal['minimize', 'exact-raise', 'exact-cc'] = 'minimize',
+            norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
+            n_jobs=None,
+    ):
+        super().__init__(classifier, fit_classifier, val_split)
+        self.n_jobs = qp._get_njobs(n_jobs)
+        self.solver = solver
+        self.norm = norm
+
+    def _check_init_parameters(self):
+        if self.solver not in ACC.SOLVERS:
+            raise ValueError(f"unknown solver; valid ones are {ACC.SOLVERS}")
+        if self.norm not in ACC.NORMALIZATIONS:
+            raise ValueError(f"unknown normalization; valid ones are {ACC.NORMALIZATIONS}")
+
+    def aggregation_fit(self, classif_predictions, labels):
+        """
+        Estimates the misclassification rates.
+        :param classif_predictions: array-like with the predicted labels
+        :param labels: array-like with the true labels associated to each predicted label
+        """
+        true_labels = labels
+        pred_labels = classif_predictions
+        self.cc = CC(self.classifier, fit_classifier=False)
+        self.confusion = BBSEhard.getConfusionJointProb(self.classifier.classes_, true_labels, pred_labels)
+        self.train_prevalence_ = F.prevalence_from_labels(labels, classes=self.classifier.classes_)
+
+    @classmethod
+    def getConfusionJointProb(cls, classes, y, y_):
+        """
+        Estimate the matrix with entry (i,j) being the estimate of :math:`P(\\hat{Y}=i,Y=j)`
+
+        :param classes: array-like with the class names
+        :param y: array-like with the true labels
+        :param y_: array-like with the estimated labels
+        :return: np.ndarray
+        """
+        conf = confusion_matrix(y, y_, labels=classes).T
+        joint_probs = conf / conf.sum()
+        return joint_probs
+
+    def _weights_from_predictions(self, classif_predictions):
+        prevs_estim_cc = self.cc.aggregate(classif_predictions)
+        weights = BBSEhard.solve_importance_weights(
+            joint_probs=self.confusion,
+            unadjusted_counts=prevs_estim_cc,
+            solver=self.solver,
+        )
+        return np.clip(weights, 0.0, None)
+
+    @classmethod
+    def solve_importance_weights(cls,
+            joint_probs: np.ndarray,
+            unadjusted_counts: np.ndarray,
+            solver: Literal["minimize", "exact-raise", "exact-cc"]) -> np.ndarray:
+        """
+        Function that tries to solve for :math:`p` the equation :math:`q = C w`, where :math:`q` is the vector of
+        `unadjusted counts` (as estimated, e.g., via classify and count) with :math:`q_i` an estimate of
+        :math:`P(\\hat{Y}=y_i)`, and where :math:`C` is the confusion matrix distribution with :math:`C_{ij}` an
+        estimate of :math:`P(\\hat{Y}=y_i,Y=y_j)`.
+
+        :param joint_probs: array of shape `(n_classes, n_classes,)` with entry `(i,j)` being the estimate
+            of :math:`P(\\hat{Y}=y_i,Y=y_j)`
+
+        :param unadjusted_counts: array of shape `(n_classes,)` containing the unadjusted prevalence values (e.g., as
+            estimated by CC or PCC)
+
+        :param str solver: the method to use for solving the system of linear equations. Valid options are:
+
+            * `exact-raise`: tries to solve the system using matrix inversion. Raises an error if the matrix has rank
+              strictly lower than `n_classes`.
+            * `exact-cc`: if the matrix is not full rank, returns a vector of ones as the weights
+            * `minimize`: minimizes a loss, so the solution always exists
+        """
+        A = np.asarray(joint_probs, dtype=float)
+        B = np.asarray(unadjusted_counts, dtype=float)
+        all_ones = np.full_like(B, fill_value=1., dtype=float)
+
+        if solver in ["exact-raise", "exact-cc"]:
+            try:
+                return np.linalg.solve(A, B)
+            except np.linalg.LinAlgError:
+                if solver=='exact-cc':
+                    return all_ones
+                else:
+                    raise
+        elif solver == "minimize":
+            def loss(prev):
+                return np.linalg.norm(A @ prev - B)
+
+            n_dims = len(all_ones)
+            bounds = [(0, np.inf)] * n_dims
+            return F.optim_minimize(loss, n_classes=A.shape[0], x0=all_ones, bounds=bounds, constraints=())
+        else:
+            raise ValueError(f"unknown {solver=}")
+
 
 
 class PACC(AggregativeSoftQuantifier):
@@ -615,7 +894,6 @@ class PACC(AggregativeSoftQuantifier):
           Raises an error if the matrix has rank strictly less than `n_classes`.
         * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which
           corresponds to no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
-        * 'exact': deprecated, defaults to 'exact-cc'
         * 'minimize': minimizes the L2 norm of :math:`|Ax-B|`. This one generally works better, and is the
           default parameter. More details about this can be consulted in `Bunse, M. "On Multi-Class Extensions
           of Adjusted Classify and Count", on proceedings of the 2nd International Workshop on Learning to
@@ -637,7 +915,7 @@ class PACC(AggregativeSoftQuantifier):
             classifier: BaseEstimator = None,
             fit_classifier=True,
             val_split=5,
-            solver: Literal['minimize', 'exact', 'exact-raise', 'exact-cc'] = 'minimize',
+            solver: Literal['minimize', 'exact-raise', 'exact-cc'] = 'minimize',
             method: Literal['inversion', 'invariant-ratio'] = 'inversion',
             norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
             n_jobs=None
@@ -671,7 +949,7 @@ class PACC(AggregativeSoftQuantifier):
     def aggregate(self, classif_posteriors):
         prevs_estim = self.pcc.aggregate(classif_posteriors)
 
-        estimate = F.solve_adjustment(
+        estimate = ACC.solve_adjustment(
             class_conditional_rates=self.Pte_cond_estim_,
             unadjusted_counts=prevs_estim,
             solver=self.solver,
@@ -693,7 +971,120 @@ class PACC(AggregativeSoftQuantifier):
         return confusion.T
 
 
-class RLLS(AggregativeSoftQuantifier):
+class BBSEsoft(ImportanceWeightQuantifier, AggregativeSoftQuantifier):
+    """
+    `Black Box Shift Estimator` (BBSE) soft, the probabilistic variant of :class:`BBSEhard` that relies on the
+    posterior probabilities returned by a probabilistic classifier, instead of on crisp counts, to estimate the
+    joint distribution :math:`P(\\hat{Y}=i,Y=j)`. As in :class:`BBSEhard`, the sought importance weights
+    :math:`w_i=Q(i)/P(i)` (with :math:`P` and :math:`Q` the training and test distributions) are obtained by
+    solving :math:`q=C w`, with :math:`q` the (now probabilistic) prevalence vector estimated by PCC and
+    :math:`C` the joint-probability matrix.
+
+    BBSE was proposed in
+    `Lipton, Z., Wang, Y. X., & Smola, A. (2018, July).
+    Detecting and correcting for label shift with black box predictors.
+    In International conference on machine learning (pp. 3122-3130). PMLR.
+    <https://proceedings.mlr.press/v80/lipton18a.html>`_.
+
+    :param classifier: a scikit-learn's BaseEstimator, or None, in which case the classifier is taken to be
+        the one indicated in `qp.environ['DEFAULT_CLS']`
+
+    :param fit_classifier: whether to train the learner (default is True). Set to False if the
+        learner has been trained outside the quantifier.
+
+    :param val_split: specifies the data used for generating classifier predictions. This specification
+        can be made as float in (0, 1) indicating the proportion of stratified held-out validation set to
+        be extracted from the training set; or as an integer (default 5), indicating that the predictions
+        are to be generated in a `k`-fold cross-validation manner (with this integer indicating the value
+        for `k`); or as a tuple (X,y) defining the specific set of data to use for validation.
+
+    :param str solver: indicates the method to use for solving the system of linear equations. Valid options are:
+
+        * 'exact-raise': tries to solve the system using matrix inversion. Raises an error if the matrix has rank
+          strictly less than `n_classes`.
+        * 'exact-cc': if the matrix is not of full rank, returns `p_c` as the estimates, which corresponds to
+          no adjustment (i.e., the classify and count method. See :class:`quapy.method.aggregative.CC`)
+        * 'minimize': minimizes the squared L2 norm of :math:`|Ax-B|`. This one generally works better, and is the
+          default parameter. More details about this can be consulted in
+          `Tachet des Combes, R., Zhao, H., Wang, Y. X., & Gordon, G. J. (2020).
+          Domain adaptation with conditional distribution matching and generalized label shift.
+          Advances in Neural Information Processing Systems, 33, 19276-19289.
+          <https://proceedings.neurips.cc/paper_files/paper/2020/hash/dfbfa7ddcfffeb581f50edcf9a0204bb-Abstract.html>`_.
+
+    :param str norm: the method to use for normalization.
+
+        * `clip`, the values are clipped to the range [0,1] and then L1-normalized.
+        * `mapsimplex` projects vectors onto the probability simplex. This implementation relies on
+          `Mathieu Blondel's projection_simplex_sort <https://gist.github.com/mblondel/6f3b7aaad90606b98f71>`_
+        * `condsoftmax`, applies a softmax normalization only to prevalence vectors that lie outside the simplex
+
+    :param n_jobs: number of parallel workers
+    """
+
+    def __init__(
+            self,
+            classifier: BaseEstimator = None,
+            fit_classifier = True,
+            val_split = 5,
+            solver: Literal['minimize', 'exact-raise', 'exact-cc'] = 'minimize',
+            norm: Literal['clip', 'mapsimplex', 'condsoftmax'] = 'clip',
+            n_jobs=None,
+    ):
+        super().__init__(classifier, fit_classifier, val_split)
+        self.n_jobs = qp._get_njobs(n_jobs)
+        self.solver = solver
+        self.norm = norm
+
+    def _check_init_parameters(self):
+        if self.solver not in ACC.SOLVERS:
+            raise ValueError(f"unknown solver; valid ones are {ACC.SOLVERS}")
+        if self.norm not in ACC.NORMALIZATIONS:
+            raise ValueError(f"unknown normalization; valid ones are {ACC.NORMALIZATIONS}")
+
+    def aggregation_fit(self, classif_predictions, labels):
+        """
+        Estimates the joint distribution P(hat_Y,Y), using posterior probabilities in place of crisp counts.
+
+        :param classif_predictions: array-like with posterior probabilities
+        :param labels: array-like with the true labels associated to each vector of posterior probabilities
+        """
+        posteriors = classif_predictions
+        true_labels = labels
+        self.pcc = PCC(self.classifier, fit_classifier=False)
+        self.confusion = BBSEsoft.getConfusionJointProb(self.classifier.classes_, true_labels, posteriors)
+        self.train_prevalence_ = F.prevalence_from_labels(labels, classes=self.classifier.classes_)
+
+    @classmethod
+    def getConfusionJointProb(cls, classes, y, posteriors):
+        """
+        Estimate the matrix with entry (i,j) being the estimate of :math:`P(\\hat{Y}=i,Y=j)`, using the
+        posterior probabilities of the instances belonging to class :math:`j` in place of their hard predictions.
+
+        :param classes: array-like with the class names
+        :param y: array-like with the true labels
+        :param posteriors: array-like of shape `(n_instances, n_classes,)` with posterior probabilities
+        :return: np.ndarray
+        """
+        n_classes = len(classes)
+        joint_probs = np.zeros((n_classes, n_classes), dtype=float)
+        for j, class_ in enumerate(classes):
+            idx = y == class_
+            if idx.any():
+                joint_probs[:, j] = posteriors[idx].sum(axis=0)
+        joint_probs /= joint_probs.sum()
+        return joint_probs
+
+    def _weights_from_predictions(self, classif_posteriors):
+        prevs_estim_pcc = self.pcc.aggregate(classif_posteriors)
+        weights = BBSEhard.solve_importance_weights(
+            joint_probs=self.confusion,
+            unadjusted_counts=prevs_estim_pcc,
+            solver=self.solver,
+        )
+        return np.clip(weights, 0.0, None)
+
+
+class RLLS(ImportanceWeightQuantifier, AggregativeSoftQuantifier):
     """
     `Regularized Learning for Domain Adaptation under Label Shifts
     <https://arxiv.org/abs/1903.09734>`_, used here as an aggregative
@@ -750,7 +1141,6 @@ class RLLS(AggregativeSoftQuantifier):
         self.delta = delta
         self.clip_weights = clip_weights
         self.norm = norm
-        self.last_w_ = None
 
     def _check_init_parameters(self):
         _get_cvxpy()
@@ -781,18 +1171,15 @@ class RLLS(AggregativeSoftQuantifier):
         self.pz_ = _rlls_predicted_marginal(classif_predictions, mode=self.mode)
         self.rho_ = _rlls_compute_3deltaC(len(self.classes_), len(labels), self.delta)
 
-    def aggregate(self, classif_posteriors):
+    def _weights_from_predictions(self, classif_posteriors):
         qz = _rlls_predicted_marginal(classif_posteriors, mode=self.mode)
-        w = _rlls_compute_weights(
+        return _rlls_compute_weights(
             self.C_zy_,
             qz,
             self.pz_,
             rho=self.alpha * self.rho_,
             clip=self.clip_weights,
         )
-        self.last_w_ = w
-        estimate = self.train_prevalence_ * w
-        return F.normalize_prevalence(estimate, method=self.norm)
 
 
 class EMQ(AggregativeSoftQuantifier):
@@ -1830,6 +2217,10 @@ from . import _kdey
 KDEyML = _kdey.KDEyML
 KDEyHD = _kdey.KDEyHD
 KDEyCS = _kdey.KDEyCS
+
+from . import _liep
+
+LEIP = _liep.LEIP
 
 
 # ---------------------------------------------------------------

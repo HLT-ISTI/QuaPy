@@ -12,6 +12,14 @@ quapy.classification.calibration module
    :undoc-members:
    :show-inheritance:
 
+quapy.classification.labelshift module
+---------------------------------------
+
+.. automodule:: quapy.classification.labelshift
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 quapy.classification.methods module
 -----------------------------------
 
