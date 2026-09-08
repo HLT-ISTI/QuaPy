@@ -81,7 +81,8 @@ NON_AGGREGATIVE_METHODS = {
 META_METHODS = {
     meta.Ensemble,
     meta.QuaNet,
-    meta.HistNetQ
+    meta.HistNetQ,
+    meta.GMNet
 }
 
 QUANTIFICATION_METHODS = AGGREGATIVE_METHODS | NON_AGGREGATIVE_METHODS | META_METHODS

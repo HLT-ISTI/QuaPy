@@ -37,6 +37,17 @@ if _histnet:
 else:
     HistNetQ = "HistNetQ is not available due to missing torch package"
 
+try:
+    from . import _gmnet
+except ModuleNotFoundError:
+    _gmnet = None
+
+
+if _gmnet:
+    GMNet = _gmnet.GMNet
+else:
+    GMNet = "GMNet is not available due to missing torch and/or geotorch packages"
+
 
 class MedianEstimator(BinaryQuantifier):
     """

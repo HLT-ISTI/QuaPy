@@ -127,6 +127,38 @@ class TestMethods(unittest.TestCase):
             estim_prevalences2 = model2.predict(dataset.test.X)
             self.assertTrue(check_prevalence_vector(estim_prevalences2))
 
+    def test_gmnet(self):
+        try:
+            import torch
+            import geotorch
+        except ModuleNotFoundError:
+            print('the torch and/or geotorch packages are not installed; skipping unit test for GMNet')
+            return
+
+        from quapy.method.meta import GMNet
+        from quapy.protocol import UPP
+
+        for dataset in TestMethods.datasets:
+            # single GM layer, no CKA regularization
+            model = GMNet(
+                bag_size=20, n_bags_train=10, n_bags_val=5, train_epochs=2, patience=1, batch_size=2,
+                device='cpu', checkpointdir='./checkpoint_test_gmnet'
+            )
+            model.fit(*dataset.training.Xy)
+            estim_prevalences = model.predict(dataset.test.X)
+            self.assertTrue(check_prevalence_vector(estim_prevalences))
+
+            # multiple GM layers + CKA regularization, and fit_from_samples
+            given_samples = UPP(dataset.training, sample_size=20, repeats=8, random_state=1)
+            val_samples = UPP(dataset.training, sample_size=20, repeats=4, random_state=2)
+            model2 = GMNet(
+                n_gm_layers=2, num_gaussians=3, gaussian_dimensions=4, cka_regularization=0.1,
+                bag_size=20, train_epochs=2, patience=1, batch_size=2, device='cpu',
+                checkpointdir='./checkpoint_test_gmnet'
+            )
+            model2.fit_from_samples(given_samples, val_protocol=val_samples, mix_bags=True)
+            estim_prevalences2 = model2.predict(dataset.test.X)
+            self.assertTrue(check_prevalence_vector(estim_prevalences2))
 
     def test_composable(self):
         try:
