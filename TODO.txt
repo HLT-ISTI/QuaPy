@@ -22,3 +22,5 @@ scale each value by per-class thresholds, i.e., [0.33*0.1, 0.33*1, 0.33*1]/sum.
 - [TODO] nmd and md are not selectable from qp.evaluation.evaluate as a string
 - [TODO] add https://www.kaggle.com/datasets/Cornell-University/arxiv dataset? in the paper "Online Adaptation to
     Label Distribution Shift" they say it provides a natural label shift over time
+- [TODO] add Bhattacharyya distance (https://en.wikipedia.org/wiki/Bhattacharyya_distance)
+    (which is actually not a proper distance)
