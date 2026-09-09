@@ -934,6 +934,46 @@ HistNetQ can alternatively be trained directly from a protocol that already prov
 samples (e.g., when only bag-level prevalence values are available), via the `fit_from_samples`
 method; see the API documentation for further details.
 
+### GMNet
+
+QuaPy offers an implementation of GMNet, a deep learning model that represents each instance of a
+bag by its likelihood under one or more learned mixtures of Gaussians, presented in:
+
+[_Pérez-Mon, O., del Coz, J.J., & González, P. (2026).
+Quantification via Gaussian latent space representations.
+Neural Networks._](https://www.sciencedirect.com/science/article/pii/S0893608026003473)
+
+This model requires `torch` and `geotorch` to be installed (`geotorch` is used to keep the Gaussian
+layers' covariance matrices positive-definite during training). Like HistNetQ, GMNet is trained
+end-to-end on samples ("bags") of known prevalence rather than on individually labeled instances,
+and requires no classifier, only an optional feature extraction module.
+
+```python
+import quapy as qp
+from quapy.method.meta import GMNet
+
+dataset = qp.datasets.fetch_UCIBinaryDataset('haberman')
+
+model = GMNet(bag_size=100, device='cpu')
+model.fit(*dataset.training.Xy)
+estim_prevalence = model.predict(dataset.test.X)
+```
+
+GMNet supports stacking multiple "GM branches" (via `n_gm_layers`, `num_gaussians`, and
+`gaussian_dimensions`), optionally regularized with a CKA (Centered Kernel Alignment) term that
+encourages the branches to learn dissimilar latent representations, set through
+`cka_regularization`:
+
+```python
+model = GMNet(
+    n_gm_layers=2, num_gaussians=(4, 4), gaussian_dimensions=(8, 8),
+    cka_regularization=0.1, bag_size=100, device='cpu'
+)
+```
+
+Like HistNetQ, GMNet can alternatively be trained directly from a protocol that already provides the
+training samples, via the `fit_from_samples` method; see the API documentation for further details.
+
 
 ## Quantifiers with Uncertainty Quantification
 
