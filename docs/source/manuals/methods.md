@@ -323,6 +323,60 @@ model.fit(*train.Xy)
 estim_prevalence = model.predict(test.X)
 ```
 
+RLLS computes its importance weights directly (it implements the `ImportanceWeightQuantifier` interface); see
+the {ref}`Label Shift Adaptation manual <manuals/label-shift-adaptation:Label Shift Adaptation>` for how to
+access these weights, or use them to adapt a classifier itself rather than only estimating prevalence.
+
+### Black Box Shift Estimation (BBSE)
+
+`BBSEhard` and `BBSEsoft` are available at `qp.method.aggregative.BBSEhard` and
+`qp.method.aggregative.BBSEsoft`, respectively, and implement the Black Box Shift Estimator
+proposed in:
+
+_Lipton, Z., Wang, Y. X., & Smola, A. (2018, July). Detecting and correcting for label shift
+with black box predictors. In International conference on machine learning
+(pp. 3122-3130). PMLR._ ([link to paper](https://proceedings.mlr.press/v80/lipton18a.html))
+
+BBSE is similar in spirit to ACC and PACC in that it exploits the label-shift invariance of
+`P(hat{Y}|Y)` to correct for the change in class prevalence between the training and the test
+distributions. However, while ACC solves the linear system `q = Mp` (with `M` the matrix of
+class-conditional misclassification rates and `p` the sought prevalence vector), BBSE instead
+solves `q = Cw` for the importance-weight vector `w`, with `w_i = Q(i)/P(i)` the ratio between
+the target and the source class priors, and `C` the joint-distribution matrix
+`C_ij = P(hat{Y}=i, Y=j)` estimated on a validation split. The target prevalence estimate is
+then recovered as `Q(y) = w_y * P(y)`.
+
+`BBSEhard` estimates `C` from crisp classifier predictions (i.e., a standard confusion matrix,
+normalized to sum to 1), while `BBSEsoft` estimates it from the classifier's posterior
+probabilities instead, in the same spirit in which PACC generalizes ACC.
+
+```python
+import quapy as qp
+from quapy.method.aggregative import BBSEhard, BBSEsoft
+from sklearn.linear_model import LogisticRegression
+
+train, test = qp.datasets.fetch_UCIBinaryDataset('haberman').train_test
+
+model = BBSEhard(LogisticRegression(max_iter=2000), val_split=5)
+model.fit(*train.Xy)
+estim_prevalence = model.predict(test.X)
+
+# or, using posterior probabilities instead of crisp counts:
+model = BBSEsoft(LogisticRegression(max_iter=2000), val_split=5)
+model.fit(*train.Xy)
+estim_prevalence = model.predict(test.X)
+```
+
+As with ACC and RLLS, both variants require validation predictions and therefore expect
+`val_split` to be set whenever `fit_classifier=True`. They also accept the same `solver`
+(`"minimize"`, `"exact-raise"`, `"exact-cc"`) and `norm` (`"clip"`, `"mapsimplex"`,
+`"condsoftmax"`) arguments discussed above for ACC/PACC.
+
+Like RLLS, both `BBSEhard` and `BBSEsoft` implement the `ImportanceWeightQuantifier` interface; see the
+{ref}`Label Shift Adaptation manual <manuals/label-shift-adaptation:Label Shift Adaptation>` for how to
+access these weights directly, or use them to adapt a classifier itself rather than only estimating
+prevalence.
+
 ### Distribution Matching 
 
 Distribution Matching (DM) methods search for the mixture parameter (the sought class prevalence values)
@@ -853,7 +907,8 @@ estim_prevalence = model.predict(dataset.test.X)
 
 ### HistNetQ
 
-QuaPy offers an implementation of HistNetQ, a deep learning model based on a differentiable
+QuaPy offers an implementation of HistNetQ (based on the [original implementation](https://github.com/pglez82/histnetq)), 
+a deep learning model based on a differentiable
 histogram representation, presented in:
 
 [_Pérez-Mon, O., Moreo, A., del Coz, J.J., & González, P. (2025).
@@ -879,6 +934,47 @@ estim_prevalence = model.predict(dataset.test.X)
 HistNetQ can alternatively be trained directly from a protocol that already provides the training
 samples (e.g., when only bag-level prevalence values are available), via the `fit_from_samples`
 method; see the API documentation for further details.
+
+### GMNet
+
+QuaPy offers an implementation of GMNet (based on the [original implementation](https://github.com/AICGijon/gmnet)), 
+a deep learning model that represents each instance of a
+bag by its likelihood under one or more learned mixtures of Gaussians, presented in:
+
+[_Pérez-Mon, O., del Coz, J.J., & González, P. (2026).
+Quantification via Gaussian latent space representations.
+Neural Networks._](https://www.sciencedirect.com/science/article/pii/S0893608026003473)
+
+This model requires `torch` and `geotorch` to be installed (`geotorch` is used to keep the Gaussian
+layers' covariance matrices positive-definite during training). Like HistNetQ, GMNet is trained
+end-to-end on samples ("bags") of known prevalence rather than on individually labeled instances,
+and requires no classifier, only an optional feature extraction module.
+
+```python
+import quapy as qp
+from quapy.method.meta import GMNet
+
+dataset = qp.datasets.fetch_UCIBinaryDataset('haberman')
+
+model = GMNet(bag_size=100, device='cpu')
+model.fit(*dataset.training.Xy)
+estim_prevalence = model.predict(dataset.test.X)
+```
+
+GMNet supports stacking multiple "GM branches" (via `n_gm_layers`, `num_gaussians`, and
+`gaussian_dimensions`), optionally regularized with a CKA (Centered Kernel Alignment) term that
+encourages the branches to learn dissimilar latent representations, set through
+`cka_regularization`:
+
+```python
+model = GMNet(
+    n_gm_layers=2, num_gaussians=(4, 4), gaussian_dimensions=(8, 8),
+    cka_regularization=0.1, bag_size=100, device='cpu'
+)
+```
+
+Like HistNetQ, GMNet can alternatively be trained directly from a protocol that already provides the
+training samples, via the `fit_from_samples` method; see the API documentation for further details.
 
 
 ## Quantifiers with Uncertainty Quantification

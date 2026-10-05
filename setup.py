@@ -131,7 +131,7 @@ setup(
     # projects.
     extras_require={  # Optional
        'bayes': ['jax', 'jaxlib', 'numpyro', 'pystan', 'setuptools<82'],
-       'neural': ['torch'],
+       'neural': ['torch', 'geotorch'],
        'tests': ['certifi'],
        'docs' : ['pydata-sphinx-theme', 'myst-parser', 'sphinx-design'],
     },

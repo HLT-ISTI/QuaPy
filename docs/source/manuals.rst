@@ -7,6 +7,7 @@ Manuals
 
    manuals/datasets
    manuals/evaluation
+   manuals/label-shift-adaptation
    manuals/methods
    manuals/model-selection
    manuals/plotting
