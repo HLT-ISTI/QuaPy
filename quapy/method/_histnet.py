@@ -98,7 +98,7 @@ class _SigmoidHistogram(nn.Module):
 
 class HistNetQ(BagTrainedQuantifier):
     """
-    Implementation of `HistNetQ <https://github.com/pglez84/histnetq>`_, a neural network for
+    Implementation of `HistNetQ <https://github.com/pglez82/histnetq>`_, a neural network for
     quantification that learns a differentiable histogram-based representation of a sample, trained
     end-to-end by minimizing a quantification loss over many samples ("bags") of known prevalence.
     The method was proposed in `Pérez-Mon, O., Moreo, A., Coz, JJ del, & González, P. (2025).

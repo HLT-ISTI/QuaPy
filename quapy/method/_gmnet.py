@@ -1,7 +1,7 @@
 """
 GMNet implementation.
 
-Ported from the reference implementation at https://github.com/pglez84/gmnet (the `GMNet`/
+Ported from the reference implementation at https://github.com/AICGijon/gmnet (the `GMNet`/
 `DLQuantification` classes in that repo), adapted to QuaPy's own protocol-based sample generation
 (replacing that repo's custom, `quantificationlib`-backed bag generators), and reusing the shared
 bag-based training loop already factored out for :class:`quapy.method._histnet.HistNetQ` (see
