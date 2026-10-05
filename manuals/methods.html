@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 
@@ -8,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>3. Quantification Methods &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation</title>
+    <title>4. Quantification Methods &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.3 documentation</title>
   
   
   
@@ -27,20 +26,20 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=9f2a2228" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=000c92bf"></script>
+    <script src="../_static/documentation_options.js?v=a47416a6"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -48,8 +47,8 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4. Model Selection" href="model-selection.html" />
-    <link rel="prev" title="2. Evaluation" href="evaluation.html" />
+    <link rel="next" title="5. Model Selection" href="model-selection.html" />
+    <link rel="prev" title="3. Label Shift Adaptation" href="label-shift-adaptation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -100,7 +99,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -124,8 +123,8 @@
       
     
     
-    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation - Home"/>
-    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation - Home"/>
+    <img src="../_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.3 documentation - Home"/>
+    <img src="../_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.3 documentation - Home"/>
   
   
 </a></div>
@@ -171,7 +170,7 @@
         <div class="navbar-item navbar-persistent--container">
           
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
  <i class="fa-solid fa-magnifying-glass"></i>
  <span class="search-button__default-text">Search</span>
  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -182,15 +181,15 @@
         <div class="navbar-item">
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
     <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
     <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
     <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -216,7 +215,7 @@
   
     <div class="navbar-persistent--mobile">
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
  <i class="fa-solid fa-magnifying-glass"></i>
  <span class="search-button__default-text">Search</span>
  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -225,7 +224,7 @@
   
 
   
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
       <span class="fa-solid fa-outdent"></span>
     </button>
   
@@ -288,15 +287,15 @@
           <div class="navbar-item">
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
     <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
     <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
     <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -320,7 +319,7 @@
   </div>
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
   <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
   </svg>
@@ -335,10 +334,11 @@
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="datasets.html">1. Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">2. Evaluation</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">3. Quantification Methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model-selection.html">4. Model Selection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="plotting.html">5. Plotting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="protocols.html">6. Protocols</a></li>
+<li class="toctree-l1"><a class="reference internal" href="label-shift-adaptation.html">3. Label Shift Adaptation</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">4. Quantification Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model-selection.html">5. Model Selection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html">6. Plotting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="protocols.html">7. Protocols</a></li>
 </ul>
 </div>
 </nav></div>
@@ -382,7 +382,7 @@
     
     <li class="breadcrumb-item"><a href="../manuals.html" class="nav-link">Manuals</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">3. </span>Quantification Methods</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4. </span>Quantification Methods</span></li>
   </ul>
 </nav>
 </div>
@@ -400,7 +400,7 @@
                 <article class="bd-article">
                   
   <section id="quantification-methods">
-<h1><span class="section-number">3. </span>Quantification Methods<a class="headerlink" href="#quantification-methods" title="Link to this heading">#</a></h1>
+<h1><span class="section-number">4. </span>Quantification Methods<a class="headerlink" href="#quantification-methods" title="Link to this heading">#</a></h1>
 <p>Quantification methods can be categorized as belonging to
 <code class="docutils literal notranslate"><span class="pre">aggregative</span></code>, <code class="docutils literal notranslate"><span class="pre">non-aggregative</span></code>, and <code class="docutils literal notranslate"><span class="pre">meta-learning</span></code> groups.
 <code class="docutils literal notranslate"><span class="pre">Aggregative</span></code> quantifiers rely on a surrogate classifier as an intermediate
@@ -432,7 +432,7 @@ Quantifiers also extend from scikit-learn’s <code class="docutils literal notr
 to simplify the use of <code class="docutils literal notranslate"><span class="pre">set_params</span></code> and <code class="docutils literal notranslate"><span class="pre">get_params</span></code> used in
 <a class="reference internal" href="model-selection.html"><span class="doc std std-doc">model selection</span></a>.</p>
 <section id="aggregative-methods">
-<h2><span class="section-number">3.1. </span>Aggregative Methods<a class="headerlink" href="#aggregative-methods" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.1. </span>Aggregative Methods<a class="headerlink" href="#aggregative-methods" title="Link to this heading">#</a></h2>
 <p>All quantification methods are implemented as part of the
 <code class="docutils literal notranslate"><span class="pre">qp.method</span></code> package. In particular, <code class="docutils literal notranslate"><span class="pre">aggregative</span></code> methods are defined in
 <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative</span></code>, and extend <code class="docutils literal notranslate"><span class="pre">AggregativeQuantifier(BaseQuantifier)</span></code>.
@@ -502,7 +502,7 @@ QuaPy leverages this property to speed-up any procedure having to do with
 quantification over samples, as is customarily done in model selection or
 in evaluation.</p>
 <section id="the-classify-count-variants">
-<h3><span class="section-number">3.1.1. </span>The Classify &amp; Count variants<a class="headerlink" href="#the-classify-count-variants" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.1.1. </span>The Classify &amp; Count variants<a class="headerlink" href="#the-classify-count-variants" title="Link to this heading">#</a></h3>
 <p>QuaPy implements the four CC variants, i.e.:</p>
 <ul class="simple">
 <li><p><em>CC</em> (Classify &amp; Count), the simplest aggregative quantifier; one that
@@ -616,7 +616,7 @@ relies on <a class="reference external" href="https://gist.github.com/mblondel/6
 </ul>
 </section>
 <section id="threshold-optimization-methods">
-<h3><span class="section-number">3.1.2. </span>Threshold Optimization methods<a class="headerlink" href="#threshold-optimization-methods" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.1.2. </span>Threshold Optimization methods<a class="headerlink" href="#threshold-optimization-methods" title="Link to this heading">#</a></h3>
 <p>QuaPy implements Forman’s threshold optimization methods;
 see, e.g., <a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/1150402.1150423">(Forman 2006)</a>
 and <a class="reference external" href="https://link.springer.com/article/10.1007/s10618-008-0097-y">(Forman 2008)</a>.
@@ -627,7 +627,7 @@ The methods are called “threshold” since said heuristics have to do
 with different choices of the underlying classifier’s threshold.</p>
 </section>
 <section id="expectation-maximization-emq-maximum-likelihood-for-label-shift-mlls">
-<h3><span class="section-number">3.1.3. </span>Expectation Maximization (EMQ) / Maximum Likelihood for Label Shift (MLLS)<a class="headerlink" href="#expectation-maximization-emq-maximum-likelihood-for-label-shift-mlls" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.1.3. </span>Expectation Maximization (EMQ) / Maximum Likelihood for Label Shift (MLLS)<a class="headerlink" href="#expectation-maximization-emq-maximum-likelihood-for-label-shift-mlls" title="Link to this heading">#</a></h3>
 <p>The Expectation Maximization Quantifier (EMQ) (also known as
 SLD after the name of the proponets, or Maximum Likelihood for Label Shift, MLLS) , is available at <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.EMQ</span></code> or via the
 alias <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.ExpectationMaximizationQuantifier</span></code>.
@@ -673,7 +673,7 @@ see the <a class="reference internal" href="#bayesian-quantification-methods"><s
 for <code class="docutils literal notranslate"><span class="pre">BayesianMAPLS</span></code>.</p>
 </section>
 <section id="regularized-learning-under-label-shift-rlls">
-<h3><span class="section-number">3.1.4. </span>Regularized Learning under Label Shift (RLLS)<a class="headerlink" href="#regularized-learning-under-label-shift-rlls" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.1.4. </span>Regularized Learning under Label Shift (RLLS)<a class="headerlink" href="#regularized-learning-under-label-shift-rlls" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">RLLS</span></code> is available at <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.RLLS</span></code> and ports the regularized
 importance-weight estimation procedure of
 <a class="reference external" href="https://arxiv.org/abs/1903.09734">Azizzadenesheli, K., Liu, A., Yang, F., and Anandkumar, A. (2019). Regularized
@@ -701,9 +701,56 @@ installed separately (<code class="docutils literal notranslate"><span class="pr
 <span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>RLLS computes its importance weights directly (it implements the <code class="docutils literal notranslate"><span class="pre">ImportanceWeightQuantifier</span></code> interface); see
+the <a class="reference internal" href="label-shift-adaptation.html#label-shift-adaptation"><span class="std std-ref">Label Shift Adaptation manual</span></a> for how to
+access these weights, or use them to adapt a classifier itself rather than only estimating prevalence.</p>
+</section>
+<section id="black-box-shift-estimation-bbse">
+<h3><span class="section-number">4.1.5. </span>Black Box Shift Estimation (BBSE)<a class="headerlink" href="#black-box-shift-estimation-bbse" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">BBSEhard</span></code> and <code class="docutils literal notranslate"><span class="pre">BBSEsoft</span></code> are available at <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.BBSEhard</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.BBSEsoft</span></code>, respectively, and implement the Black Box Shift Estimator
+proposed in:</p>
+<p><em>Lipton, Z., Wang, Y. X., &amp; Smola, A. (2018, July). Detecting and correcting for label shift
+with black box predictors. In International conference on machine learning
+(pp. 3122-3130). PMLR.</em> (<a class="reference external" href="https://proceedings.mlr.press/v80/lipton18a.html">link to paper</a>)</p>
+<p>BBSE is similar in spirit to ACC and PACC in that it exploits the label-shift invariance of
+<code class="docutils literal notranslate"><span class="pre">P(hat{Y}|Y)</span></code> to correct for the change in class prevalence between the training and the test
+distributions. However, while ACC solves the linear system <code class="docutils literal notranslate"><span class="pre">q</span> <span class="pre">=</span> <span class="pre">Mp</span></code> (with <code class="docutils literal notranslate"><span class="pre">M</span></code> the matrix of
+class-conditional misclassification rates and <code class="docutils literal notranslate"><span class="pre">p</span></code> the sought prevalence vector), BBSE instead
+solves <code class="docutils literal notranslate"><span class="pre">q</span> <span class="pre">=</span> <span class="pre">Cw</span></code> for the importance-weight vector <code class="docutils literal notranslate"><span class="pre">w</span></code>, with <code class="docutils literal notranslate"><span class="pre">w_i</span> <span class="pre">=</span> <span class="pre">Q(i)/P(i)</span></code> the ratio between
+the target and the source class priors, and <code class="docutils literal notranslate"><span class="pre">C</span></code> the joint-distribution matrix
+<code class="docutils literal notranslate"><span class="pre">C_ij</span> <span class="pre">=</span> <span class="pre">P(hat{Y}=i,</span> <span class="pre">Y=j)</span></code> estimated on a validation split. The target prevalence estimate is
+then recovered as <code class="docutils literal notranslate"><span class="pre">Q(y)</span> <span class="pre">=</span> <span class="pre">w_y</span> <span class="pre">*</span> <span class="pre">P(y)</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BBSEhard</span></code> estimates <code class="docutils literal notranslate"><span class="pre">C</span></code> from crisp classifier predictions (i.e., a standard confusion matrix,
+normalized to sum to 1), while <code class="docutils literal notranslate"><span class="pre">BBSEsoft</span></code> estimates it from the classifier’s posterior
+probabilities instead, in the same spirit in which PACC generalizes ACC.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.aggregative</span><span class="w"> </span><span class="kn">import</span> <span class="n">BBSEhard</span><span class="p">,</span> <span class="n">BBSEsoft</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+
+<span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'haberman'</span><span class="p">)</span><span class="o">.</span><span class="n">train_test</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">BBSEhard</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">),</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+
+<span class="c1"># or, using posterior probabilities instead of crisp counts:</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">BBSEsoft</span><span class="p">(</span><span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">),</span> <span class="n">val_split</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">train</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As with ACC and RLLS, both variants require validation predictions and therefore expect
+<code class="docutils literal notranslate"><span class="pre">val_split</span></code> to be set whenever <code class="docutils literal notranslate"><span class="pre">fit_classifier=True</span></code>. They also accept the same <code class="docutils literal notranslate"><span class="pre">solver</span></code>
+(<code class="docutils literal notranslate"><span class="pre">&quot;minimize&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;exact-raise&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;exact-cc&quot;</span></code>) and <code class="docutils literal notranslate"><span class="pre">norm</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;clip&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;mapsimplex&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;condsoftmax&quot;</span></code>) arguments discussed above for ACC/PACC.</p>
+<p>Like RLLS, both <code class="docutils literal notranslate"><span class="pre">BBSEhard</span></code> and <code class="docutils literal notranslate"><span class="pre">BBSEsoft</span></code> implement the <code class="docutils literal notranslate"><span class="pre">ImportanceWeightQuantifier</span></code> interface; see the
+<a class="reference internal" href="label-shift-adaptation.html#label-shift-adaptation"><span class="std std-ref">Label Shift Adaptation manual</span></a> for how to
+access these weights directly, or use them to adapt a classifier itself rather than only estimating
+prevalence.</p>
 </section>
 <section id="distribution-matching">
-<h3><span class="section-number">3.1.5. </span>Distribution Matching<a class="headerlink" href="#distribution-matching" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.1.6. </span>Distribution Matching<a class="headerlink" href="#distribution-matching" title="Link to this heading">#</a></h3>
 <p>Distribution Matching (DM) methods search for the mixture parameter (the sought class prevalence values)
 yielding the mixture between the class-wise representations that best matches the test distribution.
 Different criteria for deciding how this matching is assessed, and different ways for modelling the
@@ -714,7 +761,7 @@ the formulation of DM methods is flexible enough as to accomodate methods that w
 framework; examples include ACC and PACC.</p>
 <p>See the frameworks by <a class="reference external" href="https://arxiv.org/abs/1606.00868">Firat</a>, <a class="reference external" href="https://dl.gi.de/items/5a61f30f-6c84-4165-bd92-9098bd9e91aa">Bunse</a>, <a class="reference external" href="https://dl.acm.org/doi/10.5555/3495724.3496001">Garg et al.</a>, or <a class="reference external" href="https://theses.hal.science/tel-04931123">Dussap</a>, for more details.</p>
 <section id="hellinger-distance-y-hdy">
-<h4><span class="section-number">3.1.5.1. </span>Hellinger Distance y (HDy)<a class="headerlink" href="#hellinger-distance-y-hdy" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.1.6.1. </span>Hellinger Distance y (HDy)<a class="headerlink" href="#hellinger-distance-y-hdy" title="Link to this heading">#</a></h4>
 <p>Implementation of the method based on the Hellinger Distance y (HDy) proposed by
 <a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0020025512004069">González-Castro, V., Alaiz-Rodríguez, R., and Alegre, E. (2013). Class distribution
 estimation based on the Hellinger distance. Information Sciences, 218:146-164.</a></p>
@@ -745,7 +792,7 @@ provided in QuaPy accepts only binary datasets.</p>
 </div>
 </section>
 <section id="generalized-distribution-matching-y-dmy">
-<h4><span class="section-number">3.1.5.2. </span>Generalized Distribution Matching y (DMy)<a class="headerlink" href="#generalized-distribution-matching-y-dmy" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.1.6.2. </span>Generalized Distribution Matching y (DMy)<a class="headerlink" href="#generalized-distribution-matching-y-dmy" title="Link to this heading">#</a></h4>
 <p>QuaPy also provides a generalized posterior-space distribution-matching
 quantifier for binary or multiclass problems, implemented as
 <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.DMy</span></code>. This class follows the generic distribution
@@ -769,7 +816,7 @@ obtained as:</p>
 </div>
 </section>
 <section id="dys">
-<h4><span class="section-number">3.1.5.3. </span>DyS<a class="headerlink" href="#dys" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.1.6.3. </span>DyS<a class="headerlink" href="#dys" title="Link to this heading">#</a></h4>
 <p>QuaPy implements the binary <code class="docutils literal notranslate"><span class="pre">DyS</span></code> framework proposed by
 <a class="reference external" href="https://ojs.aaai.org/index.php/AAAI/article/view/4376">Maletzke et al. (2020)</a>
 as <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.DyS</span></code>. Conceptually, <code class="docutils literal notranslate"><span class="pre">DyS</span></code> can be seen as a
@@ -779,7 +826,7 @@ histogram bins (<code class="docutils literal notranslate"><span class="pre">n_b
 tolerance (<code class="docutils literal notranslate"><span class="pre">tol</span></code>).</p>
 </section>
 <section id="energy-distance-y-edy">
-<h4><span class="section-number">3.1.5.4. </span>Energy Distance y (EDy)<a class="headerlink" href="#energy-distance-y-edy" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.1.6.4. </span>Energy Distance y (EDy)<a class="headerlink" href="#energy-distance-y-edy" title="Link to this heading">#</a></h4>
 <p>QuaPy also adapts <code class="docutils literal notranslate"><span class="pre">EDy</span></code> from <a class="reference external" href="https://github.com/AICGijon/quantificationlib">quantificationlib</a>,
 which is available as <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.EDy</span></code>.</p>
 <p>This
@@ -794,7 +841,7 @@ Because the optimization relies on <code class="docutils literal notranslate"><s
 optional dependency <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">quadprog</span></code>.</p>
 </section>
 <section id="smm">
-<h4><span class="section-number">3.1.5.5. </span>SMM<a class="headerlink" href="#smm" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.1.6.5. </span>SMM<a class="headerlink" href="#smm" title="Link to this heading">#</a></h4>
 <p>QuaPy also includes the binary <code class="docutils literal notranslate"><span class="pre">SMM</span></code> method of
 <a class="reference external" href="https://ieeexplore.ieee.org/document/9260028">Hassan et al. (2019)</a>,
 available as <code class="docutils literal notranslate"><span class="pre">qp.method.aggregative.SMM</span></code>. This is a very lightweight
@@ -803,7 +850,7 @@ to class-wise means rather than full histograms, making it conceptually close
 to PACC.</p>
 </section>
 <section id="kernel-density-estimation-methods-kdey">
-<h4><span class="section-number">3.1.5.6. </span>Kernel Density Estimation methods (KDEy)<a class="headerlink" href="#kernel-density-estimation-methods-kdey" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.1.6.6. </span>Kernel Density Estimation methods (KDEy)<a class="headerlink" href="#kernel-density-estimation-methods-kdey" title="Link to this heading">#</a></h4>
 <p>QuaPy provides implementations for the three variants
 of KDE-based methods proposed in
 <em><a class="reference external" href="https://link.springer.com/article/10.1007/s10994-024-06726-5">Moreo, A., González, P. and del Coz, J.J..
@@ -827,7 +874,7 @@ for <code class="docutils literal notranslate"><span class="pre">BayesianKDEy</s
 </section>
 </section>
 <section id="explicit-loss-minimization">
-<h3><span class="section-number">3.1.6. </span>Explicit Loss Minimization<a class="headerlink" href="#explicit-loss-minimization" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.1.7. </span>Explicit Loss Minimization<a class="headerlink" href="#explicit-loss-minimization" title="Link to this heading">#</a></h3>
 <p>The Explicit Loss Minimization (ELM) represent a family of methods
 based on structured output learning, i.e., quantifiers relying on
 classifiers that have been optimized targeting a
@@ -852,7 +899,7 @@ ACM Transactions on Knowledge Discovery and Data, 9(4):Article 27.</em></a></p><
 QuaPy in order to make available ELM variants for what nowadays
 are considered the most well-behaved evaluation metrics in quantification.</p>
 <section id="installing-the-svmperf-backend">
-<h4><span class="section-number">3.1.6.1. </span>Installing the SVMperf backend<a class="headerlink" href="#installing-the-svmperf-backend" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.1.7.1. </span>Installing the SVMperf backend<a class="headerlink" href="#installing-the-svmperf-backend" title="Link to this heading">#</a></h4>
 <p>These methods rely on Joachim’s <a class="reference external" href="https://www.cs.cornell.edu/people/tj/svm_light/svm_perf.html">SVMperf</a>,
 patched with quantification-oriented losses. QuaPy provides the script
 <a class="reference external" href="https://github.com/HLT-ISTI/QuaPy/blob/master/prepare_svmperf.sh"><code class="docutils literal notranslate"><span class="pre">prepare_svmperf.sh</span></code></a>,
@@ -881,13 +928,13 @@ for minimal working code.</p>
 </section>
 </section>
 <section id="non-aggregative-methods">
-<h2><span class="section-number">3.2. </span>Non-Aggregative Methods<a class="headerlink" href="#non-aggregative-methods" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.2. </span>Non-Aggregative Methods<a class="headerlink" href="#non-aggregative-methods" title="Link to this heading">#</a></h2>
 <p>Non-aggregative methods are quantifiers that do not follow the two-step
 (classify, then aggregate) pattern described above for aggregative methods.
 These methods are implemented in the <code class="docutils literal notranslate"><span class="pre">qp.method.non_aggregative</span></code> module and
 extend <code class="docutils literal notranslate"><span class="pre">BaseQuantifier</span></code> directly, implementing <code class="docutils literal notranslate"><span class="pre">fit</span></code> and <code class="docutils literal notranslate"><span class="pre">predict</span></code> on their own terms.</p>
 <section id="maximum-likelihood-prevalence-estimation-mlpe">
-<h3><span class="section-number">3.2.1. </span>Maximum Likelihood Prevalence Estimation (MLPE)<a class="headerlink" href="#maximum-likelihood-prevalence-estimation-mlpe" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.2.1. </span>Maximum Likelihood Prevalence Estimation (MLPE)<a class="headerlink" href="#maximum-likelihood-prevalence-estimation-mlpe" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">MaximumLikelihoodPrevalenceEstimation</span></code> (MLPE) is a lazy baseline quantifier
 that assumes the IID assumption holds, i.e., that there is no prior probability
 shift between the training and the test distributions. Its <code class="docutils literal notranslate"><span class="pre">fit</span></code> method simply
@@ -908,7 +955,7 @@ worth using should outperform it.</p>
 </div>
 </section>
 <section id="distribution-matching-x-dmx-and-hellinger-distance-x-hdx">
-<h3><span class="section-number">3.2.2. </span>Distribution Matching x (DMx) and Hellinger Distance x (HDx)<a class="headerlink" href="#distribution-matching-x-dmx-and-hellinger-distance-x-hdx" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.2.2. </span>Distribution Matching x (DMx) and Hellinger Distance x (HDx)<a class="headerlink" href="#distribution-matching-x-dmx-and-hellinger-distance-x-hdx" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">DMx</span></code> is the covariate-space counterpart of the <code class="docutils literal notranslate"><span class="pre">DMy</span></code> distribution-matching
 quantifier described in <a class="reference internal" href="#hellinger-distance-y-hdy"><span class="std std-ref">the Hellinger Distance y (HDy) section</span></a>:
 instead of matching distributions built from the classifier’s predictions, <code class="docutils literal notranslate"><span class="pre">DMx</span></code> matches
@@ -961,7 +1008,7 @@ the <code class="docutils literal notranslate"><span class="pre">optim_minimize<
 operates directly on the covariates.</p>
 </section>
 <section id="energy-distance-x-edx">
-<h3><span class="section-number">3.2.3. </span>Energy Distance x (EDx)<a class="headerlink" href="#energy-distance-x-edx" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.2.3. </span>Energy Distance x (EDx)<a class="headerlink" href="#energy-distance-x-edx" title="Link to this heading">#</a></h3>
 <p>QuaPy also provides <code class="docutils literal notranslate"><span class="pre">qp.method.non_aggregative.EDx</span></code>, which is the
 feature-space counterpart of <code class="docutils literal notranslate"><span class="pre">EDy</span></code>: it keeps the same energy-distance
 formulation and quadratic-program solver, but applies them directly to the raw
@@ -972,7 +1019,7 @@ options as <code class="docutils literal notranslate"><span class="pre">EDy</spa
 requires the optional dependency <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">quadprog</span></code>.</p>
 </section>
 <section id="readme">
-<h3><span class="section-number">3.2.4. </span>ReadMe<a class="headerlink" href="#readme" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.2.4. </span>ReadMe<a class="headerlink" href="#readme" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ReadMe</span></code> is a non-aggregative quantification method proposed by
 <a class="reference external" href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-5907.2009.00428.x">Hopkins, D. and King, G. (2007). A method of automated nonparametric content
 analysis for social science. American Journal of Political Science,
@@ -1044,12 +1091,12 @@ solving a least-squares problem.</p>
 </section>
 </section>
 <section id="composable-methods">
-<h2><span class="section-number">3.3. </span>Composable Methods<a class="headerlink" href="#composable-methods" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.3. </span>Composable Methods<a class="headerlink" href="#composable-methods" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">quapy.method.composable</span></code> module integrates <a class="reference external" href="https://github.com/mirkobunse/qunfold">qunfold</a> allows the composition
 of quantification methods from loss functions and feature transformations (thanks to Mirko Bunse for the integration!).</p>
 <p>Any composed method solves a linear system of equations by minimizing the loss after transforming the data. Methods of this kind include ACC, PACC, HDx, HDy, and many other well-known methods, as well as an unlimited number of re-combinations of their building blocks.</p>
 <section id="installation">
-<h3><span class="section-number">3.3.1. </span>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.3.1. </span>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h3>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>pip<span class="w"> </span>setuptools<span class="w"> </span>wheel
 pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"jax[cpu]"</span>
 pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"qunfold @ git+https://github.com/mirkobunse/qunfold@v0.1.5"</span>
@@ -1058,7 +1105,7 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"qunf
 <p><strong>Note:</strong> since version 0.2.0, QuaPy is only compatible with qunfold &gt;=0.1.5.</p>
 </section>
 <section id="basics">
-<h3><span class="section-number">3.3.2. </span>Basics<a class="headerlink" href="#basics" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.3.2. </span>Basics<a class="headerlink" href="#basics" title="Link to this heading">#</a></h3>
 <p>The composition of a method is implemented through the <a class="reference internal" href="../quapy.method.html#quapy.method.composable.ComposableQuantifier" title="quapy.method.composable.ComposableQuantifier"><code class="xref myst py py-func docutils literal notranslate"><span class="pre">quapy.method.composable.ComposableQuantifier</span></code></a> class. Its documentation also features an example to get you started in composing your own methods.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.composable</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ComposableQuantifier</span><span class="p">,</span>
@@ -1077,7 +1124,7 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"qunf
 <p>To implement your own loss functions and feature representations, follow the corresponding manual of the <a class="reference external" href="https://github.com/mirkobunse/qunfold">qunfold package</a>, which provides the back-end of QuaPy’s composable module.</p>
 </section>
 <section id="loss-functions">
-<h3><span class="section-number">3.3.3. </span>Loss functions<a class="headerlink" href="#loss-functions" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.3.3. </span>Loss functions<a class="headerlink" href="#loss-functions" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.LeastSquaresLoss" title="quapy.method.composable.LeastSquaresLoss"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.LeastSquaresLoss</span></code></a></p></li>
 <li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.EnergyLoss" title="quapy.method.composable.EnergyLoss"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.EnergyLoss</span></code></a></p></li>
@@ -1091,14 +1138,14 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"qunf
 </div>
 </section>
 <section id="regularization-functions">
-<h3><span class="section-number">3.3.4. </span>Regularization functions<a class="headerlink" href="#regularization-functions" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.3.4. </span>Regularization functions<a class="headerlink" href="#regularization-functions" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.TikhonovRegularized" title="quapy.method.composable.TikhonovRegularized"><code class="xref myst py py-func docutils literal notranslate"><span class="pre">quapy.method.composable.TikhonovRegularized</span></code></a></p></li>
 <li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.TikhonovRegularization" title="quapy.method.composable.TikhonovRegularization"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.TikhonovRegularization</span></code></a></p></li>
 </ul>
 </section>
 <section id="feature-transformations">
-<h3><span class="section-number">3.3.5. </span>Feature transformations<a class="headerlink" href="#feature-transformations" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.3.5. </span>Feature transformations<a class="headerlink" href="#feature-transformations" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.ClassRepresentation" title="quapy.method.composable.ClassRepresentation"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.ClassRepresentation</span></code></a></p></li>
 <li><p><a class="reference internal" href="../quapy.method.html#quapy.method.composable.DistanceRepresentation" title="quapy.method.composable.DistanceRepresentation"><code class="xref myst py py-class docutils literal notranslate"><span class="pre">quapy.method.composable.DistanceRepresentation</span></code></a></p></li>
@@ -1115,14 +1162,14 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"qunf
 </section>
 </section>
 <section id="meta-models">
-<h2><span class="section-number">3.4. </span>Meta Models<a class="headerlink" href="#meta-models" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.4. </span>Meta Models<a class="headerlink" href="#meta-models" title="Link to this heading">#</a></h2>
 <p>By <em>meta</em> models we mean quantification methods that are defined on top of other
 quantification methods, and that thus do not squarely belong to the aggregative nor
 the non-aggregative group (indeed, <em>meta</em> models could use quantifiers from any of those
 groups).
 <em>Meta</em> models are implemented in the <code class="docutils literal notranslate"><span class="pre">qp.method.meta</span></code> module.</p>
 <section id="ensembles">
-<h3><span class="section-number">3.4.1. </span>Ensembles<a class="headerlink" href="#ensembles" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.4.1. </span>Ensembles<a class="headerlink" href="#ensembles" title="Link to this heading">#</a></h3>
 <p>QuaPy implements (some of) the variants proposed in:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S1566253516300628"><em>Pérez-Gállego, P., Quevedo, J. R., &amp; del Coz, J. J. (2017).
@@ -1161,7 +1208,7 @@ informs of the number of members to retain.</p>
 <p>Please, check the <a class="reference internal" href="model-selection.html"><span class="doc std std-doc">model selection manual</span></a> if you want to optimize the hyperparameters of ensemble for classification or quantification.</p>
 </section>
 <section id="the-quanet-neural-network">
-<h3><span class="section-number">3.4.2. </span>The QuaNet neural network<a class="headerlink" href="#the-quanet-neural-network" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.4.2. </span>The QuaNet neural network<a class="headerlink" href="#the-quanet-neural-network" title="Link to this heading">#</a></h3>
 <p>QuaPy offers an implementation of QuaNet, a deep learning model presented in:</p>
 <p><a class="reference external" href="https://dl.acm.org/doi/abs/10.1145/3269206.3269287"><em>Esuli, A., Moreo, A., &amp; Sebastiani, F. (2018, October).
 A recurrent neural network for sentiment quantification.
@@ -1195,8 +1242,9 @@ In the following example, we show an instantiation of QuaNet that instead uses C
 </div>
 </section>
 <section id="histnetq">
-<h3><span class="section-number">3.4.3. </span>HistNetQ<a class="headerlink" href="#histnetq" title="Link to this heading">#</a></h3>
-<p>QuaPy offers an implementation of HistNetQ, a deep learning model based on a differentiable
+<h3><span class="section-number">4.4.3. </span>HistNetQ<a class="headerlink" href="#histnetq" title="Link to this heading">#</a></h3>
+<p>QuaPy offers an implementation of HistNetQ (based on the <a class="reference external" href="https://github.com/pglez82/histnetq">original implementation</a>),
+a deep learning model based on a differentiable
 histogram representation, presented in:</p>
 <p><a class="reference external" href="https://doi.org/10.1007/s00521-024-10721-1"><em>Pérez-Mon, O., Moreo, A., del Coz, J.J., &amp; González, P. (2025).
 Quantification using permutation-invariant networks based on histograms.
@@ -1219,9 +1267,44 @@ module is used by default, for already-vectorized data).</p>
 samples (e.g., when only bag-level prevalence values are available), via the <code class="docutils literal notranslate"><span class="pre">fit_from_samples</span></code>
 method; see the API documentation for further details.</p>
 </section>
+<section id="gmnet">
+<h3><span class="section-number">4.4.4. </span>GMNet<a class="headerlink" href="#gmnet" title="Link to this heading">#</a></h3>
+<p>QuaPy offers an implementation of GMNet (based on the <a class="reference external" href="https://github.com/AICGijon/gmnet">original implementation</a>),
+a deep learning model that represents each instance of a
+bag by its likelihood under one or more learned mixtures of Gaussians, presented in:</p>
+<p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0893608026003473"><em>Pérez-Mon, O., del Coz, J.J., &amp; González, P. (2026).
+Quantification via Gaussian latent space representations.
+Neural Networks.</em></a></p>
+<p>This model requires <code class="docutils literal notranslate"><span class="pre">torch</span></code> and <code class="docutils literal notranslate"><span class="pre">geotorch</span></code> to be installed (<code class="docutils literal notranslate"><span class="pre">geotorch</span></code> is used to keep the Gaussian
+layers’ covariance matrices positive-definite during training). Like HistNetQ, GMNet is trained
+end-to-end on samples (“bags”) of known prevalence rather than on individually labeled instances,
+and requires no classifier, only an optional feature extraction module.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">quapy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">qp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">quapy.method.meta</span><span class="w"> </span><span class="kn">import</span> <span class="n">GMNet</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">qp</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">fetch_UCIBinaryDataset</span><span class="p">(</span><span class="s1">'haberman'</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">GMNet</span><span class="p">(</span><span class="n">bag_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cpu'</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="o">*</span><span class="n">dataset</span><span class="o">.</span><span class="n">training</span><span class="o">.</span><span class="n">Xy</span><span class="p">)</span>
+<span class="n">estim_prevalence</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>GMNet supports stacking multiple “GM branches” (via <code class="docutils literal notranslate"><span class="pre">n_gm_layers</span></code>, <code class="docutils literal notranslate"><span class="pre">num_gaussians</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">gaussian_dimensions</span></code>), optionally regularized with a CKA (Centered Kernel Alignment) term that
+encourages the branches to learn dissimilar latent representations, set through
+<code class="docutils literal notranslate"><span class="pre">cka_regularization</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">GMNet</span><span class="p">(</span>
+    <span class="n">n_gm_layers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">num_gaussians</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">gaussian_dimensions</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="n">cka_regularization</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">bag_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cpu'</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Like HistNetQ, GMNet can alternatively be trained directly from a protocol that already provides the
+training samples, via the <code class="docutils literal notranslate"><span class="pre">fit_from_samples</span></code> method; see the API documentation for further details.</p>
+</section>
 </section>
 <section id="quantifiers-with-uncertainty-quantification">
-<h2><span class="section-number">3.5. </span>Quantifiers with Uncertainty Quantification<a class="headerlink" href="#quantifiers-with-uncertainty-quantification" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.5. </span>Quantifiers with Uncertainty Quantification<a class="headerlink" href="#quantifiers-with-uncertainty-quantification" title="Link to this heading">#</a></h2>
 <p><em>(New in v0.2.0!)</em> Some quantification methods go beyond providing a single point estimate of class prevalence values and also produce confidence regions, which characterize the uncertainty around the point estimate. In QuaPy, two such families are currently implemented: bootstrap methods and Bayesian methods.</p>
 <p>Confidence regions are constructed around a point estimate, which is typically computed as the mean value of a set of samples.</p>
 <p>The confidence region can be instantiated in four ways:</p>
@@ -1236,7 +1319,7 @@ transform the components into an unconstrained space (the CLR), and then constru
 (<em>method=”ellipse-ilr”</em>).</p></li>
 </ul>
 <section id="aggregative-bootstrap">
-<h3><span class="section-number">3.5.1. </span>Aggregative Bootstrap<a class="headerlink" href="#aggregative-bootstrap" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.5.1. </span>Aggregative Bootstrap<a class="headerlink" href="#aggregative-bootstrap" title="Link to this heading">#</a></h3>
 <p>The Aggregative Bootstrap method extends any aggregative quantifier by generating confidence regions for class prevalence estimates through bootstrapping. The method is described in the paper <a class="reference external" href="https://lq-2025.github.io/proceedings/CompleteVolume.pdf">Moreo, A., Salvati, N.
 An Efficient Method for Deriving Confidence Intervals in Aggregative Quantification.
 Learning to Quantify: Methods and Applications (LQ 2025), co-located at ECML-PKDD 2025.
@@ -1267,7 +1350,7 @@ During inference, bootstrap is applied over pre-classified test instances.</p>
 the speedup procedure described above is not applied.</p>
 </section>
 <section id="bayesian-quantification-methods">
-<h3><span class="section-number">3.5.2. </span>Bayesian Quantification Methods<a class="headerlink" href="#bayesian-quantification-methods" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.5.2. </span>Bayesian Quantification Methods<a class="headerlink" href="#bayesian-quantification-methods" title="Link to this heading">#</a></h3>
 <p>QuaPy also provides a number of Bayesian quantifiers. While these methods are
 usually related to an existing point-estimation family (e.g., ACC, EMQ/MLLS,
 HDy, or KDEy), they differ enough in their goals and outputs to deserve a
@@ -1280,7 +1363,7 @@ inference dependencies.</p>
 </pre></div>
 </div>
 <section id="bayesiancc-a-bayesian-implementation-of-acc">
-<h4><span class="section-number">3.5.2.1. </span>BayesianCC (a Bayesian implementation of ACC)<a class="headerlink" href="#bayesiancc-a-bayesian-implementation-of-acc" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.5.2.1. </span>BayesianCC (a Bayesian implementation of ACC)<a class="headerlink" href="#bayesiancc-a-bayesian-implementation-of-acc" title="Link to this heading">#</a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">BayesianCC</span></code> is a variant of ACC introduced in
 <a class="reference external" href="https://arxiv.org/abs/2302.09159">Ziegler, A. and Czyż, P. “Bayesian quantification with black-box estimators”, arXiv (2023)</a>,
 which models the probabilities <code class="docutils literal notranslate"><span class="pre">q</span> <span class="pre">=</span> <span class="pre">Mp</span></code> using latent random variables with weak Bayesian priors, rather than
@@ -1293,7 +1376,7 @@ and is suitable for problems in which the <code class="docutils literal notransl
 An example presenting how to run the method and use posterior samples is available in <code class="docutils literal notranslate"><span class="pre">examples/bayesian_quantification.py</span></code>.</p>
 </section>
 <section id="bayesianmapls-a-bayesian-implementation-of-emq-mlls">
-<h4><span class="section-number">3.5.2.2. </span>BayesianMAPLS (a Bayesian implementation of EMQ/MLLS)<a class="headerlink" href="#bayesianmapls-a-bayesian-implementation-of-emq-mlls" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.5.2.2. </span>BayesianMAPLS (a Bayesian implementation of EMQ/MLLS)<a class="headerlink" href="#bayesianmapls-a-bayesian-implementation-of-emq-mlls" title="Link to this heading">#</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">BayesianMAPLS</span></code> is a Bayesian variant of EMQ/MLLS proposed by
 Ye, C. et al. (2024). Label shift estimation for class-imbalance problem: A
 Bayesian approach. Proceedings of the IEEE/CVF Winter Conference on
@@ -1327,7 +1410,7 @@ data-dependent priors (“map”/”map2”) proposed in the original paper.</p>
 </div>
 </section>
 <section id="pq-precise-quantifier-a-bayesian-implementation-of-hdy">
-<h4><span class="section-number">3.5.2.3. </span>PQ: Precise Quantifier (a Bayesian implementation of HDy)<a class="headerlink" href="#pq-precise-quantifier-a-bayesian-implementation-of-hdy" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.5.2.3. </span>PQ: Precise Quantifier (a Bayesian implementation of HDy)<a class="headerlink" href="#pq-precise-quantifier-a-bayesian-implementation-of-hdy" title="Link to this heading">#</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">PQ</span></code> (Precise Quantifier), available at <code class="docutils literal notranslate"><span class="pre">qp.method.confidence.PQ</span></code>, is a
 Bayesian distribution-matching variant of <code class="docutils literal notranslate"><span class="pre">HDy</span></code> proposed in
 <a class="reference external" href="https://arxiv.org/abs/2507.06061">Igiraneza, A.B., Fraser, C., and Hinch, R. (2025). Estimating prevalence
@@ -1357,7 +1440,7 @@ dependency, installed via <code class="docutils literal notranslate"><span class
 </div>
 </section>
 <section id="bayesiankdey-a-bayesian-implementation-of-kdeyml">
-<h4><span class="section-number">3.5.2.4. </span>BayesianKDEy (a Bayesian implementation of KDEyML)<a class="headerlink" href="#bayesiankdey-a-bayesian-implementation-of-kdeyml" title="Link to this heading">#</a></h4>
+<h4><span class="section-number">4.5.2.4. </span>BayesianKDEy (a Bayesian implementation of KDEyML)<a class="headerlink" href="#bayesiankdey-a-bayesian-implementation-of-kdeyml" title="Link to this heading">#</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">BayesianKDEy</span></code>, available at <code class="docutils literal notranslate"><span class="pre">qp.method._bayesian.BayesianKDEy</span></code>, is a Bayesian
 version of KDEy proposed by <a class="reference external" href="https://arxiv.org/abs/2607.04977">Moreo et al. 2026</a>.
 Instead of solving for the single prevalence vector that
@@ -1403,12 +1486,12 @@ the optional MCMC dependencies, installed via
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="evaluation.html"
+       href="label-shift-adaptation.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">2. </span>Evaluation</p>
+        <p class="prev-next-title"><span class="section-number">3. </span>Label Shift Adaptation</p>
       </div>
     </a>
     <a class="right-next"
@@ -1416,7 +1499,7 @@ the optional MCMC dependencies, installed via
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">4. </span>Model Selection</p>
+        <p class="prev-next-title"><span class="section-number">5. </span>Model Selection</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1439,54 +1522,56 @@ the optional MCMC dependencies, installed via
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregative-methods">3.1. Aggregative Methods</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-classify-count-variants">3.1.1. The Classify &amp; Count variants</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#threshold-optimization-methods">3.1.2. Threshold Optimization methods</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expectation-maximization-emq-maximum-likelihood-for-label-shift-mlls">3.1.3. Expectation Maximization (EMQ) / Maximum Likelihood for Label Shift (MLLS)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regularized-learning-under-label-shift-rlls">3.1.4. Regularized Learning under Label Shift (RLLS)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distribution-matching">3.1.5. Distribution Matching</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hellinger-distance-y-hdy">3.1.5.1. Hellinger Distance y (HDy)</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#generalized-distribution-matching-y-dmy">3.1.5.2. Generalized Distribution Matching y (DMy)</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dys">3.1.5.3. DyS</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#energy-distance-y-edy">3.1.5.4. Energy Distance y (EDy)</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#smm">3.1.5.5. SMM</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#kernel-density-estimation-methods-kdey">3.1.5.6. Kernel Density Estimation methods (KDEy)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregative-methods">4.1. Aggregative Methods</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-classify-count-variants">4.1.1. The Classify &amp; Count variants</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#threshold-optimization-methods">4.1.2. Threshold Optimization methods</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expectation-maximization-emq-maximum-likelihood-for-label-shift-mlls">4.1.3. Expectation Maximization (EMQ) / Maximum Likelihood for Label Shift (MLLS)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regularized-learning-under-label-shift-rlls">4.1.4. Regularized Learning under Label Shift (RLLS)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#black-box-shift-estimation-bbse">4.1.5. Black Box Shift Estimation (BBSE)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distribution-matching">4.1.6. Distribution Matching</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hellinger-distance-y-hdy">4.1.6.1. Hellinger Distance y (HDy)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#generalized-distribution-matching-y-dmy">4.1.6.2. Generalized Distribution Matching y (DMy)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dys">4.1.6.3. DyS</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#energy-distance-y-edy">4.1.6.4. Energy Distance y (EDy)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#smm">4.1.6.5. SMM</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#kernel-density-estimation-methods-kdey">4.1.6.6. Kernel Density Estimation methods (KDEy)</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#explicit-loss-minimization">3.1.6. Explicit Loss Minimization</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-the-svmperf-backend">3.1.6.1. Installing the SVMperf backend</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#explicit-loss-minimization">4.1.7. Explicit Loss Minimization</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-the-svmperf-backend">4.1.7.1. Installing the SVMperf backend</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-aggregative-methods">3.2. Non-Aggregative Methods</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maximum-likelihood-prevalence-estimation-mlpe">3.2.1. Maximum Likelihood Prevalence Estimation (MLPE)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distribution-matching-x-dmx-and-hellinger-distance-x-hdx">3.2.2. Distribution Matching x (DMx) and Hellinger Distance x (HDx)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#energy-distance-x-edx">3.2.3. Energy Distance x (EDx)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#readme">3.2.4. ReadMe</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#non-aggregative-methods">4.2. Non-Aggregative Methods</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#maximum-likelihood-prevalence-estimation-mlpe">4.2.1. Maximum Likelihood Prevalence Estimation (MLPE)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distribution-matching-x-dmx-and-hellinger-distance-x-hdx">4.2.2. Distribution Matching x (DMx) and Hellinger Distance x (HDx)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#energy-distance-x-edx">4.2.3. Energy Distance x (EDx)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#readme">4.2.4. ReadMe</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#composable-methods">3.3. Composable Methods</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">3.3.1. Installation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basics">3.3.2. Basics</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loss-functions">3.3.3. Loss functions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regularization-functions">3.3.4. Regularization functions</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-transformations">3.3.5. Feature transformations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#composable-methods">4.3. Composable Methods</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">4.3.1. Installation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basics">4.3.2. Basics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loss-functions">4.3.3. Loss functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regularization-functions">4.3.4. Regularization functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-transformations">4.3.5. Feature transformations</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#meta-models">3.4. Meta Models</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ensembles">3.4.1. Ensembles</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-quanet-neural-network">3.4.2. The QuaNet neural network</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#histnetq">3.4.3. HistNetQ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#meta-models">4.4. Meta Models</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ensembles">4.4.1. Ensembles</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-quanet-neural-network">4.4.2. The QuaNet neural network</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#histnetq">4.4.3. HistNetQ</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gmnet">4.4.4. GMNet</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quantifiers-with-uncertainty-quantification">3.5. Quantifiers with Uncertainty Quantification</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregative-bootstrap">3.5.1. Aggregative Bootstrap</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesian-quantification-methods">3.5.2. Bayesian Quantification Methods</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesiancc-a-bayesian-implementation-of-acc">3.5.2.1. BayesianCC (a Bayesian implementation of ACC)</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesianmapls-a-bayesian-implementation-of-emq-mlls">3.5.2.2. BayesianMAPLS (a Bayesian implementation of EMQ/MLLS)</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pq-precise-quantifier-a-bayesian-implementation-of-hdy">3.5.2.3. PQ: Precise Quantifier (a Bayesian implementation of HDy)</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesiankdey-a-bayesian-implementation-of-kdeyml">3.5.2.4. BayesianKDEy (a Bayesian implementation of KDEyML)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quantifiers-with-uncertainty-quantification">4.5. Quantifiers with Uncertainty Quantification</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregative-bootstrap">4.5.1. Aggregative Bootstrap</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesian-quantification-methods">4.5.2. Bayesian Quantification Methods</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesiancc-a-bayesian-implementation-of-acc">4.5.2.1. BayesianCC (a Bayesian implementation of ACC)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesianmapls-a-bayesian-implementation-of-emq-mlls">4.5.2.2. BayesianMAPLS (a Bayesian implementation of EMQ/MLLS)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pq-precise-quantifier-a-bayesian-implementation-of-hdy">4.5.2.3. PQ: Precise Quantifier (a Bayesian implementation of HDy)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesiankdey-a-bayesian-implementation-of-kdeyml">4.5.2.4. BayesianKDEy (a Bayesian implementation of KDEyML)</a></li>
 </ul>
 </li>
 </ul>
@@ -1516,8 +1601,8 @@ the optional MCMC dependencies, installed via
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1538,7 +1623,6 @@ the optional MCMC dependencies, installed via
 
   <p class="sphinx-version">
     Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
-    <br/>
   </p>
 </div>
       
@@ -1551,7 +1635,7 @@ the optional MCMC dependencies, installed via
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
 </p></div>
       
     </div>

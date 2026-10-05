@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 
@@ -8,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>quapy.classification package &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation</title>
+    <title>quapy.classification package &#8212; QuaPy: A Python-based open-source framework for quantification 0.2.3 documentation</title>
   
   
   
@@ -27,23 +26,24 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=9f2a2228" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="_static/documentation_options.js?v=000c92bf"></script>
+    <script src="_static/documentation_options.js?v=a47416a6"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'quapy.classification';</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -100,7 +100,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -124,8 +124,8 @@
       
     
     
-    <img src="_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation - Home"/>
-    <img src="_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.2 documentation - Home"/>
+    <img src="_static/quapy_logo.png" class="logo__image only-light" alt="QuaPy: A Python-based open-source framework for quantification 0.2.3 documentation - Home"/>
+    <img src="_static/quapy_logo_dark.png" class="logo__image only-dark pst-js-only" alt="QuaPy: A Python-based open-source framework for quantification 0.2.3 documentation - Home"/>
   
   
 </a></div>
@@ -171,7 +171,7 @@
         <div class="navbar-item navbar-persistent--container">
           
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
  <i class="fa-solid fa-magnifying-glass"></i>
  <span class="search-button__default-text">Search</span>
  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -182,15 +182,15 @@
         <div class="navbar-item">
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
     <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
     <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
     <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -216,7 +216,7 @@
   
     <div class="navbar-persistent--mobile">
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
  <i class="fa-solid fa-magnifying-glass"></i>
  <span class="search-button__default-text">Search</span>
  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -225,7 +225,7 @@
   
 
   
-    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
       <span class="fa-solid fa-outdent"></span>
     </button>
   
@@ -288,15 +288,15 @@
           <div class="navbar-item">
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
-  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
     <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
     <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
     <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -320,7 +320,7 @@
   </div>
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
   <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
   </svg>
@@ -333,7 +333,7 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">quapy.classification package</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">quapy.classification package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quapy.data.html">quapy.data package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quapy.method.html">quapy.method package</a></li>
 </ul>
@@ -692,6 +692,126 @@ training set afterwards. Default value is 5.</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+</section>
+<section id="module-quapy.classification.labelshift">
+<span id="quapy-classification-labelshift-module"></span><h2>quapy.classification.labelshift module<a class="headerlink" href="#module-quapy.classification.labelshift" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="quapy.classification.labelshift.LabelShiftedClassifier">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">quapy.classification.labelshift.</span></span><span class="sig-name descname"><span class="pre">LabelShiftedClassifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">classifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/labelshift.html#LabelShiftedClassifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.labelshift.LabelShiftedClassifier" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html#sklearn.base.BaseEstimator" title="(in scikit-learn v1.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimator</span></code></a></p>
+<p>Adapts a classifier to a shifted (unlabelled) target distribution by means of a <cite>quapy</cite> quantifier.</p>
+<p>Given a base classifier <cite>h</cite> and a quantifier <cite>q</cite>, this wrapper: (i) at <cite>fit</cite> time, fits <cite>q</cite> on the labelled
+training data and keeps a copy of this data; (ii) at prediction time, for a given batch of (unlabelled)
+target instances, estimates the importance weights <span class="math notranslate nohighlight">\(w_y=Q(y)/P(y)\)</span> that would explain the shift
+between the training distribution and the target one (directly, if <cite>q</cite> is an
+<a class="reference internal" href="quapy.method.html#quapy.method.aggregative.ImportanceWeightQuantifier" title="quapy.method.aggregative.ImportanceWeightQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ImportanceWeightQuantifier</span></code></a>, or otherwise by dividing <cite>q</cite>’s prevalence
+estimate by the training prevalence); and (iii) retrains a fresh copy of <cite>h</cite>, reweighted according to <cite>w</cite>
+via <cite>class_weight</cite>, on the original training data, before delegating the classification of the target
+instances to this adapted classifier.</p>
+<p>Note that a fresh copy of <cite>h</cite> is retrained for every batch of target instances passed to <cite>predict</cite>,
+<cite>predict_proba</cite>, or <cite>get_classifier</cite>, since the adaptation is specific to that batch’s estimated shift; <cite>q</cite>
+and its own internal classifier (if any) are otherwise left untouched. <cite>h</cite> itself is required to accept a
+<cite>class_weight</cite> parameter in its constructor (e.g., <cite>sklearn.linear_model.LogisticRegression</cite>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>classifier</strong> – a scikit-learn classifier that accepts a <cite>class_weight</cite> parameter in its constructor</p></li>
+<li><p><strong>quantifier</strong> – a <cite>quapy</cite> quantifier, used to estimate the target prevalence (or, if it is an
+<a class="reference internal" href="quapy.method.html#quapy.method.aggregative.ImportanceWeightQuantifier" title="quapy.method.aggregative.ImportanceWeightQuantifier"><code class="xref py py-class docutils literal notranslate"><span class="pre">quapy.method.aggregative.ImportanceWeightQuantifier</span></code></a>, the importance weights directly)</p></li>
+<li><p><strong>weight_epsilon</strong> – float, a small positive floor applied to the estimated importance weights (default
+1e-4), so that a class with training support is never assigned a <cite>class_weight</cite> of exactly 0 (which
+would silently drop it from the retraining loss)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.classification.labelshift.LabelShiftedClassifier.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/labelshift.html#LabelShiftedClassifier.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.labelshift.LabelShiftedClassifier.fit" title="Link to this definition">#</a></dt>
+<dd><p>Fits the internal quantifier on the training data, and stores the training data for the subsequent,
+per-target-batch, classifier adaptation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> – array-like of shape <cite>(n_samples, n_features)</cite> with the training instances</p></li>
+<li><p><strong>y</strong> – array-like of shape <cite>(n_samples,)</cite> with the class labels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.classification.labelshift.LabelShiftedClassifier.get_classifier">
+<span class="sig-name descname"><span class="pre">get_classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/labelshift.html#LabelShiftedClassifier.get_classifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.labelshift.LabelShiftedClassifier.get_classifier" title="Link to this definition">#</a></dt>
+<dd><p>Returns a fresh classifier instance, sharing <cite>classifier</cite>’s hyperparameters, retrained on the original
+training data with <cite>class_weight</cite> set according to the importance weights estimated for the given
+target instances. The classifier passed at construction time, and the one used internally by the
+quantifier, are left untouched.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> – array-like of shape <cite>(n_samples, n_features)</cite> with the (unlabelled) target instances</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a fitted scikit-learn classifier</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.classification.labelshift.LabelShiftedClassifier.get_importance_weights">
+<span class="sig-name descname"><span class="pre">get_importance_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/labelshift.html#LabelShiftedClassifier.get_importance_weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.labelshift.LabelShiftedClassifier.get_importance_weights" title="Link to this definition">#</a></dt>
+<dd><p>Estimates the vector of importance weights <span class="math notranslate nohighlight">\(w_y=Q(y)/P(y)\)</span> that would explain the shift between
+the training distribution and the distribution of the given target instances. This method does not
+mutate any internal state, so it is safe to call concurrently for different batches of target
+instances.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> – array-like of shape <cite>(n_samples, n_features)</cite> with the (unlabelled) target instances</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.ndarray of shape <cite>(n_classes,)</cite></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.classification.labelshift.LabelShiftedClassifier.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/labelshift.html#LabelShiftedClassifier.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.labelshift.LabelShiftedClassifier.predict" title="Link to this definition">#</a></dt>
+<dd><p>Adapts the classifier to the target instances in <cite>X</cite>, and returns its label predictions for <cite>X</cite>.
+Adaptation implies retraining. If you intend to generate inferences over many samples from the same
+suspected distribution, then call the <cite>get_classifier</cite> method once, and use the returned classifier
+over such samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> – array-like of shape <cite>(n_samples, n_features)</cite> with the (unlabelled) target instances</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>array-like of shape <cite>(n_samples,)</cite> with the class label predictions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="quapy.classification.labelshift.LabelShiftedClassifier.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/quapy/classification/labelshift.html#LabelShiftedClassifier.predict_proba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#quapy.classification.labelshift.LabelShiftedClassifier.predict_proba" title="Link to this definition">#</a></dt>
+<dd><p>Adapts the classifier to the target instances in <cite>X</cite>, and returns its posterior probabilities for <cite>X</cite>.
+Adaptation implies retraining. If you intend to generate inferences over many samples from the same
+suspected distribution, then call the <cite>get_classifier</cite> method once, and use the returned classifier
+over such samples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>X</strong> – array-like of shape <cite>(n_samples, n_features)</cite> with the (unlabelled) target instances</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>array-like of shape <cite>(n_samples, n_classes)</cite> with posterior probabilities</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -1426,6 +1546,17 @@ parameters and not others.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.classification.calibration.VSCalibration"><code class="docutils literal notranslate"><span class="pre">VSCalibration</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-quapy.classification.labelshift">quapy.classification.labelshift module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.classification.labelshift.LabelShiftedClassifier"><code class="docutils literal notranslate"><span class="pre">LabelShiftedClassifier</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.classification.labelshift.LabelShiftedClassifier.fit"><code class="docutils literal notranslate"><span class="pre">LabelShiftedClassifier.fit()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.classification.labelshift.LabelShiftedClassifier.get_classifier"><code class="docutils literal notranslate"><span class="pre">LabelShiftedClassifier.get_classifier()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.classification.labelshift.LabelShiftedClassifier.get_importance_weights"><code class="docutils literal notranslate"><span class="pre">LabelShiftedClassifier.get_importance_weights()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.classification.labelshift.LabelShiftedClassifier.predict"><code class="docutils literal notranslate"><span class="pre">LabelShiftedClassifier.predict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.classification.labelshift.LabelShiftedClassifier.predict_proba"><code class="docutils literal notranslate"><span class="pre">LabelShiftedClassifier.predict_proba()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-quapy.classification.methods">quapy.classification.methods module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.classification.methods.LowRankLogisticRegression"><code class="docutils literal notranslate"><span class="pre">LowRankLogisticRegression</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quapy.classification.methods.LowRankLogisticRegression.fit"><code class="docutils literal notranslate"><span class="pre">LowRankLogisticRegression.fit()</span></code></a></li>
@@ -1521,8 +1652,8 @@ parameters and not others.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1543,7 +1674,6 @@ parameters and not others.</p>
 
   <p class="sphinx-version">
     Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.0.4.
-    <br/>
   </p>
 </div>
       
@@ -1556,7 +1686,7 @@ parameters and not others.</p>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
 </p></div>
       
     </div>
