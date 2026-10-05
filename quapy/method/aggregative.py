@@ -2218,11 +2218,8 @@ KDEyML = _kdey.KDEyML
 KDEyHD = _kdey.KDEyHD
 KDEyCS = _kdey.KDEyCS
 
-try:
-    from . import _liep_draft as _liep
-    LEIP = _liep.LEIP
-except AttributeError:
-    LEIP = "LEIP is not available (incomplete implementation in _liep_draft.py)"
+from . import _liep
+LEIP = _liep.LEIP
 
 
 # ---------------------------------------------------------------
