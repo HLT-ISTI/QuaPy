@@ -907,7 +907,8 @@ estim_prevalence = model.predict(dataset.test.X)
 
 ### HistNetQ
 
-QuaPy offers an implementation of HistNetQ, a deep learning model based on a differentiable
+QuaPy offers an implementation of HistNetQ (based on the [original implementation](https://github.com/pglez82/histnetq)), 
+a deep learning model based on a differentiable
 histogram representation, presented in:
 
 [_Pérez-Mon, O., Moreo, A., del Coz, J.J., & González, P. (2025).
@@ -936,7 +937,8 @@ method; see the API documentation for further details.
 
 ### GMNet
 
-QuaPy offers an implementation of GMNet, a deep learning model that represents each instance of a
+QuaPy offers an implementation of GMNet (based on the [original implementation](https://github.com/AICGijon/gmnet)), 
+a deep learning model that represents each instance of a
 bag by its likelihood under one or more learned mixtures of Gaussians, presented in:
 
 [_Pérez-Mon, O., del Coz, J.J., & González, P. (2026).
