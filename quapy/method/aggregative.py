@@ -2114,8 +2114,9 @@ class EDy(_EnergyDistanceCore, AggregativeSoftQuantifier):
     operates directly on posterior vectors rather than on histogram summaries.
 
     This implementation works for binary and multiclass single-label
-    quantification and relies on the optional ``quadprog`` dependency. It was
-    adapted to QuaPy's current aggregative API from the original implementation
+    quantification and relies on the ``quadprog`` package for solving the
+    underlying quadratic program. It was adapted to QuaPy's current aggregative
+    API from the original implementation
     available in `quantificationlib <https://github.com/AICGijon/quantificationlib>`_,
     and now shares its numerical core with the classifier-free
     :class:`quapy.method.non_aggregative.EDx` variant.

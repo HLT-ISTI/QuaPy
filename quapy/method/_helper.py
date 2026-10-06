@@ -32,16 +32,6 @@ def _get_cvxpy():
     return cp
 
 
-def _get_quadprog():
-    try:
-        import quadprog
-    except ImportError as exc:
-        raise ImportError(
-            "EDy requires the optional 'quadprog' package."
-        ) from exc
-    return quadprog
-
-
 def _labels_to_indices(labels, classes):
     encoder = LabelEncoder().fit(classes)
     return encoder.transform(labels)

@@ -1,11 +1,11 @@
 from typing import Callable, Union
 
 import numpy as np
+import quadprog
 from sklearn.metrics.pairwise import euclidean_distances, manhattan_distances
 
 import quapy as qp
 import quapy.functional as F
-from quapy.method._helper import _get_quadprog
 
 
 class _EnergyDistanceCore:
@@ -114,7 +114,6 @@ class _EnergyDistanceCore:
 
     def _solve_ed(self, G, a, C, b):
         """Solve the energy-distance quadratic program."""
-        quadprog = _get_quadprog()
         sol = quadprog.solve_qp(G=G, a=a, C=C, b=b)
         prevalences = sol[0]
         prevalences = np.append(prevalences, 1 - prevalences.sum())

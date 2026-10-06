@@ -174,8 +174,9 @@ class EDx(_EnergyDistanceCore, BaseQuantifier):
     energy-distance quadratic program directly in feature space.
 
     This implementation works for binary and multiclass single-label
-    quantification and relies on the optional ``quadprog`` dependency. The
-    current QuaPy adaptation shares its numerical core with EDy and keeps
+    quantification and relies on the ``quadprog`` package for solving the
+    underlying quadratic program. The current QuaPy adaptation shares its
+    numerical core with EDy and keeps
     credit to the original implementation available in
     `quantificationlib <https://github.com/AICGijon/quantificationlib>`_.
 
@@ -224,6 +225,69 @@ class EDx(_EnergyDistanceCore, BaseQuantifier):
             f'wrong shape; expected {self.n_features_in_}, found {X.shape[1]}'
         )
         return self._predict_energy(X)
+
+
+class DFMrff(BaseQuantifier):
+    """
+    Distribution Feature Matching with Random Fourier Features (DFM-RFF), a covariate-space
+    distribution-matching quantifier proposed by:
+
+    `Dussap, B., Blanchard, G., & Chérief-Abdellatif, B. E. (2023). Label shift quantification
+    with robustness guarantees via distribution feature matching. In Joint European Conference
+    on Machine Learning and Knowledge Discovery in Databases (pp. 69-85). Springer.
+    <https://doi.org/10.1007/978-3-031-43412-9_5>`_
+
+    The method matches training and test distributions in feature space through a kernel
+    embedding, approximated via random Fourier features for computational efficiency; the authors
+    report this to be the best-performing variant among the kernels they study, which is why it is
+    the one exposed here as a named, public method. Other kernel choices (energy, Gaussian,
+    Laplacian), as well as arbitrary re-combinations of losses and feature representations, remain
+    accessible through the more general :class:`quapy.method.composable.ComposableQuantifier`;
+    this class is a thin convenience wrapper that pins the kernel of
+    :class:`quapy.method.composable.QUnfoldWrapper`-wrapped ``qunfold.KMM`` to ``'rff'``.
+
+    This implementation delegates to the optional `qunfold <https://github.com/mirkobunse/qunfold>`_
+    package (the same backend used by :mod:`quapy.method.composable`); see the "Composable Methods"
+    manual for installation instructions.
+
+    :param sigma: smoothing parameter of the random Fourier feature kernel approximation (default 1)
+    :param n_rff: number of random Fourier features (default 1000)
+    :param solver: the `method` argument passed to `scipy.optimize.minimize` (default 'trust-ncg')
+    :param solver_options: dict of options passed to `scipy.optimize.minimize`; if None (default),
+        `{'gtol': 1e-8, 'maxiter': 1000}` is used
+    :param seed: seed controlling the random Fourier features and the solver (default None)
+    """
+
+    def __init__(self, sigma=1, n_rff=1000, solver='trust-ncg', solver_options=None, seed=None):
+        # imported here (rather than at the top of this module) so that quapy.method.non_aggregative
+        # remains importable without qunfold installed; this import raises a clear, actionable
+        # ImportError (with installation instructions) if qunfold is missing
+        from quapy.method.composable import QUnfoldWrapper  # noqa: F401
+        self.sigma = sigma
+        self.n_rff = n_rff
+        self.solver = solver
+        self.solver_options = solver_options
+        self.seed = seed
+
+    def _build_method(self):
+        import qunfold
+        from quapy.method.composable import QUnfoldWrapper
+        solver_options = self.solver_options if self.solver_options is not None else {'gtol': 1e-8, 'maxiter': 1000}
+        return QUnfoldWrapper(qunfold.KMM(
+            kernel='rff', sigma=self.sigma, n_rff=self.n_rff,
+            solver=self.solver, solver_options=solver_options, seed=self.seed,
+        ))
+
+    def fit(self, X, y):
+        self._method = self._build_method()
+        self._method.fit(X, y)
+        return self
+
+    def predict(self, X):
+        return self._method.predict(X)
+
+    def __str__(self):
+        return f'{self.__class__.__name__}(sigma={self.sigma}, n_rff={self.n_rff})'
 
 
 class ReadMe(BaseQuantifier, WithConfidenceABC):

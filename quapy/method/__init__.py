@@ -75,7 +75,8 @@ MULTICLASS_METHODS = {
 NON_AGGREGATIVE_METHODS = {
     non_aggregative.MaximumLikelihoodPrevalenceEstimation,
     non_aggregative.DMx,
-    non_aggregative.EDx
+    non_aggregative.EDx,
+    non_aggregative.DFMrff,
 }
 
 META_METHODS = {

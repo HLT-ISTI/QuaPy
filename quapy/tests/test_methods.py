@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 from quapy.method import AGGREGATIVE_METHODS, BINARY_METHODS, NON_AGGREGATIVE_METHODS
-from quapy.method.non_aggregative import DMx, EDx, HDx
+from quapy.method.non_aggregative import DFMrff, DMx, EDx, HDx
 from quapy.method.aggregative import ACC, BBSEhard, BBSEsoft, DMy, EDy, KDEyCS, LEIP, RLLS
 from quapy.method.meta import Ensemble
 from quapy.functional import check_prevalence_vector
@@ -20,12 +20,11 @@ OPTIONAL_AGGREGATIVE_METHODS = {
     'BayesianMAPLS',
     'PQ',
     'RLLS',
-    'EDy',
     'LEIP',
 }
 
 OPTIONAL_NON_AGGREGATIVE_METHODS = {
-    'EDx',
+    'DFMrff',
 }
 
 
@@ -235,26 +234,27 @@ class TestMethods(unittest.TestCase):
                 self.assertTrue(check_prevalence_vector(estim_prevalences))
 
     def test_edy(self):
-        try:
-            import quadprog  # noqa: F401
-        except ImportError:
-            return
-
         dataset = TestMethods.tiny_dataset_multiclass
         q = EDy(LogisticRegression(max_iter=2000), val_split=3)
         q.fit(*dataset.training.Xy)
         estim_prevalences = q.predict(dataset.test.X)
         self.assertTrue(check_prevalence_vector(estim_prevalences))
 
-
     def test_edx(self):
+        dataset = TestMethods.tiny_dataset_multiclass
+        q = EDx()
+        q.fit(*dataset.training.Xy)
+        estim_prevalences = q.predict(dataset.test.X)
+        self.assertTrue(check_prevalence_vector(estim_prevalences))
+
+    def test_dfmrff(self):
         try:
-            import quadprog  # noqa: F401
+            import qunfold  # noqa: F401
         except ImportError:
             return
 
         dataset = TestMethods.tiny_dataset_multiclass
-        q = EDx()
+        q = DFMrff(n_rff=50)
         q.fit(*dataset.training.Xy)
         estim_prevalences = q.predict(dataset.test.X)
         self.assertTrue(check_prevalence_vector(estim_prevalences))

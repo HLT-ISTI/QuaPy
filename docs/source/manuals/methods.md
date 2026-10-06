@@ -476,8 +476,7 @@ problem by quadratic programming. The method is proposed in
 In QuaPy, `EDy` works for binary and
 multiclass problems and lets the user choose the pairwise distance through the
 `distance` parameter (`'manhattan'`, `'euclidean'`, or a custom callable).
-Because the optimization relies on `quadprog`, this method requires the
-optional dependency `pip install quadprog`.
+The optimization relies on `quadprog`, a standard QuaPy dependency.
 
 #### SMM
 
@@ -670,7 +669,46 @@ a classifier. In this sense, `EDx` is to `EDy` what `DMx` is to `DMy`.
 
 `EDx` works for binary and multiclass problems, accepts the same `distance`
 options as `EDy` (`'manhattan'`, `'euclidean'`, or a custom callable), and
-requires the optional dependency `pip install quadprog`.
+relies on `quadprog`, a standard QuaPy dependency.
+
+### Distribution Feature Matching (DFMrff)
+
+QuaPy exposes `qp.method.non_aggregative.DFMrff`, a covariate-space
+distribution-matching quantifier proposed in:
+
+[_Dussap, B., Blanchard, G., & Chérief-Abdellatif, B. E. (2023). Label shift
+quantification with robustness guarantees via distribution feature matching.
+In Joint European Conference on Machine Learning and Knowledge Discovery in
+Databases (pp. 69-85). Springer._](https://doi.org/10.1007/978-3-031-43412-9_5)
+
+The method matches the training and test distributions through a kernel
+embedding, approximated via random Fourier features (hence "RFF") for
+computational efficiency; the authors report this to be the best-performing
+variant among the kernels they study (energy, Gaussian, Laplacian, and RFF),
+which is why `DFMrff` is the only one of them exposed as a named, public
+method. `DFMrff` accepts the following hyperparameters: `sigma` (the kernel
+smoothing parameter), `n_rff` (the number of random Fourier features,
+default 1000), `solver` and `solver_options` (passed to
+`scipy.optimize.minimize`), and `seed`.
+
+```python
+import quapy as qp
+from quapy.method.non_aggregative import DFMrff
+
+dataset = qp.datasets.fetch_UCIMulticlassDataset('dry-bean')
+train, test = dataset.train_test
+
+model = DFMrff(n_rff=1000, seed=0)
+model.fit(*train.Xy)
+estim_prevalence = model.predict(test.X)
+```
+
+Internally, `DFMrff` is a thin wrapper around `qunfold.KMM(kernel='rff')`
+(see the Composable Methods section below), and therefore requires the
+optional `qunfold` dependency. The other kernel choices for `KMM`, as well as
+arbitrary re-combinations of losses and feature representations, remain
+directly accessible through `quapy.method.composable.ComposableQuantifier`
+and `quapy.method.composable.QUnfoldWrapper`.
 
 ### ReadMe
 
