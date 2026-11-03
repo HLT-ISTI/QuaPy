@@ -6,6 +6,9 @@ Change Log 0.2.4
 - Promoted quadprog (required by EDx/EDy) from an optional to a standard dependency; the minimum
   supported Python version is now 3.9.
 
+- Added text-embedding-based datasets (roberta-base) including IMDb, Rotten Tomatoes, Yelp, AG News, SST-5,
+  20Newsgroups, DBpedia, Yahoo Answers, TREC (see qp.datasets.fetch_text_embeddings).
+
 Change Log 0.2.3
 -----------------
 

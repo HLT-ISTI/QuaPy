@@ -123,6 +123,9 @@ LEQUA2024_SAMPLE_SIZE = {
 IMAGE_DATASETS=['cifar10', 'cifar100', 'cifar100coarse', 'svhn', 'fashionmnist', 'mnist']
 IMAGE_EMBEDDINGS=['features', 'logits', 'predictions']
 
+TEXT_DATASETS=['imdb', 'rt', 'yelp', 'ag_news', 'sst5', '20newsgroups', 'dbpedia', 'yahoo_answers', 'trec']
+TEXT_EMBEDDINGS=['features', 'logits', 'predictions']
+
 
 def fetch_reviews(dataset_name, tfidf=False, min_df=None, data_home=None, pickle=False) -> Dataset:
     """
@@ -1069,6 +1072,52 @@ def fetch_IFCB(single_sample_train=True, for_model_selection=False, data_home=No
         return train_gen, test_gen
 
 
+def _fetch_embedding_splits(dataset_name, trained_network, embedding, zenodo_record, subdir, data_home=None) \
+        -> tuple[LabelledCollection,LabelledCollection,LabelledCollection]:
+    """
+    Loads the (train, val, test) splits of a pre-generated embedding set hosted in Zenodo. Files are expected
+    to be named `<dataset_name>_<trained_network>_<embedding>.npz` (labels in `<dataset_name>_<trained_network>_targets.npz`),
+    each containing the keys "train", "val", and "test".
+
+    :param dataset_name: the name of the dataset
+    :param trained_network: the name of the neural model that generated the embeddings
+    :param embedding: the type of embedding ('features', 'logits', or 'predictions')
+    :param zenodo_record: the Zenodo record id where the files are hosted
+    :param subdir: the subdirectory (within data_home) where the files are to be stored
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: a tuple (train, val, test) where each entry is an instance of :class:`quapy.data.base.LabelledCollection`
+    """
+    if data_home is None:
+        data_home = get_quapy_home()
+
+    def download_embedding_npz(embedding):
+        target_file = f'{dataset_name}_{trained_network}_{embedding}.npz'
+        URL = f'https://zenodo.org/records/{zenodo_record}/files/{target_file}'
+        os.makedirs(join(data_home, subdir), exist_ok=True)
+        file_path = join(data_home, subdir, target_file)
+        download_file_if_not_exists(URL, file_path)
+        npz_file = np.load(file_path)
+        return npz_file
+
+    embedding_dict = download_embedding_npz(embedding)
+    labels_dict = download_embedding_npz('targets')
+
+    train = LabelledCollection(embedding_dict['train'], labels_dict['train'])
+    val = LabelledCollection(embedding_dict['val'], labels_dict['val'], classes=train.classes)
+    test = LabelledCollection(embedding_dict['test'], labels_dict['test'], classes=train.classes)
+
+    return train, val, test
+
+
+def _embedding_splits_to_dataset(network_train, val, test, heldout_only, name) -> Dataset:
+    if heldout_only:
+        train = val
+    else:
+        train = network_train + val
+    return Dataset(train, test, name=name)
+
+
 def _fetch_image_embedding_splits(dataset_name, embedding, data_home=None) -> tuple[LabelledCollection,LabelledCollection,LabelledCollection]:
     """
     Loads a pre-generated embedding set (train, val, or test) of an image dataset from `Zenodo <https://zenodo.org/records/21131944>`_.
@@ -1085,8 +1134,6 @@ def _fetch_image_embedding_splits(dataset_name, embedding, data_home=None) -> tu
         f'Name {dataset_name} does not match any known dataset. Valid ones are {IMAGE_DATASETS}'
     assert embedding in IMAGE_EMBEDDINGS, \
         f'Name {embedding} does not match any known type of embedding. Valid ones are {IMAGE_EMBEDDINGS}'
-    if data_home is None:
-        data_home = get_quapy_home()
     
     dataset_network = {
         'cifar10': 'resnet18',
@@ -1097,25 +1144,9 @@ def _fetch_image_embedding_splits(dataset_name, embedding, data_home=None) -> tu
         'mnist': 'basiccnn',
     }
 
-    trained_network = dataset_network[dataset_name]
-
-    def download_embedding_npz(dataset_name, trained_network, embedding):
-        target_file = f'{dataset_name}_{trained_network}_{embedding}.npz'
-        URL = f'https://zenodo.org/records/21131944/files/{target_file}'
-        os.makedirs(join(data_home, 'image'), exist_ok=True)
-        file_path = join(data_home, 'image', target_file)
-        download_file_if_not_exists(URL, file_path)
-        npz_file = np.load(file_path)
-        return npz_file
-
-    embedding_dict = download_embedding_npz(dataset_name, trained_network, embedding=embedding)
-    labels_dict = download_embedding_npz(dataset_name, trained_network, embedding='targets')
-
-    train = LabelledCollection(embedding_dict['train'], labels_dict['train'])
-    val = LabelledCollection(embedding_dict['val'], labels_dict['val'], classes=train.classes)
-    test = LabelledCollection(embedding_dict['test'], labels_dict['test'], classes=train.classes)
-
-    return train, val, test
+    return _fetch_embedding_splits(
+        dataset_name, dataset_network[dataset_name], embedding, zenodo_record=21131944, subdir='image', data_home=data_home
+    )
 
 
 def fetch_image_embeddings(dataset_name, embedding, heldout_only=True, data_home=None) -> Dataset:
@@ -1141,16 +1172,70 @@ def fetch_image_embeddings(dataset_name, embedding, heldout_only=True, data_home
         ~/quay_data/ directory)
     :return: an instance of :class:`quapy.data.base.Dataset`
     """
-    if data_home is None:
-        data_home = get_quapy_home()
+    network_train, val, test = _fetch_image_embedding_splits(dataset_name, embedding, data_home)
+    return _embedding_splits_to_dataset(network_train, val, test, heldout_only, name=dataset_name)
 
-    network_train, val, test = _fetch_image_embedding_splits(dataset_name, embedding, data_home)        
 
-    if heldout_only:
-        train = val            
-    else:
-        train = network_train + val
-        
-    return Dataset(train, test, name=dataset_name)
+def _fetch_text_embedding_splits(dataset_name, embedding, data_home=None) -> tuple[LabelledCollection,LabelledCollection,LabelledCollection]:
+    """
+    Loads a pre-generated embedding set (train, val, or test) of a text dataset from `Zenodo <https://zenodo.org/records/23892102>`_.
+
+    Embeddings were extracted using `this script <https://github.com/AlexMoreo/textualdatasets_quapy>`_.
+
+    :param dataset_name: the name of the dataset: valid ones are 'imdb', 'rt', 'yelp', 'ag_news', 'sst5', '20newsgroups',
+        'dbpedia', 'yahoo_answers', 'trec'
+    :param embedding: the type of embedding: valid ones are 'features' (next-to-last representations), 'logits' (pre-activation values), 'predictions' (posterior probabilities)
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: a tuple (train, val, test) where each entry is an instance of :class:`quapy.data.base.LabelledCollection`
+    """
+    assert dataset_name in TEXT_DATASETS, \
+        f'Name {dataset_name} does not match any known dataset. Valid ones are {TEXT_DATASETS}'
+    assert embedding in TEXT_EMBEDDINGS, \
+        f'Name {embedding} does not match any known type of embedding. Valid ones are {TEXT_EMBEDDINGS}'
+
+    return _fetch_embedding_splits(
+        dataset_name, 'roberta-base', embedding, zenodo_record=23892102, subdir='text', data_home=data_home
+    )
+
+
+def fetch_text_embeddings(dataset_name, embedding, heldout_only=True, data_home=None) -> Dataset:
+    """
+    Loads a text dataset with pre-generated embeddings. Available datasets include:
+
+    - 'imdb' (2 classes): `stanfordnlp/imdb <https://huggingface.co/datasets/stanfordnlp/imdb>`_; see `Andrew L. Maas, Raymond E. Daly, Peter T. Pham, Dan Huang, Andrew Y. Ng, and Christopher Potts. Learning word vectors for sentiment analysis. ACL 2011.`
+    - 'rt' (2 classes): `cornell-movie-review-data/rotten_tomatoes <https://huggingface.co/datasets/cornell-movie-review-data/rotten_tomatoes>`_; see `Bo Pang and Lillian Lee. Seeing stars: Exploiting class relationships for sentiment categorization with respect to rating scales. ACL 2005.`
+    - 'yelp' (5 classes): `Yelp/yelp_review_full <https://huggingface.co/datasets/Yelp/yelp_review_full>`_; see `Xiang Zhang, Junbo Zhao, and Yann LeCun. Character-level convolutional networks for text classification. NeurIPS 2015.`
+    - 'ag_news' (4 classes): `fancyzhx/ag_news <https://huggingface.co/datasets/fancyzhx/ag_news>`_; see Zhang et al., 2015 (above)
+    - 'sst5' (5 classes): `SetFit/sst5 <https://huggingface.co/datasets/SetFit/sst5>`_; see `Richard Socher, Alex Perelygin, Jean Wu, Jason Chuang, Christopher D. Manning, Andrew Ng, and Christopher Potts. Recursive deep models for semantic compositionality over a sentiment treebank. EMNLP 2013.`
+    - '20newsgroups' (20 classes): `SetFit/20_newsgroups <https://huggingface.co/datasets/SetFit/20_newsgroups>`_; see `Ken Lang. NewsWeeder: Learning to filter netnews. ICML 1995.`
+    - 'dbpedia' (14 classes): `fancyzhx/dbpedia_14 <https://huggingface.co/datasets/fancyzhx/dbpedia_14>`_; see Zhang et al., 2015 (above)
+    - 'yahoo_answers' (10 classes): `community-datasets/yahoo_answers_topics <https://huggingface.co/datasets/community-datasets/yahoo_answers_topics>`_; see Zhang et al., 2015 (above)
+    - 'trec' (6 classes, coarse labels): `SetFit/TREC-QC <https://huggingface.co/datasets/SetFit/TREC-QC>`_; see `Xin Li and Dan Roth. Learning question classifiers. COLING 2002.`
+
+    The embeddings are stored in `Zenodo <https://zenodo.org/records/23892102>`_ and were extracted using
+    `this script <https://github.com/AlexMoreo/textualdatasets_quapy>`_.
+
+    These embeddings were generated using a fine-tuned roberta-base model. The "train" partition was used to train the
+    neural model, "val" was used for training monitoring, and "test" was not used during training.
+    Once the network is trained, it was used with frozen weights to generate embeddings for the training, validation,
+    and test, in different formats (see below).
+    It would therefore be convenient to use only heldout data (validation and test) for training and testing
+    quantifiers (this is the default behavior), although the training+validation data can be accessed with
+    `heldout_only=False`.
+
+    Note that some of the 'features' files are large (e.g., ~2GB for 'yelp' and 'dbpedia', ~4.5GB for 'yahoo_answers').
+
+    :param dataset_name: the name of the dataset: valid ones are 'imdb', 'rt', 'yelp', 'ag_news', 'sst5', '20newsgroups',
+        'dbpedia', 'yahoo_answers', 'trec'
+    :param embedding: the type of embedding: valid ones are 'features' (next-to-last representations), 'logits' (pre-activation outputs), 'predictions' (post-softmax outputs, or predicted posterior probabilities)
+    :param heldout_only: whether to discard the part of the training data used to train the neural model that generated the embeddings (default: True); set to False
+        to obtain, as the training data, the original training+validation splits.
+    :param data_home: specify the quapy home directory where collections will be dumped (leave empty to use the default
+        ~/quay_data/ directory)
+    :return: an instance of :class:`quapy.data.base.Dataset`
+    """
+    network_train, val, test = _fetch_text_embedding_splits(dataset_name, embedding, data_home)
+    return _embedding_splits_to_dataset(network_train, val, test, heldout_only, name=dataset_name)
 
 
