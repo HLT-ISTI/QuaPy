@@ -84,6 +84,8 @@ quantification methods based on structured output learning, HDy, QuaNet, quantif
     * 3 product reviews quantification-by-sentiment datasets. 
     * 4 tasks from LeQua 2022 competition and 4 tasks from LeQua 2024 competition
     * IFCB for Plancton quantification 
+    * Image datasets (MNIST, FashionMNIST, CIFAR10, CIFAR100, SVHN), as pre-generated embeddings ([extraction code](https://github.com/pglez82/visiondatasets_quapy))
+    * Text datasets (IMDb, Rotten Tomatoes, Yelp, AG News, SST-5, 20Newsgroups, DBpedia, Yahoo Answers, TREC), as pre-generated roberta-base embeddings ([extraction code](https://github.com/AlexMoreo/textualdatasets_quapy))
 * Native support for binary and single-label multiclass quantification scenarios.
 * Model selection functionality that minimizes quantification-oriented loss functions.
 * Visualization tools for analysing the experimental results.
